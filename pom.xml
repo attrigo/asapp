@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.2.4</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.bcn.asapp</groupId>
+    <artifactId>asapp-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>asapp-parent</name>
+    <description>ASAPP parent project</description>
+
+    <properties>
+        <!-- Main properties -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>21</java.version>
+
+        <!-- Plugins versions -->
+        <spotless-maven-plugin.version>2.43.0</spotless-maven-plugin.version>
+        <git-build-hook-maven-plugin.version>3.4.1</git-build-hook-maven-plugin.version>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <!-- Source Plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-source-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>attach-sources</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- Javadoc Plugin -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-javadoc-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <id>attach-javadocs</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>javadoc-no-fork</goal>
+                            </goals>
+                            <configuration>
+                                <doclint>all,-missing</doclint> <!-- Ignores missing comments -->
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- Spotless Plugin (Code Formatter) -->
+                <plugin>
+                    <groupId>com.diffplug.spotless</groupId>
+                    <artifactId>spotless-maven-plugin</artifactId>
+                    <version>${spotless-maven-plugin.version}</version>
+                    <configuration>
+                        <lineEndings>UNIX</lineEndings>
+                        <java>
+                            <includes>
+                                <include>src/main/java/**/*.java</include>
+                                <include>src/test/java/**/*.java</include>
+                            </includes>
+                            <eclipse>
+                                <version>4.26</version>
+                                <file>asapp_formatter.xml</file>
+                            </eclipse>
+                            <importOrder>
+                                <order>java|javax,org,com,,com.bcn</order>
+                            </importOrder>
+                            <removeUnusedImports/>
+                            <licenseHeader>
+                                <file>header-license</file>
+                            </licenseHeader>
+                        </java>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>check-code-style</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>check</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- Git Hook Plugin -->
+                <plugin>
+                    <groupId>com.rudikershaw.gitbuildhook</groupId>
+                    <artifactId>git-build-hook-maven-plugin</artifactId>
+                    <version>${git-build-hook-maven-plugin.version}</version>
+                    <configuration>
+                        <installHooks>
+                            <pre-commit>git/hooks/pre-commit</pre-commit>
+                            <commit-msg>git/hooks/commit-msg</commit-msg>
+                        </installHooks>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>add-git-hooks</id>
+                            <goals>
+                                <goal>install</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <modules>
+        <module>libs</module>
+        <module>services</module>
+    </modules>
+
+</project>
