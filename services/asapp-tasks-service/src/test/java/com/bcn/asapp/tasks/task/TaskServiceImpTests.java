@@ -108,12 +108,7 @@ class TaskServiceImpTests {
         var actual = taskService.findById(idToFind);
 
         // Then
-        var expected = TaskDTO.builder()
-                              .id(fakeTaskId)
-                              .title(fakeTaskTitle)
-                              .description(fakeTaskDescription)
-                              .startDateTime(fakeTaskStartDate)
-                              .build();
+        var expected = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
 
         assertTrue(actual.isPresent());
         assertEquals(expected, actual.get());
@@ -161,24 +156,9 @@ class TaskServiceImpTests {
         var actual = taskService.findAll();
 
         // Then
-        var expectedTask1 = TaskDTO.builder()
-                                   .id(fakeTask1Id)
-                                   .title(fakeTaskTitle + " 1")
-                                   .description(fakeTaskDescription + " 1")
-                                   .startDateTime(fakeTaskStartDate1)
-                                   .build();
-        var expectedTask2 = TaskDTO.builder()
-                                   .id(fakeTask2Id)
-                                   .title(fakeTaskTitle + " 2")
-                                   .description(fakeTaskDescription + " 2")
-                                   .startDateTime(fakeTaskStartDate2)
-                                   .build();
-        var expectedTask3 = TaskDTO.builder()
-                                   .id(fakeTask3Id)
-                                   .title(fakeTaskTitle + " 3")
-                                   .description(fakeTaskDescription + " 3")
-                                   .startDateTime(fakeTaskStartDate3)
-                                   .build();
+        var expectedTask1 = new TaskDTO(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate1);
+        var expectedTask2 = new TaskDTO(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate2);
+        var expectedTask3 = new TaskDTO(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate3);
         var expected = Arrays.asList(expectedTask1, expectedTask2, expectedTask3);
 
         assertIterableEquals(expected, actual);
@@ -198,22 +178,12 @@ class TaskServiceImpTests {
         given(taskRepositoryMock.save(any(Task.class))).willReturn(fakeTask);
 
         // When
-        var taskToCreate = TaskDTO.builder()
-                                  .id(fakeTaskId)
-                                  .title(fakeTaskTitle)
-                                  .description(fakeTaskDescription)
-                                  .startDateTime(fakeTaskStartDate)
-                                  .build();
+        var taskToCreate = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
 
         var actual = taskService.create(taskToCreate);
 
         // Then
-        var expected = TaskDTO.builder()
-                              .id(newFakeTaskId)
-                              .title(fakeTaskTitle)
-                              .description(fakeTaskDescription)
-                              .startDateTime(fakeTaskStartDate)
-                              .build();
+        var expected = new TaskDTO(newFakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
 
         assertEquals(expected, actual);
 
@@ -234,22 +204,12 @@ class TaskServiceImpTests {
         given(taskRepositoryMock.save(any(Task.class))).willReturn(fakeTask);
 
         // When
-        var taskToCreate = TaskDTO.builder()
-                                  .id(null)
-                                  .title(fakeTaskTitle)
-                                  .description(fakeTaskDescription)
-                                  .startDateTime(fakeTaskStartDate)
-                                  .build();
+        var taskToCreate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
 
         var actual = taskService.create(taskToCreate);
 
         // Then
-        var expected = TaskDTO.builder()
-                              .id(newFakeTaskId)
-                              .title(fakeTaskTitle)
-                              .description(fakeTaskDescription)
-                              .startDateTime(fakeTaskStartDate)
-                              .build();
+        var expected = new TaskDTO(newFakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
 
         assertEquals(expected, actual);
 
@@ -269,12 +229,7 @@ class TaskServiceImpTests {
 
         // When
         var idToUpdate = fakeTaskId;
-        var taskToUpdate = TaskDTO.builder()
-                                  .id(UUID.randomUUID())
-                                  .title(fakeTaskTitle)
-                                  .description(fakeTaskDescription)
-                                  .startDateTime(fakeTaskStartDate)
-                                  .build();
+        var taskToUpdate = new TaskDTO(UUID.randomUUID(), fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
 
         var actual = taskService.updateById(idToUpdate, taskToUpdate);
 
@@ -293,12 +248,7 @@ class TaskServiceImpTests {
 
         // When
         var idToUpdate = fakeTaskId;
-        var taskToUpdate = TaskDTO.builder()
-                                  .id(null)
-                                  .title(fakeTaskTitle)
-                                  .description(fakeTaskDescription)
-                                  .startDateTime(fakeTaskStartDate)
-                                  .build();
+        var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
 
         var actual = taskService.updateById(idToUpdate, taskToUpdate);
 
@@ -320,22 +270,12 @@ class TaskServiceImpTests {
 
         // When
         var idToUpdate = fakeTaskId;
-        var taskToUpdate = TaskDTO.builder()
-                                  .id(UUID.randomUUID())
-                                  .title(fakeTaskTitle + " 2")
-                                  .description(fakeTaskDescription + " 2")
-                                  .startDateTime(fakeTaskStartDate)
-                                  .build();
+        var taskToUpdate = new TaskDTO(UUID.randomUUID(), fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate);
 
         var actual = taskService.updateById(idToUpdate, taskToUpdate);
 
         // Then
-        var expected = TaskDTO.builder()
-                              .id(fakeTaskId)
-                              .title(fakeTaskTitle + " 2")
-                              .description(fakeTaskDescription + " 2")
-                              .startDateTime(fakeTaskStartDate)
-                              .build();
+        var expected = new TaskDTO(fakeTaskId, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate);
 
         assertTrue(actual.isPresent());
         assertEquals(expected, actual.get());
@@ -358,22 +298,12 @@ class TaskServiceImpTests {
 
         // When
         var idToUpdate = fakeTaskId;
-        var taskToUpdate = TaskDTO.builder()
-                                  .id(null)
-                                  .title(fakeTaskTitle + " 2")
-                                  .description(fakeTaskDescription + " 2")
-                                  .startDateTime(fakeTaskStartDate)
-                                  .build();
+        var taskToUpdate = new TaskDTO(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate);
 
         var actual = taskService.updateById(idToUpdate, taskToUpdate);
 
         // Then
-        var expected = TaskDTO.builder()
-                              .id(fakeTaskId)
-                              .title(fakeTaskTitle + " 2")
-                              .description(fakeTaskDescription + " 2")
-                              .startDateTime(fakeTaskStartDate)
-                              .build();
+        var expected = new TaskDTO(fakeTaskId, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate);
 
         assertTrue(actual.isPresent());
         assertEquals(expected, actual.get());

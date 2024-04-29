@@ -78,8 +78,7 @@ public class TaskServiceImpl implements TaskService {
             return Optional.empty();
         }
 
-        newTaskData.setId(id);
-        var task = taskMapper.toTask(newTaskData);
+        var task = taskMapper.toTask(newTaskData, id);
         var taskUpdated = taskRepository.save(task);
 
         var taskDTOUpdated = taskMapper.toTaskDTO(taskUpdated);

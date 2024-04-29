@@ -15,16 +15,10 @@
 */
 package com.bcn.asapp.dtos.task;
 
-import java.io.Serial;
-import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * Represents a task DTO.
@@ -32,34 +26,4 @@ import lombok.NoArgsConstructor;
  * @author ttrigo
  * @since 0.1.0
  */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
-public class TaskDTO implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = -5666278719364469359L;
-
-    /**
-     * The id of the task.
-     */
-    private UUID id;
-
-    /**
-     * The title of the task, must not be {@literal null}.
-     */
-    @NotBlank(message = "The title of the task is mandatory")
-    private String title;
-
-    /**
-     * The description of the task.
-     */
-    private String description;
-
-    /**
-     * The start date of the task.
-     */
-    private LocalDateTime startDateTime;
-
-}
+public record TaskDTO(UUID id, @NotBlank(message = "The title of the task is mandatory") String title, String description, LocalDateTime startDateTime) {}
