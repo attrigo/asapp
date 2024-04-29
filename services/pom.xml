@@ -20,7 +20,7 @@
     <properties>
         <!-- Dependencies versions -->
         <mapstruct.version>1.5.5.Final</mapstruct.version>
-        <openapi.version>2.5.0</openapi.version>
+        <springdoc-openapi-starter.version>2.5.0</springdoc-openapi-starter.version>
 
         <!-- Plugins versions -->
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version>
@@ -46,7 +46,7 @@
             <dependency>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-                <version>${openapi.version}</version>
+                <version>${springdoc-openapi-starter.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

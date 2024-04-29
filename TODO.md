@@ -22,8 +22,8 @@
 * [X] Create commons DTO library
     * [X] Build project
     * [X] Add README file
-* [ ] Push to GitHub
-* [ ] Upgrade maven dependencies to latest version
+* [X] Push to GitHub
+* [X] Upgrade maven dependencies to latest version
 * [ ] Move common DTOs to Java Records
     * [ ] Remove lombok dependency
     * [ ] Remove lombok references
