@@ -48,7 +48,7 @@ import com.bcn.asapp.dtos.task.TaskDTO;
  * @since 0.1.0
  */
 @Tag(name = "Tasks operations", description = "Defines the endpoints to handle task requests")
-@RequestMapping({ "/v1/tasks" })
+@RequestMapping("/v1/tasks")
 public interface TaskRestAPI {
 
     /**
@@ -66,7 +66,7 @@ public interface TaskRestAPI {
     @Operation(summary = "Get a task by id", description = "Returns the task found, or empty if the id has not been found")
     @ApiResponse(responseCode = "200", description = "Task has been found", content = { @Content(schema = @Schema(implementation = TaskDTO.class)) })
     @ApiResponse(responseCode = "404", description = "Task not found", content = { @Content })
-    @GetMapping(value = { "/{id}" }, produces = { "application/json" })
+    @GetMapping(value = "/{id}", produces = "application/json")
     ResponseEntity<TaskDTO> getTaskById(@Parameter(description = "Id of the task to get") @PathVariable("id") UUID id);
 
     /**
@@ -81,7 +81,7 @@ public interface TaskRestAPI {
      */
     @Operation(summary = "Get all tasks", description = "Returns all tasks, or an empty list if there aren't tasks")
     @ApiResponse(responseCode = "200", description = "Tasks found", content = { @Content(schema = @Schema(implementation = TaskDTO.class)) })
-    @GetMapping(value = { "" }, produces = { "application/json" })
+    @GetMapping(value = "", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     List<TaskDTO> getAllTasks();
 
@@ -98,7 +98,7 @@ public interface TaskRestAPI {
      */
     @Operation(summary = "Create a task", description = "Returns the created task")
     @ApiResponse(responseCode = "201", description = "Task has been created", content = { @Content(schema = @Schema(implementation = TaskDTO.class)) })
-    @PostMapping(value = { "" }, consumes = { "application/json" }, produces = { "application/json" })
+    @PostMapping(value = "", consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     TaskDTO createTask(@Valid @RequestBody TaskDTO task);
 
@@ -118,7 +118,7 @@ public interface TaskRestAPI {
     @Operation(summary = "Update a task", description = "Returns the updated task, or empty if the given id has not been found")
     @ApiResponse(responseCode = "200", description = "Task has been updated", content = { @Content(schema = @Schema(implementation = TaskDTO.class)) })
     @ApiResponse(responseCode = "404", description = "Task not found", content = { @Content })
-    @PutMapping(value = { "/{id}" }, consumes = { "application/json" }, produces = { "application/json" })
+    @PutMapping(value = "/{id}", consumes = "application/json", produces = "application/json")
     ResponseEntity<TaskDTO> updateTaskById(@Parameter(description = "Identifier of the task to update") @PathVariable("id") UUID id,
             @Valid @RequestBody TaskDTO newTaskData);
 
@@ -137,7 +137,7 @@ public interface TaskRestAPI {
     @Operation(summary = "Delete a task by id", description = "Returns empty")
     @ApiResponse(responseCode = "204", description = "Task has been deleted", content = { @Content })
     @ApiResponse(responseCode = "404", description = "Task not found", content = { @Content })
-    @DeleteMapping(value = { "/{id}" }, produces = { "application/json" })
+    @DeleteMapping(value = "/{id}", produces = "application/json")
     ResponseEntity<Void> deleteTaskById(@Parameter(description = "Id of the task to delete") @PathVariable("id") UUID id);
 
 }
