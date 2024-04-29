@@ -24,9 +24,9 @@
     * [X] Add README file
 * [X] Push to GitHub
 * [X] Upgrade maven dependencies to latest version
-* [ ] Move common DTOs to Java Records
-    * [ ] Remove lombok dependency
-    * [ ] Remove lombok references
+* [X] Move common DTOs to Java Records
+    * [X] Remove lombok dependency
+    * [X] Remove lombok references
 * [ ] Create projects service
     * [ ] Copy from tasks service and rename
 * [ ] Create commons URI library

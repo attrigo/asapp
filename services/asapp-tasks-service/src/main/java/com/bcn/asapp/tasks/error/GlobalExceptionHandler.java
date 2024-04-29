@@ -64,11 +64,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * @return a list of {@link InvalidRequestParameterDTO} that contains the wrong fields.
      */
     private List<InvalidRequestParameterDTO> buildInvalidParametersDTO(List<FieldError> fieldErrors) {
-        Function<FieldError, InvalidRequestParameterDTO> fieldErrorMapper = fieldError -> InvalidRequestParameterDTO.builder()
-                                                                                                                    .entity(fieldError.getObjectName())
-                                                                                                                    .field(fieldError.getField())
-                                                                                                                    .message(fieldError.getDefaultMessage())
-                                                                                                                    .build();
+        Function<FieldError, InvalidRequestParameterDTO> fieldErrorMapper = fieldError -> new InvalidRequestParameterDTO(fieldError.getObjectName(),
+                fieldError.getField(), fieldError.getDefaultMessage());
+
         return fieldErrors.stream()
                           .map(fieldErrorMapper)
                           .toList();

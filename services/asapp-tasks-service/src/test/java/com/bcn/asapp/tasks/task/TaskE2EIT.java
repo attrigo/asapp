@@ -123,10 +123,10 @@ class TaskE2EIT {
                      .expectHeader()
                      .contentType(MediaType.APPLICATION_JSON)
                      .expectBody(TaskDTO.class)
-                     .value(task -> assertThat(task.getId(), equalTo(idToFind)))
-                     .value(task -> assertThat(task.getTitle(), equalTo(fakeTaskTitle)))
-                     .value(task -> assertThat(task.getDescription(), equalTo(fakeTaskDescription)))
-                     .value(task -> assertThat(task.getStartDateTime(), equalTo(fakeTaskStartDate)));
+                     .value(task -> assertThat(task.id(), equalTo(idToFind)))
+                     .value(task -> assertThat(task.title(), equalTo(fakeTaskTitle)))
+                     .value(task -> assertThat(task.description(), equalTo(fakeTaskDescription)))
+                     .value(task -> assertThat(task.startDateTime(), equalTo(fakeTaskStartDate)));
     }
 
     // GetAllTasks
@@ -161,24 +161,9 @@ class TaskE2EIT {
         assertEquals(3L, taskIdsToBeFound.size());
 
         // When & Then
-        var expectedTask1 = TaskDTO.builder()
-                                   .id(taskIdsToBeFound.get(0))
-                                   .title(fakeTaskTitle + " 1")
-                                   .description(fakeTaskDescription + " 1")
-                                   .startDateTime(fakeTaskStartDate)
-                                   .build();
-        var expectedTask2 = TaskDTO.builder()
-                                   .id(taskIdsToBeFound.get(1))
-                                   .title(fakeTaskTitle + " 2")
-                                   .description(fakeTaskDescription + " 2")
-                                   .startDateTime(fakeTaskStartDate)
-                                   .build();
-        var expectedTask3 = TaskDTO.builder()
-                                   .id(taskIdsToBeFound.get(2))
-                                   .title(fakeTaskTitle + " 3")
-                                   .description(fakeTaskDescription + " 3")
-                                   .startDateTime(fakeTaskStartDate)
-                                   .build();
+        var expectedTask1 = new TaskDTO(taskIdsToBeFound.get(0), fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate);
+        var expectedTask2 = new TaskDTO(taskIdsToBeFound.get(1), fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate);
+        var expectedTask3 = new TaskDTO(taskIdsToBeFound.get(2), fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate);
         var expected = Arrays.asList(expectedTask1, expectedTask2, expectedTask3);
 
         webTestClient.get()
@@ -201,12 +186,7 @@ class TaskE2EIT {
         var anotherFakeTaskId = UUID.randomUUID();
 
         // When & Then
-        var taskToCreate = TaskDTO.builder()
-                                  .id(anotherFakeTaskId)
-                                  .title(fakeTaskTitle)
-                                  .description(fakeTaskDescription)
-                                  .startDateTime(fakeTaskStartDate)
-                                  .build();
+        var taskToCreate = new TaskDTO(anotherFakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
 
         var response = webTestClient.post()
                                     .uri(TASKS_PATH)
@@ -219,17 +199,17 @@ class TaskE2EIT {
                                     .expectHeader()
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .expectBody(TaskDTO.class)
-                                    .value(task -> assertThat(task.getId(), allOf(not(anotherFakeTaskId), notNullValue())))
-                                    .value(task -> assertThat(task.getTitle(), equalTo(fakeTaskTitle)))
-                                    .value(task -> assertThat(task.getDescription(), equalTo(fakeTaskDescription)))
-                                    .value(task -> assertThat(task.getStartDateTime(), equalTo(fakeTaskStartDate)))
+                                    .value(task -> assertThat(task.id(), allOf(not(anotherFakeTaskId), notNullValue())))
+                                    .value(task -> assertThat(task.title(), equalTo(fakeTaskTitle)))
+                                    .value(task -> assertThat(task.description(), equalTo(fakeTaskDescription)))
+                                    .value(task -> assertThat(task.startDateTime(), equalTo(fakeTaskStartDate)))
                                     .returnResult()
                                     .getResponseBody();
 
         assertNotNull(response);
 
-        var actual = new Task(response.getId(), response.getTitle(), response.getDescription(), response.getStartDateTime());
-        var expected = taskRepository.findById(response.getId());
+        var actual = new Task(response.id(), response.title(), response.description(), response.startDateTime());
+        var expected = taskRepository.findById(response.id());
         assertTrue(expected.isPresent());
         assertEquals(expected.get(), actual);
     }
@@ -238,11 +218,7 @@ class TaskE2EIT {
     @DisplayName("GIVEN task fields are valid WHEN create a task THEN creates the task And returns HTTP response with status CREATED And the body with the task created")
     void TaskFieldsAreValid_CreateTask_CreatesTaskAndReturnsStatusCreatedAndBodyWithTaskCreated() {
         // When & Then
-        var taskToCreate = TaskDTO.builder()
-                                  .title(fakeTaskTitle)
-                                  .description(fakeTaskDescription)
-                                  .startDateTime(fakeTaskStartDate)
-                                  .build();
+        var taskToCreate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
 
         var response = webTestClient.post()
                                     .uri(TASKS_PATH)
@@ -255,17 +231,17 @@ class TaskE2EIT {
                                     .expectHeader()
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .expectBody(TaskDTO.class)
-                                    .value(task -> assertThat(task.getId(), notNullValue()))
-                                    .value(task -> assertThat(task.getTitle(), equalTo(fakeTaskTitle)))
-                                    .value(task -> assertThat(task.getDescription(), equalTo(fakeTaskDescription)))
-                                    .value(task -> assertThat(task.getStartDateTime(), equalTo(fakeTaskStartDate)))
+                                    .value(task -> assertThat(task.id(), notNullValue()))
+                                    .value(task -> assertThat(task.title(), equalTo(fakeTaskTitle)))
+                                    .value(task -> assertThat(task.description(), equalTo(fakeTaskDescription)))
+                                    .value(task -> assertThat(task.startDateTime(), equalTo(fakeTaskStartDate)))
                                     .returnResult()
                                     .getResponseBody();
 
         assertNotNull(response);
 
-        var actual = new Task(response.getId(), response.getTitle(), response.getDescription(), response.getStartDateTime());
-        var expected = taskRepository.findById(response.getId());
+        var actual = new Task(response.id(), response.title(), response.description(), response.startDateTime());
+        var expected = taskRepository.findById(response.id());
         assertTrue(expected.isPresent());
         assertEquals(expected.get(), actual);
     }
@@ -276,11 +252,7 @@ class TaskE2EIT {
     void IdNotExists_UpdateTask_ReturnsStatusNotFoundAndEmptyBody() {
         // When & Then
         var idToUpdate = fakeTaskId;
-        var taskToUpdate = TaskDTO.builder()
-                                  .title(fakeTaskTitle + " 2")
-                                  .description(fakeTaskDescription + " 2")
-                                  .startDateTime(fakeTaskStartDate)
-                                  .build();
+        var taskToUpdate = new TaskDTO(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate);
 
         webTestClient.put()
                      .uri(TASKS_PATH_BY_ID, idToUpdate)
@@ -307,12 +279,7 @@ class TaskE2EIT {
 
         // When & Then
         var idToUpdate = taskToBeUpdated.id();
-        var taskToUpdate = TaskDTO.builder()
-                                  .id(UUID.randomUUID())
-                                  .title(fakeTaskTitle + " 2")
-                                  .description(fakeTaskDescription + " 2")
-                                  .startDateTime(anotherFakeTaskStartDate)
-                                  .build();
+        var taskToUpdate = new TaskDTO(UUID.randomUUID(), fakeTaskTitle + " 2", fakeTaskDescription + " 2", anotherFakeTaskStartDate);
 
         var response = webTestClient.put()
                                     .uri(TASKS_PATH_BY_ID, idToUpdate)
@@ -325,17 +292,17 @@ class TaskE2EIT {
                                     .expectHeader()
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .expectBody(TaskDTO.class)
-                                    .value(task -> assertThat(task.getId(), equalTo(taskToBeUpdated.id())))
-                                    .value(task -> assertThat(task.getTitle(), equalTo(fakeTaskTitle + " 2")))
-                                    .value(task -> assertThat(task.getDescription(), equalTo(fakeTaskDescription + " 2")))
-                                    .value(task -> assertThat(task.getStartDateTime(), equalTo(anotherFakeTaskStartDate)))
+                                    .value(task -> assertThat(task.id(), equalTo(taskToBeUpdated.id())))
+                                    .value(task -> assertThat(task.title(), equalTo(fakeTaskTitle + " 2")))
+                                    .value(task -> assertThat(task.description(), equalTo(fakeTaskDescription + " 2")))
+                                    .value(task -> assertThat(task.startDateTime(), equalTo(anotherFakeTaskStartDate)))
                                     .returnResult()
                                     .getResponseBody();
 
         assertNotNull(response);
 
-        var actual = new Task(response.getId(), response.getTitle(), response.getDescription(), response.getStartDateTime());
-        var expected = taskRepository.findById(response.getId());
+        var actual = new Task(response.id(), response.title(), response.description(), response.startDateTime());
+        var expected = taskRepository.findById(response.id());
         assertTrue(expected.isPresent());
         assertEquals(actual, expected.get());
     }
@@ -353,11 +320,7 @@ class TaskE2EIT {
 
         // When & Then
         var idToUpdate = taskToBeUpdated.id();
-        var taskToUpdate = TaskDTO.builder()
-                                  .title(fakeTaskTitle + " 2")
-                                  .description(fakeTaskDescription + " 2")
-                                  .startDateTime(anotherFakeTaskStartDate)
-                                  .build();
+        var taskToUpdate = new TaskDTO(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", anotherFakeTaskStartDate);
 
         var response = webTestClient.put()
                                     .uri(TASKS_PATH_BY_ID, idToUpdate)
@@ -370,17 +333,17 @@ class TaskE2EIT {
                                     .expectHeader()
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .expectBody(TaskDTO.class)
-                                    .value(task -> assertThat(task.getId(), equalTo(taskToBeUpdated.id())))
-                                    .value(task -> assertThat(task.getTitle(), equalTo(fakeTaskTitle + " 2")))
-                                    .value(task -> assertThat(task.getDescription(), equalTo(fakeTaskDescription + " 2")))
-                                    .value(task -> assertThat(task.getStartDateTime(), equalTo(anotherFakeTaskStartDate)))
+                                    .value(task -> assertThat(task.id(), equalTo(taskToBeUpdated.id())))
+                                    .value(task -> assertThat(task.title(), equalTo(fakeTaskTitle + " 2")))
+                                    .value(task -> assertThat(task.description(), equalTo(fakeTaskDescription + " 2")))
+                                    .value(task -> assertThat(task.startDateTime(), equalTo(anotherFakeTaskStartDate)))
                                     .returnResult()
                                     .getResponseBody();
 
         assertNotNull(response);
 
-        var actual = new Task(response.getId(), response.getTitle(), response.getDescription(), response.getStartDateTime());
-        var expected = taskRepository.findById(response.getId());
+        var actual = new Task(response.id(), response.title(), response.description(), response.startDateTime());
+        var expected = taskRepository.findById(response.id());
         assertTrue(expected.isPresent());
         assertEquals(actual, expected.get());
     }

@@ -15,6 +15,8 @@
 */
 package com.bcn.asapp.tasks.task;
 
+import java.util.UUID;
+
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -48,6 +50,16 @@ public interface TaskMapper {
      * @return the {@link Task} containing all fields mapped from {@link TaskDTO}.
      */
     Task toTask(TaskDTO taskDTO);
+
+    /**
+     * Maps all fields from a {@link TaskDTO} to {@link Task} except the id which is mapped from parameter id.
+     * 
+     * @param taskDTO the source {@link TaskDTO}.
+     * @param id      the source id.
+     * @return the {@link Task} containing the fields mapped from {@link TaskDTO} and the parameter id.
+     */
+    @Mapping(target = "id", source = "id")
+    Task toTask(TaskDTO taskDTO, UUID id);
 
     /**
      * Maps all fields from a {@link TaskDTO} to {@link Task} except the id.

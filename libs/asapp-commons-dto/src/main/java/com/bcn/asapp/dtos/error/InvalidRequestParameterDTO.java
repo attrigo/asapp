@@ -15,42 +15,10 @@
 */
 package com.bcn.asapp.dtos.error;
 
-import java.io.Serial;
-import java.io.Serializable;
-
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
-
 /**
  * Represents an invalid HTTP parameter.
  *
  * @author ttrigo
  * @since 0.1.0
  */
-@AllArgsConstructor
-@Getter
-@Setter
-@Builder
-public class InvalidRequestParameterDTO implements Serializable {
-
-    @Serial
-    private static final long serialVersionUID = 911664932552238653L;
-
-    /**
-     * The invalid entity.
-     */
-    private String entity;
-
-    /**
-     * The invalid field.
-     */
-    private String field;
-
-    /**
-     * The error message.
-     */
-    private String message;
-
-}
+public record InvalidRequestParameterDTO(String entity, String field, String message) {}

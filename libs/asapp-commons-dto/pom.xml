@@ -30,12 +30,6 @@
             <artifactId>jakarta.validation-api</artifactId>
             <version>${jakarta-validation.version}</version>
         </dependency>
-
-        <!-- Optional Dependencies -->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
     </dependencies>
 
     <build>

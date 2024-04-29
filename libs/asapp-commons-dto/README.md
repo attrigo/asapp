@@ -80,10 +80,6 @@ in [asapp_formatter.xml](../../asapp_formatter.xml) file.
 
 ### Reference Documentation
 
-For further reference, please consider the following sections:
-
-* [Lombok](https://projectlombok.org/features/)
-
 ## License
 
 ***

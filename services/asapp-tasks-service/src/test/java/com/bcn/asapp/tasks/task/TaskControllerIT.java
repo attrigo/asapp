@@ -144,12 +144,7 @@ class TaskControllerIT {
     @DisplayName("GIVEN id exists WHEN get a task by id THEN returns HTTP response with status OK And the body with the task found")
     void IdExists_GetTaskById_ReturnsStatusOkAndBodyWithTaskFound() throws Exception {
         // Given
-        var fakeTask = TaskDTO.builder()
-                              .id(fakeTaskId)
-                              .title(fakeTaskTitle)
-                              .description(fakeTaskDescription)
-                              .startDateTime(fakeTaskStartDate)
-                              .build();
+        var fakeTask = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
         given(taskServiceMock.findById(any(UUID.class))).willReturn(Optional.of(fakeTask));
 
         // When & Then
@@ -188,24 +183,9 @@ class TaskControllerIT {
         var fakeTask3Id = UUID.randomUUID();
 
         // Given
-        var fakeTask1 = TaskDTO.builder()
-                               .id(fakeTask1Id)
-                               .title(fakeTaskTitle + " 1")
-                               .description(fakeTaskDescription + " 1")
-                               .startDateTime(fakeTaskStartDate)
-                               .build();
-        var fakeTask2 = TaskDTO.builder()
-                               .id(fakeTask2Id)
-                               .title(fakeTaskTitle + " 2")
-                               .description(fakeTaskDescription + " 2")
-                               .startDateTime(fakeTaskStartDate)
-                               .build();
-        var fakeTask3 = TaskDTO.builder()
-                               .id(fakeTask3Id)
-                               .title(fakeTaskTitle + " 3")
-                               .description(fakeTaskDescription + " 3")
-                               .startDateTime(fakeTaskStartDate)
-                               .build();
+        var fakeTask1 = new TaskDTO(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate);
+        var fakeTask2 = new TaskDTO(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate);
+        var fakeTask3 = new TaskDTO(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate);
         var fakeTasks = Arrays.asList(fakeTask1, fakeTask2, fakeTask3);
         given(taskServiceMock.findAll()).willReturn(fakeTasks);
 
@@ -269,10 +249,7 @@ class TaskControllerIT {
     @DisplayName("GIVEN task has not mandatory fields WHEN create a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
     void TaskHasNotMandatoryFields_CreateTask_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
-        var taskToCreate = TaskDTO.builder()
-                                  .description(fakeTaskDescription)
-                                  .startDateTime(fakeTaskStartDate)
-                                  .build();
+        var taskToCreate = new TaskDTO(null, null, fakeTaskDescription, fakeTaskStartDate);
         var taskToCreateAsJson = objectMapper.writeValueAsString(taskToCreate);
 
         var requestBuilder = post(TASKS_PATH).contentType(MediaType.APPLICATION_JSON)
@@ -294,11 +271,7 @@ class TaskControllerIT {
     @DisplayName("GIVEN task mandatory fields are empty WHEN create a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
     void TaskMandatoryFieldsAreEmpty_CreateTask_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
-        var taskToCreate = TaskDTO.builder()
-                                  .title("")
-                                  .description(fakeTaskDescription)
-                                  .startDateTime(fakeTaskStartDate)
-                                  .build();
+        var taskToCreate = new TaskDTO(null, "", fakeTaskDescription, fakeTaskStartDate);
         var taskToCreateAsJson = objectMapper.writeValueAsString(taskToCreate);
 
         var requestBuilder = post(TASKS_PATH).contentType(MediaType.APPLICATION_JSON)
@@ -345,20 +318,11 @@ class TaskControllerIT {
     @DisplayName("GIVEN task is valid WHEN create a task THEN returns HTTP response with status CREATED And the body with the task created")
     void TaskIsValid_CreateTask_ReturnsStatusCreatedAndBodyWithTaskCreated() throws Exception {
         // Given
-        var fakeTask = TaskDTO.builder()
-                              .id(fakeTaskId)
-                              .title(fakeTaskTitle)
-                              .description(fakeTaskDescription)
-                              .startDateTime(fakeTaskStartDate)
-                              .build();
+        var fakeTask = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
         given(taskServiceMock.create(any(TaskDTO.class))).willReturn(fakeTask);
 
         // When & Then
-        var taskToCreate = TaskDTO.builder()
-                                  .title(fakeTaskTitle)
-                                  .description(fakeTaskDescription)
-                                  .startDateTime(fakeTaskStartDate)
-                                  .build();
+        var taskToCreate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
         var taskToCreateAsJson = objectMapper.writeValueAsString(taskToCreate);
 
         var requestBuilder = post(TASKS_PATH).contentType(MediaType.APPLICATION_JSON)
@@ -377,11 +341,7 @@ class TaskControllerIT {
     @DisplayName("GIVEN id is empty WHEN update a task THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
     void IdIsEmpty_UpdateTask_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
         // When & Then
-        var taskToUpdate = TaskDTO.builder()
-                                  .title(fakeTaskTitle)
-                                  .description(fakeTaskDescription)
-                                  .startDateTime(fakeTaskStartDate)
-                                  .build();
+        var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
         var requestBuilder = put(TASKS_PATH_BY_ID).contentType(MediaType.APPLICATION_JSON)
@@ -401,11 +361,7 @@ class TaskControllerIT {
     void IdIsNotUUID_UpdateTask_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = 1L;
-        var taskToUpdate = TaskDTO.builder()
-                                  .title(fakeTaskTitle)
-                                  .description(fakeTaskDescription)
-                                  .startDateTime(fakeTaskStartDate)
-                                  .build();
+        var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
         var requestBuilder = put(TASKS_PATH_BY_ID + idToUpdate).contentType(MediaType.APPLICATION_JSON)
@@ -463,10 +419,7 @@ class TaskControllerIT {
     void TaskHasNotMandatoryFields_UpdateTask_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = fakeTaskId;
-        var taskToUpdate = TaskDTO.builder()
-                                  .description(fakeTaskDescription)
-                                  .startDateTime(fakeTaskStartDate)
-                                  .build();
+        var taskToUpdate = new TaskDTO(null, null, fakeTaskDescription, fakeTaskStartDate);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
         var requestBuilder = put(TASKS_PATH_BY_ID + idToUpdate).contentType(MediaType.APPLICATION_JSON)
@@ -489,11 +442,7 @@ class TaskControllerIT {
     void TaskMandatoryFieldsAreEmpty_UpdateTask_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = fakeTaskId;
-        var taskToUpdate = TaskDTO.builder()
-                                  .title("")
-                                  .description(fakeTaskDescription)
-                                  .startDateTime(fakeTaskStartDate)
-                                  .build();
+        var taskToUpdate = new TaskDTO(null, "", fakeTaskDescription, fakeTaskStartDate);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
         var requestBuilder = put(TASKS_PATH_BY_ID + idToUpdate).contentType(MediaType.APPLICATION_JSON)
@@ -545,11 +494,7 @@ class TaskControllerIT {
 
         // When & Then
         var idToUpdate = fakeTaskId;
-        var taskToUpdate = TaskDTO.builder()
-                                  .title(fakeTaskTitle)
-                                  .description(fakeTaskDescription)
-                                  .startDateTime(fakeTaskStartDate)
-                                  .build();
+        var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
         var requestBuilder = put(TASKS_PATH_BY_ID + idToUpdate).contentType(MediaType.APPLICATION_JSON)
@@ -568,21 +513,12 @@ class TaskControllerIT {
                                                                  .format(anotherFakeTaskStartDate);
 
         // Given
-        var fakeTask = TaskDTO.builder()
-                              .id(fakeTaskId)
-                              .title(fakeTaskTitle + " 2")
-                              .description(fakeTaskDescription + " 2")
-                              .startDateTime(anotherFakeTaskStartDate)
-                              .build();
+        var fakeTask = new TaskDTO(fakeTaskId, fakeTaskTitle + " 2", fakeTaskDescription + " 2", anotherFakeTaskStartDate);
         given(taskServiceMock.updateById(any(UUID.class), any(TaskDTO.class))).willReturn(Optional.of(fakeTask));
 
         // When & Then
         var idToUpdate = fakeTaskId;
-        var taskToUpdate = TaskDTO.builder()
-                                  .title(fakeTaskTitle)
-                                  .description(fakeTaskDescription)
-                                  .startDateTime(fakeTaskStartDate)
-                                  .build();
+        var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
         var requestBuilder = put(TASKS_PATH_BY_ID + idToUpdate).contentType(MediaType.APPLICATION_JSON)
