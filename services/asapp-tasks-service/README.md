@@ -1,7 +1,7 @@
 # ASAPP-TASKS-SERVICE
 
 asapp-tasks-service is a REST service application that publishes tasks operations. \
-These operations are exposed via HTTP endpoints instrumented in a reactive way. \
+These operations are exposed via HTTP endpoints. \
 There are also exposed a bunch of non-business endpoints which are produced by Spring Boot Actuator.
 
 The architecture is mainly based on Java 21 and Spring Boot 3.2, and it follows some of the [Microservice Architecture Principles](https://microservices.io/): \
