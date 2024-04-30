@@ -1,0 +1,34 @@
+version: '3.8'
+services:
+  asapp-projects-postgres-db:
+    image: 'postgres:latest'
+    container_name: asapp-projects-postgres-db
+    restart: unless-stopped
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_DB=projectsdb
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=secret
+    volumes:
+      - projects-postgres-db-data:/data/db
+
+  asapp-projects-service:
+    build: .
+    image: 'asapp-projects-service:0.1.0-SNAPSHOT'
+    container_name: asapp-projects-service
+    restart: unless-stopped
+    ports:
+      - "8081:8081"
+    environment:
+      - DB_HOST=asapp-projects-postgres-db
+      - DB_PORT=5432
+      - DB_NAME=projectsdb
+      - DB_USERNAME=user
+      - DB_PASSWORD=secret
+      - SPRING_PROFILES_ACTIVE=docker
+    depends_on:
+      - asapp-projects-postgres-db
+
+volumes:
+  projects-postgres-db-data:

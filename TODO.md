@@ -27,8 +27,7 @@
 * [X] Move common DTOs to Java Records
     * [X] Remove lombok dependency
     * [X] Remove lombok references
-* [ ] Create projects service
-    * [ ] Copy from tasks service and rename
+* [X] Create projects service
 * [ ] Create commons URI library
     * [ ] Build project
     * [ ] Add tasks URIs
