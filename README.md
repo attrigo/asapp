@@ -6,11 +6,11 @@ asapp is a web application focused on task management.
 
 ***
 
-Provides the following basic CRUD operations to manage tasks:
-* Create tasks
-* Update tasks
-* Find tasks
-* Delete tasks
+Provides the following basic CRUD operations to manage projects and tasks:
+* Create projects and tasks
+* Update projects and tasks
+* Find projects and tasks
+* Delete projects and tasks
 
 ## Requirements
 

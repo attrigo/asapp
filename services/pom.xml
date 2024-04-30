@@ -223,6 +223,7 @@
     </build>
 
     <modules>
+        <module>asapp-projects-service</module>
         <module>asapp-tasks-service</module>
     </modules>
 
