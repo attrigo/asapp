@@ -28,12 +28,12 @@
     * [X] Remove lombok dependency
     * [X] Remove lombok references
 * [X] Create projects service
-* [ ] Create commons URI library
-    * [ ] Build project
-    * [ ] Add tasks URIs
-    * [ ] Add project URIs
-    * [ ] Refactor all endpoints to use commons URI
-    * [ ] Add README file
+* [X] Create commons URL library
+    * [X] Build project
+    * [X] Add tasks URIs
+    * [X] Add project URIs
+    * [X] Refactor all endpoints to use commons URI
+    * [X] Add README file
 * [ ] Create REST client library
     * [ ] Copy from bk
     * [ ] Review Javadoc

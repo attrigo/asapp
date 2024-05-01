@@ -15,6 +15,8 @@
 */
 package com.bcn.asapp.projects.project;
 
+import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_GET_BY_ID_PATH;
+import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_ROOT_PATH;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
@@ -53,9 +55,7 @@ import com.bcn.asapp.projects.AsappProjectsServiceApplication;
 @SpringBootTest(classes = AsappProjectsServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 class ProjectE2EIT {
 
-    public static final String PROJECTS_PATH = "/v1/projects";
-
-    public static final String PROJECTS_PATH_BY_ID = "/v1/projects/{id}";
+    public static final String PROJECTS_BY_ID_PATH = PROJECTS_ROOT_PATH + PROJECTS_GET_BY_ID_PATH;
 
     @Container
     @ServiceConnection
@@ -94,7 +94,7 @@ class ProjectE2EIT {
         var idToFind = fakeProjectId;
 
         webTestClient.get()
-                     .uri(PROJECTS_PATH_BY_ID, idToFind)
+                     .uri(PROJECTS_BY_ID_PATH, idToFind)
                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                      .exchange()
                      .expectStatus()
@@ -115,7 +115,7 @@ class ProjectE2EIT {
         var idToFind = projectToBeFound.id();
 
         webTestClient.get()
-                     .uri(PROJECTS_PATH_BY_ID, idToFind)
+                     .uri(PROJECTS_BY_ID_PATH, idToFind)
                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                      .exchange()
                      .expectStatus()
@@ -135,7 +135,7 @@ class ProjectE2EIT {
     void ThereAreNotProjects_GetAllProjects_ReturnsStatusOKAndEmptyBody() {
         // When & Then
         webTestClient.get()
-                     .uri(PROJECTS_PATH)
+                     .uri(PROJECTS_ROOT_PATH)
                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                      .exchange()
                      .expectStatus()
@@ -167,7 +167,7 @@ class ProjectE2EIT {
         var expected = Arrays.asList(expectedProject1, expectedProject2, expectedProject3);
 
         webTestClient.get()
-                     .uri(PROJECTS_PATH)
+                     .uri(PROJECTS_ROOT_PATH)
                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                      .exchange()
                      .expectStatus()
@@ -189,7 +189,7 @@ class ProjectE2EIT {
         var projectToCreate = new ProjectDTO(anotherFakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
 
         var response = webTestClient.post()
-                                    .uri(PROJECTS_PATH)
+                                    .uri(PROJECTS_ROOT_PATH)
                                     .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                                     .bodyValue(projectToCreate)
@@ -221,7 +221,7 @@ class ProjectE2EIT {
         var projectToCreate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
 
         var response = webTestClient.post()
-                                    .uri(PROJECTS_PATH)
+                                    .uri(PROJECTS_ROOT_PATH)
                                     .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                                     .bodyValue(projectToCreate)
@@ -255,7 +255,7 @@ class ProjectE2EIT {
         var projectToUpdate = new ProjectDTO(null, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
 
         webTestClient.put()
-                     .uri(PROJECTS_PATH_BY_ID, idToUpdate)
+                     .uri(PROJECTS_BY_ID_PATH, idToUpdate)
                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                      .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                      .bodyValue(projectToUpdate)
@@ -282,7 +282,7 @@ class ProjectE2EIT {
         var projectToUpdate = new ProjectDTO(UUID.randomUUID(), fakeProjectTitle + " 2", fakeProjectDescription + " 2", anotherFakeProjectStartDate);
 
         var response = webTestClient.put()
-                                    .uri(PROJECTS_PATH_BY_ID, idToUpdate)
+                                    .uri(PROJECTS_BY_ID_PATH, idToUpdate)
                                     .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                                     .bodyValue(projectToUpdate)
@@ -323,7 +323,7 @@ class ProjectE2EIT {
         var projectToUpdate = new ProjectDTO(null, fakeProjectTitle + " 2", fakeProjectDescription + " 2", anotherFakeProjectStartDate);
 
         var response = webTestClient.put()
-                                    .uri(PROJECTS_PATH_BY_ID, idToUpdate)
+                                    .uri(PROJECTS_BY_ID_PATH, idToUpdate)
                                     .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                                     .bodyValue(projectToUpdate)
@@ -356,7 +356,7 @@ class ProjectE2EIT {
         var idToDelete = UUID.randomUUID();
 
         webTestClient.delete()
-                     .uri(PROJECTS_PATH_BY_ID, idToDelete)
+                     .uri(PROJECTS_BY_ID_PATH, idToDelete)
                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                      .exchange()
                      .expectStatus()
@@ -377,7 +377,7 @@ class ProjectE2EIT {
         var idToDelete = projectToBeDeleted.id();
 
         webTestClient.delete()
-                     .uri(PROJECTS_PATH_BY_ID, idToDelete)
+                     .uri(PROJECTS_BY_ID_PATH, idToDelete)
                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                      .exchange()
                      .expectStatus()

@@ -15,6 +15,7 @@
 */
 package com.bcn.asapp.tasks.task;
 
+import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_ROOT_PATH;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -55,9 +56,7 @@ import com.bcn.asapp.tasks.config.JacksonMapperConfiguration;
 @Import(JacksonMapperConfiguration.class)
 class TaskControllerIT {
 
-    public static final String TASKS_PATH = "/v1/tasks";
-
-    public static final String TASKS_PATH_BY_ID = "/v1/tasks/";
+    public static final String TASKS_BY_ID_PATH = TASKS_ROOT_PATH + "/";
 
     @Value("${spring.mvc.format.date-time}")
     private String dateTimeFormat;
@@ -97,7 +96,7 @@ class TaskControllerIT {
     @DisplayName("GIVEN id is empty WHEN get a task by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
     void IdIsEmpty_GetTaskById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
         // When & Then
-        var requestBuilder = get(TASKS_PATH_BY_ID);
+        var requestBuilder = get(TASKS_BY_ID_PATH);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isNotFound())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -105,7 +104,7 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.title", is("Not Found")))
                .andExpect(jsonPath("$.status", is(404)))
                .andExpect(jsonPath("$.detail", is("No static resource v1/tasks.")))
-               .andExpect(jsonPath("$.instance", is("/v1/tasks/")));
+               .andExpect(jsonPath("$.instance", is(TASKS_BY_ID_PATH)));
     }
 
     @Test
@@ -114,7 +113,7 @@ class TaskControllerIT {
         // When & Then
         var idToFound = 1L;
 
-        var requestBuilder = get(TASKS_PATH_BY_ID + idToFound);
+        var requestBuilder = get(TASKS_BY_ID_PATH + idToFound);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -122,7 +121,7 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", is("Failed to convert 'id' with value: '1'")))
-               .andExpect(jsonPath("$.instance", is("/v1/tasks/" + idToFound)));
+               .andExpect(jsonPath("$.instance", is(TASKS_BY_ID_PATH + idToFound)));
     }
 
     @Test
@@ -134,7 +133,7 @@ class TaskControllerIT {
         // When & Then
         var idToFind = fakeTaskId;
 
-        var requestBuilder = get(TASKS_PATH_BY_ID + idToFind);
+        var requestBuilder = get(TASKS_BY_ID_PATH + idToFind);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isNotFound())
                .andExpect(jsonPath("$").doesNotExist());
@@ -150,7 +149,7 @@ class TaskControllerIT {
         // When & Then
         var idToFind = fakeTaskId;
 
-        var requestBuilder = get(TASKS_PATH_BY_ID + idToFind);
+        var requestBuilder = get(TASKS_BY_ID_PATH + idToFind);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isOk())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -168,7 +167,7 @@ class TaskControllerIT {
         given(taskServiceMock.findAll()).willReturn(Collections.emptyList());
 
         // When & Then
-        var requestBuilder = get(TASKS_PATH);
+        var requestBuilder = get(TASKS_ROOT_PATH);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isOk())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -190,7 +189,7 @@ class TaskControllerIT {
         given(taskServiceMock.findAll()).willReturn(fakeTasks);
 
         // When & Then
-        var requestBuilder = get(TASKS_PATH);
+        var requestBuilder = get(TASKS_ROOT_PATH);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isOk())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -215,8 +214,8 @@ class TaskControllerIT {
         // When & Then
         var taskToCreate = "";
 
-        var requestBuilder = post(TASKS_PATH).contentType(MediaType.TEXT_PLAIN)
-                                             .content(taskToCreate);
+        var requestBuilder = post(TASKS_ROOT_PATH).contentType(MediaType.TEXT_PLAIN)
+                                                  .content(taskToCreate);
         mockMvc.perform(requestBuilder)
                .andExpect(status().is4xxClientError())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -224,7 +223,7 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.title", is("Unsupported Media Type")))
                .andExpect(jsonPath("$.status", is(415)))
                .andExpect(jsonPath("$.detail", is("Content-Type 'text/plain' is not supported.")))
-               .andExpect(jsonPath("$.instance", is("/v1/tasks")));
+               .andExpect(jsonPath("$.instance", is(TASKS_ROOT_PATH)));
     }
 
     @Test
@@ -233,8 +232,8 @@ class TaskControllerIT {
         // When & Then
         var taskToCreate = "";
 
-        var requestBuilder = post(TASKS_PATH).contentType(MediaType.APPLICATION_JSON)
-                                             .content(taskToCreate);
+        var requestBuilder = post(TASKS_ROOT_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                  .content(taskToCreate);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -242,7 +241,7 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", is("Failed to read request")))
-               .andExpect(jsonPath("$.instance", is("/v1/tasks")));
+               .andExpect(jsonPath("$.instance", is(TASKS_ROOT_PATH)));
     }
 
     @Test
@@ -252,8 +251,8 @@ class TaskControllerIT {
         var taskToCreate = new TaskDTO(null, null, fakeTaskDescription, fakeTaskStartDate);
         var taskToCreateAsJson = objectMapper.writeValueAsString(taskToCreate);
 
-        var requestBuilder = post(TASKS_PATH).contentType(MediaType.APPLICATION_JSON)
-                                             .content(taskToCreateAsJson);
+        var requestBuilder = post(TASKS_ROOT_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                  .content(taskToCreateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -261,7 +260,7 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", containsString("The title of the task is mandatory")))
-               .andExpect(jsonPath("$.instance", is("/v1/tasks")))
+               .andExpect(jsonPath("$.instance", is(TASKS_ROOT_PATH)))
                .andExpect(jsonPath("$.errors[0].entity", is("taskDTO")))
                .andExpect(jsonPath("$.errors[0].field", is("title")))
                .andExpect(jsonPath("$.errors[0].message", is("The title of the task is mandatory")));
@@ -274,8 +273,8 @@ class TaskControllerIT {
         var taskToCreate = new TaskDTO(null, "", fakeTaskDescription, fakeTaskStartDate);
         var taskToCreateAsJson = objectMapper.writeValueAsString(taskToCreate);
 
-        var requestBuilder = post(TASKS_PATH).contentType(MediaType.APPLICATION_JSON)
-                                             .content(taskToCreateAsJson);
+        var requestBuilder = post(TASKS_ROOT_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                  .content(taskToCreateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -283,7 +282,7 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", containsString("The title of the task is mandatory")))
-               .andExpect(jsonPath("$.instance", is("/v1/tasks")))
+               .andExpect(jsonPath("$.instance", is(TASKS_ROOT_PATH)))
                .andExpect(jsonPath("$.errors[0].entity", is("taskDTO")))
                .andExpect(jsonPath("$.errors[0].field", is("title")))
                .andExpect(jsonPath("$.errors[0].message", is("The title of the task is mandatory")));
@@ -302,8 +301,8 @@ class TaskControllerIT {
                 """;
         var taskToCreateAsJson = objectMapper.writeValueAsString(taskToCreate);
 
-        var requestBuilder = post(TASKS_PATH).contentType(MediaType.APPLICATION_JSON)
-                                             .content(taskToCreateAsJson);
+        var requestBuilder = post(TASKS_ROOT_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                  .content(taskToCreateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -311,7 +310,7 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", is("Failed to read request")))
-               .andExpect(jsonPath("$.instance", is("/v1/tasks")));
+               .andExpect(jsonPath("$.instance", is(TASKS_ROOT_PATH)));
     }
 
     @Test
@@ -325,8 +324,8 @@ class TaskControllerIT {
         var taskToCreate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
         var taskToCreateAsJson = objectMapper.writeValueAsString(taskToCreate);
 
-        var requestBuilder = post(TASKS_PATH).contentType(MediaType.APPLICATION_JSON)
-                                             .content(taskToCreateAsJson);
+        var requestBuilder = post(TASKS_ROOT_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                  .content(taskToCreateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isCreated())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -344,7 +343,7 @@ class TaskControllerIT {
         var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
-        var requestBuilder = put(TASKS_PATH_BY_ID).contentType(MediaType.APPLICATION_JSON)
+        var requestBuilder = put(TASKS_BY_ID_PATH).contentType(MediaType.APPLICATION_JSON)
                                                   .content(taskToUpdateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isNotFound())
@@ -353,7 +352,7 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.title", is("Not Found")))
                .andExpect(jsonPath("$.status", is(404)))
                .andExpect(jsonPath("$.detail", is("No static resource v1/tasks.")))
-               .andExpect(jsonPath("$.instance", is("/v1/tasks/")));
+               .andExpect(jsonPath("$.instance", is(TASKS_BY_ID_PATH)));
     }
 
     @Test
@@ -364,7 +363,7 @@ class TaskControllerIT {
         var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
-        var requestBuilder = put(TASKS_PATH_BY_ID + idToUpdate).contentType(MediaType.APPLICATION_JSON)
+        var requestBuilder = put(TASKS_BY_ID_PATH + idToUpdate).contentType(MediaType.APPLICATION_JSON)
                                                                .content(taskToUpdateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
@@ -373,7 +372,7 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", is("Failed to convert 'id' with value: '1'")))
-               .andExpect(jsonPath("$.instance", is("/v1/tasks/" + idToUpdate)));
+               .andExpect(jsonPath("$.instance", is(TASKS_BY_ID_PATH + idToUpdate)));
     }
 
     @Test
@@ -383,7 +382,7 @@ class TaskControllerIT {
         var idToUpdate = fakeTaskId;
         var taskToUpdate = "";
 
-        var requestBuilder = put(TASKS_PATH_BY_ID + idToUpdate).contentType(MediaType.TEXT_PLAIN)
+        var requestBuilder = put(TASKS_BY_ID_PATH + idToUpdate).contentType(MediaType.TEXT_PLAIN)
                                                                .content(taskToUpdate);
         mockMvc.perform(requestBuilder)
                .andExpect(status().is4xxClientError())
@@ -392,7 +391,7 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.title", is("Unsupported Media Type")))
                .andExpect(jsonPath("$.status", is(415)))
                .andExpect(jsonPath("$.detail", is("Content-Type 'text/plain' is not supported.")))
-               .andExpect(jsonPath("$.instance", is("/v1/tasks/" + idToUpdate)));
+               .andExpect(jsonPath("$.instance", is(TASKS_BY_ID_PATH + idToUpdate)));
     }
 
     @Test
@@ -402,7 +401,7 @@ class TaskControllerIT {
         var idToUpdate = fakeTaskId;
         var taskToUpdate = "";
 
-        var requestBuilder = put(TASKS_PATH_BY_ID + idToUpdate).contentType(MediaType.APPLICATION_JSON)
+        var requestBuilder = put(TASKS_BY_ID_PATH + idToUpdate).contentType(MediaType.APPLICATION_JSON)
                                                                .content(taskToUpdate);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
@@ -411,7 +410,7 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", is("Failed to read request")))
-               .andExpect(jsonPath("$.instance", is("/v1/tasks/" + idToUpdate)));
+               .andExpect(jsonPath("$.instance", is(TASKS_BY_ID_PATH + idToUpdate)));
     }
 
     @Test
@@ -422,7 +421,7 @@ class TaskControllerIT {
         var taskToUpdate = new TaskDTO(null, null, fakeTaskDescription, fakeTaskStartDate);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
-        var requestBuilder = put(TASKS_PATH_BY_ID + idToUpdate).contentType(MediaType.APPLICATION_JSON)
+        var requestBuilder = put(TASKS_BY_ID_PATH + idToUpdate).contentType(MediaType.APPLICATION_JSON)
                                                                .content(taskToUpdateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
@@ -431,7 +430,7 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", containsString("The title of the task is mandatory")))
-               .andExpect(jsonPath("$.instance", is("/v1/tasks/" + idToUpdate)))
+               .andExpect(jsonPath("$.instance", is(TASKS_BY_ID_PATH + idToUpdate)))
                .andExpect(jsonPath("$.errors[0].entity", is("taskDTO")))
                .andExpect(jsonPath("$.errors[0].field", is("title")))
                .andExpect(jsonPath("$.errors[0].message", is("The title of the task is mandatory")));
@@ -445,7 +444,7 @@ class TaskControllerIT {
         var taskToUpdate = new TaskDTO(null, "", fakeTaskDescription, fakeTaskStartDate);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
-        var requestBuilder = put(TASKS_PATH_BY_ID + idToUpdate).contentType(MediaType.APPLICATION_JSON)
+        var requestBuilder = put(TASKS_BY_ID_PATH + idToUpdate).contentType(MediaType.APPLICATION_JSON)
                                                                .content(taskToUpdateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
@@ -454,7 +453,7 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", containsString("The title of the task is mandatory")))
-               .andExpect(jsonPath("$.instance", is("/v1/tasks/" + idToUpdate)))
+               .andExpect(jsonPath("$.instance", is(TASKS_BY_ID_PATH + idToUpdate)))
                .andExpect(jsonPath("$.errors[0].entity", is("taskDTO")))
                .andExpect(jsonPath("$.errors[0].field", is("title")))
                .andExpect(jsonPath("$.errors[0].message", is("The title of the task is mandatory")));
@@ -474,7 +473,7 @@ class TaskControllerIT {
                 """;
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
-        var requestBuilder = put(TASKS_PATH_BY_ID + idToUpdate).contentType(MediaType.APPLICATION_JSON)
+        var requestBuilder = put(TASKS_BY_ID_PATH + idToUpdate).contentType(MediaType.APPLICATION_JSON)
                                                                .content(taskToUpdateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
@@ -483,7 +482,7 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", containsString("Failed to read request")))
-               .andExpect(jsonPath("$.instance", is("/v1/tasks/" + idToUpdate)));
+               .andExpect(jsonPath("$.instance", is(TASKS_BY_ID_PATH + idToUpdate)));
     }
 
     @Test
@@ -497,7 +496,7 @@ class TaskControllerIT {
         var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
-        var requestBuilder = put(TASKS_PATH_BY_ID + idToUpdate).contentType(MediaType.APPLICATION_JSON)
+        var requestBuilder = put(TASKS_BY_ID_PATH + idToUpdate).contentType(MediaType.APPLICATION_JSON)
                                                                .content(taskToUpdateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isNotFound())
@@ -521,7 +520,7 @@ class TaskControllerIT {
         var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
-        var requestBuilder = put(TASKS_PATH_BY_ID + idToUpdate).contentType(MediaType.APPLICATION_JSON)
+        var requestBuilder = put(TASKS_BY_ID_PATH + idToUpdate).contentType(MediaType.APPLICATION_JSON)
                                                                .content(taskToUpdateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isOk())
@@ -537,7 +536,7 @@ class TaskControllerIT {
     @DisplayName("GIVEN id is empty WHEN delete a task by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
     void IdIsEmpty_DeleteTaskById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
         // When & Then
-        var requestBuilder = delete(TASKS_PATH_BY_ID);
+        var requestBuilder = delete(TASKS_BY_ID_PATH);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isNotFound())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -545,7 +544,7 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.title", is("Not Found")))
                .andExpect(jsonPath("$.status", is(404)))
                .andExpect(jsonPath("$.detail", is("No static resource v1/tasks.")))
-               .andExpect(jsonPath("$.instance", is("/v1/tasks/")));
+               .andExpect(jsonPath("$.instance", is(TASKS_BY_ID_PATH)));
     }
 
     @Test
@@ -554,7 +553,7 @@ class TaskControllerIT {
         // When & Then
         var idToDelete = 1L;
 
-        var requestBuilder = delete(TASKS_PATH_BY_ID + idToDelete);
+        var requestBuilder = delete(TASKS_BY_ID_PATH + idToDelete);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -562,7 +561,7 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", is("Failed to convert 'id' with value: '1'")))
-               .andExpect(jsonPath("$.instance", is("/v1/tasks/" + idToDelete)));
+               .andExpect(jsonPath("$.instance", is(TASKS_BY_ID_PATH + idToDelete)));
     }
 
     @Test
@@ -574,7 +573,7 @@ class TaskControllerIT {
         // When
         var idToDelete = fakeTaskId;
 
-        var requestBuilder = delete(TASKS_PATH_BY_ID + idToDelete);
+        var requestBuilder = delete(TASKS_BY_ID_PATH + idToDelete);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isNotFound())
                .andExpect(jsonPath("$").doesNotExist());
@@ -589,7 +588,7 @@ class TaskControllerIT {
         // When
         var idToDelete = fakeTaskId;
 
-        var requestBuilder = delete(TASKS_PATH_BY_ID + idToDelete);
+        var requestBuilder = delete(TASKS_BY_ID_PATH + idToDelete);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isNoContent())
                .andExpect(jsonPath("$").doesNotExist());
