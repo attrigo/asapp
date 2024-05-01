@@ -53,15 +53,13 @@ public class JacksonMapperConfiguration {
      */
     @Bean
     Jackson2ObjectMapperBuilderCustomizer jackson2ObjectMapperBuilderCustomizer() {
-        return builder -> {
-            builder.serializationInclusion(JsonInclude.Include.NON_NULL)
-                   .simpleDateFormat(this.dateTimeFormat)
-                   .serializers(new LocalDateSerializer(DateTimeFormatter.ofPattern(this.dateFormat)),
-                           new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(this.dateTimeFormat)))
-                   .deserializers(new LocalDateDeserializer(DateTimeFormatter.ofPattern(this.dateFormat)),
-                           new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(this.dateTimeFormat)))
-                   .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-        };
+        return builder -> builder.serializationInclusion(JsonInclude.Include.NON_NULL)
+                                 .simpleDateFormat(this.dateTimeFormat)
+                                 .serializers(new LocalDateSerializer(DateTimeFormatter.ofPattern(this.dateFormat)),
+                                         new LocalDateTimeSerializer(DateTimeFormatter.ofPattern(this.dateTimeFormat)))
+                                 .deserializers(new LocalDateDeserializer(DateTimeFormatter.ofPattern(this.dateFormat)),
+                                         new LocalDateTimeDeserializer(DateTimeFormatter.ofPattern(this.dateTimeFormat)))
+                                 .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
 }
