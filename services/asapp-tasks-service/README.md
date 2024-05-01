@@ -180,8 +180,8 @@ For further reference, please consider the following sections:
     * [Spring Boot DevTools](https://docs.spring.io/spring-boot/docs/current/reference/html/using.html#using.devtools)
     * [Spring Boot Test](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.testing)
 * Spring
-    * [Spring Reactive Web](https://docs.spring.io/spring-framework/reference/web/webflux.html)
-    * [Spring Data R2DBC](https://docs.spring.io/spring-data/relational/reference/r2dbc.html)
+    * [Spring Web MVC](https://docs.spring.io/spring-framework/reference/web/webmvc.html)
+    * [Spring Data JDBC](https://docs.spring.io/spring-data/relational/reference/jdbc.html)
     * [Spring Validation](https://docs.spring.io/spring-framework/reference/core/validation.html)
     * [Spring OpenAPI](https://springdoc.org/)
 * Database
