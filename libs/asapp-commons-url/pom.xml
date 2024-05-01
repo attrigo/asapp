@@ -37,6 +37,16 @@
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
+                <configuration>
+                    <java>
+                        <eclipse>
+                            <file>../../asapp_formatter.xml</file>
+                        </eclipse>
+                        <licenseHeader>
+                            <file>../../header-license</file>
+                        </licenseHeader>
+                    </java>
+                </configuration>
             </plugin>
 
             <plugin>
