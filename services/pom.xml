@@ -35,6 +35,11 @@
                 <artifactId>asapp-commons-dto</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.bcn.asapp</groupId>
+                <artifactId>asapp-commons-url</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- Other Dependencies -->
             <dependency>

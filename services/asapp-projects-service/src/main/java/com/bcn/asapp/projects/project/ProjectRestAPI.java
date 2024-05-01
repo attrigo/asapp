@@ -15,6 +15,13 @@
 */
 package com.bcn.asapp.projects.project;
 
+import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_CREATE_PATH;
+import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_DELETE_BY_ID_PATH;
+import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_GET_ALL_PATH;
+import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_GET_BY_ID_PATH;
+import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_ROOT_PATH;
+import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_UPDATE_BY_ID_PATH;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -48,7 +55,7 @@ import com.bcn.asapp.dtos.project.ProjectDTO;
  * @since 0.1.0
  */
 @Tag(name = "Projects operations", description = "Defines the endpoints to handle project requests")
-@RequestMapping("/v1/projects")
+@RequestMapping(PROJECTS_ROOT_PATH)
 public interface ProjectRestAPI {
 
     /**
@@ -66,7 +73,7 @@ public interface ProjectRestAPI {
     @Operation(summary = "Get a project by id", description = "Returns the project found, or empty if the id has not been found")
     @ApiResponse(responseCode = "200", description = "Project has been found", content = { @Content(schema = @Schema(implementation = ProjectDTO.class)) })
     @ApiResponse(responseCode = "404", description = "Project not found", content = { @Content })
-    @GetMapping(value = "/{id}", produces = "application/json")
+    @GetMapping(value = PROJECTS_GET_BY_ID_PATH, produces = "application/json")
     ResponseEntity<ProjectDTO> getProjectById(@Parameter(description = "Id of the project to get") @PathVariable("id") UUID id);
 
     /**
@@ -81,7 +88,7 @@ public interface ProjectRestAPI {
      */
     @Operation(summary = "Get all projects", description = "Returns all projects, or an empty list if there aren't projects")
     @ApiResponse(responseCode = "200", description = "Projects found", content = { @Content(schema = @Schema(implementation = ProjectDTO.class)) })
-    @GetMapping(value = "", produces = "application/json")
+    @GetMapping(value = PROJECTS_GET_ALL_PATH, produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     List<ProjectDTO> getAllProjects();
 
@@ -98,7 +105,7 @@ public interface ProjectRestAPI {
      */
     @Operation(summary = "Create a project", description = "Returns the created project")
     @ApiResponse(responseCode = "201", description = "Project has been created", content = { @Content(schema = @Schema(implementation = ProjectDTO.class)) })
-    @PostMapping(value = "", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = PROJECTS_CREATE_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     ProjectDTO createProject(@Valid @RequestBody ProjectDTO project);
 
@@ -118,7 +125,7 @@ public interface ProjectRestAPI {
     @Operation(summary = "Update a project", description = "Returns the updated project, or empty if the given id has not been found")
     @ApiResponse(responseCode = "200", description = "Project has been updated", content = { @Content(schema = @Schema(implementation = ProjectDTO.class)) })
     @ApiResponse(responseCode = "404", description = "Project not found", content = { @Content })
-    @PutMapping(value = "/{id}", consumes = "application/json", produces = "application/json")
+    @PutMapping(value = PROJECTS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
     ResponseEntity<ProjectDTO> updateProjectById(@Parameter(description = "Identifier of the project to update") @PathVariable("id") UUID id,
             @Valid @RequestBody ProjectDTO newProjectData);
 
@@ -137,7 +144,7 @@ public interface ProjectRestAPI {
     @Operation(summary = "Delete a project by id", description = "Returns empty")
     @ApiResponse(responseCode = "204", description = "Project has been deleted", content = { @Content })
     @ApiResponse(responseCode = "404", description = "Project not found", content = { @Content })
-    @DeleteMapping(value = "/{id}", produces = "application/json")
+    @DeleteMapping(value = PROJECTS_DELETE_BY_ID_PATH, produces = "application/json")
     ResponseEntity<Void> deleteProjectById(@Parameter(description = "Id of the project to delete") @PathVariable("id") UUID id);
 
 }

@@ -41,6 +41,7 @@
 
     <modules>
         <module>asapp-commons-dto</module>
+        <module>asapp-commons-url</module>
     </modules>
 
 </project>

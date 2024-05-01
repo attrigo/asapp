@@ -23,6 +23,10 @@
             <groupId>com.bcn.asapp</groupId>
             <artifactId>asapp-commons-dto</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.bcn.asapp</groupId>
+            <artifactId>asapp-commons-url</artifactId>
+        </dependency>
         <!-- Spring Boot Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -15,6 +15,8 @@
 */
 package com.bcn.asapp.tasks.task;
 
+import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_BY_ID_PATH;
+import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_ROOT_PATH;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.equalTo;
@@ -53,9 +55,7 @@ import com.bcn.asapp.tasks.AsappTasksServiceApplication;
 @SpringBootTest(classes = AsappTasksServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 class TaskE2EIT {
 
-    public static final String TASKS_PATH = "/v1/tasks";
-
-    public static final String TASKS_PATH_BY_ID = "/v1/tasks/{id}";
+    public static final String TASKS_BY_ID_PATH = TASKS_ROOT_PATH + TASKS_GET_BY_ID_PATH;
 
     @Container
     @ServiceConnection
@@ -94,7 +94,7 @@ class TaskE2EIT {
         var idToFind = fakeTaskId;
 
         webTestClient.get()
-                     .uri(TASKS_PATH_BY_ID, idToFind)
+                     .uri(TASKS_BY_ID_PATH, idToFind)
                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                      .exchange()
                      .expectStatus()
@@ -115,7 +115,7 @@ class TaskE2EIT {
         var idToFind = taskToBeFound.id();
 
         webTestClient.get()
-                     .uri(TASKS_PATH_BY_ID, idToFind)
+                     .uri(TASKS_BY_ID_PATH, idToFind)
                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                      .exchange()
                      .expectStatus()
@@ -135,7 +135,7 @@ class TaskE2EIT {
     void ThereAreNotTasks_GetAllTasks_ReturnsStatusOKAndEmptyBody() {
         // When & Then
         webTestClient.get()
-                     .uri(TASKS_PATH)
+                     .uri(TASKS_ROOT_PATH)
                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                      .exchange()
                      .expectStatus()
@@ -167,7 +167,7 @@ class TaskE2EIT {
         var expected = Arrays.asList(expectedTask1, expectedTask2, expectedTask3);
 
         webTestClient.get()
-                     .uri(TASKS_PATH)
+                     .uri(TASKS_ROOT_PATH)
                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                      .exchange()
                      .expectStatus()
@@ -189,7 +189,7 @@ class TaskE2EIT {
         var taskToCreate = new TaskDTO(anotherFakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
 
         var response = webTestClient.post()
-                                    .uri(TASKS_PATH)
+                                    .uri(TASKS_ROOT_PATH)
                                     .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                                     .bodyValue(taskToCreate)
@@ -221,7 +221,7 @@ class TaskE2EIT {
         var taskToCreate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
 
         var response = webTestClient.post()
-                                    .uri(TASKS_PATH)
+                                    .uri(TASKS_ROOT_PATH)
                                     .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                                     .bodyValue(taskToCreate)
@@ -255,7 +255,7 @@ class TaskE2EIT {
         var taskToUpdate = new TaskDTO(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate);
 
         webTestClient.put()
-                     .uri(TASKS_PATH_BY_ID, idToUpdate)
+                     .uri(TASKS_BY_ID_PATH, idToUpdate)
                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                      .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                      .bodyValue(taskToUpdate)
@@ -282,7 +282,7 @@ class TaskE2EIT {
         var taskToUpdate = new TaskDTO(UUID.randomUUID(), fakeTaskTitle + " 2", fakeTaskDescription + " 2", anotherFakeTaskStartDate);
 
         var response = webTestClient.put()
-                                    .uri(TASKS_PATH_BY_ID, idToUpdate)
+                                    .uri(TASKS_BY_ID_PATH, idToUpdate)
                                     .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                                     .bodyValue(taskToUpdate)
@@ -323,7 +323,7 @@ class TaskE2EIT {
         var taskToUpdate = new TaskDTO(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", anotherFakeTaskStartDate);
 
         var response = webTestClient.put()
-                                    .uri(TASKS_PATH_BY_ID, idToUpdate)
+                                    .uri(TASKS_BY_ID_PATH, idToUpdate)
                                     .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                     .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                                     .bodyValue(taskToUpdate)
@@ -356,7 +356,7 @@ class TaskE2EIT {
         var idToDelete = UUID.randomUUID();
 
         webTestClient.delete()
-                     .uri(TASKS_PATH_BY_ID, idToDelete)
+                     .uri(TASKS_BY_ID_PATH, idToDelete)
                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                      .exchange()
                      .expectStatus()
@@ -377,7 +377,7 @@ class TaskE2EIT {
         var idToDelete = taskToBeDeleted.id();
 
         webTestClient.delete()
-                     .uri(TASKS_PATH_BY_ID, idToDelete)
+                     .uri(TASKS_BY_ID_PATH, idToDelete)
                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                      .exchange()
                      .expectStatus()
