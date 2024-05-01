@@ -43,7 +43,7 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.bcn.asapp.dtos.project.ProjectDTO;
+import com.bcn.asapp.dto.project.ProjectDTO;
 
 @ExtendWith(SpringExtension.class)
 class ProjectServiceImpTests {

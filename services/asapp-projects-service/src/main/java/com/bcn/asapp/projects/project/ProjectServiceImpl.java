@@ -21,7 +21,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.bcn.asapp.dtos.project.ProjectDTO;
+import com.bcn.asapp.dto.project.ProjectDTO;
 
 /**
  * Default implementation of {@link ProjectService}.

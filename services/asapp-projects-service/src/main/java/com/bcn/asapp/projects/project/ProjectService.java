@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.bcn.asapp.dtos.project.ProjectDTO;
+import com.bcn.asapp.dto.project.ProjectDTO;
 
 /**
  * Defines the project business operations.

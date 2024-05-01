@@ -20,7 +20,7 @@ import java.util.UUID;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.bcn.asapp.dtos.project.ProjectDTO;
+import com.bcn.asapp.dto.project.ProjectDTO;
 
 /**
  * MapStruct mapper for projects.

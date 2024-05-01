@@ -48,7 +48,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import com.bcn.asapp.dtos.project.ProjectDTO;
+import com.bcn.asapp.dto.project.ProjectDTO;
 import com.bcn.asapp.projects.AsappProjectsServiceApplication;
 
 @Testcontainers(disabledWithoutDocker = true)
