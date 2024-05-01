@@ -21,7 +21,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
-import com.bcn.asapp.dtos.task.TaskDTO;
+import com.bcn.asapp.dto.task.TaskDTO;
 
 /**
  * Default implementation of {@link TaskService}.

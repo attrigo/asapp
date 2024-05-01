@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.bcn.asapp.dtos.task.TaskDTO;
+import com.bcn.asapp.dto.task.TaskDTO;
 
 /**
  * Defines the task business operations.

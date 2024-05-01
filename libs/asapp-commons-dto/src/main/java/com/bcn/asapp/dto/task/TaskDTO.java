@@ -13,12 +13,17 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.bcn.asapp.dtos.error;
+package com.bcn.asapp.dto.task;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+import jakarta.validation.constraints.NotBlank;
 
 /**
- * Represents an invalid HTTP parameter.
+ * Represents a task DTO.
  *
  * @author ttrigo
  * @since 0.1.0
  */
-public record InvalidRequestParameterDTO(String entity, String field, String message) {}
+public record TaskDTO(UUID id, @NotBlank(message = "The title of the task is mandatory") String title, String description, LocalDateTime startDateTime) {}

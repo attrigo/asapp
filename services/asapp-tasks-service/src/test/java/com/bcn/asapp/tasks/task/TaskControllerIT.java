@@ -49,7 +49,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.bcn.asapp.dtos.task.TaskDTO;
+import com.bcn.asapp.dto.task.TaskDTO;
 import com.bcn.asapp.tasks.config.JacksonMapperConfiguration;
 
 @WebMvcTest(TaskRestController.class)

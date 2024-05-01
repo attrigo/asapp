@@ -44,7 +44,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-import com.bcn.asapp.dtos.task.TaskDTO;
+import com.bcn.asapp.dto.task.TaskDTO;
 
 /**
  * Defines the endpoints to handle task requests and responses.
