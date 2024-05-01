@@ -1,7 +1,5 @@
 # ASAPP-COMMONS-URL
 
-TODO
-
 asapp-commons-url is a library that provides all urls used by ASAPP REST services.
 
 ## Requirements
