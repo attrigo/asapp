@@ -27,7 +27,7 @@
             <dropTable tableName="project"/>
         </rollback>
 
-        <comment>Creates the project table</comment>
+        <comment>Creates the project table with columns project_id, title, description and start_date</comment>
     </changeSet>
 
 </databaseChangeLog>

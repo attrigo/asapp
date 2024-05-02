@@ -27,7 +27,7 @@
             <dropTable tableName="task"/>
         </rollback>
 
-        <comment>Creates the task table</comment>
+        <comment>Creates the task table with columns task_id, title, description and start_date</comment>
     </changeSet>
 
 </databaseChangeLog>
