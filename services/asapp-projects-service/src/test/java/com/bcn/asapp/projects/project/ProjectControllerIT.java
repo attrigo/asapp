@@ -15,7 +15,12 @@
 */
 package com.bcn.asapp.projects.project;
 
+import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_CREATE_FULL_PATH;
+import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_DELETE_BY_ID_FULL_PATH;
+import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_GET_ALL_FULL_PATH;
+import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_GET_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_ROOT_PATH;
+import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_UPDATE_BY_ID_FULL_PATH;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
@@ -56,7 +61,7 @@ import com.bcn.asapp.projects.config.JacksonMapperConfiguration;
 @Import(JacksonMapperConfiguration.class)
 class ProjectControllerIT {
 
-    public static final String PROJECTS_BY_ID_PATH = PROJECTS_ROOT_PATH + "/";
+    public static final String PROJECTS_EMPTY_ID_PATH = PROJECTS_ROOT_PATH + "/";
 
     @Value("${spring.mvc.format.date-time}")
     private String dateTimeFormat;
@@ -96,7 +101,7 @@ class ProjectControllerIT {
     @DisplayName("GIVEN id is empty WHEN get a project by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
     void IdIsEmpty_GetProjectById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
         // When & Then
-        var requestBuilder = get(PROJECTS_BY_ID_PATH);
+        var requestBuilder = get(PROJECTS_EMPTY_ID_PATH);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isNotFound())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -104,7 +109,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.title", is("Not Found")))
                .andExpect(jsonPath("$.status", is(404)))
                .andExpect(jsonPath("$.detail", is("No static resource v1/projects.")))
-               .andExpect(jsonPath("$.instance", is(PROJECTS_BY_ID_PATH)));
+               .andExpect(jsonPath("$.instance", is("/v1/projects/")));
     }
 
     @Test
@@ -113,7 +118,7 @@ class ProjectControllerIT {
         // When & Then
         var idToFound = 1L;
 
-        var requestBuilder = get(PROJECTS_BY_ID_PATH + idToFound);
+        var requestBuilder = get(PROJECTS_GET_BY_ID_FULL_PATH, idToFound);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -121,7 +126,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", is("Failed to convert 'id' with value: '1'")))
-               .andExpect(jsonPath("$.instance", is(PROJECTS_BY_ID_PATH + idToFound)));
+               .andExpect(jsonPath("$.instance", is("/v1/projects/" + idToFound)));
     }
 
     @Test
@@ -133,7 +138,7 @@ class ProjectControllerIT {
         // When & Then
         var idToFind = fakeProjectId;
 
-        var requestBuilder = get(PROJECTS_BY_ID_PATH + idToFind);
+        var requestBuilder = get(PROJECTS_GET_BY_ID_FULL_PATH, idToFind);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isNotFound())
                .andExpect(jsonPath("$").doesNotExist());
@@ -149,7 +154,7 @@ class ProjectControllerIT {
         // When & Then
         var idToFind = fakeProjectId;
 
-        var requestBuilder = get(PROJECTS_BY_ID_PATH + idToFind);
+        var requestBuilder = get(PROJECTS_GET_BY_ID_FULL_PATH, idToFind);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isOk())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -167,7 +172,7 @@ class ProjectControllerIT {
         given(projectServiceMock.findAll()).willReturn(Collections.emptyList());
 
         // When & Then
-        var requestBuilder = get(PROJECTS_ROOT_PATH);
+        var requestBuilder = get(PROJECTS_GET_ALL_FULL_PATH);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isOk())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -189,7 +194,7 @@ class ProjectControllerIT {
         given(projectServiceMock.findAll()).willReturn(fakeProjects);
 
         // When & Then
-        var requestBuilder = get(PROJECTS_ROOT_PATH);
+        var requestBuilder = get(PROJECTS_GET_ALL_FULL_PATH);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isOk())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -214,8 +219,8 @@ class ProjectControllerIT {
         // When & Then
         var projectToCreate = "";
 
-        var requestBuilder = post(PROJECTS_ROOT_PATH).contentType(MediaType.TEXT_PLAIN)
-                                                     .content(projectToCreate);
+        var requestBuilder = post(PROJECTS_CREATE_FULL_PATH).contentType(MediaType.TEXT_PLAIN)
+                                                            .content(projectToCreate);
         mockMvc.perform(requestBuilder)
                .andExpect(status().is4xxClientError())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -223,7 +228,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.title", is("Unsupported Media Type")))
                .andExpect(jsonPath("$.status", is(415)))
                .andExpect(jsonPath("$.detail", is("Content-Type 'text/plain' is not supported.")))
-               .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH)));
+               .andExpect(jsonPath("$.instance", is("/v1/projects")));
     }
 
     @Test
@@ -232,8 +237,8 @@ class ProjectControllerIT {
         // When & Then
         var projectToCreate = "";
 
-        var requestBuilder = post(PROJECTS_ROOT_PATH).contentType(MediaType.APPLICATION_JSON)
-                                                     .content(projectToCreate);
+        var requestBuilder = post(PROJECTS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                            .content(projectToCreate);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -241,7 +246,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", is("Failed to read request")))
-               .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH)));
+               .andExpect(jsonPath("$.instance", is("/v1/projects")));
     }
 
     @Test
@@ -251,8 +256,8 @@ class ProjectControllerIT {
         var projectToCreate = new ProjectDTO(null, null, fakeProjectDescription, fakeProjectStartDate);
         var projectToCreateAsJson = objectMapper.writeValueAsString(projectToCreate);
 
-        var requestBuilder = post(PROJECTS_ROOT_PATH).contentType(MediaType.APPLICATION_JSON)
-                                                     .content(projectToCreateAsJson);
+        var requestBuilder = post(PROJECTS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                            .content(projectToCreateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -260,7 +265,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", containsString("The title of the project is mandatory")))
-               .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH)))
+               .andExpect(jsonPath("$.instance", is("/v1/projects")))
                .andExpect(jsonPath("$.errors[0].entity", is("projectDTO")))
                .andExpect(jsonPath("$.errors[0].field", is("title")))
                .andExpect(jsonPath("$.errors[0].message", is("The title of the project is mandatory")));
@@ -273,8 +278,8 @@ class ProjectControllerIT {
         var projectToCreate = new ProjectDTO(null, "", fakeProjectDescription, fakeProjectStartDate);
         var projectToCreateAsJson = objectMapper.writeValueAsString(projectToCreate);
 
-        var requestBuilder = post(PROJECTS_ROOT_PATH).contentType(MediaType.APPLICATION_JSON)
-                                                     .content(projectToCreateAsJson);
+        var requestBuilder = post(PROJECTS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                            .content(projectToCreateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -282,7 +287,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", containsString("The title of the project is mandatory")))
-               .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH)))
+               .andExpect(jsonPath("$.instance", is("/v1/projects")))
                .andExpect(jsonPath("$.errors[0].entity", is("projectDTO")))
                .andExpect(jsonPath("$.errors[0].field", is("title")))
                .andExpect(jsonPath("$.errors[0].message", is("The title of the project is mandatory")));
@@ -301,8 +306,8 @@ class ProjectControllerIT {
                 """;
         var projectToCreateAsJson = objectMapper.writeValueAsString(projectToCreate);
 
-        var requestBuilder = post(PROJECTS_ROOT_PATH).contentType(MediaType.APPLICATION_JSON)
-                                                     .content(projectToCreateAsJson);
+        var requestBuilder = post(PROJECTS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                            .content(projectToCreateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -310,7 +315,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", is("Failed to read request")))
-               .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH)));
+               .andExpect(jsonPath("$.instance", is("/v1/projects")));
     }
 
     @Test
@@ -324,8 +329,8 @@ class ProjectControllerIT {
         var projectToCreate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
         var projectToCreateAsJson = objectMapper.writeValueAsString(projectToCreate);
 
-        var requestBuilder = post(PROJECTS_ROOT_PATH).contentType(MediaType.APPLICATION_JSON)
-                                                     .content(projectToCreateAsJson);
+        var requestBuilder = post(PROJECTS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                            .content(projectToCreateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isCreated())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -343,8 +348,8 @@ class ProjectControllerIT {
         var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
         var projectToUpdateAsJson = objectMapper.writeValueAsString(projectToUpdate);
 
-        var requestBuilder = put(PROJECTS_BY_ID_PATH).contentType(MediaType.APPLICATION_JSON)
-                                                     .content(projectToUpdateAsJson);
+        var requestBuilder = put(PROJECTS_EMPTY_ID_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                        .content(projectToUpdateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isNotFound())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -352,7 +357,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.title", is("Not Found")))
                .andExpect(jsonPath("$.status", is(404)))
                .andExpect(jsonPath("$.detail", is("No static resource v1/projects.")))
-               .andExpect(jsonPath("$.instance", is(PROJECTS_BY_ID_PATH)));
+               .andExpect(jsonPath("$.instance", is("/v1/projects/")));
     }
 
     @Test
@@ -363,8 +368,8 @@ class ProjectControllerIT {
         var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
         var projectToUpdateAsJson = objectMapper.writeValueAsString(projectToUpdate);
 
-        var requestBuilder = put(PROJECTS_BY_ID_PATH + idToUpdate).contentType(MediaType.APPLICATION_JSON)
-                                                                  .content(projectToUpdateAsJson);
+        var requestBuilder = put(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
+                                                                             .content(projectToUpdateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -372,7 +377,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", is("Failed to convert 'id' with value: '1'")))
-               .andExpect(jsonPath("$.instance", is(PROJECTS_BY_ID_PATH + idToUpdate)));
+               .andExpect(jsonPath("$.instance", is("/v1/projects/" + idToUpdate)));
     }
 
     @Test
@@ -382,8 +387,8 @@ class ProjectControllerIT {
         var idToUpdate = fakeProjectId;
         var projectToUpdate = "";
 
-        var requestBuilder = put(PROJECTS_BY_ID_PATH + idToUpdate).contentType(MediaType.TEXT_PLAIN)
-                                                                  .content(projectToUpdate);
+        var requestBuilder = put(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.TEXT_PLAIN)
+                                                                             .content(projectToUpdate);
         mockMvc.perform(requestBuilder)
                .andExpect(status().is4xxClientError())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -391,7 +396,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.title", is("Unsupported Media Type")))
                .andExpect(jsonPath("$.status", is(415)))
                .andExpect(jsonPath("$.detail", is("Content-Type 'text/plain' is not supported.")))
-               .andExpect(jsonPath("$.instance", is(PROJECTS_BY_ID_PATH + idToUpdate)));
+               .andExpect(jsonPath("$.instance", is("/v1/projects/" + idToUpdate)));
     }
 
     @Test
@@ -401,8 +406,8 @@ class ProjectControllerIT {
         var idToUpdate = fakeProjectId;
         var projectToUpdate = "";
 
-        var requestBuilder = put(PROJECTS_BY_ID_PATH + idToUpdate).contentType(MediaType.APPLICATION_JSON)
-                                                                  .content(projectToUpdate);
+        var requestBuilder = put(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
+                                                                             .content(projectToUpdate);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -410,7 +415,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", is("Failed to read request")))
-               .andExpect(jsonPath("$.instance", is(PROJECTS_BY_ID_PATH + idToUpdate)));
+               .andExpect(jsonPath("$.instance", is("/v1/projects/" + idToUpdate)));
     }
 
     @Test
@@ -421,8 +426,8 @@ class ProjectControllerIT {
         var projectToUpdate = new ProjectDTO(null, null, fakeProjectDescription, fakeProjectStartDate);
         var projectToUpdateAsJson = objectMapper.writeValueAsString(projectToUpdate);
 
-        var requestBuilder = put(PROJECTS_BY_ID_PATH + idToUpdate).contentType(MediaType.APPLICATION_JSON)
-                                                                  .content(projectToUpdateAsJson);
+        var requestBuilder = put(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
+                                                                             .content(projectToUpdateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -430,7 +435,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", containsString("The title of the project is mandatory")))
-               .andExpect(jsonPath("$.instance", is(PROJECTS_BY_ID_PATH + idToUpdate)))
+               .andExpect(jsonPath("$.instance", is("/v1/projects/" + idToUpdate)))
                .andExpect(jsonPath("$.errors[0].entity", is("projectDTO")))
                .andExpect(jsonPath("$.errors[0].field", is("title")))
                .andExpect(jsonPath("$.errors[0].message", is("The title of the project is mandatory")));
@@ -444,8 +449,8 @@ class ProjectControllerIT {
         var projectToUpdate = new ProjectDTO(null, "", fakeProjectDescription, fakeProjectStartDate);
         var projectToUpdateAsJson = objectMapper.writeValueAsString(projectToUpdate);
 
-        var requestBuilder = put(PROJECTS_BY_ID_PATH + idToUpdate).contentType(MediaType.APPLICATION_JSON)
-                                                                  .content(projectToUpdateAsJson);
+        var requestBuilder = put(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
+                                                                             .content(projectToUpdateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -453,7 +458,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", containsString("The title of the project is mandatory")))
-               .andExpect(jsonPath("$.instance", is(PROJECTS_BY_ID_PATH + idToUpdate)))
+               .andExpect(jsonPath("$.instance", is("/v1/projects/" + idToUpdate)))
                .andExpect(jsonPath("$.errors[0].entity", is("projectDTO")))
                .andExpect(jsonPath("$.errors[0].field", is("title")))
                .andExpect(jsonPath("$.errors[0].message", is("The title of the project is mandatory")));
@@ -473,8 +478,8 @@ class ProjectControllerIT {
                 """;
         var projectToUpdateAsJson = objectMapper.writeValueAsString(projectToUpdate);
 
-        var requestBuilder = put(PROJECTS_BY_ID_PATH + idToUpdate).contentType(MediaType.APPLICATION_JSON)
-                                                                  .content(projectToUpdateAsJson);
+        var requestBuilder = put(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
+                                                                             .content(projectToUpdateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -482,7 +487,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", containsString("Failed to read request")))
-               .andExpect(jsonPath("$.instance", is(PROJECTS_BY_ID_PATH + idToUpdate)));
+               .andExpect(jsonPath("$.instance", is("/v1/projects/" + idToUpdate)));
     }
 
     @Test
@@ -496,8 +501,8 @@ class ProjectControllerIT {
         var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
         var projectToUpdateAsJson = objectMapper.writeValueAsString(projectToUpdate);
 
-        var requestBuilder = put(PROJECTS_BY_ID_PATH + idToUpdate).contentType(MediaType.APPLICATION_JSON)
-                                                                  .content(projectToUpdateAsJson);
+        var requestBuilder = put(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
+                                                                             .content(projectToUpdateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isNotFound())
                .andExpect(jsonPath("$").doesNotExist());
@@ -520,8 +525,8 @@ class ProjectControllerIT {
         var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
         var projectToUpdateAsJson = objectMapper.writeValueAsString(projectToUpdate);
 
-        var requestBuilder = put(PROJECTS_BY_ID_PATH + idToUpdate).contentType(MediaType.APPLICATION_JSON)
-                                                                  .content(projectToUpdateAsJson);
+        var requestBuilder = put(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
+                                                                             .content(projectToUpdateAsJson);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isOk())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -536,7 +541,7 @@ class ProjectControllerIT {
     @DisplayName("GIVEN id is empty WHEN delete a project by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
     void IdIsEmpty_DeleteProjectById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
         // When & Then
-        var requestBuilder = delete(PROJECTS_BY_ID_PATH);
+        var requestBuilder = delete(PROJECTS_EMPTY_ID_PATH);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isNotFound())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -544,7 +549,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.title", is("Not Found")))
                .andExpect(jsonPath("$.status", is(404)))
                .andExpect(jsonPath("$.detail", is("No static resource v1/projects.")))
-               .andExpect(jsonPath("$.instance", is(PROJECTS_BY_ID_PATH)));
+               .andExpect(jsonPath("$.instance", is("/v1/projects/")));
     }
 
     @Test
@@ -553,7 +558,7 @@ class ProjectControllerIT {
         // When & Then
         var idToDelete = 1L;
 
-        var requestBuilder = delete(PROJECTS_BY_ID_PATH + idToDelete);
+        var requestBuilder = delete(PROJECTS_DELETE_BY_ID_FULL_PATH, idToDelete);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -561,7 +566,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.title", is("Bad Request")))
                .andExpect(jsonPath("$.status", is(400)))
                .andExpect(jsonPath("$.detail", is("Failed to convert 'id' with value: '1'")))
-               .andExpect(jsonPath("$.instance", is(PROJECTS_BY_ID_PATH + idToDelete)));
+               .andExpect(jsonPath("$.instance", is("/v1/projects/" + idToDelete)));
     }
 
     @Test
@@ -573,7 +578,7 @@ class ProjectControllerIT {
         // When
         var idToDelete = fakeProjectId;
 
-        var requestBuilder = delete(PROJECTS_BY_ID_PATH + idToDelete);
+        var requestBuilder = delete(PROJECTS_DELETE_BY_ID_FULL_PATH, idToDelete);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isNotFound())
                .andExpect(jsonPath("$").doesNotExist());
@@ -588,7 +593,7 @@ class ProjectControllerIT {
         // When
         var idToDelete = fakeProjectId;
 
-        var requestBuilder = delete(PROJECTS_BY_ID_PATH + idToDelete);
+        var requestBuilder = delete(PROJECTS_DELETE_BY_ID_FULL_PATH, idToDelete);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isNoContent())
                .andExpect(jsonPath("$").doesNotExist());

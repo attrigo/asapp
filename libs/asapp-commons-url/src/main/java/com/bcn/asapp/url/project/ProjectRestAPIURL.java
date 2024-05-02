@@ -35,6 +35,16 @@ public class ProjectRestAPIURL {
 
     public static final String PROJECTS_DELETE_BY_ID_PATH = "/{id}";
 
+    public static final String PROJECTS_GET_BY_ID_FULL_PATH = PROJECTS_ROOT_PATH + PROJECTS_GET_BY_ID_PATH;
+
+    public static final String PROJECTS_GET_ALL_FULL_PATH = PROJECTS_ROOT_PATH + PROJECTS_GET_ALL_PATH;
+
+    public static final String PROJECTS_CREATE_FULL_PATH = PROJECTS_ROOT_PATH + PROJECTS_CREATE_PATH;
+
+    public static final String PROJECTS_UPDATE_BY_ID_FULL_PATH = PROJECTS_ROOT_PATH + PROJECTS_UPDATE_BY_ID_PATH;
+
+    public static final String PROJECTS_DELETE_BY_ID_FULL_PATH = PROJECTS_ROOT_PATH + PROJECTS_DELETE_BY_ID_PATH;
+
     private ProjectRestAPIURL() {}
 
 }
