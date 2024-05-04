@@ -98,8 +98,8 @@ class ProjectControllerIT {
 
     // getProjectById
     @Test
-    @DisplayName("GIVEN id is empty WHEN get a project by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
-    void IdIsEmpty_GetProjectById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN project id is empty WHEN get a project by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
+    void ProjectIdIsEmpty_GetProjectById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var requestBuilder = get(PROJECTS_EMPTY_ID_PATH);
         mockMvc.perform(requestBuilder)
@@ -113,8 +113,8 @@ class ProjectControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN id is not a valid UUID WHEN get a project by id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void IdIsNotUUID_GetProjectById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN project id is not a valid UUID WHEN get a project by id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void ProjectIdIsNotUUID_GetProjectById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToFound = 1L;
 
@@ -130,8 +130,8 @@ class ProjectControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN id does not exists WHEN get a project by id THEN returns HTTP response with status NOT_FOUND And the body without content")
-    void IdNotExists_GetProjectById_ReturnsStatusNotFoundAndBodyWithoutContent() throws Exception {
+    @DisplayName("GIVEN project id does not exists WHEN get a project by id THEN returns HTTP response with status NOT_FOUND And without body")
+    void ProjectIdNotExists_GetProjectById_ReturnsStatusNotFoundAndWithoutBody() throws Exception {
         // Given
         given(projectServiceMock.findById(any(UUID.class))).willReturn(Optional.empty());
 
@@ -145,8 +145,8 @@ class ProjectControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN id exists WHEN get a project by id THEN returns HTTP response with status OK And the body with the project found")
-    void IdExists_GetProjectById_ReturnsStatusOkAndBodyWithProjectFound() throws Exception {
+    @DisplayName("GIVEN project id exists WHEN get a project by id THEN returns HTTP response with status OK And the body with the project found")
+    void ProjectIdExists_GetProjectById_ReturnsStatusOkAndBodyWithProjectFound() throws Exception {
         // Given
         var fakeProject = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
         given(projectServiceMock.findById(any(UUID.class))).willReturn(Optional.of(fakeProject));
@@ -181,7 +181,7 @@ class ProjectControllerIT {
 
     @Test
     @DisplayName("GIVEN there are projects WHEN get all projects THEN returns HTTP response with status OK And the body with all projects found")
-    void ThereAreProjects_GetAllProjects_ReturnsStatusOkAndBodyWithAllProjectsFound() throws Exception {
+    void ThereAreProjects_GetAllProjects_ReturnsStatusOkAndBodyWithProjectsFound() throws Exception {
         var fakeProject1Id = UUID.randomUUID();
         var fakeProject2Id = UUID.randomUUID();
         var fakeProject3Id = UUID.randomUUID();
@@ -214,8 +214,8 @@ class ProjectControllerIT {
 
     // CreateProject
     @Test
-    @DisplayName("GIVEN project is not a valid Json WHEN create a project THEN returns HTTP response with status Unsupported Media Type And the body with the problem details")
-    void ProjectIsNotJson_CreateProject_ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN project fields are not a valid Json WHEN create a project THEN returns HTTP response with status Unsupported Media Type And the body with the problem details")
+    void ProjectFieldsAreNotJson_CreateProject_ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var projectToCreate = "";
 
@@ -232,8 +232,8 @@ class ProjectControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN project is not present WHEN create a project THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void ProjectIsNotPresent_CreateProject_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN project fields are not present WHEN create a project THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void ProjectFieldsAreNotPresent_CreateProject_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var projectToCreate = "";
 
@@ -250,8 +250,8 @@ class ProjectControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN project has not mandatory fields WHEN create a project THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void ProjectHasNotMandatoryFields_CreateProject_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN project mandatory fields are not present WHEN create a project THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void ProjectMandatoryFieldsAreNotPresent_CreateProject_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var projectToCreate = new ProjectDTO(null, null, fakeProjectDescription, fakeProjectStartDate);
         var projectToCreateAsJson = objectMapper.writeValueAsString(projectToCreate);
@@ -294,8 +294,8 @@ class ProjectControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN project's start date has invalid format WHEN create a project THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void ProjectStartDateHasInvalidFormat_CreateProject_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN project start date field has invalid format WHEN create a project THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void ProjectStartDateFieldHasInvalidFormat_CreateProject_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var projectToCreate = """
                 {
@@ -304,10 +304,9 @@ class ProjectControllerIT {
                 "startDateTime": "2011-11-11T11:11:11"
                 }
                 """;
-        var projectToCreateAsJson = objectMapper.writeValueAsString(projectToCreate);
 
         var requestBuilder = post(PROJECTS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
-                                                            .content(projectToCreateAsJson);
+                                                            .content(projectToCreate);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -319,8 +318,8 @@ class ProjectControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN project is valid WHEN create a project THEN returns HTTP response with status CREATED And the body with the project created")
-    void ProjectIsValid_CreateProject_ReturnsStatusCreatedAndBodyWithProjectCreated() throws Exception {
+    @DisplayName("GIVEN project fields are valid WHEN create a project THEN returns HTTP response with status CREATED And the body with the project created")
+    void ProjectFieldsAreValid_CreateProject_ReturnsStatusCreatedAndBodyWithProjectCreated() throws Exception {
         // Given
         var fakeProject = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
         given(projectServiceMock.create(any(ProjectDTO.class))).willReturn(fakeProject);
@@ -340,10 +339,10 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.startDateTime", is(fakeProjectStartDateFormatted)));
     }
 
-    // UpdateProject
+    // UpdateProjectById
     @Test
-    @DisplayName("GIVEN id is empty WHEN update a project THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
-    void IdIsEmpty_UpdateProject_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN project id is empty WHEN update a project by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
+    void ProjectIdIsEmpty_UpdateProjectById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
         var projectToUpdateAsJson = objectMapper.writeValueAsString(projectToUpdate);
@@ -361,8 +360,8 @@ class ProjectControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN id is not a valid UUID WHEN update a project THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void IdIsNotUUID_UpdateProject_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN project id is not a valid UUID WHEN update a project by id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void ProjectIdIsNotUUID_UpdateProjectById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = 1L;
         var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
@@ -381,8 +380,8 @@ class ProjectControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN project is not a valid Json WHEN update a project THEN returns HTTP response with status Unsupported Media Type And content with the problem details")
-    void ProjectIsNotJson_UpdateProject_ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN project fields are not a valid Json WHEN update a project by id THEN returns HTTP response with status Unsupported Media Type And content with the problem details")
+    void NewProjectDataFieldsAreNotJson_UpdateProjectById_ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = fakeProjectId;
         var projectToUpdate = "";
@@ -400,8 +399,8 @@ class ProjectControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN project is not present WHEN update a project THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void ProjectIsNotPresent_UpdateProject_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN new project data fields are not present WHEN update a project by id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void NewProjectDataFieldsAreNotPresent_UpdateProjectById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = fakeProjectId;
         var projectToUpdate = "";
@@ -419,8 +418,8 @@ class ProjectControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN project has not mandatory fields WHEN update a project THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void ProjectHasNotMandatoryFields_UpdateProject_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN new project data mandatory fields are not present WHEN update a project by id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void NewProjectDataMandatoryFieldsAreNotPresent_UpdateProjectById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = fakeProjectId;
         var projectToUpdate = new ProjectDTO(null, null, fakeProjectDescription, fakeProjectStartDate);
@@ -442,8 +441,8 @@ class ProjectControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN project mandatory fields are empty WHEN update a project THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void ProjectMandatoryFieldsAreEmpty_UpdateProject_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN new project data mandatory fields are empty WHEN update a project by id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void NewProjectDataMandatoryFieldsAreEmpty_UpdateProjectById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = fakeProjectId;
         var projectToUpdate = new ProjectDTO(null, "", fakeProjectDescription, fakeProjectStartDate);
@@ -465,8 +464,8 @@ class ProjectControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN project's start date has invalid format WHEN update a project THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void ProjectStartDateHasInvalidFormat_UpdateProject_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN new project data start date field has invalid format WHEN update a project by id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void NewProjectDataStartDateFieldHasInvalidFormat_UpdateProjectById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = fakeProjectId;
         var projectToUpdate = """
@@ -476,10 +475,9 @@ class ProjectControllerIT {
                 "startDateTime": "2011-11-11T11:11:11"
                 }
                 """;
-        var projectToUpdateAsJson = objectMapper.writeValueAsString(projectToUpdate);
 
         var requestBuilder = put(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
-                                                                             .content(projectToUpdateAsJson);
+                                                                             .content(projectToUpdate);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -491,8 +489,8 @@ class ProjectControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN id does not exists WHEN update a project THEN returns HTTP response with status NOT_FOUND And the body without content")
-    void IdNotExists_UpdateProject_ReturnsStatusNotFoundAndBodyWithoutContent() throws Exception {
+    @DisplayName("GIVEN project id does not exists WHEN update a project by id THEN returns HTTP response with status NOT_FOUND And without body")
+    void ProjectIdNotExists_UpdateProjectById_ReturnsStatusNotFoundAndWithoutBody() throws Exception {
         // Given
         given(projectServiceMock.updateById(any(UUID.class), any(ProjectDTO.class))).willReturn(Optional.empty());
 
@@ -509,8 +507,8 @@ class ProjectControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN id exists WHEN update a project THEN returns HTTP response with status OK And the body with the project updated")
-    void IdExists_UpdateProject_ReturnsStatusOkAndBodyWithProjectUpdated() throws Exception {
+    @DisplayName("GIVEN project id exists WHEN update a project by id THEN returns HTTP response with status OK And the body with the project updated")
+    void ProjectIdExists_UpdateProjectById_ReturnsStatusOkAndBodyWithProjectUpdated() throws Exception {
         var anotherFakeProjectStartDate = LocalDateTime.now()
                                                        .truncatedTo(ChronoUnit.MILLIS);
         var anotherFakeProjectStartDateFormatted = DateTimeFormatter.ofPattern(dateTimeFormat)
@@ -538,8 +536,8 @@ class ProjectControllerIT {
 
     // DeleteProjectById
     @Test
-    @DisplayName("GIVEN id is empty WHEN delete a project by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
-    void IdIsEmpty_DeleteProjectById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN project id is empty WHEN delete a project by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
+    void ProjectIdIsEmpty_DeleteProjectById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var requestBuilder = delete(PROJECTS_EMPTY_ID_PATH);
         mockMvc.perform(requestBuilder)
@@ -553,8 +551,8 @@ class ProjectControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN id is not a valid UUID WHEN delete a project by id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void IdIsNotUUID_DeleteProjectById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN project id is not a valid UUID WHEN delete a project by id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void ProjectIdIsNotUUID_DeleteProjectById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToDelete = 1L;
 
@@ -570,8 +568,8 @@ class ProjectControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN id does not exists WHEN delete a project by id THEN returns HTTP response with status NOT_FOUND And the body without content")
-    void IdNotExists_DeleteProjectById_ReturnsStatusNotFoundAndBodyWithoutContent() throws Exception {
+    @DisplayName("GIVEN project id does not exists WHEN delete a project by id THEN returns HTTP response with status NOT_FOUND And without body")
+    void ProjectIdNotExists_DeleteProjectById_ReturnsStatusNotFoundAndWithoutBody() throws Exception {
         // Given
         given(projectServiceMock.deleteById(any(UUID.class))).willReturn(false);
 
@@ -585,8 +583,8 @@ class ProjectControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN id exists WHEN delete a project by id THEN returns HTTP response with status NO_CONTENT And the body without content")
-    void IdExists_DeleteProjectById_ReturnsStatusNoContentAndBodyWithoutContent() throws Exception {
+    @DisplayName("GIVEN project id exists WHEN delete a project by id THEN returns HTTP response with status NO_CONTENT And without body")
+    void ProjectIdExists_DeleteProjectById_ReturnsStatusNoContentAndWithoutBody() throws Exception {
         // Given
         given(projectServiceMock.deleteById(any(UUID.class))).willReturn(true);
 

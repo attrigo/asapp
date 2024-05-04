@@ -89,8 +89,8 @@ class ProjectE2EIT {
 
     // GetProjectById
     @Test
-    @DisplayName("GIVEN id does not exists WHEN get a project by id THEN returns HTTP response with status NOT_FOUND And no body")
-    void IdNotExists_GetProjectById_ReturnsStatusNotFoundAndNoBody() {
+    @DisplayName("GIVEN project id does not exists WHEN get a project by id THEN does not get the project And returns HTTP response with status NOT_FOUND And without body")
+    void ProjectIdNotExists_GetProjectById_DoesNotGetTheProjectAndReturnsStatusNotFoundAndWithoutBody() {
         // When & Then
         var idToFind = fakeProjectId;
 
@@ -105,8 +105,8 @@ class ProjectE2EIT {
     }
 
     @Test
-    @DisplayName("GIVEN id exists WHEN get a project by id THEN gets the project with given id And returns HTTP response with status OK And the body with the project found")
-    void IdExists_GetProjectById_GetsProjectAndReturnsStatusOKAndBodyWithProjectFound() {
+    @DisplayName("GIVEN project id exists WHEN get a project by id THEN gets the project And returns HTTP response with status OK And the body with the project found")
+    void ProjectIdExists_GetProjectById_GetsProjectAndReturnsStatusOKAndBodyWithProjectFound() {
         // Given
         var fakeProject = new Project(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
         var projectToBeFound = projectRepository.save(fakeProject);
@@ -132,8 +132,8 @@ class ProjectE2EIT {
 
     // GetAllProjects
     @Test
-    @DisplayName("GIVEN there are not projects WHEN get all projects THEN returns HTTP response with status OK And an empty body")
-    void ThereAreNotProjects_GetAllProjects_ReturnsStatusOKAndEmptyBody() {
+    @DisplayName("GIVEN there are not projects WHEN get all projects THEN does not find any projects And returns HTTP response with status OK And an empty body")
+    void ThereAreNotProjects_GetAllProjects_DoesNotFindProjectsAndReturnsStatusOKAndEmptyBody() {
         // When & Then
         webTestClient.get()
                      .uri(PROJECTS_GET_ALL_FULL_PATH)
@@ -182,8 +182,8 @@ class ProjectE2EIT {
 
     // CreateProject
     @Test
-    @DisplayName("GIVEN project has id WHEN create a project THEN creates the project ignoring the given project id And returns HTTP response with status CREATED And the body with the project created")
-    void ProjectHasId_CreateProject_CreatesProjectIgnoringGivenProjectIdAndReturnsStatusCreatedAndBodyWithProjectCreated() {
+    @DisplayName("GIVEN project has id field WHEN create a project THEN creates the project ignoring the given project id And returns HTTP response with status CREATED And the body with the project created")
+    void ProjectHasIdField_CreateProject_CreatesProjectIgnoringGivenProjectIdAndReturnsStatusCreatedAndBodyWithProjectCreated() {
         var anotherFakeProjectId = UUID.randomUUID();
 
         // When & Then
@@ -247,10 +247,10 @@ class ProjectE2EIT {
         assertEquals(expected.get(), actual);
     }
 
-    // UpdateProject
+    // UpdateProjectById
     @Test
-    @DisplayName("GIVEN id does not exists WHEN update a project THEN returns HTTP response with status NOT_FOUND And an empty body")
-    void IdNotExists_UpdateProject_ReturnsStatusNotFoundAndEmptyBody() {
+    @DisplayName("GIVEN project id does not exists WHEN update a project by id THEN does not update the project And returns HTTP response with status NOT_FOUND And without body")
+    void ProjectIdNotExists_UpdateProjectById_DoesNotUpdateTheProjectAndReturnsStatusNotFoundAndWithoutBody() {
         // When & Then
         var idToUpdate = fakeProjectId;
         var projectToUpdate = new ProjectDTO(null, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
@@ -268,8 +268,8 @@ class ProjectE2EIT {
     }
 
     @Test
-    @DisplayName("GIVEN id exists And project has id WHEN update a project THEN updates all fields (except project's id) of the project with the given id with the given project data And returns HTTP response with status OK And the body with the project updated")
-    void IdExistsAndProjectHasId_UpdateProject_UpdatesAllProjectFieldsExceptIdAndReturnsStatusOkAndBodyWithProjectUpdated() {
+    @DisplayName("GIVEN project id exists And new project data has id field WHEN update a project by id THEN updates all project fields except the id And returns HTTP response with status OK And the body with the project updated")
+    void ProjectIdExistsAndNewProjectDataHasIdField_UpdateProjectById_UpdatesAllProjectFieldsExceptIdAndReturnsStatusOkAndBodyWithProjectUpdated() {
         var anotherFakeProjectStartDate = LocalDateTime.now()
                                                        .truncatedTo(ChronoUnit.MILLIS);
 
@@ -309,8 +309,8 @@ class ProjectE2EIT {
     }
 
     @Test
-    @DisplayName("GIVEN id exists And project is valid WHEN update a project THEN updates all fields of the project with the given id with the given project data And returns HTTP response with status OK And the body with the project updated")
-    void IdExistsAndProjectIsValid_UpdateProject_UpdatesAllProjectFieldsAndReturnsStatusOkAndBodyWithProjectUpdated() {
+    @DisplayName("GIVEN project id exists And new project data fields are valid WHEN update a project THEN updates all project fields And returns HTTP response with status OK And the body with the project updated")
+    void ProjectIdExistsAndNewProjectDataFieldsAreValid_UpdateProject_UpdatesAllProjectFieldsAndReturnsStatusOkAndBodyWithProjectUpdated() {
         var anotherFakeProjectStartDate = LocalDateTime.now()
                                                        .truncatedTo(ChronoUnit.MILLIS);
 
@@ -351,8 +351,8 @@ class ProjectE2EIT {
 
     // DeleteProjectById
     @Test
-    @DisplayName("GIVEN id does not exists WHEN delete a project by id THEN does not delete any project And returns HTTP response with status NOT_FOUND And an empty body")
-    void IdNotExists_DeleteProjectById_DoesNotDeleteProjectAndReturnsStatusNotFoundAndEmptyBody() {
+    @DisplayName("GIVEN project id does not exists WHEN delete a project by id THEN does not delete the project And returns HTTP response with status NOT_FOUND And without body")
+    void ProjectIdNotExists_DeleteProjectById_DoesNotDeleteProjectAndReturnsStatusNotFoundAndWithoutBody() {
         // When & Then
         var idToDelete = UUID.randomUUID();
 
@@ -367,8 +367,8 @@ class ProjectE2EIT {
     }
 
     @Test
-    @DisplayName("GIVEN id exists WHEN delete a project by id THEN deletes the project with the given id And returns HTTP response with status NO_CONTENT And an empty body")
-    void IdExists_DeleteProjectById_DeletesProjectAndReturnsStatusNoContentAndEmptyBody() {
+    @DisplayName("GIVEN project id exists WHEN delete a project by id THEN deletes the project And returns HTTP response with status NO_CONTENT And without body")
+    void ProjectIdExists_DeleteProjectById_DeletesProjectAndReturnsStatusNoContentAndWithoutBody() {
         // Given
         var fakeProject = new Project(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
         var projectToBeDeleted = projectRepository.save(fakeProject);

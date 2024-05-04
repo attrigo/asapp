@@ -89,8 +89,8 @@ class TaskE2EIT {
 
     // GetTaskById
     @Test
-    @DisplayName("GIVEN id does not exists WHEN get a task by id THEN returns HTTP response with status NOT_FOUND And no body")
-    void IdNotExists_GetTaskById_ReturnsStatusNotFoundAndNoBody() {
+    @DisplayName("GIVEN task id does not exists WHEN get a task by id THEN does not get the task And returns HTTP response with status NOT_FOUND And without body")
+    void TaskIdNotExists_GetTaskById_DoesNotGetTheTaskAndReturnsStatusNotFoundAndWithoutBody() {
         // When & Then
         var idToFind = fakeTaskId;
 
@@ -105,8 +105,8 @@ class TaskE2EIT {
     }
 
     @Test
-    @DisplayName("GIVEN id exists WHEN get a task by id THEN gets the task with given id And returns HTTP response with status OK And the body with the task found")
-    void IdExists_GetTaskById_GetsTaskAndReturnsStatusOKAndBodyWithTaskFound() {
+    @DisplayName("GIVEN task id exists WHEN get a task by id THEN gets the task And returns HTTP response with status OK And the body with the task found")
+    void TaskIdExists_GetTaskById_GetsTaskAndReturnsStatusOKAndBodyWithTaskFound() {
         // Given
         var fakeTask = new Task(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
         var taskToBeFound = taskRepository.save(fakeTask);
@@ -132,8 +132,8 @@ class TaskE2EIT {
 
     // GetAllTasks
     @Test
-    @DisplayName("GIVEN there are not tasks WHEN get all tasks THEN returns HTTP response with status OK And an empty body")
-    void ThereAreNotTasks_GetAllTasks_ReturnsStatusOKAndEmptyBody() {
+    @DisplayName("GIVEN there are not tasks WHEN get all tasks THEN does not find any tasks And returns HTTP response with status OK And an empty body")
+    void ThereAreNotTasks_GetAllTasks_DoesNotFindTasksAndReturnsStatusOKAndEmptyBody() {
         // When & Then
         webTestClient.get()
                      .uri(TASKS_GET_ALL_FULL_PATH)
@@ -182,8 +182,8 @@ class TaskE2EIT {
 
     // CreateTask
     @Test
-    @DisplayName("GIVEN task has id WHEN create a task THEN creates the task ignoring the given task id And returns HTTP response with status CREATED And the body with the task created")
-    void TaskHasId_CreateTask_CreatesTaskIgnoringGivenTaskIdAndReturnsStatusCreatedAndBodyWithTaskCreated() {
+    @DisplayName("GIVEN task has id field WHEN create a task THEN creates the task ignoring the given task id And returns HTTP response with status CREATED And the body with the task created")
+    void TaskHasIdField_CreateTask_CreatesTaskIgnoringGivenTaskIdAndReturnsStatusCreatedAndBodyWithTaskCreated() {
         var anotherFakeTaskId = UUID.randomUUID();
 
         // When & Then
@@ -247,10 +247,10 @@ class TaskE2EIT {
         assertEquals(expected.get(), actual);
     }
 
-    // UpdateTask
+    // UpdateTaskById
     @Test
-    @DisplayName("GIVEN id does not exists WHEN update a task THEN returns HTTP response with status NOT_FOUND And an empty body")
-    void IdNotExists_UpdateTask_ReturnsStatusNotFoundAndEmptyBody() {
+    @DisplayName("GIVEN task id does not exists WHEN update a task by id THEN does not update the task And returns HTTP response with status NOT_FOUND And without body")
+    void TaskIdNotExists_UpdateTaskById_DoesNotUpdateTheTaskAndReturnsStatusNotFoundAndWithoutBody() {
         // When & Then
         var idToUpdate = fakeTaskId;
         var taskToUpdate = new TaskDTO(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate);
@@ -268,8 +268,8 @@ class TaskE2EIT {
     }
 
     @Test
-    @DisplayName("GIVEN id exists And task has id WHEN update a task THEN updates all fields (except task's id) of the task with the given id with the given task data And returns HTTP response with status OK And the body with the task updated")
-    void IdExistsAndTaskHasId_UpdateTask_UpdatesAllTaskFieldsExceptIdAndReturnsStatusOkAndBodyWithTaskUpdated() {
+    @DisplayName("GIVEN task id exists And new task data has id field WHEN update a task by id THEN updates all task fields except the id And returns HTTP response with status OK And the body with the task updated")
+    void TaskIdExistsAndNewTaskDataHasIdField_UpdateTaskById_UpdatesAllTaskFieldsExceptIdAndReturnsStatusOkAndBodyWithTaskUpdated() {
         var anotherFakeTaskStartDate = LocalDateTime.now()
                                                     .truncatedTo(ChronoUnit.MILLIS);
 
@@ -309,8 +309,8 @@ class TaskE2EIT {
     }
 
     @Test
-    @DisplayName("GIVEN id exists And task is valid WHEN update a task THEN updates all fields of the task with the given id with the given task data And returns HTTP response with status OK And the body with the task updated")
-    void IdExistsAndTaskIsValid_UpdateTask_UpdatesAllTaskFieldsAndReturnsStatusOkAndBodyWithTaskUpdated() {
+    @DisplayName("GIVEN task id exists And new task data fields are valid WHEN update a task THEN updates all task fields And returns HTTP response with status OK And the body with the task updated")
+    void TaskIdExistsAndNewTaskDataFieldsAreValid_UpdateTask_UpdatesAllTaskFieldsAndReturnsStatusOkAndBodyWithTaskUpdated() {
         var anotherFakeTaskStartDate = LocalDateTime.now()
                                                     .truncatedTo(ChronoUnit.MILLIS);
 
@@ -351,8 +351,8 @@ class TaskE2EIT {
 
     // DeleteTaskById
     @Test
-    @DisplayName("GIVEN id does not exists WHEN delete a task by id THEN does not delete any task And returns HTTP response with status NOT_FOUND And an empty body")
-    void IdNotExists_DeleteTaskById_DoesNotDeleteTaskAndReturnsStatusNotFoundAndEmptyBody() {
+    @DisplayName("GIVEN task id does not exists WHEN delete a task by id THEN does not delete the task And returns HTTP response with status NOT_FOUND And without body")
+    void TaskIdNotExists_DeleteTaskById_DoesNotDeleteTaskAndReturnsStatusNotFoundAndWithoutBody() {
         // When & Then
         var idToDelete = UUID.randomUUID();
 
@@ -367,8 +367,8 @@ class TaskE2EIT {
     }
 
     @Test
-    @DisplayName("GIVEN id exists WHEN delete a task by id THEN deletes the task with the given id And returns HTTP response with status NO_CONTENT And an empty body")
-    void IdExists_DeleteTaskById_DeletesTaskAndReturnsStatusNoContentAndEmptyBody() {
+    @DisplayName("GIVEN task id exists WHEN delete a task by id THEN deletes the task And returns HTTP response with status NO_CONTENT And without body")
+    void TaskIdExists_DeleteTaskById_DeletesTaskAndReturnsStatusNoContentAndWithoutBody() {
         // Given
         var fakeTask = new Task(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
         var taskToBeDeleted = taskRepository.save(fakeTask);

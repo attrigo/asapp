@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Assertions;
@@ -46,15 +47,26 @@ class TaskRepositoryIT {
     @Autowired
     private TaskRepository taskRepository;
 
+    private String fakeTaskTitle;
+
+    private String fakeTaskDescription;
+
+    private LocalDateTime fakeTaskStartDate;
+
     @BeforeEach
     void beforeEach() {
         taskRepository.deleteAll();
+
+        this.fakeTaskTitle = "Test Title";
+        this.fakeTaskDescription = "Test Description";
+        this.fakeTaskStartDate = LocalDateTime.now()
+                                              .truncatedTo(ChronoUnit.MILLIS);
     }
 
     // deleteTaskById
     @Test
-    @DisplayName("GIVEN id not exists WHEN delete a task by id THEN does not delete any task And returns zero")
-    void IdNotExists_DeleteTaskById_DoesNotDeleteTaskAndReturnsZero() {
+    @DisplayName("GIVEN task id not exists WHEN delete a task by id THEN does not delete the task And returns zero")
+    void TaskIdNotExists_DeleteTaskById_DoesNotDeleteTaskAndReturnsZero() {
         // When
         var idToDelete = UUID.randomUUID();
 
@@ -65,10 +77,10 @@ class TaskRepositoryIT {
     }
 
     @Test
-    @DisplayName("GIVEN id exists WHEN delete a task by id THEN deletes the task with the given id And returns the amount of tasks deleted")
-    void IdExists_DeleteTaskById_DeletesTaskAndReturnsAmountOfTasksDeleted() {
+    @DisplayName("GIVEN task id exists WHEN delete a task by id THEN deletes the task And returns the amount of tasks deleted")
+    void TaskIdExists_DeleteTaskById_DeletesTaskAndReturnsAmountOfTasksDeleted() {
         // Given
-        var fakeTask = new Task(null, "Title Test", "Description Test", LocalDateTime.now());
+        var fakeTask = new Task(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
         var taskToBeDeleted = taskRepository.save(fakeTask);
         Assertions.assertNotNull(taskToBeDeleted);
 

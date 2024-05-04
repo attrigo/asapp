@@ -32,7 +32,6 @@ import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -72,15 +71,15 @@ class ProjectServiceImpTests {
         given(projectMapperSpy.toProjectIgnoreId(any(ProjectDTO.class))).willCallRealMethod();
 
         this.fakeProjectId = UUID.randomUUID();
-        this.fakeProjectTitle = "Test Title";
-        this.fakeProjectDescription = "Test Description";
+        this.fakeProjectTitle = "UT Title";
+        this.fakeProjectDescription = "UT Description";
         this.fakeProjectStartDate = LocalDateTime.now();
     }
 
     // findById
     @Test
-    @DisplayName("GIVEN id does not exists WHEN find project by id THEN finds the project with the given id And returns empty")
-    void IdNotExists_FindById_FindsProjectAndReturnsEmpty() {
+    @DisplayName("GIVEN project id does not exists WHEN find a project by id THEN does not find the project And returns empty")
+    void ProjectIdNotExists_FindById_DoesNotFindProjectAndReturnsEmpty() {
         // Given
         given(projectRepositoryMock.findById(any(UUID.class))).willReturn(Optional.empty());
 
@@ -97,8 +96,8 @@ class ProjectServiceImpTests {
     }
 
     @Test
-    @DisplayName("GIVEN id exists WHEN find project by id THEN finds the project with the given id And returns the project found")
-    void IdExists_FindById_FindsProjectAndReturnsProjectFound() {
+    @DisplayName("GIVEN project id exists WHEN find a project by id THEN finds the project And returns the project found")
+    void ProjectIdExists_FindById_FindsProjectAndReturnsProjectFound() {
         // Given
         var fakeProject = new Project(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
         given(projectRepositoryMock.findById(any(UUID.class))).willReturn(Optional.of(fakeProject));
@@ -120,7 +119,7 @@ class ProjectServiceImpTests {
 
     // findAll
     @Test
-    @DisplayName("GIVEN there are not projects WHEN find all projects THEN does not find projects And returns empty list")
+    @DisplayName("GIVEN there are not projects WHEN find all projects THEN does not find any projects And returns empty list")
     void ThereAreNotProjects_FindAll_DoesNotFindProjectsAndReturnsEmptyList() {
         // Given
         given(projectRepositoryMock.findAll()).willReturn(Collections.emptyList());
@@ -170,8 +169,8 @@ class ProjectServiceImpTests {
 
     // Create
     @Test
-    @DisplayName("GIVEN project id is not null WHEN create a project THEN creates the project ignoring the given project id And returns the project created with a new id")
-    void ProjectIdIsNotNull_Create_CreatesProjectIgnoringGivenProjectIdAndReturnsProjectCreated() {
+    @DisplayName("GIVEN project id field is not null WHEN create a project THEN creates the project ignoring the given project id And returns the project created with a new id")
+    void ProjectIdFieldIsNotNull_Create_CreatesProjectIgnoringGivenProjectIdAndReturnsProjectCreated() {
         var newFakeProjectId = UUID.randomUUID();
 
         // Given
@@ -196,8 +195,8 @@ class ProjectServiceImpTests {
     }
 
     @Test
-    @DisplayName("GIVEN project id is null WHEN create a project THEN creates the project And returns the project created with a new id")
-    void ProjectIdIsNull_Create_CreatesProjectAndReturnsProjectCreated() {
+    @DisplayName("GIVEN project id field is null WHEN create a project THEN creates the project And returns the project created with a new id")
+    void ProjectIdFieldIsNull_Create_CreatesProjectAndReturnsProjectCreated() {
         var newFakeProjectId = UUID.randomUUID();
 
         // Given
@@ -223,8 +222,8 @@ class ProjectServiceImpTests {
 
     // Update
     @Test
-    @DisplayName("GIVEN id does not exists And project id is not null WHEN update a project by id THEN does not update the project And returns empty")
-    void IdNotExistsAndProjectIdIsNotNull_UpdateById_DoesNotUpdateProjectAndReturnsEmpty() {
+    @DisplayName("GIVEN project id does not exists And new project data id field is not null WHEN update a project by id THEN does not update the project And returns empty")
+    void ProjectIdNotExistsAndNewProjectDataIdFieldIsNotNull_UpdateById_DoesNotUpdateProjectAndReturnsEmpty() {
         // Given
         given(projectRepositoryMock.existsById(any(UUID.class))).willReturn(false);
 
@@ -242,8 +241,8 @@ class ProjectServiceImpTests {
     }
 
     @Test
-    @DisplayName("GIVEN id does not exists And project id is null WHEN update a project by id THEN does not update the project And returns empty")
-    void IdNotExistsAndProjectIdIsNull_UpdateById_DoesNotUpdateProjectAndReturnsEmpty() {
+    @DisplayName("GIVEN project id does not exists And new project data id field is null WHEN update a project by id THEN does not update the project And returns empty")
+    void ProjectIdNotExistsAndNewProjectDataIdFieldIsNull_UpdateById_DoesNotUpdateProjectAndReturnsEmpty() {
         // Given
         given(projectRepositoryMock.existsById(any(UUID.class))).willReturn(false);
 
@@ -261,8 +260,8 @@ class ProjectServiceImpTests {
     }
 
     @Test
-    @DisplayName("GIVEN id exists And project id is not null WHEN update a project by id THEN updates all fields of the project except the id And Returns the project updated with the new values")
-    void IdExistsAndProjectIdIsNotNull_UpdateById_UpdatesAllFieldsExceptIdAndReturnsProjectUpdated() {
+    @DisplayName("GIVEN project id exists And new project data id field is not null WHEN update a project by id THEN updates all fields of the project except the id And returns the project updated with the new data")
+    void ProjectIdExistsAndNewProjectDataIdFieldIsNotNull_UpdateById_UpdatesAllFieldsExceptIdAndReturnsProjectUpdated() {
         // Given
         given(projectRepositoryMock.existsById(any(UUID.class))).willReturn(true);
 
@@ -289,8 +288,8 @@ class ProjectServiceImpTests {
     }
 
     @Test
-    @DisplayName("GIVEN id exists And project id is null WHEN update a project by id THEN updates all fields of the project except the id And Returns the project updated with the new values")
-    void IdExistsAndProjectIdIsNull_UpdateById_UpdatesAllFieldsExceptIdAndReturnsProjectUpdated() {
+    @DisplayName("GIVEN project id exists And new project data id field is null WHEN update a project by id THEN updates all fields of the project except the id And returns the project updated with the new data")
+    void ProjectIdExistsAndNewProjectDataIdFieldIsNull_UpdateById_UpdatesAllFieldsExceptIdAndReturnsProjectUpdated() {
         // Given
         given(projectRepositoryMock.existsById(any(UUID.class))).willReturn(true);
 
@@ -318,8 +317,8 @@ class ProjectServiceImpTests {
 
     // Delete
     @Test
-    @DisplayName("GIVEN id does not exists WHEN delete a project by id THEN does not delete any project And returns false")
-    void IdNotExists_DeleteById_DoesNotDeleteAnyProjectAndReturnsFalse() {
+    @DisplayName("GIVEN project id does not exists WHEN delete a project by id THEN does not delete the project And returns false")
+    void ProjectIdNotExists_DeleteById_DoesNotDeleteProjectAndReturnsFalse() {
         // Given
         given(projectRepositoryMock.deleteProjectById(any(UUID.class))).willReturn(0L);
 
@@ -329,15 +328,15 @@ class ProjectServiceImpTests {
         var actual = projectService.deleteById(idToDelete);
 
         // Then
-        Assertions.assertFalse(actual);
+        assertFalse(actual);
 
         then(projectRepositoryMock).should(times(1))
                                    .deleteProjectById(idToDelete);
     }
 
     @Test
-    @DisplayName("GIVEN id exists WHEN delete a project by id THEN deletes the project with the given id And returns true")
-    void IdExists_DeleteById_DeletesProjectWithGivenIdAndReturnsTrue() {
+    @DisplayName("GIVEN project id exists WHEN delete a project by id THEN deletes the project And returns true")
+    void ProjectIdExists_DeleteById_DeletesProjectAndReturnsTrue() {
         // Given
         given(projectRepositoryMock.deleteProjectById(any(UUID.class))).willReturn(1L);
 
@@ -347,7 +346,7 @@ class ProjectServiceImpTests {
         var actual = projectService.deleteById(idToDelete);
 
         // Then
-        Assertions.assertTrue(actual);
+        assertTrue(actual);
 
         then(projectRepositoryMock).should(times(1))
                                    .deleteProjectById(idToDelete);
