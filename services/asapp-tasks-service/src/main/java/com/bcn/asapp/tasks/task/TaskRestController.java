@@ -58,6 +58,11 @@ public class TaskRestController implements TaskRestAPI {
     }
 
     @Override
+    public List<TaskDTO> getTasksByProjectId(UUID projectId) {
+        return taskService.findByProjectId(projectId);
+    }
+
+    @Override
     public TaskDTO createTask(TaskDTO task) {
         return taskService.create(task);
     }

@@ -93,6 +93,23 @@ public interface TaskRestAPI {
     List<TaskDTO> getAllTasks();
 
     /**
+     * Gets tasks by project id.
+     * <p>
+     * Response codes:
+     * <ul>
+     * <li>200-OK : Tasks found.</li>
+     * </ul>
+     *
+     * @param projectId the id of the project.
+     * @return the tasks found, or empty if there aren't tasks for the given project.
+     */
+    @Operation(summary = "Get tasks by project id", description = "Returns the tasks found, or empty if there aren't tasks for the given project")
+    @ApiResponse(responseCode = "200", description = "Tasks found", content = { @Content(schema = @Schema(implementation = TaskDTO.class)) })
+    @GetMapping(value = { "/project/{id}" }, produces = { "application/json" })
+    @ResponseStatus(HttpStatus.OK)
+    List<TaskDTO> getTasksByProjectId(@Parameter(description = "Id of the project") @PathVariable("id") UUID projectId);
+
+    /**
      * Creates a task.
      * <p>
      * Response codes:

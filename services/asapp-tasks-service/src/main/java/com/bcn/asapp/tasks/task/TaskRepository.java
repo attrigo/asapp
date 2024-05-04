@@ -15,6 +15,7 @@
 */
 package com.bcn.asapp.tasks.task;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.data.jdbc.repository.query.Modifying;
@@ -30,6 +31,14 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface TaskRepository extends ListCrudRepository<Task, UUID> {
+
+    /**
+     * Finds tasks with the given project id.
+     *
+     * @param projectId the id of the project, must not be {@literal null}.
+     * @return a list with the tasks found, or empty list if none found.
+     */
+    List<Task> findByProjectId(UUID projectId);
 
     /**
      * Deletes the task with the given id.

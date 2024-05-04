@@ -45,6 +45,14 @@ public interface TaskService {
     List<TaskDTO> findAll();
 
     /**
+     * Finds the tasks that belongs to the given project id.
+     *
+     * @param projectId the id of the project.
+     * @return a list with the tasks found, or an empty list if none found.
+     */
+    List<TaskDTO> findByProjectId(UUID projectId);
+
+    /**
      * Creates the given task.
      * <p>
      * Always creates the task with a new id, therefore in cases where the id of the given task is present it is ignored.

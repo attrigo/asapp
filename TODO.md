@@ -34,23 +34,20 @@
     * [X] Add project URIs
     * [X] Refactor all endpoints to use commons URI
     * [X] Add README file
-* [ ] Create REST client library
-    * [ ] Copy from bk
-    * [ ] Review Javadoc
-    * [ ] Review tests
-    * [ ] Create README file
 * [ ] Create relationship between projects and tasks
-    * [ ] asapp-tasks-service
-        * [ ] Add project_id column to task table via Liquibase
-        * [ ] Add endpoint to get tasks by project id
-        * [ ] Add tests
-        * [ ] Add Javadoc
-        * [ ] Update documentation
+    * [X] asapp-tasks-service
+        * [X] Add project_id column to task table via Liquibase
+        * [X] Add endpoint to get tasks by project id
+        * [X] Add tests
+        * [X] Add Javadoc
+        * [X] Update documentation
     * [ ] asapp-rest-clients
-        * [ ] Add client for tasks
+        * [] Create REST client library
+            * [ ] Add Javadoc
+            * [ ] Add client for tasks
             * [ ] Add operation to get tasks by project id
-        * [ ] Add tests
-        * [ ] Update documentation
+            * [ ] Add tests
+            * [ ] Update documentation
     * [ ] asapp-projects-service
         * [ ] Update get project by id endpoint to include the tasks
         * [ ] Update tests

@@ -19,6 +19,7 @@ import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_CREATE_FULL_PATH;
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_DELETE_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_ALL_FULL_PATH;
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_BY_ID_FULL_PATH;
+import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_BY_PROJECT_ID_FULL_PATH;
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_ROOT_PATH;
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_UPDATE_BY_ID_FULL_PATH;
 import static org.hamcrest.Matchers.containsString;
@@ -85,6 +86,8 @@ class TaskControllerIT {
 
     private String fakeTaskStartDateFormatted;
 
+    private UUID fakeProjectId;
+
     @BeforeEach
     void beforeEach() {
         this.fakeTaskId = UUID.randomUUID();
@@ -94,6 +97,7 @@ class TaskControllerIT {
         this.fakeTaskDescription = "IT Description";
         this.fakeTaskStartDateFormatted = DateTimeFormatter.ofPattern(dateTimeFormat)
                                                            .format(fakeTaskStartDate);
+        this.fakeProjectId = UUID.randomUUID();
     }
 
     // getTaskById
@@ -148,7 +152,7 @@ class TaskControllerIT {
     @DisplayName("GIVEN task id exists WHEN get a task by id THEN returns HTTP response with status OK And the body with the task found")
     void TaskIdExists_GetTaskById_ReturnsStatusOkAndBodyWithTaskFound() throws Exception {
         // Given
-        var fakeTask = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
+        var fakeTask = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         given(taskServiceMock.findById(any(UUID.class))).willReturn(Optional.of(fakeTask));
 
         // When & Then
@@ -161,7 +165,8 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.id", is(fakeTaskId.toString())))
                .andExpect(jsonPath("$.title", is(fakeTaskTitle)))
                .andExpect(jsonPath("$.description", is(fakeTaskDescription)))
-               .andExpect(jsonPath("$.startDateTime", is(fakeTaskStartDateFormatted)));
+               .andExpect(jsonPath("$.startDateTime", is(fakeTaskStartDateFormatted)))
+               .andExpect(jsonPath("$.projectId", is(fakeProjectId.toString())));
     }
 
     // getAllTasks
@@ -187,9 +192,9 @@ class TaskControllerIT {
         var fakeTask3Id = UUID.randomUUID();
 
         // Given
-        var fakeTask1 = new TaskDTO(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate);
-        var fakeTask2 = new TaskDTO(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate);
-        var fakeTask3 = new TaskDTO(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate);
+        var fakeTask1 = new TaskDTO(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
+        var fakeTask2 = new TaskDTO(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
+        var fakeTask3 = new TaskDTO(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
         var fakeTasks = Arrays.asList(fakeTask1, fakeTask2, fakeTask3);
         given(taskServiceMock.findAll()).willReturn(fakeTasks);
 
@@ -202,14 +207,104 @@ class TaskControllerIT {
                .andExpect(jsonPath("$[0].title", is(fakeTaskTitle + " 1")))
                .andExpect(jsonPath("$[0].description", is(fakeTaskDescription + " 1")))
                .andExpect(jsonPath("$[0].startDateTime", is(fakeTaskStartDateFormatted)))
+               .andExpect(jsonPath("$[0].projectId", is(fakeProjectId.toString())))
                .andExpect(jsonPath("$[1].id", is(fakeTask2Id.toString())))
                .andExpect(jsonPath("$[1].title", is(fakeTaskTitle + " 2")))
                .andExpect(jsonPath("$[1].description", is(fakeTaskDescription + " 2")))
                .andExpect(jsonPath("$[1].startDateTime", is(fakeTaskStartDateFormatted)))
+               .andExpect(jsonPath("$[1].projectId", is(fakeProjectId.toString())))
                .andExpect(jsonPath("$[2].id", is(fakeTask3Id.toString())))
                .andExpect(jsonPath("$[2].title", is(fakeTaskTitle + " 3")))
                .andExpect(jsonPath("$[2].description", is(fakeTaskDescription + " 3")))
-               .andExpect(jsonPath("$[2].startDateTime", is(fakeTaskStartDateFormatted)));
+               .andExpect(jsonPath("$[2].startDateTime", is(fakeTaskStartDateFormatted)))
+               .andExpect(jsonPath("$[2].projectId", is(fakeProjectId.toString())));
+    }
+
+    // findByProjectId
+    @Test
+    @DisplayName("GIVEN project id is empty WHEN get tasks by project id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
+    void ProjectIdIsEmpty_GetTasksByProjectId_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
+        // When & Then
+        var requestBuilder = get(TASKS_ROOT_PATH + "/project/");
+        mockMvc.perform(requestBuilder)
+               .andExpect(status().isNotFound())
+               .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+               .andExpect(jsonPath("$.type", is("about:blank")))
+               .andExpect(jsonPath("$.title", is("Not Found")))
+               .andExpect(jsonPath("$.status", is(404)))
+               .andExpect(jsonPath("$.detail", is("No static resource v1/tasks/project.")))
+               .andExpect(jsonPath("$.instance", is("/v1/tasks/project/")));
+    }
+
+    @Test
+    @DisplayName("GIVEN project id not a valid UUID WHEN get tasks by project id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void ProjectIdIsNotUUID_GetTasksByProjectId_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+        // When & Then
+        var idToFind = 1L;
+
+        var requestBuilder = get(TASKS_GET_BY_PROJECT_ID_FULL_PATH, idToFind);
+        mockMvc.perform(requestBuilder)
+               .andExpect(status().isBadRequest())
+               .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+               .andExpect(jsonPath("$.type", is("about:blank")))
+               .andExpect(jsonPath("$.title", is("Bad Request")))
+               .andExpect(jsonPath("$.status", is(400)))
+               .andExpect(jsonPath("$.detail", is("Failed to convert 'id' with value: '1'")))
+               .andExpect(jsonPath("$.instance", is("/v1/tasks/project/" + idToFind)));
+    }
+
+    @Test
+    @DisplayName("GIVEN there are not tasks with project id WHEN get tasks by project id THEN returns HTTP response with status OK And an empty body")
+    void ThereAreNotTasksWithProjectId_GetTasksByProjectId_ReturnsStatusOkAndEmptyBody() throws Exception {
+        // Given
+        given(taskServiceMock.findByProjectId(any(UUID.class))).willReturn(Collections.emptyList());
+
+        // When & Then
+        var idToFind = UUID.randomUUID();
+
+        var requestBuilder = get(TASKS_GET_BY_PROJECT_ID_FULL_PATH, idToFind);
+        mockMvc.perform(requestBuilder)
+               .andExpect(status().isOk())
+               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+               .andExpect(jsonPath("$").isEmpty());
+    }
+
+    @Test
+    @DisplayName("GIVEN there are tasks with project id WHEN get tasks by project id THEN returns HTTP response with status OK And the body with the tasks found")
+    void ThereAreTasksWithProjectId_GetTasksByProjectId_ReturnsStatusOkAndBodyWithTasksFound() throws Exception {
+        var fakeTask1Id = UUID.randomUUID();
+        var fakeTask2Id = UUID.randomUUID();
+        var fakeTask3Id = UUID.randomUUID();
+
+        // Given
+        var fakeTask1 = new TaskDTO(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
+        var fakeTask2 = new TaskDTO(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
+        var fakeTask3 = new TaskDTO(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
+        var fakeTasks = Arrays.asList(fakeTask1, fakeTask2, fakeTask3);
+        given(taskServiceMock.findByProjectId(any(UUID.class))).willReturn(fakeTasks);
+
+        // When & Then
+        var idToFind = fakeProjectId;
+
+        var requestBuilder = get(TASKS_GET_BY_PROJECT_ID_FULL_PATH, idToFind);
+        mockMvc.perform(requestBuilder)
+               .andExpect(status().isOk())
+               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+               .andExpect(jsonPath("$[0].id", is(fakeTask1Id.toString())))
+               .andExpect(jsonPath("$[0].title", is(fakeTaskTitle + " 1")))
+               .andExpect(jsonPath("$[0].description", is(fakeTaskDescription + " 1")))
+               .andExpect(jsonPath("$[0].startDateTime", is(fakeTaskStartDateFormatted)))
+               .andExpect(jsonPath("$[0].projectId", is(fakeProjectId.toString())))
+               .andExpect(jsonPath("$[1].id", is(fakeTask2Id.toString())))
+               .andExpect(jsonPath("$[1].title", is(fakeTaskTitle + " 2")))
+               .andExpect(jsonPath("$[1].description", is(fakeTaskDescription + " 2")))
+               .andExpect(jsonPath("$[1].startDateTime", is(fakeTaskStartDateFormatted)))
+               .andExpect(jsonPath("$[1].projectId", is(fakeProjectId.toString())))
+               .andExpect(jsonPath("$[2].id", is(fakeTask3Id.toString())))
+               .andExpect(jsonPath("$[2].title", is(fakeTaskTitle + " 3")))
+               .andExpect(jsonPath("$[2].description", is(fakeTaskDescription + " 3")))
+               .andExpect(jsonPath("$[2].startDateTime", is(fakeTaskStartDateFormatted)))
+               .andExpect(jsonPath("$[2].projectId", is(fakeProjectId.toString())));
     }
 
     // CreateTask
@@ -253,7 +348,7 @@ class TaskControllerIT {
     @DisplayName("GIVEN task mandatory fields are not present WHEN create a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
     void TaskMandatoryFieldsAreNotPresent_CreateTask_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
-        var taskToCreate = new TaskDTO(null, null, fakeTaskDescription, fakeTaskStartDate);
+        var taskToCreate = new TaskDTO(null, null, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         var taskToCreateAsJson = objectMapper.writeValueAsString(taskToCreate);
 
         var requestBuilder = post(TASKS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
@@ -275,7 +370,7 @@ class TaskControllerIT {
     @DisplayName("GIVEN task mandatory fields are empty WHEN create a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
     void TaskMandatoryFieldsAreEmpty_CreateTask_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
-        var taskToCreate = new TaskDTO(null, "", fakeTaskDescription, fakeTaskStartDate);
+        var taskToCreate = new TaskDTO(null, "", fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         var taskToCreateAsJson = objectMapper.writeValueAsString(taskToCreate);
 
         var requestBuilder = post(TASKS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
@@ -301,7 +396,33 @@ class TaskControllerIT {
                 {
                 "title": "IT Title",
                 "description": "IT Description",
-                "startDateTime": "2011-11-11T11:11:11"
+                "startDateTime": "2011-11-11T11:11:11",
+                "projectId: "ec3b3120-a8ca-4b09-966a-3376b077bc8d"
+                }
+                """;
+
+        var requestBuilder = post(TASKS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                         .content(taskToCreate);
+        mockMvc.perform(requestBuilder)
+               .andExpect(status().isBadRequest())
+               .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+               .andExpect(jsonPath("$.type", is("about:blank")))
+               .andExpect(jsonPath("$.title", is("Bad Request")))
+               .andExpect(jsonPath("$.status", is(400)))
+               .andExpect(jsonPath("$.detail", is("Failed to read request")))
+               .andExpect(jsonPath("$.instance", is("/v1/tasks")));
+    }
+
+    @Test
+    @DisplayName("GIVEN task project id field is not a valid UUID WHEN create a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void TaskProjectIdFieldIsNotUUID_CreateTask_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+        // When & Then
+        var taskToCreate = """
+                {
+                "title": "IT Title",
+                "description": "IT Description",
+                "startDateTime": "2011-11-11T11:11:11.111Z",
+                "projectId": 1
                 }
                 """;
 
@@ -321,11 +442,11 @@ class TaskControllerIT {
     @DisplayName("GIVEN task fields are valid WHEN create a task THEN returns HTTP response with status CREATED And the body with the task created")
     void TaskFieldsAreValid_CreateTask_ReturnsStatusCreatedAndBodyWithTaskCreated() throws Exception {
         // Given
-        var fakeTask = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
+        var fakeTask = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         given(taskServiceMock.create(any(TaskDTO.class))).willReturn(fakeTask);
 
         // When & Then
-        var taskToCreate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
+        var taskToCreate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         var taskToCreateAsJson = objectMapper.writeValueAsString(taskToCreate);
 
         var requestBuilder = post(TASKS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
@@ -336,7 +457,8 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.id", is(fakeTaskId.toString())))
                .andExpect(jsonPath("$.title", is(fakeTaskTitle)))
                .andExpect(jsonPath("$.description", is(fakeTaskDescription)))
-               .andExpect(jsonPath("$.startDateTime", is(fakeTaskStartDateFormatted)));
+               .andExpect(jsonPath("$.startDateTime", is(fakeTaskStartDateFormatted)))
+               .andExpect(jsonPath("$.projectId", is(fakeProjectId.toString())));
     }
 
     // UpdateTaskById
@@ -344,7 +466,7 @@ class TaskControllerIT {
     @DisplayName("GIVEN task id is empty WHEN update a task by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
     void TaskIdIsEmpty_UpdateTaskById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
         // When & Then
-        var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
+        var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
         var requestBuilder = put(TASKS_EMPTY_ID_PATH).contentType(MediaType.APPLICATION_JSON)
@@ -364,7 +486,7 @@ class TaskControllerIT {
     void TaskIdIsNotUUID_UpdateTaskById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = 1L;
-        var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
+        var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
         var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
@@ -422,7 +544,7 @@ class TaskControllerIT {
     void NewTaskDataMandatoryFieldsAreNotPresent_UpdateTaskById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = fakeTaskId;
-        var taskToUpdate = new TaskDTO(null, null, fakeTaskDescription, fakeTaskStartDate);
+        var taskToUpdate = new TaskDTO(null, null, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
         var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
@@ -445,7 +567,7 @@ class TaskControllerIT {
     void NewTaskDataMandatoryFieldsAreEmpty_UpdateTaskById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = fakeTaskId;
-        var taskToUpdate = new TaskDTO(null, "", fakeTaskDescription, fakeTaskStartDate);
+        var taskToUpdate = new TaskDTO(null, "", fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
         var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
@@ -472,7 +594,8 @@ class TaskControllerIT {
                 {
                 "title": "IT Title",
                 "description": "IT Description",
-                "startDateTime": "2011-11-11T11:11:11"
+                "startDateTime": "2011-11-11T11:11:11",
+                "projectId: "ec3b3120-a8ca-4b09-966a-3376b077bc8d"
                 }
                 """;
 
@@ -489,6 +612,32 @@ class TaskControllerIT {
     }
 
     @Test
+    @DisplayName("GIVEN new task data project id field is not a valid UUID WHEN update a task by id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void NewTaskDataProjectIdFieldIsNotUUID_UpdateTaskById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+        // When & Then
+        var idToUpdate = fakeTaskId;
+        var taskToUpdate = """
+                {
+                "title": "IT Title",
+                "description": "IT Description",
+                "startDateTime": "2011-11-11T11:11:11.111Z",
+                "projectId": 1
+                }
+                """;
+
+        var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
+                                                                          .content(taskToUpdate);
+        mockMvc.perform(requestBuilder)
+               .andExpect(status().isBadRequest())
+               .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+               .andExpect(jsonPath("$.type", is("about:blank")))
+               .andExpect(jsonPath("$.title", is("Bad Request")))
+               .andExpect(jsonPath("$.status", is(400)))
+               .andExpect(jsonPath("$.detail", is("Failed to read request")))
+               .andExpect(jsonPath("$.instance", is("/v1/tasks/" + idToUpdate)));
+    }
+
+    @Test
     @DisplayName("GIVEN task id does not exists WHEN update a task by id THEN returns HTTP response with status NOT_FOUND And without body")
     void TaskIdNotExists_UpdateTaskById_ReturnsStatusNotFoundAndWithoutBody() throws Exception {
         // Given
@@ -496,7 +645,7 @@ class TaskControllerIT {
 
         // When & Then
         var idToUpdate = fakeTaskId;
-        var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
+        var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
         var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
@@ -513,14 +662,15 @@ class TaskControllerIT {
                                                     .truncatedTo(ChronoUnit.MILLIS);
         var anotherFakeTaskStartDateFormatted = DateTimeFormatter.ofPattern(dateTimeFormat)
                                                                  .format(anotherFakeTaskStartDate);
+        var anotherFakeTaskProjectId = UUID.randomUUID();
 
         // Given
-        var fakeTask = new TaskDTO(fakeTaskId, fakeTaskTitle + " 2", fakeTaskDescription + " 2", anotherFakeTaskStartDate);
+        var fakeTask = new TaskDTO(fakeTaskId, fakeTaskTitle + " 2", fakeTaskDescription + " 2", anotherFakeTaskStartDate, anotherFakeTaskProjectId);
         given(taskServiceMock.updateById(any(UUID.class), any(TaskDTO.class))).willReturn(Optional.of(fakeTask));
 
         // When & Then
         var idToUpdate = fakeTaskId;
-        var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
+        var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
         var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
@@ -531,7 +681,8 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.id", is(fakeTaskId.toString())))
                .andExpect(jsonPath("$.title", is(fakeTaskTitle + " 2")))
                .andExpect(jsonPath("$.description", is(fakeTaskDescription + " 2")))
-               .andExpect(jsonPath("$.startDateTime", is(anotherFakeTaskStartDateFormatted)));
+               .andExpect(jsonPath("$.startDateTime", is(anotherFakeTaskStartDateFormatted)))
+               .andExpect(jsonPath("$.projectId", is(anotherFakeTaskProjectId.toString())));
     }
 
     // DeleteTaskById
