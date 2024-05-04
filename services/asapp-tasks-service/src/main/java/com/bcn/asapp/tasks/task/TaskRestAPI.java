@@ -70,7 +70,7 @@ public interface TaskRestAPI {
      * @param id the id of the task to get.
      * @return a {@link ResponseEntity} wrapping the task found, or wrapping empty if the given id has not been found.
      */
-    @Operation(summary = "Get a task by id", description = "Returns the task found, or empty if the id has not been found")
+    @Operation(summary = "Get a task by id", description = "Returns the task found, or empty if the given id has not been found")
     @ApiResponse(responseCode = "200", description = "Task has been found", content = { @Content(schema = @Schema(implementation = TaskDTO.class)) })
     @ApiResponse(responseCode = "404", description = "Task not found", content = { @Content })
     @GetMapping(value = TASKS_GET_BY_ID_PATH, produces = "application/json")

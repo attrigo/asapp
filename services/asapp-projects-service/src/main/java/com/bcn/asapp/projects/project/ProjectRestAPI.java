@@ -70,7 +70,7 @@ public interface ProjectRestAPI {
      * @param id the id of the project to get.
      * @return a {@link ResponseEntity} wrapping the project found, or wrapping empty if the given id has not been found.
      */
-    @Operation(summary = "Get a project by id", description = "Returns the project found, or empty if the id has not been found")
+    @Operation(summary = "Get a project by id", description = "Returns the project found, or empty if the given id has not been found")
     @ApiResponse(responseCode = "200", description = "Project has been found", content = { @Content(schema = @Schema(implementation = ProjectDTO.class)) })
     @ApiResponse(responseCode = "404", description = "Project not found", content = { @Content })
     @GetMapping(value = PROJECTS_GET_BY_ID_PATH, produces = "application/json")
