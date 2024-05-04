@@ -71,15 +71,15 @@ class TaskServiceImpTests {
         given(taskMapperSpy.toTaskIgnoreId(any(TaskDTO.class))).willCallRealMethod();
 
         this.fakeTaskId = UUID.randomUUID();
-        this.fakeTaskTitle = "Test Title";
-        this.fakeTaskDescription = "Test Description";
+        this.fakeTaskTitle = "UT Title";
+        this.fakeTaskDescription = "UT Description";
         this.fakeTaskStartDate = LocalDateTime.now();
     }
 
     // findById
     @Test
-    @DisplayName("GIVEN id does not exists WHEN find task by id THEN finds the task with the given id And returns empty")
-    void IdNotExists_FindById_FindsTaskAndReturnsEmpty() {
+    @DisplayName("GIVEN task id does not exists WHEN find a task by id THEN does not find the task And returns empty")
+    void TaskIdNotExists_FindById_DoesNotFindTaskAndReturnsEmpty() {
         // Given
         given(taskRepositoryMock.findById(any(UUID.class))).willReturn(Optional.empty());
 
@@ -96,8 +96,8 @@ class TaskServiceImpTests {
     }
 
     @Test
-    @DisplayName("GIVEN id exists WHEN find task by id THEN finds the task with the given id And returns the task found")
-    void IdExists_FindById_FindsTaskAndReturnsTaskFound() {
+    @DisplayName("GIVEN task id exists WHEN find a task by id THEN finds the task And returns the task found")
+    void TaskIdExists_FindById_FindsTaskAndReturnsTaskFound() {
         // Given
         var fakeTask = new Task(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
         given(taskRepositoryMock.findById(any(UUID.class))).willReturn(Optional.of(fakeTask));
@@ -119,7 +119,7 @@ class TaskServiceImpTests {
 
     // findAll
     @Test
-    @DisplayName("GIVEN there are not tasks WHEN find all tasks THEN does not find tasks And returns empty list")
+    @DisplayName("GIVEN there are not tasks WHEN find all tasks THEN does not find any tasks And returns empty list")
     void ThereAreNotTasks_FindAll_DoesNotFindTasksAndReturnsEmptyList() {
         // Given
         given(taskRepositoryMock.findAll()).willReturn(Collections.emptyList());
@@ -169,8 +169,8 @@ class TaskServiceImpTests {
 
     // Create
     @Test
-    @DisplayName("GIVEN task id is not null WHEN create a task THEN creates the task ignoring the given task id And returns the task created with a new id")
-    void TaskIdIsNotNull_Create_CreatesTaskIgnoringGivenTaskIdAndReturnsTaskCreated() {
+    @DisplayName("GIVEN task id field is not null WHEN create a task THEN creates the task ignoring the given task id And returns the task created with a new id")
+    void TaskIdFieldIsNotNull_Create_CreatesTaskIgnoringGivenTaskIdAndReturnsTaskCreated() {
         var newFakeTaskId = UUID.randomUUID();
 
         // Given
@@ -195,8 +195,8 @@ class TaskServiceImpTests {
     }
 
     @Test
-    @DisplayName("GIVEN task id is null WHEN create a task THEN creates the task And returns the task created with a new id")
-    void TaskIdIsNull_Create_CreatesTaskAndReturnsTaskCreated() {
+    @DisplayName("GIVEN task id field is null WHEN create a task THEN creates the task And returns the task created with a new id")
+    void TaskIdFieldIsNull_Create_CreatesTaskAndReturnsTaskCreated() {
         var newFakeTaskId = UUID.randomUUID();
 
         // Given
@@ -222,8 +222,8 @@ class TaskServiceImpTests {
 
     // Update
     @Test
-    @DisplayName("GIVEN id does not exists And task id is not null WHEN update a task by id THEN does not update the task And returns empty")
-    void IdNotExistsAndTaskIdIsNotNull_UpdateById_DoesNotUpdateTaskAndReturnsEmpty() {
+    @DisplayName("GIVEN task id does not exists And new task data id field is not null WHEN update a task by id THEN does not update the task And returns empty")
+    void TaskIdNotExistsAndNewTaskDataIdFieldIsNotNull_UpdateById_DoesNotUpdateTaskAndReturnsEmpty() {
         // Given
         given(taskRepositoryMock.existsById(any(UUID.class))).willReturn(false);
 
@@ -241,8 +241,8 @@ class TaskServiceImpTests {
     }
 
     @Test
-    @DisplayName("GIVEN id does not exists And task id is null WHEN update a task by id THEN does not update the task And returns empty")
-    void IdNotExistsAndTaskIdIsNull_UpdateById_DoesNotUpdateTaskAndReturnsEmpty() {
+    @DisplayName("GIVEN task id does not exists And new task data id field is null WHEN update a task by id THEN does not update the task And returns empty")
+    void TaskIdNotExistsAndNewTaskDataIdFieldIsNull_UpdateById_DoesNotUpdateTaskAndReturnsEmpty() {
         // Given
         given(taskRepositoryMock.existsById(any(UUID.class))).willReturn(false);
 
@@ -260,8 +260,8 @@ class TaskServiceImpTests {
     }
 
     @Test
-    @DisplayName("GIVEN id exists And task id is not null WHEN update a task by id THEN updates all fields of the task except the id And Returns the task updated with the new values")
-    void IdExistsAndTaskIdIsNotNull_UpdateById_UpdatesAllFieldsExceptIdAndReturnsTaskUpdated() {
+    @DisplayName("GIVEN task id exists And new task data id field is not null WHEN update a task by id THEN updates all fields of the task except the id And returns the task updated with the new data")
+    void TaskIdExistsAndNewTaskDataIdFieldIsNotNull_UpdateById_UpdatesAllFieldsExceptIdAndReturnsTaskUpdated() {
         // Given
         given(taskRepositoryMock.existsById(any(UUID.class))).willReturn(true);
 
@@ -288,8 +288,8 @@ class TaskServiceImpTests {
     }
 
     @Test
-    @DisplayName("GIVEN id exists And task id is null WHEN update a task by id THEN updates all fields of the task except the id And Returns the task updated with the new values")
-    void IdExistsAndTaskIdIsNull_UpdateById_UpdatesAllFieldsExceptIdAndReturnsTaskUpdated() {
+    @DisplayName("GIVEN task id exists And new task data id field is null WHEN update a task by id THEN updates all fields of the task except the id And returns the task updated with the new data")
+    void TaskIdExistsAndNewTaskDataIdFieldIsNull_UpdateById_UpdatesAllFieldsExceptIdAndReturnsTaskUpdated() {
         // Given
         given(taskRepositoryMock.existsById(any(UUID.class))).willReturn(true);
 
@@ -317,8 +317,8 @@ class TaskServiceImpTests {
 
     // Delete
     @Test
-    @DisplayName("GIVEN id does not exists WHEN delete a task by id THEN does not delete any task And returns false")
-    void IdNotExists_DeleteById_DoesNotDeleteAnyTaskAndReturnsFalse() {
+    @DisplayName("GIVEN task id does not exists WHEN delete a task by id THEN does not delete the task And returns false")
+    void TaskIdNotExists_DeleteById_DoesNotDeleteTaskAndReturnsFalse() {
         // Given
         given(taskRepositoryMock.deleteTaskById(any(UUID.class))).willReturn(0L);
 
@@ -335,8 +335,8 @@ class TaskServiceImpTests {
     }
 
     @Test
-    @DisplayName("GIVEN id exists WHEN delete a task by id THEN deletes the task with the given id And returns true")
-    void IdExists_DeleteById_DeletesTaskWithGivenIdAndReturnsTrue() {
+    @DisplayName("GIVEN task id exists WHEN delete a task by id THEN deletes the task And returns true")
+    void TaskIdExists_DeleteById_DeletesTaskAndReturnsTrue() {
         // Given
         given(taskRepositoryMock.deleteTaskById(any(UUID.class))).willReturn(1L);
 

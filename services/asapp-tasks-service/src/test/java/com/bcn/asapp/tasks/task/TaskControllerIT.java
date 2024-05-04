@@ -98,8 +98,8 @@ class TaskControllerIT {
 
     // getTaskById
     @Test
-    @DisplayName("GIVEN id is empty WHEN get a task by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
-    void IdIsEmpty_GetTaskById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN task id is empty WHEN get a task by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
+    void TaskIdIsEmpty_GetTaskById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var requestBuilder = get(TASKS_EMPTY_ID_PATH);
         mockMvc.perform(requestBuilder)
@@ -113,8 +113,8 @@ class TaskControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN id is not a valid UUID WHEN get a task by id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void IdIsNotUUID_GetTaskById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN task id is not a valid UUID WHEN get a task by id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void TaskIdIsNotUUID_GetTaskById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToFound = 1L;
 
@@ -130,8 +130,8 @@ class TaskControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN id does not exists WHEN get a task by id THEN returns HTTP response with status NOT_FOUND And the body without content")
-    void IdNotExists_GetTaskById_ReturnsStatusNotFoundAndBodyWithoutContent() throws Exception {
+    @DisplayName("GIVEN task id does not exists WHEN get a task by id THEN returns HTTP response with status NOT_FOUND And without body")
+    void TaskIdNotExists_GetTaskById_ReturnsStatusNotFoundAndWithoutBody() throws Exception {
         // Given
         given(taskServiceMock.findById(any(UUID.class))).willReturn(Optional.empty());
 
@@ -145,8 +145,8 @@ class TaskControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN id exists WHEN get a task by id THEN returns HTTP response with status OK And the body with the task found")
-    void IdExists_GetTaskById_ReturnsStatusOkAndBodyWithTaskFound() throws Exception {
+    @DisplayName("GIVEN task id exists WHEN get a task by id THEN returns HTTP response with status OK And the body with the task found")
+    void TaskIdExists_GetTaskById_ReturnsStatusOkAndBodyWithTaskFound() throws Exception {
         // Given
         var fakeTask = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
         given(taskServiceMock.findById(any(UUID.class))).willReturn(Optional.of(fakeTask));
@@ -181,7 +181,7 @@ class TaskControllerIT {
 
     @Test
     @DisplayName("GIVEN there are tasks WHEN get all tasks THEN returns HTTP response with status OK And the body with all tasks found")
-    void ThereAreTasks_GetAllTasks_ReturnsStatusOkAndBodyWithAllTasksFound() throws Exception {
+    void ThereAreTasks_GetAllTasks_ReturnsStatusOkAndBodyWithTasksFound() throws Exception {
         var fakeTask1Id = UUID.randomUUID();
         var fakeTask2Id = UUID.randomUUID();
         var fakeTask3Id = UUID.randomUUID();
@@ -214,8 +214,8 @@ class TaskControllerIT {
 
     // CreateTask
     @Test
-    @DisplayName("GIVEN task is not a valid Json WHEN create a task THEN returns HTTP response with status Unsupported Media Type And the body with the problem details")
-    void TaskIsNotJson_CreateTask_ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN task fields are not a valid Json WHEN create a task THEN returns HTTP response with status Unsupported Media Type And the body with the problem details")
+    void TaskFieldsAreNotJson_CreateTask_ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var taskToCreate = "";
 
@@ -232,8 +232,8 @@ class TaskControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN task is not present WHEN create a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void TaskIsNotPresent_CreateTask_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN task fields are not present WHEN create a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void TaskFieldsAreNotPresent_CreateTask_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var taskToCreate = "";
 
@@ -250,8 +250,8 @@ class TaskControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN task has not mandatory fields WHEN create a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void TaskHasNotMandatoryFields_CreateTask_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN task mandatory fields are not present WHEN create a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void TaskMandatoryFieldsAreNotPresent_CreateTask_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var taskToCreate = new TaskDTO(null, null, fakeTaskDescription, fakeTaskStartDate);
         var taskToCreateAsJson = objectMapper.writeValueAsString(taskToCreate);
@@ -294,8 +294,8 @@ class TaskControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN task's start date has invalid format WHEN create a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void TaskStartDateHasInvalidFormat_CreateTask_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN task start date field has invalid format WHEN create a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void TaskStartDateFieldHasInvalidFormat_CreateTask_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var taskToCreate = """
                 {
@@ -304,10 +304,9 @@ class TaskControllerIT {
                 "startDateTime": "2011-11-11T11:11:11"
                 }
                 """;
-        var taskToCreateAsJson = objectMapper.writeValueAsString(taskToCreate);
 
         var requestBuilder = post(TASKS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
-                                                         .content(taskToCreateAsJson);
+                                                         .content(taskToCreate);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -319,8 +318,8 @@ class TaskControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN task is valid WHEN create a task THEN returns HTTP response with status CREATED And the body with the task created")
-    void TaskIsValid_CreateTask_ReturnsStatusCreatedAndBodyWithTaskCreated() throws Exception {
+    @DisplayName("GIVEN task fields are valid WHEN create a task THEN returns HTTP response with status CREATED And the body with the task created")
+    void TaskFieldsAreValid_CreateTask_ReturnsStatusCreatedAndBodyWithTaskCreated() throws Exception {
         // Given
         var fakeTask = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
         given(taskServiceMock.create(any(TaskDTO.class))).willReturn(fakeTask);
@@ -340,10 +339,10 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.startDateTime", is(fakeTaskStartDateFormatted)));
     }
 
-    // UpdateTask
+    // UpdateTaskById
     @Test
-    @DisplayName("GIVEN id is empty WHEN update a task THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
-    void IdIsEmpty_UpdateTask_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN task id is empty WHEN update a task by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
+    void TaskIdIsEmpty_UpdateTaskById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
@@ -361,8 +360,8 @@ class TaskControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN id is not a valid UUID WHEN update a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void IdIsNotUUID_UpdateTask_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN task id is not a valid UUID WHEN update a task by id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void TaskIdIsNotUUID_UpdateTaskById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = 1L;
         var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
@@ -381,8 +380,8 @@ class TaskControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN task is not a valid Json WHEN update a task THEN returns HTTP response with status Unsupported Media Type And content with the problem details")
-    void TaskIsNotJson_UpdateTask_ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN task fields are not a valid Json WHEN update a task by id THEN returns HTTP response with status Unsupported Media Type And content with the problem details")
+    void NewTaskDataFieldsAreNotJson_UpdateTaskById_ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = fakeTaskId;
         var taskToUpdate = "";
@@ -400,8 +399,8 @@ class TaskControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN task is not present WHEN update a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void TaskIsNotPresent_UpdateTask_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN new task data fields are not present WHEN update a task by id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void NewTaskDataFieldsAreNotPresent_UpdateTaskById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = fakeTaskId;
         var taskToUpdate = "";
@@ -419,8 +418,8 @@ class TaskControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN task has not mandatory fields WHEN update a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void TaskHasNotMandatoryFields_UpdateTask_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN new task data mandatory fields are not present WHEN update a task by id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void NewTaskDataMandatoryFieldsAreNotPresent_UpdateTaskById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = fakeTaskId;
         var taskToUpdate = new TaskDTO(null, null, fakeTaskDescription, fakeTaskStartDate);
@@ -442,8 +441,8 @@ class TaskControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN task mandatory fields are empty WHEN update a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void TaskMandatoryFieldsAreEmpty_UpdateTask_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN new task data mandatory fields are empty WHEN update a task by id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void NewTaskDataMandatoryFieldsAreEmpty_UpdateTaskById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = fakeTaskId;
         var taskToUpdate = new TaskDTO(null, "", fakeTaskDescription, fakeTaskStartDate);
@@ -465,8 +464,8 @@ class TaskControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN task's start date has invalid format WHEN update a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void TaskStartDateHasInvalidFormat_UpdateTask_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN new task data start date field has invalid format WHEN update a task by id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void NewTaskDataStartDateFieldHasInvalidFormat_UpdateTaskById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = fakeTaskId;
         var taskToUpdate = """
@@ -476,10 +475,9 @@ class TaskControllerIT {
                 "startDateTime": "2011-11-11T11:11:11"
                 }
                 """;
-        var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
         var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
-                                                                          .content(taskToUpdateAsJson);
+                                                                          .content(taskToUpdate);
         mockMvc.perform(requestBuilder)
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -491,8 +489,8 @@ class TaskControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN id does not exists WHEN update a task THEN returns HTTP response with status NOT_FOUND And the body without content")
-    void IdNotExists_UpdateTask_ReturnsStatusNotFoundAndBodyWithoutContent() throws Exception {
+    @DisplayName("GIVEN task id does not exists WHEN update a task by id THEN returns HTTP response with status NOT_FOUND And without body")
+    void TaskIdNotExists_UpdateTaskById_ReturnsStatusNotFoundAndWithoutBody() throws Exception {
         // Given
         given(taskServiceMock.updateById(any(UUID.class), any(TaskDTO.class))).willReturn(Optional.empty());
 
@@ -509,8 +507,8 @@ class TaskControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN id exists WHEN update a task THEN returns HTTP response with status OK And the body with the task updated")
-    void IdExists_UpdateTask_ReturnsStatusOkAndBodyWithTaskUpdated() throws Exception {
+    @DisplayName("GIVEN task id exists WHEN update a task by id THEN returns HTTP response with status OK And the body with the task updated")
+    void TaskIdExists_UpdateTaskById_ReturnsStatusOkAndBodyWithTaskUpdated() throws Exception {
         var anotherFakeTaskStartDate = LocalDateTime.now()
                                                     .truncatedTo(ChronoUnit.MILLIS);
         var anotherFakeTaskStartDateFormatted = DateTimeFormatter.ofPattern(dateTimeFormat)
@@ -538,8 +536,8 @@ class TaskControllerIT {
 
     // DeleteTaskById
     @Test
-    @DisplayName("GIVEN id is empty WHEN delete a task by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
-    void IdIsEmpty_DeleteTaskById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN task id is empty WHEN delete a task by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
+    void TaskIdIsEmpty_DeleteTaskById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var requestBuilder = delete(TASKS_EMPTY_ID_PATH);
         mockMvc.perform(requestBuilder)
@@ -553,8 +551,8 @@ class TaskControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN id is not a valid UUID WHEN delete a task by id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-    void IdIsNotUUID_DeleteTaskById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+    @DisplayName("GIVEN task id is not a valid UUID WHEN delete a task by id THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+    void TaskIdIsNotUUID_DeleteTaskById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToDelete = 1L;
 
@@ -570,8 +568,8 @@ class TaskControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN id does not exists WHEN delete a task by id THEN returns HTTP response with status NOT_FOUND And the body without content")
-    void IdNotExists_DeleteTaskById_ReturnsStatusNotFoundAndBodyWithoutContent() throws Exception {
+    @DisplayName("GIVEN task id does not exists WHEN delete a task by id THEN returns HTTP response with status NOT_FOUND And without body")
+    void TaskIdNotExists_DeleteTaskById_ReturnsStatusNotFoundAndWithoutBody() throws Exception {
         // Given
         given(taskServiceMock.deleteById(any(UUID.class))).willReturn(false);
 
@@ -585,8 +583,8 @@ class TaskControllerIT {
     }
 
     @Test
-    @DisplayName("GIVEN id exists WHEN delete a task by id THEN returns HTTP response with status NO_CONTENT And the body without content")
-    void IdExists_DeleteTaskById_ReturnsStatusNoContentAndBodyWithoutContent() throws Exception {
+    @DisplayName("GIVEN task id exists WHEN delete a task by id THEN returns HTTP response with status NO_CONTENT And without body")
+    void TaskIdExists_DeleteTaskById_ReturnsStatusNoContentAndWithoutBody() throws Exception {
         // Given
         given(taskServiceMock.deleteById(any(UUID.class))).willReturn(true);
 

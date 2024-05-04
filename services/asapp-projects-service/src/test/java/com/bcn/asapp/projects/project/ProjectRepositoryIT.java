@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Assertions;
@@ -46,15 +47,26 @@ class ProjectRepositoryIT {
     @Autowired
     private ProjectRepository projectRepository;
 
+    private String fakeProjectTitle;
+
+    private String fakeProjectDescription;
+
+    private LocalDateTime fakeProjectStartDate;
+
     @BeforeEach
     void beforeEach() {
         projectRepository.deleteAll();
+
+        this.fakeProjectTitle = "Test Title";
+        this.fakeProjectDescription = "Test Description";
+        this.fakeProjectStartDate = LocalDateTime.now()
+                                                 .truncatedTo(ChronoUnit.MILLIS);
     }
 
     // deleteProjectById
     @Test
-    @DisplayName("GIVEN id not exists WHEN delete a project by id THEN does not delete any project And returns zero")
-    void IdNotExists_DeleteProjectById_DoesNotDeleteProjectAndReturnsZero() {
+    @DisplayName("GIVEN project id not exists WHEN delete a project by id THEN does not delete the project And returns zero")
+    void ProjectIdNotExists_DeleteProjectById_DoesNotDeleteProjectAndReturnsZero() {
         // When
         var idToDelete = UUID.randomUUID();
 
@@ -65,10 +77,10 @@ class ProjectRepositoryIT {
     }
 
     @Test
-    @DisplayName("GIVEN id exists WHEN delete a project by id THEN deletes the project with the given id And returns the amount of projects deleted")
-    void IdExists_DeleteProjectById_DeletesProjectAndReturnsAmountOfProjectsDeleted() {
+    @DisplayName("GIVEN project id exists WHEN delete a project by id THEN deletes the project And returns the amount of projects deleted")
+    void ProjectIdExists_DeleteProjectById_DeletesProjectAndReturnsAmountOfProjectsDeleted() {
         // Given
-        var fakeProject = new Project(null, "Title Test", "Description Test", LocalDateTime.now());
+        var fakeProject = new Project(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
         var projectToBeDeleted = projectRepository.save(fakeProject);
         Assertions.assertNotNull(projectToBeDeleted);
 
