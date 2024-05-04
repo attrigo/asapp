@@ -19,6 +19,7 @@ import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_CREATE_FULL_PATH;
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_DELETE_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_ALL_FULL_PATH;
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_BY_ID_FULL_PATH;
+import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_BY_PROJECT_ID_FULL_PATH;
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_UPDATE_BY_ID_FULL_PATH;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
@@ -76,6 +77,8 @@ class TaskE2EIT {
 
     private LocalDateTime fakeTaskStartDate;
 
+    private UUID fakeProjectId;
+
     @BeforeEach
     void beforeEach() {
         taskRepository.deleteAll();
@@ -85,6 +88,7 @@ class TaskE2EIT {
         this.fakeTaskDescription = "IT Description";
         this.fakeTaskStartDate = LocalDateTime.now()
                                               .truncatedTo(ChronoUnit.MILLIS);
+        this.fakeProjectId = UUID.randomUUID();
     }
 
     // GetTaskById
@@ -108,7 +112,7 @@ class TaskE2EIT {
     @DisplayName("GIVEN task id exists WHEN get a task by id THEN gets the task And returns HTTP response with status OK And the body with the task found")
     void TaskIdExists_GetTaskById_GetsTaskAndReturnsStatusOKAndBodyWithTaskFound() {
         // Given
-        var fakeTask = new Task(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
+        var fakeTask = new Task(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         var taskToBeFound = taskRepository.save(fakeTask);
         assertNotNull(taskToBeFound);
 
@@ -127,7 +131,8 @@ class TaskE2EIT {
                      .value(task -> assertThat(task.id(), equalTo(idToFind)))
                      .value(task -> assertThat(task.title(), equalTo(fakeTaskTitle)))
                      .value(task -> assertThat(task.description(), equalTo(fakeTaskDescription)))
-                     .value(task -> assertThat(task.startDateTime(), equalTo(fakeTaskStartDate)));
+                     .value(task -> assertThat(task.startDateTime(), equalTo(fakeTaskStartDate)))
+                     .value(task -> assertThat(task.projectId(), equalTo(fakeProjectId)));
     }
 
     // GetAllTasks
@@ -151,9 +156,9 @@ class TaskE2EIT {
     @DisplayName("GIVEN there are tasks WHEN get all tasks THEN gets all tasks And returns HTTP response with status OK And the body with the tasks found")
     void ThereAreTasks_GetAllTasks_GetsAllTasksAndReturnsStatusOKAndBodyWithTasksFound() {
         // Given
-        var fakeTask1 = new Task(null, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate);
-        var fakeTask2 = new Task(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate);
-        var fakeTask3 = new Task(null, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate);
+        var fakeTask1 = new Task(null, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
+        var fakeTask2 = new Task(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
+        var fakeTask3 = new Task(null, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
         var tasksToBeFound = taskRepository.saveAll(Arrays.asList(fakeTask1, fakeTask2, fakeTask3));
         var taskIdsToBeFound = tasksToBeFound.stream()
                                              .map(Task::id)
@@ -162,13 +167,67 @@ class TaskE2EIT {
         assertEquals(3L, taskIdsToBeFound.size());
 
         // When & Then
-        var expectedTask1 = new TaskDTO(taskIdsToBeFound.get(0), fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate);
-        var expectedTask2 = new TaskDTO(taskIdsToBeFound.get(1), fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate);
-        var expectedTask3 = new TaskDTO(taskIdsToBeFound.get(2), fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate);
+        var expectedTask1 = new TaskDTO(taskIdsToBeFound.get(0), fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
+        var expectedTask2 = new TaskDTO(taskIdsToBeFound.get(1), fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
+        var expectedTask3 = new TaskDTO(taskIdsToBeFound.get(2), fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
         var expected = Arrays.asList(expectedTask1, expectedTask2, expectedTask3);
 
         webTestClient.get()
                      .uri(TASKS_GET_ALL_FULL_PATH)
+                     .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                     .exchange()
+                     .expectStatus()
+                     .isOk()
+                     .expectHeader()
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .expectBodyList(TaskDTO.class)
+                     .hasSize(3)
+                     .isEqualTo(expected);
+    }
+
+    // getByProjectId
+    @Test
+    @DisplayName("GIVEN there are not tasks with project id WHEN get tasks by project id THEN does not find any tasks And returns HTTP response with status OK And and empty body")
+    void ThereAreNotTasksWithProjectId_GetTasksByProjectId_DoesNotFindTasksAndReturnsStatusOkAndEmptyBody() {
+        // When & Then
+        var idToFind = UUID.randomUUID();
+
+        webTestClient.get()
+                     .uri(TASKS_GET_BY_PROJECT_ID_FULL_PATH, idToFind)
+                     .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                     .exchange()
+                     .expectStatus()
+                     .isOk()
+                     .expectHeader()
+                     .contentType(MediaType.APPLICATION_JSON)
+                     .expectBodyList(TaskDTO.class)
+                     .hasSize(0);
+    }
+
+    @Test
+    @DisplayName("GIVEN there are tasks with project id WHEN get tasks by project id THEN gets tasks And returns HTTP response with status OK And the body with the tasks found")
+    void ThereAreTasksWithProjectId_GetTasksByProjectId_GetsTasksAndReturnsStatusOKAndBodyWithTaskFound() {
+        // Given
+        var task1ToBeFound = new Task(null, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
+        var task2ToBeFound = new Task(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
+        var task3ToBeFound = new Task(null, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
+        var tasksToBeFound = taskRepository.saveAll(Arrays.asList(task1ToBeFound, task2ToBeFound, task3ToBeFound));
+        var taskIdsToBeFound = tasksToBeFound.stream()
+                                             .map(Task::id)
+                                             .collect(Collectors.toList());
+        assertNotNull(taskIdsToBeFound);
+        assertEquals(3L, taskIdsToBeFound.size());
+
+        // When & Then
+        var expectedTask1 = new TaskDTO(taskIdsToBeFound.get(0), fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
+        var expectedTask2 = new TaskDTO(taskIdsToBeFound.get(1), fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
+        var expectedTask3 = new TaskDTO(taskIdsToBeFound.get(2), fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
+        var expected = Arrays.asList(expectedTask1, expectedTask2, expectedTask3);
+
+        var idToFind = fakeProjectId;
+
+        webTestClient.get()
+                     .uri(TASKS_GET_BY_PROJECT_ID_FULL_PATH, idToFind)
                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                      .exchange()
                      .expectStatus()
@@ -187,7 +246,7 @@ class TaskE2EIT {
         var anotherFakeTaskId = UUID.randomUUID();
 
         // When & Then
-        var taskToCreate = new TaskDTO(anotherFakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
+        var taskToCreate = new TaskDTO(anotherFakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
         var response = webTestClient.post()
                                     .uri(TASKS_CREATE_FULL_PATH)
@@ -204,12 +263,13 @@ class TaskE2EIT {
                                     .value(task -> assertThat(task.title(), equalTo(fakeTaskTitle)))
                                     .value(task -> assertThat(task.description(), equalTo(fakeTaskDescription)))
                                     .value(task -> assertThat(task.startDateTime(), equalTo(fakeTaskStartDate)))
+                                    .value(task -> assertThat(task.projectId(), equalTo(fakeProjectId)))
                                     .returnResult()
                                     .getResponseBody();
 
         assertNotNull(response);
 
-        var actual = new Task(response.id(), response.title(), response.description(), response.startDateTime());
+        var actual = new Task(response.id(), response.title(), response.description(), response.startDateTime(), response.projectId());
         var expected = taskRepository.findById(response.id());
         assertTrue(expected.isPresent());
         assertEquals(expected.get(), actual);
@@ -219,7 +279,7 @@ class TaskE2EIT {
     @DisplayName("GIVEN task fields are valid WHEN create a task THEN creates the task And returns HTTP response with status CREATED And the body with the task created")
     void TaskFieldsAreValid_CreateTask_CreatesTaskAndReturnsStatusCreatedAndBodyWithTaskCreated() {
         // When & Then
-        var taskToCreate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
+        var taskToCreate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
         var response = webTestClient.post()
                                     .uri(TASKS_CREATE_FULL_PATH)
@@ -236,12 +296,13 @@ class TaskE2EIT {
                                     .value(task -> assertThat(task.title(), equalTo(fakeTaskTitle)))
                                     .value(task -> assertThat(task.description(), equalTo(fakeTaskDescription)))
                                     .value(task -> assertThat(task.startDateTime(), equalTo(fakeTaskStartDate)))
+                                    .value(task -> assertThat(task.projectId(), equalTo(fakeProjectId)))
                                     .returnResult()
                                     .getResponseBody();
 
         assertNotNull(response);
 
-        var actual = new Task(response.id(), response.title(), response.description(), response.startDateTime());
+        var actual = new Task(response.id(), response.title(), response.description(), response.startDateTime(), fakeProjectId);
         var expected = taskRepository.findById(response.id());
         assertTrue(expected.isPresent());
         assertEquals(expected.get(), actual);
@@ -253,7 +314,7 @@ class TaskE2EIT {
     void TaskIdNotExists_UpdateTaskById_DoesNotUpdateTheTaskAndReturnsStatusNotFoundAndWithoutBody() {
         // When & Then
         var idToUpdate = fakeTaskId;
-        var taskToUpdate = new TaskDTO(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate);
+        var taskToUpdate = new TaskDTO(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
 
         webTestClient.put()
                      .uri(TASKS_UPDATE_BY_ID_FULL_PATH, idToUpdate)
@@ -272,15 +333,16 @@ class TaskE2EIT {
     void TaskIdExistsAndNewTaskDataHasIdField_UpdateTaskById_UpdatesAllTaskFieldsExceptIdAndReturnsStatusOkAndBodyWithTaskUpdated() {
         var anotherFakeTaskStartDate = LocalDateTime.now()
                                                     .truncatedTo(ChronoUnit.MILLIS);
+        var anotherFakeTaskProjectId = UUID.randomUUID();
 
         // Given
-        var fakeTask = new Task(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
+        var fakeTask = new Task(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         var taskToBeUpdated = taskRepository.save(fakeTask);
         assertNotNull(taskToBeUpdated);
 
         // When & Then
         var idToUpdate = taskToBeUpdated.id();
-        var taskToUpdate = new TaskDTO(UUID.randomUUID(), fakeTaskTitle + " 2", fakeTaskDescription + " 2", anotherFakeTaskStartDate);
+        var taskToUpdate = new TaskDTO(UUID.randomUUID(), fakeTaskTitle + " 2", fakeTaskDescription + " 2", anotherFakeTaskStartDate, anotherFakeTaskProjectId);
 
         var response = webTestClient.put()
                                     .uri(TASKS_UPDATE_BY_ID_FULL_PATH, idToUpdate)
@@ -297,12 +359,13 @@ class TaskE2EIT {
                                     .value(task -> assertThat(task.title(), equalTo(fakeTaskTitle + " 2")))
                                     .value(task -> assertThat(task.description(), equalTo(fakeTaskDescription + " 2")))
                                     .value(task -> assertThat(task.startDateTime(), equalTo(anotherFakeTaskStartDate)))
+                                    .value(task -> assertThat(task.projectId(), equalTo(anotherFakeTaskProjectId)))
                                     .returnResult()
                                     .getResponseBody();
 
         assertNotNull(response);
 
-        var actual = new Task(response.id(), response.title(), response.description(), response.startDateTime());
+        var actual = new Task(response.id(), response.title(), response.description(), response.startDateTime(), response.projectId());
         var expected = taskRepository.findById(response.id());
         assertTrue(expected.isPresent());
         assertEquals(actual, expected.get());
@@ -313,15 +376,16 @@ class TaskE2EIT {
     void TaskIdExistsAndNewTaskDataFieldsAreValid_UpdateTask_UpdatesAllTaskFieldsAndReturnsStatusOkAndBodyWithTaskUpdated() {
         var anotherFakeTaskStartDate = LocalDateTime.now()
                                                     .truncatedTo(ChronoUnit.MILLIS);
+        var anotherFakeTaskProjectId = UUID.randomUUID();
 
         // Given
-        var fakeTask = new Task(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
+        var fakeTask = new Task(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         var taskToBeUpdated = taskRepository.save(fakeTask);
         assertNotNull(taskToBeUpdated);
 
         // When & Then
         var idToUpdate = taskToBeUpdated.id();
-        var taskToUpdate = new TaskDTO(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", anotherFakeTaskStartDate);
+        var taskToUpdate = new TaskDTO(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", anotherFakeTaskStartDate, anotherFakeTaskProjectId);
 
         var response = webTestClient.put()
                                     .uri(TASKS_UPDATE_BY_ID_FULL_PATH, idToUpdate)
@@ -338,12 +402,13 @@ class TaskE2EIT {
                                     .value(task -> assertThat(task.title(), equalTo(fakeTaskTitle + " 2")))
                                     .value(task -> assertThat(task.description(), equalTo(fakeTaskDescription + " 2")))
                                     .value(task -> assertThat(task.startDateTime(), equalTo(anotherFakeTaskStartDate)))
+                                    .value(task -> assertThat(task.projectId(), equalTo(anotherFakeTaskProjectId)))
                                     .returnResult()
                                     .getResponseBody();
 
         assertNotNull(response);
 
-        var actual = new Task(response.id(), response.title(), response.description(), response.startDateTime());
+        var actual = new Task(response.id(), response.title(), response.description(), response.startDateTime(), response.projectId());
         var expected = taskRepository.findById(response.id());
         assertTrue(expected.isPresent());
         assertEquals(actual, expected.get());
@@ -370,7 +435,7 @@ class TaskE2EIT {
     @DisplayName("GIVEN task id exists WHEN delete a task by id THEN deletes the task And returns HTTP response with status NO_CONTENT And without body")
     void TaskIdExists_DeleteTaskById_DeletesTaskAndReturnsStatusNoContentAndWithoutBody() {
         // Given
-        var fakeTask = new Task(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
+        var fakeTask = new Task(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         var taskToBeDeleted = taskRepository.save(fakeTask);
         assertNotNull(taskToBeDeleted);
 

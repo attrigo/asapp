@@ -21,13 +21,14 @@
             </column>
             <column name="description" type="varchar(50)" remarks="Description of the task"/>
             <column name="start_date" type="timestamp" remarks="Start date of the task"/>
+            <column name="project_id" type="uuid" remarks="Project id the task belongs to"/>
         </createTable>
 
         <rollback>
             <dropTable tableName="task"/>
         </rollback>
 
-        <comment>Creates the task table with columns task_id, title, description and start_date</comment>
+        <comment>Creates the task table with columns task_id, title, description, start_date and project_id</comment>
     </changeSet>
 
 </databaseChangeLog>

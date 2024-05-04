@@ -63,6 +63,14 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public List<TaskDTO> findByProjectId(UUID projectId) {
+        return taskRepository.findByProjectId(projectId)
+                             .stream()
+                             .map(taskMapper::toTaskDTO)
+                             .toList();
+    }
+
+    @Override
     public TaskDTO create(TaskDTO task) {
         var taskWithoutId = taskMapper.toTaskIgnoreId(task);
         var taskCreated = taskRepository.save(taskWithoutId);

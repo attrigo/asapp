@@ -17,9 +17,12 @@ package com.bcn.asapp.tasks.task;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Assertions;
@@ -63,6 +66,39 @@ class TaskRepositoryIT {
                                               .truncatedTo(ChronoUnit.MILLIS);
     }
 
+    // findByProjectId
+    @Test
+    @DisplayName("GIVEN there are not tasks with project id WHEN find tasks by project id THEN does not find any tasks And returns an empty list")
+    void ThereAreNotTasksWithProjectId_FindByProjectId_DoesNotFindTasksAndReturnsEmptyList() {
+        // When
+        var idToFind = UUID.randomUUID();
+
+        var actual = taskRepository.findByProjectId(idToFind);
+
+        // Then
+        assertTrue(actual.isEmpty());
+    }
+
+    @Test
+    @DisplayName("GIVEN there are tasks with project id WHEN find tasks by project id THEN finds the tasks And returns an the tasks found")
+    void ThereAreTasksWithProjectId_FindByProjectId_FindsTasksAndReturnsTasksFound() {
+        var idToFind = UUID.randomUUID();
+
+        // Given
+        var fakeTask1 = new Task(null, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, idToFind);
+        var fakeTask2 = new Task(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, idToFind);
+        var fakeTask3 = new Task(null, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, idToFind);
+        var fakeTasks = List.of(fakeTask1, fakeTask2, fakeTask3);
+        var tasksToBeFound = taskRepository.saveAll(fakeTasks);
+        Assertions.assertNotNull(tasksToBeFound);
+
+        // When
+        var actual = taskRepository.findByProjectId(idToFind);
+
+        // Then
+        assertIterableEquals(tasksToBeFound, actual);
+    }
+
     // deleteTaskById
     @Test
     @DisplayName("GIVEN task id not exists WHEN delete a task by id THEN does not delete the task And returns zero")
@@ -80,7 +116,7 @@ class TaskRepositoryIT {
     @DisplayName("GIVEN task id exists WHEN delete a task by id THEN deletes the task And returns the amount of tasks deleted")
     void TaskIdExists_DeleteTaskById_DeletesTaskAndReturnsAmountOfTasksDeleted() {
         // Given
-        var fakeTask = new Task(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate);
+        var fakeTask = new Task(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, UUID.randomUUID());
         var taskToBeDeleted = taskRepository.save(fakeTask);
         Assertions.assertNotNull(taskToBeDeleted);
 
