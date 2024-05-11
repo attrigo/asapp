@@ -66,10 +66,6 @@ class ProjectServiceImpTests {
 
     @BeforeEach
     void beforeEach() {
-        given(projectMapperSpy.toProjectDTO(any(Project.class))).willCallRealMethod();
-        given(projectMapperSpy.toProject(any(ProjectDTO.class))).willCallRealMethod();
-        given(projectMapperSpy.toProjectIgnoreId(any(ProjectDTO.class))).willCallRealMethod();
-
         this.fakeProjectId = UUID.randomUUID();
         this.fakeProjectTitle = "UT Title";
         this.fakeProjectDescription = "UT Description";
@@ -141,14 +137,10 @@ class ProjectServiceImpTests {
         var fakeProject2Id = UUID.randomUUID();
         var fakeProject3Id = UUID.randomUUID();
 
-        var fakeProjectStartDate1 = LocalDateTime.now();
-        var fakeProjectStartDate2 = LocalDateTime.now();
-        var fakeProjectStartDate3 = LocalDateTime.now();
-
         // Given
-        var fakeProject1 = new Project(fakeProject1Id, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate1);
-        var fakeProject2 = new Project(fakeProject2Id, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate2);
-        var fakeProject3 = new Project(fakeProject3Id, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate3);
+        var fakeProject1 = new Project(fakeProject1Id, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate);
+        var fakeProject2 = new Project(fakeProject2Id, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
+        var fakeProject3 = new Project(fakeProject3Id, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate);
         var fakeProjects = Arrays.asList(fakeProject1, fakeProject2, fakeProject3);
         given(projectRepositoryMock.findAll()).willReturn(fakeProjects);
 
@@ -156,9 +148,9 @@ class ProjectServiceImpTests {
         var actual = projectService.findAll();
 
         // Then
-        var expectedProject1 = new ProjectDTO(fakeProject1Id, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate1);
-        var expectedProject2 = new ProjectDTO(fakeProject2Id, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate2);
-        var expectedProject3 = new ProjectDTO(fakeProject3Id, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate3);
+        var expectedProject1 = new ProjectDTO(fakeProject1Id, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate);
+        var expectedProject2 = new ProjectDTO(fakeProject2Id, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
+        var expectedProject3 = new ProjectDTO(fakeProject3Id, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate);
         var expected = Arrays.asList(expectedProject1, expectedProject2, expectedProject3);
 
         assertIterableEquals(expected, actual);
@@ -171,10 +163,10 @@ class ProjectServiceImpTests {
     @Test
     @DisplayName("GIVEN project id field is not null WHEN create a project THEN creates the project ignoring the given project id And returns the project created with a new id")
     void ProjectIdFieldIsNotNull_Create_CreatesProjectIgnoringGivenProjectIdAndReturnsProjectCreated() {
-        var newFakeProjectId = UUID.randomUUID();
+        var anotherFakeProjectId = UUID.randomUUID();
 
         // Given
-        var fakeProject = new Project(newFakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
+        var fakeProject = new Project(anotherFakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
         given(projectRepositoryMock.save(any(Project.class))).willReturn(fakeProject);
 
         // When
@@ -183,7 +175,7 @@ class ProjectServiceImpTests {
         var actual = projectService.create(projectToCreate);
 
         // Then
-        var expected = new ProjectDTO(newFakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
+        var expected = new ProjectDTO(anotherFakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
 
         assertEquals(expected, actual);
 
@@ -197,10 +189,10 @@ class ProjectServiceImpTests {
     @Test
     @DisplayName("GIVEN project id field is null WHEN create a project THEN creates the project And returns the project created with a new id")
     void ProjectIdFieldIsNull_Create_CreatesProjectAndReturnsProjectCreated() {
-        var newFakeProjectId = UUID.randomUUID();
+        var anotherFakeProjectId = UUID.randomUUID();
 
         // Given
-        var fakeProject = new Project(newFakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
+        var fakeProject = new Project(anotherFakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
         given(projectRepositoryMock.save(any(Project.class))).willReturn(fakeProject);
 
         // When
@@ -209,7 +201,7 @@ class ProjectServiceImpTests {
         var actual = projectService.create(projectToCreate);
 
         // Then
-        var expected = new ProjectDTO(newFakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
+        var expected = new ProjectDTO(anotherFakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
 
         assertEquals(expected, actual);
 

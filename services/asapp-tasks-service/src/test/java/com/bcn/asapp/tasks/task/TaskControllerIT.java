@@ -658,19 +658,13 @@ class TaskControllerIT {
     @Test
     @DisplayName("GIVEN task id exists WHEN update a task by id THEN returns HTTP response with status OK And the body with the task updated")
     void TaskIdExists_UpdateTaskById_ReturnsStatusOkAndBodyWithTaskUpdated() throws Exception {
-        var anotherFakeTaskStartDate = LocalDateTime.now()
-                                                    .truncatedTo(ChronoUnit.MILLIS);
-        var anotherFakeTaskStartDateFormatted = DateTimeFormatter.ofPattern(dateTimeFormat)
-                                                                 .format(anotherFakeTaskStartDate);
-        var anotherFakeTaskProjectId = UUID.randomUUID();
-
         // Given
-        var fakeTask = new TaskDTO(fakeTaskId, fakeTaskTitle + " 2", fakeTaskDescription + " 2", anotherFakeTaskStartDate, anotherFakeTaskProjectId);
+        var fakeTask = new TaskDTO(fakeTaskId, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
         given(taskServiceMock.updateById(any(UUID.class), any(TaskDTO.class))).willReturn(Optional.of(fakeTask));
 
         // When & Then
         var idToUpdate = fakeTaskId;
-        var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
+        var taskToUpdate = new TaskDTO(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
         var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
@@ -681,8 +675,8 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.id", is(fakeTaskId.toString())))
                .andExpect(jsonPath("$.title", is(fakeTaskTitle + " 2")))
                .andExpect(jsonPath("$.description", is(fakeTaskDescription + " 2")))
-               .andExpect(jsonPath("$.startDateTime", is(anotherFakeTaskStartDateFormatted)))
-               .andExpect(jsonPath("$.projectId", is(anotherFakeTaskProjectId.toString())));
+               .andExpect(jsonPath("$.startDateTime", is(fakeTaskStartDateFormatted)))
+               .andExpect(jsonPath("$.projectId", is(fakeProjectId.toString())));
     }
 
     // DeleteTaskById
