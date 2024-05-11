@@ -68,10 +68,6 @@ class TaskServiceImpTests {
 
     @BeforeEach
     void beforeEach() {
-        given(taskMapperSpy.toTaskDTO(any(Task.class))).willCallRealMethod();
-        given(taskMapperSpy.toTask(any(TaskDTO.class))).willCallRealMethod();
-        given(taskMapperSpy.toTaskIgnoreId(any(TaskDTO.class))).willCallRealMethod();
-
         this.fakeTaskId = UUID.randomUUID();
         this.fakeTaskTitle = "UT Title";
         this.fakeTaskDescription = "UT Description";
@@ -144,14 +140,10 @@ class TaskServiceImpTests {
         var fakeTask2Id = UUID.randomUUID();
         var fakeTask3Id = UUID.randomUUID();
 
-        var fakeTaskStartDate1 = LocalDateTime.now();
-        var fakeTaskStartDate2 = LocalDateTime.now();
-        var fakeTaskStartDate3 = LocalDateTime.now();
-
         // Given
-        var fakeTask1 = new Task(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate1, fakeProjectId);
-        var fakeTask2 = new Task(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate2, fakeProjectId);
-        var fakeTask3 = new Task(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate3, fakeProjectId);
+        var fakeTask1 = new Task(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
+        var fakeTask2 = new Task(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
+        var fakeTask3 = new Task(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
         var fakeTasks = Arrays.asList(fakeTask1, fakeTask2, fakeTask3);
         given(taskRepositoryMock.findAll()).willReturn(fakeTasks);
 
@@ -159,9 +151,9 @@ class TaskServiceImpTests {
         var actual = taskService.findAll();
 
         // Then
-        var expectedTask1 = new TaskDTO(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate1, fakeProjectId);
-        var expectedTask2 = new TaskDTO(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate2, fakeProjectId);
-        var expectedTask3 = new TaskDTO(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate3, fakeProjectId);
+        var expectedTask1 = new TaskDTO(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
+        var expectedTask2 = new TaskDTO(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
+        var expectedTask3 = new TaskDTO(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
         var expected = Arrays.asList(expectedTask1, expectedTask2, expectedTask3);
 
         assertIterableEquals(expected, actual);
@@ -224,10 +216,10 @@ class TaskServiceImpTests {
     @Test
     @DisplayName("GIVEN task id field is not null WHEN create a task THEN creates the task ignoring the given task id And returns the task created with a new id")
     void TaskIdFieldIsNotNull_Create_CreatesTaskIgnoringGivenTaskIdAndReturnsTaskCreated() {
-        var newFakeTaskId = UUID.randomUUID();
+        var anotherFakeTaskId = UUID.randomUUID();
 
         // Given
-        var fakeTask = new Task(newFakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
+        var fakeTask = new Task(anotherFakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         given(taskRepositoryMock.save(any(Task.class))).willReturn(fakeTask);
 
         // When
@@ -236,7 +228,7 @@ class TaskServiceImpTests {
         var actual = taskService.create(taskToCreate);
 
         // Then
-        var expected = new TaskDTO(newFakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
+        var expected = new TaskDTO(anotherFakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
         assertEquals(expected, actual);
 
@@ -250,10 +242,10 @@ class TaskServiceImpTests {
     @Test
     @DisplayName("GIVEN task id field is null WHEN create a task THEN creates the task And returns the task created with a new id")
     void TaskIdFieldIsNull_Create_CreatesTaskAndReturnsTaskCreated() {
-        var newFakeTaskId = UUID.randomUUID();
+        var anotherFakeTaskId = UUID.randomUUID();
 
         // Given
-        var fakeTask = new Task(newFakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
+        var fakeTask = new Task(anotherFakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         given(taskRepositoryMock.save(any(Task.class))).willReturn(fakeTask);
 
         // When
@@ -262,7 +254,7 @@ class TaskServiceImpTests {
         var actual = taskService.create(taskToCreate);
 
         // Then
-        var expected = new TaskDTO(newFakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
+        var expected = new TaskDTO(anotherFakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
         assertEquals(expected, actual);
 

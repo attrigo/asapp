@@ -509,18 +509,13 @@ class ProjectControllerIT {
     @Test
     @DisplayName("GIVEN project id exists WHEN update a project by id THEN returns HTTP response with status OK And the body with the project updated")
     void ProjectIdExists_UpdateProjectById_ReturnsStatusOkAndBodyWithProjectUpdated() throws Exception {
-        var anotherFakeProjectStartDate = LocalDateTime.now()
-                                                       .truncatedTo(ChronoUnit.MILLIS);
-        var anotherFakeProjectStartDateFormatted = DateTimeFormatter.ofPattern(dateTimeFormat)
-                                                                    .format(anotherFakeProjectStartDate);
-
         // Given
-        var fakeProject = new ProjectDTO(fakeProjectId, fakeProjectTitle + " 2", fakeProjectDescription + " 2", anotherFakeProjectStartDate);
+        var fakeProject = new ProjectDTO(fakeProjectId, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
         given(projectServiceMock.updateById(any(UUID.class), any(ProjectDTO.class))).willReturn(Optional.of(fakeProject));
 
         // When & Then
         var idToUpdate = fakeProjectId;
-        var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
+        var projectToUpdate = new ProjectDTO(null, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
         var projectToUpdateAsJson = objectMapper.writeValueAsString(projectToUpdate);
 
         var requestBuilder = put(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
@@ -531,7 +526,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.id", is(fakeProjectId.toString())))
                .andExpect(jsonPath("$.title", is(fakeProjectTitle + " 2")))
                .andExpect(jsonPath("$.description", is(fakeProjectDescription + " 2")))
-               .andExpect(jsonPath("$.startDateTime", is(anotherFakeProjectStartDateFormatted)));
+               .andExpect(jsonPath("$.startDateTime", is(fakeProjectStartDateFormatted)));
     }
 
     // DeleteProjectById
