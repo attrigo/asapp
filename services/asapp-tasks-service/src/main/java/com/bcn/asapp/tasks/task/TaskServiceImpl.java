@@ -40,8 +40,8 @@ public class TaskServiceImpl implements TaskService {
     /**
      * Default constructor.
      *
-     * @param taskMapper     the task's mapper, must not be {@literal null}.
-     * @param taskRepository the repository to access tasks data, must not be {@literal null}.
+     * @param taskMapper     the mapper to map between {@link TaskDTO} and {@link Task} and, must not be {@literal null}.
+     * @param taskRepository the repository to access task's data, must not be {@literal null}.
      */
     public TaskServiceImpl(TaskMapper taskMapper, TaskRepository taskRepository) {
         this.taskMapper = taskMapper;
