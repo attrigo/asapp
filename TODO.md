@@ -42,12 +42,13 @@
         * [X] Add Javadoc
         * [X] Update documentation
     * [ ] asapp-rest-clients
-        * [] Create REST client library
-            * [ ] Add Javadoc
+        * [ ] Create REST client library
+            * [X] Add Javadoc
+            * [ ] Add fallback configurations
             * [ ] Add client for tasks
             * [ ] Add operation to get tasks by project id
             * [ ] Add tests
-            * [ ] Update documentation
+            * [X] Update documentation
     * [ ] asapp-projects-service
         * [ ] Update get project by id endpoint to include the tasks
         * [ ] Update tests
@@ -56,6 +57,8 @@
         * [ ] Update documentation
     * [ ] Update parent docker-compose file
     * [ ] Update parent documentation
+* [ ] Improve date / datetime formating
+  * [ ] Use ISO-8601 format
 
 ## Version 0.2.0
 
