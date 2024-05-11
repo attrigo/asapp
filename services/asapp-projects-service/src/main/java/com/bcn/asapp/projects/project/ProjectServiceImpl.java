@@ -40,8 +40,8 @@ public class ProjectServiceImpl implements ProjectService {
     /**
      * Default constructor.
      *
-     * @param projectMapper     the project's mapper, must not be {@literal null}.
-     * @param projectRepository the repository to access projects data, must not be {@literal null}.
+     * @param projectMapper     the mapper to map between {@link ProjectDTO} and {@link Project} and, must not be {@literal null}.
+     * @param projectRepository the repository to access project's data, must not be {@literal null}.
      */
     public ProjectServiceImpl(ProjectMapper projectMapper, ProjectRepository projectRepository) {
         this.projectMapper = projectMapper;
