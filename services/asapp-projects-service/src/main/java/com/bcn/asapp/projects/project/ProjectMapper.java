@@ -53,7 +53,7 @@ public interface ProjectMapper {
 
     /**
      * Maps all fields from a {@link ProjectDTO} to {@link Project} except the id which is mapped from parameter id.
-     * 
+     *
      * @param projectDTO the source {@link ProjectDTO}.
      * @param id         the source id.
      * @return the {@link Project} containing the fields mapped from {@link ProjectDTO} and the parameter id.
