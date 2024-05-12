@@ -65,7 +65,7 @@ public interface TaskService {
     /**
      * Updates the task by the given id with the given new data.
      * <p>
-     * The id of the task is never updated, so in cases where the given new task has id it is ignored.
+     * The id of the task is not updated, so in cases where the given new task has id it is ignored.
      *
      * @param id          the id of the task to be updated, must not be {@literal null}.
      * @param newTaskData the new task data, must be a valid task.

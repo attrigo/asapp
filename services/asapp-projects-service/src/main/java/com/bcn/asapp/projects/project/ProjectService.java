@@ -57,7 +57,7 @@ public interface ProjectService {
     /**
      * Updates the project by the given id with the given new data.
      * <p>
-     * The id of the project is never updated, so in cases where the given new project has id it is ignored.
+     * The id of the project is not updated, so in cases where the given new project has id it is ignored.
      *
      * @param id             the id of the project to be updated, must not be {@literal null}.
      * @param newProjectData the new project data, must be a valid project.
