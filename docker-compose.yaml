@@ -35,12 +35,13 @@ services:
     ports:
       - '8081:8081'
     environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=8081
       - DB_HOST=asapp-projects-postgres-db
       - DB_PORT=5432
       - DB_NAME=projectsdb
       - DB_USERNAME=user
       - DB_PASSWORD=secret
-      - SPRING_PROFILES_ACTIVE=docker
     depends_on:
       - asapp-projects-postgres-db
   asapp-tasks-service:
@@ -51,12 +52,13 @@ services:
     ports:
       - '8080:8080'
     environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=8080
       - DB_HOST=asapp-tasks-postgres-db
       - DB_PORT=5432
       - DB_NAME=tasksdb
       - DB_USERNAME=user
       - DB_PASSWORD=secret
-      - SPRING_PROFILES_ACTIVE=docker
     depends_on:
       - asapp-tasks-postgres-db
 
