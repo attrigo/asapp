@@ -19,6 +19,7 @@ import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_CREATE_PATH;
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_DELETE_BY_ID_PATH;
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_ALL_PATH;
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_BY_ID_PATH;
+import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_BY_PROJECT_ID_PATH;
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_ROOT_PATH;
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_UPDATE_BY_ID_PATH;
 
@@ -105,7 +106,7 @@ public interface TaskRestAPI {
      */
     @Operation(summary = "Gets tasks by project id", description = "Returns the tasks found, or empty if there aren't tasks for the given project")
     @ApiResponse(responseCode = "200", description = "Tasks found", content = { @Content(schema = @Schema(implementation = TaskDTO.class)) })
-    @GetMapping(value = { "/project/{id}" }, produces = { "application/json" })
+    @GetMapping(value = TASKS_GET_BY_PROJECT_ID_PATH, produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     List<TaskDTO> getTasksByProjectId(@Parameter(description = "Id of the project") @PathVariable("id") UUID projectId);
 
