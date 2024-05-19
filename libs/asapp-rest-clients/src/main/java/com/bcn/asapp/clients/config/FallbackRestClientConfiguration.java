@@ -21,8 +21,9 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.util.UriBuilder;
-import org.springframework.web.util.UriComponentsBuilder;
+
+import com.bcn.asapp.clients.internal.uri.DefaultUriHandler;
+import com.bcn.asapp.clients.internal.uri.UriHandler;
 
 /**
  * Fallback HTTP client configuration.
@@ -51,21 +52,21 @@ public class FallbackRestClientConfiguration {
     }
 
     /**
-     * Provides a fallback {@link UriBuilder} bean.
+     * Provides a fallback {@link UriHandler} bean.
      * <p>
      * This bean can be used to build URIs that points to the REST tasks service.
      * <p>
-     * The bean is only created if the involved REST service has not declared a specific {@link UriBuilder} bean with name {@literal tasksServiceUriBuilder},
+     * The bean is only created if the involved REST service has not declared a specific {@link UriHandler} bean with name {@literal tasksServiceUriHandler},
      * and has declared the property {@literal asapp.tasks-service.base-url}.
      *
-     * @param taskServiceURL the base url of task REST service.
-     * @return a {@link UriBuilder} instance.
+     * @param taskServiceURL the base URL of tasks REST service.
+     * @return a {@link UriHandler} instance.
      */
     @Bean
-    @ConditionalOnMissingBean(name = "tasksServiceUriBuilder")
+    @ConditionalOnMissingBean(name = "tasksServiceUriHandler")
     @ConditionalOnProperty("asapp.tasks-service.base-url")
-    UriBuilder tasksServiceUriBuilder(@Value("${asapp.tasks-service.base-url}") String taskServiceURL) {
-        return UriComponentsBuilder.fromUriString(taskServiceURL);
+    UriHandler tasksServiceUriHandler(@Value("${asapp.tasks-service.base-url}") String taskServiceURL) {
+        return new DefaultUriHandler(taskServiceURL);
     }
 
 }
