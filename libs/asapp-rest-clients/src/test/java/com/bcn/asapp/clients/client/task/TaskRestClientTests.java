@@ -24,6 +24,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestToUriTemplate;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withBadRequest;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 import java.time.LocalDateTime;
@@ -40,6 +41,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -70,6 +72,28 @@ class TaskRestClientTests {
 
     // getTasksByProjectId
     @Test
+    @DisplayName("GIVEN tasks service is down WHEN get task by project id THEN returns status INTERNAL SERVER ERROR")
+    void TasksServiceIsDown_GetTasksByProjectId_ReturnsInternalServerError() {
+        // Given
+        var projectId = UUID.randomUUID();
+
+        mockServer.expect(requestToUriTemplate(TASKS_GET_BY_PROJECT_ID_FULL_PATH, projectId))
+                  .andExpect(method(HttpMethod.GET))
+                  .andRespond(withServerError().contentType(MediaType.APPLICATION_JSON));
+
+        // When & Then
+        try {
+            client.getTasksByProjectId(projectId);
+
+            fail("HttpServerErrorException.InternalServerError should be thrown");
+        } catch (HttpServerErrorException.InternalServerError e) {
+            assertNotNull(e.getMessage());
+        }
+
+        mockServer.verify();
+    }
+
+    @Test
     @DisplayName("GIVEN id is wrong WHEN get task by project id THEN returns status BAD_REQUEST And the body with problem details")
     void IdIsWrong_GetTasksByProjectId_ReturnsBadRequestAndBodyWithProblemDetails() throws JsonProcessingException {
         // Given
@@ -81,7 +105,7 @@ class TaskRestClientTests {
                   .andRespond(withBadRequest().body(responseBody)
                                               .contentType(MediaType.APPLICATION_PROBLEM_JSON));
 
-        // When && Then
+        // When & Then
         try {
             client.getTasksByProjectId(null);
 
