@@ -41,12 +41,12 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
+import com.bcn.asapp.clients.internal.uri.DefaultUriHandler;
 import com.bcn.asapp.dto.task.TaskDTO;
 
 class TaskRestClientTests {
@@ -63,7 +63,7 @@ class TaskRestClientTests {
         this.mockServer = MockRestServiceServer.bindTo(restClientBuilder)
                                                .ignoreExpectOrder(true)
                                                .build();
-        this.client = new TaskRestClient(restClientBuilder, UriComponentsBuilder.newInstance());
+        this.client = new TaskRestClient(restClientBuilder, new DefaultUriHandler(""));
 
         this.objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
     }

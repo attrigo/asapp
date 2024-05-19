@@ -24,8 +24,8 @@ import java.util.UUID;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
-import org.springframework.web.util.UriBuilder;
 
+import com.bcn.asapp.clients.internal.uri.UriHandler;
 import com.bcn.asapp.dto.task.TaskDTO;
 
 /**
@@ -39,22 +39,23 @@ public class TaskRestClient implements TaskClient {
 
     private final RestClient restClient;
 
-    private final UriBuilder tasksServiceUriBuilder;
+    private final UriHandler tasksServiceUriHandler;
 
     /**
      * Default constructor.
      *
      * @param restClientBuilder      the Spring's {@link RestClient.Builder}.
-     * @param tasksServiceUriBuilder the {@link UriBuilder} to build REST tasks services URIs.
+     * @param tasksServiceUriHandler the {@link UriHandler} to build REST tasks services URIs.
      */
-    public TaskRestClient(RestClient.Builder restClientBuilder, UriBuilder tasksServiceUriBuilder) {
+    public TaskRestClient(RestClient.Builder restClientBuilder, UriHandler tasksServiceUriHandler) {
         this.restClient = restClientBuilder.build();
-        this.tasksServiceUriBuilder = tasksServiceUriBuilder;
+        this.tasksServiceUriHandler = tasksServiceUriHandler;
     }
 
     @Override
     public List<TaskDTO> getTasksByProjectId(UUID id) {
-        URI uri = tasksServiceUriBuilder.path(TASKS_GET_BY_PROJECT_ID_FULL_PATH)
+        URI uri = tasksServiceUriHandler.newInstance()
+                                        .path(TASKS_GET_BY_PROJECT_ID_FULL_PATH)
                                         .build(id);
 
         return restClient.get()
