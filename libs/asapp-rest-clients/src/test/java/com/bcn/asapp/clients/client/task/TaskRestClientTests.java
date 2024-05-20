@@ -18,8 +18,8 @@ package com.bcn.asapp.clients.client.task;
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_BY_PROJECT_ID_FULL_PATH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.fail;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestToUriTemplate;
@@ -40,8 +40,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.RestClient;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -72,8 +70,8 @@ class TaskRestClientTests {
 
     // getTasksByProjectId
     @Test
-    @DisplayName("GIVEN tasks service is down WHEN get task by project id THEN returns status INTERNAL SERVER ERROR")
-    void TasksServiceIsDown_GetTasksByProjectId_ReturnsInternalServerError() {
+    @DisplayName("GIVEN tasks service is not available WHEN get task by project id THEN returns null")
+    void TasksServiceIsNotAvailable_GetTasksByProjectId_ReturnsNull() {
         // Given
         var projectId = UUID.randomUUID();
 
@@ -81,21 +79,18 @@ class TaskRestClientTests {
                   .andExpect(method(HttpMethod.GET))
                   .andRespond(withServerError().contentType(MediaType.APPLICATION_JSON));
 
-        // When & Then
-        try {
-            client.getTasksByProjectId(projectId);
+        // When
+        var actual = client.getTasksByProjectId(projectId);
 
-            fail("HttpServerErrorException.InternalServerError should be thrown");
-        } catch (HttpServerErrorException.InternalServerError e) {
-            assertNotNull(e.getMessage());
-        }
+        // Then
+        assertNull(actual);
 
         mockServer.verify();
     }
 
     @Test
-    @DisplayName("GIVEN id is wrong WHEN get task by project id THEN returns status BAD_REQUEST And the body with problem details")
-    void IdIsWrong_GetTasksByProjectId_ReturnsBadRequestAndBodyWithProblemDetails() throws JsonProcessingException {
+    @DisplayName("GIVEN id is not valid WHEN get task by project id THEN returns null")
+    void IdIsNotValid_GetTasksByProjectId_ReturnsNull() throws JsonProcessingException {
         // Given
         var expectedProblemDetails = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Failed to convert 'id' with value: 'project'");
         var responseBody = objectMapper.writeValueAsString(expectedProblemDetails);
@@ -105,22 +100,18 @@ class TaskRestClientTests {
                   .andRespond(withBadRequest().body(responseBody)
                                               .contentType(MediaType.APPLICATION_PROBLEM_JSON));
 
-        // When & Then
-        try {
-            client.getTasksByProjectId(null);
+        // When
+        var actual = client.getTasksByProjectId(null);
 
-            fail("HttpClientErrorException.BadRequest should be thrown");
-        } catch (HttpClientErrorException.BadRequest e) {
-            var actual = e.getResponseBodyAs(ProblemDetail.class);
-            assertEquals(expectedProblemDetails, actual);
-        }
+        // Then
+        assertNull(actual);
 
         mockServer.verify();
     }
 
     @Test
-    @DisplayName("GIVEN id not exist WHEN get task by project id THEN returns status OK And an empty body")
-    void IdNotExist_GetTasksByProjectId_ReturnsStatusOkAndEmptyBody() throws JsonProcessingException {
+    @DisplayName("GIVEN id not exist WHEN get task by project id THEN returns an empty list of tasks")
+    void IdNotExist_GetTasksByProjectId_ReturnsEmptyList() throws JsonProcessingException {
         // Given
         var expectedTasks = Collections.emptyList();
         var responseBody = objectMapper.writeValueAsString(expectedTasks);
@@ -143,8 +134,8 @@ class TaskRestClientTests {
     }
 
     @Test
-    @DisplayName("GIVEN id exists WHEN get task by project id THEN returns status OK And the body with task of the given project")
-    void IdExist_GetTasksByProjectId_ReturnsStatusOkAndBodyWithProjectsTasks() throws JsonProcessingException {
+    @DisplayName("GIVEN id exists WHEN get task by project id THEN returns the tasks of the project")
+    void IdExist_GetTasksByProjectId_ReturnsProjectTasks() throws JsonProcessingException {
         // Given
         var expectedTask1 = new TaskDTO(UUID.randomUUID(), "Test Title 1", "Test Description 1", LocalDateTime.now(), UUID.randomUUID());
         var expectedTask2 = new TaskDTO(UUID.randomUUID(), "Test Title 2", "Test Description 2", LocalDateTime.now(), UUID.randomUUID());
