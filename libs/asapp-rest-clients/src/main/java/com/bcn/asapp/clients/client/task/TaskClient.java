@@ -30,9 +30,11 @@ public interface TaskClient {
 
     /**
      * Gets the tasks of the given project id.
+     * <p>
+     * The operation returns {@literal null} as a fallback value in case there are some issue with tasks service.
      *
      * @param id the id of the project.
-     * @return the tasks of the given project, or empty if there aren't tasks for the given project.
+     * @return the tasks of the given project, empty if there aren't tasks for the given project, or null if the tasks service is not available.
      */
     List<TaskDTO> getTasksByProjectId(UUID id);
 

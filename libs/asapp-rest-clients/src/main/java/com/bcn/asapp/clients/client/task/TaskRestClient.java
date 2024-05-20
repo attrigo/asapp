@@ -17,13 +17,13 @@ package com.bcn.asapp.clients.client.task;
 
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_BY_PROJECT_ID_FULL_PATH;
 
-import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 
 import com.bcn.asapp.clients.internal.uri.UriHandler;
 import com.bcn.asapp.dto.task.TaskDTO;
@@ -54,14 +54,19 @@ public class TaskRestClient implements TaskClient {
 
     @Override
     public List<TaskDTO> getTasksByProjectId(UUID id) {
-        URI uri = tasksServiceUriHandler.newInstance()
+        var uri = tasksServiceUriHandler.newInstance()
                                         .path(TASKS_GET_BY_PROJECT_ID_FULL_PATH)
                                         .build(id);
 
-        return restClient.get()
-                         .uri(uri)
-                         .retrieve()
-                         .body(new ParameterizedTypeReference<>() {});
+        try {
+            return restClient.get()
+                             .uri(uri)
+                             .retrieve()
+                             .body(new ParameterizedTypeReference<>() {});
+        } catch (RestClientException ignored) {
+            return null;
+        }
+
     }
 
 }
