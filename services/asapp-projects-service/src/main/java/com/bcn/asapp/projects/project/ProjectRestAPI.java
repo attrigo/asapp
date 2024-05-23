@@ -95,7 +95,7 @@ public interface ProjectRestAPI {
     /**
      * Creates a project.
      * <p>
-     * Creates the given project ignoring the id field.
+     * Creates the given project ignoring the id and tasks fields.
      * <p>
      * The resultant project always has a new id.
      * <p>
@@ -107,7 +107,7 @@ public interface ProjectRestAPI {
      * @param project the project to create.
      * @return the created project.
      */
-    @Operation(summary = "Creates a project", description = "Creates the given project ignoring the id field, the resultant project always has a new id")
+    @Operation(summary = "Creates a project", description = "Creates the given project ignoring the id and the tasks fields, the resultant project always has a new id")
     @ApiResponse(responseCode = "201", description = "Project has been created", content = { @Content(schema = @Schema(implementation = ProjectDTO.class)) })
     @PostMapping(value = PROJECTS_CREATE_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
@@ -116,7 +116,7 @@ public interface ProjectRestAPI {
     /**
      * Updates a project by id.
      * <p>
-     * Updates all fields of the project except the id, with the given new data.
+     * Updates all fields of the project except the id and tasks, with the given new data.
      * <p>
      * Response codes:
      * <ul>
@@ -128,7 +128,7 @@ public interface ProjectRestAPI {
      * @param newProjectData the new project data.
      * @return a {@link ResponseEntity} wrapping the updated project, or empty if the given id has not been found.
      */
-    @Operation(summary = "Updates a project", description = "Updates all fields of the project except the id, with the given new data")
+    @Operation(summary = "Updates a project", description = "Updates all fields of the project except the id and tasks, with the given new data")
     @ApiResponse(responseCode = "200", description = "Project has been updated", content = { @Content(schema = @Schema(implementation = ProjectDTO.class)) })
     @ApiResponse(responseCode = "404", description = "Project not found", content = { @Content })
     @PutMapping(value = PROJECTS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
@@ -137,6 +137,8 @@ public interface ProjectRestAPI {
 
     /**
      * Deletes a project by id.
+     * <p>
+     * The related tasks are not deleted.
      * <p>
      * Response codes:
      * <ul>
@@ -147,7 +149,7 @@ public interface ProjectRestAPI {
      * @param id the id of the project to delete.
      * @return a {@link ResponseEntity} wrapping empty.
      */
-    @Operation(summary = "Deletes a project by id", description = "Deletes a project by id")
+    @Operation(summary = "Deletes a project by id", description = "Deletes a project by id, the related tasks are not deleted")
     @ApiResponse(responseCode = "204", description = "Project has been deleted", content = { @Content })
     @ApiResponse(responseCode = "404", description = "Project not found", content = { @Content })
     @DeleteMapping(value = PROJECTS_DELETE_BY_ID_PATH, produces = "application/json")

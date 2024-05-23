@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import org.springframework.stereotype.Service;
 
+import com.bcn.asapp.clients.client.task.TaskClient;
 import com.bcn.asapp.dto.project.ProjectDTO;
 
 /**
@@ -37,28 +38,38 @@ public class ProjectServiceImpl implements ProjectService {
 
     private final ProjectMapper projectMapper;
 
+    private final TaskClient taskClient;
+
     /**
      * Default constructor.
      *
      * @param projectMapper     the mapper to map between {@link ProjectDTO} and {@link Project} and, must not be {@literal null}.
      * @param projectRepository the repository to access project's data, must not be {@literal null}.
+     * @param taskClient        the HTTP client to call tasks service.
      */
-    public ProjectServiceImpl(ProjectMapper projectMapper, ProjectRepository projectRepository) {
+    public ProjectServiceImpl(ProjectMapper projectMapper, ProjectRepository projectRepository, TaskClient taskClient) {
         this.projectMapper = projectMapper;
         this.projectRepository = projectRepository;
+        this.taskClient = taskClient;
     }
 
     @Override
     public Optional<ProjectDTO> findById(UUID id) {
         return this.projectRepository.findById(id)
-                                     .map(projectMapper::toProjectDTO);
+                                     .map(project -> {
+                                         var tasks = taskClient.getTasksByProjectId(project.id());
+                                         return projectMapper.toProjectDTO(project, tasks);
+                                     });
     }
 
     @Override
     public List<ProjectDTO> findAll() {
         return projectRepository.findAll()
                                 .stream()
-                                .map(projectMapper::toProjectDTO)
+                                .map(project -> {
+                                    var tasks = taskClient.getTasksByProjectId(project.id());
+                                    return projectMapper.toProjectDTO(project, tasks);
+                                })
                                 .toList();
     }
 

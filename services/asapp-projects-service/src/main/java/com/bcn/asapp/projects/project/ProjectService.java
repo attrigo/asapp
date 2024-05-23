@@ -31,6 +31,8 @@ public interface ProjectService {
 
     /**
      * Finds a project by the given id.
+     * <p>
+     * Gets the tasks of the project from the tasks service.
      *
      * @param id the id of the project to be found, must not be {@literal null}.
      * @return {@link Optional} wrapping the project found, or an empty {@link Optional} if the given id has not been found.
@@ -39,6 +41,8 @@ public interface ProjectService {
 
     /**
      * Finds all projects.
+     * <p>
+     * Gets the tasks of the project from the tasks service.
      *
      * @return a list with all projects, or an empty list if none found.
      */
@@ -48,6 +52,8 @@ public interface ProjectService {
      * Creates the given project.
      * <p>
      * Always creates the project with a new id, therefore in cases where the id of the given project is present it is ignored.
+     * <p>
+     * The given project's tasks are not created.
      *
      * @param project the project to be created, must be a valid project.
      * @return the created project.
@@ -58,6 +64,8 @@ public interface ProjectService {
      * Updates the project by the given id with the given new data.
      * <p>
      * The id of the project is not updated, so in cases where the given new project has id it is ignored.
+     * <p>
+     * The given project's tasks are not updated.
      *
      * @param id             the id of the project to be updated, must not be {@literal null}.
      * @param newProjectData the new project data, must be a valid project.
@@ -67,6 +75,8 @@ public interface ProjectService {
 
     /**
      * Deletes a project by the given id.
+     * <p>
+     * The related tasks are not deleted.
      *
      * @param id the id of the project to be deleted, must not be {@literal null}.
      * @return true if the given id exists, otherwise false.

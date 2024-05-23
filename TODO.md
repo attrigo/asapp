@@ -41,22 +41,21 @@
         * [X] Add tests
         * [X] Add Javadoc
         * [X] Update documentation
-    * [ ] asapp-rest-clients
-        * [ ] Create REST client library
+    * [X] asapp-rest-clients
+        * [X] Create REST client library
             * [X] Add Javadoc
-            * [ ] Add fallback configurations
-            * [ ] Add client for tasks
-            * [ ] Add operation to get tasks by project id
-            * [ ] Add tests
+            * [X] Add fallback configurations
+            * [X] Add client for tasks
+            * [X] Add operation to get tasks by project id
+            * [X] Add tests
             * [X] Update documentation
-    * [ ] asapp-projects-service
-        * [ ] Update get project by id endpoint to include the tasks
-        * [ ] Update tests
-            * [ ] Use MockServer for E2EIT [ref](https://testcontainers.com/guides/testing-rest-api-integrations-using-mockserver/)
-        * [ ] Update Javadoc
-        * [ ] Update documentation
-    * [ ] Update parent docker-compose file
-    * [ ] Update parent documentation
+    * [X] asapp-projects-service
+        * [X] Update get project by id endpoint to include the tasks
+        * [X] Update tests
+            * [X] Use MockServer for E2EIT [ref](https://testcontainers.com/guides/testing-rest-api-integrations-using-mockserver/)
+        * [X] Update Javadoc
+        * [X] Update documentation
+    * [X] Update parent docker-compose file
 * [ ] Improve date / datetime formating
   * [ ] Use ISO-8601 format
 

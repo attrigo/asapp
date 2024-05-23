@@ -27,6 +27,10 @@
             <groupId>com.bcn.asapp</groupId>
             <artifactId>asapp-commons-url</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.bcn.asapp</groupId>
+            <artifactId>asapp-rest-clients</artifactId>
+        </dependency>
         <!-- Spring Boot Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -91,6 +95,14 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mockserver</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-netty</artifactId>
         </dependency>
     </dependencies>
 

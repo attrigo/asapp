@@ -22,6 +22,7 @@ import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_GET_BY_ID_FUL
 import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_ROOT_PATH;
 import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_UPDATE_BY_ID_FULL_PATH;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -38,6 +39,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -55,6 +57,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.bcn.asapp.dto.project.ProjectDTO;
+import com.bcn.asapp.dto.task.TaskDTO;
 import com.bcn.asapp.projects.config.JacksonMapperConfiguration;
 
 @WebMvcTest(ProjectRestController.class)
@@ -85,6 +88,8 @@ class ProjectControllerIT {
 
     private String fakeProjectStartDateFormatted;
 
+    private List<TaskDTO> fakeProjectTasks;
+
     @BeforeEach
     void beforeEach() {
         this.fakeProjectId = UUID.randomUUID();
@@ -94,6 +99,9 @@ class ProjectControllerIT {
         this.fakeProjectDescription = "IT Description";
         this.fakeProjectStartDateFormatted = DateTimeFormatter.ofPattern(dateTimeFormat)
                                                               .format(fakeProjectStartDate);
+        var fakeTask1 = new TaskDTO(UUID.randomUUID(), "IT Task Title 1", "IT Task Description 1", LocalDateTime.now(), fakeProjectId);
+        var fakeTask2 = new TaskDTO(UUID.randomUUID(), "IT Task Title 2", "IT Task Description 2", LocalDateTime.now(), fakeProjectId);
+        this.fakeProjectTasks = List.of(fakeTask1, fakeTask2);
     }
 
     // getProjectById
@@ -148,7 +156,7 @@ class ProjectControllerIT {
     @DisplayName("GIVEN project id exists WHEN get a project by id THEN returns HTTP response with status OK And the body with the project found")
     void ProjectIdExists_GetProjectById_ReturnsStatusOkAndBodyWithProjectFound() throws Exception {
         // Given
-        var fakeProject = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
+        var fakeProject = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, fakeProjectTasks);
         given(projectServiceMock.findById(any(UUID.class))).willReturn(Optional.of(fakeProject));
 
         // When & Then
@@ -161,7 +169,8 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.id", is(fakeProjectId.toString())))
                .andExpect(jsonPath("$.title", is(fakeProjectTitle)))
                .andExpect(jsonPath("$.description", is(fakeProjectDescription)))
-               .andExpect(jsonPath("$.startDateTime", is(fakeProjectStartDateFormatted)));
+               .andExpect(jsonPath("$.startDateTime", is(fakeProjectStartDateFormatted)))
+               .andExpect(jsonPath("$.tasks", hasSize(2)));
     }
 
     // getAllProjects
@@ -187,9 +196,9 @@ class ProjectControllerIT {
         var fakeProject3Id = UUID.randomUUID();
 
         // Given
-        var fakeProject1 = new ProjectDTO(fakeProject1Id, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate);
-        var fakeProject2 = new ProjectDTO(fakeProject2Id, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
-        var fakeProject3 = new ProjectDTO(fakeProject3Id, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate);
+        var fakeProject1 = new ProjectDTO(fakeProject1Id, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate, fakeProjectTasks);
+        var fakeProject2 = new ProjectDTO(fakeProject2Id, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, fakeProjectTasks);
+        var fakeProject3 = new ProjectDTO(fakeProject3Id, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate, fakeProjectTasks);
         var fakeProjects = Arrays.asList(fakeProject1, fakeProject2, fakeProject3);
         given(projectServiceMock.findAll()).willReturn(fakeProjects);
 
@@ -202,14 +211,17 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$[0].title", is(fakeProjectTitle + " 1")))
                .andExpect(jsonPath("$[0].description", is(fakeProjectDescription + " 1")))
                .andExpect(jsonPath("$[0].startDateTime", is(fakeProjectStartDateFormatted)))
+               .andExpect(jsonPath("$[0].tasks", hasSize(2)))
                .andExpect(jsonPath("$[1].id", is(fakeProject2Id.toString())))
                .andExpect(jsonPath("$[1].title", is(fakeProjectTitle + " 2")))
                .andExpect(jsonPath("$[1].description", is(fakeProjectDescription + " 2")))
                .andExpect(jsonPath("$[1].startDateTime", is(fakeProjectStartDateFormatted)))
+               .andExpect(jsonPath("$[1].tasks", hasSize(2)))
                .andExpect(jsonPath("$[2].id", is(fakeProject3Id.toString())))
                .andExpect(jsonPath("$[2].title", is(fakeProjectTitle + " 3")))
                .andExpect(jsonPath("$[2].description", is(fakeProjectDescription + " 3")))
-               .andExpect(jsonPath("$[2].startDateTime", is(fakeProjectStartDateFormatted)));
+               .andExpect(jsonPath("$[2].startDateTime", is(fakeProjectStartDateFormatted)))
+               .andExpect(jsonPath("$[2].tasks", hasSize(2)));
     }
 
     // CreateProject
@@ -253,7 +265,7 @@ class ProjectControllerIT {
     @DisplayName("GIVEN project mandatory fields are not present WHEN create a project THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
     void ProjectMandatoryFieldsAreNotPresent_CreateProject_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
-        var projectToCreate = new ProjectDTO(null, null, fakeProjectDescription, fakeProjectStartDate);
+        var projectToCreate = new ProjectDTO(null, null, fakeProjectDescription, fakeProjectStartDate, null);
         var projectToCreateAsJson = objectMapper.writeValueAsString(projectToCreate);
 
         var requestBuilder = post(PROJECTS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
@@ -275,7 +287,7 @@ class ProjectControllerIT {
     @DisplayName("GIVEN project mandatory fields are empty WHEN create a project THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
     void ProjectMandatoryFieldsAreEmpty_CreateProject_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
-        var projectToCreate = new ProjectDTO(null, "", fakeProjectDescription, fakeProjectStartDate);
+        var projectToCreate = new ProjectDTO(null, "", fakeProjectDescription, fakeProjectStartDate, null);
         var projectToCreateAsJson = objectMapper.writeValueAsString(projectToCreate);
 
         var requestBuilder = post(PROJECTS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
@@ -321,11 +333,11 @@ class ProjectControllerIT {
     @DisplayName("GIVEN project fields are valid WHEN create a project THEN returns HTTP response with status CREATED And the body with the project created")
     void ProjectFieldsAreValid_CreateProject_ReturnsStatusCreatedAndBodyWithProjectCreated() throws Exception {
         // Given
-        var fakeProject = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
+        var fakeProject = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
         given(projectServiceMock.create(any(ProjectDTO.class))).willReturn(fakeProject);
 
         // When & Then
-        var projectToCreate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
+        var projectToCreate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
         var projectToCreateAsJson = objectMapper.writeValueAsString(projectToCreate);
 
         var requestBuilder = post(PROJECTS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
@@ -336,7 +348,8 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.id", is(fakeProjectId.toString())))
                .andExpect(jsonPath("$.title", is(fakeProjectTitle)))
                .andExpect(jsonPath("$.description", is(fakeProjectDescription)))
-               .andExpect(jsonPath("$.startDateTime", is(fakeProjectStartDateFormatted)));
+               .andExpect(jsonPath("$.startDateTime", is(fakeProjectStartDateFormatted)))
+               .andExpect(jsonPath("$.tasks").doesNotExist());
     }
 
     // UpdateProjectById
@@ -344,7 +357,7 @@ class ProjectControllerIT {
     @DisplayName("GIVEN project id is empty WHEN update a project by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
     void ProjectIdIsEmpty_UpdateProjectById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
         // When & Then
-        var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
+        var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
         var projectToUpdateAsJson = objectMapper.writeValueAsString(projectToUpdate);
 
         var requestBuilder = put(PROJECTS_EMPTY_ID_PATH).contentType(MediaType.APPLICATION_JSON)
@@ -364,7 +377,7 @@ class ProjectControllerIT {
     void ProjectIdIsNotUUID_UpdateProjectById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = 1L;
-        var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
+        var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
         var projectToUpdateAsJson = objectMapper.writeValueAsString(projectToUpdate);
 
         var requestBuilder = put(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
@@ -422,7 +435,7 @@ class ProjectControllerIT {
     void NewProjectDataMandatoryFieldsAreNotPresent_UpdateProjectById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = fakeProjectId;
-        var projectToUpdate = new ProjectDTO(null, null, fakeProjectDescription, fakeProjectStartDate);
+        var projectToUpdate = new ProjectDTO(null, null, fakeProjectDescription, fakeProjectStartDate, null);
         var projectToUpdateAsJson = objectMapper.writeValueAsString(projectToUpdate);
 
         var requestBuilder = put(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
@@ -445,7 +458,7 @@ class ProjectControllerIT {
     void NewProjectDataMandatoryFieldsAreEmpty_UpdateProjectById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
         // When & Then
         var idToUpdate = fakeProjectId;
-        var projectToUpdate = new ProjectDTO(null, "", fakeProjectDescription, fakeProjectStartDate);
+        var projectToUpdate = new ProjectDTO(null, "", fakeProjectDescription, fakeProjectStartDate, null);
         var projectToUpdateAsJson = objectMapper.writeValueAsString(projectToUpdate);
 
         var requestBuilder = put(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
@@ -496,7 +509,7 @@ class ProjectControllerIT {
 
         // When & Then
         var idToUpdate = fakeProjectId;
-        var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
+        var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
         var projectToUpdateAsJson = objectMapper.writeValueAsString(projectToUpdate);
 
         var requestBuilder = put(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
@@ -510,12 +523,12 @@ class ProjectControllerIT {
     @DisplayName("GIVEN project id exists WHEN update a project by id THEN returns HTTP response with status OK And the body with the project updated")
     void ProjectIdExists_UpdateProjectById_ReturnsStatusOkAndBodyWithProjectUpdated() throws Exception {
         // Given
-        var fakeProject = new ProjectDTO(fakeProjectId, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
+        var fakeProject = new ProjectDTO(fakeProjectId, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, null);
         given(projectServiceMock.updateById(any(UUID.class), any(ProjectDTO.class))).willReturn(Optional.of(fakeProject));
 
         // When & Then
         var idToUpdate = fakeProjectId;
-        var projectToUpdate = new ProjectDTO(null, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
+        var projectToUpdate = new ProjectDTO(null, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, null);
         var projectToUpdateAsJson = objectMapper.writeValueAsString(projectToUpdate);
 
         var requestBuilder = put(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
@@ -526,7 +539,8 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.id", is(fakeProjectId.toString())))
                .andExpect(jsonPath("$.title", is(fakeProjectTitle + " 2")))
                .andExpect(jsonPath("$.description", is(fakeProjectDescription + " 2")))
-               .andExpect(jsonPath("$.startDateTime", is(fakeProjectStartDateFormatted)));
+               .andExpect(jsonPath("$.startDateTime", is(fakeProjectStartDateFormatted)))
+               .andExpect(jsonPath("$.tasks").doesNotExist());
     }
 
     // DeleteProjectById
