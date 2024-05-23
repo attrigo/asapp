@@ -15,12 +15,14 @@
 */
 package com.bcn.asapp.projects.project;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.bcn.asapp.dto.project.ProjectDTO;
+import com.bcn.asapp.dto.task.TaskDTO;
 
 /**
  * MapStruct mapper for projects.
@@ -42,6 +44,15 @@ public interface ProjectMapper {
      * @return the {@link ProjectDTO} containing all fields mapped from {@link Project}.
      */
     ProjectDTO toProjectDTO(Project project);
+
+    /**
+     * Maps all fields from a {@link Project} to {@link ProjectDTO} and then adds the {@link TaskDTO} to the field tasks.
+     *
+     * @param project the source {@link Project}.
+     * @param tasks   the source {@link TaskDTO}.
+     * @return the {@link ProjectDTO} containing all fields mapped from {@link Project} and the list of {@link TaskDTO}.
+     */
+    ProjectDTO toProjectDTO(Project project, List<TaskDTO> tasks);
 
     /**
      * Maps all fields from a {@link ProjectDTO} to {@link Project}.

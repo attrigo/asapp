@@ -24,7 +24,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @author ttrigo
  * @since 0.1.0
  */
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "com.bcn.asapp")
 public class AsappProjectsServiceApplication {
 
     /**
