@@ -167,9 +167,9 @@ class TaskE2EIT {
         assertEquals(3L, taskIdsToBeFound.size());
 
         // When & Then
-        var expectedTask1 = new TaskDTO(taskIdsToBeFound.get(0), fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
+        var expectedTask1 = new TaskDTO(taskIdsToBeFound.getFirst(), fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
         var expectedTask2 = new TaskDTO(taskIdsToBeFound.get(1), fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
-        var expectedTask3 = new TaskDTO(taskIdsToBeFound.get(2), fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
+        var expectedTask3 = new TaskDTO(taskIdsToBeFound.getLast(), fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
         var expected = List.of(expectedTask1, expectedTask2, expectedTask3);
 
         webTestClient.get()
@@ -219,9 +219,9 @@ class TaskE2EIT {
         assertEquals(3L, taskIdsToBeFound.size());
 
         // When & Then
-        var expectedTask1 = new TaskDTO(taskIdsToBeFound.get(0), fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
+        var expectedTask1 = new TaskDTO(taskIdsToBeFound.getFirst(), fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
         var expectedTask2 = new TaskDTO(taskIdsToBeFound.get(1), fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
-        var expectedTask3 = new TaskDTO(taskIdsToBeFound.get(2), fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
+        var expectedTask3 = new TaskDTO(taskIdsToBeFound.getLast(), fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
         var expected = List.of(expectedTask1, expectedTask2, expectedTask3);
 
         var idToFind = fakeProjectId;

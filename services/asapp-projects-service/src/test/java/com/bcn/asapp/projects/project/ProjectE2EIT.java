@@ -254,14 +254,16 @@ class ProjectE2EIT {
         assertNotNull(projectIdsToBeFound);
         assertEquals(3L, projectIdsToBeFound.size());
 
-        mockRequestToGetTasksByProjectIdWithServerErrorResponse(projectIdsToBeFound.get(0));
+        mockRequestToGetTasksByProjectIdWithServerErrorResponse(projectIdsToBeFound.getFirst());
         mockRequestToGetTasksByProjectIdWithServerErrorResponse(projectIdsToBeFound.get(1));
-        mockRequestToGetTasksByProjectIdWithServerErrorResponse(projectIdsToBeFound.get(2));
+        mockRequestToGetTasksByProjectIdWithServerErrorResponse(projectIdsToBeFound.getLast());
 
         // When & Then
-        var expectedProject1 = new ProjectDTO(projectIdsToBeFound.get(0), fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate, null);
+        var expectedProject1 = new ProjectDTO(projectIdsToBeFound.getFirst(), fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate,
+                null);
         var expectedProject2 = new ProjectDTO(projectIdsToBeFound.get(1), fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, null);
-        var expectedProject3 = new ProjectDTO(projectIdsToBeFound.get(2), fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate, null);
+        var expectedProject3 = new ProjectDTO(projectIdsToBeFound.getLast(), fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate,
+                null);
         var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
 
         webTestClient.get()
@@ -291,16 +293,16 @@ class ProjectE2EIT {
         assertNotNull(projectIdsToBeFound);
         assertEquals(3L, projectIdsToBeFound.size());
 
-        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdsToBeFound.get(0), Collections.emptyList());
+        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdsToBeFound.getFirst(), Collections.emptyList());
         mockRequestToGetTasksByProjectIdWithOkResponse(projectIdsToBeFound.get(1), Collections.emptyList());
-        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdsToBeFound.get(2), Collections.emptyList());
+        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdsToBeFound.getLast(), Collections.emptyList());
 
         // When & Then
-        var expectedProject1 = new ProjectDTO(projectIdsToBeFound.get(0), fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate,
+        var expectedProject1 = new ProjectDTO(projectIdsToBeFound.getFirst(), fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate,
                 Collections.emptyList());
         var expectedProject2 = new ProjectDTO(projectIdsToBeFound.get(1), fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate,
                 Collections.emptyList());
-        var expectedProject3 = new ProjectDTO(projectIdsToBeFound.get(2), fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate,
+        var expectedProject3 = new ProjectDTO(projectIdsToBeFound.getLast(), fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate,
                 Collections.emptyList());
         var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
 
@@ -331,19 +333,19 @@ class ProjectE2EIT {
         assertNotNull(projectIdsToBeFound);
         assertEquals(3L, projectIdsToBeFound.size());
 
-        var fakeProject1Tasks = buildFakeProjectTasks(projectIdsToBeFound.get(0));
+        var fakeProject1Tasks = buildFakeProjectTasks(projectIdsToBeFound.getFirst());
         var fakeProject2Tasks = buildFakeProjectTasks(projectIdsToBeFound.get(1));
-        var fakeProject3Tasks = buildFakeProjectTasks(projectIdsToBeFound.get(2));
-        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdsToBeFound.get(0), fakeProject1Tasks);
+        var fakeProject3Tasks = buildFakeProjectTasks(projectIdsToBeFound.getLast());
+        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdsToBeFound.getFirst(), fakeProject1Tasks);
         mockRequestToGetTasksByProjectIdWithOkResponse(projectIdsToBeFound.get(1), fakeProject2Tasks);
-        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdsToBeFound.get(2), fakeProject3Tasks);
+        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdsToBeFound.getLast(), fakeProject3Tasks);
 
         // When & Then
-        var expectedProject1 = new ProjectDTO(projectIdsToBeFound.get(0), fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate,
+        var expectedProject1 = new ProjectDTO(projectIdsToBeFound.getFirst(), fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate,
                 fakeProject1Tasks);
         var expectedProject2 = new ProjectDTO(projectIdsToBeFound.get(1), fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate,
                 fakeProject2Tasks);
-        var expectedProject3 = new ProjectDTO(projectIdsToBeFound.get(2), fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate,
+        var expectedProject3 = new ProjectDTO(projectIdsToBeFound.getLast(), fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate,
                 fakeProject3Tasks);
         var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
 
