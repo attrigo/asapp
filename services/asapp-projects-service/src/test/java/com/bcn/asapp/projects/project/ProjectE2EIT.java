@@ -40,7 +40,6 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -248,7 +247,7 @@ class ProjectE2EIT {
         var fakeProject1 = new Project(null, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate);
         var fakeProject2 = new Project(null, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
         var fakeProject3 = new Project(null, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate);
-        var projectsToBeFound = projectRepository.saveAll(Arrays.asList(fakeProject1, fakeProject2, fakeProject3));
+        var projectsToBeFound = projectRepository.saveAll(List.of(fakeProject1, fakeProject2, fakeProject3));
         var projectIdsToBeFound = projectsToBeFound.stream()
                                                    .map(Project::id)
                                                    .collect(Collectors.toList());
@@ -263,7 +262,7 @@ class ProjectE2EIT {
         var expectedProject1 = new ProjectDTO(projectIdsToBeFound.get(0), fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate, null);
         var expectedProject2 = new ProjectDTO(projectIdsToBeFound.get(1), fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, null);
         var expectedProject3 = new ProjectDTO(projectIdsToBeFound.get(2), fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate, null);
-        var expected = Arrays.asList(expectedProject1, expectedProject2, expectedProject3);
+        var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
 
         webTestClient.get()
                      .uri(PROJECTS_GET_ALL_FULL_PATH)
@@ -285,7 +284,7 @@ class ProjectE2EIT {
         var fakeProject1 = new Project(null, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate);
         var fakeProject2 = new Project(null, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
         var fakeProject3 = new Project(null, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate);
-        var projectsToBeFound = projectRepository.saveAll(Arrays.asList(fakeProject1, fakeProject2, fakeProject3));
+        var projectsToBeFound = projectRepository.saveAll(List.of(fakeProject1, fakeProject2, fakeProject3));
         var projectIdsToBeFound = projectsToBeFound.stream()
                                                    .map(Project::id)
                                                    .collect(Collectors.toList());
@@ -303,7 +302,7 @@ class ProjectE2EIT {
                 Collections.emptyList());
         var expectedProject3 = new ProjectDTO(projectIdsToBeFound.get(2), fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate,
                 Collections.emptyList());
-        var expected = Arrays.asList(expectedProject1, expectedProject2, expectedProject3);
+        var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
 
         webTestClient.get()
                      .uri(PROJECTS_GET_ALL_FULL_PATH)
@@ -325,7 +324,7 @@ class ProjectE2EIT {
         var fakeProject1 = new Project(null, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate);
         var fakeProject2 = new Project(null, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
         var fakeProject3 = new Project(null, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate);
-        var projectsToBeFound = projectRepository.saveAll(Arrays.asList(fakeProject1, fakeProject2, fakeProject3));
+        var projectsToBeFound = projectRepository.saveAll(List.of(fakeProject1, fakeProject2, fakeProject3));
         var projectIdsToBeFound = projectsToBeFound.stream()
                                                    .map(Project::id)
                                                    .collect(Collectors.toList());
@@ -346,7 +345,7 @@ class ProjectE2EIT {
                 fakeProject2Tasks);
         var expectedProject3 = new ProjectDTO(projectIdsToBeFound.get(2), fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate,
                 fakeProject3Tasks);
-        var expected = Arrays.asList(expectedProject1, expectedProject2, expectedProject3);
+        var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
 
         webTestClient.get()
                      .uri(PROJECTS_GET_ALL_FULL_PATH)

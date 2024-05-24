@@ -27,8 +27,8 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -144,7 +144,7 @@ class TaskServiceImpTests {
         var fakeTask1 = new Task(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
         var fakeTask2 = new Task(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
         var fakeTask3 = new Task(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
-        var fakeTasks = Arrays.asList(fakeTask1, fakeTask2, fakeTask3);
+        var fakeTasks = List.of(fakeTask1, fakeTask2, fakeTask3);
         given(taskRepositoryMock.findAll()).willReturn(fakeTasks);
 
         // When
@@ -154,7 +154,7 @@ class TaskServiceImpTests {
         var expectedTask1 = new TaskDTO(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
         var expectedTask2 = new TaskDTO(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
         var expectedTask3 = new TaskDTO(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
-        var expected = Arrays.asList(expectedTask1, expectedTask2, expectedTask3);
+        var expected = List.of(expectedTask1, expectedTask2, expectedTask3);
 
         assertIterableEquals(expected, actual);
 
@@ -192,7 +192,7 @@ class TaskServiceImpTests {
         var fakeTask1 = new Task(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
         var fakeTask2 = new Task(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
         var fakeTask3 = new Task(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
-        var fakeTasks = Arrays.asList(fakeTask1, fakeTask2, fakeTask3);
+        var fakeTasks = List.of(fakeTask1, fakeTask2, fakeTask3);
         given(taskRepositoryMock.findByProjectId(any(UUID.class))).willReturn(fakeTasks);
 
         // When
@@ -204,7 +204,7 @@ class TaskServiceImpTests {
         var expectedTask1 = new TaskDTO(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
         var expectedTask2 = new TaskDTO(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
         var expectedTask3 = new TaskDTO(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
-        var expected = Arrays.asList(expectedTask1, expectedTask2, expectedTask3);
+        var expected = List.of(expectedTask1, expectedTask2, expectedTask3);
 
         assertIterableEquals(expected, actual);
 

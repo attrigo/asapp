@@ -37,8 +37,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
 import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -195,7 +195,7 @@ class TaskControllerIT {
         var fakeTask1 = new TaskDTO(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
         var fakeTask2 = new TaskDTO(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
         var fakeTask3 = new TaskDTO(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
-        var fakeTasks = Arrays.asList(fakeTask1, fakeTask2, fakeTask3);
+        var fakeTasks = List.of(fakeTask1, fakeTask2, fakeTask3);
         given(taskServiceMock.findAll()).willReturn(fakeTasks);
 
         // When & Then
@@ -280,7 +280,7 @@ class TaskControllerIT {
         var fakeTask1 = new TaskDTO(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
         var fakeTask2 = new TaskDTO(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
         var fakeTask3 = new TaskDTO(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
-        var fakeTasks = Arrays.asList(fakeTask1, fakeTask2, fakeTask3);
+        var fakeTasks = List.of(fakeTask1, fakeTask2, fakeTask3);
         given(taskServiceMock.findByProjectId(any(UUID.class))).willReturn(fakeTasks);
 
         // When & Then

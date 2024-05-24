@@ -27,7 +27,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -212,7 +211,7 @@ class ProjectServiceImpTests {
         var fakeProject1 = new Project(fakeProject1Id, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate);
         var fakeProject2 = new Project(fakeProject2Id, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
         var fakeProject3 = new Project(fakeProject3Id, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate);
-        var fakeProjects = Arrays.asList(fakeProject1, fakeProject2, fakeProject3);
+        var fakeProjects = List.of(fakeProject1, fakeProject2, fakeProject3);
         given(projectRepositoryMock.findAll()).willReturn(fakeProjects);
 
         given(taskClientMock.getTasksByProjectId(any(UUID.class))).willReturn(Collections.emptyList());
@@ -227,7 +226,7 @@ class ProjectServiceImpTests {
                 Collections.emptyList());
         var expectedProject3 = new ProjectDTO(fakeProject3Id, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate,
                 Collections.emptyList());
-        var expected = Arrays.asList(expectedProject1, expectedProject2, expectedProject3);
+        var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
 
         assertIterableEquals(expected, actual);
 
@@ -252,7 +251,7 @@ class ProjectServiceImpTests {
         var fakeProject1 = new Project(fakeProject1Id, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate);
         var fakeProject2 = new Project(fakeProject2Id, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
         var fakeProject3 = new Project(fakeProject3Id, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate);
-        var fakeProjects = Arrays.asList(fakeProject1, fakeProject2, fakeProject3);
+        var fakeProjects = List.of(fakeProject1, fakeProject2, fakeProject3);
         given(projectRepositoryMock.findAll()).willReturn(fakeProjects);
 
         given(taskClientMock.getTasksByProjectId(any(UUID.class))).willReturn(null);
@@ -264,7 +263,7 @@ class ProjectServiceImpTests {
         var expectedProject1 = new ProjectDTO(fakeProject1Id, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate, null);
         var expectedProject2 = new ProjectDTO(fakeProject2Id, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, null);
         var expectedProject3 = new ProjectDTO(fakeProject3Id, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate, null);
-        var expected = Arrays.asList(expectedProject1, expectedProject2, expectedProject3);
+        var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
 
         assertIterableEquals(expected, actual);
 
@@ -289,7 +288,7 @@ class ProjectServiceImpTests {
         var fakeProject1 = new Project(fakeProject1Id, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate);
         var fakeProject2 = new Project(fakeProject2Id, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
         var fakeProject3 = new Project(fakeProject3Id, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate);
-        var fakeProjects = Arrays.asList(fakeProject1, fakeProject2, fakeProject3);
+        var fakeProjects = List.of(fakeProject1, fakeProject2, fakeProject3);
         given(projectRepositoryMock.findAll()).willReturn(fakeProjects);
 
         given(taskClientMock.getTasksByProjectId(any(UUID.class))).willReturn(fakeProjectTasks);
@@ -301,7 +300,7 @@ class ProjectServiceImpTests {
         var expectedProject1 = new ProjectDTO(fakeProject1Id, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate, fakeProjectTasks);
         var expectedProject2 = new ProjectDTO(fakeProject2Id, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, fakeProjectTasks);
         var expectedProject3 = new ProjectDTO(fakeProject3Id, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate, fakeProjectTasks);
-        var expected = Arrays.asList(expectedProject1, expectedProject2, expectedProject3);
+        var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
 
         assertIterableEquals(expected, actual);
 

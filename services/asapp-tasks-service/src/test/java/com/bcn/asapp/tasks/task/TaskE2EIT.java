@@ -34,7 +34,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -159,7 +159,7 @@ class TaskE2EIT {
         var fakeTask1 = new Task(null, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
         var fakeTask2 = new Task(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
         var fakeTask3 = new Task(null, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
-        var tasksToBeFound = taskRepository.saveAll(Arrays.asList(fakeTask1, fakeTask2, fakeTask3));
+        var tasksToBeFound = taskRepository.saveAll(List.of(fakeTask1, fakeTask2, fakeTask3));
         var taskIdsToBeFound = tasksToBeFound.stream()
                                              .map(Task::id)
                                              .collect(Collectors.toList());
@@ -170,7 +170,7 @@ class TaskE2EIT {
         var expectedTask1 = new TaskDTO(taskIdsToBeFound.get(0), fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
         var expectedTask2 = new TaskDTO(taskIdsToBeFound.get(1), fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
         var expectedTask3 = new TaskDTO(taskIdsToBeFound.get(2), fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
-        var expected = Arrays.asList(expectedTask1, expectedTask2, expectedTask3);
+        var expected = List.of(expectedTask1, expectedTask2, expectedTask3);
 
         webTestClient.get()
                      .uri(TASKS_GET_ALL_FULL_PATH)
@@ -211,7 +211,7 @@ class TaskE2EIT {
         var task1ToBeFound = new Task(null, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
         var task2ToBeFound = new Task(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
         var task3ToBeFound = new Task(null, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
-        var tasksToBeFound = taskRepository.saveAll(Arrays.asList(task1ToBeFound, task2ToBeFound, task3ToBeFound));
+        var tasksToBeFound = taskRepository.saveAll(List.of(task1ToBeFound, task2ToBeFound, task3ToBeFound));
         var taskIdsToBeFound = tasksToBeFound.stream()
                                              .map(Task::id)
                                              .collect(Collectors.toList());
@@ -222,7 +222,7 @@ class TaskE2EIT {
         var expectedTask1 = new TaskDTO(taskIdsToBeFound.get(0), fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
         var expectedTask2 = new TaskDTO(taskIdsToBeFound.get(1), fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
         var expectedTask3 = new TaskDTO(taskIdsToBeFound.get(2), fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
-        var expected = Arrays.asList(expectedTask1, expectedTask2, expectedTask3);
+        var expected = List.of(expectedTask1, expectedTask2, expectedTask3);
 
         var idToFind = fakeProjectId;
 
