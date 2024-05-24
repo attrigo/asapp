@@ -215,7 +215,7 @@ class TaskServiceImpTests {
     // Create
     @Test
     @DisplayName("GIVEN task id field is not null WHEN create a task THEN creates the task ignoring the given task id And returns the task created with a new id")
-    void TaskIdFieldIsNotNull_Create_CreatesTaskIgnoringGivenTaskIdAndReturnsTaskCreated() {
+    void TaskIdFieldIsNotNull_Create_CreatesTaskIgnoringTaskIdAndReturnsTaskCreated() {
         var anotherFakeTaskId = UUID.randomUUID();
 
         // Given
