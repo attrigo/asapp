@@ -242,7 +242,7 @@ class TaskE2EIT {
     // CreateTask
     @Test
     @DisplayName("GIVEN task has id field WHEN create a task THEN creates the task ignoring the given task id And returns HTTP response with status CREATED And the body with the task created")
-    void TaskHasIdField_CreateTask_CreatesTaskIgnoringGivenTaskIdAndReturnsStatusCreatedAndBodyWithTaskCreated() {
+    void TaskHasIdField_CreateTask_CreatesTaskIgnoringTaskIdAndReturnsStatusCreatedAndBodyWithTaskCreated() {
         var anotherFakeTaskId = UUID.randomUUID();
 
         // When & Then
