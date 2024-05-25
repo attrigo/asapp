@@ -155,10 +155,17 @@ class TaskE2EIT {
     @Test
     @DisplayName("GIVEN there are tasks WHEN get all tasks THEN gets all tasks And returns HTTP response with status OK And the body with the tasks found")
     void ThereAreTasks_GetAllTasks_GetsAllTasksAndReturnsStatusOKAndBodyWithTasksFound() {
+        var fakeTaskTitle1 = fakeTaskTitle + " 1";
+        var fakeTaskTitle2 = fakeTaskTitle + " 2";
+        var fakeTaskTitle3 = fakeTaskTitle + " 3";
+        var fakeTaskDesc1 = fakeTaskDescription + " 1";
+        var fakeTaskDesc2 = fakeTaskDescription + " 2";
+        var fakeTaskDesc3 = fakeTaskDescription + " 3";
+
         // Given
-        var fakeTask1 = new Task(null, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
-        var fakeTask2 = new Task(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
-        var fakeTask3 = new Task(null, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
+        var fakeTask1 = new Task(null, fakeTaskTitle1, fakeTaskDesc1, fakeTaskStartDate, fakeProjectId);
+        var fakeTask2 = new Task(null, fakeTaskTitle2, fakeTaskDesc2, fakeTaskStartDate, fakeProjectId);
+        var fakeTask3 = new Task(null, fakeTaskTitle3, fakeTaskDesc3, fakeTaskStartDate, fakeProjectId);
         var tasksToBeFound = taskRepository.saveAll(List.of(fakeTask1, fakeTask2, fakeTask3));
         var taskIdsToBeFound = tasksToBeFound.stream()
                                              .map(Task::id)
@@ -167,9 +174,9 @@ class TaskE2EIT {
         assertEquals(3L, taskIdsToBeFound.size());
 
         // When & Then
-        var expectedTask1 = new TaskDTO(taskIdsToBeFound.getFirst(), fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
-        var expectedTask2 = new TaskDTO(taskIdsToBeFound.get(1), fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
-        var expectedTask3 = new TaskDTO(taskIdsToBeFound.getLast(), fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
+        var expectedTask1 = new TaskDTO(taskIdsToBeFound.getFirst(), fakeTaskTitle1, fakeTaskDesc1, fakeTaskStartDate, fakeProjectId);
+        var expectedTask2 = new TaskDTO(taskIdsToBeFound.get(1), fakeTaskTitle2, fakeTaskDesc2, fakeTaskStartDate, fakeProjectId);
+        var expectedTask3 = new TaskDTO(taskIdsToBeFound.getLast(), fakeTaskTitle3, fakeTaskDesc3, fakeTaskStartDate, fakeProjectId);
         var expected = List.of(expectedTask1, expectedTask2, expectedTask3);
 
         webTestClient.get()
@@ -207,11 +214,18 @@ class TaskE2EIT {
     @Test
     @DisplayName("GIVEN there are tasks with project id WHEN get tasks by project id THEN gets tasks And returns HTTP response with status OK And the body with the tasks found")
     void ThereAreTasksWithProjectId_GetTasksByProjectId_GetsTasksAndReturnsStatusOKAndBodyWithTaskFound() {
+        var fakeTaskTitle1 = fakeTaskTitle + " 1";
+        var fakeTaskTitle2 = fakeTaskTitle + " 2";
+        var fakeTaskTitle3 = fakeTaskTitle + " 3";
+        var fakeTaskDesc1 = fakeTaskDescription + " 1";
+        var fakeTaskDesc2 = fakeTaskDescription + " 2";
+        var fakeTaskDesc3 = fakeTaskDescription + " 3";
+
         // Given
-        var task1ToBeFound = new Task(null, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
-        var task2ToBeFound = new Task(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
-        var task3ToBeFound = new Task(null, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
-        var tasksToBeFound = taskRepository.saveAll(List.of(task1ToBeFound, task2ToBeFound, task3ToBeFound));
+        var taskToBeFound1 = new Task(null, fakeTaskTitle1, fakeTaskDesc1, fakeTaskStartDate, fakeProjectId);
+        var taskToBeFound2 = new Task(null, fakeTaskTitle2, fakeTaskDesc2, fakeTaskStartDate, fakeProjectId);
+        var taskToBeFound3 = new Task(null, fakeTaskTitle3, fakeTaskDesc3, fakeTaskStartDate, fakeProjectId);
+        var tasksToBeFound = taskRepository.saveAll(List.of(taskToBeFound1, taskToBeFound2, taskToBeFound3));
         var taskIdsToBeFound = tasksToBeFound.stream()
                                              .map(Task::id)
                                              .collect(Collectors.toList());
@@ -219,9 +233,9 @@ class TaskE2EIT {
         assertEquals(3L, taskIdsToBeFound.size());
 
         // When & Then
-        var expectedTask1 = new TaskDTO(taskIdsToBeFound.getFirst(), fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
-        var expectedTask2 = new TaskDTO(taskIdsToBeFound.get(1), fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
-        var expectedTask3 = new TaskDTO(taskIdsToBeFound.getLast(), fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
+        var expectedTask1 = new TaskDTO(taskIdsToBeFound.getFirst(), fakeTaskTitle1, fakeTaskDesc1, fakeTaskStartDate, fakeProjectId);
+        var expectedTask2 = new TaskDTO(taskIdsToBeFound.get(1), fakeTaskTitle2, fakeTaskDesc2, fakeTaskStartDate, fakeProjectId);
+        var expectedTask3 = new TaskDTO(taskIdsToBeFound.getLast(), fakeTaskTitle3, fakeTaskDesc3, fakeTaskStartDate, fakeProjectId);
         var expected = List.of(expectedTask1, expectedTask2, expectedTask3);
 
         var idToFind = fakeProjectId;
@@ -314,7 +328,7 @@ class TaskE2EIT {
     void TaskIdNotExists_UpdateTaskById_DoesNotUpdateTheTaskAndReturnsStatusNotFoundAndWithoutBody() {
         // When & Then
         var idToUpdate = fakeTaskId;
-        var taskToUpdate = new TaskDTO(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
+        var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
         webTestClient.put()
                      .uri(TASKS_UPDATE_BY_ID_FULL_PATH, idToUpdate)
@@ -331,6 +345,8 @@ class TaskE2EIT {
     @Test
     @DisplayName("GIVEN task id exists And new task data has id field WHEN update a task by id THEN updates all task fields except the id And returns HTTP response with status OK And the body with the task updated")
     void TaskIdExistsAndNewTaskDataHasIdField_UpdateTaskById_UpdatesAllTaskFieldsExceptIdAndReturnsStatusOkAndBodyWithTaskUpdated() {
+        var anotherFakeTaskTitle = fakeTaskTitle + " 2";
+        var anotherFakeTaskDesc = fakeTaskDescription + " 2";
         var anotherFakeTaskStartDate = LocalDateTime.now()
                                                     .truncatedTo(ChronoUnit.MILLIS);
         var anotherFakeTaskProjectId = UUID.randomUUID();
@@ -342,7 +358,7 @@ class TaskE2EIT {
 
         // When & Then
         var idToUpdate = taskToBeUpdated.id();
-        var taskToUpdate = new TaskDTO(UUID.randomUUID(), fakeTaskTitle + " 2", fakeTaskDescription + " 2", anotherFakeTaskStartDate, anotherFakeTaskProjectId);
+        var taskToUpdate = new TaskDTO(UUID.randomUUID(), anotherFakeTaskTitle, anotherFakeTaskDesc, anotherFakeTaskStartDate, anotherFakeTaskProjectId);
 
         var response = webTestClient.put()
                                     .uri(TASKS_UPDATE_BY_ID_FULL_PATH, idToUpdate)
@@ -356,8 +372,8 @@ class TaskE2EIT {
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .expectBody(TaskDTO.class)
                                     .value(task -> assertThat(task.id(), equalTo(taskToBeUpdated.id())))
-                                    .value(task -> assertThat(task.title(), equalTo(fakeTaskTitle + " 2")))
-                                    .value(task -> assertThat(task.description(), equalTo(fakeTaskDescription + " 2")))
+                                    .value(task -> assertThat(task.title(), equalTo(anotherFakeTaskTitle)))
+                                    .value(task -> assertThat(task.description(), equalTo(anotherFakeTaskDesc)))
                                     .value(task -> assertThat(task.startDateTime(), equalTo(anotherFakeTaskStartDate)))
                                     .value(task -> assertThat(task.projectId(), equalTo(anotherFakeTaskProjectId)))
                                     .returnResult()
@@ -374,6 +390,8 @@ class TaskE2EIT {
     @Test
     @DisplayName("GIVEN task id exists And new task data fields are valid WHEN update a task THEN updates all task fields And returns HTTP response with status OK And the body with the task updated")
     void TaskIdExistsAndNewTaskDataFieldsAreValid_UpdateTask_UpdatesAllTaskFieldsAndReturnsStatusOkAndBodyWithTaskUpdated() {
+        var anotherFakeTaskTitle = fakeTaskTitle + " 2";
+        var anotherFakeTaskDesc = fakeTaskDescription + " 2";
         var anotherFakeTaskStartDate = LocalDateTime.now()
                                                     .truncatedTo(ChronoUnit.MILLIS);
         var anotherFakeTaskProjectId = UUID.randomUUID();
@@ -385,7 +403,7 @@ class TaskE2EIT {
 
         // When & Then
         var idToUpdate = taskToBeUpdated.id();
-        var taskToUpdate = new TaskDTO(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", anotherFakeTaskStartDate, anotherFakeTaskProjectId);
+        var taskToUpdate = new TaskDTO(null, anotherFakeTaskTitle, anotherFakeTaskDesc, anotherFakeTaskStartDate, anotherFakeTaskProjectId);
 
         var response = webTestClient.put()
                                     .uri(TASKS_UPDATE_BY_ID_FULL_PATH, idToUpdate)
@@ -399,8 +417,8 @@ class TaskE2EIT {
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .expectBody(TaskDTO.class)
                                     .value(task -> assertThat(task.id(), equalTo(taskToBeUpdated.id())))
-                                    .value(task -> assertThat(task.title(), equalTo(fakeTaskTitle + " 2")))
-                                    .value(task -> assertThat(task.description(), equalTo(fakeTaskDescription + " 2")))
+                                    .value(task -> assertThat(task.title(), equalTo(anotherFakeTaskTitle)))
+                                    .value(task -> assertThat(task.description(), equalTo(anotherFakeTaskDesc)))
                                     .value(task -> assertThat(task.startDateTime(), equalTo(anotherFakeTaskStartDate)))
                                     .value(task -> assertThat(task.projectId(), equalTo(anotherFakeTaskProjectId)))
                                     .returnResult()

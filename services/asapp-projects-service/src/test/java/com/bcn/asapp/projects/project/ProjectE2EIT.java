@@ -243,10 +243,17 @@ class ProjectE2EIT {
     @Test
     @DisplayName("GIVEN there are projects without tasks WHEN get all projects THEN gets all projects And returns HTTP response with status OK And the body with the projects with empty list of tasks")
     void ThereAreProjectsWithoutTasks_GetAllProjects_GetsAllProjectsAndReturnsStatusOKAndBodyWithProjectsWithEmptyListTasks() {
+        var fakeProjectTitle1 = fakeProjectTitle + " 1";
+        var fakeProjectTitle2 = fakeProjectTitle + " 2";
+        var fakeProjectTitle3 = fakeProjectTitle + " 3";
+        var fakeProjectDesc1 = fakeProjectDescription + " 1";
+        var fakeProjectDesc2 = fakeProjectDescription + " 2";
+        var fakeProjectDesc3 = fakeProjectDescription + " 3";
+
         // Given
-        var fakeProject1 = new Project(null, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate);
-        var fakeProject2 = new Project(null, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
-        var fakeProject3 = new Project(null, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate);
+        var fakeProject1 = new Project(null, fakeProjectTitle1, fakeProjectDesc1, fakeProjectStartDate);
+        var fakeProject2 = new Project(null, fakeProjectTitle2, fakeProjectDesc2, fakeProjectStartDate);
+        var fakeProject3 = new Project(null, fakeProjectTitle3, fakeProjectDesc3, fakeProjectStartDate);
         var projectsToBeFound = projectRepository.saveAll(List.of(fakeProject1, fakeProject2, fakeProject3));
         var projectIdsToBeFound = projectsToBeFound.stream()
                                                    .map(Project::id)
@@ -254,16 +261,18 @@ class ProjectE2EIT {
         assertNotNull(projectIdsToBeFound);
         assertEquals(3L, projectIdsToBeFound.size());
 
-        mockRequestToGetTasksByProjectIdWithServerErrorResponse(projectIdsToBeFound.getFirst());
-        mockRequestToGetTasksByProjectIdWithServerErrorResponse(projectIdsToBeFound.get(1));
-        mockRequestToGetTasksByProjectIdWithServerErrorResponse(projectIdsToBeFound.getLast());
+        var projectIdToBeFound1 = projectIdsToBeFound.getFirst();
+        var projectIdToBeFound2 = projectIdsToBeFound.get(1);
+        var projectIdToBeFound3 = projectIdsToBeFound.getLast();
+
+        mockRequestToGetTasksByProjectIdWithServerErrorResponse(projectIdToBeFound1);
+        mockRequestToGetTasksByProjectIdWithServerErrorResponse(projectIdToBeFound2);
+        mockRequestToGetTasksByProjectIdWithServerErrorResponse(projectIdToBeFound3);
 
         // When & Then
-        var expectedProject1 = new ProjectDTO(projectIdsToBeFound.getFirst(), fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate,
-                null);
-        var expectedProject2 = new ProjectDTO(projectIdsToBeFound.get(1), fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, null);
-        var expectedProject3 = new ProjectDTO(projectIdsToBeFound.getLast(), fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate,
-                null);
+        var expectedProject1 = new ProjectDTO(projectIdToBeFound1, fakeProjectTitle1, fakeProjectDesc1, fakeProjectStartDate, null);
+        var expectedProject2 = new ProjectDTO(projectIdToBeFound2, fakeProjectTitle2, fakeProjectDesc2, fakeProjectStartDate, null);
+        var expectedProject3 = new ProjectDTO(projectIdToBeFound3, fakeProjectTitle3, fakeProjectDesc3, fakeProjectStartDate, null);
         var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
 
         webTestClient.get()
@@ -282,10 +291,17 @@ class ProjectE2EIT {
     @Test
     @DisplayName("GIVEN there are projects with tasks And tasks service is not available WHEN get all projects THEN gets all projects And returns HTTP response with status OK And the body with the projects without tasks")
     void ThereAreProjectsWithTasksAndTasksServiceIsNotAvailable_GetAllProjects_GetsAllProjectsAndReturnsStatusOKAndBodyWithProjectsWithoutTasks() {
+        var fakeProjectTitle1 = fakeProjectTitle + " 1";
+        var fakeProjectTitle2 = fakeProjectTitle + " 2";
+        var fakeProjectTitle3 = fakeProjectTitle + " 3";
+        var fakeProjectDesc1 = fakeProjectDescription + " 1";
+        var fakeProjectDesc2 = fakeProjectDescription + " 2";
+        var fakeProjectDesc3 = fakeProjectDescription + " 3";
+
         // Given
-        var fakeProject1 = new Project(null, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate);
-        var fakeProject2 = new Project(null, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
-        var fakeProject3 = new Project(null, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate);
+        var fakeProject1 = new Project(null, fakeProjectTitle1, fakeProjectDesc1, fakeProjectStartDate);
+        var fakeProject2 = new Project(null, fakeProjectTitle2, fakeProjectDesc2, fakeProjectStartDate);
+        var fakeProject3 = new Project(null, fakeProjectTitle3, fakeProjectDesc3, fakeProjectStartDate);
         var projectsToBeFound = projectRepository.saveAll(List.of(fakeProject1, fakeProject2, fakeProject3));
         var projectIdsToBeFound = projectsToBeFound.stream()
                                                    .map(Project::id)
@@ -293,17 +309,18 @@ class ProjectE2EIT {
         assertNotNull(projectIdsToBeFound);
         assertEquals(3L, projectIdsToBeFound.size());
 
-        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdsToBeFound.getFirst(), Collections.emptyList());
-        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdsToBeFound.get(1), Collections.emptyList());
-        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdsToBeFound.getLast(), Collections.emptyList());
+        var projectIdToBeFound1 = projectIdsToBeFound.getFirst();
+        var projectIdToBeFound2 = projectIdsToBeFound.get(1);
+        var projectIdToBeFound3 = projectIdsToBeFound.getLast();
+
+        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdToBeFound1, Collections.emptyList());
+        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdToBeFound2, Collections.emptyList());
+        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdToBeFound3, Collections.emptyList());
 
         // When & Then
-        var expectedProject1 = new ProjectDTO(projectIdsToBeFound.getFirst(), fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate,
-                Collections.emptyList());
-        var expectedProject2 = new ProjectDTO(projectIdsToBeFound.get(1), fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate,
-                Collections.emptyList());
-        var expectedProject3 = new ProjectDTO(projectIdsToBeFound.getLast(), fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate,
-                Collections.emptyList());
+        var expectedProject1 = new ProjectDTO(projectIdToBeFound1, fakeProjectTitle1, fakeProjectDesc1, fakeProjectStartDate, Collections.emptyList());
+        var expectedProject2 = new ProjectDTO(projectIdToBeFound2, fakeProjectTitle2, fakeProjectDesc2, fakeProjectStartDate, Collections.emptyList());
+        var expectedProject3 = new ProjectDTO(projectIdToBeFound3, fakeProjectTitle3, fakeProjectDesc3, fakeProjectStartDate, Collections.emptyList());
         var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
 
         webTestClient.get()
@@ -322,10 +339,17 @@ class ProjectE2EIT {
     @Test
     @DisplayName("GIVEN there are projects with tasks WHEN get all projects THEN gets all projects And returns HTTP response with status OK And the body with the projects with tasks")
     void ThereAreProjectsWithTasks_GetAllProjects_GetsAllProjectsAndReturnsStatusOKAndBodyWithProjectsWithTasks() {
+        var fakeProjectTitle1 = fakeProjectTitle + " 1";
+        var fakeProjectTitle2 = fakeProjectTitle + " 2";
+        var fakeProjectTitle3 = fakeProjectTitle + " 3";
+        var fakeProjectDesc1 = fakeProjectDescription + " 1";
+        var fakeProjectDesc2 = fakeProjectDescription + " 2";
+        var fakeProjectDesc3 = fakeProjectDescription + " 3";
+
         // Given
-        var fakeProject1 = new Project(null, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate);
-        var fakeProject2 = new Project(null, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
-        var fakeProject3 = new Project(null, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate);
+        var fakeProject1 = new Project(null, fakeProjectTitle1, fakeProjectDesc1, fakeProjectStartDate);
+        var fakeProject2 = new Project(null, fakeProjectTitle2, fakeProjectDesc2, fakeProjectStartDate);
+        var fakeProject3 = new Project(null, fakeProjectTitle3, fakeProjectDesc3, fakeProjectStartDate);
         var projectsToBeFound = projectRepository.saveAll(List.of(fakeProject1, fakeProject2, fakeProject3));
         var projectIdsToBeFound = projectsToBeFound.stream()
                                                    .map(Project::id)
@@ -333,20 +357,22 @@ class ProjectE2EIT {
         assertNotNull(projectIdsToBeFound);
         assertEquals(3L, projectIdsToBeFound.size());
 
-        var fakeProject1Tasks = buildFakeProjectTasks(projectIdsToBeFound.getFirst());
-        var fakeProject2Tasks = buildFakeProjectTasks(projectIdsToBeFound.get(1));
-        var fakeProject3Tasks = buildFakeProjectTasks(projectIdsToBeFound.getLast());
-        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdsToBeFound.getFirst(), fakeProject1Tasks);
-        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdsToBeFound.get(1), fakeProject2Tasks);
-        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdsToBeFound.getLast(), fakeProject3Tasks);
+        var projectIdToBeFound1 = projectIdsToBeFound.getFirst();
+        var projectIdToBeFound2 = projectIdsToBeFound.get(1);
+        var projectIdToBeFound3 = projectIdsToBeFound.getLast();
+
+        var fakeProjectTasks1 = buildFakeProjectTasks(projectIdToBeFound1);
+        var fakeProjectTasks2 = buildFakeProjectTasks(projectIdToBeFound2);
+        var fakeProjectTasks3 = buildFakeProjectTasks(projectIdToBeFound3);
+
+        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdToBeFound1, fakeProjectTasks1);
+        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdToBeFound2, fakeProjectTasks2);
+        mockRequestToGetTasksByProjectIdWithOkResponse(projectIdToBeFound3, fakeProjectTasks3);
 
         // When & Then
-        var expectedProject1 = new ProjectDTO(projectIdsToBeFound.getFirst(), fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate,
-                fakeProject1Tasks);
-        var expectedProject2 = new ProjectDTO(projectIdsToBeFound.get(1), fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate,
-                fakeProject2Tasks);
-        var expectedProject3 = new ProjectDTO(projectIdsToBeFound.getLast(), fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate,
-                fakeProject3Tasks);
+        var expectedProject1 = new ProjectDTO(projectIdToBeFound1, fakeProjectTitle1, fakeProjectDesc1, fakeProjectStartDate, fakeProjectTasks1);
+        var expectedProject2 = new ProjectDTO(projectIdToBeFound2, fakeProjectTitle2, fakeProjectDesc2, fakeProjectStartDate, fakeProjectTasks2);
+        var expectedProject3 = new ProjectDTO(projectIdToBeFound3, fakeProjectTitle3, fakeProjectDesc3, fakeProjectStartDate, fakeProjectTasks3);
         var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
 
         webTestClient.get()
@@ -472,7 +498,7 @@ class ProjectE2EIT {
     void ProjectIdNotExists_UpdateProjectById_DoesNotUpdateTheProjectAndReturnsStatusNotFoundAndWithoutBody() {
         // When & Then
         var idToUpdate = fakeProjectId;
-        var projectToUpdate = new ProjectDTO(null, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, null);
+        var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
 
         webTestClient.put()
                      .uri(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate)
@@ -489,6 +515,8 @@ class ProjectE2EIT {
     @Test
     @DisplayName("GIVEN project id exists And new project data has id field WHEN update a project by id THEN updates all project fields except the id And returns HTTP response with status OK And the body with the project updated")
     void ProjectIdExistsAndNewProjectDataHasIdField_UpdateProjectById_UpdatesAllProjectFieldsExceptIdAndReturnsStatusOkAndBodyWithProjectUpdated() {
+        var anotherFakeProjectTitle = fakeProjectTitle + " 2";
+        var anotherFakeProjectDesc = fakeProjectDescription + " 2";
         var anotherFakeProjectStartDate = LocalDateTime.now()
                                                        .truncatedTo(ChronoUnit.MILLIS);
 
@@ -499,7 +527,7 @@ class ProjectE2EIT {
 
         // When & Then
         var idToUpdate = projectToBeUpdated.id();
-        var projectToUpdate = new ProjectDTO(UUID.randomUUID(), fakeProjectTitle + " 2", fakeProjectDescription + " 2", anotherFakeProjectStartDate, null);
+        var projectToUpdate = new ProjectDTO(UUID.randomUUID(), anotherFakeProjectTitle, anotherFakeProjectDesc, anotherFakeProjectStartDate, null);
 
         var response = webTestClient.put()
                                     .uri(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate)
@@ -513,8 +541,8 @@ class ProjectE2EIT {
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .expectBody(ProjectDTO.class)
                                     .value(project -> assertThat(project.id(), equalTo(projectToBeUpdated.id())))
-                                    .value(project -> assertThat(project.title(), equalTo(fakeProjectTitle + " 2")))
-                                    .value(project -> assertThat(project.description(), equalTo(fakeProjectDescription + " 2")))
+                                    .value(project -> assertThat(project.title(), equalTo(anotherFakeProjectTitle)))
+                                    .value(project -> assertThat(project.description(), equalTo(anotherFakeProjectDesc)))
                                     .value(project -> assertThat(project.startDateTime(), equalTo(anotherFakeProjectStartDate)))
                                     .value(project -> assertThat(project.tasks(), nullValue()))
                                     .returnResult()
@@ -531,6 +559,8 @@ class ProjectE2EIT {
     @Test
     @DisplayName("GIVEN project id exists And new project data has tasks field WHEN update a project by id THEN updates all project fields except the tasks And returns HTTP response with status OK And the body with the project updated")
     void ProjectIdExistsAndNewProjectDataHasTasksField_UpdateProject_UpdatesAllProjectFieldsExceptTasksAndReturnsStatusOkAndBodyWithProjectUpdated() {
+        var anotherFakeProjectTitle = fakeProjectTitle + " 2";
+        var anotherFakeProjectDesc = fakeProjectDescription + " 2";
         var anotherFakeProjectStartDate = LocalDateTime.now()
                                                        .truncatedTo(ChronoUnit.MILLIS);
         var anotherFakeProjectTasks = buildFakeProjectTasks(null);
@@ -542,7 +572,7 @@ class ProjectE2EIT {
 
         // When & Then
         var idToUpdate = projectToBeUpdated.id();
-        var projectToUpdate = new ProjectDTO(UUID.randomUUID(), fakeProjectTitle + " 2", fakeProjectDescription + " 2", anotherFakeProjectStartDate,
+        var projectToUpdate = new ProjectDTO(UUID.randomUUID(), anotherFakeProjectTitle, anotherFakeProjectDesc, anotherFakeProjectStartDate,
                 anotherFakeProjectTasks);
 
         var response = webTestClient.put()
@@ -557,8 +587,8 @@ class ProjectE2EIT {
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .expectBody(ProjectDTO.class)
                                     .value(project -> assertThat(project.id(), equalTo(projectToBeUpdated.id())))
-                                    .value(project -> assertThat(project.title(), equalTo(fakeProjectTitle + " 2")))
-                                    .value(project -> assertThat(project.description(), equalTo(fakeProjectDescription + " 2")))
+                                    .value(project -> assertThat(project.title(), equalTo(anotherFakeProjectTitle)))
+                                    .value(project -> assertThat(project.description(), equalTo(anotherFakeProjectDesc)))
                                     .value(project -> assertThat(project.startDateTime(), equalTo(anotherFakeProjectStartDate)))
                                     .value(project -> assertThat(project.tasks(), nullValue()))
                                     .returnResult()
@@ -575,6 +605,8 @@ class ProjectE2EIT {
     @Test
     @DisplayName("GIVEN project id exists And new project data fields are valid WHEN update a project THEN updates all project fields And returns HTTP response with status OK And the body with the project updated")
     void ProjectIdExistsAndNewProjectDataFieldsAreValid_UpdateProject_UpdatesAllProjectFieldsAndReturnsStatusOkAndBodyWithProjectUpdated() {
+        var anotherFakeProjectTitle = fakeProjectTitle + " 2";
+        var anotherFakeProjectDesc = fakeProjectDescription + " 2";
         var anotherFakeProjectStartDate = LocalDateTime.now()
                                                        .truncatedTo(ChronoUnit.MILLIS);
 
@@ -585,7 +617,7 @@ class ProjectE2EIT {
 
         // When & Then
         var idToUpdate = projectToBeUpdated.id();
-        var projectToUpdate = new ProjectDTO(null, fakeProjectTitle + " 2", fakeProjectDescription + " 2", anotherFakeProjectStartDate, null);
+        var projectToUpdate = new ProjectDTO(null, anotherFakeProjectTitle, anotherFakeProjectDesc, anotherFakeProjectStartDate, null);
 
         var response = webTestClient.put()
                                     .uri(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate)
@@ -599,8 +631,8 @@ class ProjectE2EIT {
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .expectBody(ProjectDTO.class)
                                     .value(project -> assertThat(project.id(), equalTo(projectToBeUpdated.id())))
-                                    .value(project -> assertThat(project.title(), equalTo(fakeProjectTitle + " 2")))
-                                    .value(project -> assertThat(project.description(), equalTo(fakeProjectDescription + " 2")))
+                                    .value(project -> assertThat(project.title(), equalTo(anotherFakeProjectTitle)))
+                                    .value(project -> assertThat(project.description(), equalTo(anotherFakeProjectDesc)))
                                     .value(project -> assertThat(project.startDateTime(), equalTo(anotherFakeProjectStartDate)))
                                     .value(project -> assertThat(project.tasks(), nullValue()))
                                     .returnResult()

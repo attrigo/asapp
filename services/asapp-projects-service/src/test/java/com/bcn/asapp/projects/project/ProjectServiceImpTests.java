@@ -203,14 +203,20 @@ class ProjectServiceImpTests {
     @Test
     @DisplayName("GIVEN there are projects without tasks WHEN find all projects THEN finds projects And returns the projects with empty list of tasks")
     void ThereAreProjectsWithoutTasks_FindAll_FindsProjectsAndReturnsProjectsWithEmptyListTasks() {
-        var fakeProject1Id = UUID.randomUUID();
-        var fakeProject2Id = UUID.randomUUID();
-        var fakeProject3Id = UUID.randomUUID();
+        var fakeProjectId1 = UUID.randomUUID();
+        var fakeProjectId2 = UUID.randomUUID();
+        var fakeProjectId3 = UUID.randomUUID();
+        var fakeProjectTitle1 = fakeProjectTitle + " 1";
+        var fakeProjectTitle2 = fakeProjectTitle + " 2";
+        var fakeProjectTitle3 = fakeProjectTitle + " 3";
+        var fakeProjectDesc1 = fakeProjectDescription + " 1";
+        var fakeProjectDesc2 = fakeProjectDescription + " 2";
+        var fakeProjectDesc3 = fakeProjectDescription + " 3";
 
         // Given
-        var fakeProject1 = new Project(fakeProject1Id, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate);
-        var fakeProject2 = new Project(fakeProject2Id, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
-        var fakeProject3 = new Project(fakeProject3Id, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate);
+        var fakeProject1 = new Project(fakeProjectId1, fakeProjectTitle1, fakeProjectDesc1, fakeProjectStartDate);
+        var fakeProject2 = new Project(fakeProjectId2, fakeProjectTitle2, fakeProjectDesc2, fakeProjectStartDate);
+        var fakeProject3 = new Project(fakeProjectId3, fakeProjectTitle3, fakeProjectDesc3, fakeProjectStartDate);
         var fakeProjects = List.of(fakeProject1, fakeProject2, fakeProject3);
         given(projectRepositoryMock.findAll()).willReturn(fakeProjects);
 
@@ -220,12 +226,9 @@ class ProjectServiceImpTests {
         var actual = projectService.findAll();
 
         // Then
-        var expectedProject1 = new ProjectDTO(fakeProject1Id, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate,
-                Collections.emptyList());
-        var expectedProject2 = new ProjectDTO(fakeProject2Id, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate,
-                Collections.emptyList());
-        var expectedProject3 = new ProjectDTO(fakeProject3Id, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate,
-                Collections.emptyList());
+        var expectedProject1 = new ProjectDTO(fakeProjectId1, fakeProjectTitle1, fakeProjectDesc1, fakeProjectStartDate, Collections.emptyList());
+        var expectedProject2 = new ProjectDTO(fakeProjectId2, fakeProjectTitle2, fakeProjectDesc2, fakeProjectStartDate, Collections.emptyList());
+        var expectedProject3 = new ProjectDTO(fakeProjectId3, fakeProjectTitle3, fakeProjectDesc3, fakeProjectStartDate, Collections.emptyList());
         var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
 
         assertIterableEquals(expected, actual);
@@ -233,24 +236,30 @@ class ProjectServiceImpTests {
         then(projectRepositoryMock).should(times(1))
                                    .findAll();
         then(taskClientMock).should(times(1))
-                            .getTasksByProjectId(fakeProject1Id);
+                            .getTasksByProjectId(fakeProjectId1);
         then(taskClientMock).should(times(1))
-                            .getTasksByProjectId(fakeProject2Id);
+                            .getTasksByProjectId(fakeProjectId2);
         then(taskClientMock).should(times(1))
-                            .getTasksByProjectId(fakeProject3Id);
+                            .getTasksByProjectId(fakeProjectId3);
     }
 
     @Test
     @DisplayName("GIVEN there are projects with tasks And tasks service is not available WHEN find all projects THEN finds projects And returns the projects with null tasks")
     void ThereAreProjectsWithTasksAndTasksServiceIsNotAvailable_FindAll_FindsProjectsAndReturnsProjectsWithNullTasks() {
-        var fakeProject1Id = UUID.randomUUID();
-        var fakeProject2Id = UUID.randomUUID();
-        var fakeProject3Id = UUID.randomUUID();
+        var fakeProjectId1 = UUID.randomUUID();
+        var fakeProjectId2 = UUID.randomUUID();
+        var fakeProjectId3 = UUID.randomUUID();
+        var fakeProjectTitle1 = fakeProjectTitle + " 1";
+        var fakeProjectTitle2 = fakeProjectTitle + " 2";
+        var fakeProjectTitle3 = fakeProjectTitle + " 3";
+        var fakeProjectDesc1 = fakeProjectDescription + " 1";
+        var fakeProjectDesc2 = fakeProjectDescription + " 2";
+        var fakeProjectDesc3 = fakeProjectDescription + " 3";
 
         // Given
-        var fakeProject1 = new Project(fakeProject1Id, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate);
-        var fakeProject2 = new Project(fakeProject2Id, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
-        var fakeProject3 = new Project(fakeProject3Id, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate);
+        var fakeProject1 = new Project(fakeProjectId1, fakeProjectTitle1, fakeProjectDesc1, fakeProjectStartDate);
+        var fakeProject2 = new Project(fakeProjectId2, fakeProjectTitle2, fakeProjectDesc2, fakeProjectStartDate);
+        var fakeProject3 = new Project(fakeProjectId3, fakeProjectTitle3, fakeProjectDesc3, fakeProjectStartDate);
         var fakeProjects = List.of(fakeProject1, fakeProject2, fakeProject3);
         given(projectRepositoryMock.findAll()).willReturn(fakeProjects);
 
@@ -260,9 +269,9 @@ class ProjectServiceImpTests {
         var actual = projectService.findAll();
 
         // Then
-        var expectedProject1 = new ProjectDTO(fakeProject1Id, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate, null);
-        var expectedProject2 = new ProjectDTO(fakeProject2Id, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, null);
-        var expectedProject3 = new ProjectDTO(fakeProject3Id, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate, null);
+        var expectedProject1 = new ProjectDTO(fakeProjectId1, fakeProjectTitle1, fakeProjectDesc1, fakeProjectStartDate, null);
+        var expectedProject2 = new ProjectDTO(fakeProjectId2, fakeProjectTitle2, fakeProjectDesc2, fakeProjectStartDate, null);
+        var expectedProject3 = new ProjectDTO(fakeProjectId3, fakeProjectTitle3, fakeProjectDesc3, fakeProjectStartDate, null);
         var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
 
         assertIterableEquals(expected, actual);
@@ -270,24 +279,30 @@ class ProjectServiceImpTests {
         then(projectRepositoryMock).should(times(1))
                                    .findAll();
         then(taskClientMock).should(times(1))
-                            .getTasksByProjectId(fakeProject1Id);
+                            .getTasksByProjectId(fakeProjectId1);
         then(taskClientMock).should(times(1))
-                            .getTasksByProjectId(fakeProject2Id);
+                            .getTasksByProjectId(fakeProjectId2);
         then(taskClientMock).should(times(1))
-                            .getTasksByProjectId(fakeProject3Id);
+                            .getTasksByProjectId(fakeProjectId3);
     }
 
     @Test
     @DisplayName("GIVEN there are projects with tasks WHEN find all projects THEN finds projects And returns the projects with tasks")
     void ThereAreProjectsWithTasks_FindAll_FindsProjectsAndReturnsProjectsWithTasks() {
-        var fakeProject1Id = UUID.randomUUID();
-        var fakeProject2Id = UUID.randomUUID();
-        var fakeProject3Id = UUID.randomUUID();
+        var fakeProjectId1 = UUID.randomUUID();
+        var fakeProjectId2 = UUID.randomUUID();
+        var fakeProjectId3 = UUID.randomUUID();
+        var fakeProjectTitle1 = fakeProjectTitle + " 1";
+        var fakeProjectTitle2 = fakeProjectTitle + " 2";
+        var fakeProjectTitle3 = fakeProjectTitle + " 3";
+        var fakeProjectDesc1 = fakeProjectDescription + " 1";
+        var fakeProjectDesc2 = fakeProjectDescription + " 2";
+        var fakeProjectDesc3 = fakeProjectDescription + " 3";
 
         // Given
-        var fakeProject1 = new Project(fakeProject1Id, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate);
-        var fakeProject2 = new Project(fakeProject2Id, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
-        var fakeProject3 = new Project(fakeProject3Id, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate);
+        var fakeProject1 = new Project(fakeProjectId1, fakeProjectTitle1, fakeProjectDesc1, fakeProjectStartDate);
+        var fakeProject2 = new Project(fakeProjectId2, fakeProjectTitle2, fakeProjectDesc2, fakeProjectStartDate);
+        var fakeProject3 = new Project(fakeProjectId3, fakeProjectTitle3, fakeProjectDesc3, fakeProjectStartDate);
         var fakeProjects = List.of(fakeProject1, fakeProject2, fakeProject3);
         given(projectRepositoryMock.findAll()).willReturn(fakeProjects);
 
@@ -297,9 +312,9 @@ class ProjectServiceImpTests {
         var actual = projectService.findAll();
 
         // Then
-        var expectedProject1 = new ProjectDTO(fakeProject1Id, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate, fakeProjectTasks);
-        var expectedProject2 = new ProjectDTO(fakeProject2Id, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, fakeProjectTasks);
-        var expectedProject3 = new ProjectDTO(fakeProject3Id, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate, fakeProjectTasks);
+        var expectedProject1 = new ProjectDTO(fakeProjectId1, fakeProjectTitle1, fakeProjectDesc1, fakeProjectStartDate, fakeProjectTasks);
+        var expectedProject2 = new ProjectDTO(fakeProjectId2, fakeProjectTitle2, fakeProjectDesc2, fakeProjectStartDate, fakeProjectTasks);
+        var expectedProject3 = new ProjectDTO(fakeProjectId3, fakeProjectTitle3, fakeProjectDesc3, fakeProjectStartDate, fakeProjectTasks);
         var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
 
         assertIterableEquals(expected, actual);
@@ -307,11 +322,11 @@ class ProjectServiceImpTests {
         then(projectRepositoryMock).should(times(1))
                                    .findAll();
         then(taskClientMock).should(times(1))
-                            .getTasksByProjectId(fakeProject1Id);
+                            .getTasksByProjectId(fakeProjectId1);
         then(taskClientMock).should(times(1))
-                            .getTasksByProjectId(fakeProject2Id);
+                            .getTasksByProjectId(fakeProjectId2);
         then(taskClientMock).should(times(1))
-                            .getTasksByProjectId(fakeProject3Id);
+                            .getTasksByProjectId(fakeProjectId3);
     }
 
     // Create
@@ -457,17 +472,17 @@ class ProjectServiceImpTests {
         // Given
         given(projectRepositoryMock.existsById(any(UUID.class))).willReturn(true);
 
-        var fakeProject = new Project(fakeProjectId, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
+        var fakeProject = new Project(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
         given(projectRepositoryMock.save(any(Project.class))).willReturn(fakeProject);
 
         // When
         var idToUpdate = fakeProjectId;
-        var projectToUpdate = new ProjectDTO(UUID.randomUUID(), fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, null);
+        var projectToUpdate = new ProjectDTO(UUID.randomUUID(), fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
 
         var actual = projectService.updateById(idToUpdate, projectToUpdate);
 
         // Then
-        var expected = new ProjectDTO(fakeProjectId, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, null);
+        var expected = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
 
         assertTrue(actual.isPresent());
         assertEquals(expected, actual.get());
@@ -485,17 +500,17 @@ class ProjectServiceImpTests {
         // Given
         given(projectRepositoryMock.existsById(any(UUID.class))).willReturn(true);
 
-        var fakeProject = new Project(fakeProjectId, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
+        var fakeProject = new Project(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
         given(projectRepositoryMock.save(any(Project.class))).willReturn(fakeProject);
 
         // When
         var idToUpdate = fakeProjectId;
-        var projectToUpdate = new ProjectDTO(UUID.randomUUID(), fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, fakeProjectTasks);
+        var projectToUpdate = new ProjectDTO(UUID.randomUUID(), fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, fakeProjectTasks);
 
         var actual = projectService.updateById(idToUpdate, projectToUpdate);
 
         // Then
-        var expected = new ProjectDTO(fakeProjectId, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, null);
+        var expected = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
 
         assertTrue(actual.isPresent());
         assertEquals(expected, actual.get());
@@ -513,17 +528,17 @@ class ProjectServiceImpTests {
         // Given
         given(projectRepositoryMock.existsById(any(UUID.class))).willReturn(true);
 
-        var fakeProject = new Project(fakeProjectId, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate);
+        var fakeProject = new Project(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
         given(projectRepositoryMock.save(any(Project.class))).willReturn(fakeProject);
 
         // When
         var idToUpdate = fakeProjectId;
-        var projectToUpdate = new ProjectDTO(null, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, null);
+        var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
 
         var actual = projectService.updateById(idToUpdate, projectToUpdate);
 
         // Then
-        var expected = new ProjectDTO(fakeProjectId, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, null);
+        var expected = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
 
         assertTrue(actual.isPresent());
         assertEquals(expected, actual.get());
