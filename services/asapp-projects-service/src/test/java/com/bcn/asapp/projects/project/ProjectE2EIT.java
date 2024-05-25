@@ -112,8 +112,8 @@ class ProjectE2EIT {
         projectRepository.deleteAll();
 
         this.fakeProjectId = UUID.randomUUID();
-        this.fakeProjectTitle = "IT Title";
-        this.fakeProjectDescription = "IT Description";
+        this.fakeProjectTitle = "E2E IT Title";
+        this.fakeProjectDescription = "E2E IT Description";
         this.fakeProjectStartDate = LocalDateTime.now()
                                                  .truncatedTo(ChronoUnit.MILLIS);
     }
@@ -688,11 +688,11 @@ class ProjectE2EIT {
     }
 
     private List<TaskDTO> buildFakeProjectTasks(UUID projectId) {
-        var fakeProjectTask1 = new TaskDTO(UUID.randomUUID(), "E2E Task Title 1", "E2E Task Description 1", LocalDateTime.now()
-                                                                                                                         .truncatedTo(ChronoUnit.MILLIS),
+        var fakeProjectTask1 = new TaskDTO(UUID.randomUUID(), "E2E IT Task Title 1", "E2E IT Task Description 1", LocalDateTime.now()
+                                                                                                                               .truncatedTo(ChronoUnit.MILLIS),
                 projectId);
-        var fakeProjectTask2 = new TaskDTO(UUID.randomUUID(), "E2E Task Title 2", "E2E Task Description 2", LocalDateTime.now()
-                                                                                                                         .truncatedTo(ChronoUnit.MILLIS),
+        var fakeProjectTask2 = new TaskDTO(UUID.randomUUID(), "E2E IT Task Title 2", "E2E IT Task Description 2", LocalDateTime.now()
+                                                                                                                               .truncatedTo(ChronoUnit.MILLIS),
                 projectId);
         return List.of(fakeProjectTask1, fakeProjectTask2);
     }

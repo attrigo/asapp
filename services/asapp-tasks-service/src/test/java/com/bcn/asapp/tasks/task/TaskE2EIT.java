@@ -84,8 +84,8 @@ class TaskE2EIT {
         taskRepository.deleteAll();
 
         this.fakeTaskId = UUID.randomUUID();
-        this.fakeTaskTitle = "IT Title";
-        this.fakeTaskDescription = "IT Description";
+        this.fakeTaskTitle = "E2E IT Title";
+        this.fakeTaskDescription = "E2E IT Description";
         this.fakeTaskStartDate = LocalDateTime.now()
                                               .truncatedTo(ChronoUnit.MILLIS);
         this.fakeProjectId = UUID.randomUUID();

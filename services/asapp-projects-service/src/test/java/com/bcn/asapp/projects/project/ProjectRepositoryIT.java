@@ -57,8 +57,8 @@ class ProjectRepositoryIT {
     void beforeEach() {
         projectRepository.deleteAll();
 
-        this.fakeProjectTitle = "Test Title";
-        this.fakeProjectDescription = "Test Description";
+        this.fakeProjectTitle = "IT Title";
+        this.fakeProjectDescription = "IT Description";
         this.fakeProjectStartDate = LocalDateTime.now()
                                                  .truncatedTo(ChronoUnit.MILLIS);
     }
