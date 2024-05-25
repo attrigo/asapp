@@ -187,14 +187,20 @@ class TaskControllerIT {
     @Test
     @DisplayName("GIVEN there are tasks WHEN get all tasks THEN returns HTTP response with status OK And the body with all tasks found")
     void ThereAreTasks_GetAllTasks_ReturnsStatusOkAndBodyWithTasksFound() throws Exception {
-        var fakeTask1Id = UUID.randomUUID();
-        var fakeTask2Id = UUID.randomUUID();
-        var fakeTask3Id = UUID.randomUUID();
+        var fakeTaskId1 = UUID.randomUUID();
+        var fakeTaskId2 = UUID.randomUUID();
+        var fakeTaskId3 = UUID.randomUUID();
+        var fakeTaskTitle1 = fakeTaskTitle + " 1";
+        var fakeTaskTitle2 = fakeTaskTitle + " 2";
+        var fakeTaskTitle3 = fakeTaskTitle + " 3";
+        var fakeTaskDesc1 = fakeTaskDescription + " 1";
+        var fakeTaskDesc2 = fakeTaskDescription + " 2";
+        var fakeTaskDesc3 = fakeTaskDescription + " 3";
 
         // Given
-        var fakeTask1 = new TaskDTO(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
-        var fakeTask2 = new TaskDTO(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
-        var fakeTask3 = new TaskDTO(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
+        var fakeTask1 = new TaskDTO(fakeTaskId1, fakeTaskTitle1, fakeTaskDesc1, fakeTaskStartDate, fakeProjectId);
+        var fakeTask2 = new TaskDTO(fakeTaskId2, fakeTaskTitle2, fakeTaskDesc2, fakeTaskStartDate, fakeProjectId);
+        var fakeTask3 = new TaskDTO(fakeTaskId3, fakeTaskTitle3, fakeTaskDesc3, fakeTaskStartDate, fakeProjectId);
         var fakeTasks = List.of(fakeTask1, fakeTask2, fakeTask3);
         given(taskServiceMock.findAll()).willReturn(fakeTasks);
 
@@ -203,19 +209,19 @@ class TaskControllerIT {
         mockMvc.perform(requestBuilder)
                .andExpect(status().isOk())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-               .andExpect(jsonPath("$[0].id", is(fakeTask1Id.toString())))
-               .andExpect(jsonPath("$[0].title", is(fakeTaskTitle + " 1")))
-               .andExpect(jsonPath("$[0].description", is(fakeTaskDescription + " 1")))
+               .andExpect(jsonPath("$[0].id", is(fakeTaskId1.toString())))
+               .andExpect(jsonPath("$[0].title", is(fakeTaskTitle1)))
+               .andExpect(jsonPath("$[0].description", is(fakeTaskDesc1)))
                .andExpect(jsonPath("$[0].startDateTime", is(fakeTaskStartDateFormatted)))
                .andExpect(jsonPath("$[0].projectId", is(fakeProjectId.toString())))
-               .andExpect(jsonPath("$[1].id", is(fakeTask2Id.toString())))
-               .andExpect(jsonPath("$[1].title", is(fakeTaskTitle + " 2")))
-               .andExpect(jsonPath("$[1].description", is(fakeTaskDescription + " 2")))
+               .andExpect(jsonPath("$[1].id", is(fakeTaskId2.toString())))
+               .andExpect(jsonPath("$[1].title", is(fakeTaskTitle2)))
+               .andExpect(jsonPath("$[1].description", is(fakeTaskDesc2)))
                .andExpect(jsonPath("$[1].startDateTime", is(fakeTaskStartDateFormatted)))
                .andExpect(jsonPath("$[1].projectId", is(fakeProjectId.toString())))
-               .andExpect(jsonPath("$[2].id", is(fakeTask3Id.toString())))
-               .andExpect(jsonPath("$[2].title", is(fakeTaskTitle + " 3")))
-               .andExpect(jsonPath("$[2].description", is(fakeTaskDescription + " 3")))
+               .andExpect(jsonPath("$[2].id", is(fakeTaskId3.toString())))
+               .andExpect(jsonPath("$[2].title", is(fakeTaskTitle3)))
+               .andExpect(jsonPath("$[2].description", is(fakeTaskDesc3)))
                .andExpect(jsonPath("$[2].startDateTime", is(fakeTaskStartDateFormatted)))
                .andExpect(jsonPath("$[2].projectId", is(fakeProjectId.toString())));
     }
@@ -272,14 +278,20 @@ class TaskControllerIT {
     @Test
     @DisplayName("GIVEN there are tasks with project id WHEN get tasks by project id THEN returns HTTP response with status OK And the body with the tasks found")
     void ThereAreTasksWithProjectId_GetTasksByProjectId_ReturnsStatusOkAndBodyWithTasksFound() throws Exception {
-        var fakeTask1Id = UUID.randomUUID();
-        var fakeTask2Id = UUID.randomUUID();
-        var fakeTask3Id = UUID.randomUUID();
+        var fakeTaskId1 = UUID.randomUUID();
+        var fakeTaskId2 = UUID.randomUUID();
+        var fakeTaskId3 = UUID.randomUUID();
+        var fakeTaskTitle1 = fakeTaskTitle + " 1";
+        var fakeTaskTitle2 = fakeTaskTitle + " 2";
+        var fakeTaskTitle3 = fakeTaskTitle + " 3";
+        var fakeTaskDesc1 = fakeTaskDescription + " 1";
+        var fakeTaskDesc2 = fakeTaskDescription + " 2";
+        var fakeTaskDesc3 = fakeTaskDescription + " 3";
 
         // Given
-        var fakeTask1 = new TaskDTO(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
-        var fakeTask2 = new TaskDTO(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
-        var fakeTask3 = new TaskDTO(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
+        var fakeTask1 = new TaskDTO(fakeTaskId1, fakeTaskTitle1, fakeTaskDesc1, fakeTaskStartDate, fakeProjectId);
+        var fakeTask2 = new TaskDTO(fakeTaskId2, fakeTaskTitle2, fakeTaskDesc2, fakeTaskStartDate, fakeProjectId);
+        var fakeTask3 = new TaskDTO(fakeTaskId3, fakeTaskTitle3, fakeTaskDesc3, fakeTaskStartDate, fakeProjectId);
         var fakeTasks = List.of(fakeTask1, fakeTask2, fakeTask3);
         given(taskServiceMock.findByProjectId(any(UUID.class))).willReturn(fakeTasks);
 
@@ -290,19 +302,19 @@ class TaskControllerIT {
         mockMvc.perform(requestBuilder)
                .andExpect(status().isOk())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-               .andExpect(jsonPath("$[0].id", is(fakeTask1Id.toString())))
-               .andExpect(jsonPath("$[0].title", is(fakeTaskTitle + " 1")))
-               .andExpect(jsonPath("$[0].description", is(fakeTaskDescription + " 1")))
+               .andExpect(jsonPath("$[0].id", is(fakeTaskId1.toString())))
+               .andExpect(jsonPath("$[0].title", is(fakeTaskTitle1)))
+               .andExpect(jsonPath("$[0].description", is(fakeTaskDesc1)))
                .andExpect(jsonPath("$[0].startDateTime", is(fakeTaskStartDateFormatted)))
                .andExpect(jsonPath("$[0].projectId", is(fakeProjectId.toString())))
-               .andExpect(jsonPath("$[1].id", is(fakeTask2Id.toString())))
-               .andExpect(jsonPath("$[1].title", is(fakeTaskTitle + " 2")))
-               .andExpect(jsonPath("$[1].description", is(fakeTaskDescription + " 2")))
+               .andExpect(jsonPath("$[1].id", is(fakeTaskId2.toString())))
+               .andExpect(jsonPath("$[1].title", is(fakeTaskTitle2)))
+               .andExpect(jsonPath("$[1].description", is(fakeTaskDesc2)))
                .andExpect(jsonPath("$[1].startDateTime", is(fakeTaskStartDateFormatted)))
                .andExpect(jsonPath("$[1].projectId", is(fakeProjectId.toString())))
-               .andExpect(jsonPath("$[2].id", is(fakeTask3Id.toString())))
-               .andExpect(jsonPath("$[2].title", is(fakeTaskTitle + " 3")))
-               .andExpect(jsonPath("$[2].description", is(fakeTaskDescription + " 3")))
+               .andExpect(jsonPath("$[2].id", is(fakeTaskId3.toString())))
+               .andExpect(jsonPath("$[2].title", is(fakeTaskTitle3)))
+               .andExpect(jsonPath("$[2].description", is(fakeTaskDesc3)))
                .andExpect(jsonPath("$[2].startDateTime", is(fakeTaskStartDateFormatted)))
                .andExpect(jsonPath("$[2].projectId", is(fakeProjectId.toString())));
     }
@@ -659,12 +671,12 @@ class TaskControllerIT {
     @DisplayName("GIVEN task id exists WHEN update a task by id THEN returns HTTP response with status OK And the body with the task updated")
     void TaskIdExists_UpdateTaskById_ReturnsStatusOkAndBodyWithTaskUpdated() throws Exception {
         // Given
-        var fakeTask = new TaskDTO(fakeTaskId, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
+        var fakeTask = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         given(taskServiceMock.updateById(any(UUID.class), any(TaskDTO.class))).willReturn(Optional.of(fakeTask));
 
         // When & Then
         var idToUpdate = fakeTaskId;
-        var taskToUpdate = new TaskDTO(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
+        var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
         var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
@@ -673,8 +685,8 @@ class TaskControllerIT {
                .andExpect(status().isOk())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                .andExpect(jsonPath("$.id", is(fakeTaskId.toString())))
-               .andExpect(jsonPath("$.title", is(fakeTaskTitle + " 2")))
-               .andExpect(jsonPath("$.description", is(fakeTaskDescription + " 2")))
+               .andExpect(jsonPath("$.title", is(fakeTaskTitle)))
+               .andExpect(jsonPath("$.description", is(fakeTaskDescription)))
                .andExpect(jsonPath("$.startDateTime", is(fakeTaskStartDateFormatted)))
                .andExpect(jsonPath("$.projectId", is(fakeProjectId.toString())));
     }

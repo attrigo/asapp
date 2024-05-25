@@ -190,14 +190,20 @@ class ProjectControllerIT {
     @Test
     @DisplayName("GIVEN there are projects WHEN get all projects THEN returns HTTP response with status OK And the body with all projects found")
     void ThereAreProjects_GetAllProjects_ReturnsStatusOkAndBodyWithProjectsFound() throws Exception {
-        var fakeProject1Id = UUID.randomUUID();
-        var fakeProject2Id = UUID.randomUUID();
-        var fakeProject3Id = UUID.randomUUID();
+        var fakeProjectId1 = UUID.randomUUID();
+        var fakeProjectId2 = UUID.randomUUID();
+        var fakeProjectId3 = UUID.randomUUID();
+        var fakeProjectTitle1 = fakeProjectTitle + " 1";
+        var fakeProjectTitle2 = fakeProjectTitle + " 2";
+        var fakeProjectTitle3 = fakeProjectTitle + " 3";
+        var fakeProjectDesc1 = fakeProjectDescription + " 1";
+        var fakeProjectDesc2 = fakeProjectDescription + " 2";
+        var fakeProjectDesc3 = fakeProjectDescription + " 3";
 
         // Given
-        var fakeProject1 = new ProjectDTO(fakeProject1Id, fakeProjectTitle + " 1", fakeProjectDescription + " 1", fakeProjectStartDate, fakeProjectTasks);
-        var fakeProject2 = new ProjectDTO(fakeProject2Id, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, fakeProjectTasks);
-        var fakeProject3 = new ProjectDTO(fakeProject3Id, fakeProjectTitle + " 3", fakeProjectDescription + " 3", fakeProjectStartDate, fakeProjectTasks);
+        var fakeProject1 = new ProjectDTO(fakeProjectId1, fakeProjectTitle1, fakeProjectDesc1, fakeProjectStartDate, fakeProjectTasks);
+        var fakeProject2 = new ProjectDTO(fakeProjectId2, fakeProjectTitle2, fakeProjectDesc2, fakeProjectStartDate, fakeProjectTasks);
+        var fakeProject3 = new ProjectDTO(fakeProjectId3, fakeProjectTitle3, fakeProjectDesc3, fakeProjectStartDate, fakeProjectTasks);
         var fakeProjects = List.of(fakeProject1, fakeProject2, fakeProject3);
         given(projectServiceMock.findAll()).willReturn(fakeProjects);
 
@@ -206,19 +212,19 @@ class ProjectControllerIT {
         mockMvc.perform(requestBuilder)
                .andExpect(status().isOk())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-               .andExpect(jsonPath("$[0].id", is(fakeProject1Id.toString())))
-               .andExpect(jsonPath("$[0].title", is(fakeProjectTitle + " 1")))
-               .andExpect(jsonPath("$[0].description", is(fakeProjectDescription + " 1")))
+               .andExpect(jsonPath("$[0].id", is(fakeProjectId1.toString())))
+               .andExpect(jsonPath("$[0].title", is(fakeProjectTitle1)))
+               .andExpect(jsonPath("$[0].description", is(fakeProjectDesc1)))
                .andExpect(jsonPath("$[0].startDateTime", is(fakeProjectStartDateFormatted)))
                .andExpect(jsonPath("$[0].tasks", hasSize(2)))
-               .andExpect(jsonPath("$[1].id", is(fakeProject2Id.toString())))
-               .andExpect(jsonPath("$[1].title", is(fakeProjectTitle + " 2")))
-               .andExpect(jsonPath("$[1].description", is(fakeProjectDescription + " 2")))
+               .andExpect(jsonPath("$[1].id", is(fakeProjectId2.toString())))
+               .andExpect(jsonPath("$[1].title", is(fakeProjectTitle2)))
+               .andExpect(jsonPath("$[1].description", is(fakeProjectDesc2)))
                .andExpect(jsonPath("$[1].startDateTime", is(fakeProjectStartDateFormatted)))
                .andExpect(jsonPath("$[1].tasks", hasSize(2)))
-               .andExpect(jsonPath("$[2].id", is(fakeProject3Id.toString())))
-               .andExpect(jsonPath("$[2].title", is(fakeProjectTitle + " 3")))
-               .andExpect(jsonPath("$[2].description", is(fakeProjectDescription + " 3")))
+               .andExpect(jsonPath("$[2].id", is(fakeProjectId3.toString())))
+               .andExpect(jsonPath("$[2].title", is(fakeProjectTitle3)))
+               .andExpect(jsonPath("$[2].description", is(fakeProjectDesc3)))
                .andExpect(jsonPath("$[2].startDateTime", is(fakeProjectStartDateFormatted)))
                .andExpect(jsonPath("$[2].tasks", hasSize(2)));
     }
@@ -522,12 +528,12 @@ class ProjectControllerIT {
     @DisplayName("GIVEN project id exists WHEN update a project by id THEN returns HTTP response with status OK And the body with the project updated")
     void ProjectIdExists_UpdateProjectById_ReturnsStatusOkAndBodyWithProjectUpdated() throws Exception {
         // Given
-        var fakeProject = new ProjectDTO(fakeProjectId, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, null);
+        var fakeProject = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
         given(projectServiceMock.updateById(any(UUID.class), any(ProjectDTO.class))).willReturn(Optional.of(fakeProject));
 
         // When & Then
         var idToUpdate = fakeProjectId;
-        var projectToUpdate = new ProjectDTO(null, fakeProjectTitle + " 2", fakeProjectDescription + " 2", fakeProjectStartDate, null);
+        var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
         var projectToUpdateAsJson = objectMapper.writeValueAsString(projectToUpdate);
 
         var requestBuilder = put(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
@@ -536,8 +542,8 @@ class ProjectControllerIT {
                .andExpect(status().isOk())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                .andExpect(jsonPath("$.id", is(fakeProjectId.toString())))
-               .andExpect(jsonPath("$.title", is(fakeProjectTitle + " 2")))
-               .andExpect(jsonPath("$.description", is(fakeProjectDescription + " 2")))
+               .andExpect(jsonPath("$.title", is(fakeProjectTitle)))
+               .andExpect(jsonPath("$.description", is(fakeProjectDescription)))
                .andExpect(jsonPath("$.startDateTime", is(fakeProjectStartDateFormatted)))
                .andExpect(jsonPath("$.tasks").doesNotExist());
     }

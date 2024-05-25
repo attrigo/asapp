@@ -136,14 +136,20 @@ class TaskServiceImpTests {
     @Test
     @DisplayName("GIVEN there are tasks WHEN find all tasks THEN finds tasks And returns the tasks found")
     void ThereAreTasks_FindAll_FindsTasksAndReturnsTasksFound() {
-        var fakeTask1Id = UUID.randomUUID();
-        var fakeTask2Id = UUID.randomUUID();
-        var fakeTask3Id = UUID.randomUUID();
+        var fakeTaskId1 = UUID.randomUUID();
+        var fakeTaskId2 = UUID.randomUUID();
+        var fakeTaskId3 = UUID.randomUUID();
+        var fakeTaskTitle1 = fakeTaskTitle + " 1";
+        var fakeTaskTitle2 = fakeTaskTitle + " 2";
+        var fakeTaskTitle3 = fakeTaskTitle + " 3";
+        var fakeTaskDesc1 = fakeTaskDescription + " 1";
+        var fakeTaskDesc2 = fakeTaskDescription + " 2";
+        var fakeTaskDesc3 = fakeTaskDescription + " 3";
 
         // Given
-        var fakeTask1 = new Task(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
-        var fakeTask2 = new Task(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
-        var fakeTask3 = new Task(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
+        var fakeTask1 = new Task(fakeTaskId1, fakeTaskTitle1, fakeTaskDesc1, fakeTaskStartDate, fakeProjectId);
+        var fakeTask2 = new Task(fakeTaskId2, fakeTaskTitle2, fakeTaskDesc2, fakeTaskStartDate, fakeProjectId);
+        var fakeTask3 = new Task(fakeTaskId3, fakeTaskTitle3, fakeTaskDesc3, fakeTaskStartDate, fakeProjectId);
         var fakeTasks = List.of(fakeTask1, fakeTask2, fakeTask3);
         given(taskRepositoryMock.findAll()).willReturn(fakeTasks);
 
@@ -151,9 +157,9 @@ class TaskServiceImpTests {
         var actual = taskService.findAll();
 
         // Then
-        var expectedTask1 = new TaskDTO(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
-        var expectedTask2 = new TaskDTO(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
-        var expectedTask3 = new TaskDTO(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
+        var expectedTask1 = new TaskDTO(fakeTaskId1, fakeTaskTitle1, fakeTaskDesc1, fakeTaskStartDate, fakeProjectId);
+        var expectedTask2 = new TaskDTO(fakeTaskId2, fakeTaskTitle2, fakeTaskDesc2, fakeTaskStartDate, fakeProjectId);
+        var expectedTask3 = new TaskDTO(fakeTaskId3, fakeTaskTitle3, fakeTaskDesc3, fakeTaskStartDate, fakeProjectId);
         var expected = List.of(expectedTask1, expectedTask2, expectedTask3);
 
         assertIterableEquals(expected, actual);
@@ -184,14 +190,20 @@ class TaskServiceImpTests {
     @Test
     @DisplayName("GIVEN there are tasks with project id WHEN find tasks by project id THEN finds the tasks And returns the tasks found")
     void ThereAreTasksWithProjectId_FindByProjectId_FindsTasksAndReturnsTasksFound() {
-        var fakeTask1Id = UUID.randomUUID();
-        var fakeTask2Id = UUID.randomUUID();
-        var fakeTask3Id = UUID.randomUUID();
+        var fakeTaskId1 = UUID.randomUUID();
+        var fakeTaskId2 = UUID.randomUUID();
+        var fakeTaskId3 = UUID.randomUUID();
+        var fakeTaskTitle1 = fakeTaskTitle + " 1";
+        var fakeTaskTitle2 = fakeTaskTitle + " 2";
+        var fakeTaskTitle3 = fakeTaskTitle + " 3";
+        var fakeTaskDesc1 = fakeTaskDescription + " 1";
+        var fakeTaskDesc2 = fakeTaskDescription + " 2";
+        var fakeTaskDesc3 = fakeTaskDescription + " 3";
 
         // Given
-        var fakeTask1 = new Task(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
-        var fakeTask2 = new Task(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
-        var fakeTask3 = new Task(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
+        var fakeTask1 = new Task(fakeTaskId1, fakeTaskTitle1, fakeTaskDesc1, fakeTaskStartDate, fakeProjectId);
+        var fakeTask2 = new Task(fakeTaskId2, fakeTaskTitle2, fakeTaskDesc2, fakeTaskStartDate, fakeProjectId);
+        var fakeTask3 = new Task(fakeTaskId3, fakeTaskTitle3, fakeTaskDesc3, fakeTaskStartDate, fakeProjectId);
         var fakeTasks = List.of(fakeTask1, fakeTask2, fakeTask3);
         given(taskRepositoryMock.findByProjectId(any(UUID.class))).willReturn(fakeTasks);
 
@@ -201,9 +213,9 @@ class TaskServiceImpTests {
         var actual = taskService.findByProjectId(idToFind);
 
         // Then
-        var expectedTask1 = new TaskDTO(fakeTask1Id, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, fakeProjectId);
-        var expectedTask2 = new TaskDTO(fakeTask2Id, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
-        var expectedTask3 = new TaskDTO(fakeTask3Id, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, fakeProjectId);
+        var expectedTask1 = new TaskDTO(fakeTaskId1, fakeTaskTitle1, fakeTaskDesc1, fakeTaskStartDate, fakeProjectId);
+        var expectedTask2 = new TaskDTO(fakeTaskId2, fakeTaskTitle2, fakeTaskDesc2, fakeTaskStartDate, fakeProjectId);
+        var expectedTask3 = new TaskDTO(fakeTaskId3, fakeTaskTitle3, fakeTaskDesc3, fakeTaskStartDate, fakeProjectId);
         var expected = List.of(expectedTask1, expectedTask2, expectedTask3);
 
         assertIterableEquals(expected, actual);
@@ -310,17 +322,17 @@ class TaskServiceImpTests {
         // Given
         given(taskRepositoryMock.existsById(any(UUID.class))).willReturn(true);
 
-        var fakeTask = new Task(fakeTaskId, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
+        var fakeTask = new Task(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         given(taskRepositoryMock.save(any(Task.class))).willReturn(fakeTask);
 
         // When
         var idToUpdate = fakeTaskId;
-        var taskToUpdate = new TaskDTO(UUID.randomUUID(), fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
+        var taskToUpdate = new TaskDTO(UUID.randomUUID(), fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
         var actual = taskService.updateById(idToUpdate, taskToUpdate);
 
         // Then
-        var expected = new TaskDTO(fakeTaskId, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
+        var expected = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
         assertTrue(actual.isPresent());
         assertEquals(expected, actual.get());
@@ -338,17 +350,17 @@ class TaskServiceImpTests {
         // Given
         given(taskRepositoryMock.existsById(any(UUID.class))).willReturn(true);
 
-        var fakeTask = new Task(fakeTaskId, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
+        var fakeTask = new Task(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
         given(taskRepositoryMock.save(any(Task.class))).willReturn(fakeTask);
 
         // When
         var idToUpdate = fakeTaskId;
-        var taskToUpdate = new TaskDTO(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
+        var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
         var actual = taskService.updateById(idToUpdate, taskToUpdate);
 
         // Then
-        var expected = new TaskDTO(fakeTaskId, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, fakeProjectId);
+        var expected = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
         assertTrue(actual.isPresent());
         assertEquals(expected, actual.get());
