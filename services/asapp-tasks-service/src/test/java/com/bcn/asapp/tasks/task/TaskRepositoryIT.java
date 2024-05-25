@@ -60,8 +60,8 @@ class TaskRepositoryIT {
     void beforeEach() {
         taskRepository.deleteAll();
 
-        this.fakeTaskTitle = "Test Title";
-        this.fakeTaskDescription = "Test Description";
+        this.fakeTaskTitle = "IT Title";
+        this.fakeTaskDescription = "IT Description";
         this.fakeTaskStartDate = LocalDateTime.now()
                                               .truncatedTo(ChronoUnit.MILLIS);
     }
