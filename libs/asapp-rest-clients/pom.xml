@@ -18,8 +18,8 @@
     <packaging>jar</packaging>
 
     <dependencies>
-        <!-- Main Dependencies -->
-        <!-- ASAPP Dependencies-->
+        <!-- Compile Dependencies-->
+        <!-- * ASAPP Dependencies -->
         <dependency>
             <groupId>com.bcn.asapp</groupId>
             <artifactId>asapp-commons-dto</artifactId>
@@ -30,7 +30,7 @@
             <artifactId>asapp-commons-url</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- Spring Dependencies -->
+        <!-- * Spring Dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
@@ -44,14 +44,17 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-autoconfigure</artifactId>
+            <optional>true</optional>
         </dependency>
 
         <!-- Test Dependencies -->
+        <!-- * Spring Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- * Other Dependencies -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -66,36 +69,29 @@
 
     <build>
         <plugins>
+            <!-- Maven Plugins -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
             </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-source-plugin</artifactId>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
 
+            <!-- Other Plugins -->
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>
-                <configuration>
-                    <java>
-                        <eclipse>
-                            <file>../../asapp_formatter.xml</file>
-                        </eclipse>
-                        <licenseHeader>
-                            <file>../../header-license</file>
-                        </licenseHeader>
-                    </java>
-                </configuration>
             </plugin>
-
             <plugin>
                 <groupId>com.rudikershaw.gitbuildhook</groupId>
                 <artifactId>git-build-hook-maven-plugin</artifactId>

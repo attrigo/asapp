@@ -56,13 +56,14 @@
         * [X] Update Javadoc
         * [X] Update documentation
     * [X] Update parent docker-compose file
-* [ ] Improve date / datetime formating
-  * [ ] Use ISO-8601 format
 
 ## Version 0.2.0
 
 ***
 
+* [ ] Upgrade to Spring Boot 3.3.x
+* [ ] Improve date / datetime formating
+    * [ ] Use ISO-8601 format
 * [ ] Setup Observability (Spring Actuator)
     * [ ] Metrics (Prometheus and Grafana)
     * [ ] Logs (Loki)
