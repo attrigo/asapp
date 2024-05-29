@@ -18,14 +18,14 @@
     <description>ASAPP libraries</description>
 
     <properties>
-        <!-- Main properties -->
+        <!-- Main Properties -->
         <spring-boot.build-image.skip>true</spring-boot.build-image.skip>
     </properties>
 
     <build>
         <pluginManagement>
             <plugins>
-                <!-- Maven Compiler Plugin -->
+                <!-- Maven Plugins -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>

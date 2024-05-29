@@ -18,20 +18,20 @@
     <description>ASAPP services</description>
 
     <properties>
-        <!-- Dependencies versions -->
+        <!-- Dependencies Versions -->
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <springdoc-openapi-starter.version>2.5.0</springdoc-openapi-starter.version>
         <mockserver.version>1.19.8</mockserver.version>
         <mockserver-netty.version>5.15.0</mockserver-netty.version>
 
-        <!-- Plugins versions -->
+        <!-- Plugins Versions -->
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- Main Dependencies -->
-            <!-- ASAPP Dependencies -->
+            <!-- Compile Dependencies -->
+            <!-- * ASAPP Dependencies -->
             <dependency>
                 <groupId>com.bcn.asapp</groupId>
                 <artifactId>asapp-commons-dto</artifactId>
@@ -47,8 +47,7 @@
                 <artifactId>asapp-rest-clients</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
-            <!-- Other Dependencies -->
+            <!-- * Org Dependencies -->
             <dependency>
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct</artifactId>
@@ -61,6 +60,7 @@
             </dependency>
 
             <!-- Test Dependencies -->
+            <!-- * Org Dependencies -->
             <dependency>
                 <groupId>org.testcontainers</groupId>
                 <artifactId>mockserver</artifactId>
@@ -79,7 +79,36 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!-- Spring Boot Maven Plugin -->
+                <!-- Maven Plugins -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <configuration>
+                        <annotationProcessorPaths>
+                            <path>
+                                <groupId>org.mapstruct</groupId>
+                                <artifactId>mapstruct-processor</artifactId>
+                                <version>${mapstruct.version}</version>
+                            </path>
+                        </annotationProcessorPaths>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>integration-test</goal>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <!-- Spring Plugins -->
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
@@ -107,53 +136,7 @@
                     </executions>
                 </plugin>
 
-                <!-- Maven Compiler Plugin -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-compiler-plugin</artifactId>
-                    <configuration>
-                        <annotationProcessorPaths>
-                            <path>
-                                <groupId>org.mapstruct</groupId>
-                                <artifactId>mapstruct-processor</artifactId>
-                                <version>${mapstruct.version}</version>
-                            </path>
-                        </annotationProcessorPaths>
-                        <source>${java.version}</source>
-                        <target>${java.version}</target>
-                    </configuration>
-                </plugin>
-
-                <!-- Surefire Plugin (UT) -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-source-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>attach-sources</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>jar-no-fork</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <!-- Failsafe Plugin (IT) -->
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-failsafe-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>integration-test</goal>
-                                <goal>verify</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <!-- JaCoCo Plugin (Test Coverage) -->
+                <!-- Org Plugins -->
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>
@@ -231,8 +214,6 @@
                         </execution>
                     </executions>
                 </plugin>
-
-                <!-- Liquibase Plugin -->
                 <plugin>
                     <groupId>org.liquibase</groupId>
                     <artifactId>liquibase-maven-plugin</artifactId>
