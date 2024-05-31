@@ -73,6 +73,60 @@ In order to avoid wasting local machine resources it is recommended to stop all 
 
 > The -v flag is optional, it deletes the volumes.
 
+## Release
+
+***
+
+1. Checkout main branch
+   ```sh
+   git checkout main
+   ```
+
+2. Close current version
+   1. Remove SNAPSHOT version in pom files
+       ```sh
+       mvn versions:set -DremoveSnapshot=true -DprocessAllModules=true -DgenerateBackupPoms=false
+       ```
+
+   2. Add the Liquibase changeset to create database tags to all vx_x_x-changelog.xml files
+       ```xml
+       <changeSet id="tag_version_x_x_x" author="atrigo">
+           <tagDatabase tag="x.x.x"/>
+       </changeSet>
+       ```
+
+3. Commit all changes
+    ```sh
+    RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+    git add .
+    git commit -m "chore: release version ${RELEASE_VERSION}"
+    ```
+
+4. Create tag
+    ```sh
+    git tag ${RELEASE_VERSION}
+    ```
+
+5. Prepare main branch for next version
+   1. Update pom files to next SNAPSHOT version
+       ```sh
+       mvn versions:set -DnextSnapshot=true -DnextSnapshotIndexToIncrement=2 -DprocessAllModules=true  -DgenerateBackupPoms=false
+       ```
+
+   2. Update version occurrences to next SNAPSHOT version in all files
+
+6. Commit all changes
+    ```sh
+    NEXT_DEV_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+    git add .
+    git commit -m "chore: prepare next development version ${NEXT_DEV_VERSION}"
+    ```
+
+7. Push all changes
+    ```sh
+    git push --atomic origin main ${RELEASE_VERSION}
+    ```
+
 ## Contributing
 
 ***
