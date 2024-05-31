@@ -15,7 +15,7 @@ services:
 
   asapp-tasks-service:
     build: .
-    image: 'asapp-tasks-service:0.1.0'
+    image: 'asapp-tasks-service:0.2.0-SNAPSHOT'
     container_name: asapp-tasks-service
     restart: unless-stopped
     ports:

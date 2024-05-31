@@ -15,7 +15,7 @@ services:
 
   asapp-projects-service:
     build: .
-    image: 'asapp-projects-service:0.1.0'
+    image: 'asapp-projects-service:0.2.0-SNAPSHOT'
     container_name: asapp-projects-service
     restart: unless-stopped
     ports:
