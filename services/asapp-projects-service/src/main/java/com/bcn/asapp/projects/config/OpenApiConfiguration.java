@@ -28,5 +28,5 @@ import io.swagger.v3.oas.annotations.info.License;
  * @since 0.1.0
  */
 @Configuration
-@OpenAPIDefinition(info = @Info(title = "Project Service API", version = "0.1.0-SNAPSHOT", description = "Provides CRUD operations for Projects", license = @License(name = "Apache-2.0", url = "https://www.apache.org/licenses/LICENSE-2.0")))
+@OpenAPIDefinition(info = @Info(title = "Project Service API", version = "0.1.0", description = "Provides CRUD operations for Projects", license = @License(name = "Apache-2.0", url = "https://www.apache.org/licenses/LICENSE-2.0")))
 public class OpenApiConfiguration {}

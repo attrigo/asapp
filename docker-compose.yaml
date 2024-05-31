@@ -29,7 +29,7 @@ services:
   # Services
   asapp-projects-service:
     build: .
-    image: 'asapp-projects-service:0.1.0-SNAPSHOT'
+    image: 'asapp-projects-service:0.1.0'
     container_name: asapp-projects-service
     restart: unless-stopped
     ports:
@@ -47,7 +47,7 @@ services:
       - asapp-projects-postgres-db
   asapp-tasks-service:
     build: .
-    image: 'asapp-tasks-service:0.1.0-SNAPSHOT'
+    image: 'asapp-tasks-service:0.1.0'
     container_name: asapp-tasks-service
     restart: unless-stopped
     ports:
