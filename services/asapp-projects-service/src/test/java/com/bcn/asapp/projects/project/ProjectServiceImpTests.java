@@ -92,10 +92,10 @@ class ProjectServiceImpTests {
         // When
         var idToFind = fakeProjectId;
 
-        var actual = projectService.findById(idToFind);
+        var actualProject = projectService.findById(idToFind);
 
         // Then
-        assertFalse(actual.isPresent());
+        assertFalse(actualProject.isPresent());
 
         then(projectRepositoryMock).should(times(1))
                                    .findById(idToFind);
@@ -115,13 +115,13 @@ class ProjectServiceImpTests {
         // When
         var idToFind = fakeProjectId;
 
-        var actual = projectService.findById(idToFind);
+        var actualProject = projectService.findById(idToFind);
 
         // Then
-        var expected = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, Collections.emptyList());
+        var expectedProject = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, Collections.emptyList());
 
-        assertTrue(actual.isPresent());
-        assertEquals(expected, actual.get());
+        assertTrue(actualProject.isPresent());
+        assertEquals(expectedProject, actualProject.get());
 
         then(projectRepositoryMock).should(times(1))
                                    .findById(idToFind);
@@ -141,13 +141,13 @@ class ProjectServiceImpTests {
         // When
         var idToFind = fakeProjectId;
 
-        var actual = projectService.findById(idToFind);
+        var actualProject = projectService.findById(idToFind);
 
         // Then
-        var expected = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
+        var expectedProject = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
 
-        assertTrue(actual.isPresent());
-        assertEquals(expected, actual.get());
+        assertTrue(actualProject.isPresent());
+        assertEquals(expectedProject, actualProject.get());
 
         then(projectRepositoryMock).should(times(1))
                                    .findById(idToFind);
@@ -167,13 +167,13 @@ class ProjectServiceImpTests {
         // When
         var idToFind = fakeProjectId;
 
-        var actual = projectService.findById(idToFind);
+        var actualProject = projectService.findById(idToFind);
 
         // Then
-        var expected = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, fakeProjectTasks);
+        var expectedProject = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, fakeProjectTasks);
 
-        assertTrue(actual.isPresent());
-        assertEquals(expected, actual.get());
+        assertTrue(actualProject.isPresent());
+        assertEquals(expectedProject, actualProject.get());
 
         then(projectRepositoryMock).should(times(1))
                                    .findById(idToFind);
@@ -189,10 +189,10 @@ class ProjectServiceImpTests {
         given(projectRepositoryMock.findAll()).willReturn(Collections.emptyList());
 
         // When
-        var actual = projectService.findAll();
+        var actualProjects = projectService.findAll();
 
         // Then
-        assertTrue(actual.isEmpty());
+        assertTrue(actualProjects.isEmpty());
 
         then(projectRepositoryMock).should(times(1))
                                    .findAll();
@@ -223,15 +223,15 @@ class ProjectServiceImpTests {
         given(taskClientMock.getTasksByProjectId(any(UUID.class))).willReturn(Collections.emptyList());
 
         // When
-        var actual = projectService.findAll();
+        var actualProjects = projectService.findAll();
 
         // Then
         var expectedProject1 = new ProjectDTO(fakeProjectId1, fakeProjectTitle1, fakeProjectDesc1, fakeProjectStartDate, Collections.emptyList());
         var expectedProject2 = new ProjectDTO(fakeProjectId2, fakeProjectTitle2, fakeProjectDesc2, fakeProjectStartDate, Collections.emptyList());
         var expectedProject3 = new ProjectDTO(fakeProjectId3, fakeProjectTitle3, fakeProjectDesc3, fakeProjectStartDate, Collections.emptyList());
-        var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
+        var expectedProjects = List.of(expectedProject1, expectedProject2, expectedProject3);
 
-        assertIterableEquals(expected, actual);
+        assertIterableEquals(expectedProjects, actualProjects);
 
         then(projectRepositoryMock).should(times(1))
                                    .findAll();
@@ -266,15 +266,15 @@ class ProjectServiceImpTests {
         given(taskClientMock.getTasksByProjectId(any(UUID.class))).willReturn(null);
 
         // When
-        var actual = projectService.findAll();
+        var actualProjects = projectService.findAll();
 
         // Then
         var expectedProject1 = new ProjectDTO(fakeProjectId1, fakeProjectTitle1, fakeProjectDesc1, fakeProjectStartDate, null);
         var expectedProject2 = new ProjectDTO(fakeProjectId2, fakeProjectTitle2, fakeProjectDesc2, fakeProjectStartDate, null);
         var expectedProject3 = new ProjectDTO(fakeProjectId3, fakeProjectTitle3, fakeProjectDesc3, fakeProjectStartDate, null);
-        var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
+        var expectedProjects = List.of(expectedProject1, expectedProject2, expectedProject3);
 
-        assertIterableEquals(expected, actual);
+        assertIterableEquals(expectedProjects, actualProjects);
 
         then(projectRepositoryMock).should(times(1))
                                    .findAll();
@@ -309,15 +309,15 @@ class ProjectServiceImpTests {
         given(taskClientMock.getTasksByProjectId(any(UUID.class))).willReturn(fakeProjectTasks);
 
         // When
-        var actual = projectService.findAll();
+        var actualProjects = projectService.findAll();
 
         // Then
         var expectedProject1 = new ProjectDTO(fakeProjectId1, fakeProjectTitle1, fakeProjectDesc1, fakeProjectStartDate, fakeProjectTasks);
         var expectedProject2 = new ProjectDTO(fakeProjectId2, fakeProjectTitle2, fakeProjectDesc2, fakeProjectStartDate, fakeProjectTasks);
         var expectedProject3 = new ProjectDTO(fakeProjectId3, fakeProjectTitle3, fakeProjectDesc3, fakeProjectStartDate, fakeProjectTasks);
-        var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
+        var expectedProjects = List.of(expectedProject1, expectedProject2, expectedProject3);
 
-        assertIterableEquals(expected, actual);
+        assertIterableEquals(expectedProjects, actualProjects);
 
         then(projectRepositoryMock).should(times(1))
                                    .findAll();
@@ -342,12 +342,12 @@ class ProjectServiceImpTests {
         // When
         var projectToCreate = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
 
-        var actual = projectService.create(projectToCreate);
+        var actualProject = projectService.create(projectToCreate);
 
         // Then
-        var expected = new ProjectDTO(anotherFakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
+        var expectedProject = new ProjectDTO(anotherFakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
 
-        assertEquals(expected, actual);
+        assertEquals(expectedProject, actualProject);
 
         ArgumentCaptor<Project> projectArgumentCaptor = ArgumentCaptor.forClass(Project.class);
         then(projectRepositoryMock).should(times(1))
@@ -368,12 +368,12 @@ class ProjectServiceImpTests {
         // When
         var projectToCreate = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, fakeProjectTasks);
 
-        var actual = projectService.create(projectToCreate);
+        var actualProject = projectService.create(projectToCreate);
 
         // Then
-        var expected = new ProjectDTO(anotherFakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
+        var expectedProject = new ProjectDTO(anotherFakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
 
-        assertEquals(expected, actual);
+        assertEquals(expectedProject, actualProject);
 
         ArgumentCaptor<Project> projectArgumentCaptor = ArgumentCaptor.forClass(Project.class);
         then(projectRepositoryMock).should(times(1))
@@ -394,12 +394,12 @@ class ProjectServiceImpTests {
         // When
         var projectToCreate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
 
-        var actual = projectService.create(projectToCreate);
+        var actualProject = projectService.create(projectToCreate);
 
         // Then
-        var expected = new ProjectDTO(anotherFakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
+        var expectedProject = new ProjectDTO(anotherFakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
 
-        assertEquals(expected, actual);
+        assertEquals(expectedProject, actualProject);
 
         ArgumentCaptor<Project> projectArgumentCaptor = ArgumentCaptor.forClass(Project.class);
         then(projectRepositoryMock).should(times(1))
@@ -419,10 +419,10 @@ class ProjectServiceImpTests {
         var idToUpdate = fakeProjectId;
         var projectToUpdate = new ProjectDTO(UUID.randomUUID(), fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
 
-        var actual = projectService.updateById(idToUpdate, projectToUpdate);
+        var actualProject = projectService.updateById(idToUpdate, projectToUpdate);
 
         // Then
-        assertFalse(actual.isPresent());
+        assertFalse(actualProject.isPresent());
 
         then(projectRepositoryMock).should(never())
                                    .save(any(Project.class));
@@ -438,10 +438,10 @@ class ProjectServiceImpTests {
         var idToUpdate = fakeProjectId;
         var projectToUpdate = new ProjectDTO(UUID.randomUUID(), fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, fakeProjectTasks);
 
-        var actual = projectService.updateById(idToUpdate, projectToUpdate);
+        var actualProject = projectService.updateById(idToUpdate, projectToUpdate);
 
         // Then
-        assertFalse(actual.isPresent());
+        assertFalse(actualProject.isPresent());
 
         then(projectRepositoryMock).should(never())
                                    .save(any(Project.class));
@@ -457,10 +457,10 @@ class ProjectServiceImpTests {
         var idToUpdate = fakeProjectId;
         var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
 
-        var actual = projectService.updateById(idToUpdate, projectToUpdate);
+        var actualProject = projectService.updateById(idToUpdate, projectToUpdate);
 
         // Then
-        assertFalse(actual.isPresent());
+        assertFalse(actualProject.isPresent());
 
         then(projectRepositoryMock).should(never())
                                    .save(any(Project.class));
@@ -479,13 +479,13 @@ class ProjectServiceImpTests {
         var idToUpdate = fakeProjectId;
         var projectToUpdate = new ProjectDTO(UUID.randomUUID(), fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
 
-        var actual = projectService.updateById(idToUpdate, projectToUpdate);
+        var actualProject = projectService.updateById(idToUpdate, projectToUpdate);
 
         // Then
-        var expected = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
+        var expectedProject = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
 
-        assertTrue(actual.isPresent());
-        assertEquals(expected, actual.get());
+        assertTrue(actualProject.isPresent());
+        assertEquals(expectedProject, actualProject.get());
 
         ArgumentCaptor<Project> projectArgumentCaptor = ArgumentCaptor.forClass(Project.class);
         then(projectRepositoryMock).should(times(1))
@@ -507,13 +507,13 @@ class ProjectServiceImpTests {
         var idToUpdate = fakeProjectId;
         var projectToUpdate = new ProjectDTO(UUID.randomUUID(), fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, fakeProjectTasks);
 
-        var actual = projectService.updateById(idToUpdate, projectToUpdate);
+        var actualProject = projectService.updateById(idToUpdate, projectToUpdate);
 
         // Then
-        var expected = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
+        var expectedProject = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
 
-        assertTrue(actual.isPresent());
-        assertEquals(expected, actual.get());
+        assertTrue(actualProject.isPresent());
+        assertEquals(expectedProject, actualProject.get());
 
         ArgumentCaptor<Project> projectArgumentCaptor = ArgumentCaptor.forClass(Project.class);
         then(projectRepositoryMock).should(times(1))
@@ -535,13 +535,13 @@ class ProjectServiceImpTests {
         var idToUpdate = fakeProjectId;
         var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
 
-        var actual = projectService.updateById(idToUpdate, projectToUpdate);
+        var actualProject = projectService.updateById(idToUpdate, projectToUpdate);
 
         // Then
-        var expected = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
+        var expectedProject = new ProjectDTO(fakeProjectId, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
 
-        assertTrue(actual.isPresent());
-        assertEquals(expected, actual.get());
+        assertTrue(actualProject.isPresent());
+        assertEquals(expectedProject, actualProject.get());
 
         ArgumentCaptor<Project> projectArgumentCaptor = ArgumentCaptor.forClass(Project.class);
         then(projectRepositoryMock).should(times(1))
