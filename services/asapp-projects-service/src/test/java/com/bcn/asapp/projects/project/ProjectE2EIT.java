@@ -273,7 +273,7 @@ class ProjectE2EIT {
         var expectedProject1 = new ProjectDTO(projectIdToBeFound1, fakeProjectTitle1, fakeProjectDesc1, fakeProjectStartDate, null);
         var expectedProject2 = new ProjectDTO(projectIdToBeFound2, fakeProjectTitle2, fakeProjectDesc2, fakeProjectStartDate, null);
         var expectedProject3 = new ProjectDTO(projectIdToBeFound3, fakeProjectTitle3, fakeProjectDesc3, fakeProjectStartDate, null);
-        var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
+        var expectedProjects = List.of(expectedProject1, expectedProject2, expectedProject3);
 
         webTestClient.get()
                      .uri(PROJECTS_GET_ALL_FULL_PATH)
@@ -285,7 +285,7 @@ class ProjectE2EIT {
                      .contentType(MediaType.APPLICATION_JSON)
                      .expectBodyList(ProjectDTO.class)
                      .hasSize(3)
-                     .isEqualTo(expected);
+                     .isEqualTo(expectedProjects);
     }
 
     @Test
@@ -321,7 +321,7 @@ class ProjectE2EIT {
         var expectedProject1 = new ProjectDTO(projectIdToBeFound1, fakeProjectTitle1, fakeProjectDesc1, fakeProjectStartDate, Collections.emptyList());
         var expectedProject2 = new ProjectDTO(projectIdToBeFound2, fakeProjectTitle2, fakeProjectDesc2, fakeProjectStartDate, Collections.emptyList());
         var expectedProject3 = new ProjectDTO(projectIdToBeFound3, fakeProjectTitle3, fakeProjectDesc3, fakeProjectStartDate, Collections.emptyList());
-        var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
+        var expectedProjects = List.of(expectedProject1, expectedProject2, expectedProject3);
 
         webTestClient.get()
                      .uri(PROJECTS_GET_ALL_FULL_PATH)
@@ -333,7 +333,7 @@ class ProjectE2EIT {
                      .contentType(MediaType.APPLICATION_JSON)
                      .expectBodyList(ProjectDTO.class)
                      .hasSize(3)
-                     .isEqualTo(expected);
+                     .isEqualTo(expectedProjects);
     }
 
     @Test
@@ -373,7 +373,7 @@ class ProjectE2EIT {
         var expectedProject1 = new ProjectDTO(projectIdToBeFound1, fakeProjectTitle1, fakeProjectDesc1, fakeProjectStartDate, fakeProjectTasks1);
         var expectedProject2 = new ProjectDTO(projectIdToBeFound2, fakeProjectTitle2, fakeProjectDesc2, fakeProjectStartDate, fakeProjectTasks2);
         var expectedProject3 = new ProjectDTO(projectIdToBeFound3, fakeProjectTitle3, fakeProjectDesc3, fakeProjectStartDate, fakeProjectTasks3);
-        var expected = List.of(expectedProject1, expectedProject2, expectedProject3);
+        var expectedProjects = List.of(expectedProject1, expectedProject2, expectedProject3);
 
         webTestClient.get()
                      .uri(PROJECTS_GET_ALL_FULL_PATH)
@@ -385,7 +385,7 @@ class ProjectE2EIT {
                      .contentType(MediaType.APPLICATION_JSON)
                      .expectBodyList(ProjectDTO.class)
                      .hasSize(3)
-                     .isEqualTo(expected);
+                     .isEqualTo(expectedProjects);
     }
 
     // CreateProject
@@ -418,10 +418,10 @@ class ProjectE2EIT {
 
         assertNotNull(response);
 
-        var actual = new Project(response.id(), response.title(), response.description(), response.startDateTime());
-        var expected = projectRepository.findById(response.id());
-        assertTrue(expected.isPresent());
-        assertEquals(expected.get(), actual);
+        var actualProject = new Project(response.id(), response.title(), response.description(), response.startDateTime());
+        var expectedProject = projectRepository.findById(response.id());
+        assertTrue(expectedProject.isPresent());
+        assertEquals(expectedProject.get(), actualProject);
     }
 
     @Test
@@ -453,10 +453,10 @@ class ProjectE2EIT {
 
         assertNotNull(response);
 
-        var actual = new Project(response.id(), response.title(), response.description(), response.startDateTime());
-        var expected = projectRepository.findById(response.id());
-        assertTrue(expected.isPresent());
-        assertEquals(expected.get(), actual);
+        var actualProject = new Project(response.id(), response.title(), response.description(), response.startDateTime());
+        var expectedProject = projectRepository.findById(response.id());
+        assertTrue(expectedProject.isPresent());
+        assertEquals(expectedProject.get(), actualProject);
     }
 
     @Test
@@ -486,10 +486,10 @@ class ProjectE2EIT {
 
         assertNotNull(response);
 
-        var actual = new Project(response.id(), response.title(), response.description(), response.startDateTime());
-        var expected = projectRepository.findById(response.id());
-        assertTrue(expected.isPresent());
-        assertEquals(expected.get(), actual);
+        var actualProject = new Project(response.id(), response.title(), response.description(), response.startDateTime());
+        var expectedProject = projectRepository.findById(response.id());
+        assertTrue(expectedProject.isPresent());
+        assertEquals(expectedProject.get(), actualProject);
     }
 
     // UpdateProjectById
@@ -550,10 +550,10 @@ class ProjectE2EIT {
 
         assertNotNull(response);
 
-        var actual = new Project(response.id(), response.title(), response.description(), response.startDateTime());
-        var expected = projectRepository.findById(response.id());
-        assertTrue(expected.isPresent());
-        assertEquals(actual, expected.get());
+        var actualProject = new Project(response.id(), response.title(), response.description(), response.startDateTime());
+        var expectedProject = projectRepository.findById(response.id());
+        assertTrue(expectedProject.isPresent());
+        assertEquals(expectedProject.get(), actualProject);
     }
 
     @Test
@@ -596,10 +596,10 @@ class ProjectE2EIT {
 
         assertNotNull(response);
 
-        var actual = new Project(response.id(), response.title(), response.description(), response.startDateTime());
-        var expected = projectRepository.findById(response.id());
-        assertTrue(expected.isPresent());
-        assertEquals(actual, expected.get());
+        var actualProject = new Project(response.id(), response.title(), response.description(), response.startDateTime());
+        var expectedProject = projectRepository.findById(response.id());
+        assertTrue(expectedProject.isPresent());
+        assertEquals(expectedProject.get(), actualProject);
     }
 
     @Test
@@ -640,10 +640,10 @@ class ProjectE2EIT {
 
         assertNotNull(response);
 
-        var actual = new Project(response.id(), response.title(), response.description(), response.startDateTime());
-        var expected = projectRepository.findById(response.id());
-        assertTrue(expected.isPresent());
-        assertEquals(actual, expected.get());
+        var actualProject = new Project(response.id(), response.title(), response.description(), response.startDateTime());
+        var expectedProject = projectRepository.findById(response.id());
+        assertTrue(expectedProject.isPresent());
+        assertEquals(expectedProject.get(), actualProject);
     }
 
     // DeleteProjectById

@@ -85,10 +85,10 @@ class TaskServiceImpTests {
         // When
         var idToFind = fakeTaskId;
 
-        var actual = taskService.findById(idToFind);
+        var actualTask = taskService.findById(idToFind);
 
         // Then
-        assertFalse(actual.isPresent());
+        assertFalse(actualTask.isPresent());
 
         then(taskRepositoryMock).should(times(1))
                                 .findById(idToFind);
@@ -104,13 +104,13 @@ class TaskServiceImpTests {
         // When
         var idToFind = fakeTaskId;
 
-        var actual = taskService.findById(idToFind);
+        var actualTask = taskService.findById(idToFind);
 
         // Then
-        var expected = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
+        var expectedTask = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
-        assertTrue(actual.isPresent());
-        assertEquals(expected, actual.get());
+        assertTrue(actualTask.isPresent());
+        assertEquals(expectedTask, actualTask.get());
 
         then(taskRepositoryMock).should(times(1))
                                 .findById(idToFind);
@@ -124,10 +124,10 @@ class TaskServiceImpTests {
         given(taskRepositoryMock.findAll()).willReturn(Collections.emptyList());
 
         // When
-        var actual = taskService.findAll();
+        var actualTasks = taskService.findAll();
 
         // Then
-        assertTrue(actual.isEmpty());
+        assertTrue(actualTasks.isEmpty());
 
         then(taskRepositoryMock).should(times(1))
                                 .findAll();
@@ -154,15 +154,15 @@ class TaskServiceImpTests {
         given(taskRepositoryMock.findAll()).willReturn(fakeTasks);
 
         // When
-        var actual = taskService.findAll();
+        var actualTasks = taskService.findAll();
 
         // Then
         var expectedTask1 = new TaskDTO(fakeTaskId1, fakeTaskTitle1, fakeTaskDesc1, fakeTaskStartDate, fakeProjectId);
         var expectedTask2 = new TaskDTO(fakeTaskId2, fakeTaskTitle2, fakeTaskDesc2, fakeTaskStartDate, fakeProjectId);
         var expectedTask3 = new TaskDTO(fakeTaskId3, fakeTaskTitle3, fakeTaskDesc3, fakeTaskStartDate, fakeProjectId);
-        var expected = List.of(expectedTask1, expectedTask2, expectedTask3);
+        var expectedTasks = List.of(expectedTask1, expectedTask2, expectedTask3);
 
-        assertIterableEquals(expected, actual);
+        assertIterableEquals(expectedTasks, actualTasks);
 
         then(taskRepositoryMock).should(times(1))
                                 .findAll();
@@ -178,10 +178,10 @@ class TaskServiceImpTests {
         // When
         var idToFind = fakeTaskId;
 
-        var actual = taskService.findByProjectId(idToFind);
+        var actualTasks = taskService.findByProjectId(idToFind);
 
         // Then
-        assertTrue(actual.isEmpty());
+        assertTrue(actualTasks.isEmpty());
 
         then(taskRepositoryMock).should(times(1))
                                 .findByProjectId(idToFind);
@@ -210,15 +210,15 @@ class TaskServiceImpTests {
         // When
         var idToFind = fakeProjectId;
 
-        var actual = taskService.findByProjectId(idToFind);
+        var actualTasks = taskService.findByProjectId(idToFind);
 
         // Then
         var expectedTask1 = new TaskDTO(fakeTaskId1, fakeTaskTitle1, fakeTaskDesc1, fakeTaskStartDate, fakeProjectId);
         var expectedTask2 = new TaskDTO(fakeTaskId2, fakeTaskTitle2, fakeTaskDesc2, fakeTaskStartDate, fakeProjectId);
         var expectedTask3 = new TaskDTO(fakeTaskId3, fakeTaskTitle3, fakeTaskDesc3, fakeTaskStartDate, fakeProjectId);
-        var expected = List.of(expectedTask1, expectedTask2, expectedTask3);
+        var expectedTasks = List.of(expectedTask1, expectedTask2, expectedTask3);
 
-        assertIterableEquals(expected, actual);
+        assertIterableEquals(expectedTasks, actualTasks);
 
         then(taskRepositoryMock).should(times(1))
                                 .findByProjectId(idToFind);
@@ -237,12 +237,12 @@ class TaskServiceImpTests {
         // When
         var taskToCreate = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
-        var actual = taskService.create(taskToCreate);
+        var actualTask = taskService.create(taskToCreate);
 
         // Then
-        var expected = new TaskDTO(anotherFakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
+        var expectedTask = new TaskDTO(anotherFakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
-        assertEquals(expected, actual);
+        assertEquals(expectedTask, actualTask);
 
         ArgumentCaptor<Task> taskArgumentCaptor = ArgumentCaptor.forClass(Task.class);
         then(taskRepositoryMock).should(times(1))
@@ -263,12 +263,12 @@ class TaskServiceImpTests {
         // When
         var taskToCreate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
-        var actual = taskService.create(taskToCreate);
+        var actualTask = taskService.create(taskToCreate);
 
         // Then
-        var expected = new TaskDTO(anotherFakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
+        var expectedTask = new TaskDTO(anotherFakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
-        assertEquals(expected, actual);
+        assertEquals(expectedTask, actualTask);
 
         ArgumentCaptor<Task> taskArgumentCaptor = ArgumentCaptor.forClass(Task.class);
         then(taskRepositoryMock).should(times(1))
@@ -288,10 +288,10 @@ class TaskServiceImpTests {
         var idToUpdate = fakeTaskId;
         var taskToUpdate = new TaskDTO(UUID.randomUUID(), fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
-        var actual = taskService.updateById(idToUpdate, taskToUpdate);
+        var actualTask = taskService.updateById(idToUpdate, taskToUpdate);
 
         // Then
-        assertFalse(actual.isPresent());
+        assertFalse(actualTask.isPresent());
 
         then(taskRepositoryMock).should(never())
                                 .save(any(Task.class));
@@ -307,10 +307,10 @@ class TaskServiceImpTests {
         var idToUpdate = fakeTaskId;
         var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
-        var actual = taskService.updateById(idToUpdate, taskToUpdate);
+        var actualTask = taskService.updateById(idToUpdate, taskToUpdate);
 
         // Then
-        assertFalse(actual.isPresent());
+        assertFalse(actualTask.isPresent());
 
         then(taskRepositoryMock).should(never())
                                 .save(any(Task.class));
@@ -329,13 +329,13 @@ class TaskServiceImpTests {
         var idToUpdate = fakeTaskId;
         var taskToUpdate = new TaskDTO(UUID.randomUUID(), fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
-        var actual = taskService.updateById(idToUpdate, taskToUpdate);
+        var actualTask = taskService.updateById(idToUpdate, taskToUpdate);
 
         // Then
-        var expected = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
+        var expectedTask = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
-        assertTrue(actual.isPresent());
-        assertEquals(expected, actual.get());
+        assertTrue(actualTask.isPresent());
+        assertEquals(expectedTask, actualTask.get());
 
         ArgumentCaptor<Task> taskArgumentCaptor = ArgumentCaptor.forClass(Task.class);
         then(taskRepositoryMock).should(times(1))
@@ -357,13 +357,13 @@ class TaskServiceImpTests {
         var idToUpdate = fakeTaskId;
         var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
-        var actual = taskService.updateById(idToUpdate, taskToUpdate);
+        var actualTask = taskService.updateById(idToUpdate, taskToUpdate);
 
         // Then
-        var expected = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
+        var expectedTask = new TaskDTO(fakeTaskId, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
 
-        assertTrue(actual.isPresent());
-        assertEquals(expected, actual.get());
+        assertTrue(actualTask.isPresent());
+        assertEquals(expectedTask, actualTask.get());
 
         ArgumentCaptor<Task> taskArgumentCaptor = ArgumentCaptor.forClass(Task.class);
         then(taskRepositoryMock).should(times(1))

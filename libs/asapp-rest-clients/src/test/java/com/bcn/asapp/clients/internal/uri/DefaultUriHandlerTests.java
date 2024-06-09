@@ -36,24 +36,24 @@ class DefaultUriHandlerTests {
     @DisplayName("GIVEN is the first UriBuilder requested WHEN new instance THEN returns a new UriBuilder instance")
     void IsFirstUriBuilderRequested_NewInstance_ReturnsNewUriBuilderInstance() {
         // When
-        var actual = uriHandler.newInstance();
+        var actualUriBuilderInstance = uriHandler.newInstance();
 
         // Then
-        assertNotNull(actual);
+        assertNotNull(actualUriBuilderInstance);
     }
 
     @Test
     @DisplayName("GIVEN is not the first UriBuilder requested WHEN new instance THEN returns another UriBuilder instance")
     void IsNotFirstUriBuilderRequested_NewInstance_ReturnsAnotherUriBuilderInstance() {
         // Given
-        var uriBuilderInstance = uriHandler.newInstance();
+        var unexpectedUriBuilderInstance = uriHandler.newInstance();
 
         // When
-        var actual = uriHandler.newInstance();
+        var actualUriBuilderInstance = uriHandler.newInstance();
 
         // Then
-        assertNotNull(actual);
-        assertNotEquals(uriBuilderInstance, actual);
+        assertNotNull(actualUriBuilderInstance);
+        assertNotEquals(unexpectedUriBuilderInstance, actualUriBuilderInstance);
     }
 
 }

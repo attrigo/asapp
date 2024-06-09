@@ -80,10 +80,10 @@ class TaskRestClientTests {
                   .andRespond(withServerError().contentType(MediaType.APPLICATION_JSON));
 
         // When
-        var actual = client.getTasksByProjectId(projectId);
+        var actualTasks = client.getTasksByProjectId(projectId);
 
         // Then
-        assertNull(actual);
+        assertNull(actualTasks);
 
         mockServer.verify();
     }
@@ -101,10 +101,10 @@ class TaskRestClientTests {
                                               .contentType(MediaType.APPLICATION_PROBLEM_JSON));
 
         // When
-        var actual = client.getTasksByProjectId(null);
+        var actualTasks = client.getTasksByProjectId(null);
 
         // Then
-        assertNull(actual);
+        assertNull(actualTasks);
 
         mockServer.verify();
     }
@@ -123,12 +123,12 @@ class TaskRestClientTests {
                   .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         // When
-        var actual = client.getTasksByProjectId(projectId);
+        var actualTasks = client.getTasksByProjectId(projectId);
 
         // Then
-        assertNotNull(actual);
-        assertTrue(actual.isEmpty());
-        assertEquals(expectedTasks, actual);
+        assertNotNull(actualTasks);
+        assertTrue(actualTasks.isEmpty());
+        assertEquals(expectedTasks, actualTasks);
 
         mockServer.verify();
     }
@@ -149,12 +149,12 @@ class TaskRestClientTests {
                   .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
         // When
-        var actual = client.getTasksByProjectId(projectId);
+        var actualTasks = client.getTasksByProjectId(projectId);
 
         // Then
-        assertNotNull(actual);
-        assertEquals(2L, actual.size());
-        assertEquals(expectedTasks, actual);
+        assertNotNull(actualTasks);
+        assertEquals(2L, actualTasks.size());
+        assertEquals(expectedTasks, actualTasks);
 
         mockServer.verify();
     }

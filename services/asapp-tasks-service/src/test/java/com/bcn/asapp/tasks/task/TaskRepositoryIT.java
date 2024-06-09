@@ -18,6 +18,7 @@ package com.bcn.asapp.tasks.task;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDateTime;
@@ -25,7 +26,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -73,10 +73,10 @@ class TaskRepositoryIT {
         // When
         var idToFind = UUID.randomUUID();
 
-        var actual = taskRepository.findByProjectId(idToFind);
+        var actualTasks = taskRepository.findByProjectId(idToFind);
 
         // Then
-        assertTrue(actual.isEmpty());
+        assertTrue(actualTasks.isEmpty());
     }
 
     @Test
@@ -90,13 +90,13 @@ class TaskRepositoryIT {
         var fakeTask3 = new Task(null, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, idToFind);
         var fakeTasks = List.of(fakeTask1, fakeTask2, fakeTask3);
         var tasksToBeFound = taskRepository.saveAll(fakeTasks);
-        Assertions.assertNotNull(tasksToBeFound);
+        assertNotNull(tasksToBeFound);
 
         // When
-        var actual = taskRepository.findByProjectId(idToFind);
+        var actualTasks = taskRepository.findByProjectId(idToFind);
 
         // Then
-        assertIterableEquals(tasksToBeFound, actual);
+        assertIterableEquals(tasksToBeFound, actualTasks);
     }
 
     // deleteTaskById
@@ -118,7 +118,7 @@ class TaskRepositoryIT {
         // Given
         var fakeTask = new Task(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, UUID.randomUUID());
         var taskToBeDeleted = taskRepository.save(fakeTask);
-        Assertions.assertNotNull(taskToBeDeleted);
+        assertNotNull(taskToBeDeleted);
 
         // When
         var idToDelete = taskToBeDeleted.id();
