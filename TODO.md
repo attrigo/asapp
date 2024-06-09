@@ -52,7 +52,7 @@
     * [X] asapp-projects-service
         * [X] Update get project by id endpoint to include the tasks
         * [X] Update tests
-            * [X] Use MockServer for E2EIT [ref](https://testcontainers.com/guides/testing-rest-api-integrations-using-mockserver/)
+            * [X] Use MockServer for E2EIT
         * [X] Update Javadoc
         * [X] Update documentation
     * [X] Update parent docker-compose file
@@ -61,40 +61,39 @@
 
 ***
 
-* [ ] Upgrade to Spring Boot 3.3.x
+* [X] Upgrade to Spring Boot 3.3.x
+* [X] Update all external dependencies
 * [ ] Improve date / datetime formating
-    * [ ] Use ISO-8601 format
-* [ ] Setup Observability (Spring Actuator)
-    * [ ] Metrics (Prometheus and Grafana)
-    * [ ] Logs (Loki)
-    * [ ] Traces (Tempo)
-    * [ ] Improve tempo volume (tempo-data\blocks)
-    * [ ] Fix development tracing error
-    * [ ] Review TraceId and SpanId propagation
-        * [ ] Test TraceId and SpanId propagation with another service
-    * [ ] Review logs format
-        * [ ] Review logs format of development mode
-        * [ ] Review logs format of docker mode
-        * [ ] Review logs format of tests
-        * [ ] Review logs format for errors
-    * [ ] Update documentation
+    * [ ] Refactor LocalDateTime by Instance
+    * [ ] Review JacksonMapperConfiguration class
+* [ ] Setup Observability Metrics
+    * [ ] Use Prometheus and Grafana
+    * [ ] Add JVM dashboard for each service
+* [ ] Add Spring Security
+    * [ ] Integrate with OAuth2 Server (Keycloak)
+    * [ ] Protect actuator endpoints
+* [ ] Improve GitHub actions
+    * [ ] Build tags
 
 ## Version 0.3.0
 
 ***
 
-* [ ] Add Spring Security
-    * [ ] Integrate with OAuth2 Server (Keycloak)
-    * [ ] Protect actuator endpoints
-    * [ ] Adapt services tests
-    * [ ] Update documentation
+* [ ] Add business operation to tasks service to generate a complete description of a task from a few words
+    * [ ] Use Spring IA
 
 ## Version 0.4.0
 
 ***
 
+* [ ] Improve logging
+    * [ ] Show console logs in plain test
+    * [ ] Save file logs in JSON format
+* [ ] Setup Observability Logs & Traces
+    * [ ] Use Loki for logs?
+    * [ ] Use Tempo for traces?
 * [ ] Add Spring Cloud Config
-* [ ] Add Spring Service discovery (eureka)
+* [ ] Add Spring Service discovery
 
 ## Version x
 
@@ -102,31 +101,37 @@
 
 ## asapp-tasks-service
 
-* [ ] Add more fields to task domain: End date, Estimation, Status, Subtasks, Labels
+* [ ] Add more business to tasks service
+    * [ ] Add more fields to task domain like: creation date, end date, estimation, status, subtasks, labels, user
+    * [ ] Add operation to find tasks by list of ids
+    * [ ] Add operation to update only certain fields
 * [ ] Add GraphQL
+    * [ ] Create CRUD operations
 
 ## asapp-projects-service
 
+* [ ] Add more business to projects service
+    * [ ] Add more fields to project domain like: creation date, end date, estimation, status, labels, user
+    * [ ] Add operation to find projects by list of ids
+    * [ ] Add operation to update only certain fields
+    * [ ] Implement integration between CUD operations and tasks service
 * [ ] Add GraphQL
+    * [ ] Create CRUD operations
 
 # asapp-rest-clients
 
-* [ ] Add circuit breaker to REST clients
-* [ ] Improve the way of build URIs
+* [ ] Add circuit breaker
 
 ### Tech
 
-* [ ] Improve date format exception handling
 * [ ] Add Native support
-* [ ] Add Graceful
-  shutdown ([ref](https://docs.spring.io/spring-boot/docs/2.3.0.RELEASE/reference/html/spring-boot-features.html#boot-features-graceful-shutdown))
+* [ ] Add Graceful shutdown
 * [ ] Create parent project/starters
 
 ### Observability
 
 * [ ] Add database metrics dashboard
 * [ ] Add endpoints metrics dashboard
-* [ ] Show logs in JSON format
 
 ### Security
 
@@ -135,7 +140,7 @@
 
 ### Tests
 
-* [ ] Reuse db TestContainers instance ([ref](https://spring.io/blog/2023/06/23/improved-testcontainers-support-in-spring-boot-3-1))
+* [ ] Reuse db TestContainers instance in tests ([ref](https://spring.io/blog/2023/06/23/improved-testcontainers-support-in-spring-boot-3-1))
 
 ### Git
 
@@ -146,17 +151,14 @@
 * [ ] Publish jar packages and Docker images to GitHub packages
 * [ ] Automatize versioning process
 * [ ] Generate CHANGELOG.md file automatically from commits
-* [ ] Improve GitHub actions
-* [ ] Add Autoasign ([ref](https://github.com/apps/auto-assign))
-* [ ] Add
-  CODEOWNERS ([ref](https://docs.github.com/es/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners))
 
 ### Tools
 
 * [ ] Refactor Maven by Gradle
-* [ ] Add formatter for .xml files
-* [ ] Add formatter for .md files
-* [ ] Check formatter for .yaml files
+* [ ] Improve code formatting
+    * [ ] Add code formatter for .xml files
+    * [ ] Add code formatter for .md files
+    * [ ] Add code formatter for .yaml files
 
 ### Doc
 
@@ -164,6 +166,5 @@
 
 ### Analysis
 
-* [ ] Review best way to manage responses in API layer (Publisher<ResponseEntity<DTO>> vs ResponseEntity<Publisher<DTO>> vs Publisher<DTO>)
-* [ ] Review Request and Response key naming (camelCase vs snake_case)
-* [ ] Analyze how to add Integration Tests to REST clients
+* [ ] Analyze how to integrate Spring Modulith
+* [ ] Review Request and Response naming (camelCase vs snake_case vs kebab-case)

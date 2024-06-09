@@ -19,7 +19,7 @@
 
     <properties>
         <!-- Dependencies Versions -->
-        <jakarta-validation-api.version>3.0.2</jakarta-validation-api.version>
+        <jakarta-validation-api.version>3.1.0</jakarta-validation-api.version>
     </properties>
 
     <dependencies>

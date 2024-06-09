@@ -4,7 +4,7 @@ asapp-projects-service is a REST service application that publishes projects ope
 These operations are exposed via HTTP endpoints. \
 There are also exposed a bunch of non-business endpoints which are produced by Spring Boot Actuator.
 
-The architecture is mainly based on Java 21 and Spring Boot 3.2, and it follows some of the [Microservice Architecture Principles](https://microservices.io/): \
+The architecture is mainly based on Java 21 and Spring Boot 3.3, and it follows some of the [Microservice Architecture Principles](https://microservices.io/): \
 The [Database per Service](https://microservices.io/patterns/data/database-per-service.html) pattern, therefore the Database is implemented by the service
 itself, specifically the management of the database changes are delegated on Liquibase.
 
