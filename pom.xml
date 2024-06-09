@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.2.5</version>
+        <version>3.3.0</version>
         <relativePath/>
     </parent>
 
@@ -26,7 +26,7 @@
 
         <!-- Plugins Versions -->
         <spotless-maven-plugin.version>2.43.0</spotless-maven-plugin.version>
-        <git-build-hook-maven-plugin.version>3.4.1</git-build-hook-maven-plugin.version>
+        <git-build-hook-maven-plugin.version>3.5.0</git-build-hook-maven-plugin.version>
     </properties>
 
     <build>
