@@ -47,7 +47,7 @@ import com.bcn.asapp.dto.project.ProjectDTO;
 import com.bcn.asapp.dto.task.TaskDTO;
 
 @ExtendWith(SpringExtension.class)
-class ProjectServiceImpTests {
+class ProjectServiceImplTests {
 
     @Mock
     private ProjectRepository projectRepositoryMock;
