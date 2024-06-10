@@ -45,7 +45,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.bcn.asapp.dto.task.TaskDTO;
 
 @ExtendWith(SpringExtension.class)
-class TaskServiceImpTests {
+class TaskServiceImplTests {
 
     @Mock
     private TaskRepository taskRepositoryMock;
