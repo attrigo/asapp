@@ -1,12 +1,21 @@
 # ASAPP-PROJECTS-SERVICE
 
-asapp-projects-service is a REST service application that publishes projects operations. \
-These operations are exposed via HTTP endpoints. \
+asapp-projects-service is a REST service application that publishes the following projects operations.
+
+* Find a project by id
+* Find all projects
+* Create a project
+* Update a project by id
+* Delete a project by id
+
+Each of these operations is exposed as an REST endpoint. \
+These business endpoints consumes and produces dates in standard ISO-8601 format.
+
 There are also exposed a bunch of non-business endpoints which are produced by Spring Boot Actuator.
 
 The architecture is mainly based on Java 21 and Spring Boot 3.3, and it follows some of the [Microservice Architecture Principles](https://microservices.io/): \
-The [Database per Service](https://microservices.io/patterns/data/database-per-service.html) pattern, therefore the Database is implemented by the service
-itself, specifically the management of the database changes are delegated on Liquibase.
+The [Database per Service](https://microservices.io/patterns/data/database-per-service.html) pattern, where the Database is managed by the service, in this case
+the management of database changes are delegated to Liquibase.
 
 ## Requirements
 
@@ -57,7 +66,7 @@ The application can be started in dev or docker mode.
 
 * Docker mode.
 
-> This mode starts the application and all its services at once
+> This mode starts the application and all its services at once.
 
 1. Build the application's Docker image:
     ```sh
