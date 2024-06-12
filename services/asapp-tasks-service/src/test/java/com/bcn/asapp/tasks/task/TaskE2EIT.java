@@ -32,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
@@ -75,7 +75,7 @@ class TaskE2EIT {
 
     private String fakeTaskDescription;
 
-    private LocalDateTime fakeTaskStartDate;
+    private Instant fakeTaskStartDate;
 
     private UUID fakeProjectId;
 
@@ -86,8 +86,8 @@ class TaskE2EIT {
         this.fakeTaskId = UUID.randomUUID();
         this.fakeTaskTitle = "E2E IT Title";
         this.fakeTaskDescription = "E2E IT Description";
-        this.fakeTaskStartDate = LocalDateTime.now()
-                                              .truncatedTo(ChronoUnit.MILLIS);
+        this.fakeTaskStartDate = Instant.now()
+                                        .truncatedTo(ChronoUnit.MILLIS);
         this.fakeProjectId = UUID.randomUUID();
     }
 
@@ -347,8 +347,8 @@ class TaskE2EIT {
     void TaskIdExistsAndNewTaskDataHasIdField_UpdateTaskById_UpdatesAllTaskFieldsExceptIdAndReturnsStatusOkAndBodyWithTaskUpdated() {
         var anotherFakeTaskTitle = fakeTaskTitle + " 2";
         var anotherFakeTaskDesc = fakeTaskDescription + " 2";
-        var anotherFakeTaskStartDate = LocalDateTime.now()
-                                                    .truncatedTo(ChronoUnit.MILLIS);
+        var anotherFakeTaskStartDate = Instant.now()
+                                              .truncatedTo(ChronoUnit.MILLIS);
         var anotherFakeTaskProjectId = UUID.randomUUID();
 
         // Given
@@ -392,8 +392,8 @@ class TaskE2EIT {
     void TaskIdExistsAndNewTaskDataFieldsAreValid_UpdateTask_UpdatesAllTaskFieldsAndReturnsStatusOkAndBodyWithTaskUpdated() {
         var anotherFakeTaskTitle = fakeTaskTitle + " 2";
         var anotherFakeTaskDesc = fakeTaskDescription + " 2";
-        var anotherFakeTaskStartDate = LocalDateTime.now()
-                                                    .truncatedTo(ChronoUnit.MILLIS);
+        var anotherFakeTaskStartDate = Instant.now()
+                                              .truncatedTo(ChronoUnit.MILLIS);
         var anotherFakeTaskProjectId = UUID.randomUUID();
 
         // Given

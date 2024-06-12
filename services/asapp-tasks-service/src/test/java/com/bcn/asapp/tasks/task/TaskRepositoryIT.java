@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.UUID;
@@ -54,7 +54,7 @@ class TaskRepositoryIT {
 
     private String fakeTaskDescription;
 
-    private LocalDateTime fakeTaskStartDate;
+    private Instant fakeTaskStartDate;
 
     @BeforeEach
     void beforeEach() {
@@ -62,8 +62,8 @@ class TaskRepositoryIT {
 
         this.fakeTaskTitle = "IT Title";
         this.fakeTaskDescription = "IT Description";
-        this.fakeTaskStartDate = LocalDateTime.now()
-                                              .truncatedTo(ChronoUnit.MILLIS);
+        this.fakeTaskStartDate = Instant.now()
+                                        .truncatedTo(ChronoUnit.MILLIS);
     }
 
     // findByProjectId

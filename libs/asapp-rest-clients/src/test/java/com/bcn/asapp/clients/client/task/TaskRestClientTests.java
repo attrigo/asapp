@@ -27,7 +27,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -137,8 +137,8 @@ class TaskRestClientTests {
     @DisplayName("GIVEN id exists WHEN get task by project id THEN returns the tasks of the project")
     void IdExist_GetTasksByProjectId_ReturnsProjectTasks() throws JsonProcessingException {
         // Given
-        var expectedTask1 = new TaskDTO(UUID.randomUUID(), "Test Title 1", "Test Description 1", LocalDateTime.now(), UUID.randomUUID());
-        var expectedTask2 = new TaskDTO(UUID.randomUUID(), "Test Title 2", "Test Description 2", LocalDateTime.now(), UUID.randomUUID());
+        var expectedTask1 = new TaskDTO(UUID.randomUUID(), "Test Title 1", "Test Description 1", Instant.now(), UUID.randomUUID());
+        var expectedTask2 = new TaskDTO(UUID.randomUUID(), "Test Title 2", "Test Description 2", Instant.now(), UUID.randomUUID());
         var expectedTasks = List.of(expectedTask1, expectedTask2);
         var responseBody = objectMapper.writeValueAsString(expectedTasks);
 

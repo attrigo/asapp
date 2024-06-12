@@ -19,7 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
@@ -51,7 +51,7 @@ class ProjectRepositoryIT {
 
     private String fakeProjectDescription;
 
-    private LocalDateTime fakeProjectStartDate;
+    private Instant fakeProjectStartDate;
 
     @BeforeEach
     void beforeEach() {
@@ -59,8 +59,8 @@ class ProjectRepositoryIT {
 
         this.fakeProjectTitle = "IT Title";
         this.fakeProjectDescription = "IT Description";
-        this.fakeProjectStartDate = LocalDateTime.now()
-                                                 .truncatedTo(ChronoUnit.MILLIS);
+        this.fakeProjectStartDate = Instant.now()
+                                           .truncatedTo(ChronoUnit.MILLIS);
     }
 
     // deleteProjectById

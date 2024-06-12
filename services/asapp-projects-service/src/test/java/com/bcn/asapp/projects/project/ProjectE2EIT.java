@@ -38,7 +38,7 @@ import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
@@ -105,7 +105,7 @@ class ProjectE2EIT {
 
     private String fakeProjectDescription;
 
-    private LocalDateTime fakeProjectStartDate;
+    private Instant fakeProjectStartDate;
 
     @BeforeEach
     void beforeEach() {
@@ -114,8 +114,8 @@ class ProjectE2EIT {
         this.fakeProjectId = UUID.randomUUID();
         this.fakeProjectTitle = "E2E IT Title";
         this.fakeProjectDescription = "E2E IT Description";
-        this.fakeProjectStartDate = LocalDateTime.now()
-                                                 .truncatedTo(ChronoUnit.MILLIS);
+        this.fakeProjectStartDate = Instant.now()
+                                           .truncatedTo(ChronoUnit.MILLIS);
     }
 
     // GetProjectById
@@ -517,8 +517,8 @@ class ProjectE2EIT {
     void ProjectIdExistsAndNewProjectDataHasIdField_UpdateProjectById_UpdatesAllProjectFieldsExceptIdAndReturnsStatusOkAndBodyWithProjectUpdated() {
         var anotherFakeProjectTitle = fakeProjectTitle + " 2";
         var anotherFakeProjectDesc = fakeProjectDescription + " 2";
-        var anotherFakeProjectStartDate = LocalDateTime.now()
-                                                       .truncatedTo(ChronoUnit.MILLIS);
+        var anotherFakeProjectStartDate = Instant.now()
+                                                 .truncatedTo(ChronoUnit.MILLIS);
 
         // Given
         var fakeProject = new Project(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
@@ -561,8 +561,8 @@ class ProjectE2EIT {
     void ProjectIdExistsAndNewProjectDataHasTasksField_UpdateProject_UpdatesAllProjectFieldsExceptTasksAndReturnsStatusOkAndBodyWithProjectUpdated() {
         var anotherFakeProjectTitle = fakeProjectTitle + " 2";
         var anotherFakeProjectDesc = fakeProjectDescription + " 2";
-        var anotherFakeProjectStartDate = LocalDateTime.now()
-                                                       .truncatedTo(ChronoUnit.MILLIS);
+        var anotherFakeProjectStartDate = Instant.now()
+                                                 .truncatedTo(ChronoUnit.MILLIS);
         var anotherFakeProjectTasks = buildFakeProjectTasks(null);
 
         // Given
@@ -607,8 +607,8 @@ class ProjectE2EIT {
     void ProjectIdExistsAndNewProjectDataFieldsAreValid_UpdateProject_UpdatesAllProjectFieldsAndReturnsStatusOkAndBodyWithProjectUpdated() {
         var anotherFakeProjectTitle = fakeProjectTitle + " 2";
         var anotherFakeProjectDesc = fakeProjectDescription + " 2";
-        var anotherFakeProjectStartDate = LocalDateTime.now()
-                                                       .truncatedTo(ChronoUnit.MILLIS);
+        var anotherFakeProjectStartDate = Instant.now()
+                                                 .truncatedTo(ChronoUnit.MILLIS);
 
         // Given
         var fakeProject = new Project(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
@@ -688,12 +688,10 @@ class ProjectE2EIT {
     }
 
     private List<TaskDTO> buildFakeProjectTasks(UUID projectId) {
-        var fakeProjectTask1 = new TaskDTO(UUID.randomUUID(), "E2E IT Task Title 1", "E2E IT Task Description 1", LocalDateTime.now()
-                                                                                                                               .truncatedTo(ChronoUnit.MILLIS),
-                projectId);
-        var fakeProjectTask2 = new TaskDTO(UUID.randomUUID(), "E2E IT Task Title 2", "E2E IT Task Description 2", LocalDateTime.now()
-                                                                                                                               .truncatedTo(ChronoUnit.MILLIS),
-                projectId);
+        var fakeTaskStartDate = Instant.now()
+                                       .truncatedTo(ChronoUnit.MILLIS);
+        var fakeProjectTask1 = new TaskDTO(UUID.randomUUID(), "E2E IT Task Title 1", "E2E IT Task Description 1", fakeTaskStartDate, projectId);
+        var fakeProjectTask2 = new TaskDTO(UUID.randomUUID(), "E2E IT Task Title 2", "E2E IT Task Description 2", fakeTaskStartDate, projectId);
         return List.of(fakeProjectTask1, fakeProjectTask2);
     }
 

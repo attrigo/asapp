@@ -75,6 +75,8 @@ The project brings with an embedded [Swagger UI](https://swagger.io/tools/swagge
 interaction. \
 You can use this [Swagger UI](http://localhost:8080/asapp-tasks-service/swagger-ui.html) or any other HTTP client to consume the API.
 
+> Dates sent in requests must follow standard ISO-8601 format.
+
 ### Shut down and clean
 
 In order to avoid wasting local machine resources it is recommended to stop all started Docker services once they are no longer necessary.

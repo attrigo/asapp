@@ -26,7 +26,8 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -67,7 +68,7 @@ class ProjectServiceImplTests {
 
     private String fakeProjectDescription;
 
-    private LocalDateTime fakeProjectStartDate;
+    private Instant fakeProjectStartDate;
 
     private List<TaskDTO> fakeProjectTasks;
 
@@ -76,9 +77,12 @@ class ProjectServiceImplTests {
         this.fakeProjectId = UUID.randomUUID();
         this.fakeProjectTitle = "UT Title";
         this.fakeProjectDescription = "UT Description";
-        this.fakeProjectStartDate = LocalDateTime.now();
-        var fakeTask1 = new TaskDTO(UUID.randomUUID(), "UT Task Title 1", "UT Task Description 1", LocalDateTime.now(), fakeProjectId);
-        var fakeTask2 = new TaskDTO(UUID.randomUUID(), "UT Task Title 2", "UT Task Description 2", LocalDateTime.now(), fakeProjectId);
+        this.fakeProjectStartDate = Instant.now()
+                                           .truncatedTo(ChronoUnit.MILLIS);
+        var fakeTaskStartDate = Instant.now()
+                                       .truncatedTo(ChronoUnit.MILLIS);
+        var fakeTask1 = new TaskDTO(UUID.randomUUID(), "UT Task Title 1", "UT Task Description 1", fakeTaskStartDate, fakeProjectId);
+        var fakeTask2 = new TaskDTO(UUID.randomUUID(), "UT Task Title 2", "UT Task Description 2", fakeTaskStartDate, fakeProjectId);
         fakeProjectTasks = List.of(fakeTask1, fakeTask2);
     }
 
