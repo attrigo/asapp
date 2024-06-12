@@ -1,16 +1,26 @@
 # ASAPP
 
-asapp is a web application focused on task management.
+ASAPP is a web application focused on task management.
 
 ## Features
 
 ***
 
-Provides the following basic CRUD operations to manage projects and tasks:
-* Create projects and tasks
-* Update projects and tasks
-* Find projects and tasks
-* Delete projects and tasks
+ASAPP application provides the following operations to work with projects and tasks:
+
+* Projects Operations:
+    * Find a project by id
+    * Find all projects
+    * Create a project
+    * Update a project by id
+    * Delete a project by id
+* Tasks operations:
+    * Find a task by id
+    * Find all tasks
+    * Find tasks by project id
+    * Create a task
+    * Update a task by id
+    * Delete a task by id
 
 ## Requirements
 
