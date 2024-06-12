@@ -63,9 +63,9 @@
 
 * [X] Upgrade to Spring Boot 3.3.x
 * [X] Update all external dependencies
-* [ ] Improve date / datetime formating
-    * [ ] Refactor LocalDateTime by Instance
-    * [ ] Review JacksonMapperConfiguration class
+* [X] Improve date / datetime formating
+    * [X] Refactor LocalDateTime by Instance
+    * [X] Review JacksonMapperConfiguration class
 * [ ] Setup Observability Metrics
     * [ ] Use Prometheus and Grafana
     * [ ] Add JVM dashboard for each service

@@ -34,8 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
@@ -46,10 +45,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -57,16 +54,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.bcn.asapp.dto.project.ProjectDTO;
 import com.bcn.asapp.dto.task.TaskDTO;
-import com.bcn.asapp.projects.config.JacksonMapperConfiguration;
 
 @WebMvcTest(ProjectRestController.class)
-@Import(JacksonMapperConfiguration.class)
 class ProjectControllerIT {
 
     public static final String PROJECTS_EMPTY_ID_PATH = PROJECTS_ROOT_PATH + "/";
-
-    @Value("${spring.mvc.format.date-time}")
-    private String dateTimeFormat;
 
     @Autowired
     private MockMvc mockMvc;
@@ -83,23 +75,21 @@ class ProjectControllerIT {
 
     private String fakeProjectDescription;
 
-    private LocalDateTime fakeProjectStartDate;
-
-    private String fakeProjectStartDateFormatted;
+    private Instant fakeProjectStartDate;
 
     private List<TaskDTO> fakeProjectTasks;
 
     @BeforeEach
     void beforeEach() {
         this.fakeProjectId = UUID.randomUUID();
-        this.fakeProjectStartDate = LocalDateTime.now()
-                                                 .truncatedTo(ChronoUnit.MILLIS);
+        this.fakeProjectStartDate = Instant.now()
+                                           .truncatedTo(ChronoUnit.MILLIS);
         this.fakeProjectTitle = "IT Title";
         this.fakeProjectDescription = "IT Description";
-        this.fakeProjectStartDateFormatted = DateTimeFormatter.ofPattern(dateTimeFormat)
-                                                              .format(fakeProjectStartDate);
-        var fakeTask1 = new TaskDTO(UUID.randomUUID(), "IT Task Title 1", "IT Task Description 1", LocalDateTime.now(), fakeProjectId);
-        var fakeTask2 = new TaskDTO(UUID.randomUUID(), "IT Task Title 2", "IT Task Description 2", LocalDateTime.now(), fakeProjectId);
+        var fakeTaskStartDate = Instant.now()
+                                       .truncatedTo(ChronoUnit.MILLIS);
+        var fakeTask1 = new TaskDTO(UUID.randomUUID(), "IT Task Title 1", "IT Task Description 1", fakeTaskStartDate, fakeProjectId);
+        var fakeTask2 = new TaskDTO(UUID.randomUUID(), "IT Task Title 2", "IT Task Description 2", fakeTaskStartDate, fakeProjectId);
         this.fakeProjectTasks = List.of(fakeTask1, fakeTask2);
     }
 
@@ -168,7 +158,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.id", is(fakeProjectId.toString())))
                .andExpect(jsonPath("$.title", is(fakeProjectTitle)))
                .andExpect(jsonPath("$.description", is(fakeProjectDescription)))
-               .andExpect(jsonPath("$.startDateTime", is(fakeProjectStartDateFormatted)))
+               .andExpect(jsonPath("$.startDateTime", is(fakeProjectStartDate.toString())))
                .andExpect(jsonPath("$.tasks", hasSize(2)));
     }
 
@@ -215,17 +205,17 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$[0].id", is(fakeProjectId1.toString())))
                .andExpect(jsonPath("$[0].title", is(fakeProjectTitle1)))
                .andExpect(jsonPath("$[0].description", is(fakeProjectDesc1)))
-               .andExpect(jsonPath("$[0].startDateTime", is(fakeProjectStartDateFormatted)))
+               .andExpect(jsonPath("$[0].startDateTime", is(fakeProjectStartDate.toString())))
                .andExpect(jsonPath("$[0].tasks", hasSize(2)))
                .andExpect(jsonPath("$[1].id", is(fakeProjectId2.toString())))
                .andExpect(jsonPath("$[1].title", is(fakeProjectTitle2)))
                .andExpect(jsonPath("$[1].description", is(fakeProjectDesc2)))
-               .andExpect(jsonPath("$[1].startDateTime", is(fakeProjectStartDateFormatted)))
+               .andExpect(jsonPath("$[1].startDateTime", is(fakeProjectStartDate.toString())))
                .andExpect(jsonPath("$[1].tasks", hasSize(2)))
                .andExpect(jsonPath("$[2].id", is(fakeProjectId3.toString())))
                .andExpect(jsonPath("$[2].title", is(fakeProjectTitle3)))
                .andExpect(jsonPath("$[2].description", is(fakeProjectDesc3)))
-               .andExpect(jsonPath("$[2].startDateTime", is(fakeProjectStartDateFormatted)))
+               .andExpect(jsonPath("$[2].startDateTime", is(fakeProjectStartDate.toString())))
                .andExpect(jsonPath("$[2].tasks", hasSize(2)));
     }
 
@@ -353,7 +343,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.id", is(fakeProjectId.toString())))
                .andExpect(jsonPath("$.title", is(fakeProjectTitle)))
                .andExpect(jsonPath("$.description", is(fakeProjectDescription)))
-               .andExpect(jsonPath("$.startDateTime", is(fakeProjectStartDateFormatted)))
+               .andExpect(jsonPath("$.startDateTime", is(fakeProjectStartDate.toString())))
                .andExpect(jsonPath("$.tasks").doesNotExist());
     }
 
@@ -544,7 +534,7 @@ class ProjectControllerIT {
                .andExpect(jsonPath("$.id", is(fakeProjectId.toString())))
                .andExpect(jsonPath("$.title", is(fakeProjectTitle)))
                .andExpect(jsonPath("$.description", is(fakeProjectDescription)))
-               .andExpect(jsonPath("$.startDateTime", is(fakeProjectStartDateFormatted)))
+               .andExpect(jsonPath("$.startDateTime", is(fakeProjectStartDate.toString())))
                .andExpect(jsonPath("$.tasks").doesNotExist());
     }
 

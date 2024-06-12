@@ -26,7 +26,8 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -62,7 +63,7 @@ class TaskServiceImplTests {
 
     private String fakeTaskDescription;
 
-    private LocalDateTime fakeTaskStartDate;
+    private Instant fakeTaskStartDate;
 
     private UUID fakeProjectId;
 
@@ -71,7 +72,8 @@ class TaskServiceImplTests {
         this.fakeTaskId = UUID.randomUUID();
         this.fakeTaskTitle = "UT Title";
         this.fakeTaskDescription = "UT Description";
-        this.fakeTaskStartDate = LocalDateTime.now();
+        this.fakeTaskStartDate = Instant.now()
+                                        .truncatedTo(ChronoUnit.MILLIS);
         this.fakeProjectId = UUID.randomUUID();
     }
 

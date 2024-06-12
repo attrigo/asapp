@@ -34,8 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.List;
@@ -46,26 +45,19 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.bcn.asapp.dto.task.TaskDTO;
-import com.bcn.asapp.tasks.config.JacksonMapperConfiguration;
 
 @WebMvcTest(TaskRestController.class)
-@Import(JacksonMapperConfiguration.class)
 class TaskControllerIT {
 
     public static final String TASKS_EMPTY_ID_PATH = TASKS_ROOT_PATH + "/";
-
-    @Value("${spring.mvc.format.date-time}")
-    private String dateTimeFormat;
 
     @Autowired
     private MockMvc mockMvc;
@@ -82,21 +74,17 @@ class TaskControllerIT {
 
     private String fakeTaskDescription;
 
-    private LocalDateTime fakeTaskStartDate;
-
-    private String fakeTaskStartDateFormatted;
+    private Instant fakeTaskStartDate;
 
     private UUID fakeProjectId;
 
     @BeforeEach
     void beforeEach() {
         this.fakeTaskId = UUID.randomUUID();
-        this.fakeTaskStartDate = LocalDateTime.now()
-                                              .truncatedTo(ChronoUnit.MILLIS);
+        this.fakeTaskStartDate = Instant.now()
+                                        .truncatedTo(ChronoUnit.MILLIS);
         this.fakeTaskTitle = "IT Title";
         this.fakeTaskDescription = "IT Description";
-        this.fakeTaskStartDateFormatted = DateTimeFormatter.ofPattern(dateTimeFormat)
-                                                           .format(fakeTaskStartDate);
         this.fakeProjectId = UUID.randomUUID();
     }
 
@@ -165,7 +153,7 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.id", is(fakeTaskId.toString())))
                .andExpect(jsonPath("$.title", is(fakeTaskTitle)))
                .andExpect(jsonPath("$.description", is(fakeTaskDescription)))
-               .andExpect(jsonPath("$.startDateTime", is(fakeTaskStartDateFormatted)))
+               .andExpect(jsonPath("$.startDateTime", is(fakeTaskStartDate.toString())))
                .andExpect(jsonPath("$.projectId", is(fakeProjectId.toString())));
     }
 
@@ -212,17 +200,17 @@ class TaskControllerIT {
                .andExpect(jsonPath("$[0].id", is(fakeTaskId1.toString())))
                .andExpect(jsonPath("$[0].title", is(fakeTaskTitle1)))
                .andExpect(jsonPath("$[0].description", is(fakeTaskDesc1)))
-               .andExpect(jsonPath("$[0].startDateTime", is(fakeTaskStartDateFormatted)))
+               .andExpect(jsonPath("$[0].startDateTime", is(fakeTaskStartDate.toString())))
                .andExpect(jsonPath("$[0].projectId", is(fakeProjectId.toString())))
                .andExpect(jsonPath("$[1].id", is(fakeTaskId2.toString())))
                .andExpect(jsonPath("$[1].title", is(fakeTaskTitle2)))
                .andExpect(jsonPath("$[1].description", is(fakeTaskDesc2)))
-               .andExpect(jsonPath("$[1].startDateTime", is(fakeTaskStartDateFormatted)))
+               .andExpect(jsonPath("$[1].startDateTime", is(fakeTaskStartDate.toString())))
                .andExpect(jsonPath("$[1].projectId", is(fakeProjectId.toString())))
                .andExpect(jsonPath("$[2].id", is(fakeTaskId3.toString())))
                .andExpect(jsonPath("$[2].title", is(fakeTaskTitle3)))
                .andExpect(jsonPath("$[2].description", is(fakeTaskDesc3)))
-               .andExpect(jsonPath("$[2].startDateTime", is(fakeTaskStartDateFormatted)))
+               .andExpect(jsonPath("$[2].startDateTime", is(fakeTaskStartDate.toString())))
                .andExpect(jsonPath("$[2].projectId", is(fakeProjectId.toString())));
     }
 
@@ -305,17 +293,17 @@ class TaskControllerIT {
                .andExpect(jsonPath("$[0].id", is(fakeTaskId1.toString())))
                .andExpect(jsonPath("$[0].title", is(fakeTaskTitle1)))
                .andExpect(jsonPath("$[0].description", is(fakeTaskDesc1)))
-               .andExpect(jsonPath("$[0].startDateTime", is(fakeTaskStartDateFormatted)))
+               .andExpect(jsonPath("$[0].startDateTime", is(fakeTaskStartDate.toString())))
                .andExpect(jsonPath("$[0].projectId", is(fakeProjectId.toString())))
                .andExpect(jsonPath("$[1].id", is(fakeTaskId2.toString())))
                .andExpect(jsonPath("$[1].title", is(fakeTaskTitle2)))
                .andExpect(jsonPath("$[1].description", is(fakeTaskDesc2)))
-               .andExpect(jsonPath("$[1].startDateTime", is(fakeTaskStartDateFormatted)))
+               .andExpect(jsonPath("$[1].startDateTime", is(fakeTaskStartDate.toString())))
                .andExpect(jsonPath("$[1].projectId", is(fakeProjectId.toString())))
                .andExpect(jsonPath("$[2].id", is(fakeTaskId3.toString())))
                .andExpect(jsonPath("$[2].title", is(fakeTaskTitle3)))
                .andExpect(jsonPath("$[2].description", is(fakeTaskDesc3)))
-               .andExpect(jsonPath("$[2].startDateTime", is(fakeTaskStartDateFormatted)))
+               .andExpect(jsonPath("$[2].startDateTime", is(fakeTaskStartDate.toString())))
                .andExpect(jsonPath("$[2].projectId", is(fakeProjectId.toString())));
     }
 
@@ -469,7 +457,7 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.id", is(fakeTaskId.toString())))
                .andExpect(jsonPath("$.title", is(fakeTaskTitle)))
                .andExpect(jsonPath("$.description", is(fakeTaskDescription)))
-               .andExpect(jsonPath("$.startDateTime", is(fakeTaskStartDateFormatted)))
+               .andExpect(jsonPath("$.startDateTime", is(fakeTaskStartDate.toString())))
                .andExpect(jsonPath("$.projectId", is(fakeProjectId.toString())));
     }
 
@@ -687,7 +675,7 @@ class TaskControllerIT {
                .andExpect(jsonPath("$.id", is(fakeTaskId.toString())))
                .andExpect(jsonPath("$.title", is(fakeTaskTitle)))
                .andExpect(jsonPath("$.description", is(fakeTaskDescription)))
-               .andExpect(jsonPath("$.startDateTime", is(fakeTaskStartDateFormatted)))
+               .andExpect(jsonPath("$.startDateTime", is(fakeTaskStartDate.toString())))
                .andExpect(jsonPath("$.projectId", is(fakeProjectId.toString())));
     }
 

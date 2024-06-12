@@ -15,7 +15,7 @@
 */
 package com.bcn.asapp.projects.project;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
@@ -31,4 +31,4 @@ import org.springframework.lang.NonNull;
  */
 @Table("project")
 public record Project(@Id @Column("project_id") UUID id, @NonNull @Column("title") String title, @Column("description") String description,
-        @Column("start_date") LocalDateTime startDateTime) {}
+        @Column("start_date") Instant startDateTime) {}
