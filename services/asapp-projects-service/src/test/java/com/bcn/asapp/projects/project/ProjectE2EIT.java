@@ -23,9 +23,7 @@ import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_UPDATE_BY_ID_
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_BY_PROJECT_ID_FULL_PATH;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.nullValue;
@@ -148,6 +146,8 @@ class ProjectE2EIT {
         // When & Then
         var idToFind = projectToBeFound.id();
 
+        var expectedProject = new ProjectDTO(idToFind, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, Collections.emptyList());
+
         webTestClient.get()
                      .uri(PROJECTS_GET_BY_ID_FULL_PATH, idToFind)
                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -157,11 +157,7 @@ class ProjectE2EIT {
                      .expectHeader()
                      .contentType(MediaType.APPLICATION_JSON)
                      .expectBody(ProjectDTO.class)
-                     .value(project -> assertThat(project.id(), equalTo(idToFind)))
-                     .value(project -> assertThat(project.title(), equalTo(fakeProjectTitle)))
-                     .value(project -> assertThat(project.description(), equalTo(fakeProjectDescription)))
-                     .value(project -> assertThat(project.startDateTime(), equalTo(fakeProjectStartDate)))
-                     .value(project -> assertThat(project.tasks(), empty()));
+                     .isEqualTo(expectedProject);
     }
 
     @Test
@@ -177,6 +173,8 @@ class ProjectE2EIT {
         // When & Then
         var idToFind = projectToBeFound.id();
 
+        var expectedProject = new ProjectDTO(idToFind, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
+
         webTestClient.get()
                      .uri(PROJECTS_GET_BY_ID_FULL_PATH, idToFind)
                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -186,11 +184,7 @@ class ProjectE2EIT {
                      .expectHeader()
                      .contentType(MediaType.APPLICATION_JSON)
                      .expectBody(ProjectDTO.class)
-                     .value(project -> assertThat(project.id(), equalTo(idToFind)))
-                     .value(project -> assertThat(project.title(), equalTo(fakeProjectTitle)))
-                     .value(project -> assertThat(project.description(), equalTo(fakeProjectDescription)))
-                     .value(project -> assertThat(project.startDateTime(), equalTo(fakeProjectStartDate)))
-                     .value(project -> assertThat(project.tasks(), nullValue()));
+                     .isEqualTo(expectedProject);
     }
 
     @Test
@@ -207,6 +201,8 @@ class ProjectE2EIT {
         // When & Then
         var idToFind = projectToBeFound.id();
 
+        var expectedProject = new ProjectDTO(idToFind, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, fakeProjectTasks);
+
         webTestClient.get()
                      .uri(PROJECTS_GET_BY_ID_FULL_PATH, idToFind)
                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -216,11 +212,7 @@ class ProjectE2EIT {
                      .expectHeader()
                      .contentType(MediaType.APPLICATION_JSON)
                      .expectBody(ProjectDTO.class)
-                     .value(project -> assertThat(project.id(), equalTo(idToFind)))
-                     .value(project -> assertThat(project.title(), equalTo(fakeProjectTitle)))
-                     .value(project -> assertThat(project.description(), equalTo(fakeProjectDescription)))
-                     .value(project -> assertThat(project.startDateTime(), equalTo(fakeProjectStartDate)))
-                     .value(project -> assertThat(project.tasks(), hasSize(2)));
+                     .isEqualTo(expectedProject);
     }
 
     // GetAllProjects
@@ -417,11 +409,10 @@ class ProjectE2EIT {
                                     .getResponseBody();
 
         assertNotNull(response);
-
-        var actualProject = new Project(response.id(), response.title(), response.description(), response.startDateTime());
-        var expectedProject = projectRepository.findById(response.id());
-        assertTrue(expectedProject.isPresent());
-        assertEquals(expectedProject.get(), actualProject);
+        var expectedProject = new Project(response.id(), response.title(), response.description(), response.startDateTime());
+        var actualProject = projectRepository.findById(response.id());
+        assertTrue(actualProject.isPresent());
+        assertEquals(expectedProject, actualProject.get());
     }
 
     @Test
@@ -452,11 +443,10 @@ class ProjectE2EIT {
                                     .getResponseBody();
 
         assertNotNull(response);
-
-        var actualProject = new Project(response.id(), response.title(), response.description(), response.startDateTime());
-        var expectedProject = projectRepository.findById(response.id());
-        assertTrue(expectedProject.isPresent());
-        assertEquals(expectedProject.get(), actualProject);
+        var expectedProject = new Project(response.id(), response.title(), response.description(), response.startDateTime());
+        var actualProject = projectRepository.findById(response.id());
+        assertTrue(actualProject.isPresent());
+        assertEquals(expectedProject, actualProject.get());
     }
 
     @Test
@@ -485,11 +475,10 @@ class ProjectE2EIT {
                                     .getResponseBody();
 
         assertNotNull(response);
-
-        var actualProject = new Project(response.id(), response.title(), response.description(), response.startDateTime());
-        var expectedProject = projectRepository.findById(response.id());
-        assertTrue(expectedProject.isPresent());
-        assertEquals(expectedProject.get(), actualProject);
+        var expectedProject = new Project(response.id(), response.title(), response.description(), response.startDateTime());
+        var actualProject = projectRepository.findById(response.id());
+        assertTrue(actualProject.isPresent());
+        assertEquals(expectedProject, actualProject.get());
     }
 
     // UpdateProjectById
@@ -529,6 +518,8 @@ class ProjectE2EIT {
         var idToUpdate = projectToBeUpdated.id();
         var projectToUpdate = new ProjectDTO(UUID.randomUUID(), anotherFakeProjectTitle, anotherFakeProjectDesc, anotherFakeProjectStartDate, null);
 
+        var expectedProjectDTO = new ProjectDTO(idToUpdate, anotherFakeProjectTitle, anotherFakeProjectDesc, anotherFakeProjectStartDate, null);
+
         var response = webTestClient.put()
                                     .uri(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate)
                                     .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -540,20 +531,15 @@ class ProjectE2EIT {
                                     .expectHeader()
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .expectBody(ProjectDTO.class)
-                                    .value(project -> assertThat(project.id(), equalTo(projectToBeUpdated.id())))
-                                    .value(project -> assertThat(project.title(), equalTo(anotherFakeProjectTitle)))
-                                    .value(project -> assertThat(project.description(), equalTo(anotherFakeProjectDesc)))
-                                    .value(project -> assertThat(project.startDateTime(), equalTo(anotherFakeProjectStartDate)))
-                                    .value(project -> assertThat(project.tasks(), nullValue()))
+                                    .isEqualTo(expectedProjectDTO)
                                     .returnResult()
                                     .getResponseBody();
 
         assertNotNull(response);
-
-        var actualProject = new Project(response.id(), response.title(), response.description(), response.startDateTime());
-        var expectedProject = projectRepository.findById(response.id());
-        assertTrue(expectedProject.isPresent());
-        assertEquals(expectedProject.get(), actualProject);
+        var expectedProject = new Project(response.id(), response.title(), response.description(), response.startDateTime());
+        var actualProject = projectRepository.findById(response.id());
+        assertTrue(actualProject.isPresent());
+        assertEquals(expectedProject, actualProject.get());
     }
 
     @Test
@@ -575,6 +561,8 @@ class ProjectE2EIT {
         var projectToUpdate = new ProjectDTO(UUID.randomUUID(), anotherFakeProjectTitle, anotherFakeProjectDesc, anotherFakeProjectStartDate,
                 anotherFakeProjectTasks);
 
+        var expectedProjectDTO = new ProjectDTO(idToUpdate, anotherFakeProjectTitle, anotherFakeProjectDesc, anotherFakeProjectStartDate, null);
+
         var response = webTestClient.put()
                                     .uri(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate)
                                     .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -586,20 +574,15 @@ class ProjectE2EIT {
                                     .expectHeader()
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .expectBody(ProjectDTO.class)
-                                    .value(project -> assertThat(project.id(), equalTo(projectToBeUpdated.id())))
-                                    .value(project -> assertThat(project.title(), equalTo(anotherFakeProjectTitle)))
-                                    .value(project -> assertThat(project.description(), equalTo(anotherFakeProjectDesc)))
-                                    .value(project -> assertThat(project.startDateTime(), equalTo(anotherFakeProjectStartDate)))
-                                    .value(project -> assertThat(project.tasks(), nullValue()))
+                                    .isEqualTo(expectedProjectDTO)
                                     .returnResult()
                                     .getResponseBody();
 
         assertNotNull(response);
-
-        var actualProject = new Project(response.id(), response.title(), response.description(), response.startDateTime());
-        var expectedProject = projectRepository.findById(response.id());
-        assertTrue(expectedProject.isPresent());
-        assertEquals(expectedProject.get(), actualProject);
+        var expectedProject = new Project(response.id(), response.title(), response.description(), response.startDateTime());
+        var actualProject = projectRepository.findById(response.id());
+        assertTrue(actualProject.isPresent());
+        assertEquals(expectedProject, actualProject.get());
     }
 
     @Test
@@ -619,6 +602,8 @@ class ProjectE2EIT {
         var idToUpdate = projectToBeUpdated.id();
         var projectToUpdate = new ProjectDTO(null, anotherFakeProjectTitle, anotherFakeProjectDesc, anotherFakeProjectStartDate, null);
 
+        var expectedProjectDTO = new ProjectDTO(idToUpdate, anotherFakeProjectTitle, anotherFakeProjectDesc, anotherFakeProjectStartDate, null);
+
         var response = webTestClient.put()
                                     .uri(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate)
                                     .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -630,20 +615,15 @@ class ProjectE2EIT {
                                     .expectHeader()
                                     .contentType(MediaType.APPLICATION_JSON)
                                     .expectBody(ProjectDTO.class)
-                                    .value(project -> assertThat(project.id(), equalTo(projectToBeUpdated.id())))
-                                    .value(project -> assertThat(project.title(), equalTo(anotherFakeProjectTitle)))
-                                    .value(project -> assertThat(project.description(), equalTo(anotherFakeProjectDesc)))
-                                    .value(project -> assertThat(project.startDateTime(), equalTo(anotherFakeProjectStartDate)))
-                                    .value(project -> assertThat(project.tasks(), nullValue()))
+                                    .isEqualTo(expectedProjectDTO)
                                     .returnResult()
                                     .getResponseBody();
 
         assertNotNull(response);
-
-        var actualProject = new Project(response.id(), response.title(), response.description(), response.startDateTime());
-        var expectedProject = projectRepository.findById(response.id());
-        assertTrue(expectedProject.isPresent());
-        assertEquals(expectedProject.get(), actualProject);
+        var expectedProject = new Project(response.id(), response.title(), response.description(), response.startDateTime());
+        var actualProject = projectRepository.findById(response.id());
+        assertTrue(actualProject.isPresent());
+        assertEquals(expectedProject, actualProject.get());
     }
 
     // DeleteProjectById
