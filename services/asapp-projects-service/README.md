@@ -13,9 +13,12 @@ These business endpoints consumes and produces dates in standard ISO-8601 format
 
 There are also exposed a bunch of non-business endpoints which are produced by Spring Boot Actuator.
 
-The architecture is mainly based on Java 21 and Spring Boot 3.3, and it follows some of the [Microservice Architecture Principles](https://microservices.io/): \
-The [Database per Service](https://microservices.io/patterns/data/database-per-service.html) pattern, where the Database is managed by the service, in this case
-the management of database changes are delegated to Liquibase.
+The architecture is mainly based on Java 21 and Spring Boot 3.3, and it follows some of the [Microservice Architecture Principles](https://microservices.io/):
+
+* The [Database per service](https://microservices.io/patterns/data/database-per-service.html) pattern, where the Database is managed by the service, in this
+  case the management of database changes are delegated to Liquibase.
+* The [Application metrics](https://microservices.io/patterns/observability/application-metrics.html) pattern, there is a specific endpoint that exposes the
+  most relevant metrics of the service.
 
 ## Requirements
 

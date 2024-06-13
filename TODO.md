@@ -66,12 +66,17 @@
 * [X] Improve date / datetime formating
     * [X] Refactor LocalDateTime by Instance
     * [X] Review JacksonMapperConfiguration class
-* [ ] Setup Observability Metrics
-    * [ ] Use Prometheus and Grafana
-    * [ ] Add JVM dashboard for each service
+    * [X] Update documentation
+* [X] Setup Observability Metrics
+    * [X] Use Prometheus and Grafana
+    * [X] Add JVM dashboard for each service
+    * [X] Update documentation
 * [ ] Add Spring Security
-    * [ ] Integrate with OAuth2 Server (Keycloak)
+    * [ ] Analyze which Auth Server to use
+    * [ ] Set up the Auth server
+    * [ ] Protect business endpoints
     * [ ] Protect actuator endpoints
+    * [ ] Update documentation
 * [ ] Improve GitHub actions
     * [ ] Build tags
 

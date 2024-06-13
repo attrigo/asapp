@@ -1,0 +1,14 @@
+apiVersion: 1
+
+datasources:
+  - name: asapp-services-ds
+    type: prometheus
+    uid: asapp-services-ds
+    access: proxy
+    orgId: 1
+    url: http://asapp-prometheus:9090
+    basicAuth: false
+    isDefault: false
+    version: 1
+    editable: false
+    apiVersion: 1

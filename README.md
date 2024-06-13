@@ -22,6 +22,8 @@ ASAPP application provides the following operations to work with projects and ta
     * Update a task by id
     * Delete a task by id
 
+The application also comes with a [Grafana](https://grafana.com/) instance, this provides some metrics dashboards to monitor the services.
+
 ## Requirements
 
 ***
@@ -73,6 +75,8 @@ interaction. \
 You can use this Swagger UI or any other HTTP client to consume the API.
 
 > Dates sent in requests must follow standard ISO-8601 format.
+
+You can access to metrics dashboards opening [Grafana](http://localhost:3000) tool in the web browser.
 
 ### Shut down and clean
 

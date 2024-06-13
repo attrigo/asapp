@@ -26,6 +26,32 @@ services:
     volumes:
       - tasks-postgres-db-data:/data/db
 
+  # Tools
+  asapp-prometheus:
+    image: prom/prometheus
+    container_name: asapp-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+    volumes:
+      - ./tools/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+  asapp-grafana:
+    image: grafana/grafana
+    container_name: asapp-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=secret
+    volumes:
+      - ./tools/grafana/provisioning/datasources:/etc/grafana/provisioning/datasources:ro
+      - ./tools/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
+    depends_on:
+      - asapp-prometheus
+
   # Services
   asapp-projects-service:
     build: .
