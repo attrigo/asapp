@@ -58,12 +58,12 @@ The application also comes with a [Grafana](https://grafana.com/) instance, this
 
 ### Start up
 
-1. Build the application's docker image:
+1. Build the application:
     ```sh
     mvn spring-boot:build-image
     ```
 
-2. Launch application's docker-compose:
+2. Launch the application:
     ```sh
     docker-compose up -d
     ```
@@ -82,7 +82,7 @@ You can access to metrics dashboards opening [Grafana](http://localhost:3000) to
 
 In order to avoid wasting local machine resources it is recommended to stop all started Docker services once they are no longer necessary.
 
-* To stop all Docker service:
+* To stop the application:
     ```sh
     docker-compose down -v
     ```
@@ -169,4 +169,4 @@ Steps to release a version
 
 ***
 
-asapp is Open Source software released under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0").
+ASAPP is Open Source software released under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0").
