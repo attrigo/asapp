@@ -11,7 +11,7 @@ asapp-projects-service is a REST service application that publishes the followin
 Each of these operations is exposed as an REST endpoint. \
 These business endpoints consumes and produces dates in standard ISO-8601 format.
 
-There are also exposed a bunch of non-business endpoints which are produced by Spring Boot Actuator.
+There are also exposed several non-business REST endpoints which are produced by Spring Boot Actuator.
 
 The architecture is mainly based on Java 21 and Spring Boot 3.3, and it follows some of the [Microservice Architecture Principles](https://microservices.io/):
 
@@ -68,18 +68,15 @@ The application can be started in dev or docker mode.
     2. Launch the main class [AsappProjectsServiceApplication](src/main/java/com/bcn/asapp/projects/AsappProjectsServiceApplication.java).
 
 * Docker mode.
+    1. Build the service:
+        ```sh
+        mvn spring-boot:build-image
+        ```
 
-> This mode starts the application and all its services at once.
-
-1. Build the application's Docker image:
-    ```sh
-    mvn spring-boot:build-image
-    ```
-
-2. Launch application's docker-compose:
-    ```sh
-    docker-compose up -d
-    ```
+    2. Launch the service:
+        ```sh
+        docker-compose up -d
+        ```
 
 ### Usage
 
@@ -93,12 +90,7 @@ You can use this [Swagger UI](http://localhost:8081/asapp-projects-service/swagg
 
 In order to avoid wasting local machine resources it is recommended to stop all started Docker services once they are no longer necessary.
 
-* To stop the standalone database:
-    ```sh
-    docker-compose down -v asapp-projects-postgres-db
-    ```
-
-* To stop all Docker service:
+* To stop the service:
     ```sh
     docker-compose down -v
     ```
@@ -205,6 +197,7 @@ For further reference, please consider the following sections:
     * [Junit](https://junit.org/junit5/docs/current/user-guide/)
     * [Mockito](https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html)
     * [TestContainers](https://java.testcontainers.org/)
+    * [MockServer](https://www.mock-server.com/)
 * Tools
     * [MapStruct](https://mapstruct.org/documentation/)
 
