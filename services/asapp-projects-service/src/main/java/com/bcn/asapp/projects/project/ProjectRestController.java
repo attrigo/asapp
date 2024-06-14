@@ -18,6 +18,8 @@ package com.bcn.asapp.projects.project;
 import java.util.List;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
@@ -33,6 +35,8 @@ import com.bcn.asapp.dto.project.ProjectDTO;
 @RestController
 public class ProjectRestController implements ProjectRestAPI {
 
+    private static final Logger log = LoggerFactory.getLogger(ProjectRestController.class);
+
     private final ProjectService projectService;
 
     /**
@@ -46,6 +50,7 @@ public class ProjectRestController implements ProjectRestAPI {
 
     @Override
     public ResponseEntity<ProjectDTO> getProjectById(UUID id) {
+        log.info("getProjectById");
         return projectService.findById(id)
                              .map(ResponseEntity::ok)
                              .orElseGet(() -> ResponseEntity.notFound()
@@ -54,16 +59,19 @@ public class ProjectRestController implements ProjectRestAPI {
 
     @Override
     public List<ProjectDTO> getAllProjects() {
+        log.info("getAllProjects");
         return projectService.findAll();
     }
 
     @Override
     public ProjectDTO createProject(ProjectDTO project) {
+        log.info("createProject");
         return projectService.create(project);
     }
 
     @Override
     public ResponseEntity<ProjectDTO> updateProjectById(UUID id, ProjectDTO newProjectData) {
+        log.info("updateProjectById");
         return projectService.updateById(id, newProjectData)
                              .map(ResponseEntity::ok)
                              .orElseGet(() -> ResponseEntity.notFound()
@@ -72,6 +80,7 @@ public class ProjectRestController implements ProjectRestAPI {
 
     @Override
     public ResponseEntity<Void> deleteProjectById(UUID id) {
+        log.info("deleteProjectById");
         boolean projectHasBeenDeleted = projectService.deleteById(id);
         return ResponseEntity.status(Boolean.TRUE.equals(projectHasBeenDeleted) ? HttpStatus.NO_CONTENT : HttpStatus.NOT_FOUND)
                              .build();

@@ -21,6 +21,7 @@
         <!-- Dependencies Versions -->
         <mapstruct.version>1.5.5.Final</mapstruct.version>
         <springdoc-openapi-starter.version>2.5.0</springdoc-openapi-starter.version>
+        <loki-logback-appender.version>1.5.1</loki-logback-appender.version>
         <mockserver.version>1.19.8</mockserver.version>
         <mockserver-netty.version>5.15.0</mockserver-netty.version>
 
@@ -57,6 +58,12 @@
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc-openapi-starter.version}</version>
+            </dependency>
+            <!-- * Other Dependencies -->
+            <dependency>
+                <groupId>com.github.loki4j</groupId>
+                <artifactId>loki-logback-appender</artifactId>
+                <version>${loki-logback-appender.version}</version>
             </dependency>
 
             <!-- Test Dependencies -->

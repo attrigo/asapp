@@ -1,9 +1,9 @@
 apiVersion: 1
 
 datasources:
-  - name: asapp-services-ds
+  - name: asapp-prometheus-ds
     type: prometheus
-    uid: asapp-services-ds
+    uid: asapp-prometheus-ds
     access: proxy
     orgId: 1
     url: http://asapp-prometheus:9090
@@ -12,3 +12,40 @@ datasources:
     version: 1
     editable: false
     apiVersion: 1
+    jsonData:
+      httpMethod: POST
+      exemplarTraceIdDestinations:
+        - name: trace_id
+          datasourceUid: asapp-ds
+  - name: asapp-tempo-ds
+    type: tempo
+    uid: asapp-tempo-ds
+    access: proxy
+    orgId: 1
+    url: http://asapp-tempo:3200
+    basicAuth: false
+    isDefault: false
+    version: 1
+    editable: false
+    apiVersion: 1
+    jsonData:
+      httpMethod: GET
+      tracesToLogs:
+        datasourceUid: 'asapp-loki-ds'
+  - name: asapp-loki-ds
+    type: loki
+    uid: asapp-loki-ds
+    access: proxy
+    orgId: 1
+    url: http://asapp-loki:3100
+    basicAuth: false
+    isDefault: true
+    version: 1
+    editable: false
+    apiVersion: 1
+    jsonData:
+      derivedFields:
+        - datasourceUid: asapp-tempo-ds
+          matcherRegex: \[.+,(.+?),
+          name: TraceID
+          url: $${__value.raw}

@@ -34,9 +34,35 @@ services:
     ports:
       - "9090:9090"
     command:
+      - --enable-feature=exemplar-storage
       - --config.file=/etc/prometheus/prometheus.yml
     volumes:
       - ./tools/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+  asapp-tempo:
+    image: grafana/tempo
+    container_name: asapp-tempo
+    restart: unless-stopped
+    ports:
+      - "14268"  # Jaeger
+      - "9411:9411" # Zipkin
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./tools/tempo/tempo.yaml:/etc/tempo.yaml:ro
+      - ./tempo-data:/tmp/tempo
+  asapp-loki:
+    image: grafana/loki
+    container_name: asapp-loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    command: [ "-config.file=/etc/loki/local-config.yaml" ]
+    environment:
+      - JAEGER_AGENT_HOST=tempo
+      - JAEGER_ENDPOINT=http://asapp-tempo:14268/api/traces
+      - JAEGER_SAMPLER_TYPE=const
+      - JAEGER_SAMPLER_PARAM=1
+    depends_on:
+      - asapp-tempo
   asapp-grafana:
     image: grafana/grafana
     container_name: asapp-grafana
@@ -51,6 +77,7 @@ services:
       - ./tools/grafana/provisioning/dashboards:/etc/grafana/provisioning/dashboards:ro
     depends_on:
       - asapp-prometheus
+      - asapp-loki
 
   # Services
   asapp-projects-service:
