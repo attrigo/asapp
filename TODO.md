@@ -132,20 +132,21 @@
 * [ ] Add Native support
 * [ ] Add Graceful shutdown
 * [ ] Create parent project/starters
+* [ ] Enable shutdown endpoint
+* [ ] Improve how docker volumes are created, to only create volumes when needed
 
 ### Observability
 
 * [ ] Add database metrics dashboard
-* [ ] Add endpoints metrics dashboard
 
 ### Security
 
 * [ ] Add security to Observability tools
-* [ ] Enable shutdown endpoint
 
 ### Tests
 
 * [ ] Reuse db TestContainers instance in tests ([ref](https://spring.io/blog/2023/06/23/improved-testcontainers-support-in-spring-boot-3-1))
+* [ ] Decrease the execution time of tests
 
 ### Git
 

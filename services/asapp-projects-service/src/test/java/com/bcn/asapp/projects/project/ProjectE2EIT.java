@@ -134,7 +134,7 @@ class ProjectE2EIT {
     }
 
     @Test
-    @DisplayName("GIVEN project id exists without tasks WHEN get a project by id THEN gets the project And returns HTTP response with status OK And the body with the project and empty list of tasks")
+    @DisplayName("GIVEN project id exists without tasks WHEN get a project by id THEN gets the project And returns HTTP response with status OK And the body with the project with empty list of tasks")
     void ProjectIdExistsWithoutTasks_GetProjectById_GetsProjectAndReturnsStatusOKAndBodyWithProjectWithEmptyListTasks() {
         // Given
         var fakeProject = new Project(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
