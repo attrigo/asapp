@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.bcn.asapp.tasks.task;
+package com.bcn.asapp.tasks.task.internal;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bcn.asapp.dto.task.TaskDTO;
+import com.bcn.asapp.tasks.task.TaskRestAPI;
+import com.bcn.asapp.tasks.task.TaskService;
 
 /**
  * Default implementation of {@link TaskRestAPI}.

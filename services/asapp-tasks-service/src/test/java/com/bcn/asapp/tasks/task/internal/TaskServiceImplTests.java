@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.bcn.asapp.tasks.task;
+package com.bcn.asapp.tasks.task.internal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -44,6 +44,9 @@ import org.mockito.Spy;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.bcn.asapp.dto.task.TaskDTO;
+import com.bcn.asapp.tasks.task.Task;
+import com.bcn.asapp.tasks.task.TaskMapperImpl;
+import com.bcn.asapp.tasks.task.TaskRepository;
 
 @ExtendWith(SpringExtension.class)
 class TaskServiceImplTests {
