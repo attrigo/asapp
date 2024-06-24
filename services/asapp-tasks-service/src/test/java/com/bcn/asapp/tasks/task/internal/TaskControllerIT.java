@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.bcn.asapp.tasks.task;
+package com.bcn.asapp.tasks.task.internal;
 
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_CREATE_FULL_PATH;
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_DELETE_BY_ID_FULL_PATH;
@@ -53,6 +53,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.bcn.asapp.dto.task.TaskDTO;
+import com.bcn.asapp.tasks.task.TaskService;
 
 @WebMvcTest(TaskRestController.class)
 class TaskControllerIT {

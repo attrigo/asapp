@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.bcn.asapp.projects.project;
+package com.bcn.asapp.projects.project.internal;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,6 +23,10 @@ import org.springframework.stereotype.Service;
 
 import com.bcn.asapp.clients.client.task.TaskClient;
 import com.bcn.asapp.dto.project.ProjectDTO;
+import com.bcn.asapp.projects.project.Project;
+import com.bcn.asapp.projects.project.ProjectMapper;
+import com.bcn.asapp.projects.project.ProjectRepository;
+import com.bcn.asapp.projects.project.ProjectService;
 
 /**
  * Default implementation of {@link ProjectService}.

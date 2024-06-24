@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.bcn.asapp.projects.project;
+package com.bcn.asapp.projects.project.internal;
 
 import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_CREATE_FULL_PATH;
 import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_DELETE_BY_ID_FULL_PATH;
@@ -54,6 +54,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.bcn.asapp.dto.project.ProjectDTO;
 import com.bcn.asapp.dto.task.TaskDTO;
+import com.bcn.asapp.projects.project.ProjectService;
 
 @WebMvcTest(ProjectRestController.class)
 class ProjectControllerIT {

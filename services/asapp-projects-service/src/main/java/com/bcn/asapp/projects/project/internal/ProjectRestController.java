@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.bcn.asapp.projects.project;
+package com.bcn.asapp.projects.project.internal;
 
 import java.util.List;
 import java.util.UUID;
@@ -23,6 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bcn.asapp.dto.project.ProjectDTO;
+import com.bcn.asapp.projects.project.ProjectRestAPI;
+import com.bcn.asapp.projects.project.ProjectService;
 
 /**
  * Default implementation of {@link ProjectRestAPI}.

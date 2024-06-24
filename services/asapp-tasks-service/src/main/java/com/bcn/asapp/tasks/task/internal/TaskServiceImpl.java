@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.bcn.asapp.tasks.task;
+package com.bcn.asapp.tasks.task.internal;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +22,10 @@ import java.util.UUID;
 import org.springframework.stereotype.Service;
 
 import com.bcn.asapp.dto.task.TaskDTO;
+import com.bcn.asapp.tasks.task.Task;
+import com.bcn.asapp.tasks.task.TaskMapper;
+import com.bcn.asapp.tasks.task.TaskRepository;
+import com.bcn.asapp.tasks.task.TaskService;
 
 /**
  * Default implementation of {@link TaskService}.
