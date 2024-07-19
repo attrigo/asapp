@@ -138,6 +138,7 @@
 ### Observability
 
 * [ ] Add database metrics dashboard
+* [ ] Add endpoints usage dashboard
 
 ### Security
 
@@ -160,6 +161,7 @@
 
 ### Tools
 
+* [ ] Add build cache to Maven ([ref](https://maven.apache.org/extensions/maven-build-cache-extension/))
 * [ ] Refactor Maven by Gradle
 * [ ] Improve code formatting
     * [ ] Add code formatter for .xml files
