@@ -19,9 +19,9 @@
 
     <properties>
         <!-- Dependencies Versions -->
-        <mapstruct.version>1.5.5.Final</mapstruct.version>
-        <springdoc-openapi-starter.version>2.5.0</springdoc-openapi-starter.version>
-        <mockserver.version>1.19.8</mockserver.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
+        <springdoc-openapi-starter.version>2.8.5</springdoc-openapi-starter.version>
+        <mockserver.version>1.20.5</mockserver.version>
         <mockserver-netty.version>5.15.0</mockserver-netty.version>
 
         <!-- Plugins Versions -->
