@@ -25,6 +25,18 @@ services:
       - POSTGRES_PASSWORD=secret
     volumes:
       - tasks-postgres-db-data:/data/db
+  asapp-uaa-postgres-db:
+    image: 'postgres:latest'
+    container_name: asapp-uaa-postgres-db
+    restart: unless-stopped
+    ports:
+      - '5434:5432'
+    environment:
+      - POSTGRES_DB=uaadb
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=secret
+    volumes:
+      - uaa-postgres-db-data:/data/db
 
   # Tools
   asapp-prometheus:
@@ -88,7 +100,27 @@ services:
       - DB_PASSWORD=secret
     depends_on:
       - asapp-tasks-postgres-db
+  asapp-uaa-service:
+    build: .
+    image: 'asapp-uaa-service:0.2.0-SNAPSHOT'
+    container_name: asapp-uaa-service
+    restart: unless-stopped
+    ports:
+      - '8082:8082'
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=8082
+      - DB_HOST=asapp-uaa-postgres-db
+      - DB_PORT=5432
+      - DB_NAME=uaadb
+      - DB_USERNAME=user
+      - DB_PASSWORD=secret
+      - ASAPP_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
+      - ASAPP_JWT_EXPIRATION=3600000
+    depends_on:
+      - asapp-uaa-postgres-db
 
 volumes:
   projects-postgres-db-data:
   tasks-postgres-db-data:
+  uaa-postgres-db-data:
