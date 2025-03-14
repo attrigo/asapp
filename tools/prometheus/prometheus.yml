@@ -14,3 +14,7 @@ scrape_configs:
     metrics_path: '/asapp-tasks-service/actuator/prometheus'
     static_configs:
       - targets: [ 'asapp-tasks-service:8081' ]
+  - job_name: 'asapp-uaa-service'
+    metrics_path: '/asapp-uaa-service/actuator/prometheus'
+    static_configs:
+      - targets: [ 'asapp-uaa-service:8082' ]
