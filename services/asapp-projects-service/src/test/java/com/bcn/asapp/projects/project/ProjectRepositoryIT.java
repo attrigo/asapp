@@ -25,6 +25,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
@@ -63,37 +64,41 @@ class ProjectRepositoryIT {
                                            .truncatedTo(ChronoUnit.MILLIS);
     }
 
-    // deleteProjectById
-    @Test
-    @DisplayName("GIVEN project id not exists WHEN delete a project by id THEN does not delete the project And returns zero")
-    void ProjectIdNotExists_DeleteProjectById_DoesNotDeleteProjectAndReturnsZero() {
-        // When
-        var idToDelete = UUID.randomUUID();
+    @Nested
+    class DeleteProjectById {
 
-        var actual = projectRepository.deleteProjectById(idToDelete);
+        @Test
+        @DisplayName("GIVEN project id not exists WHEN delete a project by id THEN does not delete the project And returns zero")
+        void ProjectIdNotExists_DeleteProjectById_DoesNotDeleteProjectAndReturnsZero() {
+            // When
+            var idToDelete = UUID.randomUUID();
 
-        // Then
-        assertEquals(0L, actual);
-    }
+            var actual = projectRepository.deleteProjectById(idToDelete);
 
-    @Test
-    @DisplayName("GIVEN project id exists WHEN delete a project by id THEN deletes the project And returns the amount of projects deleted")
-    void ProjectIdExists_DeleteProjectById_DeletesProjectAndReturnsAmountOfProjectsDeleted() {
-        // Given
-        var fakeProject = new Project(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
-        var projectToBeDeleted = projectRepository.save(fakeProject);
-        assertNotNull(projectToBeDeleted);
+            // Then
+            assertEquals(0L, actual);
+        }
 
-        // When
-        var idToDelete = projectToBeDeleted.id();
+        @Test
+        @DisplayName("GIVEN project id exists WHEN delete a project by id THEN deletes the project And returns the amount of projects deleted")
+        void ProjectIdExists_DeleteProjectById_DeletesProjectAndReturnsAmountOfProjectsDeleted() {
+            // Given
+            var fakeProject = new Project(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate);
+            var projectToBeDeleted = projectRepository.save(fakeProject);
+            assertNotNull(projectToBeDeleted);
 
-        var actual = projectRepository.deleteProjectById(idToDelete);
+            // When
+            var idToDelete = projectToBeDeleted.id();
 
-        // Then
-        assertEquals(1L, actual);
+            var actual = projectRepository.deleteProjectById(idToDelete);
 
-        assertFalse(projectRepository.findById(projectToBeDeleted.id())
-                                     .isPresent());
+            // Then
+            assertEquals(1L, actual);
+
+            assertFalse(projectRepository.findById(projectToBeDeleted.id())
+                                         .isPresent());
+        }
+
     }
 
 }

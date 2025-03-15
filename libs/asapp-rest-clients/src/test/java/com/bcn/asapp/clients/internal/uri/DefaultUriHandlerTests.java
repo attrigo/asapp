@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 class DefaultUriHandlerTests {
@@ -31,29 +32,33 @@ class DefaultUriHandlerTests {
         uriHandler = new DefaultUriHandler("http://localhost:8081/");
     }
 
-    // newInstance
-    @Test
-    @DisplayName("GIVEN is the first UriBuilder requested WHEN new instance THEN returns a new UriBuilder instance")
-    void IsFirstUriBuilderRequested_NewInstance_ReturnsNewUriBuilderInstance() {
-        // When
-        var actualUriBuilderInstance = uriHandler.newInstance();
+    @Nested
+    class NewInstance {
 
-        // Then
-        assertNotNull(actualUriBuilderInstance);
-    }
+        @Test
+        @DisplayName("GIVEN is the first UriBuilder requested WHEN new instance THEN returns a new UriBuilder instance")
+        void IsFirstUriBuilderRequested_NewInstance_ReturnsNewUriBuilderInstance() {
+            // When
+            var actualUriBuilderInstance = uriHandler.newInstance();
 
-    @Test
-    @DisplayName("GIVEN is not the first UriBuilder requested WHEN new instance THEN returns another UriBuilder instance")
-    void IsNotFirstUriBuilderRequested_NewInstance_ReturnsAnotherUriBuilderInstance() {
-        // Given
-        var unexpectedUriBuilderInstance = uriHandler.newInstance();
+            // Then
+            assertNotNull(actualUriBuilderInstance);
+        }
 
-        // When
-        var actualUriBuilderInstance = uriHandler.newInstance();
+        @Test
+        @DisplayName("GIVEN is not the first UriBuilder requested WHEN new instance THEN returns another UriBuilder instance")
+        void IsNotFirstUriBuilderRequested_NewInstance_ReturnsAnotherUriBuilderInstance() {
+            // Given
+            var unexpectedUriBuilderInstance = uriHandler.newInstance();
 
-        // Then
-        assertNotNull(actualUriBuilderInstance);
-        assertNotEquals(unexpectedUriBuilderInstance, actualUriBuilderInstance);
+            // When
+            var actualUriBuilderInstance = uriHandler.newInstance();
+
+            // Then
+            assertNotNull(actualUriBuilderInstance);
+            assertNotEquals(unexpectedUriBuilderInstance, actualUriBuilderInstance);
+        }
+
     }
 
 }

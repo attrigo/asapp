@@ -28,6 +28,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
@@ -66,70 +67,78 @@ class TaskRepositoryIT {
                                         .truncatedTo(ChronoUnit.MILLIS);
     }
 
-    // findByProjectId
-    @Test
-    @DisplayName("GIVEN there are not tasks with project id WHEN find tasks by project id THEN does not find any tasks And returns an empty list")
-    void ThereAreNotTasksWithProjectId_FindByProjectId_DoesNotFindTasksAndReturnsEmptyList() {
-        // When
-        var idToFind = UUID.randomUUID();
+    @Nested
+    class FindByProjectId {
 
-        var actualTasks = taskRepository.findByProjectId(idToFind);
+        @Test
+        @DisplayName("GIVEN there are not tasks with project id WHEN find tasks by project id THEN does not find any tasks And returns an empty list")
+        void ThereAreNotTasksWithProjectId_FindByProjectId_DoesNotFindTasksAndReturnsEmptyList() {
+            // When
+            var idToFind = UUID.randomUUID();
 
-        // Then
-        assertTrue(actualTasks.isEmpty());
+            var actualTasks = taskRepository.findByProjectId(idToFind);
+
+            // Then
+            assertTrue(actualTasks.isEmpty());
+        }
+
+        @Test
+        @DisplayName("GIVEN there are tasks with project id WHEN find tasks by project id THEN finds the tasks And returns an the tasks found")
+        void ThereAreTasksWithProjectId_FindByProjectId_FindsTasksAndReturnsTasksFound() {
+            var idToFind = UUID.randomUUID();
+
+            // Given
+            var fakeTask1 = new Task(null, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, idToFind);
+            var fakeTask2 = new Task(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, idToFind);
+            var fakeTask3 = new Task(null, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, idToFind);
+            var fakeTasks = List.of(fakeTask1, fakeTask2, fakeTask3);
+            var tasksToBeFound = taskRepository.saveAll(fakeTasks);
+            assertNotNull(tasksToBeFound);
+
+            // When
+            var actualTasks = taskRepository.findByProjectId(idToFind);
+
+            // Then
+            assertIterableEquals(tasksToBeFound, actualTasks);
+        }
+
     }
 
-    @Test
-    @DisplayName("GIVEN there are tasks with project id WHEN find tasks by project id THEN finds the tasks And returns an the tasks found")
-    void ThereAreTasksWithProjectId_FindByProjectId_FindsTasksAndReturnsTasksFound() {
-        var idToFind = UUID.randomUUID();
+    @Nested
+    class DeleteTaskById {
 
-        // Given
-        var fakeTask1 = new Task(null, fakeTaskTitle + " 1", fakeTaskDescription + " 1", fakeTaskStartDate, idToFind);
-        var fakeTask2 = new Task(null, fakeTaskTitle + " 2", fakeTaskDescription + " 2", fakeTaskStartDate, idToFind);
-        var fakeTask3 = new Task(null, fakeTaskTitle + " 3", fakeTaskDescription + " 3", fakeTaskStartDate, idToFind);
-        var fakeTasks = List.of(fakeTask1, fakeTask2, fakeTask3);
-        var tasksToBeFound = taskRepository.saveAll(fakeTasks);
-        assertNotNull(tasksToBeFound);
+        @Test
+        @DisplayName("GIVEN task id not exists WHEN delete a task by id THEN does not delete the task And returns zero")
+        void TaskIdNotExists_DeleteTaskById_DoesNotDeleteTaskAndReturnsZero() {
+            // When
+            var idToDelete = UUID.randomUUID();
 
-        // When
-        var actualTasks = taskRepository.findByProjectId(idToFind);
+            var actual = taskRepository.deleteTaskById(idToDelete);
 
-        // Then
-        assertIterableEquals(tasksToBeFound, actualTasks);
-    }
+            // Then
+            assertEquals(0L, actual);
+        }
 
-    // deleteTaskById
-    @Test
-    @DisplayName("GIVEN task id not exists WHEN delete a task by id THEN does not delete the task And returns zero")
-    void TaskIdNotExists_DeleteTaskById_DoesNotDeleteTaskAndReturnsZero() {
-        // When
-        var idToDelete = UUID.randomUUID();
+        @Test
+        @DisplayName("GIVEN task id exists WHEN delete a task by id THEN deletes the task And returns the amount of tasks deleted")
+        void TaskIdExists_DeleteTaskById_DeletesTaskAndReturnsAmountOfTasksDeleted() {
+            // Given
+            var fakeTask = new Task(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, UUID.randomUUID());
+            var taskToBeDeleted = taskRepository.save(fakeTask);
+            assertNotNull(taskToBeDeleted);
 
-        var actual = taskRepository.deleteTaskById(idToDelete);
+            // When
+            var idToDelete = taskToBeDeleted.id();
 
-        // Then
-        assertEquals(0L, actual);
-    }
+            var actual = taskRepository.deleteTaskById(idToDelete);
 
-    @Test
-    @DisplayName("GIVEN task id exists WHEN delete a task by id THEN deletes the task And returns the amount of tasks deleted")
-    void TaskIdExists_DeleteTaskById_DeletesTaskAndReturnsAmountOfTasksDeleted() {
-        // Given
-        var fakeTask = new Task(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, UUID.randomUUID());
-        var taskToBeDeleted = taskRepository.save(fakeTask);
-        assertNotNull(taskToBeDeleted);
+            // Then
+            assertEquals(1L, actual);
 
-        // When
-        var idToDelete = taskToBeDeleted.id();
+            assertFalse(taskRepository.findById(taskToBeDeleted.id())
+                                      .isPresent());
+        }
 
-        var actual = taskRepository.deleteTaskById(idToDelete);
-
-        // Then
-        assertEquals(1L, actual);
-
-        assertFalse(taskRepository.findById(taskToBeDeleted.id())
-                                  .isPresent());
     }
 
 }
