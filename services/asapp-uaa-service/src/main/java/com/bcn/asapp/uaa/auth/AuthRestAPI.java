@@ -30,6 +30,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 /**
@@ -38,6 +39,7 @@ import jakarta.validation.Valid;
  * @author ttrigo
  * @since 0.2.0
  */
+@Tag(name = "UAA operations", description = "Defines the RESTful API for handling user authentication operations")
 @RequestMapping(AUTH_ROOT_PATH)
 public interface AuthRestAPI {
 
