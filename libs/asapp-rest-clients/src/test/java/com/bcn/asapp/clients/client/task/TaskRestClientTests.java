@@ -34,6 +34,7 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
@@ -58,7 +59,7 @@ class TaskRestClientTests {
     private ObjectMapper objectMapper;
 
     @BeforeEach
-    public void setup() {
+    public void beforeEach() {
         RestClient.Builder restClientBuilder = RestClient.builder();
         this.mockServer = MockRestServiceServer.bindTo(restClientBuilder)
                                                .ignoreExpectOrder(true)
@@ -68,95 +69,99 @@ class TaskRestClientTests {
         this.objectMapper = new ObjectMapper().registerModule(new JavaTimeModule());
     }
 
-    // getTasksByProjectId
-    @Test
-    @DisplayName("GIVEN tasks service is not available WHEN get task by project id THEN returns null")
-    void TasksServiceIsNotAvailable_GetTasksByProjectId_ReturnsNull() {
-        // Given
-        var projectId = UUID.randomUUID();
+    @Nested
+    class GetTasksByProjectId {
 
-        mockServer.expect(requestToUriTemplate(TASKS_GET_BY_PROJECT_ID_FULL_PATH, projectId))
-                  .andExpect(method(HttpMethod.GET))
-                  .andRespond(withServerError().contentType(MediaType.APPLICATION_JSON));
+        @Test
+        @DisplayName("GIVEN tasks service is not available WHEN get task by project id THEN returns null")
+        void TasksServiceIsNotAvailable_GetTasksByProjectId_ReturnsNull() {
+            // Given
+            var projectId = UUID.randomUUID();
 
-        // When
-        var actualTasks = client.getTasksByProjectId(projectId);
+            mockServer.expect(requestToUriTemplate(TASKS_GET_BY_PROJECT_ID_FULL_PATH, projectId))
+                      .andExpect(method(HttpMethod.GET))
+                      .andRespond(withServerError().contentType(MediaType.APPLICATION_JSON));
 
-        // Then
-        assertNull(actualTasks);
+            // When
+            var actualTasks = client.getTasksByProjectId(projectId);
 
-        mockServer.verify();
-    }
+            // Then
+            assertNull(actualTasks);
 
-    @Test
-    @DisplayName("GIVEN id is not valid WHEN get task by project id THEN returns null")
-    void IdIsNotValid_GetTasksByProjectId_ReturnsNull() throws JsonProcessingException {
-        // Given
-        var expectedProblemDetails = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Failed to convert 'id' with value: 'project'");
-        var responseBody = objectMapper.writeValueAsString(expectedProblemDetails);
+            mockServer.verify();
+        }
 
-        mockServer.expect(requestTo("/v1/tasks/project/"))
-                  .andExpect(method(HttpMethod.GET))
-                  .andRespond(withBadRequest().body(responseBody)
-                                              .contentType(MediaType.APPLICATION_PROBLEM_JSON));
+        @Test
+        @DisplayName("GIVEN id is not valid WHEN get task by project id THEN returns null")
+        void IdIsNotValid_GetTasksByProjectId_ReturnsNull() throws JsonProcessingException {
+            // Given
+            var expectedProblemDetails = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Failed to convert 'id' with value: 'project'");
+            var responseBody = objectMapper.writeValueAsString(expectedProblemDetails);
 
-        // When
-        var actualTasks = client.getTasksByProjectId(null);
+            mockServer.expect(requestTo("/v1/tasks/project/"))
+                      .andExpect(method(HttpMethod.GET))
+                      .andRespond(withBadRequest().body(responseBody)
+                                                  .contentType(MediaType.APPLICATION_PROBLEM_JSON));
 
-        // Then
-        assertNull(actualTasks);
+            // When
+            var actualTasks = client.getTasksByProjectId(null);
 
-        mockServer.verify();
-    }
+            // Then
+            assertNull(actualTasks);
 
-    @Test
-    @DisplayName("GIVEN id not exist WHEN get task by project id THEN returns an empty list of tasks")
-    void IdNotExist_GetTasksByProjectId_ReturnsEmptyList() throws JsonProcessingException {
-        // Given
-        var expectedTasks = Collections.emptyList();
-        var responseBody = objectMapper.writeValueAsString(expectedTasks);
+            mockServer.verify();
+        }
 
-        var projectId = UUID.randomUUID();
+        @Test
+        @DisplayName("GIVEN id not exist WHEN get task by project id THEN returns an empty list of tasks")
+        void IdNotExist_GetTasksByProjectId_ReturnsEmptyList() throws JsonProcessingException {
+            // Given
+            var expectedTasks = Collections.emptyList();
+            var responseBody = objectMapper.writeValueAsString(expectedTasks);
 
-        mockServer.expect(requestToUriTemplate(TASKS_GET_BY_PROJECT_ID_FULL_PATH, projectId))
-                  .andExpect(method(HttpMethod.GET))
-                  .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            var projectId = UUID.randomUUID();
 
-        // When
-        var actualTasks = client.getTasksByProjectId(projectId);
+            mockServer.expect(requestToUriTemplate(TASKS_GET_BY_PROJECT_ID_FULL_PATH, projectId))
+                      .andExpect(method(HttpMethod.GET))
+                      .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
-        // Then
-        assertNotNull(actualTasks);
-        assertTrue(actualTasks.isEmpty());
-        assertEquals(expectedTasks, actualTasks);
+            // When
+            var actualTasks = client.getTasksByProjectId(projectId);
 
-        mockServer.verify();
-    }
+            // Then
+            assertNotNull(actualTasks);
+            assertTrue(actualTasks.isEmpty());
+            assertEquals(expectedTasks, actualTasks);
 
-    @Test
-    @DisplayName("GIVEN id exists WHEN get task by project id THEN returns the tasks of the project")
-    void IdExist_GetTasksByProjectId_ReturnsProjectTasks() throws JsonProcessingException {
-        // Given
-        var expectedTask1 = new TaskDTO(UUID.randomUUID(), "Test Title 1", "Test Description 1", Instant.now(), UUID.randomUUID());
-        var expectedTask2 = new TaskDTO(UUID.randomUUID(), "Test Title 2", "Test Description 2", Instant.now(), UUID.randomUUID());
-        var expectedTasks = List.of(expectedTask1, expectedTask2);
-        var responseBody = objectMapper.writeValueAsString(expectedTasks);
+            mockServer.verify();
+        }
 
-        var projectId = UUID.randomUUID();
+        @Test
+        @DisplayName("GIVEN id exists WHEN get task by project id THEN returns the tasks of the project")
+        void IdExist_GetTasksByProjectId_ReturnsProjectTasks() throws JsonProcessingException {
+            // Given
+            var expectedTask1 = new TaskDTO(UUID.randomUUID(), "Test Title 1", "Test Description 1", Instant.now(), UUID.randomUUID());
+            var expectedTask2 = new TaskDTO(UUID.randomUUID(), "Test Title 2", "Test Description 2", Instant.now(), UUID.randomUUID());
+            var expectedTasks = List.of(expectedTask1, expectedTask2);
+            var responseBody = objectMapper.writeValueAsString(expectedTasks);
 
-        mockServer.expect(requestToUriTemplate(TASKS_GET_BY_PROJECT_ID_FULL_PATH, projectId))
-                  .andExpect(method(HttpMethod.GET))
-                  .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
+            var projectId = UUID.randomUUID();
 
-        // When
-        var actualTasks = client.getTasksByProjectId(projectId);
+            mockServer.expect(requestToUriTemplate(TASKS_GET_BY_PROJECT_ID_FULL_PATH, projectId))
+                      .andExpect(method(HttpMethod.GET))
+                      .andRespond(withSuccess(responseBody, MediaType.APPLICATION_JSON));
 
-        // Then
-        assertNotNull(actualTasks);
-        assertEquals(2L, actualTasks.size());
-        assertEquals(expectedTasks, actualTasks);
+            // When
+            var actualTasks = client.getTasksByProjectId(projectId);
 
-        mockServer.verify();
+            // Then
+            assertNotNull(actualTasks);
+            assertEquals(2L, actualTasks.size());
+            assertEquals(expectedTasks, actualTasks);
+
+            mockServer.verify();
+        }
+
     }
 
 }
