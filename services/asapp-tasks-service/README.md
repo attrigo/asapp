@@ -61,7 +61,7 @@ In any case, if you prefer there is a way to only install this service:
 The application can be started in dev or docker mode.
 
 * Development mode.
-    1. Start an standalone database:
+    1. Start a standalone database:
         ```sh
         docker-compose up -d asapp-tasks-postgres-db
         ```
