@@ -5,7 +5,7 @@ services:
     container_name: asapp-tasks-postgres-db
     restart: unless-stopped
     ports:
-      - '5432:5432'
+      - '5433:5432'
     environment:
       - POSTGRES_DB=tasksdb
       - POSTGRES_USER=user
