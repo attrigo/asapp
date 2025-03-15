@@ -22,9 +22,18 @@ import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
 
 /**
- * Configuration for Open API.
+ * Open API configuration.
+ * <p>
+ * Sets up the OpenAPI documentation for the tasks Service API.
+ * <p>
+ * It uses {@link OpenAPIDefinition} to define metadata to define the security for the API.
+ * <p>
+ * This configuration ensures that the API documentation is generated and available for consumers of the tasks service.
  *
  * @author ttrigo
+ * @see OpenAPIDefinition
+ * @see Info
+ * @see License
  * @since 0.1.0
  */
 @Configuration

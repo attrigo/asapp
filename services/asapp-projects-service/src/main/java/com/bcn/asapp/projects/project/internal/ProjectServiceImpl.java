@@ -29,7 +29,7 @@ import com.bcn.asapp.projects.project.ProjectRepository;
 import com.bcn.asapp.projects.project.ProjectService;
 
 /**
- * Default implementation of {@link ProjectService}.
+ * Standard implementation of {@link ProjectService}.
  *
  * @author ttrigo
  * @since 0.1.0
@@ -45,10 +45,10 @@ public class ProjectServiceImpl implements ProjectService {
     private final TaskClient taskClient;
 
     /**
-     * Default constructor.
+     * Main constructor.
      *
-     * @param projectMapper     the mapper to map between {@link ProjectDTO} and {@link Project} and, must not be {@literal null}.
-     * @param projectRepository the repository to access project's data, must not be {@literal null}.
+     * @param projectMapper     the mapper to map between {@link ProjectDTO} and {@link Project} and.
+     * @param projectRepository the repository to access project's data.
      * @param taskClient        the HTTP client to call tasks service.
      */
     public ProjectServiceImpl(ProjectMapper projectMapper, ProjectRepository projectRepository, TaskClient taskClient) {

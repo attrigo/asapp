@@ -48,14 +48,12 @@ import jakarta.validation.Valid;
 import com.bcn.asapp.dto.task.TaskDTO;
 
 /**
- * Defines the endpoints to handle task requests and responses.
- * <p>
- * The web layer relies on Spring Web MVC to manage requests and responses.
+ * Defines the RESTful API for handling task operations.
  *
  * @author ttrigo
  * @since 0.1.0
  */
-@Tag(name = "Tasks operations", description = "Defines the endpoints to handle task requests")
+@Tag(name = "Tasks operations", description = "Defines the RESTful API for handling task operations")
 @RequestMapping(TASKS_ROOT_PATH)
 public interface TaskRestAPI {
 

@@ -47,14 +47,12 @@ import jakarta.validation.Valid;
 import com.bcn.asapp.dto.project.ProjectDTO;
 
 /**
- * Defines the endpoints to handle project requests and responses.
- * <p>
- * The web layer relies on Spring Web MVC to manage requests and responses.
+ * Defines the RESTful API for handling project operations.
  *
  * @author ttrigo
  * @since 0.1.0
  */
-@Tag(name = "Projects operations", description = "Defines the endpoints to handle project requests")
+@Tag(name = "Projects operations", description = "Defines the RESTful API for handling project operations")
 @RequestMapping(PROJECTS_ROOT_PATH)
 public interface ProjectRestAPI {
 

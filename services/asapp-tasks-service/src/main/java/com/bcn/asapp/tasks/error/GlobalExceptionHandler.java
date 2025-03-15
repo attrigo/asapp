@@ -35,9 +35,11 @@ import com.bcn.asapp.dto.error.InvalidRequestParameterDTO;
 /**
  * Provides a centralized way to handle the exceptions.
  * <p>
- * Maps exceptions to an appropriate HTTP response.
+ * It is responsible for handling and customizing the response to various exceptions. It extends {@link ResponseEntityExceptionHandler} to handle common Spring
+ * exceptions, such as validation errors, and return a consistent response format.
  *
  * @author ttrigo
+ * @see MethodArgumentNotValidException
  * @since 0.1.0
  */
 @RestControllerAdvice
@@ -58,10 +60,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Maps the wrong request fields ({@link FieldError}) to a more specific DTO {@link InvalidRequestParameterDTO}.
+     * Maps the invalid request fields ({@link FieldError}) to a more specific DTO {@link InvalidRequestParameterDTO}.
      *
-     * @param fieldErrors the wrong fields.
-     * @return a list of {@link InvalidRequestParameterDTO} that contains the wrong fields.
+     * @param fieldErrors the list of invalid fields to map.
+     * @return a list of {@link InvalidRequestParameterDTO} that contains the invalid fields.
      */
     private List<InvalidRequestParameterDTO> buildInvalidParametersDTO(List<FieldError> fieldErrors) {
         Function<FieldError, InvalidRequestParameterDTO> fieldErrorMapper = fieldError -> new InvalidRequestParameterDTO(fieldError.getObjectName(),

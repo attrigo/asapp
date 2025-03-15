@@ -27,7 +27,7 @@ import com.bcn.asapp.projects.project.ProjectRestAPI;
 import com.bcn.asapp.projects.project.ProjectService;
 
 /**
- * Default implementation of {@link ProjectRestAPI}.
+ * Standard implementation of {@link ProjectRestAPI}.
  *
  * @author ttrigo
  * @since 0.1.0
@@ -38,9 +38,9 @@ public class ProjectRestController implements ProjectRestAPI {
     private final ProjectService projectService;
 
     /**
-     * Default constructor.
+     * Main constructor.
      *
-     * @param projectService the service that brings project's business operations, must not be {@literal null}.
+     * @param projectService the service that brings project's business operations.
      */
     public ProjectRestController(ProjectService projectService) {
         this.projectService = projectService;

@@ -27,7 +27,7 @@ import com.bcn.asapp.tasks.task.TaskRestAPI;
 import com.bcn.asapp.tasks.task.TaskService;
 
 /**
- * Default implementation of {@link TaskRestAPI}.
+ * Standard implementation of {@link TaskRestAPI}.
  *
  * @author ttrigo
  * @since 0.1.0
@@ -38,9 +38,9 @@ public class TaskRestController implements TaskRestAPI {
     private final TaskService taskService;
 
     /**
-     * Default constructor.
+     * Main constructor.
      *
-     * @param taskService the service that brings task's business operations, must not be {@literal null}.
+     * @param taskService the service that brings task's business operations.
      */
     public TaskRestController(TaskService taskService) {
         this.taskService = taskService;

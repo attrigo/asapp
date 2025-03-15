@@ -28,6 +28,7 @@ import org.springframework.stereotype.Repository;
  *
  * @author ttrigo
  * @since 0.1.0
+ * @see ListCrudRepository
  */
 @Repository
 public interface TaskRepository extends ListCrudRepository<Task, UUID> {

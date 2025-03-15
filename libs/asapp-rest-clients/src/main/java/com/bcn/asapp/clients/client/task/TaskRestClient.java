@@ -42,7 +42,7 @@ public class TaskRestClient implements TaskClient {
     private final UriHandler tasksServiceUriHandler;
 
     /**
-     * Default constructor.
+     * Main constructor.
      *
      * @param restClientBuilder      the Spring's {@link RestClient.Builder}.
      * @param tasksServiceUriHandler the {@link UriHandler} to build REST tasks services URIs.

@@ -19,7 +19,7 @@ import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
 /**
- * Default implementation of {@link UriHandler}.
+ * Standard implementation of {@link UriHandler}.
  * <p>
  * Provides new instances of {@link UriBuilder} which are preconfigured with the base URI of a specific REST service.
  * <p>
@@ -30,7 +30,7 @@ public class DefaultUriHandler implements UriHandler {
     private final String baseUri;
 
     /**
-     * Default constructor.
+     * Main constructor.
      * 
      * @param baseUri the base URI of the target REST service.
      */
