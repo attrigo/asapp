@@ -35,7 +35,6 @@ import org.springframework.security.web.SecurityFilterChain;
  * Defines security filters and specifies the behavior of authentication and authorization across the application.
  *
  * @author ttrigo
- * @see JwtAuthenticationEntryPoint
  * @see SecurityFilterChain
  * @see PasswordEncoder
  * @see AuthenticationManager

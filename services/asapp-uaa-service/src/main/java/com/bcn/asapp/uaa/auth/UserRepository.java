@@ -34,7 +34,7 @@ public interface UserRepository extends ListCrudRepository<User, UUID> {
      * Finds the user with the given username.
      *
      * @param username the username of the user, must not be {@literal null}.
-     * @return {@link Optional} wrapping the user found, or an empty {@link Optional} if the given username has not been found.
+     * @return {@link Optional} containing the user found, or an empty {@link Optional} if the given username has not been found.
      */
     Optional<User> findByUsername(String username);
 
