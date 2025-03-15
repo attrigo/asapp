@@ -83,7 +83,7 @@ The application can be started in dev or docker mode.
 
 The project brings with an embedded [Swagger UI](https://swagger.io/tools/swagger-ui/), a web tool that facilitates the endpoints visualization and
 interaction. \
-You can use this [Swagger UI](http://localhost:8080/asapp-tasks-service/swagger-ui.html) or any other HTTP client to consume the API.
+You can use this [Swagger UI](http://localhost:8081/asapp-tasks-service/swagger-ui.html) or any other HTTP client to consume the API.
 
 > Dates sent in requests must follow standard ISO-8601 format.
 
