@@ -33,7 +33,7 @@ public interface TaskService {
      * Finds a task by the given id.
      *
      * @param id the id of the task to be found, must not be {@literal null}.
-     * @return {@link Optional} wrapping the task found, or an empty {@link Optional} if the given id has not been found.
+     * @return {@link Optional} containing the task found, or an empty {@link Optional} if the given id has not been found.
      */
     Optional<TaskDTO> findById(UUID id);
 
@@ -69,7 +69,7 @@ public interface TaskService {
      *
      * @param id          the id of the task to be updated, must not be {@literal null}.
      * @param newTaskData the new task data, must be a valid task.
-     * @return {@link Optional} wrapping the task updated with the new data, or an empty {@link Optional} if the given id has not been found.
+     * @return {@link Optional} containing the task updated with the new data, or an empty {@link Optional} if the given id has not been found.
      */
     Optional<TaskDTO> updateById(UUID id, TaskDTO newTaskData);
 

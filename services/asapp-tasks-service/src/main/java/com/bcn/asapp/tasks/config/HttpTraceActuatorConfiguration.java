@@ -20,24 +20,26 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * Configuration for Spring's Actuator HTTP traces.
+ * Spring's Actuator HTTP traces configuration.
+ * <p>
+ * Enables the use of HTTP tracing for monitoring and debugging purposes, providing visibility into the HTTP requests and responses processed by the
+ * application.
  * <p>
  * By default, traces are stored in memory.
  *
  * @author ttrigo
+ * @see InMemoryHttpExchangeRepository
  * @since 0.1.0
  */
 @Configuration
 public class HttpTraceActuatorConfiguration {
 
     /**
-     * Provides an {@link InMemoryHttpExchangeRepository} bean.
+     * Creates an {@link InMemoryHttpExchangeRepository} bean.
      * <p>
      * This bean is used to store HTTP traces in memory.
-     * <p>
-     * These traces can be accessed from Spring Actuator endpoint.
      *
-     * @return an in {@link InMemoryHttpExchangeRepository} instance.
+     * @return an instance of {@link InMemoryHttpExchangeRepository}.
      */
     @Bean
     InMemoryHttpExchangeRepository createTraceRepository() {

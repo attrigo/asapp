@@ -28,7 +28,7 @@ import com.bcn.asapp.tasks.task.TaskRepository;
 import com.bcn.asapp.tasks.task.TaskService;
 
 /**
- * Default implementation of {@link TaskService}.
+ * Standard implementation of {@link TaskService}.
  *
  * @author ttrigo
  * @since 0.1.0
@@ -42,10 +42,10 @@ public class TaskServiceImpl implements TaskService {
     private final TaskMapper taskMapper;
 
     /**
-     * Default constructor.
+     * Main constructor.
      *
-     * @param taskMapper     the mapper to map between {@link TaskDTO} and {@link Task} and, must not be {@literal null}.
-     * @param taskRepository the repository to access task's data, must not be {@literal null}.
+     * @param taskMapper     the mapper to map between {@link TaskDTO} and {@link Task} and.
+     * @param taskRepository the repository to access task's data.
      */
     public TaskServiceImpl(TaskMapper taskMapper, TaskRepository taskRepository) {
         this.taskMapper = taskMapper;

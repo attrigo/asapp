@@ -18,9 +18,13 @@ package com.bcn.asapp.tasks.config;
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
 
 /**
- * Configuration for Jdbc repositories.
+ * Jdbc repositories configuration.
+ * <p>
+ * Enables the use of JDBC repositories in the application. This allows the application to use Spring Data's JDBC support for data persistence and retrieval
+ * operations.
  *
  * @author ttrigo
+ * @see EnableJdbcRepositories
  * @since 0.1.0
  */
 @EnableJdbcRepositories

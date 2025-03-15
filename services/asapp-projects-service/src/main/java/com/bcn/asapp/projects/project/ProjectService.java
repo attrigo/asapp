@@ -35,7 +35,7 @@ public interface ProjectService {
      * Gets the tasks of the project from the tasks service.
      *
      * @param id the id of the project to be found, must not be {@literal null}.
-     * @return {@link Optional} wrapping the project found, or an empty {@link Optional} if the given id has not been found.
+     * @return {@link Optional} containing the project found, or an empty {@link Optional} if the given id has not been found.
      */
     Optional<ProjectDTO> findById(UUID id);
 
@@ -69,7 +69,7 @@ public interface ProjectService {
      *
      * @param id             the id of the project to be updated, must not be {@literal null}.
      * @param newProjectData the new project data, must be a valid project.
-     * @return {@link Optional} wrapping the project updated with the new data, or an empty {@link Optional} if the given id has not been found.
+     * @return {@link Optional} containing the project updated with the new data, or an empty {@link Optional} if the given id has not been found.
      */
     Optional<ProjectDTO> updateById(UUID id, ProjectDTO newProjectData);
 
