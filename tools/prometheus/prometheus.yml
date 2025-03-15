@@ -9,8 +9,8 @@ scrape_configs:
   - job_name: 'asapp-projects-service'
     metrics_path: '/asapp-projects-service/actuator/prometheus'
     static_configs:
-      - targets: [ 'asapp-projects-service:8081' ]
+      - targets: [ 'asapp-projects-service:8080' ]
   - job_name: 'asapp-tasks-service'
     metrics_path: '/asapp-tasks-service/actuator/prometheus'
     static_configs:
-      - targets: [ 'asapp-tasks-service:8080' ]
+      - targets: [ 'asapp-tasks-service:8081' ]

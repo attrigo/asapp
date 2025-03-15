@@ -28,7 +28,7 @@ class DefaultUriHandlerTests {
 
     @BeforeEach
     void beforeEach() {
-        uriHandler = new DefaultUriHandler("http://localhost:8080/");
+        uriHandler = new DefaultUriHandler("http://localhost:8081/");
     }
 
     // newInstance
