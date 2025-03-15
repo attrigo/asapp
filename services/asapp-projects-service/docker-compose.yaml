@@ -5,7 +5,7 @@ services:
     container_name: asapp-projects-postgres-db
     restart: unless-stopped
     ports:
-      - "5433:5432"
+      - "5432:5432"
     environment:
       - POSTGRES_DB=projectsdb
       - POSTGRES_USER=user
