@@ -9,12 +9,11 @@ asapp-tasks-service is a REST service application that publishes the following t
 * Update a task by id
 * Delete a task by id
 
-Each of these operations is exposed as an REST endpoint. \
-These business endpoints consumes and produces dates in standard ISO-8601 format.
+Each of these operations is exposed as an REST endpoint.
 
 There are also exposed several non-business REST endpoints which are produced by Spring Boot Actuator.
 
-The architecture is mainly based on Java 21 and Spring Boot 3.3, and it follows some of the [Microservice Architecture Principles](https://microservices.io/):
+The architecture is mainly based on Java 21 and Spring Boot 3.4, and it follows some of the [Microservice Architecture Principles](https://microservices.io/):
 
 * The [Database per service](https://microservices.io/patterns/data/database-per-service.html) pattern, where the Database is managed by the service, in this
   case the management of database changes are delegated to Liquibase.
