@@ -43,6 +43,7 @@ public interface ProjectMapper {
      * @param project the source {@link Project}.
      * @return the {@link ProjectDTO} containing all fields mapped from {@link Project}.
      */
+    @Mapping(target = "tasks", ignore = true)
     ProjectDTO toProjectDTO(Project project);
 
     /**
