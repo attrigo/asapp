@@ -17,7 +17,6 @@ package com.bcn.asapp.uaa.auth.internal;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -64,13 +63,12 @@ public class AuthServiceImpl implements AuthService {
      */
     @Override
     public LoginResponseDTO login(LoginRequestDTO loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()));
+        var authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.username(), loginRequest.password()));
 
         SecurityContextHolder.getContext()
                              .setAuthentication(authentication);
 
-        String jwt = jwtTokenProvider.generateToken(authentication);
+        var jwt = jwtTokenProvider.generateToken(authentication);
 
         return new LoginResponseDTO(jwt);
     }

@@ -16,7 +16,6 @@
 package com.bcn.asapp.uaa.config.security;
 
 import java.util.Date;
-import java.util.Optional;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -66,15 +65,15 @@ public class JwtTokenProvider {
      * @return a signed JWT.
      */
     public String generateToken(Authentication authentication) {
-        String username = authentication.getName();
-        Optional<String> optionalGrantedAuthority = authentication.getAuthorities()
-                                                                  .stream()
-                                                                  .findFirst()
-                                                                  .map(GrantedAuthority::getAuthority);
-        Role role = optionalGrantedAuthority.map(Role::valueOf)
-                                            .orElse(Role.ANONYMOUS);
-        Date issuedAtDate = new Date();
-        Date expirationDate = new Date(issuedAtDate.getTime() + jwtExpirationDate);
+        var username = authentication.getName();
+        var optionalGrantedAuthority = authentication.getAuthorities()
+                                                     .stream()
+                                                     .findFirst()
+                                                     .map(GrantedAuthority::getAuthority);
+        var role = optionalGrantedAuthority.map(Role::valueOf)
+                                           .orElse(Role.ANONYMOUS);
+        var issuedAtDate = new Date();
+        var expirationDate = new Date(issuedAtDate.getTime() + jwtExpirationDate);
 
         return Jwts.builder()
                    .subject(username)

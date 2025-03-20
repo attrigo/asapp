@@ -45,7 +45,7 @@ public class AuthRestController implements AuthRestAPI {
 
     @Override
     public ResponseEntity<LoginResponseDTO> login(LoginRequestDTO loginRequest) {
-        LoginResponseDTO loginResponse = authService.login(loginRequest);
+        var loginResponse = authService.login(loginRequest);
 
         return ResponseEntity.ok(loginResponse);
     }
