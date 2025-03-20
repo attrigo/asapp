@@ -44,7 +44,7 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableWebSecurity
 public class SecurityConfiguration {
 
-    private static final String[] WHITELIST_URLS = { "/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html" };
+    private static final String[] WHITELIST_URLS = { "/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/actuator/health" };
 
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
