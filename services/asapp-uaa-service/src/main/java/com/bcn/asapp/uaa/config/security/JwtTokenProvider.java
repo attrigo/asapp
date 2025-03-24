@@ -63,6 +63,7 @@ public class JwtTokenProvider {
      *
      * @param authentication the authentication object containing user details.
      * @return a signed JWT.
+     * @throws IllegalArgumentException if the authentication role is invalid.
      */
     public String generateToken(Authentication authentication) {
         var username = authentication.getName();
@@ -71,7 +72,7 @@ public class JwtTokenProvider {
                                                      .findFirst()
                                                      .map(GrantedAuthority::getAuthority);
         var role = optionalGrantedAuthority.map(Role::valueOf)
-                                           .orElse(Role.ANONYMOUS);
+                                           .orElseThrow(() -> new IllegalArgumentException("Authentication role is not valid"));
         var issuedAtDate = new Date();
         var expirationDate = new Date(issuedAtDate.getTime() + jwtExpirationDate);
 

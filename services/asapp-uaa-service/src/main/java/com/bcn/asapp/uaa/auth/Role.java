@@ -22,5 +22,5 @@ package com.bcn.asapp.uaa.auth;
  * @since 0.2.0
  */
 public enum Role {
-    ADMIN, USER, ANONYMOUS
+    ADMIN, USER
 }
