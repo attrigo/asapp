@@ -15,7 +15,7 @@
 */
 package com.bcn.asapp.uaa.auth;
 
-import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_POST_LOGIN_PATH;
+import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_LOGIN_PATH;
 import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_ROOT_PATH;
 
 import org.springframework.http.HttpStatus;
@@ -60,7 +60,7 @@ public interface AuthRestAPI {
     @ApiResponse(responseCode = "200", description = "The user has been logged in", content = {
             @Content(schema = @Schema(implementation = LoginResponseDTO.class)) })
     @ApiResponse(responseCode = "401", description = "The user could not log in", content = { @Content })
-    @PostMapping(value = AUTH_POST_LOGIN_PATH, consumes = "application/json", produces = "application/json")
+    @PostMapping(value = AUTH_LOGIN_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest);
 
