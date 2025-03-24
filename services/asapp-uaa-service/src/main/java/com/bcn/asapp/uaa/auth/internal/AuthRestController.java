@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bcn.asapp.uaa.auth.AuthRestAPI;
 import com.bcn.asapp.uaa.auth.AuthService;
-import com.bcn.asapp.uaa.auth.LoginRequestDTO;
-import com.bcn.asapp.uaa.auth.LoginResponseDTO;
+import com.bcn.asapp.uaa.auth.AuthenticationDTO;
+import com.bcn.asapp.uaa.auth.UserCredentialsDTO;
 
 /**
  * Standard implementation of {@link AuthRestAPI}.
@@ -44,10 +44,9 @@ public class AuthRestController implements AuthRestAPI {
     }
 
     @Override
-    public ResponseEntity<LoginResponseDTO> login(LoginRequestDTO loginRequest) {
-        var loginResponse = authService.login(loginRequest);
-
-        return ResponseEntity.ok(loginResponse);
+    public ResponseEntity<AuthenticationDTO> login(UserCredentialsDTO userCredentials) {
+        var authentication = authService.login(userCredentials);
+        return ResponseEntity.ok(authentication);
     }
 
 }
