@@ -15,10 +15,15 @@
 */
 package com.bcn.asapp.uaa.auth;
 
+import jakarta.validation.constraints.NotBlank;
+
 /**
- * Represents the data returned by the login endpoint.
+ * Represents a user credentials DTO.
+ * <p>
+ * The user data required to perform the authentication in the login operation.
  *
  * @author ttrigo
  * @since 0.2.0
  */
-public record LoginResponseDTO(String jwt) {}
+public record UserCredentialsDTO(@NotBlank(message = "The username is mandatory") String username,
+        @NotBlank(message = "The password is mandatory") String password) {}

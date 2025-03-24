@@ -52,16 +52,16 @@ public interface AuthRestAPI {
      * <li>401-UNAUTHORIZED : The user could not log in.</li>
      * </ul>
      *
-     * @param loginRequest the login credentials provided by the user (username and password).
-     * @return a {@link ResponseEntity} wrapping the login details if the login is successful.
+     * @param userCredentials the user credentials provided by the user (username and password).
+     * @return a {@link ResponseEntity} wrapping the authentication details if the login is successful.
      * @throws AuthenticationException if the credentials are invalid.
      */
-    @Operation(summary = "Logs in the given user", description = "Logins the given user and returns the login details")
+    @Operation(summary = "Logs in the user with the given credentials", description = "Logins the given user and returns the authentication details")
     @ApiResponse(responseCode = "200", description = "The user has been logged in", content = {
-            @Content(schema = @Schema(implementation = LoginResponseDTO.class)) })
+            @Content(schema = @Schema(implementation = AuthenticationDTO.class)) })
     @ApiResponse(responseCode = "401", description = "The user could not log in", content = { @Content })
     @PostMapping(value = AUTH_LOGIN_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<LoginResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest);
+    ResponseEntity<AuthenticationDTO> login(@Valid @RequestBody UserCredentialsDTO userCredentials);
 
 }

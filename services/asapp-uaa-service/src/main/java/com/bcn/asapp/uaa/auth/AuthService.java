@@ -28,10 +28,10 @@ public interface AuthService {
     /**
      * Logs in the user with the given credentials.
      *
-     * @param loginRequest the user credentials.
-     * @return the login details.
+     * @param userCredentials the user credentials.
+     * @return the authentication details.
      * @throws AuthenticationException if the authentication fails.
      */
-    LoginResponseDTO login(LoginRequestDTO loginRequest);
+    AuthenticationDTO login(UserCredentialsDTO userCredentials);
 
 }
