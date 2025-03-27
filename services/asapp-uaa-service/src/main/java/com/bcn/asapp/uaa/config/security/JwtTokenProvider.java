@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -43,17 +44,17 @@ public class JwtTokenProvider {
 
     private final SecretKey secretKey;
 
-    private final Long jwtExpirationDate;
+    private final Long jwtExpirationTime;
 
     /**
      * Main constructor.
      *
      * @param jwtSecret         the jwt secret used to sign the JWT (from application properties).
-     * @param jwtExpirationDate the jwt expiration date in milliseconds (from application properties).
+     * @param jwtExpirationTime the jwt expiration time in milliseconds (from application properties).
      */
-    public JwtTokenProvider(@Value("${asapp.jwt-secret}") String jwtSecret, @Value("${asapp.jwt-expiration}") String jwtExpirationDate) {
+    public JwtTokenProvider(@Value("${asapp.jwt-secret}") String jwtSecret, @Value("${asapp.jwt-expiration-time}") Long jwtExpirationTime) {
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
-        this.jwtExpirationDate = Long.valueOf(jwtExpirationDate);
+        this.jwtExpirationTime = jwtExpirationTime;
     }
 
     /**
@@ -61,20 +62,25 @@ public class JwtTokenProvider {
      * <p>
      * The token contains the username and role as claims, and has an expiration time set based on the configured expiration date.
      *
-     * @param authentication the authentication object containing user details.
+     * @param authentication the authentication object containing user details, must not be {@literal null}.
      * @return a signed JWT.
-     * @throws IllegalArgumentException if the authentication role is invalid.
+     * @throws IllegalArgumentException if the authentication is null, its username or authorities are null or empty.
+     * @throws IllegalArgumentException if the authentication authority is invalid.
      */
     public String generateToken(Authentication authentication) {
+        Assert.notNull(authentication, "Authentication must not be null");
+        Assert.hasText(authentication.getName(), "Authentication name must not be null or empty");
+
         var username = authentication.getName();
-        var optionalGrantedAuthority = authentication.getAuthorities()
-                                                     .stream()
-                                                     .findFirst()
-                                                     .map(GrantedAuthority::getAuthority);
-        var role = optionalGrantedAuthority.map(Role::valueOf)
-                                           .orElseThrow(() -> new IllegalArgumentException("Authentication role is not valid"));
+        var role = authentication.getAuthorities()
+                                 .stream()
+                                 .findFirst()
+                                 .map(GrantedAuthority::getAuthority)
+                                 .map(this::mapAuthorityToRole)
+                                 .orElseThrow(() -> new IllegalArgumentException("Authentication authorities must not be empty"));
+
         var issuedAtDate = new Date();
-        var expirationDate = new Date(issuedAtDate.getTime() + jwtExpirationDate);
+        var expirationDate = new Date(issuedAtDate.getTime() + jwtExpirationTime);
 
         return Jwts.builder()
                    .subject(username)
@@ -83,6 +89,23 @@ public class JwtTokenProvider {
                    .expiration(expirationDate)
                    .signWith(secretKey)
                    .compact();
+    }
+
+    /**
+     * Maps the given authority string to a corresponding {@link Role} enum.
+     *
+     * @param authority the authority string to be mapped to a {@link Role}.
+     * @return the {@link Role} enum corresponding to the given authority.
+     * @throws IllegalArgumentException if the provided authority does not match any valid {@link Role}.
+     */
+    private Role mapAuthorityToRole(String authority) {
+
+        try {
+            return Role.valueOf(authority);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Authentication authority is not valid");
+        }
+
     }
 
 }
