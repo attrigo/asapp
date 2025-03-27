@@ -27,6 +27,8 @@ public class AuthRestAPIURL {
 
     public static final String AUTH_LOGIN_PATH = "/login";
 
+    public static final String AUTH_LOGIN_FULL_PATH = AUTH_ROOT_PATH + AUTH_LOGIN_PATH;
+
     private AuthRestAPIURL() {}
 
 }
