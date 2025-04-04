@@ -80,6 +80,7 @@ services:
       - DB_NAME=projectsdb
       - DB_USERNAME=user
       - DB_PASSWORD=secret
+      - ASAPP_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
       - ASAPP_TASKS_SERVICE_BASE_URL=http://asapp-tasks-service:8081/asapp-tasks-service
     depends_on:
       - asapp-projects-postgres-db
@@ -98,6 +99,7 @@ services:
       - DB_NAME=tasksdb
       - DB_USERNAME=user
       - DB_PASSWORD=secret
+      - ASAPP_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
     depends_on:
       - asapp-tasks-postgres-db
   asapp-uaa-service:
