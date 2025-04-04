@@ -34,6 +34,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -43,6 +44,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.HttpHeaders;
@@ -53,9 +56,14 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+
 import com.bcn.asapp.dto.task.TaskDTO;
 import com.bcn.asapp.tasks.AsappTasksServiceApplication;
 
+@AutoConfigureWebTestClient(timeout = "30000")
 @Testcontainers(disabledWithoutDocker = true)
 @SpringBootTest(classes = AsappTasksServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 class TaskE2EIT {
@@ -81,8 +89,12 @@ class TaskE2EIT {
     private UUID fakeProjectId;
 
     @BeforeEach
-    void beforeEach() {
+    void beforeEach(@Value("${asapp.jwt-secret}") String jwtSecret, @Value("${asapp.jwt-expiration-time}") Long jwtExpirationTime) {
         taskRepository.deleteAll();
+
+        webTestClient = webTestClient.mutate()
+                                     .defaultHeader(HttpHeaders.AUTHORIZATION, generateJwt(jwtSecret, jwtExpirationTime))
+                                     .build();
 
         this.fakeTaskId = UUID.randomUUID();
         this.fakeTaskTitle = "E2E IT Title";
@@ -486,6 +498,19 @@ class TaskE2EIT {
                                       .isPresent());
         }
 
+    }
+
+    private String generateJwt(String jwtSecret, Long jwtExpirationTime) {
+        var issuedAtDate = new Date();
+        var expirationDate = new Date(issuedAtDate.getTime() + jwtExpirationTime);
+        var jwt = Jwts.builder()
+                      .subject("IT username")
+                      .claim("role", "USER")
+                      .issuedAt(issuedAtDate)
+                      .expiration(expirationDate)
+                      .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret)))
+                      .compact();
+        return "Bearer " + jwt;
     }
 
 }

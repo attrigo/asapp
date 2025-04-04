@@ -29,6 +29,7 @@ services:
       - DB_USERNAME=user
       - DB_PASSWORD=secret
       - ASAPP_TASKS_SERVICE_BASE_URL=http://asapp-tasks-service:8081/asapp-tasks-service
+      - ASAPP_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
     depends_on:
       - asapp-projects-postgres-db
 

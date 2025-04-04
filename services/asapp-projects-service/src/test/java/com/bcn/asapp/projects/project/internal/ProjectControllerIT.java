@@ -46,7 +46,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -55,9 +58,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.bcn.asapp.dto.project.ProjectDTO;
 import com.bcn.asapp.dto.task.TaskDTO;
+import com.bcn.asapp.projects.config.security.JwtAuthenticationFilter;
 import com.bcn.asapp.projects.project.ProjectService;
 
-@WebMvcTest(ProjectRestController.class)
+@AutoConfigureMockMvc(addFilters = false)
+@WebMvcTest(value = ProjectRestController.class, excludeFilters = {
+        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = JwtAuthenticationFilter.class) })
 class ProjectControllerIT {
 
     public static final String PROJECTS_EMPTY_ID_PATH = PROJECTS_ROOT_PATH + "/";

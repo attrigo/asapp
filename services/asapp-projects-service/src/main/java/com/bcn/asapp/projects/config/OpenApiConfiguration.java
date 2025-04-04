@@ -18,15 +18,17 @@ package com.bcn.asapp.projects.config;
 import org.springframework.context.annotation.Configuration;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 
 /**
  * Open API configuration.
  * <p>
  * Sets up the OpenAPI documentation for the projects Service API.
  * <p>
- * It uses {@link OpenAPIDefinition} to define metadata to define the security for the API.
+ * It uses {@link OpenAPIDefinition} to define metadata and {@link SecurityScheme} to define the security for the API.
  * <p>
  * This configuration ensures that the API documentation is generated and available for consumers of the projects service.
  *
@@ -34,8 +36,10 @@ import io.swagger.v3.oas.annotations.info.License;
  * @see OpenAPIDefinition
  * @see Info
  * @see License
+ * @see SecurityScheme
  * @since 0.1.0
  */
 @Configuration
 @OpenAPIDefinition(info = @Info(title = "Project Service API", version = "0.2.0-SNAPSHOT", description = "Provides CRUD operations for Projects", license = @License(name = "Apache-2.0", url = "https://www.apache.org/licenses/LICENSE-2.0")))
+@SecurityScheme(type = SecuritySchemeType.HTTP, name = "Bearer Authentication", scheme = "bearer", bearerFormat = "JWT")
 public class OpenApiConfiguration {}

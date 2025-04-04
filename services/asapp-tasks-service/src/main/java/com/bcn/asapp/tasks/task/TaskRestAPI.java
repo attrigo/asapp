@@ -42,6 +42,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -54,6 +55,7 @@ import com.bcn.asapp.dto.task.TaskDTO;
  * @since 0.1.0
  */
 @Tag(name = "Tasks operations", description = "Defines the RESTful API for handling task operations")
+@SecurityRequirement(name = "Bearer Authentication")
 @RequestMapping(TASKS_ROOT_PATH)
 public interface TaskRestAPI {
 
