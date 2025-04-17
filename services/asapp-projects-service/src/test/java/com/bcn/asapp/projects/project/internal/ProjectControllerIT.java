@@ -46,11 +46,11 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -58,12 +58,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.bcn.asapp.dto.project.ProjectDTO;
 import com.bcn.asapp.dto.task.TaskDTO;
-import com.bcn.asapp.projects.config.security.JwtAuthenticationFilter;
+import com.bcn.asapp.projects.config.security.JwtAuthenticationEntryPoint;
+import com.bcn.asapp.projects.config.security.JwtTokenProvider;
+import com.bcn.asapp.projects.config.security.SecurityConfiguration;
 import com.bcn.asapp.projects.project.ProjectService;
 
-@AutoConfigureMockMvc(addFilters = false)
-@WebMvcTest(value = ProjectRestController.class, excludeFilters = {
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = JwtAuthenticationFilter.class) })
+@Import(value = { SecurityConfiguration.class, JwtTokenProvider.class, JwtAuthenticationEntryPoint.class })
+@WebMvcTest(ProjectRestController.class)
+@WithMockUser
 class ProjectControllerIT {
 
     public static final String PROJECTS_EMPTY_ID_PATH = PROJECTS_ROOT_PATH + "/";
@@ -103,6 +105,19 @@ class ProjectControllerIT {
 
     @Nested
     class GetProjectById {
+
+        @Test
+        @WithAnonymousUser
+        @DisplayName("GIVEN JWT is not present WHEN get project by id THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtIsNotPresent_GetProjectById_ReturnsStatusUnauthorizedAndEmptyBody() throws Exception {
+            // When & Then
+            var idToFind = fakeProjectId;
+
+            var requestBuilder = get(PROJECTS_GET_BY_ID_FULL_PATH, idToFind);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().isUnauthorized())
+                   .andExpect(jsonPath("$").doesNotExist());
+        }
 
         @Test
         @DisplayName("GIVEN project id is empty WHEN get a project by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
@@ -178,6 +193,17 @@ class ProjectControllerIT {
     class GetAllProjects {
 
         @Test
+        @WithAnonymousUser
+        @DisplayName("GIVEN JWT is not present WHEN get all projects THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtIsNotPresent_GetAllProjects_ReturnsStatusUnauthorizedAndEmptyBody() throws Exception {
+            // When & Then
+            var requestBuilder = get(PROJECTS_GET_ALL_FULL_PATH);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().isUnauthorized())
+                   .andExpect(jsonPath("$").doesNotExist());
+        }
+
+        @Test
         @DisplayName("GIVEN there are not projects WHEN get all projects THEN returns HTTP response with status OK And an empty body")
         void ThereAreNotProjects_GetAllProjects_ReturnsStatusOkAndEmptyBody() throws Exception {
             // Given
@@ -237,6 +263,21 @@ class ProjectControllerIT {
 
     @Nested
     class CreateProject {
+
+        @Test
+        @WithAnonymousUser
+        @DisplayName("GIVEN JWT is not present WHEN create a project THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtIsNotPresent_CreateProject_ReturnsStatusUnauthorizedAndEmptyBody() throws Exception {
+            // When & Then
+            var projectToCreate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
+            var projectToCreateAsJson = objectMapper.writeValueAsString(projectToCreate);
+
+            var requestBuilder = post(PROJECTS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                                .content(projectToCreateAsJson);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().isUnauthorized())
+                   .andExpect(jsonPath("$").doesNotExist());
+        }
 
         @Test
         @DisplayName("GIVEN project fields are not a valid Json WHEN create a project THEN returns HTTP response with status Unsupported Media Type And the body with the problem details")
@@ -369,6 +410,22 @@ class ProjectControllerIT {
 
     @Nested
     class UpdateProjectById {
+
+        @Test
+        @WithAnonymousUser
+        @DisplayName("GIVEN JWT is not present WHEN update a project by id THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtIsNotPresent_UpdateProjectById_ReturnsStatusUnauthorizedAndEmptyBody() throws Exception {
+            // When & Then
+            var idToUpdate = fakeProjectId;
+            var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
+            var projectToUpdateAsJson = objectMapper.writeValueAsString(projectToUpdate);
+
+            var requestBuilder = put(PROJECTS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
+                                                                                 .content(projectToUpdateAsJson);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().isUnauthorized())
+                   .andExpect(jsonPath("$").doesNotExist());
+        }
 
         @Test
         @DisplayName("GIVEN project id is empty WHEN update a project by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
@@ -564,6 +621,19 @@ class ProjectControllerIT {
 
     @Nested
     class DeleteProjectById {
+
+        @Test
+        @WithAnonymousUser
+        @DisplayName("GIVEN JWT is not present WHEN delete a project by id THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtIsNotPresent_UpdateProjectById_ReturnsStatusUnauthorizedAndEmptyBody() throws Exception {
+            // When & Then
+            var idToDelete = fakeProjectId;
+
+            var requestBuilder = delete(PROJECTS_DELETE_BY_ID_FULL_PATH, idToDelete);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().isUnauthorized())
+                   .andExpect(jsonPath("$").doesNotExist());
+        }
 
         @Test
         @DisplayName("GIVEN project id is empty WHEN delete a project by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
