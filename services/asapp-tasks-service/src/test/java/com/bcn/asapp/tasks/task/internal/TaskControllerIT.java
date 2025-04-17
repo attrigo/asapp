@@ -46,23 +46,25 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import com.bcn.asapp.dto.task.TaskDTO;
-import com.bcn.asapp.tasks.config.security.JwtAuthenticationFilter;
+import com.bcn.asapp.tasks.config.security.JwtAuthenticationEntryPoint;
+import com.bcn.asapp.tasks.config.security.JwtTokenProvider;
+import com.bcn.asapp.tasks.config.security.SecurityConfiguration;
 import com.bcn.asapp.tasks.task.TaskService;
 
-@AutoConfigureMockMvc(addFilters = false)
-@WebMvcTest(value = TaskRestController.class, excludeFilters = {
-        @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = JwtAuthenticationFilter.class) })
+@Import(value = { SecurityConfiguration.class, JwtTokenProvider.class, JwtAuthenticationEntryPoint.class })
+@WebMvcTest(TaskRestController.class)
+@WithMockUser
 class TaskControllerIT {
 
     public static final String TASKS_EMPTY_ID_PATH = TASKS_ROOT_PATH + "/";
@@ -98,6 +100,19 @@ class TaskControllerIT {
 
     @Nested
     class GetTaskById {
+
+        @Test
+        @WithAnonymousUser
+        @DisplayName("GIVEN JWT is not present WHEN get task by id THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtIsNotPresent_GetTaskById_ReturnsStatusUnauthorizedAndEmptyBody() throws Exception {
+            // When & Then
+            var idToFind = fakeTaskId;
+
+            var requestBuilder = get(TASKS_GET_BY_ID_FULL_PATH, idToFind);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().isUnauthorized())
+                   .andExpect(jsonPath("$").doesNotExist());
+        }
 
         @Test
         @DisplayName("GIVEN task id is empty WHEN get a task by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
@@ -173,6 +188,17 @@ class TaskControllerIT {
     class GetAllTasks {
 
         @Test
+        @WithAnonymousUser
+        @DisplayName("GIVEN JWT is not present WHEN get all tasks THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtIsNotPresent_GetAllTasks_ReturnsStatusUnauthorizedAndEmptyBody() throws Exception {
+            // When & Then
+            var requestBuilder = get(TASKS_GET_ALL_FULL_PATH);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().isUnauthorized())
+                   .andExpect(jsonPath("$").doesNotExist());
+        }
+
+        @Test
         @DisplayName("GIVEN there are not tasks WHEN get all tasks THEN returns HTTP response with status OK And an empty body")
         void ThereAreNotTasks_GetAllTasks_ReturnsStatusOkAndEmptyBody() throws Exception {
             // Given
@@ -232,6 +258,19 @@ class TaskControllerIT {
 
     @Nested
     class GetTasksByProjectId {
+
+        @Test
+        @WithAnonymousUser
+        @DisplayName("GIVEN JWT is not present WHEN get tasks by project id THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtIsNotPresent_GetTasksByProjectId_ReturnsStatusUnauthorizedAndEmptyBody() throws Exception {
+            // When & Then
+            var idToFind = fakeProjectId;
+
+            var requestBuilder = get(TASKS_GET_BY_PROJECT_ID_FULL_PATH, idToFind);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().isUnauthorized())
+                   .andExpect(jsonPath("$").doesNotExist());
+        }
 
         @Test
         @DisplayName("GIVEN project id is empty WHEN get tasks by project id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
@@ -329,6 +368,21 @@ class TaskControllerIT {
 
     @Nested
     class CreateTask {
+
+        @Test
+        @WithAnonymousUser
+        @DisplayName("GIVEN JWT is not present WHEN create a task THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtIsNotPresent_CreateTask_ReturnsStatusUnauthorizedAndEmptyBody() throws Exception {
+            // When & Then
+            var taskToCreate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
+            var taskToCreateAsJson = objectMapper.writeValueAsString(taskToCreate);
+
+            var requestBuilder = post(TASKS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                             .content(taskToCreateAsJson);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().isUnauthorized())
+                   .andExpect(jsonPath("$").doesNotExist());
+        }
 
         @Test
         @DisplayName("GIVEN task fields are not a valid Json WHEN create a task THEN returns HTTP response with status Unsupported Media Type And the body with the problem details")
@@ -487,6 +541,22 @@ class TaskControllerIT {
 
     @Nested
     class UpdateTaskById {
+
+        @Test
+        @WithAnonymousUser
+        @DisplayName("GIVEN JWT is not present WHEN update a task by id THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtIsNotPresent_UpdateTaskById_ReturnsStatusUnauthorizedAndEmptyBody() throws Exception {
+            // When & Then
+            var idToUpdate = fakeTaskId;
+            var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
+            var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
+
+            var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
+                                                                              .content(taskToUpdateAsJson);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().isUnauthorized())
+                   .andExpect(jsonPath("$").doesNotExist());
+        }
 
         @Test
         @DisplayName("GIVEN task id is empty WHEN update a task by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
@@ -709,6 +779,19 @@ class TaskControllerIT {
 
     @Nested
     class DeleteTaskById {
+
+        @Test
+        @WithAnonymousUser
+        @DisplayName("GIVEN JWT is not present WHEN delete a task by id THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtIsNotPresent_DeleteTaskById_ReturnsStatusUnauthorizedAndEmptyBody() throws Exception {
+            // When
+            var idToDelete = fakeTaskId;
+
+            var requestBuilder = delete(TASKS_DELETE_BY_ID_FULL_PATH, idToDelete);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().isUnauthorized())
+                   .andExpect(jsonPath("$").doesNotExist());
+        }
 
         @Test
         @DisplayName("GIVEN task id is empty WHEN delete a task by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")

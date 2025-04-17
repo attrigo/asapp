@@ -20,20 +20,17 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Date;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
+
+import com.bcn.asapp.tasks.testutil.JwtTestGenerator;
 
 class JwtTokenProviderTests {
 
@@ -43,13 +40,17 @@ class JwtTokenProviderTests {
 
     private JwtTokenProvider jwtTokenProvider;
 
+    private JwtTestGenerator jwtTestGenerator;
+
     private String fakeUsername;
 
     @BeforeEach
     void beforeEach() {
         this.jwtTokenProvider = new JwtTokenProvider(UT_JWT_SECRET);
 
-        this.fakeUsername = "UT username";
+        this.jwtTestGenerator = new JwtTestGenerator(UT_JWT_SECRET, UT_JWT_EXPIRATION_TIME);
+
+        this.fakeUsername = "TEST USERNAME";
     }
 
     @Nested
@@ -88,7 +89,7 @@ class JwtTokenProviderTests {
         @DisplayName("GIVEN token signature is invalid WHEN get username from token THEN does not get the username And throws SignatureException")
         void TokenSignatureIsInvalid_GetUsername_DoesNotGetUsernameAndThrowsSignatureException() {
             // When & Then
-            var tokenSignatureInvalid = generateJwtWithInvalidSignature();
+            var tokenSignatureInvalid = jwtTestGenerator.generateJwtWithInvalidSignature();
 
             assertThrows(SignatureException.class, () -> jwtTokenProvider.getUsername(tokenSignatureInvalid));
         }
@@ -97,7 +98,7 @@ class JwtTokenProviderTests {
         @DisplayName("GIVEN token has expired WHEN get username from token THEN does not get the username And throws ExpiredJwtException")
         void TokenHasExpired_GetUsername_DoesNotGetUsernameAndThrowsExpiredJwtException() {
             // When & Then
-            var tokenExpired = generateJwtExpired();
+            var tokenExpired = jwtTestGenerator.generateJwtExpired();
 
             assertThrows(ExpiredJwtException.class, () -> jwtTokenProvider.getUsername(tokenExpired));
         }
@@ -106,7 +107,7 @@ class JwtTokenProviderTests {
         @DisplayName("GIVEN token has not been protected WHEN get username from token THEN does not get the username And throws UnsupportedJwtException")
         void TokenIsNotSigned_GetUsername_DoesNotGetUsernameAndThrowsUnsupportedJwtException() {
             // When & Then
-            var tokenNotSigned = generateJwtNotSigned();
+            var tokenNotSigned = jwtTestGenerator.generateJwtNotSigned();
 
             assertThrows(UnsupportedJwtException.class, () -> jwtTokenProvider.getUsername(tokenNotSigned));
         }
@@ -115,7 +116,7 @@ class JwtTokenProviderTests {
         @DisplayName("GIVEN token does not have username WHEN get username from token THEN does not get the username And returns empty")
         void TokenHasNotUsername_GetUsername_DoesNotGetUsernameAndReturnsEmpty() {
             // When
-            var tokenWithoutUsername = generateJwtWithoutUsername();
+            var tokenWithoutUsername = jwtTestGenerator.generateJwtWithoutUsername();
 
             var actualUsername = jwtTokenProvider.getUsername(tokenWithoutUsername);
 
@@ -127,7 +128,7 @@ class JwtTokenProviderTests {
         @DisplayName("GIVEN token is valid And has username WHEN get username from token THEN gets the username And returns the username")
         void TokenHasUsername_GetUsername_GetsUsernameAndReturnUsername() {
             // When
-            var tokenWithUsername = generateJwtWithUsernameAndAuthorities();
+            var tokenWithUsername = jwtTestGenerator.generateJwt();
 
             var actualUsername = jwtTokenProvider.getUsername(tokenWithUsername);
 
@@ -174,7 +175,7 @@ class JwtTokenProviderTests {
         @DisplayName("GIVEN token signature is invalid WHEN get authorities from token THEN does not get the authorities And throws SignatureException")
         void TokenSignatureIsInvalid_GetAuthorities_DoesNotGetAuthoritiesAndThrowsSignatureException() {
             // When & Then
-            var tokenSignatureInvalid = generateJwtWithInvalidSignature();
+            var tokenSignatureInvalid = jwtTestGenerator.generateJwtWithInvalidSignature();
 
             assertThrows(SignatureException.class, () -> jwtTokenProvider.getAuthorities(tokenSignatureInvalid));
         }
@@ -183,7 +184,7 @@ class JwtTokenProviderTests {
         @DisplayName("GIVEN token has expired WHEN get authorities from token THEN does not get the authorities And throws ExpiredJwtException")
         void TokenHasExpired_GetAuthorities_DoesNotGetAuthoritiesAndThrowsExpiredJwtException() {
             // When & Then
-            var tokenExpired = generateJwtExpired();
+            var tokenExpired = jwtTestGenerator.generateJwtExpired();
 
             assertThrows(ExpiredJwtException.class, () -> jwtTokenProvider.getAuthorities(tokenExpired));
         }
@@ -192,7 +193,7 @@ class JwtTokenProviderTests {
         @DisplayName("GIVEN token has not been protected WHEN get authorities from token THEN does not get the authorities And throws UnsupportedJwtException")
         void TokenIsNotSigned_GetAuthorities_DoesNotGetAuthoritiesAndThrowsUnsupportedJwtException() {
             // When & Then
-            var tokenNotSigned = generateJwtNotSigned();
+            var tokenNotSigned = jwtTestGenerator.generateJwtNotSigned();
 
             assertThrows(UnsupportedJwtException.class, () -> jwtTokenProvider.getAuthorities(tokenNotSigned));
         }
@@ -201,7 +202,7 @@ class JwtTokenProviderTests {
         @DisplayName("GIVEN token does not have authorities WHEN get authorities from token THEN does not get the authorities And returns empty list")
         void TokenHasNotAuthorities_GetAuthorities_DoesNotGetAuthoritiesAndReturnsEmpty() {
             // When
-            var tokenWithoutAuthorities = generateJwtWithoutAuthorities();
+            var tokenWithoutAuthorities = jwtTestGenerator.generateJwtWithoutAuthorities();
 
             var actualAuthorities = jwtTokenProvider.getAuthorities(tokenWithoutAuthorities);
 
@@ -213,7 +214,7 @@ class JwtTokenProviderTests {
         @DisplayName("GIVEN token has authorities WHEN get authorities from token THEN gets the authorities And returns the authorities")
         void TokenHasAuthorities_GetAuthorities_GetAuthoritiesAndReturnsAuthorities() {
             // When
-            var tokenWithAuthorities = generateJwtWithUsernameAndAuthorities();
+            var tokenWithAuthorities = jwtTestGenerator.generateJwt();
 
             var actualAuthorities = jwtTokenProvider.getAuthorities(tokenWithAuthorities);
 
@@ -266,7 +267,7 @@ class JwtTokenProviderTests {
         @DisplayName("GIVEN token signature is invalid WHEN validate token THEN returns false")
         void TokenSignatureIsInvalid_ValidateToken_ReturnsFalse() {
             // When
-            var tokenSignatureInvalid = generateJwtWithInvalidSignature();
+            var tokenSignatureInvalid = jwtTestGenerator.generateJwtWithInvalidSignature();
 
             var actualValidation = jwtTokenProvider.validateToken(tokenSignatureInvalid);
 
@@ -278,7 +279,7 @@ class JwtTokenProviderTests {
         @DisplayName("GIVEN token has expired WHEN validate token THEN returns false")
         void TokenHasExpired_ValidateToken_ReturnsFalse() {
             // When
-            var tokenExpired = generateJwtExpired();
+            var tokenExpired = jwtTestGenerator.generateJwtExpired();
 
             var actualValidation = jwtTokenProvider.validateToken(tokenExpired);
 
@@ -290,7 +291,7 @@ class JwtTokenProviderTests {
         @DisplayName("GIVEN token has not been protected WHEN validate token THEN returns false")
         void TokenIsNotSigned_ValidateToken_ReturnsFalse() {
             // When
-            var tokenNotSigned = generateJwtNotSigned();
+            var tokenNotSigned = jwtTestGenerator.generateJwtNotSigned();
 
             var actualValidation = jwtTokenProvider.validateToken(tokenNotSigned);
 
@@ -302,7 +303,7 @@ class JwtTokenProviderTests {
         @DisplayName("GIVEN token does not have username WHEN validate token THEN returns true")
         void TokenHasNotUsername_ValidateToken_ReturnsTrue() {
             // When
-            var tokenWithoutSubject = generateJwtWithoutUsername();
+            var tokenWithoutSubject = jwtTestGenerator.generateJwtWithoutUsername();
 
             var actualValidation = jwtTokenProvider.validateToken(tokenWithoutSubject);
 
@@ -314,7 +315,7 @@ class JwtTokenProviderTests {
         @DisplayName("GIVEN token does not have authorities WHEN validate token THEN returns true")
         void TokenHasNotAuthorities_ValidateToken_ReturnsTrue() {
             // When
-            var tokenWithoutAuthorities = generateJwtWithoutAuthorities();
+            var tokenWithoutAuthorities = jwtTestGenerator.generateJwtWithoutAuthorities();
 
             var actualValidation = jwtTokenProvider.validateToken(tokenWithoutAuthorities);
 
@@ -326,7 +327,7 @@ class JwtTokenProviderTests {
         @DisplayName("GIVEN token have username and authorities WHEN validate token THEN returns true")
         void TokenHasUsernameAndAuthorities_ValidateToken_ReturnsTrue() {
             // When
-            var tokenWithUsernameAndAuthorities = generateJwtWithUsernameAndAuthorities();
+            var tokenWithUsernameAndAuthorities = jwtTestGenerator.generateJwt();
 
             var actualValidation = jwtTokenProvider.validateToken(tokenWithUsernameAndAuthorities);
 
@@ -334,63 +335,6 @@ class JwtTokenProviderTests {
             assertTrue(actualValidation);
         }
 
-    }
-
-    private String generateJwtWithUsernameAndAuthorities() {
-        return Jwts.builder()
-                   .subject(fakeUsername)
-                   .claim("role", "USER")
-                   .issuedAt(new Date())
-                   .expiration(new Date(new Date().getTime() + UT_JWT_EXPIRATION_TIME))
-                   .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(UT_JWT_SECRET)))
-                   .compact();
-    }
-
-    private String generateJwtWithoutUsername() {
-        return Jwts.builder()
-                   .claim("role", "USER")
-                   .issuedAt(new Date())
-                   .expiration(new Date(new Date().getTime() + UT_JWT_EXPIRATION_TIME))
-                   .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(UT_JWT_SECRET)))
-                   .compact();
-    }
-
-    private String generateJwtWithoutAuthorities() {
-        return Jwts.builder()
-                   .subject(fakeUsername)
-                   .issuedAt(new Date())
-                   .expiration(new Date(new Date().getTime() + UT_JWT_EXPIRATION_TIME))
-                   .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(UT_JWT_SECRET)))
-                   .compact();
-    }
-
-    private String generateJwtWithInvalidSignature() {
-        return Jwts.builder()
-                   .subject(fakeUsername)
-                   .claim("role", "USER")
-                   .issuedAt(new Date())
-                   .expiration(new Date(new Date().getTime() + UT_JWT_EXPIRATION_TIME))
-                   .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode("M0LBjhuY5Xgk25aRFCTp72EXM2HEnRY7KHAIlNQCxzwsMw7HgQBbdN4Mka94siHP")))
-                   .compact();
-    }
-
-    private String generateJwtExpired() {
-        return Jwts.builder()
-                   .subject(fakeUsername)
-                   .claim("role", "USER")
-                   .issuedAt(new Date())
-                   .expiration(new Date())
-                   .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(UT_JWT_SECRET)))
-                   .compact();
-    }
-
-    private String generateJwtNotSigned() {
-        return Jwts.builder()
-                   .subject(fakeUsername)
-                   .claim("role", "USER")
-                   .issuedAt(new Date())
-                   .expiration(new Date(new Date().getTime() + UT_JWT_EXPIRATION_TIME))
-                   .compact();
     }
 
 }

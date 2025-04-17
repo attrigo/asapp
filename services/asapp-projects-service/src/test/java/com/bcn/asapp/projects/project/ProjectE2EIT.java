@@ -39,7 +39,6 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -50,10 +49,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockserver.client.MockServerClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -69,16 +68,15 @@ import org.testcontainers.utility.DockerImageName;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-
 import com.bcn.asapp.dto.project.ProjectDTO;
 import com.bcn.asapp.dto.task.TaskDTO;
 import com.bcn.asapp.projects.AsappProjectsServiceApplication;
+import com.bcn.asapp.projects.testconfig.SecurityTestConfiguration;
+import com.bcn.asapp.projects.testutil.JwtTestGenerator;
 
 @AutoConfigureWebTestClient(timeout = "30000")
 @Testcontainers(disabledWithoutDocker = true, parallel = true)
+@Import(SecurityTestConfiguration.class)
 @SpringBootTest(classes = AsappProjectsServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 class ProjectE2EIT {
 
@@ -106,6 +104,9 @@ class ProjectE2EIT {
     @Autowired
     private WebTestClient webTestClient;
 
+    @Autowired
+    private JwtTestGenerator jwtTestGenerator;
+
     private UUID fakeProjectId;
 
     private String fakeProjectTitle;
@@ -115,11 +116,12 @@ class ProjectE2EIT {
     private Instant fakeProjectStartDate;
 
     @BeforeEach
-    void beforeEach(@Value("${asapp.jwt-secret}") String jwtSecret, @Value("${asapp.jwt-expiration-time}") Long jwtExpirationTime) {
+    void beforeEach() {
         projectRepository.deleteAll();
 
+        var bearerToken = "Bearer " + jwtTestGenerator.generateJwt();
         webTestClient = webTestClient.mutate()
-                                     .defaultHeader(HttpHeaders.AUTHORIZATION, generateJwt(jwtSecret, jwtExpirationTime))
+                                     .defaultHeader(HttpHeaders.AUTHORIZATION, bearerToken)
                                      .build();
 
         this.fakeProjectId = UUID.randomUUID();
@@ -698,19 +700,6 @@ class ProjectE2EIT {
                                          .isPresent());
         }
 
-    }
-
-    private String generateJwt(String jwtSecret, Long jwtExpirationTime) {
-        var issuedAtDate = new Date();
-        var expirationDate = new Date(issuedAtDate.getTime() + jwtExpirationTime);
-        var jwt = Jwts.builder()
-                      .subject("IT username")
-                      .claim("role", "USER")
-                      .issuedAt(issuedAtDate)
-                      .expiration(expirationDate)
-                      .signWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret)))
-                      .compact();
-        return "Bearer " + jwt;
     }
 
     private List<TaskDTO> buildFakeProjectTasks(UUID projectId) {
