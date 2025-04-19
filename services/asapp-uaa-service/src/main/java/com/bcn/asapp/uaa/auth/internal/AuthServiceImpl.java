@@ -52,13 +52,13 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
-     * Authenticates the user based on the given credentials and generates a JWT token upon successful authentication.
+     * Authenticates the user based on the given credentials and generates a JWT upon successful authentication.
      * <p>
      * To correctly authenticate a user the operation must do the following actions:
      * <ul>
      * <li>Authenticate the user using the {@link AuthenticationManager}.</li>
      * <li>Set the authentication to the {@link SecurityContextHolder}</li>
-     * <li>Generates a JWT token using the {@link JwtTokenProvider}.</li>
+     * <li>Generates a JWT using the {@link JwtTokenProvider}.</li>
      * </ul>
      */
     @Override
