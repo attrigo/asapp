@@ -81,10 +81,10 @@ class RestClientConfigurationIT {
     }
 
     @Test
-    @DisplayName("GIVEN JWT is present in security context WHEN make HTTP call with RestClient THEN the JWT is added to the request as header")
-    void JwtIsPresentInSecurityContext_MakeHttpCallWithRestClient_JwtIsAddedToTheRequestAsHeader() {
+    @DisplayName("GIVEN JWT is present in security context WHEN make HTTP call with RestClient THEN request is intercepted and the JWT is added to the request as Authorization header")
+    void JwtIsPresentInSecurityContext_MakeHttpCallWithRestClient_JwtIsAddedToRequestAsAuthorizationHeader() {
         // Given
-        var authentication = new JwtAuthenticationToken("username", "password", List.of(new SimpleGrantedAuthority("USER")), jwtTestGenerator.generateJwt());
+        var authentication = new JwtAuthenticationToken("USERNAME", "PASSWORD", List.of(new SimpleGrantedAuthority("USER")), jwtTestGenerator.generateJwt());
         SecurityContextHolder.getContext()
                              .setAuthentication(authentication);
 
@@ -102,7 +102,7 @@ class RestClientConfigurationIT {
                   .retrieve()
                   .toEntity(String.class);
 
-        // THEN
+        // Then
         var expectedRequest = request().withPath("/test")
                                        .withHeader(HttpHeaders.AUTHORIZATION, "Bearer " + authentication.getJwt());
         mockServerClient.verify(expectedRequest);
