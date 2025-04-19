@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.Optional;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -33,11 +32,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * Custom filter that intercepts incoming HTTP requests to check for a valid JWT token in the Authorization header.
+ * HTTP filter for JWT-based authentication in Spring Security.
+ * <p>
+ * This filter intercepts incoming HTTP requests to check for a valid JWT in the Authorization header.
  * <p>
  * If a valid token is found, it extracts the username and authorities (roles) and sets the authentication context for the request.
  * <p>
- * This filter is typically used to authenticate users based on JWT tokens in a stateless authentication system.
+ * The filter is designed for stateless authentication systems where each request must include a valid JWT in the Authorization header with the format:
+ * {@code Bearer <token>}.
+ * <p>
+ * The {@link JwtAuthenticationToken} created by this filter preserves the JWT, making it available for later outgoing requests that require authentication.
  *
  * @author ttrigo
  * @see OncePerRequestFilter
@@ -51,19 +55,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     /**
      * Main constructor.
      *
-     * @param jwtTokenProvider the JWT token provider used to validate the token and extract user information.
+     * @param jwtTokenProvider the JWT provider used to validate the token and extract user information.
      */
     public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider) {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
+    /**
+     * Processes the incoming request for JWT authentication.
+     * <p>
+     * Extracts and validates the JWT from the Authorization header using the {@link JwtTokenProvider}, then creates and sets a new
+     * {@link JwtAuthenticationToken} in the {@link SecurityContextHolder} containing the authenticated user details and the original token.
+     * <p>
+     * If any step fails, the filter chain continues without setting authentication, allowing other security mechanisms to handle unauthenticated requests
+     * appropriately.
+     *
+     * @param request     the incoming HTTP request.
+     * @param response    the HTTP response.
+     * @param filterChain the filter chain for request processing.
+     * @throws ServletException if a servlet error occurs.
+     * @throws IOException      if an I/O error occurs.
+     */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         Optional<String> optionalToken = getTokenFromRequest(request);
 
         if (optionalToken.isPresent() && jwtTokenProvider.validateToken(optionalToken.get())) {
-            var optionalUsername = jwtTokenProvider.getUsername(optionalToken.get());
-            var authorities = jwtTokenProvider.getAuthorities(optionalToken.get());
+            var token = optionalToken.get();
+            var optionalUsername = jwtTokenProvider.getUsername(token);
+            var authorities = jwtTokenProvider.getAuthorities(token);
 
             if (optionalUsername.isPresent() && CollectionUtils.isNotEmpty(authorities)) {
                 var username = optionalUsername.get();
@@ -71,7 +91,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                                     .map(SimpleGrantedAuthority::new)
                                                     .toList();
 
-                var authenticationToken = new UsernamePasswordAuthenticationToken(username, null, grantedAuthorities);
+                var authenticationToken = new JwtAuthenticationToken(username, null, grantedAuthorities, token);
 
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
