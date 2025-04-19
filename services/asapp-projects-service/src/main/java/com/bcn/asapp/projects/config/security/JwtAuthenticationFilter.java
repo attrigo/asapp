@@ -105,7 +105,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     /**
-     * Extracts the JWT token from the Authorization header of the request.
+     * Extracts the JWT from the Authorization header of the request.
      *
      * @param request the HTTP request.
      * @return an {@link Optional} containing the JWT if present, otherwise an empty {@link Optional}.

@@ -58,7 +58,7 @@ public class JwtTokenProvider {
     }
 
     /**
-     * Generates a JWT token for the given authenticated user.
+     * Generates a JWT for the given authenticated user.
      * <p>
      * The token contains the username and role as claims, and has an expiration time set based on the configured expiration date.
      *
