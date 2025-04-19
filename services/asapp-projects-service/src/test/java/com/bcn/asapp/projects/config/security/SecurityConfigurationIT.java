@@ -58,8 +58,8 @@ class SecurityConfigurationIT {
     class HttpBasicAuthentication {
 
         @Test
-        @DisplayName("GIVEN JWT is empty WHEN calling secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
-        void JwtIsEmpty_CallingSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
+        @DisplayName("GIVEN JWT is empty WHEN call secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtIsEmpty_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
             // When & Then
             var bearerToken = "Bearer ";
 
@@ -74,8 +74,8 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        @DisplayName("GIVEN JWT is invalid WHEN calling secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
-        void JwtIsInvalid_CallingSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
+        @DisplayName("GIVEN JWT is invalid WHEN call secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtIsInvalid_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
             // When & Then
             var bearerToken = "Bearer " + jwtTestGenerator.generateJwtInvalid();
 
@@ -90,8 +90,8 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        @DisplayName("GIVEN JWT signature is invalid WHEN calling secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
-        void JwtSignatureIsInvalid_CallingSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
+        @DisplayName("GIVEN JWT signature is invalid WHEN call secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtSignatureIsInvalid_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
             // When & Then
             var bearerToken = "Bearer " + jwtTestGenerator.generateJwtWithInvalidSignature();
 
@@ -106,8 +106,8 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        @DisplayName("GIVEN JWT has expired WHEN calling secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
-        void JwtHasExpired_CallingSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
+        @DisplayName("GIVEN JWT has expired WHEN call secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtHasExpired_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
             // When & Then
             var bearerToken = "Bearer " + jwtTestGenerator.generateJwtExpired();
 
@@ -122,8 +122,8 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        @DisplayName("GIVEN JWT is not signed WHEN calling secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
-        void JwtIsNotSigned_CallingSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
+        @DisplayName("GIVEN JWT is not signed WHEN call secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtIsNotSigned_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
             // When & Then
             var bearerToken = "Bearer " + jwtTestGenerator.generateJwtNotSigned();
 
@@ -138,8 +138,8 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        @DisplayName("GIVEN JWT has not username WHEN calling secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
-        void JwtHasNotUsername_CallingSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
+        @DisplayName("GIVEN JWT has not username WHEN call secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtHasNotUsername_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
             // When & Then
             var bearerToken = "Bearer " + jwtTestGenerator.generateJwtWithoutUsername();
 
@@ -154,8 +154,8 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        @DisplayName("GIVEN JWT has not authorities WHEN calling secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
-        void JwtHasNotAuthorities_CallingSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
+        @DisplayName("GIVEN JWT has not authorities WHEN call secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtHasNotAuthorities_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
             // When & Then
             var bearerToken = "Bearer " + jwtTestGenerator.generateJwtWithoutAuthorities();
 
@@ -175,8 +175,8 @@ class SecurityConfigurationIT {
     class ActuatorAuthentication {
 
         @Test
-        @DisplayName("GIVEN JWT is not present WHEN calling actuator endpoint THEN returns HTTP response with status Unauthorized And an empty body")
-        void JwtIsNotPresent_CallingActuatorEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
+        @DisplayName("GIVEN JWT is not present WHEN call actuator endpoint THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtIsNotPresent_CallActuatorEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
             webTestClient.get()
                          .uri("/actuator")
                          .exchange()
@@ -187,8 +187,8 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        @DisplayName("GIVEN JWT is present WHEN calling actuator endpoint THEN returns HTTP response with status OK And the body with the actuator content")
-        void JwtIsPresent_CallingActuatorEndpoint_ReturnsStatusOkAndBodyWithContent() {
+        @DisplayName("GIVEN JWT is present WHEN call actuator endpoint THEN returns HTTP response with status OK And the body with the actuator content")
+        void JwtIsPresent_CallActuatorEndpoint_ReturnsStatusOkAndBodyWithContent() {
             // When & Then
             var bearerToken = "Bearer " + jwtTestGenerator.generateJwt();
 
@@ -203,8 +203,8 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        @DisplayName("GIVEN JWT is not present WHEN calling actuator health endpoint THEN returns HTTP response with status OK And the body with the actuator content")
-        void JwtIsNotPresent_CallingActuatorHealthEndpoint_ReturnsStatusOkAndBodyWithContent() {
+        @DisplayName("GIVEN JWT is not present WHEN call actuator health endpoint THEN returns HTTP response with status OK And the body with the actuator content")
+        void JwtIsNotPresent_CallActuatorHealthEndpoint_ReturnsStatusOkAndBodyWithContent() {
             webTestClient.get()
                          .uri("/actuator/health")
                          .exchange()
@@ -220,8 +220,8 @@ class SecurityConfigurationIT {
     class SwaggerAuthentication {
 
         @Test
-        @DisplayName("GIVEN JWT is not present WHEN calling swagger endpoint THEN returns HTTP response with status Found And a location header pointing to index And empty body")
-        void JwtIsNotPresent_CallingSwaggerEndpoint_ReturnsStatusFoundAndHeaderLocationToSwaggerIndexAndEmptyBody() {
+        @DisplayName("GIVEN JWT is not present WHEN call swagger endpoint THEN returns HTTP response with status Found And a location header pointing to index And empty body")
+        void JwtIsNotPresent_CallSwaggerEndpoint_ReturnsStatusFoundAndHeaderLocationToSwaggerIndexAndEmptyBody() {
             webTestClient.get()
                          .uri("/swagger-ui.html")
                          .exchange()
@@ -234,8 +234,8 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        @DisplayName("GIVEN JWT is not present WHEN calling actuator index endpoint THEN returns HTTP response with status OK And the body with the index content")
-        void JwtIsNotPresent_CallingSwaggerIndexEndpoint_ReturnsStatusOkAndBodyWithContent() {
+        @DisplayName("GIVEN JWT is not present WHEN call actuator index endpoint THEN returns HTTP response with status OK And the body with the index content")
+        void JwtIsNotPresent_CallSwaggerIndexEndpoint_ReturnsStatusOkAndBodyWithContent() {
             webTestClient.get()
                          .uri("/swagger-ui/index.html")
                          .exchange()
@@ -251,8 +251,8 @@ class SecurityConfigurationIT {
     class OpenApiAuthentication {
 
         @Test
-        @DisplayName("GIVEN JWT is not present WHEN calling OpenApi endpoint THEN returns HTTP response with status OK And the body with the OpeApi content")
-        void JwtIsNotPresent_CallingOpenApiEndpoint_ReturnsStatusOkAndBodyWithContent() {
+        @DisplayName("GIVEN JWT is not present WHEN call OpenApi endpoint THEN returns HTTP response with status OK And the body with the OpeApi content")
+        void JwtIsNotPresent_CallOpenApiEndpoint_ReturnsStatusOkAndBodyWithContent() {
             webTestClient.get()
                          .uri("/v3/api-docs")
                          .exchange()
