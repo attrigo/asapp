@@ -107,6 +107,8 @@ class ProjectE2EIT {
     @Autowired
     private JwtTestGenerator jwtTestGenerator;
 
+    private String bearerToken;
+
     private UUID fakeProjectId;
 
     private String fakeProjectTitle;
@@ -119,7 +121,7 @@ class ProjectE2EIT {
     void beforeEach() {
         projectRepository.deleteAll();
 
-        var bearerToken = "Bearer " + jwtTestGenerator.generateJwt();
+        bearerToken = "Bearer " + jwtTestGenerator.generateJwt();
         webTestClient = webTestClient.mutate()
                                      .defaultHeader(HttpHeaders.AUTHORIZATION, bearerToken)
                                      .build();
@@ -718,17 +720,19 @@ class ProjectE2EIT {
         } catch (JsonProcessingException ignored) {}
 
         var request = request().withMethod(HttpMethod.GET.name())
+                               .withHeader(HttpHeaders.AUTHORIZATION, bearerToken)
                                .withPath(TASKS_GET_BY_PROJECT_ID_FULL_PATH)
                                .withPathParameter("id", projectId.toString());
         var response = response().withStatusCode(200)
-                                 .withBody(fakeProjectTasksAsJson)
-                                 .withContentType(org.mockserver.model.MediaType.APPLICATION_JSON);
+                                 .withContentType(org.mockserver.model.MediaType.APPLICATION_JSON)
+                                 .withBody(fakeProjectTasksAsJson);
         mockServerClient.when(request, once())
                         .respond(response);
     }
 
     private void mockRequestToGetTasksByProjectIdWithServerErrorResponse(UUID projectId) {
         var request = request().withMethod(HttpMethod.GET.name())
+                               .withHeader(HttpHeaders.AUTHORIZATION, bearerToken)
                                .withPath(TASKS_GET_BY_PROJECT_ID_FULL_PATH)
                                .withPathParameter("id", projectId.toString());
         var response = response().withStatusCode(500)

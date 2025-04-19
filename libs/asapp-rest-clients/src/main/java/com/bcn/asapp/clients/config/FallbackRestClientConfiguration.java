@@ -26,7 +26,7 @@ import com.bcn.asapp.clients.internal.uri.DefaultUriHandler;
 import com.bcn.asapp.clients.internal.uri.UriHandler;
 
 /**
- * Fallback HTTP client configuration.
+ * Fallback REST client configuration.
  *
  * @author ttrigo
  * @since 0.1.0
