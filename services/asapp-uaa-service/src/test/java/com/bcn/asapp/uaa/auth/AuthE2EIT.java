@@ -15,8 +15,8 @@
 */
 package com.bcn.asapp.uaa.auth;
 
-import static com.bcn.asapp.uaa.util.JwtAssertions.assertJwtAuthorities;
-import static com.bcn.asapp.uaa.util.JwtAssertions.assertJwtUsername;
+import static com.bcn.asapp.uaa.testutil.JwtAssertions.assertJwtAuthorities;
+import static com.bcn.asapp.uaa.testutil.JwtAssertions.assertJwtUsername;
 import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_LOGIN_FULL_PATH;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;

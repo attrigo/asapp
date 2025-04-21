@@ -15,6 +15,8 @@
 */
 package com.bcn.asapp.uaa.config.security;
 
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +28,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
  * Security configuration.
@@ -48,13 +51,17 @@ public class SecurityConfiguration {
 
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
+    private final JwtAuthenticationFilter authenticationFilter;
+
     /**
      * Main constructor.
      *
      * @param authenticationEntryPoint the authentication entry point for handling authentication exceptions.
+     * @param authenticationFilter     the authentication filter to handle token authentication.
      */
-    public SecurityConfiguration(JwtAuthenticationEntryPoint authenticationEntryPoint) {
+    public SecurityConfiguration(JwtAuthenticationEntryPoint authenticationEntryPoint, JwtAuthenticationFilter authenticationFilter) {
         this.authenticationEntryPoint = authenticationEntryPoint;
+        this.authenticationFilter = authenticationFilter;
     }
 
     /**
@@ -70,6 +77,7 @@ public class SecurityConfiguration {
      * <li>Disables CSRF.</li>
      * <li>Configures the authentication requirements for the incoming request.</li>
      * <li>Adds the exception handler, which is invoked when any authentication fails.</li>
+     * <li>Adds the JWT authentication filter.</li>
      * </ul>
      *
      * @param http the {@link HttpSecurity} object used to configure HTTP security.
@@ -87,7 +95,11 @@ public class SecurityConfiguration {
             })
             .httpBasic(Customizer.withDefaults());
 
+        http.sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
+
         http.exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint));
+
+        http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
