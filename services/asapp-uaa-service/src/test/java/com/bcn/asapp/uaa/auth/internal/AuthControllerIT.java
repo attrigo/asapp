@@ -31,9 +31,10 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -43,9 +44,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.bcn.asapp.uaa.auth.AuthService;
 import com.bcn.asapp.uaa.auth.AuthenticationDTO;
 import com.bcn.asapp.uaa.auth.UserCredentialsDTO;
+import com.bcn.asapp.uaa.config.security.JwtAuthenticationEntryPoint;
+import com.bcn.asapp.uaa.config.security.JwtTokenProvider;
+import com.bcn.asapp.uaa.config.security.SecurityConfiguration;
 
-@AutoConfigureMockMvc(addFilters = false)
+@Import(value = { SecurityConfiguration.class, JwtTokenProvider.class, JwtAuthenticationEntryPoint.class })
 @WebMvcTest(AuthRestController.class)
+@WithAnonymousUser
 class AuthControllerIT {
 
     @Autowired
@@ -74,6 +79,24 @@ class AuthControllerIT {
 
     @Nested
     class Login {
+
+        @Test
+        @DisplayName("GIVEN JWT is not present WHEN login a user THEN returns HTTP response with status OK And the body with the generated authentication")
+        void JwtIsNotPresent_Login_ReturnsStatusCreatedAndBodyWithGeneratedAuthentication() throws Exception {
+            // Given
+            given(authServiceMock.login(any(UserCredentialsDTO.class))).willReturn(new AuthenticationDTO("IT Token"));
+
+            // When & Then
+            var userCredentialsToLogin = new UserCredentialsDTO(fakeUsername, fakePassword);
+            var userCredentialsToLoginAsJson = objectMapper.writeValueAsString(userCredentialsToLogin);
+
+            var requestBuilder = post(AUTH_LOGIN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                           .content(userCredentialsToLoginAsJson);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().isOk())
+                   .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                   .andExpect(jsonPath("$.jwt").exists());
+        }
 
         @Test
         @DisplayName("GIVEN user credentials are not a valid Json WHEN login a user THEN returns HTTP response with status Unsupported Media Type And the empty body with the problem details")
