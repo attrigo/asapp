@@ -45,10 +45,11 @@ import com.bcn.asapp.uaa.auth.AuthService;
 import com.bcn.asapp.uaa.auth.AuthenticationDTO;
 import com.bcn.asapp.uaa.auth.UserCredentialsDTO;
 import com.bcn.asapp.uaa.config.security.JwtAuthenticationEntryPoint;
+import com.bcn.asapp.uaa.config.security.JwtAuthenticationFilter;
 import com.bcn.asapp.uaa.config.security.JwtTokenProvider;
 import com.bcn.asapp.uaa.config.security.SecurityConfiguration;
 
-@Import(value = { SecurityConfiguration.class, JwtTokenProvider.class, JwtAuthenticationEntryPoint.class })
+@Import(value = { SecurityConfiguration.class, JwtAuthenticationFilter.class, JwtAuthenticationEntryPoint.class, JwtTokenProvider.class })
 @WebMvcTest(AuthRestController.class)
 @WithAnonymousUser
 class AuthControllerIT {

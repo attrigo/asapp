@@ -16,6 +16,10 @@
     <name>asapp-uaa-service</name>
     <description>REST service to manage UAA operations</description>
 
+    <properties>
+        <bcprov-jdk18on.version>1.80</bcprov-jdk18on.version>
+    </properties>
+
     <dependencies>
         <!-- Compile Dependencies -->
         <!-- * ASAPP Dependencies -->
@@ -50,6 +54,12 @@
         </dependency>
         <!-- * Org Dependencies -->
         <dependency>
+            <!-- Required by Spring Security PasswordEncoderFactories -->
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>${bcprov-jdk18on.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.liquibase</groupId>
             <artifactId>liquibase-core</artifactId>
         </dependency>
@@ -70,7 +80,6 @@
             <groupId>io.jsonwebtoken</groupId>
             <artifactId>jjwt-api</artifactId>
         </dependency>
-
 
         <!-- Runtime Dependencies -->
         <!-- * Spring Dependencies -->
