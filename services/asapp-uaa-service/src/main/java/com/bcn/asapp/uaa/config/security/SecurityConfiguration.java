@@ -25,7 +25,8 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -39,8 +40,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  *
  * @author ttrigo
  * @see SecurityFilterChain
- * @see PasswordEncoder
  * @see AuthenticationManager
+ * @see PasswordEncoder
+ * @see PasswordEncoderFactories
  * @since 0.2.0
  */
 @Configuration
@@ -123,12 +125,15 @@ public class SecurityConfiguration {
      * Creates a {@link PasswordEncoder} bean.
      * <p>
      * The PasswordEncoder is responsible for encoding passwords and verifying their validity during authentication by comparing encoded passwords.
+     * <p>
+     * Uses {@link PasswordEncoderFactories#createDelegatingPasswordEncoder()} which creates a {@link DelegatingPasswordEncoder} that supports multiple encoding
+     * schemes.
      *
      * @return an instance of {@link PasswordEncoder}.
      */
     @Bean
-    public static PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 
 }
