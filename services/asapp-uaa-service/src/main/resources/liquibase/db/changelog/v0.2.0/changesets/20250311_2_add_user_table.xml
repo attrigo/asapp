@@ -19,7 +19,7 @@
             <column name="username" type="varchar(100)" remarks="The username of the user">
                 <constraints nullable="false"/>
             </column>
-            <column name="password" type="varchar(500)" remarks="The password of the user, must be encoded with BCrypt">
+            <column name="password" type="varchar(500)" remarks="The password of the user, can be encoded using any Spring security compatible encoder">
                 <constraints nullable="false"/>
             </column>
             <column name="role" type="varchar(10)" remarks="The role of the user, could be ADMIN or USER">
