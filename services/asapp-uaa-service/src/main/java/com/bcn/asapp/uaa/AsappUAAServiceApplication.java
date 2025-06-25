@@ -19,18 +19,22 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
- * Application entry point.
+ * Main application entry point for the ASAPP UAA Service.
+ * <p>
+ * Initializes and launches the Spring Boot application context.
  *
- * @author ttrigo
  * @since 0.2.0
+ * @see SpringApplication
+ * @see SpringBootApplication
+ * @author ttrigo
  */
 @SpringBootApplication
 public class AsappUAAServiceApplication {
 
     /**
-     * Main entry point.
+     * Starts the Spring Boot application.
      *
-     * @param args command line arguments.
+     * @param args command line arguments passed to the application
      */
     public static void main(String[] args) {
         SpringApplication.run(AsappUAAServiceApplication.class, args);

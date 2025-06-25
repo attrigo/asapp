@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.bcn.asapp.uaa.auth;
+package com.bcn.asapp.uaa.security.core;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -44,19 +44,19 @@ class UserRepositoryIT {
     @Autowired
     private UserRepository userRepository;
 
-    private String fakeUserName;
+    private String fakeUserUsername;
 
-    private String fakePassword;
+    private String fakeUserPassword;
 
-    private Role fakeRole;
+    private Role fakeUserRole;
 
     @BeforeEach
     void beforeEach() {
         userRepository.deleteAll();
 
-        this.fakeUserName = "IT username";
-        this.fakePassword = "IT password";
-        this.fakeRole = Role.USER;
+        fakeUserUsername = "TEST USERNAME";
+        fakeUserPassword = "TEST PASSWORD";
+        fakeUserRole = Role.USER;
     }
 
     @Nested
@@ -66,7 +66,7 @@ class UserRepositoryIT {
         @DisplayName("GIVEN username does not exists WHEN find user by username THEN does not find any user And returns an empty optional")
         void UsernameNotExists_FindByUsername_DoesNotFindUserAndReturnsEmptyOptional() {
             // When
-            var usernameToFind = "IT NoUsername";
+            var usernameToFind = fakeUserUsername;
 
             var actualUser = userRepository.findByUsername(usernameToFind);
 
@@ -78,12 +78,12 @@ class UserRepositoryIT {
         @DisplayName("GIVEN username exists WHEN find user by username THEN finds the user And returns the user found")
         void UsernameExists_FindByUsername_FindsTasksAndReturnsTasksFound() {
             // Given
-            var fakeUser = new User(null, fakeUserName, fakePassword, fakeRole);
+            var fakeUser = new User(null, fakeUserUsername, fakeUserPassword, fakeUserRole);
             var userToBeFound = userRepository.save(fakeUser);
             assertNotNull(userToBeFound);
 
             // When
-            var usernameToFind = fakeUserName;
+            var usernameToFind = fakeUserUsername;
 
             var actualUser = userRepository.findByUsername(usernameToFind);
 

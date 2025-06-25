@@ -39,7 +39,7 @@ public class HttpTraceActuatorConfiguration {
      * <p>
      * This bean is used to store HTTP traces in memory.
      *
-     * @return an instance of {@link InMemoryHttpExchangeRepository}.
+     * @return an instance of {@link InMemoryHttpExchangeRepository}
      */
     @Bean
     InMemoryHttpExchangeRepository createTraceRepository() {

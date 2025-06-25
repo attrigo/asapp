@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20250423_3-1" author="atrigo">
+        <preConditions onFail="MARK_RAN" onSqlOutput="TEST">
+            <not>
+                <tableExists tableName="refresh_token"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="refresh_token">
+            <column name="refresh_token_id" type="uuid" defaultValueComputed="uuid_generate_v4()" remarks="Identifier of the refresh token">
+                <constraints primaryKey="true" primaryKeyName="refresh_token_id_pk"/>
+            </column>
+            <column name="user_id" type="uuid" remarks="The id of the user, fk to user.user_id">
+                <constraints nullable="false"/>
+            </column>
+            <column name="jwt" type="varchar2(2000)" remarks="The JSON web token of the access token">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="timestamp" remarks="Creation date of the refresh token">
+                <constraints nullable="false"/>
+            </column>
+            <column name="expires_at" type="timestamp" remarks="Expiration date of the refresh token">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="refresh_token" baseColumnNames="user_id" constraintName="refresh_token_user_fk" referencedTableName="user"
+                                 referencedColumnNames="user_id"/>
+
+        <createIndex tableName="refresh_token" indexName="refresh_token_user_id_idx">
+            <column name="user_id"/>
+        </createIndex>
+
+        <rollback>
+            <dropTable tableName="refresh_token"/>
+        </rollback>
+
+        <comment>Creates the refresh_token table with columns refresh_token_id, user_id, jwt, createdAt and expiresAt, then creates the foreign key with user table
+            and finally creates an index for user_id field
+        </comment>
+    </changeSet>
+
+</databaseChangeLog>

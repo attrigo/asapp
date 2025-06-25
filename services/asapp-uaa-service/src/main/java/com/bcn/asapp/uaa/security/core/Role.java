@@ -13,14 +13,29 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.bcn.asapp.uaa.auth;
+package com.bcn.asapp.uaa.security.core;
 
 /**
- * Represents a UAA role entity.
+ * Defines the roles within the UAA (User Account and Authentication) service.
+ * <p>
+ * Specifies the roles that grant user access levels and permissions within the system.
+ * <ul>
+ * <li>{@link #ADMIN} — full administrative access.</li>
+ * <li>{@link #USER} — standard user with limited permissions.</li>
+ * </ul>
  *
- * @author ttrigo
  * @since 0.2.0
+ * @author ttrigo
  */
 public enum Role {
-    ADMIN, USER;
+
+    /**
+     * Administrator role granting full system access.
+     */
+    ADMIN,
+
+    /**
+     * Regular user role with limited access to the system.
+     */
+    USER;
 }

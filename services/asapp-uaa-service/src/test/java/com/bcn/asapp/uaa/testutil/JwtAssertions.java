@@ -15,19 +15,51 @@
 */
 package com.bcn.asapp.uaa.testutil;
 
+import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.ACCESS_TOKEN_TYPE;
+import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.REFRESH_TOKEN_TYPE;
+import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.TOKEN_USE_ACCESS_CLAIM_VALUE;
+import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.TOKEN_USE_REFRESH_CLAIM_VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import org.springframework.util.StringUtils;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
-import com.bcn.asapp.uaa.auth.Role;
+import com.bcn.asapp.uaa.security.core.JwtType;
+import com.bcn.asapp.uaa.security.core.Role;
 
 public class JwtAssertions {
 
     private static final String UT_JWT_SECRET = "Cnpr50yQ04Q5y7GFUvR3ODWLYRlPjeAgOy7Y0Woo6PCqiViiOxxS3vo1FOyjro7T";
 
     private JwtAssertions() {}
+
+    public static void assertJwtType(String actualJwt, JwtType expectedType) {
+        var actualClaims = Jwts.parser()
+                               .verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(UT_JWT_SECRET)))
+                               .build()
+                               .parseSignedClaims(actualJwt);
+
+        var tokenType = actualClaims.getHeader()
+                                    .getType();
+        var tokenUseClaim = actualClaims.getPayload()
+                                        .get(TOKEN_USE_CLAIM_NAME, String.class);
+
+        assertTrue(StringUtils.hasText(tokenType));
+        assertTrue(tokenType.equals(ACCESS_TOKEN_TYPE) || tokenType.equals(REFRESH_TOKEN_TYPE));
+
+        if (JwtType.ACCESS_TOKEN.equals(expectedType)) {
+            assertTrue(ACCESS_TOKEN_TYPE.equals(tokenType) && TOKEN_USE_ACCESS_CLAIM_VALUE.equals(tokenUseClaim));
+        } else {
+            assertTrue(REFRESH_TOKEN_TYPE.equals(tokenType) && TOKEN_USE_REFRESH_CLAIM_VALUE.equals(tokenUseClaim));
+        }
+
+    }
 
     public static void assertJwtUsername(String actualJwt, String expectedUsername) {
         var actualUsername = Jwts.parser()
@@ -40,7 +72,7 @@ public class JwtAssertions {
         assertEquals(actualUsername, expectedUsername);
     }
 
-    public static void assertJwtAuthorities(String actualJwt, Role expectedRole) {
+    public static void assertJwtRole(String actualJwt, Role expectedRole) {
         var actualAuthority = Jwts.parser()
                                   .verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(UT_JWT_SECRET)))
                                   .build()
@@ -49,6 +81,28 @@ public class JwtAssertions {
                                   .get("role");
 
         assertEquals(actualAuthority, expectedRole.name());
+    }
+
+    public static void assertJwtIssuedAt(String actualJwt) {
+        var actualIssuedAt = Jwts.parser()
+                                 .verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(UT_JWT_SECRET)))
+                                 .build()
+                                 .parseSignedClaims(actualJwt)
+                                 .getPayload()
+                                 .getIssuedAt();
+
+        assertNotNull(actualIssuedAt);
+    }
+
+    public static void assertJwtExpiresAt(String actualJwt) {
+        var actualExpiresAt = Jwts.parser()
+                                  .verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(UT_JWT_SECRET)))
+                                  .build()
+                                  .parseSignedClaims(actualJwt)
+                                  .getPayload()
+                                  .getExpiration();
+
+        assertNotNull(actualExpiresAt);
     }
 
 }

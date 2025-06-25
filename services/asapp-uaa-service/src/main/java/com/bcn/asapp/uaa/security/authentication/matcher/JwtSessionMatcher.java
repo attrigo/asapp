@@ -13,29 +13,26 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.bcn.asapp.uaa.auth;
+package com.bcn.asapp.uaa.security.authentication.matcher;
 
-import java.util.Optional;
-import java.util.UUID;
-
-import org.springframework.data.repository.ListCrudRepository;
-import org.springframework.stereotype.Repository;
+import com.bcn.asapp.uaa.security.authentication.DecodedJwt;
 
 /**
- * Repository that provides CRUD operations for {@link User}.
+ * Contract for matching a JWT against a user session.
+ * <p>
+ * Implementations are responsible for validating whether the provided JWT corresponds to a valid and active session associated with a user.
  *
  * @author ttrigo
  * @since 0.2.0
  */
-@Repository
-public interface UserRepository extends ListCrudRepository<User, UUID> {
+public interface JwtSessionMatcher {
 
     /**
-     * Finds the user with the given username.
+     * Determines if the provided {@link DecodedJwt} corresponds to a valid user session.
      *
-     * @param username the username of the user, must not be {@literal null}.
-     * @return {@link Optional} containing the user found, or an empty {@link Optional} if the given username has not been found.
+     * @param jwtToMatch the decoded JWT to validate against known user sessions
+     * @return {@code true} if the JWT matches a valid user session, {@code false} otherwise
      */
-    Optional<User> findByUsername(String username);
+    Boolean match(DecodedJwt jwtToMatch);
 
 }

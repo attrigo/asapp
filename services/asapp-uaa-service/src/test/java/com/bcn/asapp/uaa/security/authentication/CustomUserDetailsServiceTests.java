@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.bcn.asapp.uaa.config.security;
+package com.bcn.asapp.uaa.security.authentication;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -31,14 +31,15 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.bcn.asapp.uaa.auth.Role;
-import com.bcn.asapp.uaa.auth.User;
-import com.bcn.asapp.uaa.auth.UserRepository;
+import com.bcn.asapp.uaa.security.core.Role;
+import com.bcn.asapp.uaa.security.core.User;
+import com.bcn.asapp.uaa.security.core.UserRepository;
 
 @ExtendWith(SpringExtension.class)
 class CustomUserDetailsServiceTests {
@@ -55,8 +56,8 @@ class CustomUserDetailsServiceTests {
 
     @BeforeEach
     void beforeEach() {
-        this.fakeUsername = "UT username";
-        this.fakePassword = "UT password";
+        this.fakeUsername = "TEST USERNAME";
+        this.fakePassword = "TEST PASSWORD";
     }
 
     @Nested
@@ -64,23 +65,25 @@ class CustomUserDetailsServiceTests {
 
         @Test
         @DisplayName("GIVEN username does not exists WHEN load user by username THEN does not find the user And throws UsernameNotFoundException")
-        void UsernameNotExists_Login_DoesNotFindTheUserAndThrowsUsernameNotFoundException() {
+        void UsernameNotExists_LoadUserByUsername_DoesNotFindUserAndThrowsUsernameNotFoundException() {
             // Given
             given(userRepositoryMock.findByUsername(anyString())).willReturn(Optional.empty());
 
             // When
             var usernameToLoad = fakeUsername;
 
-            assertThrows(UsernameNotFoundException.class, () -> customUserDetailsService.loadUserByUsername(usernameToLoad));
+            Executable executable = () -> customUserDetailsService.loadUserByUsername(usernameToLoad);
 
             // Then
+            assertThrows(UsernameNotFoundException.class, executable);
+
             then(userRepositoryMock).should(times(1))
                                     .findByUsername(anyString());
         }
 
         @Test
         @DisplayName("GIVEN username exists with USER role WHEN load user by username THEN finds the user And returns the UserDetails with USER authorities")
-        void UsernameExistsWithUserRole_Login_FindsTheUserAndReturnsTheUserDetails() {
+        void UsernameExistsWithUserRole_LoadUserByUsername_FindsUserAndReturnsTheUserDetails() {
             // Given
             User fakeUser = new User(UUID.randomUUID(), fakeUsername, fakePassword, Role.USER);
             given(userRepositoryMock.findByUsername(anyString())).willReturn(Optional.of(fakeUser));
@@ -109,7 +112,7 @@ class CustomUserDetailsServiceTests {
 
         @Test
         @DisplayName("GIVEN username exists with ADMIN role WHEN load user by username THEN finds the user And returns the UserDetails with ADMIN authorities")
-        void UsernameExistsWithAdminRole_Login_FindsTheUserReturnsTheUserDetails() {
+        void UsernameExistsWithAdminRole_LoadUserByUsername_FindsUserAndReturnsTheUserDetails() {
             // Given
             User fakeUser = new User(UUID.randomUUID(), fakeUsername, fakePassword, Role.ADMIN);
             given(userRepositoryMock.findByUsername(anyString())).willReturn(Optional.of(fakeUser));

@@ -20,13 +20,17 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.bcn.asapp.uaa.auth.AccessTokenDTO;
 import com.bcn.asapp.uaa.auth.AuthService;
-import com.bcn.asapp.uaa.auth.AuthenticationDTO;
+import com.bcn.asapp.uaa.auth.JwtAuthenticationDTO;
+import com.bcn.asapp.uaa.auth.RefreshTokenDTO;
 import com.bcn.asapp.uaa.auth.UserCredentialsDTO;
-import com.bcn.asapp.uaa.config.security.JwtTokenProvider;
+import com.bcn.asapp.uaa.security.authentication.issuer.JwtIssuer;
+import com.bcn.asapp.uaa.security.authentication.verifier.JwtVerifier;
+import com.bcn.asapp.uaa.security.core.JwtAuthentication;
 
 /**
- * Standard implementation of {@link AuthService}.
+ * Standard implementation of the {@link AuthService} responsible for user authentication and JWT management operations.
  *
  * @author ttrigo
  * @see AuthenticationManager
@@ -36,42 +40,80 @@ import com.bcn.asapp.uaa.config.security.JwtTokenProvider;
 @Service
 public class AuthServiceImpl implements AuthService {
 
+    /**
+     * Authentication manager used to authenticate user credentials.
+     */
     private final AuthenticationManager authenticationManager;
 
-    private final JwtTokenProvider jwtTokenProvider;
+    /**
+     * Verifier responsible for validating refresh tokens.
+     */
+    private final JwtVerifier refreshTokenVerifier;
 
     /**
-     * Main constructor.
-     *
-     * @param authenticationManager the authentication manager used to authenticate the user.
-     * @param jwtTokenProvider      the JWT provider used to perform JWT operations.
+     * Issuer responsible for issuing new JWT authentication tokens.
      */
-    public AuthServiceImpl(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
+    private final JwtIssuer jwtIssuer;
+
+    /**
+     * Constructs a new {@code AuthServiceImpl} with the specified dependencies.
+     *
+     * @param authenticationManager the authentication manager used to authenticate user credentials
+     * @param refreshTokenVerifier  the verifier used to validate refresh tokens
+     * @param jwtIssuer             the issuer responsible for generating new JWT authentication tokens
+     */
+    public AuthServiceImpl(AuthenticationManager authenticationManager, JwtVerifier refreshTokenVerifier, JwtIssuer jwtIssuer) {
         this.authenticationManager = authenticationManager;
-        this.jwtTokenProvider = jwtTokenProvider;
+        this.refreshTokenVerifier = refreshTokenVerifier;
+        this.jwtIssuer = jwtIssuer;
     }
 
     /**
-     * Authenticates the user based on the given credentials and generates a JWT upon successful authentication.
-     * <p>
-     * To correctly authenticate a user the operation must do the following actions:
-     * <ul>
-     * <li>Authenticate the user using the {@link AuthenticationManager}.</li>
-     * <li>Set the authentication to the {@link SecurityContextHolder}</li>
-     * <li>Generates a JWT using the {@link JwtTokenProvider}.</li>
-     * </ul>
+     * Authenticates a user using their credentials and issues new JWT authentication tokens.
+     *
+     * @param userCredentials the credentials of the user to authenticate
+     * @return a {@link JwtAuthenticationDTO} containing newly issued access and refresh tokens
      */
     @Override
-    public AuthenticationDTO login(UserCredentialsDTO userCredentials) {
-        var authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(userCredentials.username(), userCredentials.password()));
+    public JwtAuthenticationDTO authenticate(UserCredentialsDTO userCredentials) {
+        var authenticationRequest = new UsernamePasswordAuthenticationToken(userCredentials.username(), userCredentials.password());
+        var authentication = authenticationManager.authenticate(authenticationRequest);
 
         SecurityContextHolder.getContext()
                              .setAuthentication(authentication);
 
-        var jwt = jwtTokenProvider.generateToken(authentication);
+        var newAuthentication = jwtIssuer.issueAuthentication(authentication);
 
-        return new AuthenticationDTO(jwt);
+        return buildAuthenticationDTO(newAuthentication);
+    }
+
+    /**
+     * Refreshes JWT authentication tokens using a valid refresh token.
+     *
+     * @param refreshToken the refresh token DTO containing the JWT to verify
+     * @return a {@link JwtAuthenticationDTO} containing newly issued tokens
+     */
+    @Override
+    public JwtAuthenticationDTO refreshToken(RefreshTokenDTO refreshToken) {
+        var authentication = refreshTokenVerifier.verify(refreshToken.jwt());
+
+        var newAuthentication = jwtIssuer.issueAuthentication(authentication);
+
+        return buildAuthenticationDTO(newAuthentication);
+    }
+
+    /**
+     * Builds a {@link JwtAuthenticationDTO} from a {@link JwtAuthentication} object.
+     *
+     * @param jwtAuthentication the JWT authentication containing access and refresh tokens
+     * @return a DTO encapsulating the tokens
+     */
+    private JwtAuthenticationDTO buildAuthenticationDTO(JwtAuthentication jwtAuthentication) {
+        var newAccessToken = new AccessTokenDTO(jwtAuthentication.accessToken()
+                                                                 .jwt());
+        var newRefreshToken = new RefreshTokenDTO(jwtAuthentication.refreshToken()
+                                                                   .jwt());
+        return new JwtAuthenticationDTO(newAccessToken, newRefreshToken);
     }
 
 }

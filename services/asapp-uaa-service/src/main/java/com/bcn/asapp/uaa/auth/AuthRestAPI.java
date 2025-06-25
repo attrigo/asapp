@@ -15,8 +15,9 @@
 */
 package com.bcn.asapp.uaa.auth;
 
-import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_LOGIN_PATH;
+import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_REFRESH_TOKEN_PATH;
 import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_ROOT_PATH;
+import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_TOKEN_PATH;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,34 +35,57 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 /**
- * Defines the RESTful API for handling user authentication operations.
+ * REST API interface that exposes user authentication endpoints.
  *
  * @author ttrigo
  * @since 0.2.0
  */
-@Tag(name = "UAA operations", description = "Defines the RESTful API for handling user authentication operations")
+@Tag(name = "UAA operations", description = "REST API interface for User Authentication and Authorization (UAA) operations")
 @RequestMapping(AUTH_ROOT_PATH)
 public interface AuthRestAPI {
 
     /**
-     * Logs in the user with the given credentials.
+     * Authenticates a user with given credentials and returns authentication tokens.
+     * <p>
+     * In case the given user is already authenticated generates new authentication tokens overriding the existing ones.
      * <p>
      * Response codes:
      * <ul>
-     * <li>20O-CREATED : The user has been logged in.</li>
-     * <li>401-UNAUTHORIZED : The user could not log in.</li>
+     * <li>20O-OK : The user has been authenticated successfully.</li>
+     * <li>401-UNAUTHORIZED : The user could not be authenticated.</li>
      * </ul>
      *
-     * @param userCredentials the user credentials provided by the user (username and password).
-     * @return a {@link ResponseEntity} wrapping the authentication details if the login is successful.
-     * @throws AuthenticationException if the credentials are invalid.
+     * @param userCredentials the user credentials (username and password), must not be {@literal null} and must be valid
+     * @return a {@link ResponseEntity} wrapping {@link JwtAuthenticationDTO} with access and refresh tokens upon successful authentication
+     * @throws AuthenticationException if authentication fails due to invalid credentials or other errors
      */
-    @Operation(summary = "Logs in the user with the given credentials", description = "Logins the given user and returns the authentication details")
-    @ApiResponse(responseCode = "200", description = "The user has been logged in", content = {
-            @Content(schema = @Schema(implementation = AuthenticationDTO.class)) })
-    @ApiResponse(responseCode = "401", description = "The user could not log in", content = { @Content })
-    @PostMapping(value = AUTH_LOGIN_PATH, consumes = "application/json", produces = "application/json")
+    @Operation(summary = "Authenticates a user with the given credentials", description = "Authenticates a user with given credentials and returns authentication tokens, in case the given user is already authenticated generates new authentication tokens overriding the existing ones")
+    @ApiResponse(responseCode = "200", description = "The user has been authenticated successfully", content = {
+            @Content(schema = @Schema(implementation = JwtAuthenticationDTO.class)) })
+    @ApiResponse(responseCode = "401", description = "The user could not be authenticated", content = { @Content })
+    @PostMapping(value = AUTH_TOKEN_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<AuthenticationDTO> login(@Valid @RequestBody UserCredentialsDTO userCredentials);
+    ResponseEntity<JwtAuthenticationDTO> authenticate(@Valid @RequestBody UserCredentialsDTO userCredentials);
+
+    /**
+     * Refreshes an existing JWT authentication token using a valid refresh token.
+     * <p>
+     * Response codes:
+     * <ul>
+     * <li>20O-OK : The authentication token has been refreshed successfully.</li>
+     * <li>401-UNAUTHORIZED :The refresh token is invalid, expired, or the refresh process fails.</li>
+     * </ul>
+     *
+     * @param refreshToken the refresh token DTO used to obtain new tokens, must not be {@literal null}
+     * @return a {@link ResponseEntity} containing the refreshed {@link JwtAuthenticationDTO} with the refreshed access and refresh tokens
+     * @throws AuthenticationException if the refresh token is invalid, expired, or cannot be processed
+     */
+    @Operation(summary = "Refreshes the JWT authentication token", description = "Refreshes an existing JWT authentication token using a valid refresh token")
+    @ApiResponse(responseCode = "200", description = "The authentication token has been refreshed successfully", content = {
+            @Content(schema = @Schema(implementation = JwtAuthenticationDTO.class)) })
+    @ApiResponse(responseCode = "401", description = "The refresh token is invalid, expired, or the refresh process fails", content = { @Content })
+    @PostMapping(value = AUTH_REFRESH_TOKEN_PATH, consumes = "application/json", produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    ResponseEntity<JwtAuthenticationDTO> refreshToken(@RequestBody RefreshTokenDTO refreshToken);
 
 }

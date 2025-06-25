@@ -2,7 +2,7 @@
 
 asapp-uaa-service is a REST service application that publishes the following authorization and authentication operations.
 
-* Login a user
+* Authenticate a user
 
 Each of these operations is exposed as an REST endpoint. \
 

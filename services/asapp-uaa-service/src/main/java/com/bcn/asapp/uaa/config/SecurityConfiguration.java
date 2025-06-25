@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.bcn.asapp.uaa.config.security;
+package com.bcn.asapp.uaa.config;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -30,6 +30,9 @@ import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+
+import com.bcn.asapp.uaa.security.web.JwtAuthenticationEntryPoint;
+import com.bcn.asapp.uaa.security.web.JwtAuthenticationFilter;
 
 /**
  * Security configuration.
@@ -49,17 +52,26 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfiguration {
 
+    /**
+     * Array of URL patterns that are excluded from authentication and authorization checks.
+     */
     private static final String[] WHITELIST_URLS = { "/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/actuator/health" };
 
+    /**
+     * Handles authentication entry point to manage unauthorized access attempts.
+     */
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
+    /**
+     * Filter responsible for processing JWT authentication on incoming HTTP requests.
+     */
     private final JwtAuthenticationFilter authenticationFilter;
 
     /**
      * Main constructor.
      *
-     * @param authenticationEntryPoint the authentication entry point for handling authentication exceptions.
-     * @param authenticationFilter     the authentication filter to handle token authentication.
+     * @param authenticationEntryPoint the authentication entry point for handling authentication exceptions
+     * @param authenticationFilter     the authentication filter to handle token authentication
      */
     public SecurityConfiguration(JwtAuthenticationEntryPoint authenticationEntryPoint, JwtAuthenticationFilter authenticationFilter) {
         this.authenticationEntryPoint = authenticationEntryPoint;
@@ -82,9 +94,9 @@ public class SecurityConfiguration {
      * <li>Adds the JWT authentication filter.</li>
      * </ul>
      *
-     * @param http the {@link HttpSecurity} object used to configure HTTP security.
-     * @return an instance of {@link SecurityFilterChain}.
-     * @throws Exception if an error occurs during configuration.
+     * @param http the {@link HttpSecurity} object used to configure HTTP security
+     * @return an instance of {@link SecurityFilterChain}
+     * @throws Exception if an error occurs during configuration
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -112,9 +124,9 @@ public class SecurityConfiguration {
      * The AuthenticationManager is responsible for authenticating user credentials and determining whether the authentication request is valid, delegating the
      * process to the appropriate authentication providers.
      *
-     * @param authenticationConfiguration the configuration used to build the authentication manager.
-     * @return an instance of {@link AuthenticationManager}.
-     * @throws Exception if an error occurs during configuration.
+     * @param authenticationConfiguration the configuration used to build the authentication manager
+     * @return an instance of {@link AuthenticationManager}
+     * @throws Exception if an error occurs during configuration
      */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
@@ -129,7 +141,7 @@ public class SecurityConfiguration {
      * Uses {@link PasswordEncoderFactories#createDelegatingPasswordEncoder()} which creates a {@link DelegatingPasswordEncoder} that supports multiple encoding
      * schemes.
      *
-     * @return an instance of {@link PasswordEncoder}.
+     * @return an instance of {@link PasswordEncoder}
      */
     @Bean
     public PasswordEncoder passwordEncoder() {

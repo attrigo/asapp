@@ -15,7 +15,8 @@
 */
 package com.bcn.asapp.uaa.auth.internal;
 
-import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_LOGIN_FULL_PATH;
+import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_REFRESH_TOKEN_FULL_PATH;
+import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_TOKEN_FULL_PATH;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -41,17 +42,20 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.bcn.asapp.uaa.auth.AccessTokenDTO;
 import com.bcn.asapp.uaa.auth.AuthService;
-import com.bcn.asapp.uaa.auth.AuthenticationDTO;
+import com.bcn.asapp.uaa.auth.JwtAuthenticationDTO;
+import com.bcn.asapp.uaa.auth.RefreshTokenDTO;
 import com.bcn.asapp.uaa.auth.UserCredentialsDTO;
-import com.bcn.asapp.uaa.config.security.JwtAuthenticationEntryPoint;
-import com.bcn.asapp.uaa.config.security.JwtAuthenticationFilter;
-import com.bcn.asapp.uaa.config.security.JwtTokenProvider;
-import com.bcn.asapp.uaa.config.security.SecurityConfiguration;
+import com.bcn.asapp.uaa.config.SecurityConfiguration;
+import com.bcn.asapp.uaa.security.authentication.verifier.JwtVerifier;
+import com.bcn.asapp.uaa.security.core.JwtType;
+import com.bcn.asapp.uaa.security.web.JwtAuthenticationEntryPoint;
+import com.bcn.asapp.uaa.security.web.JwtAuthenticationFilter;
+import com.bcn.asapp.uaa.testutil.JwtFaker;
 
-@Import(value = { SecurityConfiguration.class, JwtAuthenticationFilter.class, JwtAuthenticationEntryPoint.class, JwtTokenProvider.class })
+@Import(value = { SecurityConfiguration.class, JwtAuthenticationFilter.class, JwtAuthenticationEntryPoint.class })
 @WebMvcTest(AuthRestController.class)
-@WithAnonymousUser
 class AuthControllerIT {
 
     @Autowired
@@ -64,7 +68,12 @@ class AuthControllerIT {
     private ObjectMapper objectMapperIncludeAlways;
 
     @MockitoBean
+    private JwtVerifier jwtVerifierMock;
+
+    @MockitoBean
     private AuthService authServiceMock;
+
+    private JwtFaker jwtFaker;
 
     private String fakeUsername;
 
@@ -72,41 +81,26 @@ class AuthControllerIT {
 
     @BeforeEach
     void beforeEach() {
-        objectMapperIncludeAlways.setSerializationInclusion(JsonInclude.Include.ALWAYS);
+        this.objectMapperIncludeAlways.setSerializationInclusion(JsonInclude.Include.ALWAYS);
 
-        this.fakeUsername = "IT username";
-        this.fakePassword = "IT password";
+        this.jwtFaker = new JwtFaker();
+
+        this.fakeUsername = "TEST USERNAME";
+        this.fakePassword = "TEST PASSWORD";
     }
 
     @Nested
-    class Login {
+    @WithAnonymousUser
+    class Authenticate {
 
         @Test
-        @DisplayName("GIVEN JWT is not present WHEN login a user THEN returns HTTP response with status OK And the body with the generated authentication")
-        void JwtIsNotPresent_Login_ReturnsStatusCreatedAndBodyWithGeneratedAuthentication() throws Exception {
-            // Given
-            given(authServiceMock.login(any(UserCredentialsDTO.class))).willReturn(new AuthenticationDTO("IT Token"));
-
+        @DisplayName("GIVEN user credentials fields are not a valid Json WHEN authenticate a user THEN returns HTTP response with status Unsupported Media Type And the empty body with the problem details")
+        void UserCredentialsFieldsAreNotJson_Authenticate_ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetails() throws Exception {
             // When & Then
-            var userCredentialsToLogin = new UserCredentialsDTO(fakeUsername, fakePassword);
-            var userCredentialsToLoginAsJson = objectMapper.writeValueAsString(userCredentialsToLogin);
+            var userCredentialsToAuthenticate = "";
 
-            var requestBuilder = post(AUTH_LOGIN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
-                                                           .content(userCredentialsToLoginAsJson);
-            mockMvc.perform(requestBuilder)
-                   .andExpect(status().isOk())
-                   .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                   .andExpect(jsonPath("$.jwt").exists());
-        }
-
-        @Test
-        @DisplayName("GIVEN user credentials are not a valid Json WHEN login a user THEN returns HTTP response with status Unsupported Media Type And the empty body with the problem details")
-        void UserCredentialsAreNotJson_Login_ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetails() throws Exception {
-            // When & Then
-            var userCredentialsToLogin = "";
-
-            var requestBuilder = post(AUTH_LOGIN_FULL_PATH).contentType(MediaType.TEXT_PLAIN)
-                                                           .content(userCredentialsToLogin);
+            var requestBuilder = post(AUTH_TOKEN_FULL_PATH).contentType(MediaType.TEXT_PLAIN)
+                                                           .content(userCredentialsToAuthenticate);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().is4xxClientError())
                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -114,18 +108,36 @@ class AuthControllerIT {
                    .andExpect(jsonPath("$.title", is("Unsupported Media Type")))
                    .andExpect(jsonPath("$.status", is(415)))
                    .andExpect(jsonPath("$.detail", is("Content-Type 'text/plain' is not supported.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/auth/login")));
+                   .andExpect(jsonPath("$.instance", is("/v1/auth/token")));
         }
 
         @Test
-        @DisplayName("GIVEN user credentials mandatory fields are not present WHEN login a user THEN returns HTTP response with status BAD_REQUEST And the empty body with the problem details")
-        void UserCredentialsMandatoryFieldsAreNotPresent_Login_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+        @DisplayName("GIVEN user credentials fields are not present WHEN authenticate a user THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+        void UserCredentialsFieldsAreNotPresent_Authenticate_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
             // When & Then
-            var userCredentialsToLogin = new UserCredentialsDTO(null, null);
-            var userCredentialsToLoginAsJson = objectMapper.writeValueAsString(userCredentialsToLogin);
+            var userCredentialsToAuthenticate = "";
 
-            var requestBuilder = post(AUTH_LOGIN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
-                                                           .content(userCredentialsToLoginAsJson);
+            var requestBuilder = post(AUTH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                           .content(userCredentialsToAuthenticate);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().is4xxClientError())
+                   .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                   .andExpect(jsonPath("$.type", is("about:blank")))
+                   .andExpect(jsonPath("$.title", is("Bad Request")))
+                   .andExpect(jsonPath("$.status", is(400)))
+                   .andExpect(jsonPath("$.detail", is("Failed to read request")))
+                   .andExpect(jsonPath("$.instance", is("/v1/auth/token")));
+        }
+
+        @Test
+        @DisplayName("GIVEN user credentials mandatory fields are not present WHEN authenticate a user THEN returns HTTP response with status BAD_REQUEST And the empty body with the problem details")
+        void UserCredentialsMandatoryFieldsAreNotPresent_Authenticate_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+            // When & Then
+            var userCredentialsToAuthenticate = new UserCredentialsDTO(null, null);
+            var userCredentialsToAuthenticateAsJson = objectMapper.writeValueAsString(userCredentialsToAuthenticate);
+
+            var requestBuilder = post(AUTH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                           .content(userCredentialsToAuthenticateAsJson);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isBadRequest())
                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -134,7 +146,7 @@ class AuthControllerIT {
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("The username is mandatory")))
                    .andExpect(jsonPath("$.detail", containsString("The password is mandatory")))
-                   .andExpect(jsonPath("$.instance", is("/v1/auth/login")))
+                   .andExpect(jsonPath("$.instance", is("/v1/auth/token")))
                    .andExpect(jsonPath("$.errors", hasSize(2)))
                    .andExpect(jsonPath(
                            "$.errors[?(@.entity == 'userCredentialsDTO' && @.field == 'username' && @.message == 'The username is mandatory')]").exists())
@@ -143,14 +155,14 @@ class AuthControllerIT {
         }
 
         @Test
-        @DisplayName("GIVEN user credentials mandatory fields are empty WHEN login a user THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-        void UserCredentialsFieldsAreEmpty_Login_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+        @DisplayName("GIVEN user credentials mandatory fields are empty WHEN authenticate a user THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+        void UserCredentialsFieldsAreEmpty_Authenticate_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
             // When & Then
-            var userCredentialsToLogin = new UserCredentialsDTO("", "");
-            var userCredentialsToLoginAsJson = objectMapperIncludeAlways.writeValueAsString(userCredentialsToLogin);
+            var userCredentialsToAuthenticate = new UserCredentialsDTO("", "");
+            var userCredentialsToAuthenticateAsJson = objectMapperIncludeAlways.writeValueAsString(userCredentialsToAuthenticate);
 
-            var requestBuilder = post(AUTH_LOGIN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
-                                                           .content(userCredentialsToLoginAsJson);
+            var requestBuilder = post(AUTH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                           .content(userCredentialsToAuthenticateAsJson);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isBadRequest())
                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -159,7 +171,7 @@ class AuthControllerIT {
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("The username is mandatory")))
                    .andExpect(jsonPath("$.detail", containsString("The password is mandatory")))
-                   .andExpect(jsonPath("$.instance", is("/v1/auth/login")))
+                   .andExpect(jsonPath("$.instance", is("/v1/auth/token")))
                    .andExpect(jsonPath("$.errors", hasSize(2)))
                    .andExpect(jsonPath(
                            "$.errors[?(@.entity == 'userCredentialsDTO' && @.field == 'username' && @.message == 'The username is mandatory')]").exists())
@@ -168,21 +180,90 @@ class AuthControllerIT {
         }
 
         @Test
-        @DisplayName("GIVEN user credentials are valid WHEN login a user THEN returns HTTP response with status OK And the body with the generated authentication")
-        void UserCredentialsAreValid_Login_ReturnsStatusCreatedAndBodyWithGeneratedAuthentication() throws Exception {
+        @DisplayName("GIVEN user credentials fields are valid WHEN authenticate a user THEN returns HTTP response with status OK And the body with the generated authentication")
+        void UserCredentialsFieldsAreValid_Authenticate_ReturnsStatusOkAndBodyWithGeneratedAuthentication() throws Exception {
             // Given
-            given(authServiceMock.login(any(UserCredentialsDTO.class))).willReturn(new AuthenticationDTO("IT Token"));
+            var fakeAccessToken = jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN);
+            var fakeRefreshToken = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
+            var fakeAuthentication = new JwtAuthenticationDTO(new AccessTokenDTO(fakeAccessToken), new RefreshTokenDTO(fakeRefreshToken));
+            given(authServiceMock.authenticate(any(UserCredentialsDTO.class))).willReturn(fakeAuthentication);
 
             // When & Then
-            var userCredentialsToLogin = new UserCredentialsDTO(fakeUsername, fakePassword);
-            var userCredentialsToLoginAsJson = objectMapper.writeValueAsString(userCredentialsToLogin);
+            var userCredentialsToAuthenticate = new UserCredentialsDTO(fakeUsername, fakePassword);
+            var userCredentialsToAuthenticateAsJson = objectMapper.writeValueAsString(userCredentialsToAuthenticate);
 
-            var requestBuilder = post(AUTH_LOGIN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
-                                                           .content(userCredentialsToLoginAsJson);
+            var requestBuilder = post(AUTH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                           .content(userCredentialsToAuthenticateAsJson);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                   .andExpect(jsonPath("$.jwt").exists());
+                   .andExpect(jsonPath("$.access_token", is(fakeAccessToken)))
+                   .andExpect(jsonPath("$.refresh_token", is(fakeRefreshToken)));
+        }
+
+    }
+
+    @Nested
+    @WithAnonymousUser
+    class RefreshToken {
+
+        @Test
+        @DisplayName("GIVEN refresh token is not a valid Json WHEN refresh a token THEN returns HTTP response with status Unsupported Media Type And the empty body with the problem details")
+        void RefreshTokenIsNotJson_RefreshToken_ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetails() throws Exception {
+            // When & Then
+            var refreshTokenToRefresh = "";
+
+            var requestBuilder = post(AUTH_REFRESH_TOKEN_FULL_PATH).contentType(MediaType.TEXT_PLAIN)
+                                                                   .content(refreshTokenToRefresh);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().is4xxClientError())
+                   .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                   .andExpect(jsonPath("$.type", is("about:blank")))
+                   .andExpect(jsonPath("$.title", is("Unsupported Media Type")))
+                   .andExpect(jsonPath("$.status", is(415)))
+                   .andExpect(jsonPath("$.detail", is("Content-Type 'text/plain' is not supported.")))
+                   .andExpect(jsonPath("$.instance", is("/v1/auth/refresh-token")));
+        }
+
+        @Test
+        @DisplayName("GIVEN refresh token is not present WHEN refresh a token THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+        void RefreshTokenIsNotPresent_RefreshToken_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+            // When & Then
+            var refreshTokenToRefresh = "";
+
+            var requestBuilder = post(AUTH_REFRESH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                                   .content(refreshTokenToRefresh);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().is4xxClientError())
+                   .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                   .andExpect(jsonPath("$.type", is("about:blank")))
+                   .andExpect(jsonPath("$.title", is("Bad Request")))
+                   .andExpect(jsonPath("$.status", is(400)))
+                   .andExpect(jsonPath("$.detail", is("Failed to read request")))
+                   .andExpect(jsonPath("$.instance", is("/v1/auth/refresh-token")));
+        }
+
+        @Test
+        @DisplayName("GIVEN refresh token is valid valid WHEN refresh a token THEN returns HTTP response with status OK And the body with the generated authentication")
+        void RefreshTokenIsValid_RefreshToken_ReturnsStatusOkAndBodyWithGeneratedAuthentication() throws Exception {
+            // Given
+            var fakeAccessToken = jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN);
+            var fakeRefreshToken = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
+            var fakeAuthentication = new JwtAuthenticationDTO(new AccessTokenDTO(fakeAccessToken), new RefreshTokenDTO(fakeRefreshToken));
+            given(authServiceMock.refreshToken(any(RefreshTokenDTO.class))).willReturn(fakeAuthentication);
+
+            // When & Then
+            var refreshToken = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
+            var refreshTokenToRefresh = new RefreshTokenDTO(refreshToken);
+            var refreshTokenToRefreshAsJson = objectMapper.writeValueAsString(refreshTokenToRefresh);
+
+            var requestBuilder = post(AUTH_REFRESH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                                   .content(refreshTokenToRefreshAsJson);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().isOk())
+                   .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                   .andExpect(jsonPath("$.access_token", is(fakeAccessToken)))
+                   .andExpect(jsonPath("$.refresh_token", is(fakeRefreshToken)));
         }
 
     }

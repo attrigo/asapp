@@ -20,11 +20,12 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.bcn.asapp.uaa.auth.AuthRestAPI;
 import com.bcn.asapp.uaa.auth.AuthService;
-import com.bcn.asapp.uaa.auth.AuthenticationDTO;
+import com.bcn.asapp.uaa.auth.JwtAuthenticationDTO;
+import com.bcn.asapp.uaa.auth.RefreshTokenDTO;
 import com.bcn.asapp.uaa.auth.UserCredentialsDTO;
 
 /**
- * Standard implementation of {@link AuthRestAPI}.
+ * REST controller implementation of the {@link AuthRestAPI} responsible for handling user authentication requests.
  *
  * @author ttrigo
  * @since 0.2.0
@@ -32,20 +33,35 @@ import com.bcn.asapp.uaa.auth.UserCredentialsDTO;
 @RestController
 public class AuthRestController implements AuthRestAPI {
 
+    /**
+     * Service responsible for authentication logic and token management.
+     */
     private final AuthService authService;
 
     /**
-     * Main constructor.
+     * Constructs a new {@code AuthRestController} with the specified authentication service.
      *
-     * @param authService the services that brings authentication operations.
+     * @param authService the authentication service responsible for authentication and token management
      */
     public AuthRestController(AuthService authService) {
         this.authService = authService;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public ResponseEntity<AuthenticationDTO> login(UserCredentialsDTO userCredentials) {
-        var authentication = authService.login(userCredentials);
+    public ResponseEntity<JwtAuthenticationDTO> authenticate(UserCredentialsDTO userCredentials) {
+        var authentication = authService.authenticate(userCredentials);
+        return ResponseEntity.ok(authentication);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ResponseEntity<JwtAuthenticationDTO> refreshToken(RefreshTokenDTO refreshToken) {
+        var authentication = authService.refreshToken(refreshToken);
         return ResponseEntity.ok(authentication);
     }
 
