@@ -19,6 +19,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.not;
 
+import java.time.Instant;
+
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -35,8 +38,14 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import com.bcn.asapp.uaa.AsappUAAServiceApplication;
+import com.bcn.asapp.uaa.security.core.AccessToken;
+import com.bcn.asapp.uaa.security.core.AccessTokenRepository;
+import com.bcn.asapp.uaa.security.core.JwtType;
+import com.bcn.asapp.uaa.security.core.Role;
+import com.bcn.asapp.uaa.security.core.User;
+import com.bcn.asapp.uaa.security.core.UserRepository;
 import com.bcn.asapp.uaa.testconfig.SecurityTestConfiguration;
-import com.bcn.asapp.uaa.testutil.JwtTestGenerator;
+import com.bcn.asapp.uaa.testutil.JwtFaker;
 
 @AutoConfigureWebTestClient(timeout = "30000")
 @Testcontainers(disabledWithoutDocker = true)
@@ -49,17 +58,52 @@ class SecurityConfigurationIT {
     static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"));
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private AccessTokenRepository accessTokenRepository;
+
+    @Autowired
     private WebTestClient webTestClient;
 
     @Autowired
-    private JwtTestGenerator jwtTestGenerator;
+    private JwtFaker jwtFaker;
 
     @Nested
     class HttpBasicAuthentication {
 
         @Test
+        @DisplayName("GIVEN authorization header is not present WHEN call secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
+        void AuthorizationHeaderIsNotPresent_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
+            // When & Then
+            webTestClient.get()
+                         .uri("/actuator")
+                         .exchange()
+                         .expectStatus()
+                         .isUnauthorized()
+                         .expectBody()
+                         .isEmpty();
+        }
+
+        @Test
+        @DisplayName("GIVEN JWT is not a bearer token WHEN call secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtIsNotABearerToken_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
+            // When & Then
+            var nonBearerToken = jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN);
+
+            webTestClient.get()
+                         .uri("/actuator")
+                         .header(HttpHeaders.AUTHORIZATION, nonBearerToken)
+                         .exchange()
+                         .expectStatus()
+                         .isUnauthorized()
+                         .expectBody()
+                         .isEmpty();
+        }
+
+        @Test
         @DisplayName("GIVEN JWT is empty WHEN call secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
-        void JwtIsEmpty_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
+        void JwtIsEmptyBearerToken_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
             // When & Then
             var bearerToken = "Bearer ";
 
@@ -77,7 +121,7 @@ class SecurityConfigurationIT {
         @DisplayName("GIVEN JWT is invalid WHEN call secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
         void JwtIsInvalid_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
             // When & Then
-            var bearerToken = "Bearer " + jwtTestGenerator.generateJwtInvalid();
+            var bearerToken = "Bearer " + jwtFaker.fakeJwtInvalid();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -93,7 +137,7 @@ class SecurityConfigurationIT {
         @DisplayName("GIVEN JWT signature is invalid WHEN call secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
         void JwtSignatureIsInvalid_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
             // When & Then
-            var bearerToken = "Bearer " + jwtTestGenerator.generateJwtWithInvalidSignature();
+            var bearerToken = "Bearer " + jwtFaker.fakeJwtWithInvalidSignature(JwtType.ACCESS_TOKEN);
 
             webTestClient.get()
                          .uri("/actuator")
@@ -109,7 +153,7 @@ class SecurityConfigurationIT {
         @DisplayName("GIVEN JWT has expired WHEN call secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
         void JwtHasExpired_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
             // When & Then
-            var bearerToken = "Bearer " + jwtTestGenerator.generateJwtExpired();
+            var bearerToken = "Bearer " + jwtFaker.fakeJwtExpired(JwtType.ACCESS_TOKEN);
 
             webTestClient.get()
                          .uri("/actuator")
@@ -125,7 +169,7 @@ class SecurityConfigurationIT {
         @DisplayName("GIVEN JWT is not signed WHEN call secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
         void JwtIsNotSigned_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
             // When & Then
-            var bearerToken = "Bearer " + jwtTestGenerator.generateJwtNotSigned();
+            var bearerToken = "Bearer " + jwtFaker.fakeJwtNotSigned(JwtType.ACCESS_TOKEN);
 
             webTestClient.get()
                          .uri("/actuator")
@@ -138,10 +182,10 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        @DisplayName("GIVEN JWT has not username WHEN call secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
-        void JwtHasNotUsername_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
+        @DisplayName("GIVEN JWT has not type WHEN call secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtHasNotType_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
             // When & Then
-            var bearerToken = "Bearer " + jwtTestGenerator.generateJwtWithoutUsername();
+            var bearerToken = "Bearer " + jwtFaker.fakeJwtWithoutType();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -154,10 +198,26 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        @DisplayName("GIVEN JWT has not authorities WHEN call secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
-        void JwtHasNotAuthorities_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
+        @DisplayName("GIVEN JWT has invalid type WHEN call secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtHasInvalidType_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
             // When & Then
-            var bearerToken = "Bearer " + jwtTestGenerator.generateJwtWithoutAuthorities();
+            var bearerToken = "Bearer " + jwtFaker.fakeJwtWithInvalidType();
+
+            webTestClient.get()
+                         .uri("/actuator")
+                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                         .exchange()
+                         .expectStatus()
+                         .isUnauthorized()
+                         .expectBody()
+                         .isEmpty();
+        }
+
+        @Test
+        @DisplayName("GIVEN JWT is a refresh token WHEN call secured endpoint THEN returns HTTP response with status Unauthorized And an empty body")
+        void JwtIsRefreshToken_CallSecuredEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
+            // When & Then
+            var bearerToken = "Bearer " + jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
 
             webTestClient.get()
                          .uri("/actuator")
@@ -189,8 +249,19 @@ class SecurityConfigurationIT {
         @Test
         @DisplayName("GIVEN JWT is present WHEN call actuator endpoint THEN returns HTTP response with status OK And the body with the actuator content")
         void JwtIsPresent_CallActuatorEndpoint_ReturnsStatusOkAndBodyWithContent() {
+            // Given
+            var fakeUsername = "TEST USERNAME";
+            var fakePasswordBcryptEncoded = "{bcrypt}" + new BCryptPasswordEncoder().encode("TEST PASSWORD");
+
+            var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
+            var userToBeLogin = userRepository.save(fakeUser);
+
+            var fakeAccessJwt = jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN);
+            var fakeAccessToken = new AccessToken(null, userToBeLogin.id(), fakeAccessJwt, Instant.now(), Instant.now());
+            accessTokenRepository.save(fakeAccessToken);
+
             // When & Then
-            var bearerToken = "Bearer " + jwtTestGenerator.generateJwt();
+            var bearerToken = "Bearer " + fakeAccessJwt;
 
             webTestClient.get()
                          .uri("/actuator")
@@ -200,6 +271,10 @@ class SecurityConfigurationIT {
                          .isOk()
                          .expectBody(String.class)
                          .value(body -> assertThat(body, not(emptyOrNullString())));
+
+            // Clean
+            accessTokenRepository.deleteAll();
+            userRepository.deleteAll();
         }
 
         @Test

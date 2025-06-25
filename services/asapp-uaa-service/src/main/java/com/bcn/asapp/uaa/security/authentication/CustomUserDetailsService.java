@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.bcn.asapp.uaa.config.security;
+package com.bcn.asapp.uaa.security.authentication;
 
 import java.util.Set;
 
@@ -23,33 +23,50 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
-import com.bcn.asapp.uaa.auth.UserRepository;
+import com.bcn.asapp.uaa.security.core.UserRepository;
 
 /**
- * Custom implementation of {@link UserDetailsService} that loads user-specific data for authentication purposes.
+ * Loads user-specific data required for authentication by implementing {@link UserDetailsService}.
  * <p>
- * Fetches user information from a {@link UserRepository} and constructs a {@link UserDetails} object, which is used by Spring Security to authenticate the
- * user.
+ * This service retrieves user information from a {@link UserRepository} and constructs a Spring Security {@link UserDetails} instance containing the username,
+ * password, and authorities.
+ * <p>
+ * User roles are mapped to {@link SimpleGrantedAuthority} objects to represent granted authorities used by Spring Security during authorization decisions.
+ * <p>
+ * This class is typically used by Spring Security's authentication manager during user authentication.
  *
  * @author ttrigo
  * @see UserDetailsService
  * @see org.springframework.security.core.userdetails.User
+ * @see SimpleGrantedAuthority
  * @since 0.2.0
  */
 @Component
 public class CustomUserDetailsService implements UserDetailsService {
 
+    /**
+     * Repository for retrieving user information.
+     */
     private final UserRepository userRepository;
 
     /**
-     * Main constructor.
+     * Constructs a new {@code CustomUserDetailsService} with the specified dependencies.
      *
-     * @param userRepository the repository to access user's data.
+     * @param userRepository the repository used to retrieve user information
      */
     public CustomUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
+    /**
+     * Loads a user by the provided username.
+     * <p>
+     * Retrieves the user from the repository and builds a {@link UserDetails} instance with their credentials and role-based authorities.
+     *
+     * @param username the username identifying the user
+     * @return a fully populated {@link UserDetails} instance
+     * @throws UsernameNotFoundException if no user is found with the provided username
+     */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         var user = userRepository.findByUsername(username)

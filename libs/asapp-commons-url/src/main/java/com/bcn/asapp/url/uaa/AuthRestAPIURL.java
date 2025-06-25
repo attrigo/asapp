@@ -25,9 +25,13 @@ public class AuthRestAPIURL {
 
     public static final String AUTH_ROOT_PATH = "/v1/auth";
 
-    public static final String AUTH_LOGIN_PATH = "/login";
+    public static final String AUTH_TOKEN_PATH = "/token";
 
-    public static final String AUTH_LOGIN_FULL_PATH = AUTH_ROOT_PATH + AUTH_LOGIN_PATH;
+    public static final String AUTH_REFRESH_TOKEN_PATH = "/refresh-token";
+
+    public static final String AUTH_TOKEN_FULL_PATH = AUTH_ROOT_PATH + AUTH_TOKEN_PATH;
+
+    public static final String AUTH_REFRESH_TOKEN_FULL_PATH = AUTH_ROOT_PATH + AUTH_REFRESH_TOKEN_PATH;
 
     private AuthRestAPIURL() {}
 

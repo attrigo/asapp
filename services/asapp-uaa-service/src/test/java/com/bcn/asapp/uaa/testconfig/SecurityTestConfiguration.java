@@ -19,14 +19,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 
-import com.bcn.asapp.uaa.testutil.JwtTestGenerator;
+import com.bcn.asapp.uaa.testutil.JwtFaker;
 
 @TestConfiguration(proxyBeanMethods = false)
 public class SecurityTestConfiguration {
 
     @Bean
-    JwtTestGenerator jwtTestGenerator(@Value("${asapp.jwt-secret}") String jwtSecret, @Value("${asapp.jwt-expiration-time}") Long jwtExpirationTime) {
-        return new JwtTestGenerator(jwtSecret, jwtExpirationTime);
+    JwtFaker jwtTestGenerator(@Value("${asapp.security.jwt-secret}") String jwtSecret,
+            @Value("${asapp.security.access-token-expiration-time}") Long jwtExpirationTime) {
+        return new JwtFaker(jwtSecret, jwtExpirationTime);
     }
 
 }

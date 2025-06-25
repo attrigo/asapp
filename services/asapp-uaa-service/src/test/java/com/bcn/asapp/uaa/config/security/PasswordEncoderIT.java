@@ -29,12 +29,21 @@ import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-@ContextConfiguration(classes = { SecurityConfiguration.class, JwtAuthenticationFilter.class, JwtAuthenticationEntryPoint.class, JwtTokenProvider.class })
+import com.bcn.asapp.uaa.config.SecurityConfiguration;
+import com.bcn.asapp.uaa.security.authentication.verifier.JwtVerifier;
+import com.bcn.asapp.uaa.security.web.JwtAuthenticationEntryPoint;
+import com.bcn.asapp.uaa.security.web.JwtAuthenticationFilter;
+
+@ContextConfiguration(classes = { SecurityConfiguration.class, JwtAuthenticationFilter.class, JwtAuthenticationEntryPoint.class })
 @TestPropertySource(locations = "classpath:application.properties")
 @ExtendWith(SpringExtension.class)
 class PasswordEncoderIT {
+
+    @MockitoBean
+    private JwtVerifier jwtVerifierMock;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -47,67 +56,79 @@ class PasswordEncoderIT {
     }
 
     @Test
-    @DisplayName("GIVEN username password has been stored with Bcrypt encoding WHEN login a user THEN returns HTTP response with status OK And the body with the generated authentication")
-    void UserPasswordHasBcryptEncode_MatchPasswordWithPasswordEncoder_PasswordMatches() {
+    @DisplayName("GIVEN Bcrypt encoded password WHEN password encoder matches THEN password matches")
+    void BcryptEncodedPassword_PasswordEncoderMatches_PasswordMatches() {
+        // Given
         var bcryptEncoder = new BCryptPasswordEncoder();
         var fakePasswordBcryptEncoded = "{bcrypt}" + bcryptEncoder.encode(fakePassword);
 
         // When
-        var actual = passwordEncoder.matches(fakePassword, fakePasswordBcryptEncoded);
+        var rawPassword = fakePassword;
+
+        var actual = passwordEncoder.matches(rawPassword, fakePasswordBcryptEncoded);
 
         // Then
         assertTrue(actual);
     }
 
     @Test
-    @DisplayName("GIVEN username password has been stored with Argon2 encoding WHEN login a user THEN returns HTTP response with status OK And the body with the generated authentication")
-    void UserPasswordHasArgon2Encode_MatchPasswordWithPasswordEncoder_PasswordMatches() {
+    @DisplayName("GIVEN Argon2 encoded password WHEN password encoder matches THEN password matches")
+    void Argon2EncodedPassword_PasswordEncoderMatches_PasswordMatches() {
         // Given
         var argon2Encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
         var fakePasswordArgon2Encoded = "{argon2@SpringSecurity_v5_8}" + argon2Encoder.encode(fakePassword);
 
         // When
-        var actual = passwordEncoder.matches(fakePassword, fakePasswordArgon2Encoded);
+        var rawPassword = fakePassword;
+
+        var actual = passwordEncoder.matches(rawPassword, fakePasswordArgon2Encoded);
 
         // Then
         assertTrue(actual);
     }
 
     @Test
-    @DisplayName("GIVEN username password has been stored with Pbkdf2 encoding WHEN login a user THEN returns HTTP response with status OK And the body with the generated authentication")
-    void UserPasswordHasPbkdf2Encode_MatchPasswordWithPasswordEncoder_PasswordMatches() {
+    @DisplayName("GIVEN Pbkdf2 encoded password WHEN password encoder matches THEN password matches")
+    void Pbkdf2EncodedPassword_PasswordEncoderMatches_PasswordMatches() {
         // Given
         var pbkdf2Encoder = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
         var fakePasswordPbkdf2Encoded = "{pbkdf2@SpringSecurity_v5_8}" + pbkdf2Encoder.encode(fakePassword);
 
         // When
-        var actual = passwordEncoder.matches(fakePassword, fakePasswordPbkdf2Encoded);
+        var rawPassword = fakePassword;
+
+        var actual = passwordEncoder.matches(rawPassword, fakePasswordPbkdf2Encoded);
 
         // Then
         assertTrue(actual);
     }
 
     @Test
-    @DisplayName("GIVEN username password has been stored with Scrypt encoding WHEN login a user THEN returns HTTP response with status OK And the body with the generated authentication")
-    void UserPasswordHasScryptEncode_MatchPasswordWithPasswordEncoder_PasswordMatches() {
+    @DisplayName("GIVEN Scrypt encoded password WHEN password encoder matches THEN password matches")
+    void ScryptEncodedPassword_PasswordEncoderMatches_PasswordMatches() {
         // Given
         var scryptEncoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8();
         var fakePasswordScryptEncoded = "{scrypt@SpringSecurity_v5_8}" + scryptEncoder.encode(fakePassword);
 
-        var actual = passwordEncoder.matches(fakePassword, fakePasswordScryptEncoded);
+        // When
+        var rawPassword = fakePassword;
+
+        var actual = passwordEncoder.matches(rawPassword, fakePasswordScryptEncoded);
 
         // Then
         assertTrue(actual);
     }
 
     @Test
-    @DisplayName("GIVEN username password has been stored without encoding WHEN login a user THEN returns HTTP response with status OK And the body with the generated authentication")
-    void UserPasswordHasNoopEncode_MatchPasswordWithPasswordEncoder_PasswordMatches() {
+    @DisplayName("GIVEN Noop encoded password WHEN password encoder matches THEN password matches")
+    void NoopEncodedPassword_PasswordEncoderMatches_PasswordMatches() {
         // Given
         var fakePasswordNoopEncoded = "{noop}TEST PASSWORD";
 
         // When
-        var actual = passwordEncoder.matches(fakePassword, fakePasswordNoopEncoded);
+        var rawPassword = fakePassword;
+
+        var actual = passwordEncoder.matches(rawPassword, fakePasswordNoopEncoded);
 
         // Then
         assertTrue(actual);

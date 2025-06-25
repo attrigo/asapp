@@ -62,8 +62,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Maps the invalid request fields ({@link FieldError}) to a more specific DTO {@link InvalidRequestParameterDTO}.
      *
-     * @param fieldErrors the list of invalid fields to map.
-     * @return a list of {@link InvalidRequestParameterDTO} that contains the invalid fields.
+     * @param fieldErrors the list of invalid fields to map
+     * @return a list of {@link InvalidRequestParameterDTO} that contains the invalid fields
      */
     private List<InvalidRequestParameterDTO> buildInvalidParametersDTO(List<FieldError> fieldErrors) {
         Function<FieldError, InvalidRequestParameterDTO> fieldErrorMapper = fieldError -> new InvalidRequestParameterDTO(fieldError.getObjectName(),

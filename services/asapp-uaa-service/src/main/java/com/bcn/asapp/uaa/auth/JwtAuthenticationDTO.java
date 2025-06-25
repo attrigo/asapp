@@ -15,12 +15,19 @@
 */
 package com.bcn.asapp.uaa.auth;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+import jakarta.validation.constraints.NotNull;
+
 /**
- * Represents an authentication DTO.
+ * Data Transfer Object (DTO) encapsulating JWT authentication tokens.
  * <p>
- * Contains authentication details returned from login endpoint.
+ * Contains both an access token and a refresh token used in authentication flows.
  *
+ * @param accessToken  the access token DTO, must not be {@literal null}
+ * @param refreshToken the refresh token DTO, must not be {@literal null}
  * @author ttrigo
  * @since 0.2.0
  */
-public record AuthenticationDTO(String jwt) {}
+public record JwtAuthenticationDTO(@NotNull @JsonProperty("access_token") AccessTokenDTO accessToken,
+        @NotNull @JsonProperty("refresh_token") RefreshTokenDTO refreshToken) {}

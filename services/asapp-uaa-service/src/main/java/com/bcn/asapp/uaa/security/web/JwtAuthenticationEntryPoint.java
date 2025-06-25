@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.bcn.asapp.uaa.config.security;
+package com.bcn.asapp.uaa.security.web;
 
 import java.io.IOException;
 
@@ -27,19 +27,27 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * JWT implementation of {@link AuthenticationEntryPoint} that handles unauthorized access attempts by responding with an HTTP 401 Unauthorized status.
+ * JWT-based implementation of {@link AuthenticationEntryPoint} that handles unauthorized access attempts by responding with an HTTP 401 Unauthorized status.
  * <p>
- * It is typically used in JWT-based authentication systems to handle requests that are unauthenticated or have invalid authentication tokens.
+ * Typically used in JWT authentication systems to handle requests that lack valid authentication tokens or are otherwise unauthenticated.
  *
- * @author ttrigo
- * @see AuthenticationEntryPoint
  * @since 0.2.0
+ * @see AuthenticationEntryPoint
+ * @author ttrigo
  */
 @Component
 public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationEntryPoint.class);
 
+    /**
+     * Commences an authentication scheme by sending an HTTP 401 Unauthorized response and logging the authentication exception.
+     *
+     * @param request       the {@link HttpServletRequest} that resulted in an {@code AuthenticationException}
+     * @param response      the {@link HttpServletResponse} to which the error response is sent
+     * @param authException the {@link AuthenticationException} that triggered this entry point
+     * @throws IOException if an I/O error occurs while sending the error response
+     */
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         logger.error("Unauthorized error: {}", authException.getMessage());

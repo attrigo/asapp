@@ -29,7 +29,8 @@ services:
       - DB_USERNAME=user
       - DB_PASSWORD=secret
       - ASAPP_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
-      - ASAPP_JWT_EXPIRATION-TIME=3600000
+      - ASAPP_ACCESS_TOKEN_EXPIRATION_TIME=300000
+      - ASAPP_REFRESH_TOKEN_EXPIRATION_TIME=3600000
     depends_on:
       - asapp-uaa-postgres-db
 

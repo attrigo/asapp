@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.bcn.asapp.uaa.auth;
+package com.bcn.asapp.uaa.security.core;
 
 import java.util.UUID;
 
@@ -23,10 +23,16 @@ import org.springframework.data.relational.core.mapping.Table;
 import org.springframework.lang.NonNull;
 
 /**
- * Represents a UAA user entity.
+ * Represents a user entity in the UAA (User Account and Authentication) service.
+ * <p>
+ * Encapsulates the user's identity, credentials, and assigned role.
  *
- * @author ttrigo
+ * @param id       the unique identifier of the user
+ * @param username the username used for authentication and identification
+ * @param password the encrypted password used for authentication
+ * @param role     the {@link Role} assigned to the user, determining access permissions
  * @since 0.2.0
+ * @author ttrigo
  */
 @Table("user")
 public record User(@Id @Column("user_id") UUID id, @NonNull @Column("username") String username, @NonNull @Column("password") String password,

@@ -18,10 +18,12 @@ package com.bcn.asapp.uaa.auth;
 import jakarta.validation.constraints.NotBlank;
 
 /**
- * Represents a user credentials DTO.
+ * Represents a Data Transfer Object (DTO) for a user credentials.
  * <p>
- * The user data required to perform the authentication in the login operation.
+ * Contains mandatory username and password fields for authentication requests.
  *
+ * @param username the username, must not be {@code blank}
+ * @param password the password, must not be {@code blank}
  * @author ttrigo
  * @since 0.2.0
  */

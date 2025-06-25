@@ -15,10 +15,8 @@
 */
 package com.bcn.asapp.uaa.auth;
 
-import org.springframework.security.core.AuthenticationException;
-
 /**
- * Defines the authentication operations.
+ * Service interface defining user authentication and JWT management operations.
  *
  * @author ttrigo
  * @since 0.2.0
@@ -26,12 +24,19 @@ import org.springframework.security.core.AuthenticationException;
 public interface AuthService {
 
     /**
-     * Logs in the user with the given credentials.
+     * Authenticates a user based on the provided credentials.
      *
-     * @param userCredentials the user credentials.
-     * @return the authentication details.
-     * @throws AuthenticationException if the authentication fails.
+     * @param userCredentials the user credentials to authenticate
+     * @return a {@link JwtAuthenticationDTO} containing authentication tokens upon success
      */
-    AuthenticationDTO login(UserCredentialsDTO userCredentials);
+    JwtAuthenticationDTO authenticate(UserCredentialsDTO userCredentials);
+
+    /**
+     * Refreshes JWT authentication tokens using the provided refresh token.
+     *
+     * @param refreshToken the refresh token used to obtain new authentication tokens
+     * @return a new {@link JwtAuthenticationDTO} containing refreshed tokens
+     */
+    JwtAuthenticationDTO refreshToken(RefreshTokenDTO refreshToken);
 
 }
