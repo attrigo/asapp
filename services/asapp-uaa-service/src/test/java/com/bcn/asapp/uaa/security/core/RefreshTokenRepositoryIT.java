@@ -165,4 +165,42 @@ class RefreshTokenRepositoryIT {
 
     }
 
+    @Nested
+    class DeleteByUserId {
+
+        @Test
+        @DisplayName("GIVEN refresh token does not exists WHEN delete refresh token by user id THEN does not delete the refresh token And returns zero")
+        void RefreshTokenNotExists_DeleteByUserId_DoesNotDeleteRefreshTokenAndReturnsZero() {
+            // When
+            var userIdToDelete = UUID.randomUUID();
+
+            var actualDeleted = refreshTokenRepository.deleteByUserId(userIdToDelete);
+
+            // Then
+            assertEquals(0L, actualDeleted);
+        }
+
+        @Test
+        @DisplayName("GIVEN refresh token exists WHEN delete refresh token by user id THEN deletes the refresh token And returns one")
+        void RefreshTokenExists_DeleteByUserId_DeletesJwtAndReturnsOne() {
+            // Given
+            var fakeUser = new User(null, fakeUserUsername, fakeUserPassword, fakeUserRole);
+            var fakeUsePersisted = userRepository.save(fakeUser);
+            assertNotNull(fakeUsePersisted);
+
+            var fakeRefreshToken = new RefreshToken(null, fakeUsePersisted.id(), fakeRefreshTokenJwt, fakeRefreshTokenCreatedAt, fakeRefreshTokenExpiresAt);
+            var refreshTokenToBeDeleted = refreshTokenRepository.save(fakeRefreshToken);
+            assertNotNull(refreshTokenToBeDeleted);
+
+            // When
+            var userIdToDelete = fakeUsePersisted.id();
+
+            var actualDeleted = refreshTokenRepository.deleteByUserId(userIdToDelete);
+
+            // Then
+            assertEquals(1L, actualDeleted);
+        }
+
+    }
+
 }

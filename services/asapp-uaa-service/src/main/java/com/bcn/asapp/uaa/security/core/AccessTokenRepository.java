@@ -18,6 +18,8 @@ package com.bcn.asapp.uaa.security.core;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.jdbc.repository.query.Modifying;
+import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -48,5 +50,16 @@ public interface AccessTokenRepository extends ListCrudRepository<AccessToken, U
      * @return {@code true} if a matching access token exists, {@code false} otherwise
      */
     Boolean existsByUserIdAndJwt(UUID userId, String jwt);
+
+    /**
+     * Deletes all access tokens associated with a specific user ID.
+     *
+     * @param userId the ID of the user whose access tokens should be deleted, must not be {@literal null}
+     * @return the number of tokens deleted
+     * @throws IllegalArgumentException if {@code userId} is {@literal null}
+     */
+    @Modifying
+    @Query("DELETE FROM Access_Token a WHERE a.user_id = :userId")
+    Long deleteByUserId(UUID userId);
 
 }

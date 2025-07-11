@@ -21,6 +21,7 @@ import static com.bcn.asapp.uaa.testutil.JwtAssertions.assertJwtRole;
 import static com.bcn.asapp.uaa.testutil.JwtAssertions.assertJwtType;
 import static com.bcn.asapp.uaa.testutil.JwtAssertions.assertJwtUsername;
 import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_REFRESH_TOKEN_FULL_PATH;
+import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_REVOKE_FULL_PATH;
 import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_TOKEN_FULL_PATH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -661,6 +662,239 @@ class AuthE2EIT {
             assertEquals(1L, actualRefreshToken.size());
             assertNotEquals(fakeRefreshJwt, actualRefreshToken.getFirst()
                                                               .jwt());
+        }
+
+    }
+
+    @Nested
+    class RevokeAuthentication {
+
+        @Test
+        @DisplayName("GIVEN access token is invalid WHEN revoke an authentication THEN does not revoke the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
+        void InvalidAccessToken_RevokeAuthentication_DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody() {
+            // Given
+            var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
+            var userSaved = userRepository.save(fakeUser);
+            assertNotNull(userSaved);
+
+            var fakeAccessJwt = jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN);
+            var fakeAccessToken = new AccessToken(null, userSaved.id(), fakeAccessJwt, Instant.now(), Instant.now());
+            var accessTokenSaved = accessTokenRepository.save(fakeAccessToken);
+            assertNotNull(accessTokenSaved);
+
+            var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
+            var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(null, userSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
+            var refreshTokenSaved = refreshTokenRepository.save(fakeRefreshToken);
+            assertNotNull(refreshTokenSaved);
+
+            // When & Then
+            var accessTokenToBeRevoked = new AccessTokenDTO(jwtFaker.fakeJwtInvalid());
+
+            webTestClient.post()
+                         .uri(AUTH_REVOKE_FULL_PATH)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                         .bodyValue(accessTokenToBeRevoked)
+                         .exchange()
+                         .expectStatus()
+                         .isUnauthorized()
+                         .expectBody()
+                         .isEmpty();
+
+            assertAuthenticationExists(userSaved);
+        }
+
+        @Test
+        @DisplayName("GIVEN access token is a refresh token WHEN revoke an authentication THEN does not revoke the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
+        void AccessTokenIsRefreshToken_RevokeAuthentication_DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody() {
+            // Given
+            var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
+            var userSaved = userRepository.save(fakeUser);
+            assertNotNull(userSaved);
+
+            var fakeAccessJwt = jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN);
+            var fakeAccessToken = new AccessToken(null, userSaved.id(), fakeAccessJwt, Instant.now(), Instant.now());
+            var accessTokenSaved = accessTokenRepository.save(fakeAccessToken);
+            assertNotNull(accessTokenSaved);
+
+            var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
+            var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(null, userSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
+            var refreshTokenSaved = refreshTokenRepository.save(fakeRefreshToken);
+            assertNotNull(refreshTokenSaved);
+
+            // When & Then
+            var accessTokenToBeRevoked = new AccessTokenDTO(jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN));
+
+            webTestClient.post()
+                         .uri(AUTH_REVOKE_FULL_PATH)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                         .bodyValue(accessTokenToBeRevoked)
+                         .exchange()
+                         .expectStatus()
+                         .isUnauthorized()
+                         .expectBody()
+                         .isEmpty();
+
+            assertAuthenticationExists(userSaved);
+        }
+
+        @Test
+        @DisplayName("GIVEN user of access token not exists WHEN revoke an authentication THEN does not revoke the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
+        void AccessTokenUserNotExists_RevokeAuthentication_DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody() {
+            // Given
+            var fakeUser = new User(null, "ANOTHER USER", fakePasswordBcryptEncoded, Role.USER);
+            var userSaved = userRepository.save(fakeUser);
+            assertNotNull(userSaved);
+
+            var fakeAccessJwt = jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN);
+            var fakeAccessToken = new AccessToken(null, userSaved.id(), fakeAccessJwt, Instant.now(), Instant.now());
+            var accessTokenSaved = accessTokenRepository.save(fakeAccessToken);
+            assertNotNull(accessTokenSaved);
+
+            var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
+            var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(null, userSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
+            var refreshTokenSaved = refreshTokenRepository.save(fakeRefreshToken);
+            assertNotNull(refreshTokenSaved);
+
+            // When & Then
+            var accessTokenToBeRevoked = new AccessTokenDTO(jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN));
+
+            webTestClient.post()
+                         .uri(AUTH_REVOKE_FULL_PATH)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                         .bodyValue(accessTokenToBeRevoked)
+                         .exchange()
+                         .expectStatus()
+                         .isUnauthorized()
+                         .expectBody()
+                         .isEmpty();
+
+            assertAuthenticationExists(userSaved);
+        }
+
+        @Test
+        @DisplayName("GIVEN access token belongs to non-authenticated user WHEN revoke an authentication THEN does not revoke the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
+        void AccessTokenBelongsToUserNotAuthenticated_RevokeAuthentication_DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody() {
+            // Given
+            var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
+            var userSaved = userRepository.save(fakeUser);
+            assertNotNull(userSaved);
+
+            // When
+            var accessTokenToBeRevoked = new AccessTokenDTO(jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN));
+
+            webTestClient.post()
+                         .uri(AUTH_REVOKE_FULL_PATH)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                         .bodyValue(accessTokenToBeRevoked)
+                         .exchange()
+                         .expectStatus()
+                         .isUnauthorized()
+                         .expectBody()
+                         .isEmpty();
+
+            // Then
+            assertAuthenticationNotExists(userSaved);
+        }
+
+        @Test
+        @DisplayName("GIVEN access token has been refreshed WHEN revoke an authentication THEN does not revoke the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
+        void AccessTokenHasBeenRefreshed_RevokeAuthentication_DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody() {
+            // Given
+            var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
+            var userSaved = userRepository.save(fakeUser);
+            assertNotNull(userSaved);
+
+            var fakeAccessJwt = jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN);
+            var fakeAccessToken = new AccessToken(null, userSaved.id(), fakeAccessJwt, Instant.now(), Instant.now());
+            var accessTokenSaved = accessTokenRepository.save(fakeAccessToken);
+            assertNotNull(accessTokenSaved);
+
+            var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
+            var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(null, userSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
+            var refreshTokenSaved = refreshTokenRepository.save(fakeRefreshToken);
+            assertNotNull(refreshTokenSaved);
+
+            var refreshTokenResponse = webTestClient.post()
+                                                    .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
+                                                    .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                                    .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                                    .bodyValue(new RefreshTokenDTO(fakeRefreshJwt))
+                                                    .exchange()
+                                                    .expectStatus()
+                                                    .isOk()
+                                                    .expectHeader()
+                                                    .contentType(MediaType.APPLICATION_JSON)
+                                                    .expectBody(JwtAuthenticationDTO.class)
+                                                    .returnResult()
+                                                    .getResponseBody();
+            assertNotNull(refreshTokenResponse);
+
+            // When
+            var accessTokenToBeRevoked = new AccessTokenDTO(fakeAccessJwt);
+
+            webTestClient.post()
+                         .uri(AUTH_REVOKE_FULL_PATH)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                         .bodyValue(accessTokenToBeRevoked)
+                         .exchange()
+                         .expectStatus()
+                         .isUnauthorized()
+                         .expectBody()
+                         .isEmpty();
+
+            // Then
+            var actualAccessToken = accessTokenRepository.findByUserId(userSaved.id());
+            assertTrue(actualAccessToken.isPresent());
+            assertNotEquals(accessTokenSaved.jwt(), actualAccessToken.get()
+                                                                     .jwt());
+            var actualRefreshToken = refreshTokenRepository.findByUserId(userSaved.id());
+            assertTrue(actualRefreshToken.isPresent());
+            assertNotEquals(refreshTokenSaved.jwt(), actualRefreshToken.get()
+                                                                       .jwt());
+        }
+
+        @Test
+        @DisplayName("GIVEN access token is valid WHEN revoke an authentication THEN revokes the authentication And returns HTTP response with status OK And an empty body")
+        void AccessTokenIsValid_RevokeAuthentication_RevokesAuthenticationAndReturnsStatusOkAndEmptyBody() {
+            // Given
+            var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
+            var userSaved = userRepository.save(fakeUser);
+            assertNotNull(userSaved);
+
+            var fakeAccessJwt = jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN);
+            var fakeAccessToken = new AccessToken(null, userSaved.id(), fakeAccessJwt, Instant.now(), Instant.now());
+            var accessTokenSaved = accessTokenRepository.save(fakeAccessToken);
+            assertNotNull(accessTokenSaved);
+
+            var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
+            var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(null, userSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
+            var refreshTokenSaved = refreshTokenRepository.save(fakeRefreshToken);
+            assertNotNull(refreshTokenSaved);
+
+            // When
+            var accessTokenToBeRevoked = new AccessTokenDTO(fakeAccessJwt);
+
+            webTestClient.post()
+                         .uri(AUTH_REVOKE_FULL_PATH)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                         .bodyValue(accessTokenToBeRevoked)
+                         .exchange()
+                         .expectStatus()
+                         .isOk()
+                         .expectBody()
+                         .isEmpty();
+
+            // Then
+            var actualAccessToken = accessTokenRepository.findByUserId(userSaved.id());
+            assertFalse(actualAccessToken.isPresent());
+            var actualRefreshToken = refreshTokenRepository.findByUserId(userSaved.id());
+            assertFalse(actualRefreshToken.isPresent());
         }
 
     }

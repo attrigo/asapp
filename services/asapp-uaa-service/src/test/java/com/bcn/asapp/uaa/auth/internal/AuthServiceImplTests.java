@@ -42,12 +42,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.bcn.asapp.uaa.auth.AccessTokenDTO;
 import com.bcn.asapp.uaa.auth.RefreshTokenDTO;
 import com.bcn.asapp.uaa.auth.UserCredentialsDTO;
+import com.bcn.asapp.uaa.security.authentication.InvalidAccessTokenException;
 import com.bcn.asapp.uaa.security.authentication.InvalidRefreshTokenException;
 import com.bcn.asapp.uaa.security.authentication.JwtAuthenticationToken;
 import com.bcn.asapp.uaa.security.authentication.issuer.JwtIssuer;
-import com.bcn.asapp.uaa.security.authentication.verifier.JwtVerifier;
+import com.bcn.asapp.uaa.security.authentication.revoker.JwtRevoker;
+import com.bcn.asapp.uaa.security.authentication.verifier.AccessTokenVerifier;
+import com.bcn.asapp.uaa.security.authentication.verifier.RefreshTokenVerifier;
 import com.bcn.asapp.uaa.security.core.AccessToken;
 import com.bcn.asapp.uaa.security.core.JwtAuthentication;
 import com.bcn.asapp.uaa.security.core.JwtType;
@@ -60,10 +64,16 @@ class AuthServiceImplTests {
     private AuthenticationManager authenticationManagerMock;
 
     @Mock
-    private JwtVerifier refreshTokenVerifierMock;
+    private AccessTokenVerifier accessTokenVerifierMock;
+
+    @Mock
+    private RefreshTokenVerifier refreshTokenVerifierMock;
 
     @Mock
     private JwtIssuer jwtIssuerMock;
+
+    @Mock
+    private JwtRevoker jwtRevokerMock;
 
     @InjectMocks
     private AuthServiceImpl authService;
@@ -198,6 +208,51 @@ class AuthServiceImplTests {
                                           .verify(anyString());
             then(jwtIssuerMock).should(times(1))
                                .issueAuthentication(any(JwtAuthenticationToken.class));
+        }
+
+    }
+
+    @Nested
+    class RevokeAuthentication {
+
+        @Test
+        @DisplayName("GIVEN access token is invalid WHEN revoke an authentication THEN does not revoke the authentication And throws InvalidAccessTokenException")
+        void AccessTokenIsInvalid_RevokeAuthentication_DoesNotRevokeAuthenticationAndThrowsInvalidAccessTokenException() {
+            // Given
+            given(accessTokenVerifierMock.verify(anyString())).willThrow(new InvalidAccessTokenException("TEST EXCEPTION", new Throwable()));
+
+            // When
+            var accessTokenToRevoke = new AccessTokenDTO(jwtFaker.fakeJwtInvalid());
+
+            Executable executable = () -> authService.revokeAuthentication(accessTokenToRevoke);
+
+            // Then
+            assertThrows(InvalidAccessTokenException.class, executable);
+
+            then(accessTokenVerifierMock).should(times(1))
+                                         .verify(anyString());
+            then(jwtRevokerMock).should(never())
+                                .revokeAuthentication(any(JwtAuthenticationToken.class));
+        }
+
+        @Test
+        @DisplayName("GIVEN access token is valid WHEN revoke an authentication THEN revokes the authentication")
+        void AccessTokenIsValid_RevokeAuthentication_RevokesAuthentication() {
+            // Given
+            var fakeDecodedJwt = jwtFaker.fakeDecodedJwt(jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN));
+            var fakeAuthentication = JwtAuthenticationToken.authenticated(fakeDecodedJwt);
+            given(accessTokenVerifierMock.verify(anyString())).willReturn(fakeAuthentication);
+
+            // When
+            var accessTokenToRevoke = new AccessTokenDTO(jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN));
+
+            authService.revokeAuthentication(accessTokenToRevoke);
+
+            // Then
+            then(accessTokenVerifierMock).should(times(1))
+                                         .verify(anyString());
+            then(jwtRevokerMock).should(times(1))
+                                .revokeAuthentication(any(JwtAuthenticationToken.class));
         }
 
     }
