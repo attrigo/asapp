@@ -39,4 +39,11 @@ public interface AuthService {
      */
     JwtAuthenticationDTO refreshToken(RefreshTokenDTO refreshToken);
 
+    /**
+     * Revokes the JWT authentication for a user by invalidating both access and refresh tokens using the provided access token.
+     *
+     * @param accessToken the access token used to invalidate the JWT authentication
+     */
+    void revokeAuthentication(AccessTokenDTO accessToken);
+
 }

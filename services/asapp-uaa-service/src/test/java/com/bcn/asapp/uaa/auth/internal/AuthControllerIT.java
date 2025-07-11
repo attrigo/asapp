@@ -16,6 +16,7 @@
 package com.bcn.asapp.uaa.auth.internal;
 
 import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_REFRESH_TOKEN_FULL_PATH;
+import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_REVOKE_FULL_PATH;
 import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_TOKEN_FULL_PATH;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
@@ -264,6 +265,63 @@ class AuthControllerIT {
                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                    .andExpect(jsonPath("$.access_token", is(fakeAccessToken)))
                    .andExpect(jsonPath("$.refresh_token", is(fakeRefreshToken)));
+        }
+
+    }
+
+    @Nested
+    @WithAnonymousUser
+    class RevokeAuthentication {
+
+        @Test
+        @DisplayName("GIVEN access token is not a valid Json WHEN revoke an authentication THEN returns HTTP response with status Unsupported Media Type And the empty body with the problem details")
+        void AccessTokenIsNotJson_RevokeAuthentication_ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetails() throws Exception {
+            // When & Then
+            var accessTokenToRevoke = "";
+
+            var requestBuilder = post(AUTH_REVOKE_FULL_PATH).contentType(MediaType.TEXT_PLAIN)
+                                                            .content(accessTokenToRevoke);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().is4xxClientError())
+                   .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                   .andExpect(jsonPath("$.type", is("about:blank")))
+                   .andExpect(jsonPath("$.title", is("Unsupported Media Type")))
+                   .andExpect(jsonPath("$.status", is(415)))
+                   .andExpect(jsonPath("$.detail", is("Content-Type 'text/plain' is not supported.")))
+                   .andExpect(jsonPath("$.instance", is("/v1/auth/revoke")));
+        }
+
+        @Test
+        @DisplayName("GIVEN access token is not present WHEN revoke an authentication THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+        void AccessTokenIsNotPresent_RevokeAuthentication_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+            // When & Then
+            var accessTokenToRevoke = "";
+
+            var requestBuilder = post(AUTH_REVOKE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                            .content(accessTokenToRevoke);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().is4xxClientError())
+                   .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                   .andExpect(jsonPath("$.type", is("about:blank")))
+                   .andExpect(jsonPath("$.title", is("Bad Request")))
+                   .andExpect(jsonPath("$.status", is(400)))
+                   .andExpect(jsonPath("$.detail", is("Failed to read request")))
+                   .andExpect(jsonPath("$.instance", is("/v1/auth/revoke")));
+        }
+
+        @Test
+        @DisplayName("GIVEN access token is valid WHEN revoke an authentication THEN returns HTTP response with status OK And an empty body")
+        void RefreshTokenIsValid_RevokeAuthentication_ReturnsStatusOkAndEmptyBody() throws Exception {
+            // When & Then
+            var accessToken = jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN);
+            var accessTokenToRevoke = new RefreshTokenDTO(accessToken);
+            var accessTokenToRevokeAsJson = objectMapper.writeValueAsString(accessTokenToRevoke);
+
+            var requestBuilder = post(AUTH_REVOKE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                            .content(accessTokenToRevokeAsJson);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().isOk())
+                   .andExpect(jsonPath("$").doesNotExist());
         }
 
     }

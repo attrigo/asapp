@@ -18,6 +18,7 @@ package com.bcn.asapp.uaa.auth.internal;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bcn.asapp.uaa.auth.AccessTokenDTO;
 import com.bcn.asapp.uaa.auth.AuthRestAPI;
 import com.bcn.asapp.uaa.auth.AuthService;
 import com.bcn.asapp.uaa.auth.JwtAuthenticationDTO;
@@ -63,6 +64,16 @@ public class AuthRestController implements AuthRestAPI {
     public ResponseEntity<JwtAuthenticationDTO> refreshToken(RefreshTokenDTO refreshToken) {
         var authentication = authService.refreshToken(refreshToken);
         return ResponseEntity.ok(authentication);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ResponseEntity<Void> revokeAuthentication(AccessTokenDTO accessToken) {
+        authService.revokeAuthentication(accessToken);
+        return ResponseEntity.ok()
+                             .build();
     }
 
 }

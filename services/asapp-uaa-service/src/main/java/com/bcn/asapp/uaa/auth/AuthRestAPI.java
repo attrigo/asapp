@@ -16,6 +16,7 @@
 package com.bcn.asapp.uaa.auth;
 
 import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_REFRESH_TOKEN_PATH;
+import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_REVOKE_PATH;
 import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_ROOT_PATH;
 import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_TOKEN_PATH;
 
@@ -87,5 +88,29 @@ public interface AuthRestAPI {
     @PostMapping(value = AUTH_REFRESH_TOKEN_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     ResponseEntity<JwtAuthenticationDTO> refreshToken(@RequestBody RefreshTokenDTO refreshToken);
+
+    /**
+     * Revokes the JWT authentication of a user by invalidating the provided access token.
+     * <p>
+     * Invalidates the JWT authentication (access and refresh tokens), effectively logging out the user.
+     * <p>
+     * Response codes:
+     * <ul>
+     * <li>200-OK: The JWT authentication has been revoked successfully.</li>
+     * <li>400-BAD_REQUEST: The request body is malformed or contains invalid data.</li>
+     * <li>401-UNAUTHORIZED: The access token is invalid, expired, or the revocation process fails.</li>
+     * </ul>
+     *
+     * @param accessToken the access token DTO to be invalidated
+     * @return a {@link ResponseEntity} with no content if the revocation was successful
+     * @throws AuthenticationException if the access token is invalid, expired, or cannot be processed
+     */
+    @Operation(summary = "Revokes the JWT authentication", description = "Revokes the JWT authentication by invalidating the given access token.")
+    @ApiResponse(responseCode = "200", description = "The JWT authentication has been revoked successfully", content = { @Content })
+    @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = { @Content })
+    @ApiResponse(responseCode = "401", description = "The access token is invalid, expired, or the revocation process fails", content = { @Content })
+    @PostMapping(value = AUTH_REVOKE_PATH, consumes = "application/json", produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    ResponseEntity<Void> revokeAuthentication(@Valid @RequestBody AccessTokenDTO accessToken);
 
 }

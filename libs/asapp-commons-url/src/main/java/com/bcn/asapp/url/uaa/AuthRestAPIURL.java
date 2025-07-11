@@ -29,9 +29,13 @@ public class AuthRestAPIURL {
 
     public static final String AUTH_REFRESH_TOKEN_PATH = "/refresh-token";
 
+    public static final String AUTH_REVOKE_PATH = "/revoke";
+
     public static final String AUTH_TOKEN_FULL_PATH = AUTH_ROOT_PATH + AUTH_TOKEN_PATH;
 
     public static final String AUTH_REFRESH_TOKEN_FULL_PATH = AUTH_ROOT_PATH + AUTH_REFRESH_TOKEN_PATH;
+
+    public static final String AUTH_REVOKE_FULL_PATH = AUTH_ROOT_PATH + AUTH_REVOKE_PATH;
 
     private AuthRestAPIURL() {}
 

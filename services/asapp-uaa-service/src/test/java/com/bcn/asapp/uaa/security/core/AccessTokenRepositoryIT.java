@@ -165,4 +165,42 @@ class AccessTokenRepositoryIT {
 
     }
 
+    @Nested
+    class DeleteByUserId {
+
+        @Test
+        @DisplayName("GIVEN access token does not exists WHEN delete access token by user id THEN does not delete the access token And returns zero")
+        void AccessTokenNotExists_DeleteByUserId_DoesNotDeleteAccessTokenAndReturnsZero() {
+            // When
+            var userIdToDelete = UUID.randomUUID();
+
+            var actualDeleted = accessTokenRepository.deleteByUserId(userIdToDelete);
+
+            // Then
+            assertEquals(0L, actualDeleted);
+        }
+
+        @Test
+        @DisplayName("GIVEN access token exists WHEN delete access token by user id THEN deletes the access token And returns one")
+        void AccessTokenExists_DeleteByUserId_DeletesJwtAndReturnsOne() {
+            // Given
+            var fakeUser = new User(null, fakeUserUsername, fakeUserPassword, fakeUserRole);
+            var fakeUsePersisted = userRepository.save(fakeUser);
+            assertNotNull(fakeUsePersisted);
+
+            var fakeAccessToken = new AccessToken(null, fakeUsePersisted.id(), fakeAccessTokenJwt, fakeAccessTokenCreatedAt, fakeAccessTokenExpiresAt);
+            var accessTokenToBeDeleted = accessTokenRepository.save(fakeAccessToken);
+            assertNotNull(accessTokenToBeDeleted);
+
+            // When
+            var userIdToDelete = fakeUsePersisted.id();
+
+            var actualDeleted = accessTokenRepository.deleteByUserId(userIdToDelete);
+
+            // Then
+            assertEquals(1L, actualDeleted);
+        }
+
+    }
+
 }

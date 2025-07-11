@@ -26,7 +26,9 @@ import com.bcn.asapp.uaa.auth.JwtAuthenticationDTO;
 import com.bcn.asapp.uaa.auth.RefreshTokenDTO;
 import com.bcn.asapp.uaa.auth.UserCredentialsDTO;
 import com.bcn.asapp.uaa.security.authentication.issuer.JwtIssuer;
-import com.bcn.asapp.uaa.security.authentication.verifier.JwtVerifier;
+import com.bcn.asapp.uaa.security.authentication.revoker.JwtRevoker;
+import com.bcn.asapp.uaa.security.authentication.verifier.AccessTokenVerifier;
+import com.bcn.asapp.uaa.security.authentication.verifier.RefreshTokenVerifier;
 import com.bcn.asapp.uaa.security.core.JwtAuthentication;
 
 /**
@@ -46,9 +48,14 @@ public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
 
     /**
+     * Verifier responsible for validating access tokens.
+     */
+    private final AccessTokenVerifier accessTokenVerifier;
+
+    /**
      * Verifier responsible for validating refresh tokens.
      */
-    private final JwtVerifier refreshTokenVerifier;
+    private final RefreshTokenVerifier refreshTokenVerifier;
 
     /**
      * Issuer responsible for issuing new JWT authentication tokens.
@@ -56,16 +63,27 @@ public class AuthServiceImpl implements AuthService {
     private final JwtIssuer jwtIssuer;
 
     /**
+     * Revoker responsible for revoking JWT authentication tokens.
+     */
+    private final JwtRevoker jwtRevoker;
+
+    /**
      * Constructs a new {@code AuthServiceImpl} with the specified dependencies.
      *
      * @param authenticationManager the authentication manager used to authenticate user credentials
+     * @param accessTokenVerifier   the verifier used to validate refresh tokens
      * @param refreshTokenVerifier  the verifier used to validate refresh tokens
      * @param jwtIssuer             the issuer responsible for generating new JWT authentication tokens
+     * @param jwtRevoker            the revoker used to invalidate JWT authentication tokens
      */
-    public AuthServiceImpl(AuthenticationManager authenticationManager, JwtVerifier refreshTokenVerifier, JwtIssuer jwtIssuer) {
+    public AuthServiceImpl(AuthenticationManager authenticationManager, AccessTokenVerifier accessTokenVerifier, RefreshTokenVerifier refreshTokenVerifier,
+            JwtIssuer jwtIssuer, JwtRevoker jwtRevoker) {
+
         this.authenticationManager = authenticationManager;
+        this.accessTokenVerifier = accessTokenVerifier;
         this.refreshTokenVerifier = refreshTokenVerifier;
         this.jwtIssuer = jwtIssuer;
+        this.jwtRevoker = jwtRevoker;
     }
 
     /**
@@ -100,6 +118,20 @@ public class AuthServiceImpl implements AuthService {
         var newAuthentication = jwtIssuer.issueAuthentication(authentication);
 
         return buildAuthenticationDTO(newAuthentication);
+    }
+
+    /**
+     * Revokes the JWT authentication for a user by invalidating both access and refresh tokens using the provided access token.
+     * <p>
+     * Verifies the provided access token, and if valid, proceeds to revoke both the access token and any associated refresh token for the user.
+     *
+     * @param accessToken the access token used to invalidate the JWT authentication
+     */
+    @Override
+    public void revokeAuthentication(AccessTokenDTO accessToken) {
+        var authentication = accessTokenVerifier.verify(accessToken.jwt());
+
+        jwtRevoker.revokeAuthentication(authentication);
     }
 
     /**
