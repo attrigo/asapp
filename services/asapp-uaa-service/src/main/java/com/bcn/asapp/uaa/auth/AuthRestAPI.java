@@ -60,10 +60,11 @@ public interface AuthRestAPI {
      * @return a {@link ResponseEntity} wrapping {@link JwtAuthenticationDTO} with access and refresh tokens upon successful authentication
      * @throws AuthenticationException if authentication fails due to invalid credentials or other errors
      */
-    @Operation(summary = "Authenticates a user with the given credentials", description = "Authenticates a user with given credentials and returns authentication tokens, in case the given user is already authenticated generates new authentication tokens overriding the existing ones")
+    @Operation(summary = "Authenticates a user with the given credentials", description = "Authenticates a user with the given credentials and issues new JWT authentication, if the user is already authenticated, new JWT authentication (access and refresh tokens) are generated to override the existing ones.")
     @ApiResponse(responseCode = "200", description = "The user has been authenticated successfully", content = {
             @Content(schema = @Schema(implementation = JwtAuthenticationDTO.class)) })
-    @ApiResponse(responseCode = "401", description = "The user could not be authenticated", content = { @Content })
+    @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = { @Content })
+    @ApiResponse(responseCode = "401", description = "The user could not be authenticated due to invalid credentials", content = { @Content })
     @PostMapping(value = AUTH_TOKEN_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     ResponseEntity<JwtAuthenticationDTO> authenticate(@Valid @RequestBody UserCredentialsDTO userCredentials);
@@ -81,9 +82,10 @@ public interface AuthRestAPI {
      * @return a {@link ResponseEntity} containing the refreshed {@link JwtAuthenticationDTO} with the refreshed access and refresh tokens
      * @throws AuthenticationException if the refresh token is invalid, expired, or cannot be processed
      */
-    @Operation(summary = "Refreshes the JWT authentication token", description = "Refreshes an existing JWT authentication token using a valid refresh token")
-    @ApiResponse(responseCode = "200", description = "The authentication token has been refreshed successfully", content = {
+    @Operation(summary = "Refreshes the JWT authentication", description = "Refreshes an existing JWT authentication using the given refresh token.")
+    @ApiResponse(responseCode = "200", description = "The JWT authentication tokens have been refreshed successfully", content = {
             @Content(schema = @Schema(implementation = JwtAuthenticationDTO.class)) })
+    @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = { @Content })
     @ApiResponse(responseCode = "401", description = "The refresh token is invalid, expired, or the refresh process fails", content = { @Content })
     @PostMapping(value = AUTH_REFRESH_TOKEN_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
