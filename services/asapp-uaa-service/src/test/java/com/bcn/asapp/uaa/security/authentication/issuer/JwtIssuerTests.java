@@ -41,7 +41,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.relational.core.conversion.DbAction;
 import org.springframework.data.relational.core.conversion.DbActionExecutionException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -49,6 +48,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.bcn.asapp.uaa.security.authentication.JwtIntegrityViolationException;
 import com.bcn.asapp.uaa.security.core.AccessToken;
 import com.bcn.asapp.uaa.security.core.AccessTokenRepository;
 import com.bcn.asapp.uaa.security.core.JwtType;
@@ -98,7 +98,7 @@ class JwtIssuerTests {
     class IssueAuthentication {
 
         @Test
-        @DisplayName("GIVEN user not exists WHEN issue authentication THEN does not issue the authentication And throws UsernameNotFoundException")
+        @DisplayName("GIVEN user not exists WHEN issue an authentication THEN does not issue the authentication And throws UsernameNotFoundException")
         void UserNotExists_IssueAuthentication_DoesNotIssueAuthenticationAndThrowsUsernameNotFoundException() {
             // Given
             given(userRepositoryMock.findByUsername(anyString())).willReturn(Optional.empty());
@@ -125,8 +125,8 @@ class JwtIssuerTests {
         }
 
         @Test
-        @DisplayName("GIVEN tokens could not be saved  WHEN issue authentication THEN does not issue the authentication And throws UsernameNotFoundException")
-        void TokenCouldNotBeSaved_IssueAuthentication_DoesNotIssueAuthenticationAndThrowsDataIntegrityViolationException() {
+        @DisplayName("GIVEN access token could not be saved WHEN issue an authentication THEN does not issue the authentication And throws JwtIntegrityViolationException")
+        void AccessTokenCouldNotBeSaved_IssueAuthentication_DoesNotIssueAuthenticationAndThrowsJwtIntegrityViolationException() {
             // Given
             var fakeUser = new User(fakeUserId, fakeUsername, fakePassword, Role.USER);
             var issuedAT = new AccessToken(null, fakeUserId, jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN), Instant.now(), Instant.now());
@@ -144,12 +144,36 @@ class JwtIssuerTests {
             Executable executable = () -> jwtIssuer.issueAuthentication(authentication);
 
             // Then
-            var exceptionThrown = assertThrows(DataIntegrityViolationException.class, executable);
+            var exceptionThrown = assertThrows(JwtIntegrityViolationException.class, executable);
             assertThat(exceptionThrown.getMessage(), startsWith("Authentication could not be issued due to:"));
         }
 
         @Test
-        @DisplayName("GIVEN user has authentication WHEN issue authentication THEN issues new authentication overriding existing one And returns new authentication")
+        @DisplayName("GIVEN refresh token could not be saved WHEN issue an authentication THEN does not issue the authentication And throws JwtIntegrityViolationException")
+        void RefreshTokenCouldNotBeSaved_IssueAuthentication_DoesNotIssueAuthenticationAndThrowsJwtIntegrityViolationException() {
+            // Given
+            var fakeUser = new User(fakeUserId, fakeUsername, fakePassword, Role.USER);
+            var issuedAT = new AccessToken(null, fakeUserId, jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN), Instant.now(), Instant.now());
+            var issuedRT = new RefreshToken(null, fakeUserId, jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN), Instant.now(), Instant.now());
+            DbAction<?> fakeDbAction = new DbAction.Insert<>(null, null, null, Map.of(), null);
+            given(userRepositoryMock.findByUsername(anyString())).willReturn(Optional.of(fakeUser));
+            given(jwtProviderMock.generateAccessToken(any(Authentication.class))).willReturn(issuedAT);
+            given(jwtProviderMock.generateRefreshToken(any(Authentication.class))).willReturn(issuedRT);
+            given(refreshTokenRepositoryMock.save(any(RefreshToken.class))).willThrow(
+                    new DbActionExecutionException(fakeDbAction, new RuntimeException("TEST EXCEPTION")));
+
+            // When
+            var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword);
+
+            Executable executable = () -> jwtIssuer.issueAuthentication(authentication);
+
+            // Then
+            var exceptionThrown = assertThrows(JwtIntegrityViolationException.class, executable);
+            assertThat(exceptionThrown.getMessage(), startsWith("Authentication could not be issued due to:"));
+        }
+
+        @Test
+        @DisplayName("GIVEN user has authentication WHEN issue an authentication THEN issues new authentication overriding existing one And returns new authentication")
         void UserHasAuthentication_IssueAuthentication_IssuesNewAuthenticationOverridingExistingOneAndReturnsNewAuthentication() {
             // Given
             var fakeUser = new User(fakeUserId, fakeUsername, fakePassword, Role.USER);
@@ -201,7 +225,7 @@ class JwtIssuerTests {
         }
 
         @Test
-        @DisplayName("GIVEN user has not authentication WHEN issue authentication THEN issues new authentication And returns new authentication")
+        @DisplayName("GIVEN user has not authentication WHEN issue an authentication THEN issues new authentication And returns new authentication")
         void UserHasNotAuthentication_IssueAuthentication_IssuesNewAuthenticationAndReturnsNewAuthentication() {
             // Given
             var fakeUser = new User(fakeUserId, fakeUsername, fakePassword, Role.USER);

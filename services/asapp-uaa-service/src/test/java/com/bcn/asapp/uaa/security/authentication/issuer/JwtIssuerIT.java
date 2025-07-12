@@ -37,7 +37,6 @@ import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Import;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -52,6 +51,7 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import com.bcn.asapp.uaa.security.authentication.JwtIntegrityViolationException;
 import com.bcn.asapp.uaa.security.core.AccessToken;
 import com.bcn.asapp.uaa.security.core.AccessTokenRepository;
 import com.bcn.asapp.uaa.security.core.JwtType;
@@ -114,7 +114,7 @@ class JwtIssuerIT {
     class IssueAuthentication {
 
         @Test
-        @DisplayName("GIVEN user not exists WHEN issue authentication THEN does not issue the authentication And throws UsernameNotFoundException")
+        @DisplayName("GIVEN user not exists WHEN issue an authentication THEN does not issue the authentication And throws UsernameNotFoundException")
         void UserNotExists_IssueAuthentication_DoesNotIssueAuthenticationAndThrowsUsernameNotFoundException() {
             // When
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, List.of(new SimpleGrantedAuthority("USER")));
@@ -127,8 +127,8 @@ class JwtIssuerIT {
         }
 
         @Test
-        @DisplayName("GIVEN access token could not be saved WHEN issue authentication THEN do not save tokens And throws DataIntegrityViolationException")
-        void AccessTokenCouldNotBeSaved_IssueAuthentication_DoesNotSaveTokensAndThrowsDataIntegrityViolationException() {
+        @DisplayName("GIVEN access token could not be saved WHEN issue an authentication THEN do not save tokens And throws JwtIntegrityViolationException")
+        void AccessTokenCouldNotBeSaved_IssueAuthentication_DoesNotSaveTokensAndThrowsJwtIntegrityViolationException() {
             // Given
             var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
             var fakeUserSaved = userRepository.save(fakeUser);
@@ -145,7 +145,7 @@ class JwtIssuerIT {
             Executable executable = () -> jwtIssuer.issueAuthentication(authentication);
 
             // Then
-            assertThrows(DataIntegrityViolationException.class, executable);
+            assertThrows(JwtIntegrityViolationException.class, executable);
 
             var actualAccessToken = accessTokenRepository.findByUserId(fakeUserSaved.id());
             assertTrue(actualAccessToken.isEmpty());
@@ -154,8 +154,8 @@ class JwtIssuerIT {
         }
 
         @Test
-        @DisplayName("GIVEN refresh token could not be saved WHEN issue authentication THEN do not save tokens And throws DataIntegrityViolationException")
-        void RefreshTokenCouldNotBeSaved_IssueAuthentication_DoesNotSaveTokensAndThrowsDataIntegrityViolationException() {
+        @DisplayName("GIVEN refresh token could not be saved WHEN issue an authentication THEN do not save tokens And throws JwtIntegrityViolationException")
+        void RefreshTokenCouldNotBeSaved_IssueAuthentication_DoesNotSaveTokensAndThrowsJwtIntegrityViolationException() {
             // Given
             var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
             var fakeUserSaved = userRepository.save(fakeUser);
@@ -174,7 +174,7 @@ class JwtIssuerIT {
             Executable executable = () -> jwtIssuer.issueAuthentication(authentication);
 
             // Then
-            assertThrows(DataIntegrityViolationException.class, executable);
+            assertThrows(JwtIntegrityViolationException.class, executable);
 
             var actualAccessToken = accessTokenRepository.findByUserId(fakeUserSaved.id());
             assertTrue(actualAccessToken.isEmpty());
@@ -183,7 +183,7 @@ class JwtIssuerIT {
         }
 
         @Test
-        @DisplayName("GIVEN user has authentication WHEN issue authentication THEN issues new authentication overriding existing one And returns new authentication")
+        @DisplayName("GIVEN user has authentication WHEN issue an authentication THEN issues new authentication overriding existing one And returns new authentication")
         void UserHasAuthentication_IssueAuthentication_IssuesNewAuthenticationOverridingExistingOneAndReturnsNewAuthentication() {
             // Given
             var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
@@ -192,13 +192,13 @@ class JwtIssuerIT {
 
             var fakeAccessJwt = jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN);
             var fakeAccessToken = new AccessToken(null, fakeUserSaved.id(), fakeAccessJwt, Instant.now(), Instant.now());
-            var currentAccessToken = accessTokenRepository.save(fakeAccessToken);
-            assertNotNull(currentAccessToken);
+            var accessTokenSaved = accessTokenRepository.save(fakeAccessToken);
+            assertNotNull(accessTokenSaved);
 
             var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
             var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(null, fakeUserSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
-            var currentRefreshToken = refreshTokenRepository.save(fakeRefreshToken);
-            assertNotNull(currentRefreshToken);
+            var refreshTokenSaved = refreshTokenRepository.save(fakeRefreshToken);
+            assertNotNull(refreshTokenSaved);
 
             // When
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, List.of(new SimpleGrantedAuthority("USER")));
@@ -207,18 +207,18 @@ class JwtIssuerIT {
 
             // Then
             assertNotNull(actualAuthentication);
-            assertEquals(currentAccessToken.id(), actualAuthentication.accessToken()
-                                                                      .id());
-            assertEquals(currentRefreshToken.id(), actualAuthentication.refreshToken()
-                                                                       .id());
-            assertNotEquals(currentAccessToken.jwt(), actualAuthentication.accessToken()
-                                                                          .jwt());
-            assertNotEquals(currentRefreshToken.jwt(), actualAuthentication.refreshToken()
-                                                                           .jwt());
+            assertEquals(accessTokenSaved.id(), actualAuthentication.accessToken()
+                                                                    .id());
+            assertEquals(refreshTokenSaved.id(), actualAuthentication.refreshToken()
+                                                                     .id());
+            assertNotEquals(accessTokenSaved.jwt(), actualAuthentication.accessToken()
+                                                                        .jwt());
+            assertNotEquals(refreshTokenSaved.jwt(), actualAuthentication.refreshToken()
+                                                                         .jwt());
         }
 
         @Test
-        @DisplayName("GIVEN user has not authentication WHEN issue authentication THEN issues new authentication And returns new authentication")
+        @DisplayName("GIVEN user has not authentication WHEN issue an authentication THEN issues new authentication And returns new authentication")
         void UserHasNotAuthentication_IssueAuthentication_IssuesNewAuthenticationAndReturnsNewAuthentication() {
             // Given
             var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
