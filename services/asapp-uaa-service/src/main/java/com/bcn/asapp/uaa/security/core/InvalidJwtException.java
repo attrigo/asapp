@@ -20,7 +20,7 @@ import io.jsonwebtoken.JwtException;
 /**
  * Exception thrown when an invalid JWT (JSON Web Token) is encountered.
  * <p>
- * This exception extends {@link JwtException} and is typically thrown when a JWT is malformed, expired, or fails validation.
+ * Is typically thrown when a JWT is malformed, expired, or fails validation.
  *
  * @since 0.2.0
  * @see JwtException

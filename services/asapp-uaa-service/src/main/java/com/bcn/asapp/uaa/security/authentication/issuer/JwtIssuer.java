@@ -49,17 +49,17 @@ public class JwtIssuer {
     private final JwtProvider jwtProvider;
 
     /**
-     * Repository for retrieving user information.
+     * Repository for managing user.
      */
     private final UserRepository userRepository;
 
     /**
-     * Repository for managing access token persistence.
+     * Repository for managing access tokens entities.
      */
     private final AccessTokenRepository accessTokenRepository;
 
     /**
-     * Repository for managing refresh token persistence.
+     * Repository for managing refresh tokens entities.
      */
     private final RefreshTokenRepository refreshTokenRepository;
 
@@ -67,9 +67,9 @@ public class JwtIssuer {
      * Constructs a new {@code JwtIssuer} with required components for token generation and persistence.
      *
      * @param jwtProvider            the provider responsible for JWT generation
-     * @param userRepository         the repository for retrieving user details
-     * @param accessTokenRepository  the repository for persisting access tokens
-     * @param refreshTokenRepository the repository for persisting refresh tokens
+     * @param userRepository         the repository for managing user entities
+     * @param accessTokenRepository  the repository for managing access tokens entities
+     * @param refreshTokenRepository the repository for managing refresh tokens entities
      */
     public JwtIssuer(JwtProvider jwtProvider, UserRepository userRepository, AccessTokenRepository accessTokenRepository,
             RefreshTokenRepository refreshTokenRepository) {
@@ -88,7 +88,7 @@ public class JwtIssuer {
      * <p>
      * This method is annotated with {@link Transactional} to ensure that token generation and persistence occur within a single transactional boundary.
      *
-     * @param authentication the authenticated principal requesting token issuance
+     * @param authentication the authentication requesting token issuance
      * @return a {@link JwtAuthentication} containing the issued access and refresh tokens
      * @throws UsernameNotFoundException      if the user associated with the authentication does not exist
      * @throws JwtIntegrityViolationException if token persistence fails

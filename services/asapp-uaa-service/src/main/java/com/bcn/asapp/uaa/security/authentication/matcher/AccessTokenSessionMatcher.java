@@ -36,15 +36,15 @@ import com.bcn.asapp.uaa.security.core.UserRepository;
 public class AccessTokenSessionMatcher extends AbstractJwtSessionMatcher {
 
     /**
-     * Repository for retrieving access token information.
+     * Repository for managing access tokens entities.
      */
     private final AccessTokenRepository accessTokenRepository;
 
     /**
      * Constructs a new {@code AccessTokenSessionMatcher} with the specified dependencies.
      *
-     * @param userRepository        the repository used to load users by username
-     * @param accessTokenRepository the repository used to check for JWT existence
+     * @param userRepository        the repository for managing user entities
+     * @param accessTokenRepository the repository for managing access tokens entities
      */
     public AccessTokenSessionMatcher(UserRepository userRepository, AccessTokenRepository accessTokenRepository) {
         super(userRepository);

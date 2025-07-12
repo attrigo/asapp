@@ -20,7 +20,7 @@ import org.springframework.security.core.AuthenticationException;
 /**
  * Exception thrown when a JSON Web Token (JWT) has an unexpected or unsupported type.
  * <p>
- * This exception extends {@link AuthenticationException} to represent authentication failure specifically related to an invalid JWT type.
+ * Is typically thrown when the type of JWT is not the expected one.
  *
  * @author ttrigo
  * @since 0.2.0

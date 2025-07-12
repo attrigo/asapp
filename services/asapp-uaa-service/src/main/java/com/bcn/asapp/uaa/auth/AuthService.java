@@ -24,18 +24,18 @@ package com.bcn.asapp.uaa.auth;
 public interface AuthService {
 
     /**
-     * Authenticates a user based on the provided credentials.
+     * Authenticates a user based on the provided credentials and issues new JWT authentication.
      *
      * @param userCredentials the user credentials to authenticate
-     * @return a {@link JwtAuthenticationDTO} containing authentication tokens upon success
+     * @return a {@link JwtAuthenticationDTO} containing newly issued access and refresh tokens
      */
     JwtAuthenticationDTO authenticate(UserCredentialsDTO userCredentials);
 
     /**
-     * Refreshes JWT authentication tokens using the provided refresh token.
+     * Refreshes JWT authentication using the provided refresh token.
      *
-     * @param refreshToken the refresh token used to obtain new authentication tokens
-     * @return a new {@link JwtAuthenticationDTO} containing refreshed tokens
+     * @param refreshToken the refresh token used to refresh the JWT authentication tokens
+     * @return a new {@link JwtAuthenticationDTO} containing newly issued access and refresh tokens
      */
     JwtAuthenticationDTO refreshAuthentication(RefreshTokenDTO refreshToken);
 
