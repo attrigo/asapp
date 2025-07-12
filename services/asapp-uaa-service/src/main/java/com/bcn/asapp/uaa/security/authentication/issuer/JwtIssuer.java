@@ -15,13 +15,13 @@
 */
 package com.bcn.asapp.uaa.security.authentication.issuer;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.relational.core.conversion.DbActionExecutionException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.bcn.asapp.uaa.security.authentication.JwtIntegrityViolationException;
 import com.bcn.asapp.uaa.security.core.AccessToken;
 import com.bcn.asapp.uaa.security.core.AccessTokenRepository;
 import com.bcn.asapp.uaa.security.core.JwtAuthentication;
@@ -90,8 +90,8 @@ public class JwtIssuer {
      *
      * @param authentication the authenticated principal requesting token issuance
      * @return a {@link JwtAuthentication} containing the issued access and refresh tokens
-     * @throws UsernameNotFoundException       if the user associated with the authentication does not exist
-     * @throws DataIntegrityViolationException if token persistence fails
+     * @throws UsernameNotFoundException      if the user associated with the authentication does not exist
+     * @throws JwtIntegrityViolationException if token persistence fails
      */
     @Transactional
     public JwtAuthentication issueAuthentication(Authentication authentication) {
@@ -103,7 +103,7 @@ public class JwtIssuer {
 
             return new JwtAuthentication(accessToken, refreshToken);
         } catch (DbActionExecutionException e) {
-            throw new DataIntegrityViolationException("Authentication could not be issued due to: " + e.getMessage());
+            throw new JwtIntegrityViolationException("Authentication could not be issued due to: " + e.getMessage(), e);
         }
 
     }
