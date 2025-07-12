@@ -55,6 +55,7 @@ import com.bcn.asapp.uaa.security.authentication.verifier.RefreshTokenVerifier;
 import com.bcn.asapp.uaa.security.core.AccessToken;
 import com.bcn.asapp.uaa.security.core.JwtAuthentication;
 import com.bcn.asapp.uaa.security.core.JwtType;
+import com.bcn.asapp.uaa.security.core.RefreshToken;
 import com.bcn.asapp.uaa.testutil.JwtFaker;
 
 @ExtendWith(SpringExtension.class)
@@ -124,8 +125,8 @@ class AuthServiceImplTests {
             given(authenticationManagerMock.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(fakeAuthentication);
 
             var fakeAccessToken = new AccessToken(UUID.randomUUID(), UUID.randomUUID(), jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN), Instant.now(), Instant.now());
-            var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(UUID.randomUUID(), UUID.randomUUID(),
-                    jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN), Instant.now(), Instant.now());
+            var fakeRefreshToken = new RefreshToken(UUID.randomUUID(), UUID.randomUUID(), jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN), Instant.now(),
+                    Instant.now());
             var fakeAuthenticationDTO = new JwtAuthentication(fakeAccessToken, fakeRefreshToken);
             given(jwtIssuerMock.issueAuthentication(any(Authentication.class))).willReturn(fakeAuthenticationDTO);
 
@@ -154,18 +155,18 @@ class AuthServiceImplTests {
     }
 
     @Nested
-    class RefreshToken {
+    class RefreshAuthentication {
 
         @Test
-        @DisplayName("GIVEN refresh token is invalid WHEN refresh a token THEN does not refresh the token And throws InvalidRefreshTokenException")
-        void RefreshTokenIsInvalid_RefreshToken_DoesNotRefreshTokenAndThrowsInvalidJwtException() {
+        @DisplayName("GIVEN refresh token is invalid WHEN refresh an authentication THEN does not authentication the token And throws InvalidRefreshTokenException")
+        void RefreshTokenIsInvalid_RefreshAuthentication_DoesNotRefreshAuthenticationAndThrowsInvalidRefreshTokenException() {
             // Given
             given(refreshTokenVerifierMock.verify(anyString())).willThrow(new InvalidRefreshTokenException("TEST EXCEPTION"));
 
             // When
             var refreshTokenToRefresh = new RefreshTokenDTO(jwtFaker.fakeJwtInvalid());
 
-            Executable executable = () -> authService.refreshToken(refreshTokenToRefresh);
+            Executable executable = () -> authService.refreshAuthentication(refreshTokenToRefresh);
 
             // Then
             assertThrows(InvalidRefreshTokenException.class, executable);
@@ -177,23 +178,23 @@ class AuthServiceImplTests {
         }
 
         @Test
-        @DisplayName("GIVEN refresh token is valid WHEN refresh a token THEN refresh the token And returns a new authentication")
-        void RefreshTokenIsValid_RefreshToken_GeneratesAndReturnsNewAuthentication() {
+        @DisplayName("GIVEN refresh token is valid WHEN refresh an authentication THEN refresh the authentication And returns a new authentication")
+        void RefreshTokenIsValid_RefreshAuthentication_RefreshAuthenticationAndReturnsNewAuthentication() {
             // Given
             var fakeDecodedJwt = jwtFaker.fakeDecodedJwt(jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN));
             var fakeAuthentication = JwtAuthenticationToken.authenticated(fakeDecodedJwt);
             given(refreshTokenVerifierMock.verify(anyString())).willReturn(fakeAuthentication);
 
             var fakeAccessToken = new AccessToken(UUID.randomUUID(), UUID.randomUUID(), jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN), Instant.now(), Instant.now());
-            var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(UUID.randomUUID(), UUID.randomUUID(),
-                    jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN), Instant.now(), Instant.now());
+            var fakeRefreshToken = new RefreshToken(UUID.randomUUID(), UUID.randomUUID(), jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN), Instant.now(),
+                    Instant.now());
             var fakeAuthenticationDTO = new JwtAuthentication(fakeAccessToken, fakeRefreshToken);
             given(jwtIssuerMock.issueAuthentication(any(Authentication.class))).willReturn(fakeAuthenticationDTO);
 
             // When
             var refreshTokenToRefresh = new RefreshTokenDTO(jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN));
 
-            var actualAuthentication = authService.refreshToken(refreshTokenToRefresh);
+            var actualAuthentication = authService.refreshAuthentication(refreshTokenToRefresh);
 
             // Then
             assertNotNull(actualAuthentication);

@@ -61,8 +61,8 @@ public class AuthRestController implements AuthRestAPI {
      * {@inheritDoc}
      */
     @Override
-    public ResponseEntity<JwtAuthenticationDTO> refreshToken(RefreshTokenDTO refreshToken) {
-        var authentication = authService.refreshToken(refreshToken);
+    public ResponseEntity<JwtAuthenticationDTO> refreshAuthentication(RefreshTokenDTO refreshToken) {
+        var authentication = authService.refreshAuthentication(refreshToken);
         return ResponseEntity.ok(authentication);
     }
 

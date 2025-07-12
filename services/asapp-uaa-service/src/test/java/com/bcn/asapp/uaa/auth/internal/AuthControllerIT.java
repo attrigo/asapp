@@ -206,11 +206,11 @@ class AuthControllerIT {
 
     @Nested
     @WithAnonymousUser
-    class RefreshToken {
+    class RefreshAuthentication {
 
         @Test
-        @DisplayName("GIVEN refresh token is not a valid Json WHEN refresh a token THEN returns HTTP response with status Unsupported Media Type And the empty body with the problem details")
-        void RefreshTokenIsNotJson_RefreshToken_ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetails() throws Exception {
+        @DisplayName("GIVEN refresh token is not a valid Json WHEN refresh an authentication THEN returns HTTP response with status Unsupported Media Type And the empty body with the problem details")
+        void RefreshTokenIsNotJson_RefreshAuthentication_ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetails() throws Exception {
             // When & Then
             var refreshTokenToRefresh = "";
 
@@ -227,8 +227,8 @@ class AuthControllerIT {
         }
 
         @Test
-        @DisplayName("GIVEN refresh token is not present WHEN refresh a token THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
-        void RefreshTokenIsNotPresent_RefreshToken_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+        @DisplayName("GIVEN refresh token is not present WHEN refresh an authentication THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+        void RefreshTokenIsNotPresent_RefreshAuthentication_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
             // When & Then
             var refreshTokenToRefresh = "";
 
@@ -245,13 +245,13 @@ class AuthControllerIT {
         }
 
         @Test
-        @DisplayName("GIVEN refresh token is valid valid WHEN refresh a token THEN returns HTTP response with status OK And the body with the generated authentication")
-        void RefreshTokenIsValid_RefreshToken_ReturnsStatusOkAndBodyWithGeneratedAuthentication() throws Exception {
+        @DisplayName("GIVEN refresh token is valid WHEN refresh an authentication THEN returns HTTP response with status OK And the body with the new authentication")
+        void RefreshTokenIsValid_RefreshAuthentication_ReturnsStatusOkAndBodyWithNewAuthentication() throws Exception {
             // Given
             var fakeAccessToken = jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN);
             var fakeRefreshToken = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
             var fakeAuthentication = new JwtAuthenticationDTO(new AccessTokenDTO(fakeAccessToken), new RefreshTokenDTO(fakeRefreshToken));
-            given(authServiceMock.refreshToken(any(RefreshTokenDTO.class))).willReturn(fakeAuthentication);
+            given(authServiceMock.refreshAuthentication(any(RefreshTokenDTO.class))).willReturn(fakeAuthentication);
 
             // When & Then
             var refreshToken = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);

@@ -112,7 +112,7 @@ public class AuthServiceImpl implements AuthService {
      * @return a {@link JwtAuthenticationDTO} containing newly issued tokens
      */
     @Override
-    public JwtAuthenticationDTO refreshToken(RefreshTokenDTO refreshToken) {
+    public JwtAuthenticationDTO refreshAuthentication(RefreshTokenDTO refreshToken) {
         var authentication = refreshTokenVerifier.verify(refreshToken.jwt());
 
         var newAuthentication = jwtIssuer.issueAuthentication(authentication);
