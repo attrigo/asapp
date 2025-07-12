@@ -87,9 +87,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
-     * Authenticates a user using their credentials and issues new JWT authentication tokens.
+     * Authenticates a user based on the provided credentials and issues new JWT authentication.
+     * <p>
+     * Authenticates the user with the provided credentials and, upon successful authentication, generates a new set of JWT authentication tokens (access and
+     * refresh tokens) for the user.
      *
-     * @param userCredentials the credentials of the user to authenticate
+     * @param userCredentials the user credentials to authenticate
      * @return a {@link JwtAuthenticationDTO} containing newly issued access and refresh tokens
      */
     @Override
@@ -106,10 +109,12 @@ public class AuthServiceImpl implements AuthService {
     }
 
     /**
-     * Refreshes JWT authentication tokens using a valid refresh token.
+     * Refreshes JWT authentication using the provided refresh token.
+     * <p>
+     * Verifies the provided refresh token and, if valid, issues a new set of JWT authentication tokens (access and refresh tokens).
      *
-     * @param refreshToken the refresh token DTO containing the JWT to verify
-     * @return a {@link JwtAuthenticationDTO} containing newly issued tokens
+     * @param refreshToken the refresh token used to refresh the JWT authentication tokens
+     * @return a new {@link JwtAuthenticationDTO} containing newly issued access and refresh tokens
      */
     @Override
     public JwtAuthenticationDTO refreshAuthentication(RefreshTokenDTO refreshToken) {

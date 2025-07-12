@@ -46,18 +46,19 @@ import jakarta.validation.Valid;
 public interface AuthRestAPI {
 
     /**
-     * Authenticates a user with given credentials and returns authentication tokens.
+     * Authenticates a user with the given credentials and issues new JWT authentication.
      * <p>
-     * In case the given user is already authenticated generates new authentication tokens overriding the existing ones.
+     * If the user is already authenticated, new JWT authentication (access and refresh tokens) are generated to override the existing ones.
      * <p>
      * Response codes:
      * <ul>
-     * <li>20O-OK : The user has been authenticated successfully.</li>
-     * <li>401-UNAUTHORIZED : The user could not be authenticated.</li>
+     * <li>20O-OK: The user has been authenticated successfully.</li>
+     * <li>400-BAD_REQUEST: The request body is malformed or contains invalid data</li>
+     * <li>401-UNAUTHORIZED: The user could not be authenticated due to invalid credentials.</li>
      * </ul>
      *
      * @param userCredentials the user credentials (username and password), must not be {@literal null} and must be valid
-     * @return a {@link ResponseEntity} wrapping {@link JwtAuthenticationDTO} with access and refresh tokens upon successful authentication
+     * @return a {@link ResponseEntity} wrapping {@link JwtAuthenticationDTO} with the newly issued access and refresh tokens upon successful authentication
      * @throws AuthenticationException if authentication fails due to invalid credentials or other errors
      */
     @Operation(summary = "Authenticates a user with the given credentials", description = "Authenticates a user with the given credentials and issues new JWT authentication, if the user is already authenticated, new JWT authentication (access and refresh tokens) are generated to override the existing ones.")
@@ -70,15 +71,18 @@ public interface AuthRestAPI {
     ResponseEntity<JwtAuthenticationDTO> authenticate(@Valid @RequestBody UserCredentialsDTO userCredentials);
 
     /**
-     * Refreshes an existing JWT authentication token using a valid refresh token.
+     * Refreshes existing JWT authentication using the given refresh token.
+     * <p>
+     * Issues new JWT authentication (access and refresh tokens) upon successful verification.
      * <p>
      * Response codes:
      * <ul>
-     * <li>20O-OK : The authentication token has been refreshed successfully.</li>
-     * <li>401-UNAUTHORIZED :The refresh token is invalid, expired, or the refresh process fails.</li>
+     * <li>20O-OK: The JWT authentication has been refreshed successfully.</li>
+     * <li>400-BAD_REQUEST: The request body is malformed or contains invalid data</li>
+     * <li>401-UNAUTHORIZED: The refresh token is invalid, expired, or the refresh process fails.</li>
      * </ul>
      *
-     * @param refreshToken the refresh token DTO used to obtain new tokens, must not be {@literal null}
+     * @param refreshToken the refresh token DTO used to obtain new JWT authentication, must not be {@literal null}
      * @return a {@link ResponseEntity} containing the refreshed {@link JwtAuthenticationDTO} with the refreshed access and refresh tokens
      * @throws AuthenticationException if the refresh token is invalid, expired, or cannot be processed
      */

@@ -20,8 +20,7 @@ import org.springframework.security.core.AuthenticationException;
 /**
  * Exception thrown when the JSON Web Token (JWT) cannot be matched with the one managed by the system.
  * <p>
- * This exception extends {@link AuthenticationException} to represent authentication failure specifically related to a JWT that does not belong to the expected
- * user.
+ * Is typically thrown when a JWT does not belong to the expected user.
  *
  * @author ttrigo
  * @since 0.2.0

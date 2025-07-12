@@ -26,7 +26,7 @@ import org.springframework.stereotype.Repository;
 /**
  * Repository interface that provides CRUD operations for {@link RefreshToken} entities.
  * <p>
- * Extends {@link ListCrudRepository} to inherit basic data access methods.
+ * Extends {@link ListCrudRepository} to inherit basic data access methods for handling {@link RefreshToken} entities, such as finding, saving and deleting.
  *
  * @since 0.2.0
  * @author ttrigo
@@ -39,6 +39,7 @@ public interface RefreshTokenRepository extends ListCrudRepository<RefreshToken,
      *
      * @param userId the user ID to search for, must not be {@literal null}
      * @return an {@link Optional} containing the {@link RefreshToken} if found, or {@link Optional#empty} if not found
+     * @throws IllegalArgumentException if {@code userId} is {@literal null}
      */
     Optional<RefreshToken> findByUserId(UUID userId);
 
@@ -48,6 +49,7 @@ public interface RefreshTokenRepository extends ListCrudRepository<RefreshToken,
      * @param userId the user ID to search for, must not be {@literal null}
      * @param jwt    the JWT string associated with the refresh token, must not be {@literal null}
      * @return {@code true} if a matching refresh token exists, {@code false} otherwise
+     * @throws IllegalArgumentException if either {@code userId} or {@code jwt} is {@literal null}
      */
     Boolean existsByUserIdAndJwt(UUID userId, String jwt);
 

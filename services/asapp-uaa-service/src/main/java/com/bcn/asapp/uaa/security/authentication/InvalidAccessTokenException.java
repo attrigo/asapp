@@ -20,7 +20,7 @@ import org.springframework.security.core.AuthenticationException;
 /**
  * Exception thrown when an access token is invalid or fails authentication.
  * <p>
- * This exception extends {@link AuthenticationException} to represent authentication failure specifically related to invalid access tokens.
+ * Is typically thrown when an access token is invalid.
  *
  * @since 0.2.0
  * @see AuthenticationException

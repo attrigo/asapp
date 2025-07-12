@@ -26,7 +26,8 @@ import org.springframework.stereotype.Repository;
 /**
  * Repository interface that provides CRUD operations for {@link AccessToken} entities.
  * <p>
- * Extends {@link ListCrudRepository} to inherit basic data access methods.
+ * This interface extends {@link ListCrudRepository} to inherit basic data access methods for handling {@link AccessToken} entities, such as saving, deleting,
+ * and finding tokens.
  *
  * @since 0.2.0
  * @author ttrigo
@@ -39,6 +40,7 @@ public interface AccessTokenRepository extends ListCrudRepository<AccessToken, U
      *
      * @param userId the user ID to search for, must not be {@literal null}
      * @return an {@link Optional} containing the {@link AccessToken} if found, or {@link Optional#empty} if not found
+     * @throws IllegalArgumentException if {@code userId} is {@literal null}
      */
     Optional<AccessToken> findByUserId(UUID userId);
 
@@ -48,6 +50,7 @@ public interface AccessTokenRepository extends ListCrudRepository<AccessToken, U
      * @param userId the user ID to search for, must not be {@literal null}
      * @param jwt    the JWT string associated with the access token, must not be {@literal null}
      * @return {@code true} if a matching access token exists, {@code false} otherwise
+     * @throws IllegalArgumentException if either {@code userId} or {@code jwt} is {@literal null}
      */
     Boolean existsByUserIdAndJwt(UUID userId, String jwt);
 
