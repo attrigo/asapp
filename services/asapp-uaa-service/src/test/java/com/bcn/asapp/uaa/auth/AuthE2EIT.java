@@ -444,11 +444,11 @@ class AuthE2EIT {
     }
 
     @Nested
-    class RefreshToken {
+    class RefreshAuthentication {
 
         @Test
-        @DisplayName("GIVEN refresh token is invalid WHEN refresh a token THEN does not refresh the token And returns HTTP response with status UNAUTHORIZED And an empty body")
-        void InvalidRefreshToken_RefreshToken_DoesNotRefreshTokenAndReturnsStatusUnauthorizedAndEmptyBody() {
+        @DisplayName("GIVEN refresh token is invalid WHEN refresh a authentication THEN does not refresh the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
+        void InvalidRefreshToken_RefreshAuthentication_DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody() {
             // Given
             var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
             var userToBeAuthenticated = userRepository.save(fakeUser);
@@ -472,8 +472,8 @@ class AuthE2EIT {
         }
 
         @Test
-        @DisplayName("GIVEN refresh token is an access token WHEN refresh a token THEN does not refresh the token And returns HTTP response with status UNAUTHORIZED And an empty body")
-        void RefreshTokenIsAccessToken_RefreshToken_DoesNotRefreshTokenAndReturnsStatusUnauthorizedAndEmptyBody() {
+        @DisplayName("GIVEN refresh token is an access token WHEN refresh a authentication THEN does not refresh the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
+        void RefreshTokenIsAccessToken_RefreshAuthentication_DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody() {
             // Given
             var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
             var userToBeAuthenticated = userRepository.save(fakeUser);
@@ -497,10 +497,10 @@ class AuthE2EIT {
         }
 
         @Test
-        @DisplayName("GIVEN user of refresh token not exists WHEN refresh a token THEN does not refresh the token And returns HTTP response with status UNAUTHORIZED And an empty body")
-        void RefreshTokenUserNotExists_RefreshToken_DoesNotRefreshTokenAndReturnsStatusUnauthorizedAndEmptyBody() {
+        @DisplayName("GIVEN user of refresh token not exists WHEN refresh a authentication THEN does not refresh the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
+        void RefreshTokenUserNotExists_RefreshAuthentication_DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody() {
             // Given
-            var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
+            var fakeUser = new User(null, "ANOTHER USER", fakePasswordBcryptEncoded, Role.USER);
             var userToBeAuthenticated = userRepository.save(fakeUser);
             assertNotNull(userToBeAuthenticated);
 
@@ -522,8 +522,8 @@ class AuthE2EIT {
         }
 
         @Test
-        @DisplayName("GIVEN refresh token belongs to non-authenticated user WHEN refresh a token THEN does not refresh the token And returns HTTP response with status UNAUTHORIZED And an empty body")
-        void RefreshTokenBelongsToUserNotAuthenticated_RefreshToken_DoesNotRefreshTokenAndReturnsStatusUnauthorizedAndEmptyBody() {
+        @DisplayName("GIVEN refresh token belongs to non-authenticated user WHEN refresh a authentication THEN does not refresh the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
+        void RefreshTokenBelongsToUserNotAuthenticated_RefreshAuthentication_DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody() {
             // Given
             var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
             var userToBeAuthenticated = userRepository.save(fakeUser);
@@ -548,8 +548,8 @@ class AuthE2EIT {
         }
 
         @Test
-        @DisplayName("GIVEN refresh token has been already refreshed WHEN refresh a token THEN does not refresh the token And returns HTTP response with status UNAUTHORIZED And an empty body")
-        void RefreshTokenHasBeenAlreadyRefreshed_RefreshToken_DoesNotRefreshTokenAndReturnsStatusUnauthorizedAndEmptyBody() {
+        @DisplayName("GIVEN refresh token has been already refreshed WHEN refresh a authentication THEN does not refresh the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
+        void RefreshTokenHasBeenAlreadyRefreshed_RefreshAuthentication_DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody() {
             // Given
             var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
             var userToBeAuthenticated = userRepository.save(fakeUser);
@@ -611,8 +611,8 @@ class AuthE2EIT {
         }
 
         @Test
-        @DisplayName("GIVEN refresh token is valid WHEN refresh a token THEN refreshes the token And returns HTTP response with status OK And the body with the refreshed authentication")
-        void RefreshTokenIsValid_RefreshToken_RefreshesTokenAndReturnsStatusOkAndBodyWithRefreshedAuthentication() {
+        @DisplayName("GIVEN refresh token is valid WHEN refresh a authentication THEN refreshes the authentication And returns HTTP response with status OK And the body with the refreshed authentication")
+        void RefreshTokenIsValid_RefreshAuthentication_RefreshesAuthenticationAndReturnsStatusOkAndBodyWithRefreshedAuthentication() {
             // Given
             var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
             var userToBeAuthenticated = userRepository.save(fakeUser);

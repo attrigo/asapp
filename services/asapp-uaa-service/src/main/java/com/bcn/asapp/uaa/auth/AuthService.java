@@ -37,7 +37,7 @@ public interface AuthService {
      * @param refreshToken the refresh token used to obtain new authentication tokens
      * @return a new {@link JwtAuthenticationDTO} containing refreshed tokens
      */
-    JwtAuthenticationDTO refreshToken(RefreshTokenDTO refreshToken);
+    JwtAuthenticationDTO refreshAuthentication(RefreshTokenDTO refreshToken);
 
     /**
      * Revokes the JWT authentication for a user by invalidating both access and refresh tokens using the provided access token.
