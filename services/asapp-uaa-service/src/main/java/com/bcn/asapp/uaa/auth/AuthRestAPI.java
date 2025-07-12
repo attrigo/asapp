@@ -87,7 +87,7 @@ public interface AuthRestAPI {
     @ApiResponse(responseCode = "401", description = "The refresh token is invalid, expired, or the refresh process fails", content = { @Content })
     @PostMapping(value = AUTH_REFRESH_TOKEN_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<JwtAuthenticationDTO> refreshAuthentication(@RequestBody RefreshTokenDTO refreshToken);
+    ResponseEntity<JwtAuthenticationDTO> refreshAuthentication(@Valid @RequestBody RefreshTokenDTO refreshToken);
 
     /**
      * Revokes the JWT authentication of a user by invalidating the provided access token.
