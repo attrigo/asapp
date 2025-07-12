@@ -90,8 +90,8 @@ class AccessTokenRepositoryIT {
     class FindByUserId {
 
         @Test
-        @DisplayName("GIVEN user id does not exists WHEN find user by id THEN does not find any user And returns an empty optional")
-        void UserIdNotExists_FindByUsername_DoesNotFindUserAndReturnsEmptyOptional() {
+        @DisplayName("GIVEN user id does not exists WHEN find access token by user id THEN does not find any access token And returns an empty optional")
+        void UserIdNotExists_FindByUserId_DoesNotFindUserAndReturnsEmptyOptional() {
             // When
             var userIdToFind = UUID.randomUUID();
 
@@ -102,8 +102,8 @@ class AccessTokenRepositoryIT {
         }
 
         @Test
-        @DisplayName("GIVEN user id exists WHEN find user by id THEN finds the user And returns the user found")
-        void UserIdExists_FindByUsername_FindsTasksAndReturnsTasksFound() {
+        @DisplayName("GIVEN user id exists WHEN find access token by user id THEN finds the access token And returns the user found")
+        void UserIdExists_FindByUserId_FindsTasksAndReturnsTasksFound() {
             // Given
             var fakeUser = new User(null, fakeUserUsername, fakeUserPassword, fakeUserRole);
             var userToBeFound = userRepository.save(fakeUser);
@@ -129,7 +129,7 @@ class AccessTokenRepositoryIT {
     class ExistsByUserIdAndJwt {
 
         @Test
-        @DisplayName("GIVEN access token does not exists WHEN exists by user id and Jwt THEN does not find any access token And returns false")
+        @DisplayName("GIVEN access token does not exists WHEN access token exists by user id and Jwt THEN does not find any access token And returns false")
         void AccessTokenNotExists_ExistsByUserIdAndJwt_DoesNotFindAccessTokenAndReturnsEmptyOptional() {
             // When
             var userIdToFInd = UUID.randomUUID();
@@ -142,7 +142,7 @@ class AccessTokenRepositoryIT {
         }
 
         @Test
-        @DisplayName("GIVEN access token exists WHEN exists by user id and Jwt THEN finds the access token And returns true")
+        @DisplayName("GIVEN access token exists WHEN access token exists by user id and Jwt THEN finds the access token And returns true")
         void AccessTokenExists_ExistsByUserIdAndJwt_FindsAccessTokenAndReturnsAccessTokenFound() {
             // Given
             var fakeUser = new User(null, fakeUserUsername, fakeUserPassword, fakeUserRole);

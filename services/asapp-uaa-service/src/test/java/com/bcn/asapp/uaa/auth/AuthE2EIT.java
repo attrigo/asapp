@@ -134,7 +134,7 @@ class AuthE2EIT {
 
         @Test
         @DisplayName("GIVEN user credentials password is not valid WHEN authenticate a user THEN does not authenticate the user And returns HTTP response with status UNAUTHORIZED And an empty body")
-        void UserCredentialsPasswordIsNotValid_Authenticate_DoesNotAuthenticateReturnsStatusUnauthorizedAndEmptyBody() {
+        void UserCredentialsPasswordIsInvalid_Authenticate_DoesNotAuthenticateReturnsStatusUnauthorizedAndEmptyBody() {
             // Given
             var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
             var userToBeAuthenticated = userRepository.save(fakeUser);

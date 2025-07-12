@@ -90,8 +90,8 @@ class RefreshTokenRepositoryIT {
     class FindByUserId {
 
         @Test
-        @DisplayName("GIVEN user id does not exists WHEN find user by id THEN does not find any user And returns an empty optional")
-        void UserIdNotExists_FindByUsername_DoesNotFindUserAndReturnsEmptyOptional() {
+        @DisplayName("GIVEN user id does not exists WHEN find refresh token by user id THEN does not find any refresh token And returns an empty optional")
+        void UserIdNotExists_FindByUserId_DoesNotFindUserAndReturnsEmptyOptional() {
             // When
             var userIdToFind = UUID.randomUUID();
 
@@ -102,8 +102,8 @@ class RefreshTokenRepositoryIT {
         }
 
         @Test
-        @DisplayName("GIVEN user id exists WHEN find user by id THEN finds the user And returns the user found")
-        void UserIdExists_FindByUsername_FindsTasksAndReturnsTasksFound() {
+        @DisplayName("GIVEN user id exists WHEN find refresh token by user id THEN finds the refresh token And returns the user found")
+        void UserIdExists_FindByUserId_FindsTasksAndReturnsTasksFound() {
             // Given
             var fakeUser = new User(null, fakeUserUsername, fakeUserPassword, fakeUserRole);
             var userToBeFound = userRepository.save(fakeUser);
@@ -129,7 +129,7 @@ class RefreshTokenRepositoryIT {
     class ExistsByUserIdAndJwt {
 
         @Test
-        @DisplayName("GIVEN refresh token does not exists WHEN exists by user id and Jwt THEN does not find any refresh token And returns false")
+        @DisplayName("GIVEN refresh token does not exists WHEN refresh token exists by user id and Jwt THEN does not find any refresh token And returns false")
         void RefreshTokenNotExists_ExistsByUserIdAndJwt_DoesNotFindRefreshTokenAndReturnsEmptyOptional() {
             // When
             var userIdToFInd = UUID.randomUUID();
@@ -142,7 +142,7 @@ class RefreshTokenRepositoryIT {
         }
 
         @Test
-        @DisplayName("GIVEN refresh token exists WHEN exists by user id and Jwt THEN finds the refresh token And returns true")
+        @DisplayName("GIVEN refresh token exists WHEN refresh token exists by user id and Jwt THEN finds the refresh token And returns true")
         void RefreshTokenExists_ExistsByUserIdAndJwt_FindsRefreshTokenAndReturnsRefreshTokenFound() {
             // Given
             var fakeUser = new User(null, fakeUserUsername, fakeUserPassword, fakeUserRole);
