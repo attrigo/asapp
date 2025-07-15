@@ -63,7 +63,7 @@ class UserRepositoryIT {
     class FindByUsername {
 
         @Test
-        @DisplayName("GIVEN username does not exists WHEN find user by username THEN does not find any user And returns an empty optional")
+        @DisplayName("GIVEN username does not exists WHEN find a user by username THEN does not find any user And returns an empty optional")
         void UsernameNotExists_FindByUsername_DoesNotFindUserAndReturnsEmptyOptional() {
             // When
             var usernameToFind = fakeUserUsername;
@@ -75,7 +75,7 @@ class UserRepositoryIT {
         }
 
         @Test
-        @DisplayName("GIVEN username exists WHEN find user by username THEN finds the user And returns the user found")
+        @DisplayName("GIVEN username exists WHEN find a user by username THEN finds the user And returns the user found")
         void UsernameExists_FindByUsername_FindsTasksAndReturnsTasksFound() {
             // Given
             var fakeUser = new User(null, fakeUserUsername, fakeUserPassword, fakeUserRole);

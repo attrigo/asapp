@@ -59,7 +59,7 @@ class JwtAuthenticationTokenTests {
     class Constructor {
 
         @Test
-        @DisplayName("Given subject is null and Jwt is present WHEN constructor THEN returns un-authenticated JwtAuthenticationToken without subject")
+        @DisplayName("Given subject is null and Jwt is present WHEN create an instance of JwtAuthenticationToken THEN returns un-authenticated JwtAuthenticationToken without subject")
         void SubjectIsNullAndJwtIsPresent_Constructor_ReturnsUnauthenticatedJwtAuthenticationTokenWithoutSubject() {
             // When
             var actualAuthentication = new JwtAuthenticationToken(null, jwt);
@@ -73,7 +73,7 @@ class JwtAuthenticationTokenTests {
         }
 
         @Test
-        @DisplayName("Given subject is empty and Jwt is present WHEN constructor THEN returns un-authenticated JwtAuthenticationToken without subject")
+        @DisplayName("Given subject is empty and Jwt is present WHEN create an instance of JwtAuthenticationToken THEN returns un-authenticated JwtAuthenticationToken without subject")
         void SubjectIsEmptyAndJwtIsPresent_Constructor_ReturnsUnauthenticatedJwtAuthenticationTokenWithoutSubject() {
             // When
             var subject = "";
@@ -89,7 +89,7 @@ class JwtAuthenticationTokenTests {
         }
 
         @Test
-        @DisplayName("Given subject is present and Jwt is null WHEN constructor THEN throws IllegalArgumentException")
+        @DisplayName("Given subject is present and Jwt is null WHEN create an instance of JwtAuthenticationToken THEN throws IllegalArgumentException")
         void SubjectIsPresentAndJwtIsNull_Constructor_ThrowsIllegalArgumentException() {
             // When
             Executable executable = () -> new JwtAuthenticationToken(username, null);
@@ -100,7 +100,7 @@ class JwtAuthenticationTokenTests {
         }
 
         @Test
-        @DisplayName("Given subject is present and Jwt is empty WHEN constructor THEN throws IllegalArgumentException")
+        @DisplayName("Given subject is present and Jwt is empty WHEN create an instance of JwtAuthenticationToken THEN throws IllegalArgumentException")
         void SubjectIsPresentAndJwtIsEmpty_Constructor_ThrowsIllegalArgumentException() {
             // When
             var jwt = "";
@@ -113,7 +113,7 @@ class JwtAuthenticationTokenTests {
         }
 
         @Test
-        @DisplayName("Given subject is present and Jwt is present WHEN constructor THEN returns un-authenticated JwtAuthenticationToken")
+        @DisplayName("Given subject is present and Jwt is present WHEN create an instance of JwtAuthenticationToken THEN returns un-authenticated JwtAuthenticationToken")
         void SubjectAndJwtArePresent_Constructor_ReturnsUnauthenticatedJwtAuthenticationToken() {
             // When
             var actualAuthentication = new JwtAuthenticationToken(username, jwt);
@@ -127,7 +127,7 @@ class JwtAuthenticationTokenTests {
         }
 
         @Test
-        @DisplayName("Given subject is present and authorities are present and Jwt is present WHEN constructor THEN returns authenticated JwtAuthenticationToken without subject")
+        @DisplayName("Given subject is present and authorities are present and Jwt is present WHEN create an instance of JwtAuthenticationToken THEN returns authenticated JwtAuthenticationToken without subject")
         void SubjectIsNullAndAuthoritiesArePresentAndJwtIsPresent_Constructor_ReturnsAuthenticatedJwtAuthenticationTokenWithoutSubject() {
             // When
             var actualAuthentication = new JwtAuthenticationToken(null, authorities, jwt);
@@ -142,7 +142,7 @@ class JwtAuthenticationTokenTests {
         }
 
         @Test
-        @DisplayName("Given subject is empty and authorities are present and Jwt is present WHEN constructor THEN returns authenticated JwtAuthenticationToken without subject")
+        @DisplayName("Given subject is empty and authorities are present and Jwt is present WHEN create an instance of JwtAuthenticationToken THEN returns authenticated JwtAuthenticationToken without subject")
         void SubjectIsEmptyAndAuthoritiesArePresentAndJwtIsPresent_Constructor_ReturnsAuthenticatedJwtAuthenticationTokenWithoutSubject() {
             // When
             var subject = "";
@@ -159,7 +159,7 @@ class JwtAuthenticationTokenTests {
         }
 
         @Test
-        @DisplayName("Given subject is present and authorities are null and Jwt is present WHEN constructor THEN returns authenticated JwtAuthenticationToken without authorities")
+        @DisplayName("Given subject is present and authorities are null and Jwt is present WHEN create an instance of JwtAuthenticationToken THEN returns authenticated JwtAuthenticationToken without authorities")
         void SubjectIsPresentAndAuthoritiesIsNullAndJwtIsPresent_Constructor_ReturnsAuthenticatedJwtAuthenticationTokenWithoutAuthorities() {
             // When
             var actualAuthentication = new JwtAuthenticationToken(username, null, jwt);
@@ -173,7 +173,7 @@ class JwtAuthenticationTokenTests {
         }
 
         @Test
-        @DisplayName("Given subject is present and some authority is null and Jwt is present WHEN constructor THEN throws IllegalArgumentException")
+        @DisplayName("Given subject is present and some authority is null and Jwt is present WHEN create an instance of JwtAuthenticationToken THEN throws IllegalArgumentException")
         void SubjectIsPresentAndSomeAuthorityIsNullAndJwtIsPresent_Constructor_ThrowsIllegalArgumentException() {
             // When
             var authorities = new ArrayList<SimpleGrantedAuthority>();
@@ -187,7 +187,7 @@ class JwtAuthenticationTokenTests {
         }
 
         @Test
-        @DisplayName("Given subject is present and authorities are present and Jwt is null WHEN constructor THEN throws IllegalArgumentException")
+        @DisplayName("Given subject is present and authorities are present and Jwt is null WHEN create an instance of JwtAuthenticationToken THEN throws IllegalArgumentException")
         void SubjectIsPresentAndAuthoritiesArePresentAndJwtIsNull_Constructor_ThrowsIllegalArgumentException() {
             // When
             Executable executable = () -> new JwtAuthenticationToken(username, authorities, null);
@@ -198,7 +198,7 @@ class JwtAuthenticationTokenTests {
         }
 
         @Test
-        @DisplayName("Given subject is present and authorities are present and Jwt is empty WHEN constructor THEN throws IllegalArgumentException")
+        @DisplayName("Given subject is present and authorities are present and Jwt is empty WHEN create an instance of JwtAuthenticationToken THEN throws IllegalArgumentException")
         void SubjectIsPresentAndAuthoritiesArePresentAndJwtIsEmpty_Constructor_ThrowsIllegalArgumentException() {
             // When
             var jwt = "";
@@ -211,7 +211,7 @@ class JwtAuthenticationTokenTests {
         }
 
         @Test
-        @DisplayName("Given subject is present and authorities are present and Jwt are present WHEN constructor THEN returns authenticated JwtAuthenticationToken")
+        @DisplayName("Given subject is present and authorities are present and Jwt are present WHEN create an instance of JwtAuthenticationToken THEN returns authenticated JwtAuthenticationToken")
         void SubjectIsPresentAndAuthoritiesArePresentAndJwtArePresent_Constructor_ReturnsAuthenticatedJwtAuthenticationToken() {
             // When
             var actualAuthentication = new JwtAuthenticationToken(username, authorities, jwt);
@@ -231,7 +231,7 @@ class JwtAuthenticationTokenTests {
     class Unauthenticated {
 
         @Test
-        @DisplayName("Given decoded JWT is null WHEN unauthenticated THEN throws IllegalArgumentException")
+        @DisplayName("Given decoded JWT is null WHEN create unauthenticated instance of JwtAuthenticationToken THEN throws IllegalArgumentException")
         void DecodedJwtIsNull_Unauthenticated_ThrowsIllegalArgumentException() {
             // When
             Executable executable = () -> JwtAuthenticationToken.unauthenticated(null);
@@ -242,7 +242,7 @@ class JwtAuthenticationTokenTests {
         }
 
         @Test
-        @DisplayName("Given decoded JWT is present WHEN unauthenticated THEN returns un-authenticated JwtAuthenticationToken")
+        @DisplayName("Given decoded JWT is present WHEN create unauthenticated instance of JwtAuthenticationToken THEN returns un-authenticated JwtAuthenticationToken")
         void DecodedJwtIsValid_Unauthenticated_ReturnsUnauthenticatedJwtAuthenticationToken() {
             // When
             var decodedJwt = jwtFaker.fakeDecodedJwt(jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN));
@@ -263,7 +263,7 @@ class JwtAuthenticationTokenTests {
     class Authenticated {
 
         @Test
-        @DisplayName("Given decoded JWT is null WHEN authenticated THEN throws IllegalArgumentException")
+        @DisplayName("Given decoded JWT is null WHEN create authenticated instance of JwtAuthenticationToken THEN throws IllegalArgumentException")
         void DecodedJwtIsNull_Authenticated_ThrowsIllegalArgumentException() {
             // When
             Executable executable = () -> JwtAuthenticationToken.authenticated(null);
@@ -274,7 +274,7 @@ class JwtAuthenticationTokenTests {
         }
 
         @Test
-        @DisplayName("Given decoded JWT is present WHEN authenticated THEN returns authenticated JwtAuthenticationToken")
+        @DisplayName("Given decoded JWT is present WHEN create authenticated instance of JwtAuthenticationToken THEN returns authenticated JwtAuthenticationToken")
         void DecodedJwtIsValid_Authenticated_ReturnsAuthenticatedJwtAuthenticationToken() {
             // When
             var decodedJwt = jwtFaker.fakeDecodedJwt(jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN));
@@ -296,7 +296,7 @@ class JwtAuthenticationTokenTests {
     class GetCredentials {
 
         @Test
-        @DisplayName("WHEN get credentials THEN returns null")
+        @DisplayName("WHEN get credentials field THEN returns null")
         void GetCredentials_ReturnsNull() {
             // Given
             var actualAuthentication = new JwtAuthenticationToken(username, authorities, jwt);
@@ -313,7 +313,7 @@ class JwtAuthenticationTokenTests {
     class GetPrincipal {
 
         @Test
-        @DisplayName("WHEN get principal THEN returns principal")
+        @DisplayName("WHEN get principal field THEN returns the principal")
         void GetPrincipal_ReturnsPrincipal() {
             // Given
             var actualAuthentication = new JwtAuthenticationToken(username, authorities, jwt);
@@ -330,7 +330,7 @@ class JwtAuthenticationTokenTests {
     class GetJwt {
 
         @Test
-        @DisplayName("WHEN get jwt THEN returns jwt")
+        @DisplayName("WHEN get jwt field THEN returns the jwt")
         void GetJwt_ReturnsJwt() {
             // Given
             var actualAuthentication = new JwtAuthenticationToken(username, authorities, jwt);

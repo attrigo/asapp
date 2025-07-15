@@ -309,7 +309,7 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        @DisplayName("GIVEN JWT is not present WHEN call actuator index endpoint THEN returns HTTP response with status OK And the body with the index content")
+        @DisplayName("GIVEN JWT is not present WHEN call swagger index endpoint THEN returns HTTP response with status OK And the body with the index content")
         void JwtIsNotPresent_CallSwaggerIndexEndpoint_ReturnsStatusOkAndBodyWithContent() {
             webTestClient.get()
                          .uri("/swagger-ui/index.html")
