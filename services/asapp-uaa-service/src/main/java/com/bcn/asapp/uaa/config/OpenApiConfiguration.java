@@ -18,8 +18,10 @@ package com.bcn.asapp.uaa.config;
 import org.springframework.context.annotation.Configuration;
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.enums.SecuritySchemeType;
 import io.swagger.v3.oas.annotations.info.Info;
 import io.swagger.v3.oas.annotations.info.License;
+import io.swagger.v3.oas.annotations.security.SecurityScheme;
 
 /**
  * Open API configuration.
@@ -38,4 +40,5 @@ import io.swagger.v3.oas.annotations.info.License;
  */
 @Configuration
 @OpenAPIDefinition(info = @Info(title = "UAA Service API", version = "0.2.0-SNAPSHOT", description = "Provides UAA operations", license = @License(name = "Apache-2.0", url = "https://www.apache.org/licenses/LICENSE-2.0")))
+@SecurityScheme(type = SecuritySchemeType.HTTP, name = "Bearer Authentication", scheme = "bearer", bearerFormat = "JWT")
 public class OpenApiConfiguration {}
