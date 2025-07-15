@@ -18,6 +18,8 @@ package com.bcn.asapp.uaa.security.core;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.springframework.data.jdbc.repository.query.Modifying;
+import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.stereotype.Repository;
 
@@ -39,5 +41,9 @@ public interface UserRepository extends ListCrudRepository<User, UUID> {
      * @return {@link Optional} containing the {@link User} found, or {@link Optional#empty} if no user exists with the given username
      */
     Optional<User> findByUsername(String username);
+
+    @Modifying
+    @Query("DELETE FROM user u WHERE u.user_id = :id")
+    Long deleteUserById(UUID id);
 
 }
