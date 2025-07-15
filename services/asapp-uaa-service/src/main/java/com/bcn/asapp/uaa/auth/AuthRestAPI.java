@@ -21,6 +21,7 @@ import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_ROOT_PATH;
 import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_TOKEN_PATH;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -64,7 +65,8 @@ public interface AuthRestAPI {
     @Operation(summary = "Authenticates a user with the given credentials", description = "Authenticates a user with the given credentials and issues new JWT authentication, if the user is already authenticated, new JWT authentication (access and refresh tokens) are generated to override the existing ones.")
     @ApiResponse(responseCode = "200", description = "The user has been authenticated successfully", content = {
             @Content(schema = @Schema(implementation = JwtAuthenticationDTO.class)) })
-    @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = { @Content })
+    @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "The user could not be authenticated due to invalid credentials", content = { @Content })
     @PostMapping(value = AUTH_TOKEN_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
@@ -89,7 +91,8 @@ public interface AuthRestAPI {
     @Operation(summary = "Refreshes the JWT authentication", description = "Refreshes an existing JWT authentication using the given refresh token.")
     @ApiResponse(responseCode = "200", description = "The JWT authentication tokens have been refreshed successfully", content = {
             @Content(schema = @Schema(implementation = JwtAuthenticationDTO.class)) })
-    @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = { @Content })
+    @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "The refresh token is invalid, expired, or the refresh process fails", content = { @Content })
     @PostMapping(value = AUTH_REFRESH_TOKEN_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
@@ -113,7 +116,8 @@ public interface AuthRestAPI {
      */
     @Operation(summary = "Revokes the JWT authentication", description = "Revokes the JWT authentication by invalidating the given access token.")
     @ApiResponse(responseCode = "200", description = "The JWT authentication has been revoked successfully", content = { @Content })
-    @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = { @Content })
+    @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "The access token is invalid, expired, or the revocation process fails", content = { @Content })
     @PostMapping(value = AUTH_REVOKE_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
