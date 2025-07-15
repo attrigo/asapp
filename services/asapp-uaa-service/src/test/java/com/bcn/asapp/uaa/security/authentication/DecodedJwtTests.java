@@ -80,7 +80,7 @@ class DecodedJwtTests {
     class Constructor {
 
         @Test
-        @DisplayName("GIVEN Jwt is null WHEN create an instance THEN throws InvalidJwtException")
+        @DisplayName("GIVEN Jwt is null WHEN create an instance of DecodedJwt THEN throws InvalidJwtException")
         void JwtIsNull_Constructor_ThrowsInvalidJwtException() {
             // Given
             Executable executable = () -> new DecodedJwt(null, accessTokenHeader, accessTokenPayload);
@@ -91,7 +91,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        @DisplayName("GIVEN Jwt is empty WHEN create an instance THEN throws InvalidJwtException")
+        @DisplayName("GIVEN Jwt is empty WHEN create an instance of DecodedJwt  THEN throws InvalidJwtException")
         void JwtIsEmpty_Constructor_ThrowsInvalidJwtException() {
             // Given
             var jwt = "";
@@ -104,7 +104,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        @DisplayName("GIVEN Jwt header is null WHEN create an instance THEN throws InvalidJwtException")
+        @DisplayName("GIVEN Jwt header is null WHEN create an instance of DecodedJwt  THEN throws InvalidJwtException")
         void HeaderIsNull_Constructor_ThrowsInvalidJwtException() {
             // Given
             Executable executable = () -> new DecodedJwt(accessJwt, null, accessTokenPayload);
@@ -115,7 +115,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        @DisplayName("GIVEN Jwt header type is null WHEN create an instance THEN throws InvalidJwtException")
+        @DisplayName("GIVEN Jwt header type is null WHEN create an instance of DecodedJwt  THEN throws InvalidJwtException")
         void HeaderTypeIsNull_Constructor_ThrowsInvalidJwtException() {
             // Given
             var header = new DefaultHeader(Map.of());
@@ -128,7 +128,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        @DisplayName("GIVEN Jwt header type is empty WHEN create an instance THEN throws InvalidJwtException")
+        @DisplayName("GIVEN Jwt header type is empty WHEN create an instance of DecodedJwt THEN  throws InvalidJwtException")
         void HeaderTypeIsEmpty_Constructor_ThrowsInvalidJwtException() {
             // Given
             var header = new DefaultHeader(Map.of("typ", ""));
@@ -141,7 +141,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        @DisplayName("GIVEN Jwt header type is invalid WHEN create an instance THEN throws InvalidJwtException")
+        @DisplayName("GIVEN Jwt header type is invalid WHEN create an instance of DecodedJwt THEN  throws InvalidJwtException")
         void HeaderTypeIsInvalid_Constructor_ThrowsInvalidJwtException() {
             // Given
             var header = new DefaultHeader(Map.of("typ", "TEST TYPE"));
@@ -154,7 +154,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        @DisplayName("GIVEN Jwt payload is null WHEN create an instance THEN throws InvalidJwtException")
+        @DisplayName("GIVEN Jwt payload is null WHEN create an instance of DecodedJwt THEN  throws InvalidJwtException")
         void PayloadIsNull_Constructor_ThrowsInvalidJwtException() {
             // Given
             Executable executable = () -> new DecodedJwt(accessJwt, accessTokenHeader, null);
@@ -165,7 +165,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        @DisplayName("GIVEN Jwt payload subject is null WHEN create an instance THEN throws InvalidJwtException")
+        @DisplayName("GIVEN Jwt payload subject is null WHEN create an instance of DecodedJwt THEN  throws InvalidJwtException")
         void PayloadSubjectIsNull_Constructor_ThrowsInvalidJwtException() {
             // Given
             var claims = Map.of(ROLE_CLAIM_NAME, "USER", TOKEN_USE_CLAIM_NAME, TOKEN_USE_ACCESS_CLAIM_VALUE, "iat", 1687600000L, "exp", 1687650000L);
@@ -179,7 +179,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        @DisplayName("GIVEN Jwt payload subject is empty WHEN create an instance THEN throws InvalidJwtException")
+        @DisplayName("GIVEN Jwt payload subject is empty WHEN create an instance of DecodedJwt THEN  throws InvalidJwtException")
         void PayloadSubjectIsEmpty_Constructor_ThrowsInvalidJwtException() {
             // Given
             var claims = Map.of("sub", "", ROLE_CLAIM_NAME, "USER", TOKEN_USE_CLAIM_NAME, TOKEN_USE_ACCESS_CLAIM_VALUE, "iat", 1687600000L, "exp", 1687650000L);
@@ -193,7 +193,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        @DisplayName("GIVEN Jwt payload authorities is null WHEN create an instance THEN throws InvalidJwtException")
+        @DisplayName("GIVEN Jwt payload authorities is null WHEN create an instance of DecodedJwt THEN  throws InvalidJwtException")
         void PayloadAuthoritiesIsNull_Constructor_ThrowsInvalidJwtException() {
             // Given
             var claims = Map.of("sub", "TEST USERNAME", TOKEN_USE_CLAIM_NAME, TOKEN_USE_ACCESS_CLAIM_VALUE, "iat", 1687600000L, "exp", 1687650000L);
@@ -207,7 +207,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        @DisplayName("GIVEN Jwt payload authorities is empty WHEN create an instance THEN throws InvalidJwtException")
+        @DisplayName("GIVEN Jwt payload authorities is empty WHEN create an instance of DecodedJwt THEN  throws InvalidJwtException")
         void PayloadAuthoritiesIsEmpty_Constructor_ThrowsInvalidJwtException() {
             // Given
             var claims = Map.of("sub", "TEST USERNAME", ROLE_CLAIM_NAME, "", TOKEN_USE_CLAIM_NAME, TOKEN_USE_ACCESS_CLAIM_VALUE, "iat", 1687600000L, "exp",
@@ -222,7 +222,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        @DisplayName("GIVEN Jwt payload token use claim is null WHEN create an instance THEN throws InvalidJwtException")
+        @DisplayName("GIVEN Jwt payload token use claim is null WHEN create an instance of DecodedJwt THEN  throws InvalidJwtException")
         void PayloadTokenUseClaimIsNull_Constructor_ThrowsInvalidJwtException() {
             // Given
             var claims = Map.of("sub", "TEST USERNAME", ROLE_CLAIM_NAME, "USER", "iat", 1687600000L, "exp", 1687650000L);
@@ -236,7 +236,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        @DisplayName("GIVEN Jwt payload token use claim is empty WHEN create an instance THEN throws InvalidJwtException")
+        @DisplayName("GIVEN Jwt payload token use claim is empty WHEN create an instance of DecodedJwt THEN  throws InvalidJwtException")
         void PayloadTokenUseClaimIsEmpty_Constructor_ThrowsInvalidJwtException() {
             // Given
             var claims = Map.of("sub", "TEST USERNAME", ROLE_CLAIM_NAME, "USER", TOKEN_USE_CLAIM_NAME, "", "iat", 1687600000L, "exp", 1687650000L);
@@ -250,7 +250,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        @DisplayName("GIVEN Jwt payload issued at is null WHEN create an instance THEN throws InvalidJwtException")
+        @DisplayName("GIVEN Jwt payload issued at is null WHEN create an instance of DecodedJwt THEN  throws InvalidJwtException")
         void PayloadIssuedAtIsNull_Constructor_ThrowsInvalidJwtException() {
             // Given
             var claims = Map.of("sub", "TEST USERNAME", ROLE_CLAIM_NAME, "USER", TOKEN_USE_CLAIM_NAME, TOKEN_USE_ACCESS_CLAIM_VALUE, "exp", 1687650000L);
@@ -264,7 +264,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        @DisplayName("GIVEN Jwt payload expires at is null WHEN create an instance THEN throws InvalidJwtException")
+        @DisplayName("GIVEN Jwt payload expires at is null WHEN create an instance of DecodedJwt THEN  throws InvalidJwtException")
         void PayloadExpiresAtIsNull_Constructor_ThrowsInvalidJwtException() {
             // Given
             var claims = Map.of("sub", "TEST USERNAME", ROLE_CLAIM_NAME, "USER", TOKEN_USE_CLAIM_NAME, TOKEN_USE_ACCESS_CLAIM_VALUE, "iat", 1687600000L);
@@ -278,7 +278,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        @DisplayName("GIVEN Jwt payload token use claim is invalid WHEN create an instance THEN throws InvalidJwtException")
+        @DisplayName("GIVEN Jwt payload token use claim is invalid WHEN create an instance of DecodedJwt THEN  throws InvalidJwtException")
         void PayloadTokenUseClaimIsInvalid_Constructor_ThrowsInvalidJwtException() {
             // Given
             var claims = Map.of("sub", "TEST USERNAME", ROLE_CLAIM_NAME, "USER", TOKEN_USE_CLAIM_NAME, "TEST CLAIM", "iat", 1687600000L, "exp", 1687650000L);
@@ -292,7 +292,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        @DisplayName("GIVEN access token is valid WHEN create an instance THEN instantiates the DecodedJwt")
+        @DisplayName("GIVEN access token is valid WHEN create an instance of DecodedJwt THEN  instantiates the DecodedJwt")
         void AccessTokenIsValid_Constructor_InstantiatesDecodedJwt() {
             // Given
             var acualDecodedJwt = new DecodedJwt(accessJwt, accessTokenHeader, accessTokenPayload);
@@ -315,7 +315,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        @DisplayName("GIVEN refresh token is valid WHEN create an instance THEN instantiates the DecodedJwt")
+        @DisplayName("GIVEN refresh token is valid WHEN create an instance of DecodedJwt THEN  instantiates the DecodedJwt")
         void RefreshTokenIsValid_Constructor_InstantiatesDecodedJwt() {
             // Given
             var acualDecodedJwt = new DecodedJwt(refreshJwt, refreshTokenHeader, refreshTokenPayload);
@@ -449,7 +449,7 @@ class DecodedJwtTests {
     class GetJwt {
 
         @Test
-        @DisplayName("WHEN get the Jwt THEN returns the Jwt")
+        @DisplayName("WHEN get the Jwt field THEN returns the Jwt")
         void GetJwt_ReturnsJwt() {
             // Given
             var decodedJwt = new DecodedJwt(accessJwt, accessTokenHeader, accessTokenPayload);
@@ -467,7 +467,7 @@ class DecodedJwtTests {
     class GetType {
 
         @Test
-        @DisplayName("WHEN get the type THEN returns the type")
+        @DisplayName("WHEN get the type field THEN returns the type")
         void GetType_ReturnsType() {
             // Given
             var decodedJwt = new DecodedJwt(accessJwt, accessTokenHeader, accessTokenPayload);
@@ -485,7 +485,7 @@ class DecodedJwtTests {
     class GetSubject {
 
         @Test
-        @DisplayName("WHEN get the subject THEN returns the subject")
+        @DisplayName("WHEN get the subject field THEN returns the subject")
         void GetSubject_ReturnsSubject() {
             // Given
             var decodedJwt = new DecodedJwt(accessJwt, accessTokenHeader, accessTokenPayload);
@@ -503,6 +503,7 @@ class DecodedJwtTests {
     class GetRole {
 
         @Test
+        @DisplayName("WHEN get the role field THEN returns the role")
         void GetRole_ReturnsRole() {
             // Given
             var decodedJwt = new DecodedJwt(accessJwt, accessTokenHeader, accessTokenPayload);
@@ -562,7 +563,7 @@ class DecodedJwtTests {
     class GetIssuedAt {
 
         @Test
-        @DisplayName("WHEN get issued at THEN returns the issued at date")
+        @DisplayName("WHEN get the issued at field THEN returns the issued at date")
         void GetIssuedAt_ReturnsIssuedAt() {
             // Given
             var decodedJwt = new DecodedJwt(accessJwt, accessTokenHeader, accessTokenPayload);
@@ -580,7 +581,7 @@ class DecodedJwtTests {
     class GetExpiresAt {
 
         @Test
-        @DisplayName("WHEN get expires at THEN returns the expires at date")
+        @DisplayName("WHEN get the expires at field THEN returns the expires at date")
         void GetExpiresAt_ReturnsExpiresAt() {
             // Given
             var decodedJwt = new DecodedJwt(accessJwt, accessTokenHeader, accessTokenPayload);

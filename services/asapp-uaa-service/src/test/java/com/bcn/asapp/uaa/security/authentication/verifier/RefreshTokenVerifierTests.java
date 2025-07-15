@@ -67,7 +67,7 @@ class RefreshTokenVerifierTests {
     class Verify {
 
         @Test
-        @DisplayName("Given refresh token is invalid WHEN verify refresh token THEN throws InvalidRefreshTokenException")
+        @DisplayName("Given refresh token is invalid WHEN verify a refresh token THEN throws InvalidRefreshTokenException")
         void RefreshTokenIsInvalid_Verify_ThrowsInvalidRefreshTokenException() {
             // Given
             given(jwtDecoderMock.decode(anyString())).willThrow(new JwtException("TEST EXCEPTION"));
@@ -88,7 +88,7 @@ class RefreshTokenVerifierTests {
         }
 
         @Test
-        @DisplayName("Given token is not an refresh token WHEN verify refresh token THEN throws InvalidRefreshTokenException")
+        @DisplayName("Given token is not an refresh token WHEN verify a refresh token THEN throws InvalidRefreshTokenException")
         void TokenIsNotRefreshToken_Verify_ThrowsInvalidRefreshTokenException() {
             // Given
             var fakeDecodedJwt = jwtFaker.fakeDecodedJwt(jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN));
@@ -112,7 +112,7 @@ class RefreshTokenVerifierTests {
         }
 
         @Test
-        @DisplayName("Given refresh token does not match WHEN verify refresh token THEN throws InvalidRefreshTokenException")
+        @DisplayName("Given refresh token does not match WHEN verify a refresh token THEN throws InvalidRefreshTokenException")
         void RefreshTokenNotMatch_Verify_ThrowsInvalidRefreshTokenException() {
             // Given
             var fakeDecodedJwt = jwtFaker.fakeDecodedJwt(jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN));
@@ -138,7 +138,7 @@ class RefreshTokenVerifierTests {
         }
 
         @Test
-        @DisplayName("Given refresh token matches WHEN verify refresh token THEN returns the authentication token")
+        @DisplayName("Given refresh token matches WHEN verify a refresh token THEN returns the authentication token")
         void RefreshTokenMatches_Verify_ReturnsTheAuthenticationToken() {
             // Given
             var fakeDecodedJwt = jwtFaker.fakeDecodedJwt(jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN));

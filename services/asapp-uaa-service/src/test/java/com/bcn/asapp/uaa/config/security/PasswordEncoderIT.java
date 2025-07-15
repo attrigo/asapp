@@ -56,7 +56,7 @@ class PasswordEncoderIT {
     }
 
     @Test
-    @DisplayName("GIVEN Bcrypt encoded password WHEN password encoder matches THEN password matches")
+    @DisplayName("GIVEN password is Bcrypt encoded WHEN matches passwords THEN password matches")
     void BcryptEncodedPassword_PasswordEncoderMatches_PasswordMatches() {
         // Given
         var bcryptEncoder = new BCryptPasswordEncoder();
@@ -72,7 +72,7 @@ class PasswordEncoderIT {
     }
 
     @Test
-    @DisplayName("GIVEN Argon2 encoded password WHEN password encoder matches THEN password matches")
+    @DisplayName("GIVEN password is Argon2 encoded WHEN matches passwords THEN password matches")
     void Argon2EncodedPassword_PasswordEncoderMatches_PasswordMatches() {
         // Given
         var argon2Encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
@@ -88,7 +88,7 @@ class PasswordEncoderIT {
     }
 
     @Test
-    @DisplayName("GIVEN Pbkdf2 encoded password WHEN password encoder matches THEN password matches")
+    @DisplayName("GIVEN password Pbkdf2 encoded WHEN matches passwords THEN password matches")
     void Pbkdf2EncodedPassword_PasswordEncoderMatches_PasswordMatches() {
         // Given
         var pbkdf2Encoder = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
@@ -104,7 +104,7 @@ class PasswordEncoderIT {
     }
 
     @Test
-    @DisplayName("GIVEN Scrypt encoded password WHEN password encoder matches THEN password matches")
+    @DisplayName("GIVEN password Scrypt encoded WHEN matches passwords THEN password matches")
     void ScryptEncodedPassword_PasswordEncoderMatches_PasswordMatches() {
         // Given
         var scryptEncoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8();
@@ -120,7 +120,7 @@ class PasswordEncoderIT {
     }
 
     @Test
-    @DisplayName("GIVEN Noop encoded password WHEN password encoder matches THEN password matches")
+    @DisplayName("GIVEN password is Noop encoded WHEN matches passwords THEN password matches")
     void NoopEncodedPassword_PasswordEncoderMatches_PasswordMatches() {
         // Given
         var fakePasswordNoopEncoded = "{noop}TEST PASSWORD";

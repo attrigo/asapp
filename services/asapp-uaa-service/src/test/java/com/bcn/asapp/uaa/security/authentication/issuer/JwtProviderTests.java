@@ -62,7 +62,7 @@ class JwtProviderTests {
     class GenerateAccessToken {
 
         @Test
-        @DisplayName("GIVEN authentication is null WHEN generate access token THEN does not generate the token And throws IllegalArgumentException")
+        @DisplayName("GIVEN authentication is null WHEN generate an access token THEN does not generate the token And throws IllegalArgumentException")
         void AuthenticationIsNull_GenerateAccessToken_DoesNotGenerateTokenAndThrowsIllegalArgumentException() {
             // When
             Executable executable = () -> jwtProvider.generateAccessToken(null);
@@ -73,7 +73,7 @@ class JwtProviderTests {
         }
 
         @Test
-        @DisplayName("GIVEN authentication username is null WHEN generate access token THEN does not generate the token And throws IllegalArgumentException")
+        @DisplayName("GIVEN authentication username is null WHEN generate an access token THEN does not generate the token And throws IllegalArgumentException")
         void AuthenticationUserNameIsNull_GenerateAccessToken_DoesNotGenerateTokenAndThrowsIllegalArgumentException() {
             // When
             var authenticationWithoutUsername = new UsernamePasswordAuthenticationToken(null, fakePassword);
@@ -86,7 +86,7 @@ class JwtProviderTests {
         }
 
         @Test
-        @DisplayName("GIVEN authentication username is empty WHEN generate access token THEN does not generate the token And throws IllegalArgumentException")
+        @DisplayName("GIVEN authentication username is empty WHEN generate an access token THEN does not generate the token And throws IllegalArgumentException")
         void AuthenticationUserNameIsEmpty_GenerateAccessToken_DoesNotGenerateTokenAndThrowsIllegalArgumentException() {
             // When
             var authenticationWithEmptyUsername = new UsernamePasswordAuthenticationToken("", fakePassword);
@@ -99,7 +99,7 @@ class JwtProviderTests {
         }
 
         @Test
-        @DisplayName("GIVEN authentication authorities is null WHEN generate access token THEN does not generate the token And throws IllegalArgumentException")
+        @DisplayName("GIVEN authentication authorities is null WHEN generate an access token THEN does not generate the token And throws IllegalArgumentException")
         void AuthenticationAuthoritiesIsNull_GenerateAccessToken_DoesNotGenerateTokenAndThrowsIllegalArgumentException() {
             // When
             var authenticationWithoutAuthorities = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, null);
@@ -112,7 +112,7 @@ class JwtProviderTests {
         }
 
         @Test
-        @DisplayName("GIVEN authentication authorities is empty WHEN generate access token THEN does not generate the token And throws IllegalArgumentException")
+        @DisplayName("GIVEN authentication authorities is empty WHEN generate an access token THEN does not generate the token And throws IllegalArgumentException")
         void AuthenticationAuthoritiesIsEmpty_GenerateAccessToken_DoesNotGenerateTokenAndThrowsIllegalArgumentException() {
             // When
             var authenticationWithEmptyAuthorities = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, List.of());
@@ -125,7 +125,7 @@ class JwtProviderTests {
         }
 
         @Test
-        @DisplayName("GIVEN authentication has invalid role WHEN generate access token THEN does not generate the token And throws IllegalArgumentException")
+        @DisplayName("GIVEN authentication has invalid role WHEN generate an access token THEN does not generate the token And throws IllegalArgumentException")
         void AuthenticationHasInvalidRole_GenerateAccessToken_DoesNotGenerateTokenAndThrowsIllegalArgumentException() {
             // When
             var invalidAuthorities = List.of(new SimpleGrantedAuthority("NOT_VALID_ROLE"));
@@ -139,7 +139,7 @@ class JwtProviderTests {
         }
 
         @Test
-        @DisplayName("GIVEN authentication with USER role WHEN generate access token THEN generates the token And return the token")
+        @DisplayName("GIVEN authentication with USER role WHEN generate an access token THEN generates the token And return the token")
         void AuthenticationWithUserRole_GenerateAccessToken_GeneratesTokenAndReturnsToken() {
             // When
             var authorities = List.of(new SimpleGrantedAuthority(Role.USER.name()));
@@ -161,7 +161,7 @@ class JwtProviderTests {
         }
 
         @Test
-        @DisplayName("GIVEN authentication with ADMIN role WHEN generate access token THEN generates the token And return the token")
+        @DisplayName("GIVEN authentication with ADMIN role WHEN generate an access token THEN generates the token And return the token")
         void AuthenticationWithAdminRole_GenerateAccessToken_GeneratesTokenAndReturnsToken() {
             // When
             var authorities = List.of(new SimpleGrantedAuthority(Role.ADMIN.name()));
@@ -188,7 +188,7 @@ class JwtProviderTests {
     class GenerateRefreshToken {
 
         @Test
-        @DisplayName("GIVEN authentication is null WHEN generate refresh token THEN does not generate the token And throws IllegalArgumentException")
+        @DisplayName("GIVEN authentication is null WHEN generate a refresh token THEN does not generate the token And throws IllegalArgumentException")
         void AuthenticationIsNull_GenerateRefreshToken_DoesNotGenerateTokenAndThrowsIllegalArgumentException() {
             // When
             Executable executable = () -> jwtProvider.generateRefreshToken(null);
@@ -199,7 +199,7 @@ class JwtProviderTests {
         }
 
         @Test
-        @DisplayName("GIVEN authentication username is null WHEN generate refresh token THEN does not generate the token And throws IllegalArgumentException")
+        @DisplayName("GIVEN authentication username is null WHEN generate a refresh token THEN does not generate the token And throws IllegalArgumentException")
         void AuthenticationUserNameIsNull_GenerateRefreshToken_DoesNotGenerateTokenAndThrowsIllegalArgumentException() {
             // When
             var authenticationWithoutUsername = new UsernamePasswordAuthenticationToken(null, fakePassword);
@@ -212,7 +212,7 @@ class JwtProviderTests {
         }
 
         @Test
-        @DisplayName("GIVEN authentication username is empty WHEN generate refresh token THEN does not generate the token And throws IllegalArgumentException")
+        @DisplayName("GIVEN authentication username is empty WHEN generate a refresh token THEN does not generate the token And throws IllegalArgumentException")
         void AuthenticationUserNameIsEmpty_GenerateRefreshToken_DoesNotGenerateTokenAndThrowsIllegalArgumentException() {
             // When
             var authenticationWithEmptyUsername = new UsernamePasswordAuthenticationToken("", fakePassword);
@@ -225,7 +225,7 @@ class JwtProviderTests {
         }
 
         @Test
-        @DisplayName("GIVEN authentication authorities is null WHEN generate refresh token THEN does not generate the token And throws IllegalArgumentException")
+        @DisplayName("GIVEN authentication authorities is null WHEN generate a refresh token THEN does not generate the token And throws IllegalArgumentException")
         void AuthenticationAuthoritiesIsNull_GenerateRefreshToken_DoesNotGenerateTokenAndThrowsIllegalArgumentException() {
             // When
             var authenticationWithoutAuthorities = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, null);
@@ -238,7 +238,7 @@ class JwtProviderTests {
         }
 
         @Test
-        @DisplayName("GIVEN authentication authorities is empty WHEN generate refresh token THEN does not generate the token And throws IllegalArgumentException")
+        @DisplayName("GIVEN authentication authorities is empty WHEN generate a refresh token THEN does not generate the token And throws IllegalArgumentException")
         void AuthenticationAuthoritiesIsEmpty_GenerateRefreshToken_DoesNotGenerateTokenAndThrowsIllegalArgumentException() {
             // When
             var authenticationWithEmptyAuthorities = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, List.of());
@@ -251,7 +251,7 @@ class JwtProviderTests {
         }
 
         @Test
-        @DisplayName("GIVEN authentication has invalid role WHEN generate refresh token THEN does not generate the token And throws IllegalArgumentException")
+        @DisplayName("GIVEN authentication has invalid role WHEN generate a refresh token THEN does not generate the token And throws IllegalArgumentException")
         void AuthenticationHasInvalidRole_GenerateRefreshToken_DoesNotGenerateTokenAndThrowsIllegalArgumentException() {
             // When
             var invalidAuthorities = List.of(new SimpleGrantedAuthority("NOT_VALID_ROLE"));
@@ -265,7 +265,7 @@ class JwtProviderTests {
         }
 
         @Test
-        @DisplayName("GIVEN authentication with USER role WHEN generate refresh token THEN generates And return the refresh token")
+        @DisplayName("GIVEN authentication with USER role WHEN generate a refresh token THEN generates And return the refresh token")
         void AuthenticationWithUserRole_GenerateRefreshToken_GeneratesAndReturnsRefreshToken() {
             // When
             var authorities = List.of(new SimpleGrantedAuthority(Role.USER.name()));
@@ -287,7 +287,7 @@ class JwtProviderTests {
         }
 
         @Test
-        @DisplayName("GIVEN authentication with ADMIN role WHEN generate refresh token THEN generates And return the refresh token")
+        @DisplayName("GIVEN authentication with ADMIN role WHEN generate a refresh token THEN generates And return the refresh token")
         void AuthenticationWithAdminRole_GenerateRefreshToken_GeneratesAndReturnsRefreshToken() {
             // When
             var authorities = List.of(new SimpleGrantedAuthority(Role.ADMIN.name()));

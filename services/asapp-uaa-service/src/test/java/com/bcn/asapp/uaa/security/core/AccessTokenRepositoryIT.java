@@ -90,7 +90,7 @@ class AccessTokenRepositoryIT {
     class FindByUserId {
 
         @Test
-        @DisplayName("GIVEN user id does not exists WHEN find access token by user id THEN does not find any access token And returns an empty optional")
+        @DisplayName("GIVEN user id does not exists WHEN find an access token by user id THEN does not find any access token And returns an empty optional")
         void UserIdNotExists_FindByUserId_DoesNotFindUserAndReturnsEmptyOptional() {
             // When
             var userIdToFind = UUID.randomUUID();
@@ -102,7 +102,7 @@ class AccessTokenRepositoryIT {
         }
 
         @Test
-        @DisplayName("GIVEN user id exists WHEN find access token by user id THEN finds the access token And returns the user found")
+        @DisplayName("GIVEN user id exists WHEN find an access token by user id THEN finds the access token And returns the user found")
         void UserIdExists_FindByUserId_FindsTasksAndReturnsTasksFound() {
             // Given
             var fakeUser = new User(null, fakeUserUsername, fakeUserPassword, fakeUserRole);
@@ -129,7 +129,7 @@ class AccessTokenRepositoryIT {
     class ExistsByUserIdAndJwt {
 
         @Test
-        @DisplayName("GIVEN access token does not exists WHEN access token exists by user id and Jwt THEN does not find any access token And returns false")
+        @DisplayName("GIVEN access token does not exists WHEN an access token exists by user id and Jwt THEN does not find any access token And returns false")
         void AccessTokenNotExists_ExistsByUserIdAndJwt_DoesNotFindAccessTokenAndReturnsEmptyOptional() {
             // When
             var userIdToFInd = UUID.randomUUID();
@@ -142,7 +142,7 @@ class AccessTokenRepositoryIT {
         }
 
         @Test
-        @DisplayName("GIVEN access token exists WHEN access token exists by user id and Jwt THEN finds the access token And returns true")
+        @DisplayName("GIVEN access token exists WHEN an access token exists by user id and Jwt THEN finds the access token And returns true")
         void AccessTokenExists_ExistsByUserIdAndJwt_FindsAccessTokenAndReturnsAccessTokenFound() {
             // Given
             var fakeUser = new User(null, fakeUserUsername, fakeUserPassword, fakeUserRole);
@@ -169,7 +169,7 @@ class AccessTokenRepositoryIT {
     class DeleteByUserId {
 
         @Test
-        @DisplayName("GIVEN access token does not exists WHEN delete access token by user id THEN does not delete the access token And returns zero")
+        @DisplayName("GIVEN access token does not exists WHEN delete an access token by user id THEN does not delete the access token And returns zero")
         void AccessTokenNotExists_DeleteByUserId_DoesNotDeleteAccessTokenAndReturnsZero() {
             // When
             var userIdToDelete = UUID.randomUUID();
@@ -181,7 +181,7 @@ class AccessTokenRepositoryIT {
         }
 
         @Test
-        @DisplayName("GIVEN access token exists WHEN delete access token by user id THEN deletes the access token And returns one")
+        @DisplayName("GIVEN access token exists WHEN delete an access token by user id THEN deletes the access token And returns one")
         void AccessTokenExists_DeleteByUserId_DeletesJwtAndReturnsOne() {
             // Given
             var fakeUser = new User(null, fakeUserUsername, fakeUserPassword, fakeUserRole);

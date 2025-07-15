@@ -77,7 +77,7 @@ class AccessTokenMatcherTests {
     class Match {
 
         @Test
-        @DisplayName("Given access token username does not exists WHEN match access token THEN throws UsernameNotFoundException")
+        @DisplayName("Given access token username does not exists WHEN match an access token THEN throws UsernameNotFoundException")
         void AccessTokenUsernameNotExists_Match_ThrowsUsernameNotFoundException() {
             // Given
             given(userRepositoryMock.findByUsername(anyString())).willReturn(Optional.empty());
@@ -93,7 +93,7 @@ class AccessTokenMatcherTests {
         }
 
         @Test
-        @DisplayName("Given access token not matches WHEN match access token THEN returns false")
+        @DisplayName("Given access token not matches WHEN match an access token THEN returns false")
         void AccessTokenNotMatches_Match_ReturnsFalse() {
             // Given
             var fakeUser = new User(fakeUserId, fakeUsername, fakePassword, Role.USER);
@@ -111,7 +111,7 @@ class AccessTokenMatcherTests {
         }
 
         @Test
-        @DisplayName("Given access token matches WHEN match access token THEN returns true")
+        @DisplayName("Given access token matches WHEN match an access token THEN returns true")
         void AccessTokenMatches_Match_ReturnsTrue() {
             // Given
             var fakeUser = new User(fakeUserId, fakeUsername, fakePassword, Role.USER);

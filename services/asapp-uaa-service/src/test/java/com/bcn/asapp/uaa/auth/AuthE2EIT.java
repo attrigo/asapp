@@ -447,7 +447,7 @@ class AuthE2EIT {
     class RefreshAuthentication {
 
         @Test
-        @DisplayName("GIVEN refresh token is invalid WHEN refresh a authentication THEN does not refresh the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
+        @DisplayName("GIVEN refresh token is invalid WHEN refresh an authentication THEN does not refresh the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
         void InvalidRefreshToken_RefreshAuthentication_DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody() {
             // Given
             var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
@@ -472,7 +472,7 @@ class AuthE2EIT {
         }
 
         @Test
-        @DisplayName("GIVEN refresh token is an access token WHEN refresh a authentication THEN does not refresh the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
+        @DisplayName("GIVEN refresh token is an access token WHEN refresh an authentication THEN does not refresh the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
         void RefreshTokenIsAccessToken_RefreshAuthentication_DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody() {
             // Given
             var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
@@ -497,7 +497,7 @@ class AuthE2EIT {
         }
 
         @Test
-        @DisplayName("GIVEN user of refresh token not exists WHEN refresh a authentication THEN does not refresh the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
+        @DisplayName("GIVEN user of refresh token not exists WHEN refresh an authentication THEN does not refresh the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
         void RefreshTokenUserNotExists_RefreshAuthentication_DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody() {
             // Given
             var fakeUser = new User(null, "ANOTHER USER", fakePasswordBcryptEncoded, Role.USER);
@@ -522,7 +522,7 @@ class AuthE2EIT {
         }
 
         @Test
-        @DisplayName("GIVEN refresh token belongs to non-authenticated user WHEN refresh a authentication THEN does not refresh the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
+        @DisplayName("GIVEN refresh token belongs to non-authenticated user WHEN refresh an authentication THEN does not refresh the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
         void RefreshTokenBelongsToUserNotAuthenticated_RefreshAuthentication_DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody() {
             // Given
             var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
@@ -548,7 +548,7 @@ class AuthE2EIT {
         }
 
         @Test
-        @DisplayName("GIVEN refresh token has been already refreshed WHEN refresh a authentication THEN does not refresh the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
+        @DisplayName("GIVEN refresh token has been already refreshed WHEN refresh an authentication THEN does not refresh the authentication And returns HTTP response with status UNAUTHORIZED And an empty body")
         void RefreshTokenHasBeenAlreadyRefreshed_RefreshAuthentication_DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody() {
             // Given
             var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
@@ -611,7 +611,7 @@ class AuthE2EIT {
         }
 
         @Test
-        @DisplayName("GIVEN refresh token is valid WHEN refresh a authentication THEN refreshes the authentication And returns HTTP response with status OK And the body with the refreshed authentication")
+        @DisplayName("GIVEN refresh token is valid WHEN refresh an authentication THEN refreshes the authentication And returns HTTP response with status OK And the body with the refreshed authentication")
         void RefreshTokenIsValid_RefreshAuthentication_RefreshesAuthenticationAndReturnsStatusOkAndBodyWithRefreshedAuthentication() {
             // Given
             var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);

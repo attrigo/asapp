@@ -53,7 +53,7 @@ class JwtDecoderTests {
     class Decode {
 
         @Test
-        @DisplayName("GIVEN token is null WHEN decode the token THEN throws InvalidJwtException")
+        @DisplayName("GIVEN token is null WHEN decode a token THEN throws InvalidJwtException")
         void TokenIsNull_Decode_ThrowsInvalidJwtException() {
             // Given
             Executable executable = () -> jwtDecoder.decode(null);
@@ -64,7 +64,7 @@ class JwtDecoderTests {
         }
 
         @Test
-        @DisplayName("GIVEN token is empty WHEN decode the token THEN throws InvalidJwtException")
+        @DisplayName("GIVEN token is empty WHEN decode a token THEN throws InvalidJwtException")
         void TokenIsEmpty_Decode_ThrowsInvalidJwtException() {
             // Given
             Executable executable = () -> jwtDecoder.decode("");
@@ -75,7 +75,7 @@ class JwtDecoderTests {
         }
 
         @Test
-        @DisplayName("GIVEN token is invalid WHEN decode the token THEN throws InvalidJwtException")
+        @DisplayName("GIVEN token is invalid WHEN decode a token THEN throws InvalidJwtException")
         void TokenIsInvalid_Decode_ThrowsInvalidJwtException() {
             // Given
             var invalidJwt = jwtFaker.fakeJwtInvalid();
@@ -88,7 +88,7 @@ class JwtDecoderTests {
         }
 
         @Test
-        @DisplayName("GIVEN token has invalid signature WHEN decode the token THEN throws InvalidJwtException")
+        @DisplayName("GIVEN token has invalid signature WHEN decode a token THEN throws InvalidJwtException")
         void TokenSignatureIsInvalid_Decode_ThrowsInvalidJwtException() {
             // Given
             var jwtWithInvalidSignature = jwtFaker.fakeJwtWithInvalidSignature(ACCESS_TOKEN);
@@ -101,7 +101,7 @@ class JwtDecoderTests {
         }
 
         @Test
-        @DisplayName("GIVEN token has expired WHEN decode the token THEN throws InvalidJwtException")
+        @DisplayName("GIVEN token has expired WHEN decode a token THEN throws InvalidJwtException")
         void TokenHasExpired_Decode_ThrowsInvalidJwtException() {
             // Given
             var expiredJwt = jwtFaker.fakeJwtExpired(ACCESS_TOKEN);
@@ -114,7 +114,7 @@ class JwtDecoderTests {
         }
 
         @Test
-        @DisplayName("GIVEN token is not signed WHEN decode the token THEN throws InvalidJwtException")
+        @DisplayName("GIVEN token is not signed WHEN decode a token THEN throws InvalidJwtException")
         void TokenIsNotSigned_Decode_ThrowsInvalidJwtException() {
             // Given
             var notSignedJwt = jwtFaker.fakeJwtNotSigned(ACCESS_TOKEN);
@@ -127,7 +127,7 @@ class JwtDecoderTests {
         }
 
         @Test
-        @DisplayName("GIVEN token has not type WHEN decode the token THEN throws InvalidJwtException")
+        @DisplayName("GIVEN token has not type WHEN decode a token THEN throws InvalidJwtException")
         void TokenHasNotType_Decode_ThrowsInvalidJwtException() {
             // Given
             var jwtWithoutType = jwtFaker.fakeJwtWithoutType();
@@ -142,7 +142,7 @@ class JwtDecoderTests {
         }
 
         @Test
-        @DisplayName("GIVEN token has invalid type WHEN decode the token THEN throws InvalidJwtException")
+        @DisplayName("GIVEN token has invalid type WHEN decode a token THEN throws InvalidJwtException")
         void TokenHasInvalidType_Decode_ThrowsInvalidJwtException() {
             // Given
             var jwtWithInvalidType = jwtFaker.fakeJwtWithInvalidType();
@@ -157,7 +157,7 @@ class JwtDecoderTests {
         }
 
         @Test
-        @DisplayName("GIVEN token has not username WHEN decode the token THEN throws InvalidJwtException")
+        @DisplayName("GIVEN token has not username WHEN decode a token THEN throws InvalidJwtException")
         void TokenHasNotUsername_Decode_ReturnsTrue() {
             // Given
             var jwtWithoutUsername = jwtFaker.fakeJwtWithoutUsername(JwtType.ACCESS_TOKEN);
@@ -172,7 +172,7 @@ class JwtDecoderTests {
         }
 
         @Test
-        @DisplayName("GIVEN token has not authorities WHEN decode the token THEN throws InvalidJwtException")
+        @DisplayName("GIVEN token has not authorities WHEN decode a token THEN throws InvalidJwtException")
         void TokenHasNotAuthorities_Decode_ReturnsTrue() {
             // Given
             var jwtWithoutAuthorities = jwtFaker.fakeJwtWithoutAuthorities(JwtType.ACCESS_TOKEN);
@@ -187,7 +187,7 @@ class JwtDecoderTests {
         }
 
         @Test
-        @DisplayName("GIVEN access token is valid WHEN decode the token THEN returns the DecodedJwt")
+        @DisplayName("GIVEN access token is valid WHEN decode a token THEN returns the DecodedJwt")
         void AccessTokenIsValid_Decode_ReturnsDecodedJwt() {
             // Given
             var accessTokenJwt = jwtFaker.fakeJwt(ACCESS_TOKEN);
@@ -211,7 +211,7 @@ class JwtDecoderTests {
         }
 
         @Test
-        @DisplayName("GIVEN refresh token is valid WHEN decode the token THEN returns the DecodedJwt")
+        @DisplayName("GIVEN refresh token is valid WHEN decode a token THEN returns the DecodedJwt")
         void RefreshTokenIsValid_Decode_ReturnsDecodedJwt() {
             // Given
             var refreshTokenJwt = jwtFaker.fakeJwt(REFRESH_TOKEN);

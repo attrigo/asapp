@@ -67,7 +67,7 @@ class AccessTokenVerifierTests {
     class Verify {
 
         @Test
-        @DisplayName("Given access token is invalid WHEN verify access token THEN throws InvalidAccessTokenException")
+        @DisplayName("Given access token is invalid WHEN verify an access token THEN throws InvalidAccessTokenException")
         void AccessTokenIsInvalid_Verify_ThrowsInvalidAccessTokenException() {
             // Given
             given(jwtDecoderMock.decode(anyString())).willThrow(new JwtException("TEST EXCEPTION"));
@@ -88,7 +88,7 @@ class AccessTokenVerifierTests {
         }
 
         @Test
-        @DisplayName("Given token is not an access token WHEN verify access token THEN throws InvalidAccessTokenException")
+        @DisplayName("Given token is not an access token WHEN verify an access token THEN throws InvalidAccessTokenException")
         void TokenIsNotAccessToken_Verify_ThrowsInvalidAccessTokenException() {
             // Given
             var fakeDecodedJwt = jwtFaker.fakeDecodedJwt(jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN));
@@ -112,7 +112,7 @@ class AccessTokenVerifierTests {
         }
 
         @Test
-        @DisplayName("Given access token does not match WHEN verify access token THEN throws InvalidAccessTokenException")
+        @DisplayName("Given access token does not match WHEN verify an access token THEN throws InvalidAccessTokenException")
         void AccessTokenNotMatch_Verify_ThrowsInvalidAccessTokenException() {
             // Given
             var fakeDecodedJwt = jwtFaker.fakeDecodedJwt(jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN));
@@ -138,7 +138,7 @@ class AccessTokenVerifierTests {
         }
 
         @Test
-        @DisplayName("Given access token matches WHEN verify access token THEN returns the authentication token")
+        @DisplayName("Given access token matches WHEN verify an access token THEN returns the authentication token")
         void AccessTokenMatches_Verify_ReturnsTheAuthenticationToken() {
             // Given
             var fakeDecodedJwt = jwtFaker.fakeDecodedJwt(jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN));

@@ -77,7 +77,7 @@ class RefreshTokenMatcherTests {
     class Match {
 
         @Test
-        @DisplayName("Given refresh token username not exists WHEN match refresh token THEN throws UsernameNotFoundException")
+        @DisplayName("Given refresh token username not exists WHEN match a refresh token THEN throws UsernameNotFoundException")
         void RefreshTokenUsernameNotExists_Match_ThrowsUsernameNotFoundException() {
             // Given
             given(userRepositoryMock.findByUsername(anyString())).willReturn(Optional.empty());
@@ -93,7 +93,7 @@ class RefreshTokenMatcherTests {
         }
 
         @Test
-        @DisplayName("Given refresh token not matches WHEN match refresh token THEN returns false")
+        @DisplayName("Given refresh token not matches WHEN match a refresh token THEN returns false")
         void RefreshTokenNotMatches_Match_ReturnsFalse() {
             // Given
             var fakeUser = new User(fakeUserId, fakeUsername, fakePassword, Role.USER);
@@ -111,7 +111,7 @@ class RefreshTokenMatcherTests {
         }
 
         @Test
-        @DisplayName("Given refresh token matches WHEN match refresh token THEN returns true")
+        @DisplayName("Given refresh token matches WHEN match a refresh token THEN returns true")
         void RefreshTokenMatches_Match_ReturnsTrue() {
             // Given
             var fakeUser = new User(fakeUserId, fakeUsername, fakePassword, Role.USER);

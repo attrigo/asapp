@@ -64,7 +64,7 @@ class CustomUserDetailsServiceTests {
     class LoadUserByUsername {
 
         @Test
-        @DisplayName("GIVEN username does not exists WHEN load user by username THEN does not find the user And throws UsernameNotFoundException")
+        @DisplayName("GIVEN username does not exists WHEN load a user by username THEN does not find the user And throws UsernameNotFoundException")
         void UsernameNotExists_LoadUserByUsername_DoesNotFindUserAndThrowsUsernameNotFoundException() {
             // Given
             given(userRepositoryMock.findByUsername(anyString())).willReturn(Optional.empty());
@@ -82,7 +82,7 @@ class CustomUserDetailsServiceTests {
         }
 
         @Test
-        @DisplayName("GIVEN username exists with USER role WHEN load user by username THEN finds the user And returns the UserDetails with USER authorities")
+        @DisplayName("GIVEN username exists with USER role WHEN load a user by username THEN finds the user And returns the UserDetails with USER authorities")
         void UsernameExistsWithUserRole_LoadUserByUsername_FindsUserAndReturnsTheUserDetails() {
             // Given
             User fakeUser = new User(UUID.randomUUID(), fakeUsername, fakePassword, Role.USER);
@@ -111,7 +111,7 @@ class CustomUserDetailsServiceTests {
         }
 
         @Test
-        @DisplayName("GIVEN username exists with ADMIN role WHEN load user by username THEN finds the user And returns the UserDetails with ADMIN authorities")
+        @DisplayName("GIVEN username exists with ADMIN role WHEN load a user by username THEN finds the user And returns the UserDetails with ADMIN authorities")
         void UsernameExistsWithAdminRole_LoadUserByUsername_FindsUserAndReturnsTheUserDetails() {
             // Given
             User fakeUser = new User(UUID.randomUUID(), fakeUsername, fakePassword, Role.ADMIN);
