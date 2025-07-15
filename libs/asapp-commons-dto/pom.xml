@@ -17,18 +17,12 @@
     <name>asapp-commons-dto</name>
     <description>ASAPP commons DTO library</description>
 
-    <properties>
-        <!-- Dependencies Versions -->
-        <jakarta-validation-api.version>3.1.1</jakarta-validation-api.version>
-    </properties>
-
     <dependencies>
         <!-- Compile Dependencies -->
         <!-- * Other Dependencies -->
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
-            <version>${jakarta-validation-api.version}</version>
         </dependency>
     </dependencies>
 
