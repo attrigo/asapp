@@ -13,15 +13,19 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-package com.bcn.asapp.dto.user;
+package com.bcn.asapp.dto.utils;
 
-import java.util.UUID;
+import java.io.IOException;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 
-import jakarta.validation.constraints.NotNull;
+public class MaskSensibleStringSerializer extends JsonSerializer<String> {
 
-import com.bcn.asapp.dto.utils.MaskSensibleStringSerializer;
+    @Override
+    public void serialize(String value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+        gen.writeString("********");
+    }
 
-public record UserDTO(UUID id, @NotNull String username, @NotNull @JsonSerialize(using = MaskSensibleStringSerializer.class) String password,
-        @NotNull String role) {}
+}
