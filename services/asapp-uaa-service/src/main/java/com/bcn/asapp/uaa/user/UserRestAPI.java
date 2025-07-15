@@ -42,6 +42,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -51,16 +52,20 @@ import com.bcn.asapp.dto.user.UserDTO;
 @RequestMapping(USERS_ROOT_PATH)
 public interface UserRestAPI {
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Gets a user by id", description = "Returns the user found, or empty if the given id has not been found")
     @ApiResponse(responseCode = "200", description = "User has been found", content = { @Content(schema = @Schema(implementation = UserDTO.class)) })
+    @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "401", description = "The JWT authentication could not be authenticated", content = { @Content })
     @ApiResponse(responseCode = "404", description = "User not found", content = { @Content })
     @GetMapping(value = USERS_GET_BY_ID_PATH, produces = "application/json")
     ResponseEntity<UserDTO> getUserById(@Parameter(description = "Id of the user to get") @PathVariable("id") UUID id);
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Gets all users", description = "Returns all users, or an empty list if there aren't users")
     @ApiResponse(responseCode = "200", description = "Users found", content = { @Content(schema = @Schema(implementation = UserDTO.class)) })
-    @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
-            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "401", description = "The JWT authentication could not be authenticated", content = { @Content })
     @GetMapping(value = USERS_GET_ALL_PATH, produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     List<UserDTO> getAllUsers();
@@ -73,19 +78,23 @@ public interface UserRestAPI {
     @ResponseStatus(HttpStatus.CREATED)
     UserDTO createUser(@Valid @RequestBody UserDTO user);
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Updates a user", description = "Updates all fields of the user except the id, with the given new data")
     @ApiResponse(responseCode = "200", description = "User has been updated", content = { @Content(schema = @Schema(implementation = UserDTO.class)) })
     @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "401", description = "The JWT authentication could not be authenticated", content = { @Content })
     @ApiResponse(responseCode = "404", description = "User not found", content = { @Content })
     @PutMapping(value = USERS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
     ResponseEntity<UserDTO> updateUserById(@Parameter(description = "Identifier of the user to update") @PathVariable("id") UUID id,
             @Valid @RequestBody UserDTO newUserData);
 
+    @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Deletes a user by id", description = "Deletes a user by id")
     @ApiResponse(responseCode = "204", description = "User has been deleted", content = { @Content })
     @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "401", description = "The JWT authentication could not be authenticated", content = { @Content })
     @ApiResponse(responseCode = "404", description = "User not found", content = { @Content })
     @DeleteMapping(value = USERS_DELETE_BY_ID_PATH, produces = "application/json")
     ResponseEntity<Void> deleteUserById(@Parameter(description = "Id of the user to delete") @PathVariable("id") UUID id);
