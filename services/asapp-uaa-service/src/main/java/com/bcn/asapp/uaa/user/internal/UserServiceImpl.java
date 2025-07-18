@@ -74,7 +74,9 @@ public class UserServiceImpl implements UserService {
             return Optional.empty();
         }
 
-        var user = userMapper.toUser(newUserData, id);
+        var passwordEncoded = passwordEncoder.encode(newUserData.password());
+
+        var user = userMapper.toUser(newUserData, id, passwordEncoded);
         var userUpdated = userRepository.save(user);
 
         var userDTOUpdated = userMapper.toUserDTO(userUpdated);
