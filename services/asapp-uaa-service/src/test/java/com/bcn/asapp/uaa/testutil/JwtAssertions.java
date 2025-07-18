@@ -31,7 +31,7 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 import com.bcn.asapp.uaa.security.core.JwtType;
-import com.bcn.asapp.uaa.security.core.Role;
+import com.bcn.asapp.uaa.user.Role;
 
 public class JwtAssertions {
 

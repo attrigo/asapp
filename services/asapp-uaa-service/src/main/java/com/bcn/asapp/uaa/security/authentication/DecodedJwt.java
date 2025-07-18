@@ -25,7 +25,7 @@ import io.jsonwebtoken.Header;
 import io.jsonwebtoken.RequiredTypeException;
 
 import com.bcn.asapp.uaa.security.core.InvalidJwtException;
-import com.bcn.asapp.uaa.security.core.Role;
+import com.bcn.asapp.uaa.user.Role;
 
 /**
  * Represents a decoded JSON Web Token (JWT), encapsulating its raw string, header, and claims (payload).

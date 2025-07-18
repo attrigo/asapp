@@ -21,7 +21,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.bcn.asapp.dto.user.UserDTO;
-import com.bcn.asapp.uaa.security.core.User;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {

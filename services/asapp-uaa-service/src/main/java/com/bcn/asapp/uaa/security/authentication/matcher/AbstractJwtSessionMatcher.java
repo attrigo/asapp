@@ -18,8 +18,8 @@ package com.bcn.asapp.uaa.security.authentication.matcher;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import com.bcn.asapp.uaa.security.authentication.DecodedJwt;
-import com.bcn.asapp.uaa.security.core.User;
-import com.bcn.asapp.uaa.security.core.UserRepository;
+import com.bcn.asapp.uaa.user.User;
+import com.bcn.asapp.uaa.user.UserRepository;
 
 /**
  * Abstract base implementation of {@link JwtSessionMatcher} for matching a JWT against user session.

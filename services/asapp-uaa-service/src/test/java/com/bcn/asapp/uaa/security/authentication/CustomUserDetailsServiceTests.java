@@ -37,9 +37,9 @@ import org.mockito.Mock;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.bcn.asapp.uaa.security.core.Role;
-import com.bcn.asapp.uaa.security.core.User;
-import com.bcn.asapp.uaa.security.core.UserRepository;
+import com.bcn.asapp.uaa.user.Role;
+import com.bcn.asapp.uaa.user.User;
+import com.bcn.asapp.uaa.user.UserRepository;
 
 @ExtendWith(SpringExtension.class)
 class CustomUserDetailsServiceTests {

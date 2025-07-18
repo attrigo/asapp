@@ -23,7 +23,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
-import com.bcn.asapp.uaa.security.core.UserRepository;
+import com.bcn.asapp.uaa.user.UserRepository;
 
 /**
  * Loads user-specific data required for authentication by implementing {@link UserDetailsService}.
