@@ -19,9 +19,10 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 import com.bcn.asapp.dto.utils.MaskSensibleStringSerializer;
 
-public record UserDTO(UUID id, @NotNull String username, @NotNull @JsonSerialize(using = MaskSensibleStringSerializer.class) String password,
-        @NotNull String role) {}
+public record UserDTO(UUID id, @NotBlank(message = "The username of the user is mandatory") String username,
+        @NotBlank(message = "The password of the user is mandatory") @JsonSerialize(using = MaskSensibleStringSerializer.class) String password,
+        @NotBlank(message = "The role of the user is mandatory") String role) {}
