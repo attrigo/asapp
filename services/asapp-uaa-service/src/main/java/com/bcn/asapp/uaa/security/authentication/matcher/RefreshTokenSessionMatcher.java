@@ -18,8 +18,8 @@ package com.bcn.asapp.uaa.security.authentication.matcher;
 import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.uaa.security.core.RefreshTokenRepository;
-import com.bcn.asapp.uaa.security.core.User;
-import com.bcn.asapp.uaa.security.core.UserRepository;
+import com.bcn.asapp.uaa.user.User;
+import com.bcn.asapp.uaa.user.UserRepository;
 
 /**
  * Concrete implementation of {@link AbstractJwtSessionMatcher} for matching refresh tokens against user session.

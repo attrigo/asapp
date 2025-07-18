@@ -38,7 +38,7 @@ import io.jsonwebtoken.security.Keys;
 
 import com.bcn.asapp.uaa.security.core.AccessToken;
 import com.bcn.asapp.uaa.security.core.RefreshToken;
-import com.bcn.asapp.uaa.security.core.Role;
+import com.bcn.asapp.uaa.user.Role;
 
 /**
  * Provider responsible for generating signed JSON Web Tokens (JWTs) for authentication.

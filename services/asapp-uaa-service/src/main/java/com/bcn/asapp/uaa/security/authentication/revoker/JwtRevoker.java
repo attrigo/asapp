@@ -24,8 +24,8 @@ import com.bcn.asapp.uaa.security.authentication.JwtIntegrityViolationException;
 import com.bcn.asapp.uaa.security.authentication.JwtNotFoundException;
 import com.bcn.asapp.uaa.security.core.AccessTokenRepository;
 import com.bcn.asapp.uaa.security.core.RefreshTokenRepository;
-import com.bcn.asapp.uaa.security.core.User;
-import com.bcn.asapp.uaa.security.core.UserRepository;
+import com.bcn.asapp.uaa.user.User;
+import com.bcn.asapp.uaa.user.UserRepository;
 
 /**
  * Component responsible for revoking JWT-based authentication tokens, including both access tokens and refresh tokens, associated with a user.

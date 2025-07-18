@@ -36,7 +36,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import com.bcn.asapp.uaa.security.core.JwtType;
-import com.bcn.asapp.uaa.security.core.Role;
+import com.bcn.asapp.uaa.user.Role;
 
 class JwtProviderTests {
 

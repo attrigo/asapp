@@ -23,8 +23,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.bcn.asapp.dto.user.UserDTO;
-import com.bcn.asapp.uaa.security.core.UserRepository;
 import com.bcn.asapp.uaa.user.UserMapper;
+import com.bcn.asapp.uaa.user.UserRepository;
 import com.bcn.asapp.uaa.user.UserService;
 
 @Service
