@@ -58,7 +58,7 @@ public class SecurityConfiguration {
      */
     private static final String[] WHITELIST_URLS = { "/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/actuator/health" };
 
-    private static final String[] HTTP_METHOD_POST_WHITELIST_URLS = { "/v1/users/" };
+    private static final String[] HTTP_METHOD_POST_WHITELIST_URLS = { "/v1/users/**" };
 
     /**
      * Handles authentication entry point to manage unauthorized access attempts.
