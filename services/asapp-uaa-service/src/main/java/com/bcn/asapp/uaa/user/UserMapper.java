@@ -28,7 +28,8 @@ public interface UserMapper {
     UserDTO toUserDTO(User user);
 
     @Mapping(target = "id", source = "id")
-    User toUser(UserDTO userDTO, UUID id);
+    @Mapping(target = "password", source = "password")
+    User toUser(UserDTO userDTO, UUID id, String password);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "password", source = "password")
