@@ -16,8 +16,11 @@
 package com.bcn.asapp.uaa.user;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -90,6 +93,43 @@ class UserRepositoryIT {
             // Then
             assertTrue(actualUser.isPresent());
             assertEquals(userToBeFound, actualUser.get());
+        }
+
+    }
+
+    @Nested
+    class DeleteUserById {
+
+        @Test
+        @DisplayName("GIVEN user id not exists WHEN delete a user by id THEN does not delete the user And returns zero")
+        void UserIdNotExists_DeleteUserById_DoesNotDeleteUserAndReturnsZero() {
+            // When
+            var idToDelete = UUID.randomUUID();
+
+            var actual = userRepository.deleteUserById(idToDelete);
+
+            // Then
+            assertEquals(0L, actual);
+        }
+
+        @Test
+        @DisplayName("GIVEN user id exists WHEN delete a user by id THEN deletes the user And returns the amount of users deleted")
+        void UserIdExists_DeleteUserById_DeletesUserAndReturnsAmountOfUsersDeleted() {
+            // Given
+            var fakeUser = new User(null, fakeUserUsername, fakeUserPassword, fakeUserRole);
+            var userToBeDeleted = userRepository.save(fakeUser);
+            assertNotNull(userToBeDeleted);
+
+            // When
+            var idToDelete = userToBeDeleted.id();
+
+            var actual = userRepository.deleteUserById(idToDelete);
+
+            // Then
+            assertEquals(1L, actual);
+
+            assertFalse(userRepository.findById(userToBeDeleted.id())
+                                      .isPresent());
         }
 
     }
