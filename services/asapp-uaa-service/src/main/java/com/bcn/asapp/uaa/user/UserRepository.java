@@ -43,7 +43,7 @@ public interface UserRepository extends ListCrudRepository<User, UUID> {
     Optional<User> findByUsername(String username);
 
     @Modifying
-    @Query("DELETE FROM user u WHERE u.user_id = :id")
+    @Query("DELETE FROM \"user\" u WHERE u.user_id = :id")
     Long deleteUserById(UUID id);
 
 }
