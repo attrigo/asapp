@@ -37,26 +37,26 @@ import com.bcn.asapp.uaa.user.UserRepository;
 public class JwtRevoker {
 
     /**
-     * Repository for managing user.
+     * Repository for performing CRUD operations on user entities.
      */
     private final UserRepository userRepository;
 
     /**
-     * Repository for managing access tokens entities.
+     * Repository for performing CRUD operations on access tokens entities.
      */
     private final AccessTokenRepository accessTokenRepository;
 
     /**
-     * Repository for managing refresh tokens entities.
+     * Repository for performing CRUD operations on refresh tokens entities.
      */
     private final RefreshTokenRepository refreshTokenRepository;
 
     /**
      * Constructs a new {@link JwtRevoker} with the specified dependencies.
      *
-     * @param userRepository         the repository for managing user entities
-     * @param accessTokenRepository  the repository for managing access tokens entities
-     * @param refreshTokenRepository the repository for managing refresh tokens entities
+     * @param userRepository         the repository for performing CRUD operations on user entities
+     * @param accessTokenRepository  the repository for performing CRUD operations on access tokens entities
+     * @param refreshTokenRepository the repository for performing CRUD operations on refresh tokens entities
      */
     public JwtRevoker(UserRepository userRepository, AccessTokenRepository accessTokenRepository, RefreshTokenRepository refreshTokenRepository) {
         this.userRepository = userRepository;

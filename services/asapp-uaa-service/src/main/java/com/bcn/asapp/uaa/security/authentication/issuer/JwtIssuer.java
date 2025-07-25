@@ -49,17 +49,17 @@ public class JwtIssuer {
     private final JwtProvider jwtProvider;
 
     /**
-     * Repository for managing user.
+     * Repository for performing CRUD operations on user entities.
      */
     private final UserRepository userRepository;
 
     /**
-     * Repository for managing access tokens entities.
+     * Repository for performing CRUD operations on access tokens entities.
      */
     private final AccessTokenRepository accessTokenRepository;
 
     /**
-     * Repository for managing refresh tokens entities.
+     * Repository for performing CRUD operations on refresh tokens entities.
      */
     private final RefreshTokenRepository refreshTokenRepository;
 
@@ -67,9 +67,9 @@ public class JwtIssuer {
      * Constructs a new {@code JwtIssuer} with required components for token generation and persistence.
      *
      * @param jwtProvider            the provider responsible for JWT generation
-     * @param userRepository         the repository for managing user entities
-     * @param accessTokenRepository  the repository for managing access tokens entities
-     * @param refreshTokenRepository the repository for managing refresh tokens entities
+     * @param userRepository         the repository for performing CRUD operations on user entities
+     * @param accessTokenRepository  the repository for performing CRUD operations on access tokens entities
+     * @param refreshTokenRepository the repository for performing CRUD operations on refresh tokens entities
      */
     public JwtIssuer(JwtProvider jwtProvider, UserRepository userRepository, AccessTokenRepository accessTokenRepository,
             RefreshTokenRepository refreshTokenRepository) {

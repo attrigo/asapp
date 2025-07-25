@@ -37,12 +37,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 /**
- * REST API interface that exposes user authentication endpoints.
+ * Defines the RESTful API contract for authentication operations.
  *
  * @author ttrigo
  * @since 0.2.0
  */
-@Tag(name = "UAA operations", description = "REST API interface for User Authentication and Authorization (UAA) operations")
+@Tag(name = "Authentication operations", description = "REST API contract for authentication operations")
 @RequestMapping(AUTH_ROOT_PATH)
 public interface AuthRestAPI {
 
@@ -62,7 +62,7 @@ public interface AuthRestAPI {
      * @return a {@link ResponseEntity} wrapping {@link JwtAuthenticationDTO} with the newly issued access and refresh tokens upon successful authentication
      * @throws AuthenticationException if authentication fails due to invalid credentials or other errors
      */
-    @Operation(summary = "Authenticates a user with the given credentials", description = "Authenticates a user with the given credentials and issues new JWT authentication, if the user is already authenticated, new JWT authentication (access and refresh tokens) are generated to override the existing ones.")
+    @Operation(summary = "Authenticates a user with the given credentials", description = "Authenticates a user with the given credentials and issues new JWT authentication, if the user is already authenticated, new JWT authentication (access and refresh tokens) are generated to override the existing ones")
     @ApiResponse(responseCode = "200", description = "The user has been authenticated successfully", content = {
             @Content(schema = @Schema(implementation = JwtAuthenticationDTO.class)) })
     @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
@@ -88,7 +88,7 @@ public interface AuthRestAPI {
      * @return a {@link ResponseEntity} containing the refreshed {@link JwtAuthenticationDTO} with the refreshed access and refresh tokens
      * @throws AuthenticationException if the refresh token is invalid, expired, or cannot be processed
      */
-    @Operation(summary = "Refreshes the JWT authentication", description = "Refreshes an existing JWT authentication using the given refresh token.")
+    @Operation(summary = "Refreshes the JWT authentication", description = "Refreshes an existing JWT authentication using the given refresh token")
     @ApiResponse(responseCode = "200", description = "The JWT authentication tokens have been refreshed successfully", content = {
             @Content(schema = @Schema(implementation = JwtAuthenticationDTO.class)) })
     @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
@@ -114,7 +114,7 @@ public interface AuthRestAPI {
      * @return a {@link ResponseEntity} with no content if the revocation was successful
      * @throws AuthenticationException if the access token is invalid, expired, or cannot be processed
      */
-    @Operation(summary = "Revokes the JWT authentication", description = "Revokes the JWT authentication by invalidating the given access token.")
+    @Operation(summary = "Revokes the JWT authentication", description = "Revokes the JWT authentication by invalidating the given access token")
     @ApiResponse(responseCode = "200", description = "The JWT authentication has been revoked successfully", content = { @Content })
     @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })

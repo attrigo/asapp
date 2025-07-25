@@ -33,14 +33,14 @@ import com.bcn.asapp.uaa.user.UserRepository;
 public abstract class AbstractJwtSessionMatcher implements JwtSessionMatcher {
 
     /**
-     * Repository for managing user entities.
+     * Repository for performing CRUD operations on user entities.
      */
     private final UserRepository userRepository;
 
     /**
      * Constructs a new {@code AbstractJwtSessionMatcher} with the specified {@link UserRepository}.
      *
-     * @param userRepository the repository for managing user entities
+     * @param userRepository the repository for performing CRUD operations on user entities
      */
     protected AbstractJwtSessionMatcher(UserRepository userRepository) {
         this.userRepository = userRepository;

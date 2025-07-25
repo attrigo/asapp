@@ -45,14 +45,14 @@ import com.bcn.asapp.uaa.user.UserRepository;
 public class CustomUserDetailsService implements UserDetailsService {
 
     /**
-     * Repository for retrieving user information.
+     * Repository for performing CRUD operations on user entities.
      */
     private final UserRepository userRepository;
 
     /**
      * Constructs a new {@code CustomUserDetailsService} with the specified dependencies.
      *
-     * @param userRepository the repository used to retrieve user information
+     * @param userRepository the repository for performing CRUD operations on user entities
      */
     public CustomUserDetailsService(UserRepository userRepository) {
         this.userRepository = userRepository;
