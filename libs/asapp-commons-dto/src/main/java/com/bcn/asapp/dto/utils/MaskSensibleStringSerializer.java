@@ -21,8 +21,25 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
+/**
+ * Custom JSON serializer that masks sensitive string values during serialization.
+ * <p>
+ * This serializer replaces the actual string value with a fixed masked string ("********") to prevent sensitive data exposure in JSON output.
+ * </p>
+ *
+ * @author ttrigo
+ * @since 0.2.0
+ */
 public class MaskSensibleStringSerializer extends JsonSerializer<String> {
 
+    /**
+     * Serializes the given string value by writing a masked placeholder instead of the actual content.
+     *
+     * @param value       the original string value to be masked
+     * @param gen         the JSON generator used to write JSON content
+     * @param serializers the provider that can be used to get serializers for serializing Objects value contains
+     * @throws IOException if an I/O error occurs during writing
+     */
     @Override
     public void serialize(String value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
         gen.writeString("********");

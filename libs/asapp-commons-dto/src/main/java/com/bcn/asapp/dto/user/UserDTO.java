@@ -23,6 +23,16 @@ import jakarta.validation.constraints.NotBlank;
 
 import com.bcn.asapp.dto.utils.MaskSensibleStringSerializer;
 
+/**
+ * Represents a Data Transfer Object (DTO) for a user.
+ *
+ * @param username the username of the user, must not be blank
+ * @param password the password of the user, must not be blank and is masked during serialization
+ * @param role     the role assigned to the user, must not be blank
+ *
+ * @author ttrigo
+ * @since 0.2.0
+ */
 public record UserDTO(UUID id, @NotBlank(message = "The username of the user is mandatory") String username,
         @NotBlank(message = "The password of the user is mandatory") @JsonSerialize(using = MaskSensibleStringSerializer.class) String password,
         @NotBlank(message = "The role of the user is mandatory") String role) {}

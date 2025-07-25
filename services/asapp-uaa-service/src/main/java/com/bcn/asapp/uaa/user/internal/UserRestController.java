@@ -26,15 +26,32 @@ import com.bcn.asapp.dto.user.UserDTO;
 import com.bcn.asapp.uaa.user.UserRestAPI;
 import com.bcn.asapp.uaa.user.UserService;
 
+/**
+ * REST controller implementation of the {@link UserRestAPI} responsible for handling user management requests.
+ *
+ * @author ttrigo
+ * @since 0.2.0
+ */
 @RestController
 public class UserRestController implements UserRestAPI {
 
+    /**
+     * Service responsible for user business logic.
+     */
     private final UserService userService;
 
+    /**
+     * Constructs a new {@code UserRestController} with the specified user service.
+     *
+     * @param userService the service responsible for user business logic
+     */
     public UserRestController(UserService userService) {
         this.userService = userService;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ResponseEntity<UserDTO> getUserById(UUID id) {
         return userService.findById(id)
@@ -43,16 +60,25 @@ public class UserRestController implements UserRestAPI {
                                                          .build());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<UserDTO> getAllUsers() {
         return userService.findAll();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public UserDTO createUser(UserDTO user) {
         return userService.create(user);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ResponseEntity<UserDTO> updateUserById(UUID id, UserDTO newUserData) {
         return userService.updateById(id, newUserData)
@@ -61,6 +87,9 @@ public class UserRestController implements UserRestAPI {
                                                          .build());
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public ResponseEntity<Void> deleteUserById(UUID id) {
         boolean userHasBeenDeleted = userService.deleteById(id);
