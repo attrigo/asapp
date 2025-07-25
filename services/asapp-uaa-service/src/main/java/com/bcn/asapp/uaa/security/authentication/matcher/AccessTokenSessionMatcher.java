@@ -43,8 +43,8 @@ public class AccessTokenSessionMatcher extends AbstractJwtSessionMatcher {
     /**
      * Constructs a new {@code AccessTokenSessionMatcher} with the specified dependencies.
      *
-     * @param userRepository        the repository for managing user entities
-     * @param accessTokenRepository the repository for managing access tokens entities
+     * @param userRepository        the repository for performing CRUD operations on user entities
+     * @param accessTokenRepository the repository for performing CRUD operations on access tokens entities
      */
     public AccessTokenSessionMatcher(UserRepository userRepository, AccessTokenRepository accessTokenRepository) {
         super(userRepository);

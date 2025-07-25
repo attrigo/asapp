@@ -36,15 +36,15 @@ import com.bcn.asapp.uaa.user.UserRepository;
 public class RefreshTokenSessionMatcher extends AbstractJwtSessionMatcher {
 
     /**
-     * Repository for managing refresh tokens entities.
+     * Repository for performing CRUD operations on refresh tokens entities.
      */
     private final RefreshTokenRepository refreshTokenRepository;
 
     /**
      * Constructs a new {@code RefreshTokenSessionMatcher} with the specified dependencies.
      *
-     * @param userRepository         the repository for managing user entities
-     * @param refreshTokenRepository the repository for managing refresh tokens entities
+     * @param userRepository         the repository for performing CRUD operations on user entities
+     * @param refreshTokenRepository the repository for performing CRUD operations on refresh tokens entities
      */
     public RefreshTokenSessionMatcher(UserRepository userRepository, RefreshTokenRepository refreshTokenRepository) {
         super(userRepository);

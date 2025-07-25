@@ -16,7 +16,7 @@
 package com.bcn.asapp.url.uaa;
 
 /**
- * UAA REST API URLs.
+ * Defines the paths for authentication endpoints of UAA service.
  *
  * @author ttrigo
  * @since 0.2.0
