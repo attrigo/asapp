@@ -42,6 +42,12 @@ public interface UserRepository extends ListCrudRepository<User, UUID> {
      */
     Optional<User> findByUsername(String username);
 
+    /**
+     * Deletes a user by their id.
+     *
+     * @param id the unique id of the user to delete
+     * @return the number of users deleted (0 or 1)
+     */
     @Modifying
     @Query("DELETE FROM \"user\" u WHERE u.user_id = :id")
     Long deleteUserById(UUID id);

@@ -15,6 +15,12 @@
 */
 package com.bcn.asapp.url.uaa;
 
+/**
+ * Defines the paths for user domain endpoints of UAA service.
+ *
+ * @author ttrigo
+ * @since 0.2.0
+ */
 public class UserRestAPIURL {
 
     public static final String USERS_ROOT_PATH = "/v1/users";

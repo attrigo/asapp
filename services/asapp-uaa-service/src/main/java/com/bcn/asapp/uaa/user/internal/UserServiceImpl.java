@@ -27,27 +27,55 @@ import com.bcn.asapp.uaa.user.UserMapper;
 import com.bcn.asapp.uaa.user.UserRepository;
 import com.bcn.asapp.uaa.user.UserService;
 
+/**
+ * Service implementation for managing user operations.
+ *
+ * @author ttrigo
+ * @since 0.2.0
+ */
 @Service
 public class UserServiceImpl implements UserService {
 
+    /**
+     * Encoder used for hashing passwords
+     */
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * Repository for performing CRUD operations on user entities.
+     */
     private final UserRepository userRepository;
 
+    /**
+     * Mapper for converting between {@link UserDTO} and {@link com.bcn.asapp.uaa.user.User} entities.
+     */
     private final UserMapper userMapper;
 
+    /**
+     * Constructs a new {@code UserServiceImpl} with required dependencies.
+     *
+     * @param passwordEncoder the encoder used for hashing passwords
+     * @param userMapper      the mapper for converting between user entities and DTOs
+     * @param userRepository  the repository for performing CRUD operations on user entities
+     */
     public UserServiceImpl(PasswordEncoder passwordEncoder, UserMapper userMapper, UserRepository userRepository) {
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.userRepository = userRepository;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<UserDTO> findById(UUID id) {
         return this.userRepository.findById(id)
                                   .map(userMapper::toUserDTO);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<UserDTO> findAll() {
         return userRepository.findAll()
@@ -56,6 +84,9 @@ public class UserServiceImpl implements UserService {
                              .toList();
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public UserDTO create(UserDTO user) {
         var passwordEncoded = passwordEncoder.encode(user.password());
@@ -66,6 +97,9 @@ public class UserServiceImpl implements UserService {
         return userMapper.toUserDTO(userCreated);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Optional<UserDTO> updateById(UUID id, UserDTO newUserData) {
         var userExists = userRepository.existsById(id);
@@ -83,6 +117,9 @@ public class UserServiceImpl implements UserService {
         return Optional.of(userDTOUpdated);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public Boolean deleteById(UUID id) {
         return userRepository.deleteUserById(id) > 0;
