@@ -145,14 +145,14 @@ class AuthControllerIT {
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
-                   .andExpect(jsonPath("$.detail", containsString("The username is mandatory")))
-                   .andExpect(jsonPath("$.detail", containsString("The password is mandatory")))
+                   .andExpect(jsonPath("$.detail", containsString("The username must not be empty")))
+                   .andExpect(jsonPath("$.detail", containsString("The password must not be empty")))
                    .andExpect(jsonPath("$.instance", is("/v1/auth/token")))
                    .andExpect(jsonPath("$.errors", hasSize(2)))
                    .andExpect(jsonPath(
-                           "$.errors[?(@.entity == 'userCredentialsDTO' && @.field == 'username' && @.message == 'The username is mandatory')]").exists())
+                           "$.errors[?(@.entity == 'userCredentialsDTO' && @.field == 'username' && @.message == 'The username must not be empty')]").exists())
                    .andExpect(jsonPath(
-                           "$.errors[?(@.entity == 'userCredentialsDTO' && @.field == 'password' && @.message == 'The password is mandatory')]").exists());
+                           "$.errors[?(@.entity == 'userCredentialsDTO' && @.field == 'password' && @.message == 'The password must not be empty')]").exists());
         }
 
         @Test
@@ -170,14 +170,14 @@ class AuthControllerIT {
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
-                   .andExpect(jsonPath("$.detail", containsString("The username is mandatory")))
-                   .andExpect(jsonPath("$.detail", containsString("The password is mandatory")))
+                   .andExpect(jsonPath("$.detail", containsString("The username must not be empty")))
+                   .andExpect(jsonPath("$.detail", containsString("The password must not be empty")))
                    .andExpect(jsonPath("$.instance", is("/v1/auth/token")))
                    .andExpect(jsonPath("$.errors", hasSize(2)))
                    .andExpect(jsonPath(
-                           "$.errors[?(@.entity == 'userCredentialsDTO' && @.field == 'username' && @.message == 'The username is mandatory')]").exists())
+                           "$.errors[?(@.entity == 'userCredentialsDTO' && @.field == 'username' && @.message == 'The username must not be empty')]").exists())
                    .andExpect(jsonPath(
-                           "$.errors[?(@.entity == 'userCredentialsDTO' && @.field == 'password' && @.message == 'The password is mandatory')]").exists());
+                           "$.errors[?(@.entity == 'userCredentialsDTO' && @.field == 'password' && @.message == 'The password must not be empty')]").exists());
         }
 
         @Test

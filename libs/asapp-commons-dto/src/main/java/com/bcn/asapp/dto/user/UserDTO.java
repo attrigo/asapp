@@ -33,6 +33,6 @@ import com.bcn.asapp.dto.utils.MaskSensibleStringSerializer;
  * @author ttrigo
  * @since 0.2.0
  */
-public record UserDTO(UUID id, @NotBlank(message = "The username of the user is mandatory") String username,
-        @NotBlank(message = "The password of the user is mandatory") @JsonSerialize(using = MaskSensibleStringSerializer.class) String password,
-        @NotBlank(message = "The role of the user is mandatory") String role) {}
+public record UserDTO(UUID id, @NotBlank(message = "The username must not be empty") String username,
+        @NotBlank(message = "The password must not be empty") @JsonSerialize(using = MaskSensibleStringSerializer.class) String password,
+        @NotBlank(message = "The role must not be empty") String role) {}
