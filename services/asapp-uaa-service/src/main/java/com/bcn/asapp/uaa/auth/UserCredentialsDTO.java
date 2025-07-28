@@ -27,5 +27,5 @@ import jakarta.validation.constraints.NotBlank;
  * @author ttrigo
  * @since 0.2.0
  */
-public record UserCredentialsDTO(@NotBlank(message = "The username is mandatory") String username,
-        @NotBlank(message = "The password is mandatory") String password) {}
+public record UserCredentialsDTO(@NotBlank(message = "The username must not be empty") String username,
+        @NotBlank(message = "The password must not be empty") String password) {}

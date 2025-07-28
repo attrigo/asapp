@@ -17,13 +17,13 @@ package com.bcn.asapp.uaa.auth;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotBlank;
 
 /**
  * Represents a Data Transfer Object (DTO) for an access token JWT.
  *
- * @param jwt the raw JWT string value of the access token, must not be {@literal null}
+ * @param jwt the raw JWT string value of the access token, must not be blank
  * @author ttrigo
  * @since 0.2.0
  */
-public record AccessTokenDTO(@NotNull @JsonValue String jwt) {}
+public record AccessTokenDTO(@NotBlank(message = "The access token must not be empty") @JsonValue String jwt) {}
