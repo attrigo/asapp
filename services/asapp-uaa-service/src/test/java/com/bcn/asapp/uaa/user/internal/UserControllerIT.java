@@ -52,8 +52,6 @@ import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.bcn.asapp.dto.user.UserDTO;
 import com.bcn.asapp.uaa.config.SecurityConfiguration;
 import com.bcn.asapp.uaa.security.authentication.verifier.JwtVerifier;
@@ -70,9 +68,6 @@ class UserControllerIT {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @MockitoBean
     private JwtVerifier jwtVerifierMock;
@@ -292,11 +287,16 @@ class UserControllerIT {
         @DisplayName("GIVEN user mandatory fields are not present WHEN create a user THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
         void UserMandatoryFieldsAreNotPresent_CreateUser_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
             // When & Then
-            var userToCreate = new UserDTO(null, null, null, null);
-            var userToCreateAsJson = objectMapper.writeValueAsString(userToCreate);
+            var userToCreate = """
+                    {
+                    "username": "",
+                    "password": "",
+                    "role": ""
+                    }
+                    """;
 
             var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
-                                                             .content(userToCreateAsJson);
+                                                             .content(userToCreate);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isBadRequest())
                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -351,11 +351,16 @@ class UserControllerIT {
             given(userServiceMock.create(any(UserDTO.class))).willReturn(fakeUser);
 
             // When & Then
-            var userToCreate = new UserDTO(null, fakeUserUsername, fakeUserPassword, fakeUserRole);
-            var userToCreateAsJson = objectMapper.writeValueAsString(userToCreate);
+            var userToCreate = """
+                    {
+                    "username": "%s",
+                    "password": "%s",
+                    "role": "%s"
+                    }
+                    """.formatted(fakeUserUsername, fakeUserPassword, fakeUserRole);
 
             var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
-                                                             .content(userToCreateAsJson);
+                                                             .content(userToCreate);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isCreated())
                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -376,11 +381,16 @@ class UserControllerIT {
         void JwtIsNotPresent_UpdateUserById_ReturnsStatusUnauthorizedAndEmptyBody() throws Exception {
             // When & Then
             var idToUpdate = fakeUserId;
-            var userToUpdate = new UserDTO(null, fakeUserUsername, fakeUserPassword, fakeUserRole);
-            var userToUpdateAsJson = objectMapper.writeValueAsString(userToUpdate);
+            var userToUpdate = """
+                    {
+                    "username": "%s",
+                    "password": "%s",
+                    "role": "%s"
+                    }
+                    """.formatted(fakeUserUsername, fakeUserPassword, fakeUserRole);
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
-                                                                              .content(userToUpdateAsJson);
+                                                                              .content(userToUpdate);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isUnauthorized())
                    .andExpect(jsonPath("$").doesNotExist());
@@ -390,11 +400,16 @@ class UserControllerIT {
         @DisplayName("GIVEN user id is empty WHEN update a user by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
         void UserIdIsEmpty_UpdateUserById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
             // When & Then
-            var userToUpdate = new UserDTO(null, fakeUserUsername, fakeUserPassword, fakeUserRole);
-            var userToUpdateAsJson = objectMapper.writeValueAsString(userToUpdate);
+            var userToUpdate = """
+                    {
+                    "username": "%s",
+                    "password": "%s",
+                    "role": "%s"
+                    }
+                    """.formatted(fakeUserUsername, fakeUserPassword, fakeUserRole);
 
             var requestBuilder = put(USERS_EMPTY_ID_PATH).contentType(MediaType.APPLICATION_JSON)
-                                                         .content(userToUpdateAsJson);
+                                                         .content(userToUpdate);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isNotFound())
                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -410,11 +425,16 @@ class UserControllerIT {
         void UserIdIsNotUUID_UpdateUserById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
             // When & Then
             var idToUpdate = 1L;
-            var userToUpdate = new UserDTO(null, fakeUserUsername, fakeUserPassword, fakeUserRole);
-            var userToUpdateAsJson = objectMapper.writeValueAsString(userToUpdate);
+            var userToUpdate = """
+                    {
+                    "username": "%s",
+                    "password": "%s",
+                    "role": "%s"
+                    }
+                    """.formatted(fakeUserUsername, fakeUserPassword, fakeUserRole);
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
-                                                                              .content(userToUpdateAsJson);
+                                                                              .content(userToUpdate);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isBadRequest())
                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -468,11 +488,16 @@ class UserControllerIT {
         void NewUserDataMandatoryFieldsAreNotPresent_UpdateUserById_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
             // When & Then
             var idToUpdate = fakeUserId;
-            var userToUpdate = new UserDTO(null, null, null, null);
-            var userToUpdateAsJson = objectMapper.writeValueAsString(userToUpdate);
+            var userToUpdate = """
+                    {
+                    "username": "",
+                    "password": "",
+                    "role": ""
+                    }
+                    """;
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
-                                                                              .content(userToUpdateAsJson);
+                                                                              .content(userToUpdate);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isBadRequest())
                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
@@ -528,11 +553,16 @@ class UserControllerIT {
 
             // When & Then
             var idToUpdate = fakeUserId;
-            var userToUpdate = new UserDTO(null, fakeUserUsername, fakeUserPassword, fakeUserRole);
-            var userToUpdateAsJson = objectMapper.writeValueAsString(userToUpdate);
+            var userToUpdate = """
+                    {
+                    "username": "%s",
+                    "password": "%s",
+                    "role": "%s"
+                    }
+                    """.formatted(fakeUserUsername, fakeUserPassword, fakeUserRole);
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
-                                                                              .content(userToUpdateAsJson);
+                                                                              .content(userToUpdate);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isNotFound())
                    .andExpect(jsonPath("$").doesNotExist());
@@ -547,11 +577,16 @@ class UserControllerIT {
 
             // When & Then
             var idToUpdate = fakeUserId;
-            var userToUpdate = new UserDTO(null, fakeUserUsername, fakeUserPassword, fakeUserRole);
-            var userToUpdateAsJson = objectMapper.writeValueAsString(userToUpdate);
+            var userToUpdate = """
+                    {
+                    "username": "%s",
+                    "password": "%s",
+                    "role": "%s"
+                    }
+                    """.formatted(fakeUserUsername, fakeUserPassword, fakeUserRole);
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
-                                                                              .content(userToUpdateAsJson);
+                                                                              .content(userToUpdate);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isOk())
                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
