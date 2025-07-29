@@ -235,13 +235,14 @@ class UserE2EIT {
             var anotherFakeUserId = UUID.randomUUID();
 
             // When & Then
-            String userToCreate = String.format("""
+            String userToCreate = """
                     {
                         "id": "%s",
                         "username": "%s",
                         "password": "%s",
                         "role": "%s"
-                    }""", anotherFakeUserId, fakeUserUsername, fakeUserPassword, fakeUserRole.name());
+                    }
+                    """.formatted(anotherFakeUserId, fakeUserUsername, fakeUserPassword, fakeUserRole.name());
 
             var response = webTestClient.post()
                                         .uri(USERS_CREATE_FULL_PATH)
@@ -277,13 +278,14 @@ class UserE2EIT {
         @DisplayName("GIVEN user fields are valid WHEN create a user THEN creates the user And returns HTTP response with status CREATED And the body with the user created")
         void UserFieldsAreValid_CreateUser_CreatesUserAndReturnsStatusCreatedAndBodyWithUserCreated() {
             // When & Then
-            String userToCreate = String.format("""
+            String userToCreate = """
                     {
                         "id": "",
                         "username": "%s",
                         "password": "%s",
                         "role": "%s"
-                    }""", fakeUserUsername, fakeUserPassword, fakeUserRole.name());
+                    }
+                    """.formatted(fakeUserUsername, fakeUserPassword, fakeUserRole.name());
 
             var response = webTestClient.post()
                                         .uri(USERS_CREATE_FULL_PATH)
@@ -353,13 +355,14 @@ class UserE2EIT {
 
             // When & Then
             var idToUpdate = userToUpdateSaved.id();
-            String userToUpdate = String.format("""
+            String userToUpdate = """
                     {
                         "id": "%s",
                         "username": "%s",
                         "password": "%s",
                         "role": "%s"
-                    }""", UUID.randomUUID(), anotherFakeUserUsername, anotherFakeUserPassword, anotherFakeUserRole);
+                    }
+                    """.formatted(UUID.randomUUID(), anotherFakeUserUsername, anotherFakeUserPassword, anotherFakeUserRole);
 
             var expectedUserDTO = new UserDTO(idToUpdate, anotherFakeUserUsername, "********", anotherFakeUserRole);
 
@@ -404,13 +407,14 @@ class UserE2EIT {
 
             // When & Then
             var idToUpdate = userToUpdateSaved.id();
-            String userToUpdate = String.format("""
+            String userToUpdate = """
                     {
                         "id": "%s",
                         "username": "%s",
                         "password": "%s",
                         "role": "%s"
-                    }""", UUID.randomUUID(), anotherFakeUserUsername, anotherFakeUserPassword, anotherFakeUserRole);
+                    }
+                    """.formatted(UUID.randomUUID(), anotherFakeUserUsername, anotherFakeUserPassword, anotherFakeUserRole);
 
             var expectedUserDTO = new UserDTO(idToUpdate, anotherFakeUserUsername, "********", anotherFakeUserRole);
 
