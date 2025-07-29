@@ -67,7 +67,7 @@ public interface UserRestAPI {
      * <ul>
      * <li>20O-OK: User found.</li>
      * <li>400-BAD_REQUEST: Invalid user id format.</li>
-     * <li>401-UNAUTHORIZED: Unauthorized.</li>
+     * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
      * <li>404-NOT_FOUND: User not found.</li>
      * </ul>
      *
@@ -78,7 +78,7 @@ public interface UserRestAPI {
     @Operation(summary = "Gets a user by id", description = "Returns a user with the specified id, or empty if not found")
     @ApiResponse(responseCode = "200", description = "User found", content = { @Content(schema = @Schema(implementation = UserDTO.class)) })
     @ApiResponse(responseCode = "400", description = "Invalid user id format", content = { @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "401", description = "Unauthorized", content = { @Content })
+    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
     @ApiResponse(responseCode = "404", description = "User not found", content = { @Content })
     @GetMapping(value = USERS_GET_BY_ID_PATH, produces = "application/json")
     ResponseEntity<UserDTO> getUserById(@Parameter(description = "Id of the user to get") @PathVariable("id") UUID id);
@@ -91,7 +91,7 @@ public interface UserRestAPI {
      * Response codes:
      * <ul>
      * <li>200-OK: Users found.</li>
-     * <li>401-UNAUTHORIZED: Unauthorized.</li>
+     * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
      * </ul>
      *
      * @return a list of all {@link UserDTO}, or an empty list if no users exist
@@ -99,7 +99,7 @@ public interface UserRestAPI {
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Gets all users", description = "Returns a list of all users, or an empty list if no users exist")
     @ApiResponse(responseCode = "200", description = "Users found", content = { @Content(schema = @Schema(implementation = UserDTO.class)) })
-    @ApiResponse(responseCode = "401", description = "Unauthorized", content = { @Content })
+    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
     @GetMapping(value = USERS_GET_ALL_PATH, produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     List<UserDTO> getAllUsers();
@@ -112,7 +112,7 @@ public interface UserRestAPI {
      * Response codes:
      * <ul>
      * <li>201-CREATED: User created successfully.</li>
-     * <li>400-BAD_REQUEST: Invalid request body.</li>
+     * <li>400-BAD_REQUEST: Request body validation failed.</li>
      * </ul>
      *
      * @param user the user data to create
@@ -120,7 +120,8 @@ public interface UserRestAPI {
      */
     @Operation(summary = "Creates a new user", description = "Creates a new user with a new generated id, any provided id will be ignored")
     @ApiResponse(responseCode = "201", description = "User created successfully", content = { @Content(schema = @Schema(implementation = UserDTO.class)) })
-    @ApiResponse(responseCode = "400", description = "Invalid request body", content = { @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "400", description = "Request body validation failed", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @PostMapping(value = USERS_CREATE_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     UserDTO createUser(@Parameter(description = "User data to create", required = true) @Valid @RequestBody UserDTO user);
@@ -133,8 +134,8 @@ public interface UserRestAPI {
      * Response codes:
      * <ul>
      * <li>200-OK: User updated successfully.</li>
-     * <li>400-BAD_REQUEST: Invalid request body.</li>
-     * <li>401-UNAUTHORIZED: Unauthorized.</li>
+     * <li>400-BAD_REQUEST: Invalid user id format or request body validation failed.</li>
+     * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
      * <li>404-NOT_FOUND: User not found.</li>
      * </ul>
      *
@@ -144,9 +145,10 @@ public interface UserRestAPI {
      */
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Updates an existing user by id", description = "Updates the data of an existing user by the specified id except the id, with the provided new data")
-    @ApiResponse(responseCode = "200", description = "The user has been updated", content = { @Content(schema = @Schema(implementation = UserDTO.class)) })
-    @ApiResponse(responseCode = "400", description = "Invalid request body", content = { @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "401", description = "Unauthorized", content = { @Content })
+    @ApiResponse(responseCode = "200", description = "User has been updated", content = { @Content(schema = @Schema(implementation = UserDTO.class)) })
+    @ApiResponse(responseCode = "400", description = "Invalid user id format or request body validation failed.", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
     @ApiResponse(responseCode = "404", description = "User not found", content = { @Content })
     @PutMapping(value = USERS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
     ResponseEntity<UserDTO> updateUserById(@Parameter(description = "Id of the user to update") @PathVariable("id") UUID id,
@@ -161,7 +163,7 @@ public interface UserRestAPI {
      * <ul>
      * <li>204-NO_CONTENT: User deleted successfully.</li>
      * <li>400-BAD_REQUEST: Invalid user id format.</li>
-     * <li>401-UNAUTHORIZED: Unauthorized.</li>
+     * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
      * <li>404-NOT_FOUND: User not found.</li>
      * </ul>
      *
@@ -172,7 +174,7 @@ public interface UserRestAPI {
     @Operation(summary = "Deletes a user by id", description = "Deletes a user by the specified id")
     @ApiResponse(responseCode = "204", description = "User deleted successfully", content = { @Content })
     @ApiResponse(responseCode = "400", description = "Invalid user id format", content = { @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "401", description = "Unauthorized", content = { @Content })
+    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
     @ApiResponse(responseCode = "404", description = "User not found", content = { @Content })
     @DeleteMapping(value = USERS_DELETE_BY_ID_PATH, produces = "application/json")
     ResponseEntity<Void> deleteUserById(@Parameter(description = "Id of the user to delete") @PathVariable("id") UUID id);
