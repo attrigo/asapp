@@ -44,10 +44,10 @@ import com.bcn.asapp.uaa.security.core.InvalidJwtException;
  * The decoder uses HMAC-SHA algorithm with a secret key derived from a Base64-encoded string provided through system properties.
  *
  * @author ttrigo
- * @since 0.2.0
  * @see DecodedJwt
  * @see com.bcn.asapp.uaa.security.core.InvalidJwtException
  * @see io.jsonwebtoken.Jwts
+ * @since 0.2.0
  */
 @Component
 public class JwtDecoder {
