@@ -305,12 +305,12 @@ class UserControllerIT {
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("The username must not be empty")))
                    .andExpect(jsonPath("$.detail", containsString("The password must not be empty")))
-                   .andExpect(jsonPath("$.detail", containsString("The role must not be empty")))
+                   .andExpect(jsonPath("$.detail", containsString("The role must be a valid Role")))
                    .andExpect(jsonPath("$.instance", is("/v1/users")))
                    .andExpect(jsonPath("$.errors", hasSize(3)))
                    .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'username' && @.message == 'The username must not be empty')]").exists())
                    .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'password' && @.message == 'The password must not be empty')]").exists())
-                   .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'role' && @.message == 'The role must not be empty')]").exists());
+                   .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'role' && @.message == 'The role must be a valid Role')]").exists());
         }
 
         @Test
@@ -335,12 +335,39 @@ class UserControllerIT {
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("The username must not be empty")))
                    .andExpect(jsonPath("$.detail", containsString("The password must not be empty")))
-                   .andExpect(jsonPath("$.detail", containsString("The role must not be empty")))
+                   .andExpect(jsonPath("$.detail", containsString("The role must be a valid Role")))
                    .andExpect(jsonPath("$.instance", is("/v1/users")))
                    .andExpect(jsonPath("$.errors", hasSize(3)))
                    .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'username' && @.message == 'The username must not be empty')]").exists())
                    .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'password' && @.message == 'The password must not be empty')]").exists())
-                   .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'role' && @.message == 'The role must not be empty')]").exists());
+                   .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'role' && @.message == 'The role must be a valid Role')]").exists());
+        }
+
+        @Test
+        @DisplayName("GIVEN user role field is invalid WHEN create a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+        void UserRoleFieldIsInvalid_CreateUser_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+            // When & Then
+            var userToCreate = """
+                    {
+                    "username": "%s",
+                    "password": "%s",
+                    "role": "TEST"
+                    }
+                    """.formatted(fakeUserUsername, fakeUserPassword);
+
+            var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                             .content(userToCreate);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().isBadRequest())
+                   .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                   .andExpect(jsonPath("$.type", is("about:blank")))
+                   .andExpect(jsonPath("$.title", is("Bad Request")))
+                   .andExpect(jsonPath("$.status", is(400)))
+                   .andExpect(jsonPath("$.detail", containsString("The role must be a valid Role")))
+                   .andExpect(jsonPath("$.instance", is("/v1/users")))
+                   .andExpect(jsonPath("$.errors[0].entity", is("userDTO")))
+                   .andExpect(jsonPath("$.errors[0].field", is("role")))
+                   .andExpect(jsonPath("$.errors[0].message", is("The role must be a valid Role")));
         }
 
         @Test
@@ -506,12 +533,12 @@ class UserControllerIT {
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("The username must not be empty")))
                    .andExpect(jsonPath("$.detail", containsString("The password must not be empty")))
-                   .andExpect(jsonPath("$.detail", containsString("The role must not be empty")))
+                   .andExpect(jsonPath("$.detail", containsString("The role must be a valid Role")))
                    .andExpect(jsonPath("$.instance", is("/v1/users/" + idToUpdate)))
                    .andExpect(jsonPath("$.errors", hasSize(3)))
                    .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'username' && @.message == 'The username must not be empty')]").exists())
                    .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'password' && @.message == 'The password must not be empty')]").exists())
-                   .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'role' && @.message == 'The role must not be empty')]").exists());
+                   .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'role' && @.message == 'The role must be a valid Role')]").exists());
         }
 
         @Test
@@ -537,12 +564,40 @@ class UserControllerIT {
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("The username must not be empty")))
                    .andExpect(jsonPath("$.detail", containsString("The password must not be empty")))
-                   .andExpect(jsonPath("$.detail", containsString("The role must not be empty")))
+                   .andExpect(jsonPath("$.detail", containsString("The role must be a valid Role")))
                    .andExpect(jsonPath("$.instance", is("/v1/users/" + idToUpdate)))
                    .andExpect(jsonPath("$.errors", hasSize(3)))
                    .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'username' && @.message == 'The username must not be empty')]").exists())
                    .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'password' && @.message == 'The password must not be empty')]").exists())
-                   .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'role' && @.message == 'The role must not be empty')]").exists());
+                   .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'role' && @.message == 'The role must be a valid Role')]").exists());
+        }
+
+        @Test
+        @DisplayName("GIVEN user role field is invalid WHEN update a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+        void UserRoleFieldIsInvalid_UpdateUser_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
+            // When & Then
+            var idToUpdate = fakeUserId;
+            var userToUpdate = """
+                    {
+                    "username": "%s",
+                    "password": "%s",
+                    "role": "TEST"
+                    }
+                    """.formatted(fakeUserUsername, fakeUserPassword);
+
+            var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, idToUpdate).contentType(MediaType.APPLICATION_JSON)
+                                                                              .content(userToUpdate);
+            mockMvc.perform(requestBuilder)
+                   .andExpect(status().isBadRequest())
+                   .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
+                   .andExpect(jsonPath("$.type", is("about:blank")))
+                   .andExpect(jsonPath("$.title", is("Bad Request")))
+                   .andExpect(jsonPath("$.status", is(400)))
+                   .andExpect(jsonPath("$.detail", containsString("The role must be a valid Role")))
+                   .andExpect(jsonPath("$.instance", is("/v1/users/" + idToUpdate)))
+                   .andExpect(jsonPath("$.errors[0].entity", is("userDTO")))
+                   .andExpect(jsonPath("$.errors[0].field", is("role")))
+                   .andExpect(jsonPath("$.errors[0].message", is("The role must be a valid Role")));
         }
 
         @Test

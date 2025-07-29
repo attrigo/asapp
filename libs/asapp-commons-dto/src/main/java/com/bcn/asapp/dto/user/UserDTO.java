@@ -28,11 +28,11 @@ import com.bcn.asapp.dto.utils.MaskSensibleStringSerializer;
  *
  * @param username the username of the user, must not be blank
  * @param password the password of the user, must not be blank and is masked during serialization
- * @param role     the role assigned to the user, must not be blank
+ * @param role     the role assigned to the user, must not be a valid Role
  *
  * @author ttrigo
  * @since 0.2.0
  */
 public record UserDTO(UUID id, @NotBlank(message = "The username must not be empty") String username,
         @NotBlank(message = "The password must not be empty") @JsonSerialize(using = MaskSensibleStringSerializer.class) String password,
-        @NotBlank(message = "The role must not be empty") String role) {}
+        @ValidRole(message = "The role must be a valid Role") String role) {}
