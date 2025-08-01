@@ -15,13 +15,13 @@
 */
 package com.bcn.asapp.uaa.security.authentication.revoker;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bcn.asapp.uaa.security.authentication.JwtIntegrityViolationException;
-import com.bcn.asapp.uaa.security.authentication.JwtNotFoundException;
 import com.bcn.asapp.uaa.security.core.AccessTokenRepository;
 import com.bcn.asapp.uaa.security.core.RefreshTokenRepository;
 import com.bcn.asapp.uaa.user.User;
@@ -65,25 +65,50 @@ public class JwtRevoker {
     }
 
     /**
-     * Revokes the authentication of a user by invalidating both the access and refresh tokens associated with the user.
+     * Revokes the authentication of a user by invalidating both the access and refresh tokens associated with the authentication's user.
      * <p>
-     * Resolves the {@link User} from the provided {@link Authentication} object and then proceeds to revoke both tokens. If no tokens are found, appropriate
-     * exceptions are thrown.
+     * Resolves the {@link User} from the provided {@link Authentication} object and then proceeds to revoke both tokens.
      * <p>
      * This method is annotated with {@link Transactional} to ensure that both token deletions occur within a single transactional boundary.
      *
      * @param authentication the authentication requesting token revocation
      * @throws UsernameNotFoundException      if the user associated with the authentication does not exist
-     * @throws JwtIntegrityViolationException if token deletion fails
+     * @throws JwtIntegrityViolationException if token revocation fails
      */
     @Transactional
     public void revokeAuthentication(Authentication authentication) {
-        var user = resolveAuthenticationUser(authentication);
+        var user = resolveUserAuthentication(authentication);
+
+        revokeUserAuthentication(user);
+    }
+
+    /**
+     * Revokes the current authentication of the given user by invalidating its access and refresh tokens.
+     * <p>
+     * This overload allows direct revocation using a user entity without requiring an authentication context.
+     * <p>
+     * This method is annotated with {@link Transactional} to ensure that both token deletions occur within a single transactional boundary.
+     *
+     * @param user the user whose tokens should be revoked
+     * @throws JwtIntegrityViolationException if token revocation fails
+     */
+    @Transactional
+    public void revokeAuthentication(User user) {
+        revokeUserAuthentication(user);
+    }
+
+    /**
+     * Attempts to revoke both access and refresh tokens within a single transaction.
+     *
+     * @param user the user whose tokens should be revoked
+     * @throws JwtIntegrityViolationException if any steps of the revocation process fails
+     */
+    private void revokeUserAuthentication(User user) {
 
         try {
             revokeAccessToken(user);
             revokeRefreshToken(user);
-        } catch (JwtNotFoundException e) {
+        } catch (DataAccessException e) {
             throw new JwtIntegrityViolationException("Authentication could not be revoked due to: " + e.getMessage(), e);
         }
 
@@ -96,7 +121,7 @@ public class JwtRevoker {
      * @return the resolved {@link User} entity
      * @throws UsernameNotFoundException if no user is found for the given username
      */
-    private User resolveAuthenticationUser(Authentication authentication) {
+    private User resolveUserAuthentication(Authentication authentication) {
         return userRepository.findByUsername(authentication.getName())
                              .orElseThrow(() -> new UsernameNotFoundException("User not exists by username " + authentication.getName()));
     }
@@ -105,30 +130,18 @@ public class JwtRevoker {
      * Revokes the access token associated with the given user.
      *
      * @param user the user whose access token should be revoked
-     * @throws JwtNotFoundException if no access token is deleted for the user
      */
     private void revokeAccessToken(User user) {
-        var deleted = accessTokenRepository.deleteByUserId(user.id());
-
-        if (deleted == 0) {
-            throw new JwtNotFoundException("Access token not found for user " + user.username());
-        }
-
+        accessTokenRepository.deleteByUserId(user.id());
     }
 
     /**
      * Revokes the refresh token associated with the given user.
      *
      * @param user the user whose refresh token should be revoked
-     * @throws JwtNotFoundException if no refresh token is deleted for the user
      */
     private void revokeRefreshToken(User user) {
-        var deleted = refreshTokenRepository.deleteByUserId(user.id());
-
-        if (deleted == 0) {
-            throw new JwtNotFoundException("Refresh tokens not found for user " + user.username());
-        }
-
+        refreshTokenRepository.deleteByUserId(user.id());
     }
 
 }

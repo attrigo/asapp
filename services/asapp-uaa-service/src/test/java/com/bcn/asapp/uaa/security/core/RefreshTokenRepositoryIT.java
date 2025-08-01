@@ -172,20 +172,8 @@ class RefreshTokenRepositoryIT {
     class DeleteByUserId {
 
         @Test
-        @DisplayName("GIVEN refresh token does not exists WHEN delete a refresh token by user id THEN does not delete the refresh token And returns zero")
-        void RefreshTokenNotExists_DeleteByUserId_DoesNotDeleteRefreshTokenAndReturnsZero() {
-            // When
-            var userIdToDelete = UUID.randomUUID();
-
-            var actualDeleted = refreshTokenRepository.deleteByUserId(userIdToDelete);
-
-            // Then
-            assertEquals(0L, actualDeleted);
-        }
-
-        @Test
-        @DisplayName("GIVEN refresh token exists WHEN delete a refresh token by user id THEN deletes the refresh token And returns one")
-        void RefreshTokenExists_DeleteByUserId_DeletesJwtAndReturnsOne() {
+        @DisplayName("GIVEN refresh token exists WHEN delete a refresh token by user id THEN deletes the refresh token")
+        void RefreshTokenExists_DeleteByUserId_DeletesJwt() {
             // Given
             var fakeUser = new User(null, fakeUserUsername, fakeUserPassword, fakeUserRole);
             var fakeUsePersisted = userRepository.save(fakeUser);
@@ -198,10 +186,11 @@ class RefreshTokenRepositoryIT {
             // When
             var userIdToDelete = fakeUsePersisted.id();
 
-            var actualDeleted = refreshTokenRepository.deleteByUserId(userIdToDelete);
+            refreshTokenRepository.deleteByUserId(userIdToDelete);
 
             // Then
-            assertEquals(1L, actualDeleted);
+            var expectedRefreshToken = refreshTokenRepository.findByUserId(userIdToDelete);
+            assertTrue(expectedRefreshToken.isEmpty());
         }
 
     }

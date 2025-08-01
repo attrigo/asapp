@@ -159,6 +159,8 @@ public interface UserRestAPI {
      * <p>
      * Deletes a user by the specified id.
      * <p>
+     * If the user is authenticated, its authentication is revoked before the deletion.
+     * <p>
      * Response codes:
      * <ul>
      * <li>204-NO_CONTENT: User deleted successfully.</li>
@@ -171,7 +173,7 @@ public interface UserRestAPI {
      * @return a {@link ResponseEntity} with no content upon successful deletion
      */
     @SecurityRequirement(name = "Bearer Authentication")
-    @Operation(summary = "Deletes a user by id", description = "Deletes a user by the specified id")
+    @Operation(summary = "Deletes a user by id", description = "Deletes a user by the specified id, if the user is authenticated, it is revoked before the deletion")
     @ApiResponse(responseCode = "204", description = "User deleted successfully", content = { @Content })
     @ApiResponse(responseCode = "400", description = "Invalid user id format", content = { @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })

@@ -71,6 +71,8 @@ public interface UserService {
 
     /**
      * Deletes a user by id.
+     * <p>
+     * If the user is authenticated, it is revoked before the deletion.
      *
      * @param id the id of the user to delete
      * @return {@code true} if the user was deleted; {@code false} otherwise
