@@ -25,6 +25,8 @@ public interface AuthService {
 
     /**
      * Authenticates a user based on the provided credentials and issues new JWT authentication.
+     * <p>
+     * If the user is already authenticated, new JWT authentication (access and refresh tokens) are generated to override the existing ones.
      *
      * @param userCredentials the user credentials to authenticate
      * @return a {@link JwtAuthenticationDTO} containing newly issued access and refresh tokens
@@ -32,7 +34,9 @@ public interface AuthService {
     JwtAuthenticationDTO authenticate(UserCredentialsDTO userCredentials);
 
     /**
-     * Refreshes JWT authentication using the provided refresh token.
+     * Refreshes existing JWT authentication using the provided refresh token.
+     * <p>
+     * Issues new JWT authentication (access and refresh tokens) upon successful verification.
      *
      * @param refreshToken the refresh token used to refresh the JWT authentication tokens
      * @return a new {@link JwtAuthenticationDTO} containing newly issued access and refresh tokens
@@ -40,7 +44,7 @@ public interface AuthService {
     JwtAuthenticationDTO refreshAuthentication(RefreshTokenDTO refreshToken);
 
     /**
-     * Revokes the JWT authentication for a user by invalidating both access and refresh tokens using the provided access token.
+     * Revokes the existing JWT authentication of a user by the given access token.
      *
      * @param accessToken the access token used to invalidate the JWT authentication
      */

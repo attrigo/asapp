@@ -23,6 +23,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.bcn.asapp.dto.user.UserDTO;
+import com.bcn.asapp.uaa.security.authentication.revoker.JwtRevoker;
+import com.bcn.asapp.uaa.user.User;
 import com.bcn.asapp.uaa.user.UserMapper;
 import com.bcn.asapp.uaa.user.UserRepository;
 import com.bcn.asapp.uaa.user.UserService;
@@ -52,16 +54,22 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     /**
+     * Revoker responsible for revoking JWT authentication tokens.
+     */
+    private final JwtRevoker jwtRevoker;
+
+    /**
      * Constructs a new {@code UserServiceImpl} with required dependencies.
      *
      * @param passwordEncoder the encoder used for hashing passwords
      * @param userMapper      the mapper for converting between user entities and DTOs
      * @param userRepository  the repository for performing CRUD operations on user entities
      */
-    public UserServiceImpl(PasswordEncoder passwordEncoder, UserMapper userMapper, UserRepository userRepository) {
+    public UserServiceImpl(PasswordEncoder passwordEncoder, UserMapper userMapper, UserRepository userRepository, JwtRevoker jwtRevoker) {
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
         this.userRepository = userRepository;
+        this.jwtRevoker = jwtRevoker;
     }
 
     /**
@@ -122,6 +130,14 @@ public class UserServiceImpl implements UserService {
      */
     @Override
     public Boolean deleteById(UUID id) {
+        Optional<User> userExists = userRepository.findById(id);
+
+        if (userExists.isEmpty()) {
+            return false;
+        }
+
+        jwtRevoker.revokeAuthentication(userExists.get());
+
         return userRepository.deleteUserById(id) > 0;
     }
 

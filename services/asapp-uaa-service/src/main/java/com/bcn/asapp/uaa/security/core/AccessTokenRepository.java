@@ -58,11 +58,10 @@ public interface AccessTokenRepository extends ListCrudRepository<AccessToken, U
      * Deletes all access tokens associated with a specific user ID.
      *
      * @param userId the ID of the user whose access tokens should be deleted, must not be {@literal null}
-     * @return the number of tokens deleted
      * @throws IllegalArgumentException if {@code userId} is {@literal null}
      */
     @Modifying
     @Query("DELETE FROM Access_Token a WHERE a.user_id = :userId")
-    Long deleteByUserId(UUID userId);
+    void deleteByUserId(UUID userId);
 
 }

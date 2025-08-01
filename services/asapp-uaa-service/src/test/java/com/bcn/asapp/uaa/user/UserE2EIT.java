@@ -263,7 +263,7 @@ class UserE2EIT {
                                         .getResponseBody();
 
             assertNotNull(response);
-//            var expectedUser = new User(response.id(), response.username(), fakeUserEncodedPassword, Role.valueOf(response.role()));
+            // var expectedUser = new User(response.id(), response.username(), fakeUserEncodedPassword, Role.valueOf(response.role()));
             var optionalActualUser = userRepository.findById(response.id());
             assertTrue(optionalActualUser.isPresent());
             var actualUser = optionalActualUser.get();
@@ -394,8 +394,8 @@ class UserE2EIT {
         }
 
         @Test
-        @DisplayName("GIVEN user id exists And new user data fields are valid WHEN update a user THEN updates all user fields And returns HTTP response with status OK And the body with the user updated")
-        void UserIdExistsAndNewUserDataFieldsAreValid_UpdateUser_UpdatesAllUserFieldsAndReturnsStatusOkAndBodyWithUserUpdated() {
+        @DisplayName("GIVEN user id exists And new user data has not field id WHEN update a user THEN updates all user fields And returns HTTP response with status OK And the body with the user updated")
+        void UserIdExistsAndNewUserDataHasNotIdField_UpdateUser_UpdatesAllUserFieldsAndReturnsStatusOkAndBodyWithUserUpdated() {
             var anotherFakeUserUsername = fakeUserUsername + "2";
             var anotherFakeUserPassword = fakeUserPassword + "2";
             var anotherFakeUserRole = Role.ADMIN.name();
@@ -409,12 +409,57 @@ class UserE2EIT {
             var idToUpdate = userToUpdateSaved.id();
             String userToUpdate = """
                     {
-                        "id": "%s",
                         "username": "%s",
                         "password": "%s",
                         "role": "%s"
                     }
-                    """.formatted(UUID.randomUUID(), anotherFakeUserUsername, anotherFakeUserPassword, anotherFakeUserRole);
+                    """.formatted(anotherFakeUserUsername, anotherFakeUserPassword, anotherFakeUserRole);
+
+            var expectedUserDTO = new UserDTO(idToUpdate, anotherFakeUserUsername, "********", anotherFakeUserRole);
+
+            var response = webTestClient.put()
+                                        .uri(USERS_UPDATE_BY_ID_FULL_PATH, idToUpdate)
+                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                        .bodyValue(userToUpdate)
+                                        .exchange()
+                                        .expectStatus()
+                                        .isOk()
+                                        .expectHeader()
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .expectBody(UserDTO.class)
+                                        .isEqualTo(expectedUserDTO)
+                                        .returnResult()
+                                        .getResponseBody();
+
+            assertNotNull(response);
+            var optionalActualUser = userRepository.findById(response.id());
+            assertTrue(optionalActualUser.isPresent());
+            var actualUser = optionalActualUser.get();
+            assertEquals(response.id(), actualUser.id());
+            assertEquals(response.username(), actualUser.username());
+            assertTrue(passwordEncoder.matches(anotherFakeUserPassword, actualUser.password()));
+            assertEquals(response.role(), actualUser.role()
+                                                    .name());
+        }
+
+        @Test
+        @DisplayName("GIVEN user id exists And user has been authenticated WHEN update a user THEN updates all user fields And returns HTTP response with status OK And the body with the user updated")
+        void UserIdExistsAndHasBeenAuthenticated_UpdateUser_UpdatesAllUserFieldsAndReturnsStatusOkAndBodyWithUserUpdated() {
+            var anotherFakeUserUsername = fakeUserUsername + "2";
+            var anotherFakeUserPassword = fakeUserPassword + "2";
+            var anotherFakeUserRole = Role.ADMIN.name();
+
+            // When & Then
+            var idToUpdate = authUser.id();
+            String userToUpdate = """
+                    {
+                        "username": "%s",
+                        "password": "%s",
+                        "role": "%s"
+                    }
+                    """.formatted(anotherFakeUserUsername, anotherFakeUserPassword, anotherFakeUserRole);
 
             var expectedUserDTO = new UserDTO(idToUpdate, anotherFakeUserUsername, "********", anotherFakeUserRole);
 
@@ -489,6 +534,30 @@ class UserE2EIT {
                          .isEmpty();
 
             assertFalse(userRepository.findById(userToDeleteSaved.id())
+                                      .isPresent());
+        }
+
+        @Test
+        @DisplayName("GIVEN user id exists and has been authenticated WHEN delete a user by id THEN revokes the user authentication And deletes the user And returns HTTP response with status NO_CONTENT And without body")
+        void UserIdExistsAndHasBeenAuthenticated_DeleteUserById_RevokesAuthenticationAndDeletesUserAndReturnsStatusNoContentAndWithoutBody() {
+            // When & Then
+            var idToDelete = authUser.id();
+
+            webTestClient.delete()
+                         .uri(USERS_DELETE_BY_ID_FULL_PATH, idToDelete)
+                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .exchange()
+                         .expectStatus()
+                         .isNoContent()
+                         .expectBody()
+                         .isEmpty();
+
+            assertFalse(accessTokenRepository.findByUserId(authUser.id())
+                                             .isPresent());
+            assertFalse(refreshTokenRepository.findByUserId(authUser.id())
+                                              .isPresent());
+            assertFalse(userRepository.findById(authUser.id())
                                       .isPresent());
         }
 

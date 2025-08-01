@@ -23,6 +23,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
@@ -37,6 +39,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -79,7 +82,7 @@ class JwtRevokerTests {
     }
 
     @Nested
-    class RevokeAuthentication {
+    class RevokeAuthenticationByAuthentication {
 
         @Test
         @DisplayName("GIVEN user not exists WHEN revoke an authentication THEN does not revoke the authentication And throws UsernameNotFoundException")
@@ -105,12 +108,13 @@ class JwtRevokerTests {
         }
 
         @Test
-        @DisplayName("GIVEN user does not have access token WHEN revoke an authentication THEN does not revoke the authentication And throws JwtIntegrityViolationException")
-        void UserHasNotAccessToken_RevokeAuthentication_DoesNotRevokeAuthenticationAndThrowsJwtIntegrityViolationException() {
+        @DisplayName("GIVEN access token could not be revoked WHEN revoke an authentication THEN do not revoke the tokens And throws JwtIntegrityViolationException")
+        void AccessTokenCouldNotBeRevoked_RevokeAuthentication_DoesNotRevokeAuthenticationAndThrowsJwtIntegrityViolationException() {
             // Given
             var fakeUser = new User(fakeUserId, fakeUsername, fakePassword, Role.USER);
             given(userRepositoryMock.findByUsername(anyString())).willReturn(Optional.of(fakeUser));
-            given(accessTokenRepositoryMock.deleteByUserId(any(UUID.class))).willReturn(0L);
+            doThrow(new DataAccessResourceFailureException("TEST EXCEPTION")).when(accessTokenRepositoryMock)
+                                                                             .deleteByUserId(any(UUID.class));
 
             // When
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword);
@@ -123,12 +127,13 @@ class JwtRevokerTests {
         }
 
         @Test
-        @DisplayName("GIVEN user does not have refresh token WHEN revoke an authentication THEN does not revoke the authentication And throws JwtIntegrityViolationException")
-        void UserHasNotRefreshToken_RevokeAuthentication_DoesNotRevokeAuthenticationAndThrowsJwtIntegrityViolationException() {
+        @DisplayName("GIVEN refresh token could not be revoked WHEN revoke an authentication THEN do not revoke the tokens And throws JwtIntegrityViolationException")
+        void RefreshTokenCouldNotBeRevoked_RevokeAuthentication_DoesNotRevokeAuthenticationAndThrowsJwtIntegrityViolationException() {
             // Given
             var fakeUser = new User(fakeUserId, fakeUsername, fakePassword, Role.USER);
             given(userRepositoryMock.findByUsername(anyString())).willReturn(Optional.of(fakeUser));
-            given(refreshTokenRepositoryMock.deleteByUserId(any(UUID.class))).willReturn(0L);
+            doThrow(new DataAccessResourceFailureException("TEST EXCEPTION")).when(refreshTokenRepositoryMock)
+                                                                             .deleteByUserId(any(UUID.class));
 
             // When
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword);
@@ -147,8 +152,10 @@ class JwtRevokerTests {
             var fakeUser = new User(fakeUserId, fakeUsername, fakePassword, Role.USER);
 
             given(userRepositoryMock.findByUsername(anyString())).willReturn(Optional.of(fakeUser));
-            given(accessTokenRepositoryMock.deleteByUserId(any(UUID.class))).willReturn(1L);
-            given(refreshTokenRepositoryMock.deleteByUserId(any(UUID.class))).willReturn(1L);
+            willDoNothing().given(accessTokenRepositoryMock)
+                           .deleteByUserId(any(UUID.class));
+            willDoNothing().given(refreshTokenRepositoryMock)
+                           .deleteByUserId(any(UUID.class));
 
             // When
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword);
@@ -158,6 +165,73 @@ class JwtRevokerTests {
             // Then
             then(userRepositoryMock).should(times(1))
                                     .findByUsername(anyString());
+            then(accessTokenRepositoryMock).should(times(1))
+                                           .deleteByUserId(any(UUID.class));
+            then(refreshTokenRepositoryMock).should(times(1))
+                                            .deleteByUserId(any(UUID.class));
+        }
+
+    }
+
+    @Nested
+    class RevokeAuthenticationByUser {
+
+        @Test
+        @DisplayName("GIVEN access token could not be revoked WHEN revoke an authentication THEN do not revoke the tokens And throws JwtIntegrityViolationException")
+        void AccessTokenCouldNotBeRevoked_RevokeAuthentication_DoesNotRevokeAuthenticationAndThrowsJwtIntegrityViolationException() {
+            // Given
+            var fakeUser = new User(fakeUserId, fakeUsername, fakePassword, Role.USER);
+            given(userRepositoryMock.findByUsername(anyString())).willReturn(Optional.of(fakeUser));
+            doThrow(new DataAccessResourceFailureException("TEST EXCEPTION")).when(accessTokenRepositoryMock)
+                                                                             .deleteByUserId(any(UUID.class));
+
+            // When
+            var user = new User(fakeUserId, fakeUsername, fakePassword, Role.USER);
+
+            Executable executable = () -> jwtRevoker.revokeAuthentication(user);
+
+            // Then
+            var exceptionThrown = assertThrows(JwtIntegrityViolationException.class, executable);
+            assertThat(exceptionThrown.getMessage(), startsWith("Authentication could not be revoked due to:"));
+        }
+
+        @Test
+        @DisplayName("GIVEN refresh token could not be revoked WHEN revoke an authentication THEN do not revoke the tokens And throws JwtIntegrityViolationException")
+        void RefreshTokenCouldNotBeRevoked_RevokeAuthentication_DoesNotRevokeAuthenticationAndThrowsJwtIntegrityViolationException() {
+            // Given
+            var fakeUser = new User(fakeUserId, fakeUsername, fakePassword, Role.USER);
+            given(userRepositoryMock.findByUsername(anyString())).willReturn(Optional.of(fakeUser));
+            doThrow(new DataAccessResourceFailureException("TEST EXCEPTION")).when(refreshTokenRepositoryMock)
+                                                                             .deleteByUserId(any(UUID.class));
+
+            // When
+            var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword);
+
+            Executable executable = () -> jwtRevoker.revokeAuthentication(authentication);
+
+            // Then
+            var exceptionThrown = assertThrows(JwtIntegrityViolationException.class, executable);
+            assertThat(exceptionThrown.getMessage(), startsWith("Authentication could not be revoked due to:"));
+        }
+
+        @Test
+        @DisplayName("GIVEN user has both access and refresh tokens WHEN revoke an authentication THEN revokes both tokens")
+        void UserHasBothTokens_RevokeAuthentication_RevokesBothTokens() {
+            // Given
+            var fakeUser = new User(fakeUserId, fakeUsername, fakePassword, Role.USER);
+
+            given(userRepositoryMock.findByUsername(anyString())).willReturn(Optional.of(fakeUser));
+            willDoNothing().given(accessTokenRepositoryMock)
+                           .deleteByUserId(any(UUID.class));
+            willDoNothing().given(refreshTokenRepositoryMock)
+                           .deleteByUserId(any(UUID.class));
+
+            // When
+            var user = new User(fakeUserId, fakeUsername, fakePassword, Role.USER);
+
+            jwtRevoker.revokeAuthentication(user);
+
+            // Then
             then(accessTokenRepositoryMock).should(times(1))
                                            .deleteByUserId(any(UUID.class));
             then(refreshTokenRepositoryMock).should(times(1))

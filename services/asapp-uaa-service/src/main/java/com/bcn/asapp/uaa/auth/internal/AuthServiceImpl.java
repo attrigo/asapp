@@ -128,7 +128,7 @@ public class AuthServiceImpl implements AuthService {
     /**
      * Revokes the JWT authentication for a user by invalidating both access and refresh tokens using the provided access token.
      * <p>
-     * Verifies the provided access token, and if valid, proceeds to revoke both the access token and any associated refresh token for the user.
+     * Verifies the provided access token, and if valid, proceeds to revoke both the access token and refresh token for the user.
      *
      * @param accessToken the access token used to invalidate the JWT authentication
      */

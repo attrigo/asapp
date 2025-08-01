@@ -81,25 +81,26 @@ public interface AuthRestAPI {
      * <ul>
      * <li>20O-OK: The JWT authentication has been refreshed successfully.</li>
      * <li>400-BAD_REQUEST: The request body is malformed or contains invalid data</li>
-     * <li>401-UNAUTHORIZED: The refresh token is invalid, expired, or the refresh process fails.</li>
+     * <li>401-UNAUTHORIZED: The refresh token is invalid, expired, does not belong to an authenticated user, or the refresh process fails.</li>
      * </ul>
      *
      * @param refreshToken the refresh token DTO used to obtain new JWT authentication, must not be {@literal null}
      * @return a {@link ResponseEntity} containing the refreshed {@link JwtAuthenticationDTO} with the refreshed access and refresh tokens
-     * @throws AuthenticationException if the refresh token is invalid, expired, or cannot be processed
+     * @throws AuthenticationException if the refresh token is invalid, expired, does not belong to an authenticated user, or the refresh process fails
      */
     @Operation(summary = "Refreshes the JWT authentication", description = "Refreshes an existing JWT authentication using the given refresh token")
     @ApiResponse(responseCode = "200", description = "The JWT authentication tokens have been refreshed successfully", content = {
             @Content(schema = @Schema(implementation = JwtAuthenticationDTO.class)) })
     @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "401", description = "The refresh token is invalid, expired, or the refresh process fails", content = { @Content })
+    @ApiResponse(responseCode = "401", description = "The refresh token is invalid, expired, does not belong to an authenticated user, or the refresh process fails", content = {
+            @Content })
     @PostMapping(value = AUTH_REFRESH_TOKEN_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     ResponseEntity<JwtAuthenticationDTO> refreshAuthentication(@Valid @RequestBody RefreshTokenDTO refreshToken);
 
     /**
-     * Revokes the JWT authentication of a user by invalidating the provided access token.
+     * Revokes the existing JWT authentication of a user by the given access token.
      * <p>
      * Invalidates the JWT authentication (access and refresh tokens), effectively logging out the user.
      * <p>
@@ -107,18 +108,19 @@ public interface AuthRestAPI {
      * <ul>
      * <li>200-OK: The JWT authentication has been revoked successfully.</li>
      * <li>400-BAD_REQUEST: The request body is malformed or contains invalid data.</li>
-     * <li>401-UNAUTHORIZED: The access token is invalid, expired, or the revocation process fails.</li>
+     * <li>401-UNAUTHORIZED: The access token is invalid, expired, does not belong to an authenticated user, or the revoke process fails.</li>
      * </ul>
      *
      * @param accessToken the access token DTO to be invalidated
      * @return a {@link ResponseEntity} with no content if the revocation was successful
-     * @throws AuthenticationException if the access token is invalid, expired, or cannot be processed
+     * @throws AuthenticationException if the access token is invalid, expired, does not belong to an authenticated user, or the revoke process fails
      */
-    @Operation(summary = "Revokes the JWT authentication", description = "Revokes the JWT authentication by invalidating the given access token")
+    @Operation(summary = "Revokes the JWT authentication", description = "Revokes the JWT authentication of a user by the given access token")
     @ApiResponse(responseCode = "200", description = "The JWT authentication has been revoked successfully", content = { @Content })
     @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "401", description = "The access token is invalid, expired, or the revocation process fails", content = { @Content })
+    @ApiResponse(responseCode = "401", description = "The access token is invalid, expired, does not belong to an authenticated user, or the revoke process fails", content = {
+            @Content })
     @PostMapping(value = AUTH_REVOKE_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     ResponseEntity<Void> revokeAuthentication(@Valid @RequestBody AccessTokenDTO accessToken);

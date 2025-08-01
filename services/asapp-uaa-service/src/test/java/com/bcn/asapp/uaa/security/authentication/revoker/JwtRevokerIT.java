@@ -15,6 +15,8 @@
 */
 package com.bcn.asapp.uaa.security.authentication.revoker;
 
+import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -33,6 +35,7 @@ import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Import;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -69,6 +72,9 @@ class JwtRevokerIT {
     static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"));
 
     @Autowired
+    JdbcTemplate jdbcTemplate;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -102,7 +108,7 @@ class JwtRevokerIT {
     }
 
     @Nested
-    class RevokeAuthentication {
+    class RevokeAuthenticationByAuthentication {
 
         @Test
         @DisplayName("GIVEN user not exists WHEN revoke an authentication THEN does not revoke the authentication And throws UsernameNotFoundException")
@@ -118,8 +124,8 @@ class JwtRevokerIT {
         }
 
         @Test
-        @DisplayName("GIVEN user does not have access token WHEN revoke an authentication THEN does not revoke the authentication And throws JwtIntegrityViolationException")
-        void UserHasNotAccessToken_RevokeAuthentication_DoesNotRevokeAuthenticationAndThrowsJwtIntegrityViolationException() {
+        @DisplayName("GIVEN user does not have access token WHEN revoke an authentication THEN does not revoke the access token")
+        void UserHasNotAccessToken_RevokeAuthentication_RevokesAccessToken() {
             // Given
             var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
             var fakeUserSaved = userRepository.save(fakeUser);
@@ -133,20 +139,18 @@ class JwtRevokerIT {
             // When
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, List.of(new SimpleGrantedAuthority("USER")));
 
-            Executable executable = () -> jwtRevoker.revokeAuthentication(authentication);
+            jwtRevoker.revokeAuthentication(authentication);
 
             // Then
-            assertThrows(JwtIntegrityViolationException.class, executable);
-
             var actualAccessToken = accessTokenRepository.findByUserId(fakeUserSaved.id());
             assertTrue(actualAccessToken.isEmpty());
             var actualRefreshToken = refreshTokenRepository.findByUserId(fakeUserSaved.id());
-            assertTrue(actualRefreshToken.isPresent());
+            assertTrue(actualRefreshToken.isEmpty());
         }
 
         @Test
-        @DisplayName("GIVEN user does not have refresh token WHEN revoke an authentication THEN does not revoke the authentication And throws JwtIntegrityViolationException")
-        void UserHasNotRefreshToken_RevokeAuthentication_DoesNotRevokeAuthenticationAndThrowsJwtIntegrityViolationException() {
+        @DisplayName("GIVEN user does not have refresh token WHEN revoke an authentication THEN does not revoke the refresh token")
+        void UserHasNotRefreshToken_RevokeAuthentication_DoesNotRevokeRefreshToken() {
             // Given
             var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
             var fakeUserSaved = userRepository.save(fakeUser);
@@ -160,15 +164,77 @@ class JwtRevokerIT {
             // When
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, List.of(new SimpleGrantedAuthority("USER")));
 
-            Executable executable = () -> jwtRevoker.revokeAuthentication(authentication);
+            jwtRevoker.revokeAuthentication(authentication);
 
             // Then
-            assertThrows(JwtIntegrityViolationException.class, executable);
-
             var actualAccessToken = accessTokenRepository.findByUserId(fakeUserSaved.id());
-            assertTrue(actualAccessToken.isPresent());
+            assertTrue(actualAccessToken.isEmpty());
             var actualRefreshToken = refreshTokenRepository.findByUserId(fakeUserSaved.id());
             assertTrue(actualRefreshToken.isEmpty());
+        }
+
+        @Test
+        @DisplayName("GIVEN access token could not be revoked WHEN revoke an authentication THEN do not revoke the tokens And throws JwtIntegrityViolationException")
+        void AccessTokenCouldNotBeRevoked_RevokeAuthentication_DoesNotRevokeAuthenticationAndThrowsJwtIntegrityViolationException() {
+            // Given
+            var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
+            var fakeUserSaved = userRepository.save(fakeUser);
+            assertNotNull(fakeUserSaved);
+
+            var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
+            var fakeRefreshToken = new RefreshToken(null, fakeUserSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
+            var refreshTokenSaved = refreshTokenRepository.save(fakeRefreshToken);
+            assertNotNull(refreshTokenSaved);
+
+            // Rename the table to cause a database error
+            jdbcTemplate.execute("ALTER TABLE access_token RENAME TO access_token_tmp");
+
+            try {
+                // When
+                var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, List.of(new SimpleGrantedAuthority("USER")));
+
+                Executable executable = () -> jwtRevoker.revokeAuthentication(authentication);
+
+                // Then
+                var exceptionThrown = assertThrows(JwtIntegrityViolationException.class, executable);
+                assertThat(exceptionThrown.getMessage(), startsWith("Authentication could not be revoked due to:"));
+            } finally {
+                // Restore the table name
+                jdbcTemplate.execute("ALTER TABLE access_token_tmp RENAME TO access_token");
+            }
+
+        }
+
+        @Test
+        @DisplayName("GIVEN refresh token could not be revoked WHEN revoke an authentication THEN do not revoke the tokens And throws JwtIntegrityViolationException")
+        void RefreshTokenCouldNotBeRevoked_RevokeAuthentication_DoesNotRevokeAuthenticationAndThrowsJwtIntegrityViolationException() {
+            // Given
+            var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
+            var fakeUserSaved = userRepository.save(fakeUser);
+            assertNotNull(fakeUserSaved);
+
+            var fakeAccessJwt = jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN);
+            var fakeAccessToken = new RefreshToken(null, fakeUserSaved.id(), fakeAccessJwt, Instant.now(), Instant.now());
+            var accessTokenSaved = refreshTokenRepository.save(fakeAccessToken);
+            assertNotNull(accessTokenSaved);
+
+            // Rename the table to cause a database error
+            jdbcTemplate.execute("ALTER TABLE refresh_token RENAME TO refresh_token_tmp");
+
+            try {
+                // When
+                var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, List.of(new SimpleGrantedAuthority("USER")));
+
+                Executable executable = () -> jwtRevoker.revokeAuthentication(authentication);
+
+                // Then
+                var exceptionThrown = assertThrows(JwtIntegrityViolationException.class, executable);
+                assertThat(exceptionThrown.getMessage(), startsWith("Authentication could not be revoked due to:"));
+            } finally {
+                // Restore the table name
+                jdbcTemplate.execute("ALTER TABLE refresh_token_tmp RENAME TO refresh_token");
+            }
+
         }
 
         @Test
@@ -193,6 +259,145 @@ class JwtRevokerIT {
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, List.of(new SimpleGrantedAuthority("USER")));
 
             jwtRevoker.revokeAuthentication(authentication);
+
+            // Then
+            var actualAccessToken = accessTokenRepository.findByUserId(fakeUserSaved.id());
+            assertTrue(actualAccessToken.isEmpty());
+            var actualRefreshToken = refreshTokenRepository.findByUserId(fakeUserSaved.id());
+            assertTrue(actualRefreshToken.isEmpty());
+        }
+
+    }
+
+    @Nested
+    class RevokeAuthenticationByUser {
+
+        @Test
+        @DisplayName("GIVEN user does not have access token WHEN revoke an authentication THEN does not revoke the access token")
+        void UserHasNotAccessToken_RevokeAuthentication_RevokesAccessToken() {
+            // Given
+            var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
+            var fakeUserSaved = userRepository.save(fakeUser);
+            assertNotNull(fakeUserSaved);
+
+            var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
+            var fakeRefreshToken = new RefreshToken(null, fakeUserSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
+            var refreshTokenSaved = refreshTokenRepository.save(fakeRefreshToken);
+            assertNotNull(refreshTokenSaved);
+
+            // When
+            jwtRevoker.revokeAuthentication(fakeUserSaved);
+
+            // Then
+            var actualAccessToken = accessTokenRepository.findByUserId(fakeUserSaved.id());
+            assertTrue(actualAccessToken.isEmpty());
+            var actualRefreshToken = refreshTokenRepository.findByUserId(fakeUserSaved.id());
+            assertTrue(actualRefreshToken.isEmpty());
+        }
+
+        @Test
+        @DisplayName("GIVEN user does not have refresh token WHEN revoke an authentication THEN does not revoke the refresh token")
+        void UserHasNotRefreshToken_RevokeAuthentication_DoesNotRevokeRefreshToken() {
+            // Given
+            var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
+            var fakeUserSaved = userRepository.save(fakeUser);
+            assertNotNull(fakeUserSaved);
+
+            var fakeAccessJwt = jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN);
+            var fakeAccessToken = new AccessToken(null, fakeUserSaved.id(), fakeAccessJwt, Instant.now(), Instant.now());
+            var accessTokenSaved = accessTokenRepository.save(fakeAccessToken);
+            assertNotNull(accessTokenSaved);
+
+            // When
+            jwtRevoker.revokeAuthentication(fakeUserSaved);
+
+            // Then
+            var actualAccessToken = accessTokenRepository.findByUserId(fakeUserSaved.id());
+            assertTrue(actualAccessToken.isEmpty());
+            var actualRefreshToken = refreshTokenRepository.findByUserId(fakeUserSaved.id());
+            assertTrue(actualRefreshToken.isEmpty());
+        }
+
+        @Test
+        @DisplayName("GIVEN access token could not be revoked WHEN revoke an authentication THEN do not revoke the tokens And throws JwtIntegrityViolationException")
+        void AccessTokenCouldNotBeRevoked_RevokeAuthentication_DoesNotRevokeAuthenticationAndThrowsJwtIntegrityViolationException() {
+            // Given
+            var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
+            var fakeUserSaved = userRepository.save(fakeUser);
+            assertNotNull(fakeUserSaved);
+
+            var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
+            var fakeRefreshToken = new RefreshToken(null, fakeUserSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
+            var refreshTokenSaved = refreshTokenRepository.save(fakeRefreshToken);
+            assertNotNull(refreshTokenSaved);
+
+            // Rename the table to cause a database error
+            jdbcTemplate.execute("ALTER TABLE access_token RENAME TO access_token_tmp");
+
+            try {
+                // When
+                Executable executable = () -> jwtRevoker.revokeAuthentication(fakeUserSaved);
+
+                // Then
+                var exceptionThrown = assertThrows(JwtIntegrityViolationException.class, executable);
+                assertThat(exceptionThrown.getMessage(), startsWith("Authentication could not be revoked due to:"));
+            } finally {
+                // Restore the table name
+                jdbcTemplate.execute("ALTER TABLE access_token_tmp RENAME TO access_token");
+            }
+
+        }
+
+        @Test
+        @DisplayName("GIVEN refresh token could not be revoked WHEN revoke an authentication THEN do not revoke the tokens And throws JwtIntegrityViolationException")
+        void RefreshTokenCouldNotBeRevoked_RevokeAuthentication_DoesNotRevokeAuthenticationAndThrowsJwtIntegrityViolationException() {
+            // Given
+            var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
+            var fakeUserSaved = userRepository.save(fakeUser);
+            assertNotNull(fakeUserSaved);
+
+            var fakeAccessJwt = jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN);
+            var fakeAccessToken = new RefreshToken(null, fakeUserSaved.id(), fakeAccessJwt, Instant.now(), Instant.now());
+            var accessTokenSaved = refreshTokenRepository.save(fakeAccessToken);
+            assertNotNull(accessTokenSaved);
+
+            // Rename the table to cause a database error
+            jdbcTemplate.execute("ALTER TABLE refresh_token RENAME TO refresh_token_tmp");
+
+            try {
+                // When
+                Executable executable = () -> jwtRevoker.revokeAuthentication(fakeUserSaved);
+
+                // Then
+                var exceptionThrown = assertThrows(JwtIntegrityViolationException.class, executable);
+                assertThat(exceptionThrown.getMessage(), startsWith("Authentication could not be revoked due to:"));
+            } finally {
+                // Restore the table name
+                jdbcTemplate.execute("ALTER TABLE refresh_token_tmp RENAME TO refresh_token");
+            }
+
+        }
+
+        @Test
+        @DisplayName("GIVEN user has both access and refresh tokens WHEN revoke an authentication THEN revokes both tokens")
+        void UserHasBothTokens_RevokeAuthentication_RevokesBothTokens() {
+            // Given
+            var fakeUser = new User(null, fakeUsername, fakePasswordBcryptEncoded, Role.USER);
+            var fakeUserSaved = userRepository.save(fakeUser);
+            assertNotNull(fakeUserSaved);
+
+            var fakeAccessJwt = jwtFaker.fakeJwt(JwtType.ACCESS_TOKEN);
+            var fakeAccessToken = new AccessToken(null, fakeUserSaved.id(), fakeAccessJwt, Instant.now(), Instant.now());
+            var accessTokenSaved = accessTokenRepository.save(fakeAccessToken);
+            assertNotNull(accessTokenSaved);
+
+            var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
+            var fakeRefreshToken = new RefreshToken(null, fakeUserSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
+            var refreshTokenSaved = refreshTokenRepository.save(fakeRefreshToken);
+            assertNotNull(refreshTokenSaved);
+
+            // When
+            jwtRevoker.revokeAuthentication(fakeUserSaved);
 
             // Then
             var actualAccessToken = accessTokenRepository.findByUserId(fakeUserSaved.id());

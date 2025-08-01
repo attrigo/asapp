@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
@@ -44,6 +45,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.bcn.asapp.dto.user.UserDTO;
+import com.bcn.asapp.uaa.security.authentication.revoker.JwtRevoker;
 import com.bcn.asapp.uaa.user.Role;
 import com.bcn.asapp.uaa.user.User;
 import com.bcn.asapp.uaa.user.UserMapperImpl;
@@ -60,6 +62,9 @@ class UserServiceImplTests {
 
     @Spy
     private UserMapperImpl userMapperSpy;
+
+    @Mock
+    private JwtRevoker jwtRevokerMock;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -371,7 +376,7 @@ class UserServiceImplTests {
         @DisplayName("GIVEN user id does not exists WHEN delete a user by id THEN does not delete the user And returns false")
         void UserIdNotExists_DeleteById_DoesNotDeleteUserAndReturnsFalse() {
             // Given
-            given(userRepositoryMock.deleteUserById(any(UUID.class))).willReturn(0L);
+            given(userRepositoryMock.findById(any(UUID.class))).willReturn(Optional.empty());
 
             // When
             var idToDelete = fakeUserId;
@@ -381,14 +386,18 @@ class UserServiceImplTests {
             // Then
             assertFalse(actual);
 
-            then(userRepositoryMock).should(times(1))
+            then(userRepositoryMock).should(never())
                                     .deleteUserById(idToDelete);
         }
 
         @Test
-        @DisplayName("GIVEN user id exists WHEN delete a user by id THEN deletes the user And returns true")
-        void UserIdExists_DeleteById_DeletesUserAndReturnsTrue() {
+        @DisplayName("GIVEN user id exists WHEN delete a user by id THEN revokes the user authentication And deletes the user And returns true")
+        void UserIdExists_DeleteById_RevokesAuthenticationAndDeletesUserAndReturnsTrue() {
             // Given
+            var fakeUser = new User(fakeUserId, fakeUserUsername, fakeUserPassword, fakeUserRole);
+            given(userRepositoryMock.findById(any(UUID.class))).willReturn(Optional.of(fakeUser));
+            willDoNothing().given(jwtRevokerMock)
+                           .revokeAuthentication(any(User.class));
             given(userRepositoryMock.deleteUserById(any(UUID.class))).willReturn(1L);
 
             // When
