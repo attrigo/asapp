@@ -59,7 +59,7 @@ public class RefreshTokenSessionMatcher extends AbstractJwtSessionMatcher {
      * @return {@code true} if the JWT is persisted and linked to the user, {@code false} otherwise
      */
     @Override
-    public Boolean matchUserWithJwt(User user, String jwt) {
+    protected Boolean matchUserWithJwt(User user, String jwt) {
         return refreshTokenRepository.existsByUserIdAndJwt(user.id(), jwt);
     }
 
