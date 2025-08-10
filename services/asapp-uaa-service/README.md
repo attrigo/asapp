@@ -1,8 +1,17 @@
 # ASAPP-UAA-SERVICE
 
-asapp-uaa-service is a REST service application that publishes the following authorization and authentication operations.
+asapp-uaa-service is a REST service application that publishes the following authorization and user operations.
 
-* Authenticate a user
+* Authorization operations:
+    * Issue an authentication token
+    * Refresh an authentication token
+    * Revoke an authentication token
+* User operations:
+    * Find a user by id
+    * Find all users
+    * Create a user
+    * Update a user by id
+    * Delete a user by id
 
 Each of these operations is exposed as an REST endpoint. \
 
@@ -11,7 +20,7 @@ There are also exposed several non-business REST endpoints which are produced by
 The architecture is mainly based on Java 21 and Spring Boot 3.4, and it follows some of the [Microservice Architecture Principles](https://microservices.io/):
 
 * The [Database per service](https://microservices.io/patterns/data/database-per-service.html) pattern, where the Database is managed by the service, in this
-  case the management of database changes are delegated to Liquibase.
+  case the management of database changes is delegated to Liquibase.
 * The [Application metrics](https://microservices.io/patterns/observability/application-metrics.html) pattern, there is a specific endpoint that exposes the
   most relevant metrics of the service.
 
@@ -28,8 +37,8 @@ The architecture is mainly based on Java 21 and Spring Boot 3.4, and it follows 
 
 ***
 
-The recommend way to install this project is doing it from the parent ASAPP project, which fully install the service and its dependencies. \
-In any case, if you prefer there is a way to only install this service:
+The recommended way to install this project is to do it from the parent ASAPP project, which fully installs the service and its dependencies. \
+In any case, if you prefer, there is a way to only install this service:
 
 1. Clone the project:
     ```sh
@@ -75,15 +84,19 @@ The application can be started in dev or docker mode.
 
 ### Usage
 
-The project brings with an embedded [Swagger UI](https://swagger.io/tools/swagger-ui/), a web tool that facilitates the endpoints visualization and
+The project brings with an embedded [Swagger UI](https://swagger.io/tools/swagger-ui/), a web tool that facilitates the endpoint visualization and
 interaction. \
 You can use this [Swagger UI](http://localhost:8082/asapp-uaa-service/swagger-ui.html) or any other HTTP client to consume the API.
 
-> Dates sent in requests must follow standard ISO-8601 format.
+Some of the exposed endpoints require authentication using JWT (JSON Web Token) bearer tokens. To access protected endpoints, you first need to get an access
+token by calling authenticate endpoint (/token) of UAA service with valid user credential. Once it expires, you can get a new one by calling the refresh
+authentication endpoint (/refresh-token).
+
+> Dates sent in requests must follow a standard ISO-8601 format.
 
 ### Shut down and clean
 
-In order to avoid wasting local machine resources it is recommended to stop all started Docker services once they are no longer necessary.
+To avoid wasting local machine resources, it is recommended to stop all started Docker services once they are no longer necessary.
 
 * To stop the service:
     ```sh
@@ -112,7 +125,7 @@ To start up the database in standalone mode:
 docker-compose up -d asapp-uaa-postgres-db
 ```
 
-> This option creates an empty database, to update the database with the appropriate objects use Liquibase.
+> This option creates an empty database. To update the database with the appropriate objects, use Liquibase.
 
 ### Managing Database changes
 
@@ -186,6 +199,7 @@ For further reference, please consider the following sections:
     * [Spring Data JDBC](https://docs.spring.io/spring-data/relational/reference/jdbc.html)
     * [Spring Validation](https://docs.spring.io/spring-framework/reference/core/validation.html)
     * [Spring OpenAPI](https://springdoc.org/)
+    * [Spring Security](https://docs.spring.io/spring-security/reference/)
 * Database
     * [PostgresQL](https://www.postgresql.org/docs/current/)
     * [Liquibase Migration](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/index.html#howto.data-initialization.migration-tool.liquibase)
@@ -195,6 +209,7 @@ For further reference, please consider the following sections:
     * [TestContainers](https://java.testcontainers.org/)
 * Tools
     * [MapStruct](https://mapstruct.org/documentation/)
+    * [Java JsonWebToken](https://github.com/jwtk/jjwt)
 
 ## License
 
