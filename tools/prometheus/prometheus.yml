@@ -8,13 +8,22 @@ scrape_configs:
       - targets: [ 'asapp-prometheus:9090' ]
   - job_name: 'asapp-projects-service'
     metrics_path: '/asapp-projects-service/actuator/prometheus'
+    authorization:
+      type: Bearer
+      credentials_file: /etc/prometheus/auth/bearer_token
     static_configs:
       - targets: [ 'asapp-projects-service:8080' ]
   - job_name: 'asapp-tasks-service'
     metrics_path: '/asapp-tasks-service/actuator/prometheus'
+    authorization:
+      type: Bearer
+      credentials_file: /etc/prometheus/auth/bearer_token
     static_configs:
       - targets: [ 'asapp-tasks-service:8081' ]
   - job_name: 'asapp-uaa-service'
     metrics_path: '/asapp-uaa-service/actuator/prometheus'
+    authorization:
+      type: Bearer
+      credentials_file: /etc/prometheus/auth/bearer_token
     static_configs:
       - targets: [ 'asapp-uaa-service:8082' ]
