@@ -5,7 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet id="20250423_3-1" author="atrigo">
+    <changeSet id="20250423_4-1" author="atrigo">
         <preConditions onFail="MARK_RAN" onSqlOutput="TEST">
             <not>
                 <tableExists tableName="refresh_token"/>

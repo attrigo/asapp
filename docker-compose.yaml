@@ -39,6 +39,21 @@ services:
       - uaa-postgres-db-data:/data/db
 
   # Tools
+  asapp-prometheus-authentication:
+    image: curlimages/curl
+    container_name: asapp-prometheus-authentication
+    user: "root"
+    command: [ "/bin/sh", "/prometheus_authentication.sh" ]
+    environment:
+      - UAA_SERVICE_BASE_URL=http://asapp-uaa-service:8082/asapp-uaa-service
+      - PROMETHEUS_USER=sa-prometheus
+      - PROMETHEUS_PASSWORD=sa-secret
+      - ACCESS_TOKEN_EXPIRATION_TIME=300000
+    volumes:
+      - ./tools/prometheus/prometheus_authentication.sh:/prometheus_authentication.sh:ro
+      - prometheus_auth:/etc/prometheus/auth:rw
+    depends_on:
+      - asapp-uaa-service
   asapp-prometheus:
     image: prom/prometheus
     container_name: asapp-prometheus
@@ -49,6 +64,9 @@ services:
       - --config.file=/etc/prometheus/prometheus.yml
     volumes:
       - ./tools/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_auth:/etc/prometheus/auth:ro
+    depends_on:
+      - asapp-prometheus-authentication
   asapp-grafana:
     image: grafana/grafana
     container_name: asapp-grafana
@@ -127,3 +145,5 @@ volumes:
   projects-postgres-db-data:
   tasks-postgres-db-data:
   uaa-postgres-db-data:
+  prometheus_auth:
+
