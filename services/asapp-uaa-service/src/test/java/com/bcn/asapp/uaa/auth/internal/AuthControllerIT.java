@@ -109,7 +109,7 @@ class AuthControllerIT {
                    .andExpect(jsonPath("$.title", is("Unsupported Media Type")))
                    .andExpect(jsonPath("$.status", is(415)))
                    .andExpect(jsonPath("$.detail", is("Content-Type 'text/plain' is not supported.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/auth/token")));
+                   .andExpect(jsonPath("$.instance", is(AUTH_TOKEN_FULL_PATH)));
         }
 
         @Test
@@ -127,7 +127,7 @@ class AuthControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to read request")))
-                   .andExpect(jsonPath("$.instance", is("/v1/auth/token")));
+                   .andExpect(jsonPath("$.instance", is(AUTH_TOKEN_FULL_PATH)));
         }
 
         @Test
@@ -147,7 +147,7 @@ class AuthControllerIT {
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("The username must not be empty")))
                    .andExpect(jsonPath("$.detail", containsString("The password must not be empty")))
-                   .andExpect(jsonPath("$.instance", is("/v1/auth/token")))
+                   .andExpect(jsonPath("$.instance", is(AUTH_TOKEN_FULL_PATH)))
                    .andExpect(jsonPath("$.errors", hasSize(2)))
                    .andExpect(jsonPath(
                            "$.errors[?(@.entity == 'userCredentialsDTO' && @.field == 'username' && @.message == 'The username must not be empty')]").exists())
@@ -172,7 +172,7 @@ class AuthControllerIT {
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("The username must not be empty")))
                    .andExpect(jsonPath("$.detail", containsString("The password must not be empty")))
-                   .andExpect(jsonPath("$.instance", is("/v1/auth/token")))
+                   .andExpect(jsonPath("$.instance", is(AUTH_TOKEN_FULL_PATH)))
                    .andExpect(jsonPath("$.errors", hasSize(2)))
                    .andExpect(jsonPath(
                            "$.errors[?(@.entity == 'userCredentialsDTO' && @.field == 'username' && @.message == 'The username must not be empty')]").exists())
@@ -223,7 +223,7 @@ class AuthControllerIT {
                    .andExpect(jsonPath("$.title", is("Unsupported Media Type")))
                    .andExpect(jsonPath("$.status", is(415)))
                    .andExpect(jsonPath("$.detail", is("Content-Type 'text/plain' is not supported.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/auth/refresh-token")));
+                   .andExpect(jsonPath("$.instance", is(AUTH_REFRESH_TOKEN_FULL_PATH)));
         }
 
         @Test
@@ -241,7 +241,7 @@ class AuthControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to read request")))
-                   .andExpect(jsonPath("$.instance", is("/v1/auth/refresh-token")));
+                   .andExpect(jsonPath("$.instance", is(AUTH_REFRESH_TOKEN_FULL_PATH)));
         }
 
         @Test
@@ -288,7 +288,7 @@ class AuthControllerIT {
                    .andExpect(jsonPath("$.title", is("Unsupported Media Type")))
                    .andExpect(jsonPath("$.status", is(415)))
                    .andExpect(jsonPath("$.detail", is("Content-Type 'text/plain' is not supported.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/auth/revoke")));
+                   .andExpect(jsonPath("$.instance", is(AUTH_REVOKE_FULL_PATH)));
         }
 
         @Test
@@ -306,7 +306,7 @@ class AuthControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to read request")))
-                   .andExpect(jsonPath("$.instance", is("/v1/auth/revoke")));
+                   .andExpect(jsonPath("$.instance", is(AUTH_REVOKE_FULL_PATH)));
         }
 
         @Test

@@ -23,7 +23,7 @@ package com.bcn.asapp.url.uaa;
  */
 public class AuthRestAPIURL {
 
-    public static final String AUTH_ROOT_PATH = "/v1/auth";
+    public static final String AUTH_ROOT_PATH = "/api/auth";
 
     public static final String AUTH_TOKEN_PATH = "/token";
 

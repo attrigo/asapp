@@ -24,6 +24,7 @@ import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_ROOT_PATH;
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_UPDATE_BY_ID_FULL_PATH;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -67,7 +68,9 @@ import com.bcn.asapp.tasks.task.TaskService;
 @WithMockUser
 class TaskControllerIT {
 
-    public static final String TASKS_EMPTY_ID_PATH = TASKS_ROOT_PATH + "/";
+    public static final String TASK_ROOT_PATH_WITH_FINAL_SLASH = TASKS_ROOT_PATH + "/";
+
+    public static final String TASKS_GET_BY_PROJECT_ID_PATH_WITHOUT_ID = TASKS_ROOT_PATH + "/project/";
 
     @Autowired
     private MockMvc mockMvc;
@@ -118,15 +121,15 @@ class TaskControllerIT {
         @DisplayName("GIVEN task id is empty WHEN get a task by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
         void TaskIdIsEmpty_GetTaskById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
             // When & Then
-            var requestBuilder = get(TASKS_EMPTY_ID_PATH);
+            var requestBuilder = get(TASK_ROOT_PATH_WITH_FINAL_SLASH);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isNotFound())
                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Not Found")))
                    .andExpect(jsonPath("$.status", is(404)))
-                   .andExpect(jsonPath("$.detail", is("No static resource v1/tasks.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks/")));
+                   .andExpect(jsonPath("$.detail", startsWith("No static resource")))
+                   .andExpect(jsonPath("$.instance", is(TASK_ROOT_PATH_WITH_FINAL_SLASH)));
         }
 
         @Test
@@ -143,7 +146,7 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to convert 'id' with value: '1'")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks/" + idToFound)));
+                   .andExpect(jsonPath("$.instance", is(TASK_ROOT_PATH_WITH_FINAL_SLASH + idToFound)));
         }
 
         @Test
@@ -276,15 +279,15 @@ class TaskControllerIT {
         @DisplayName("GIVEN project id is empty WHEN get tasks by project id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
         void ProjectIdIsEmpty_GetTasksByProjectId_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
             // When & Then
-            var requestBuilder = get(TASKS_ROOT_PATH + "/project/");
+            var requestBuilder = get(TASKS_GET_BY_PROJECT_ID_PATH_WITHOUT_ID);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isNotFound())
                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Not Found")))
                    .andExpect(jsonPath("$.status", is(404)))
-                   .andExpect(jsonPath("$.detail", is("No static resource v1/tasks/project.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks/project/")));
+                   .andExpect(jsonPath("$.detail", startsWith("No static resource")))
+                   .andExpect(jsonPath("$.instance", is(TASKS_GET_BY_PROJECT_ID_PATH_WITHOUT_ID)));
         }
 
         @Test
@@ -301,7 +304,7 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to convert 'id' with value: '1'")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks/project/" + idToFind)));
+                   .andExpect(jsonPath("$.instance", is(TASKS_GET_BY_PROJECT_ID_PATH_WITHOUT_ID + idToFind)));
         }
 
         @Test
@@ -399,7 +402,7 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.title", is("Unsupported Media Type")))
                    .andExpect(jsonPath("$.status", is(415)))
                    .andExpect(jsonPath("$.detail", is("Content-Type 'text/plain' is not supported.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks")));
+                   .andExpect(jsonPath("$.instance", is(TASKS_ROOT_PATH)));
         }
 
         @Test
@@ -417,7 +420,7 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to read request")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks")));
+                   .andExpect(jsonPath("$.instance", is(TASKS_ROOT_PATH)));
         }
 
         @Test
@@ -436,7 +439,7 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("The title of the task is mandatory")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks")))
+                   .andExpect(jsonPath("$.instance", is(TASKS_ROOT_PATH)))
                    .andExpect(jsonPath("$.errors[0].entity", is("taskDTO")))
                    .andExpect(jsonPath("$.errors[0].field", is("title")))
                    .andExpect(jsonPath("$.errors[0].message", is("The title of the task is mandatory")));
@@ -458,7 +461,7 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("The title of the task is mandatory")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks")))
+                   .andExpect(jsonPath("$.instance", is(TASKS_ROOT_PATH)))
                    .andExpect(jsonPath("$.errors[0].entity", is("taskDTO")))
                    .andExpect(jsonPath("$.errors[0].field", is("title")))
                    .andExpect(jsonPath("$.errors[0].message", is("The title of the task is mandatory")));
@@ -486,7 +489,7 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to read request")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks")));
+                   .andExpect(jsonPath("$.instance", is(TASKS_ROOT_PATH)));
         }
 
         @Test
@@ -511,7 +514,7 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to read request")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks")));
+                   .andExpect(jsonPath("$.instance", is(TASKS_ROOT_PATH)));
         }
 
         @Test
@@ -565,16 +568,16 @@ class TaskControllerIT {
             var taskToUpdate = new TaskDTO(null, fakeTaskTitle, fakeTaskDescription, fakeTaskStartDate, fakeProjectId);
             var taskToUpdateAsJson = objectMapper.writeValueAsString(taskToUpdate);
 
-            var requestBuilder = put(TASKS_EMPTY_ID_PATH).contentType(MediaType.APPLICATION_JSON)
-                                                         .content(taskToUpdateAsJson);
+            var requestBuilder = put(TASK_ROOT_PATH_WITH_FINAL_SLASH).contentType(MediaType.APPLICATION_JSON)
+                                                                     .content(taskToUpdateAsJson);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isNotFound())
                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Not Found")))
                    .andExpect(jsonPath("$.status", is(404)))
-                   .andExpect(jsonPath("$.detail", is("No static resource v1/tasks.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks/")));
+                   .andExpect(jsonPath("$.detail", startsWith("No static resource")))
+                   .andExpect(jsonPath("$.instance", is(TASK_ROOT_PATH_WITH_FINAL_SLASH)));
         }
 
         @Test
@@ -594,7 +597,7 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to convert 'id' with value: '1'")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks/" + idToUpdate)));
+                   .andExpect(jsonPath("$.instance", is(TASK_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)));
         }
 
         @Test
@@ -613,7 +616,7 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.title", is("Unsupported Media Type")))
                    .andExpect(jsonPath("$.status", is(415)))
                    .andExpect(jsonPath("$.detail", is("Content-Type 'text/plain' is not supported.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks/" + idToUpdate)));
+                   .andExpect(jsonPath("$.instance", is(TASK_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)));
         }
 
         @Test
@@ -632,7 +635,7 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to read request")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks/" + idToUpdate)));
+                   .andExpect(jsonPath("$.instance", is(TASK_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)));
         }
 
         @Test
@@ -652,7 +655,7 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("The title of the task is mandatory")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks/" + idToUpdate)))
+                   .andExpect(jsonPath("$.instance", is(TASK_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)))
                    .andExpect(jsonPath("$.errors[0].entity", is("taskDTO")))
                    .andExpect(jsonPath("$.errors[0].field", is("title")))
                    .andExpect(jsonPath("$.errors[0].message", is("The title of the task is mandatory")));
@@ -675,7 +678,7 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("The title of the task is mandatory")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks/" + idToUpdate)))
+                   .andExpect(jsonPath("$.instance", is(TASK_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)))
                    .andExpect(jsonPath("$.errors[0].entity", is("taskDTO")))
                    .andExpect(jsonPath("$.errors[0].field", is("title")))
                    .andExpect(jsonPath("$.errors[0].message", is("The title of the task is mandatory")));
@@ -704,7 +707,7 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("Failed to read request")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks/" + idToUpdate)));
+                   .andExpect(jsonPath("$.instance", is(TASK_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)));
         }
 
         @Test
@@ -730,7 +733,7 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to read request")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks/" + idToUpdate)));
+                   .andExpect(jsonPath("$.instance", is(TASK_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)));
         }
 
         @Test
@@ -797,15 +800,15 @@ class TaskControllerIT {
         @DisplayName("GIVEN task id is empty WHEN delete a task by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
         void TaskIdIsEmpty_DeleteTaskById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
             // When & Then
-            var requestBuilder = delete(TASKS_EMPTY_ID_PATH);
+            var requestBuilder = delete(TASK_ROOT_PATH_WITH_FINAL_SLASH);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isNotFound())
                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Not Found")))
                    .andExpect(jsonPath("$.status", is(404)))
-                   .andExpect(jsonPath("$.detail", is("No static resource v1/tasks.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks/")));
+                   .andExpect(jsonPath("$.detail", startsWith("No static resource")))
+                   .andExpect(jsonPath("$.instance", is(TASK_ROOT_PATH_WITH_FINAL_SLASH)));
         }
 
         @Test
@@ -822,7 +825,7 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to convert 'id' with value: '1'")))
-                   .andExpect(jsonPath("$.instance", is("/v1/tasks/" + idToDelete)));
+                   .andExpect(jsonPath("$.instance", is(TASK_ROOT_PATH_WITH_FINAL_SLASH + idToDelete)));
         }
 
         @Test

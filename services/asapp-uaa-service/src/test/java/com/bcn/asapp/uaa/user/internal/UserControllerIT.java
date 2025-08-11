@@ -24,6 +24,7 @@ import static com.bcn.asapp.url.uaa.UserRestAPIURL.USERS_UPDATE_BY_ID_FULL_PATH;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -64,7 +65,7 @@ import com.bcn.asapp.uaa.user.UserService;
 @WithMockUser
 class UserControllerIT {
 
-    public static final String USERS_EMPTY_ID_PATH = USERS_ROOT_PATH + "/";
+    public static final String USERS_ROOT_PATH_WITH_FINAL_SLASH = USERS_ROOT_PATH + "/";
 
     @Autowired
     private MockMvc mockMvc;
@@ -111,15 +112,15 @@ class UserControllerIT {
         @DisplayName("GIVEN user id is empty WHEN get a user by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
         void UserIdIsEmpty_GetUserById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
             // When & Then
-            var requestBuilder = get(USERS_EMPTY_ID_PATH);
+            var requestBuilder = get(USERS_ROOT_PATH_WITH_FINAL_SLASH);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isNotFound())
                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Not Found")))
                    .andExpect(jsonPath("$.status", is(404)))
-                   .andExpect(jsonPath("$.detail", is("No static resource v1/users.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/users/")));
+                   .andExpect(jsonPath("$.detail", startsWith("No static resource")))
+                   .andExpect(jsonPath("$.instance", is(USERS_ROOT_PATH_WITH_FINAL_SLASH)));
         }
 
         @Test
@@ -136,7 +137,7 @@ class UserControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to convert 'id' with value: '1'")))
-                   .andExpect(jsonPath("$.instance", is("/v1/users/" + idToFound)));
+                   .andExpect(jsonPath("$.instance", is(USERS_ROOT_PATH_WITH_FINAL_SLASH + idToFound)));
         }
 
         @Test
@@ -262,7 +263,7 @@ class UserControllerIT {
                    .andExpect(jsonPath("$.title", is("Unsupported Media Type")))
                    .andExpect(jsonPath("$.status", is(415)))
                    .andExpect(jsonPath("$.detail", is("Content-Type 'text/plain' is not supported.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/users")));
+                   .andExpect(jsonPath("$.instance", is(USERS_ROOT_PATH)));
         }
 
         @Test
@@ -280,7 +281,7 @@ class UserControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to read request")))
-                   .andExpect(jsonPath("$.instance", is("/v1/users")));
+                   .andExpect(jsonPath("$.instance", is(USERS_ROOT_PATH)));
         }
 
         @Test
@@ -306,7 +307,7 @@ class UserControllerIT {
                    .andExpect(jsonPath("$.detail", containsString("The username must not be empty")))
                    .andExpect(jsonPath("$.detail", containsString("The password must not be empty")))
                    .andExpect(jsonPath("$.detail", containsString("The role must be a valid Role")))
-                   .andExpect(jsonPath("$.instance", is("/v1/users")))
+                   .andExpect(jsonPath("$.instance", is(USERS_ROOT_PATH)))
                    .andExpect(jsonPath("$.errors", hasSize(3)))
                    .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'username' && @.message == 'The username must not be empty')]").exists())
                    .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'password' && @.message == 'The password must not be empty')]").exists())
@@ -336,7 +337,7 @@ class UserControllerIT {
                    .andExpect(jsonPath("$.detail", containsString("The username must not be empty")))
                    .andExpect(jsonPath("$.detail", containsString("The password must not be empty")))
                    .andExpect(jsonPath("$.detail", containsString("The role must be a valid Role")))
-                   .andExpect(jsonPath("$.instance", is("/v1/users")))
+                   .andExpect(jsonPath("$.instance", is(USERS_ROOT_PATH)))
                    .andExpect(jsonPath("$.errors", hasSize(3)))
                    .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'username' && @.message == 'The username must not be empty')]").exists())
                    .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'password' && @.message == 'The password must not be empty')]").exists())
@@ -364,7 +365,7 @@ class UserControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("The role must be a valid Role")))
-                   .andExpect(jsonPath("$.instance", is("/v1/users")))
+                   .andExpect(jsonPath("$.instance", is(USERS_ROOT_PATH)))
                    .andExpect(jsonPath("$.errors[0].entity", is("userDTO")))
                    .andExpect(jsonPath("$.errors[0].field", is("role")))
                    .andExpect(jsonPath("$.errors[0].message", is("The role must be a valid Role")));
@@ -435,16 +436,16 @@ class UserControllerIT {
                     }
                     """.formatted(fakeUserUsername, fakeUserPassword, fakeUserRole);
 
-            var requestBuilder = put(USERS_EMPTY_ID_PATH).contentType(MediaType.APPLICATION_JSON)
-                                                         .content(userToUpdate);
+            var requestBuilder = put(USERS_ROOT_PATH_WITH_FINAL_SLASH).contentType(MediaType.APPLICATION_JSON)
+                                                                      .content(userToUpdate);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isNotFound())
                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Not Found")))
                    .andExpect(jsonPath("$.status", is(404)))
-                   .andExpect(jsonPath("$.detail", is("No static resource v1/users.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/users/")));
+                   .andExpect(jsonPath("$.detail", startsWith("No static resource")))
+                   .andExpect(jsonPath("$.instance", is(USERS_ROOT_PATH_WITH_FINAL_SLASH)));
         }
 
         @Test
@@ -469,7 +470,7 @@ class UserControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to convert 'id' with value: '1'")))
-                   .andExpect(jsonPath("$.instance", is("/v1/users/" + idToUpdate)));
+                   .andExpect(jsonPath("$.instance", is(USERS_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)));
         }
 
         @Test
@@ -488,7 +489,7 @@ class UserControllerIT {
                    .andExpect(jsonPath("$.title", is("Unsupported Media Type")))
                    .andExpect(jsonPath("$.status", is(415)))
                    .andExpect(jsonPath("$.detail", is("Content-Type 'text/plain' is not supported.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/users/" + idToUpdate)));
+                   .andExpect(jsonPath("$.instance", is(USERS_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)));
         }
 
         @Test
@@ -507,7 +508,7 @@ class UserControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to read request")))
-                   .andExpect(jsonPath("$.instance", is("/v1/users/" + idToUpdate)));
+                   .andExpect(jsonPath("$.instance", is(USERS_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)));
         }
 
         @Test
@@ -534,7 +535,7 @@ class UserControllerIT {
                    .andExpect(jsonPath("$.detail", containsString("The username must not be empty")))
                    .andExpect(jsonPath("$.detail", containsString("The password must not be empty")))
                    .andExpect(jsonPath("$.detail", containsString("The role must be a valid Role")))
-                   .andExpect(jsonPath("$.instance", is("/v1/users/" + idToUpdate)))
+                   .andExpect(jsonPath("$.instance", is(USERS_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)))
                    .andExpect(jsonPath("$.errors", hasSize(3)))
                    .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'username' && @.message == 'The username must not be empty')]").exists())
                    .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'password' && @.message == 'The password must not be empty')]").exists())
@@ -565,7 +566,7 @@ class UserControllerIT {
                    .andExpect(jsonPath("$.detail", containsString("The username must not be empty")))
                    .andExpect(jsonPath("$.detail", containsString("The password must not be empty")))
                    .andExpect(jsonPath("$.detail", containsString("The role must be a valid Role")))
-                   .andExpect(jsonPath("$.instance", is("/v1/users/" + idToUpdate)))
+                   .andExpect(jsonPath("$.instance", is(USERS_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)))
                    .andExpect(jsonPath("$.errors", hasSize(3)))
                    .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'username' && @.message == 'The username must not be empty')]").exists())
                    .andExpect(jsonPath("$.errors[?(@.entity == 'userDTO' && @.field == 'password' && @.message == 'The password must not be empty')]").exists())
@@ -594,7 +595,7 @@ class UserControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("The role must be a valid Role")))
-                   .andExpect(jsonPath("$.instance", is("/v1/users/" + idToUpdate)))
+                   .andExpect(jsonPath("$.instance", is(USERS_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)))
                    .andExpect(jsonPath("$.errors[0].entity", is("userDTO")))
                    .andExpect(jsonPath("$.errors[0].field", is("role")))
                    .andExpect(jsonPath("$.errors[0].message", is("The role must be a valid Role")));
@@ -673,15 +674,15 @@ class UserControllerIT {
         @DisplayName("GIVEN user id is empty WHEN delete a user by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
         void UserIdIsEmpty_DeleteUserById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
             // When & Then
-            var requestBuilder = delete(USERS_EMPTY_ID_PATH);
+            var requestBuilder = delete(USERS_ROOT_PATH_WITH_FINAL_SLASH);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isNotFound())
                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Not Found")))
                    .andExpect(jsonPath("$.status", is(404)))
-                   .andExpect(jsonPath("$.detail", is("No static resource v1/users.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/users/")));
+                   .andExpect(jsonPath("$.detail", startsWith("No static resource")))
+                   .andExpect(jsonPath("$.instance", is(USERS_ROOT_PATH_WITH_FINAL_SLASH)));
         }
 
         @Test
@@ -698,7 +699,7 @@ class UserControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to convert 'id' with value: '1'")))
-                   .andExpect(jsonPath("$.instance", is("/v1/users/" + idToDelete)));
+                   .andExpect(jsonPath("$.instance", is(USERS_ROOT_PATH_WITH_FINAL_SLASH + idToDelete)));
         }
 
         @Test

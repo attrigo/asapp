@@ -15,6 +15,8 @@
 */
 package com.bcn.asapp.uaa.config;
 
+import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_ROOT_PATH;
+import static com.bcn.asapp.url.uaa.UserRestAPIURL.USERS_ROOT_PATH;
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 import org.springframework.context.annotation.Bean;
@@ -56,9 +58,9 @@ public class SecurityConfiguration {
     /**
      * Array of URL patterns that are excluded from authentication and authorization checks.
      */
-    private static final String[] WHITELIST_URLS = { "/v1/auth/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/actuator/health" };
+    private static final String[] WHITELIST_URLS = { AUTH_ROOT_PATH + "/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/actuator/health" };
 
-    private static final String[] HTTP_METHOD_POST_WHITELIST_URLS = { "/v1/users/**" };
+    private static final String[] HTTP_METHOD_POST_WHITELIST_URLS = { USERS_ROOT_PATH + "/**" };
 
     /**
      * Handles authentication entry point to manage unauthorized access attempts.
