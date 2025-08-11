@@ -1,10 +1,56 @@
 #!/usr/bin/env bash
 
+# Define color codes
+RED='\033[0;31m'      # Errors
+GREEN='\033[0;32m'    # Success
+YELLOW='\033[1;33m'   # Warnings/Instructions
+BLUE='\033[0;34m'     # Informational messages and commands
+NC='\033[0m'          # No Color
+
 # Shell exits with error if any maven command exits with a non-zero status
 set -e
 
 echo "Checking code style:"
 
 mvn spotless:check
+
+echo ""
+
+# Define file extensions to check (keep in sync!)
+FILE_EXTENSIONS='java|xml|yml|yaml|properties|txt|md|sh|sql|json|js|ts|css|html'
+
+echo "Checking line endings of staged files are Unix (LF):"
+
+# Get list of staged files (excluding binary files and certain file types)
+staged_files=$(git diff --cached --name-only --diff-filter=ACM | grep -E "\.($FILE_EXTENSIONS)$" || true)
+
+if [ -n "$staged_files" ]; then
+    # Check for CRLF line endings
+    crlf_files=""
+    for file in $staged_files; do
+        if [ -f "$file" ]; then
+            # Check if file contains CRLF
+            if grep -q $'\r' "$file" 2>/dev/null; then
+                crlf_files="$crlf_files\n  $file"
+            fi
+        fi
+    done
+
+    if [ -n "$crlf_files" ]; then
+        echo -e "${RED}ERROR: The following files contain Windows line endings (CRLF):${NC}"
+        echo -e "${RED}$crlf_files${NC}"
+        echo ""
+        echo -e "${YELLOW}Please convert them to Unix line endings (LF) before committing.${NC}"
+        echo "To fix a specific file:"
+        echo -e "${BLUE}  dos2unix <filename>${NC}"
+        echo "To fix all files in the project:"
+        echo -e "${BLUE}  git ls-files | grep -E '\\.(java|xml|yml|yaml|properties|txt|md|sh|sql|json|js|ts|css|html)$' | xargs dos2unix${NC}"
+        exit 1
+    fi
+
+    echo -e "${GREEN}✓ All staged files use Unix line endings (LF).${NC}"
+else
+    echo -e "${GREEN}✓ No text files to check.${NC}"
+fi
 
 echo ""
