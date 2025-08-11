@@ -14,7 +14,7 @@
 
         <createTable tableName="access_token">
             <column name="access_token_id" type="uuid" defaultValueComputed="uuid_generate_v4()" remarks="Identifier of the refresh token">
-                <constraints primaryKey="true" primaryKeyName="access_token_id_pk"/>
+                <constraints primaryKey="true" primaryKeyName="pk_access_token"/>
             </column>
             <column name="user_id" type="uuid" remarks="The id of the user, fk to user.user_id">
                 <constraints nullable="false"/>

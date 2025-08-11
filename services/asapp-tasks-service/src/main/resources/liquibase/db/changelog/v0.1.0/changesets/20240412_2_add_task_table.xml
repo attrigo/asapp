@@ -14,7 +14,7 @@
 
         <createTable tableName="task">
             <column name="task_id" type="uuid" defaultValueComputed="uuid_generate_v4()" remarks="Identifier of the task">
-                <constraints primaryKey="true" primaryKeyName="task_id_pk"/>
+                <constraints primaryKey="true" primaryKeyName="pk_task"/>
             </column>
             <column name="title" type="varchar(50)" remarks="Title of the task">
                 <constraints nullable="false"/>
