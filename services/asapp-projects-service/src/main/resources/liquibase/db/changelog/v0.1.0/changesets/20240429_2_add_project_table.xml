@@ -14,7 +14,7 @@
 
         <createTable tableName="project">
             <column name="project_id" type="uuid" defaultValueComputed="uuid_generate_v4()" remarks="Identifier of the project">
-                <constraints primaryKey="true" primaryKeyName="project_id_pk"/>
+                <constraints primaryKey="true" primaryKeyName="pk_project"/>
             </column>
             <column name="title" type="varchar(50)" remarks="Title of the project">
                 <constraints nullable="false"/>

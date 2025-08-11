@@ -14,7 +14,7 @@
 
         <createTable tableName="user">
             <column name="user_id" type="uuid" defaultValueComputed="uuid_generate_v4()" remarks="Identifier of the user">
-                <constraints primaryKey="true" primaryKeyName="user_id_pk"/>
+                <constraints primaryKey="true" primaryKeyName="pk_user"/>
             </column>
             <column name="username" type="varchar(100)" remarks="The username of the user">
                 <constraints nullable="false"/>
