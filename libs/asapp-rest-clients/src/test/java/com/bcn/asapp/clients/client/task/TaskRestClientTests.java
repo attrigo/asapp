@@ -16,6 +16,7 @@
 package com.bcn.asapp.clients.client.task;
 
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_BY_PROJECT_ID_FULL_PATH;
+import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_ROOT_PATH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -51,6 +52,8 @@ import com.bcn.asapp.clients.internal.uri.DefaultUriHandler;
 import com.bcn.asapp.dto.task.TaskDTO;
 
 class TaskRestClientTests {
+
+    public static final String TASKS_GET_BY_PROJECT_ID_PATH_WITHOUT_ID = TASKS_ROOT_PATH + "/project/";
 
     private MockRestServiceServer mockServer;
 
@@ -98,7 +101,7 @@ class TaskRestClientTests {
             var expectedProblemDetails = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Failed to convert 'id' with value: 'project'");
             var responseBody = objectMapper.writeValueAsString(expectedProblemDetails);
 
-            mockServer.expect(requestTo("/v1/tasks/project/"))
+            mockServer.expect(requestTo(TASKS_GET_BY_PROJECT_ID_PATH_WITHOUT_ID))
                       .andExpect(method(HttpMethod.GET))
                       .andRespond(withBadRequest().body(responseBody)
                                                   .contentType(MediaType.APPLICATION_PROBLEM_JSON));

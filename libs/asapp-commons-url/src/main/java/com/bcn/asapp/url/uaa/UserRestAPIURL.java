@@ -23,7 +23,7 @@ package com.bcn.asapp.url.uaa;
  */
 public class UserRestAPIURL {
 
-    public static final String USERS_ROOT_PATH = "/v1/users";
+    public static final String USERS_ROOT_PATH = "/api/users";
 
     public static final String USERS_GET_BY_ID_PATH = "/{id}";
 

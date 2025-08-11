@@ -24,6 +24,7 @@ import static com.bcn.asapp.url.project.ProjectRestAPIURL.PROJECTS_UPDATE_BY_ID_
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -68,7 +69,7 @@ import com.bcn.asapp.projects.project.ProjectService;
 @WithMockUser
 class ProjectControllerIT {
 
-    public static final String PROJECTS_EMPTY_ID_PATH = PROJECTS_ROOT_PATH + "/";
+    public static final String PROJECTS_ROOT_PATH_WITH_FINAL_SLASH = PROJECTS_ROOT_PATH + "/";
 
     @Autowired
     private MockMvc mockMvc;
@@ -123,15 +124,15 @@ class ProjectControllerIT {
         @DisplayName("GIVEN project id is empty WHEN get a project by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
         void ProjectIdIsEmpty_GetProjectById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
             // When & Then
-            var requestBuilder = get(PROJECTS_EMPTY_ID_PATH);
+            var requestBuilder = get(PROJECTS_ROOT_PATH_WITH_FINAL_SLASH);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isNotFound())
                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Not Found")))
                    .andExpect(jsonPath("$.status", is(404)))
-                   .andExpect(jsonPath("$.detail", is("No static resource v1/projects.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/projects/")));
+                   .andExpect(jsonPath("$.detail", startsWith("No static resource")))
+                   .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH_WITH_FINAL_SLASH)));
         }
 
         @Test
@@ -148,7 +149,7 @@ class ProjectControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to convert 'id' with value: '1'")))
-                   .andExpect(jsonPath("$.instance", is("/v1/projects/" + idToFound)));
+                   .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH_WITH_FINAL_SLASH + idToFound)));
         }
 
         @Test
@@ -294,7 +295,7 @@ class ProjectControllerIT {
                    .andExpect(jsonPath("$.title", is("Unsupported Media Type")))
                    .andExpect(jsonPath("$.status", is(415)))
                    .andExpect(jsonPath("$.detail", is("Content-Type 'text/plain' is not supported.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/projects")));
+                   .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH)));
         }
 
         @Test
@@ -312,7 +313,7 @@ class ProjectControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to read request")))
-                   .andExpect(jsonPath("$.instance", is("/v1/projects")));
+                   .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH)));
         }
 
         @Test
@@ -331,7 +332,7 @@ class ProjectControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("The title of the project is mandatory")))
-                   .andExpect(jsonPath("$.instance", is("/v1/projects")))
+                   .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH)))
                    .andExpect(jsonPath("$.errors[0].entity", is("projectDTO")))
                    .andExpect(jsonPath("$.errors[0].field", is("title")))
                    .andExpect(jsonPath("$.errors[0].message", is("The title of the project is mandatory")));
@@ -353,7 +354,7 @@ class ProjectControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("The title of the project is mandatory")))
-                   .andExpect(jsonPath("$.instance", is("/v1/projects")))
+                   .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH)))
                    .andExpect(jsonPath("$.errors[0].entity", is("projectDTO")))
                    .andExpect(jsonPath("$.errors[0].field", is("title")))
                    .andExpect(jsonPath("$.errors[0].message", is("The title of the project is mandatory")));
@@ -380,7 +381,7 @@ class ProjectControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to read request")))
-                   .andExpect(jsonPath("$.instance", is("/v1/projects")));
+                   .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH)));
         }
 
         @Test
@@ -434,16 +435,16 @@ class ProjectControllerIT {
             var projectToUpdate = new ProjectDTO(null, fakeProjectTitle, fakeProjectDescription, fakeProjectStartDate, null);
             var projectToUpdateAsJson = objectMapper.writeValueAsString(projectToUpdate);
 
-            var requestBuilder = put(PROJECTS_EMPTY_ID_PATH).contentType(MediaType.APPLICATION_JSON)
-                                                            .content(projectToUpdateAsJson);
+            var requestBuilder = put(PROJECTS_ROOT_PATH_WITH_FINAL_SLASH).contentType(MediaType.APPLICATION_JSON)
+                                                                         .content(projectToUpdateAsJson);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isNotFound())
                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Not Found")))
                    .andExpect(jsonPath("$.status", is(404)))
-                   .andExpect(jsonPath("$.detail", is("No static resource v1/projects.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/projects/")));
+                   .andExpect(jsonPath("$.detail", startsWith("No static resource")))
+                   .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH_WITH_FINAL_SLASH)));
         }
 
         @Test
@@ -463,7 +464,7 @@ class ProjectControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to convert 'id' with value: '1'")))
-                   .andExpect(jsonPath("$.instance", is("/v1/projects/" + idToUpdate)));
+                   .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)));
         }
 
         @Test
@@ -482,7 +483,7 @@ class ProjectControllerIT {
                    .andExpect(jsonPath("$.title", is("Unsupported Media Type")))
                    .andExpect(jsonPath("$.status", is(415)))
                    .andExpect(jsonPath("$.detail", is("Content-Type 'text/plain' is not supported.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/projects/" + idToUpdate)));
+                   .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)));
         }
 
         @Test
@@ -501,7 +502,7 @@ class ProjectControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to read request")))
-                   .andExpect(jsonPath("$.instance", is("/v1/projects/" + idToUpdate)));
+                   .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)));
         }
 
         @Test
@@ -521,7 +522,7 @@ class ProjectControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("The title of the project is mandatory")))
-                   .andExpect(jsonPath("$.instance", is("/v1/projects/" + idToUpdate)))
+                   .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)))
                    .andExpect(jsonPath("$.errors[0].entity", is("projectDTO")))
                    .andExpect(jsonPath("$.errors[0].field", is("title")))
                    .andExpect(jsonPath("$.errors[0].message", is("The title of the project is mandatory")));
@@ -544,7 +545,7 @@ class ProjectControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("The title of the project is mandatory")))
-                   .andExpect(jsonPath("$.instance", is("/v1/projects/" + idToUpdate)))
+                   .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)))
                    .andExpect(jsonPath("$.errors[0].entity", is("projectDTO")))
                    .andExpect(jsonPath("$.errors[0].field", is("title")))
                    .andExpect(jsonPath("$.errors[0].message", is("The title of the project is mandatory")));
@@ -572,7 +573,7 @@ class ProjectControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", containsString("Failed to read request")))
-                   .andExpect(jsonPath("$.instance", is("/v1/projects/" + idToUpdate)));
+                   .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)));
         }
 
         @Test
@@ -639,15 +640,15 @@ class ProjectControllerIT {
         @DisplayName("GIVEN project id is empty WHEN delete a project by id THEN returns HTTP response with status NOT_FOUND And the body with the problem details")
         void ProjectIdIsEmpty_DeleteProjectById_ReturnsStatusNotFoundAndBodyWithProblemDetails() throws Exception {
             // When & Then
-            var requestBuilder = delete(PROJECTS_EMPTY_ID_PATH);
+            var requestBuilder = delete(PROJECTS_ROOT_PATH_WITH_FINAL_SLASH);
             mockMvc.perform(requestBuilder)
                    .andExpect(status().isNotFound())
                    .andExpect(content().contentType(MediaType.APPLICATION_PROBLEM_JSON))
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Not Found")))
                    .andExpect(jsonPath("$.status", is(404)))
-                   .andExpect(jsonPath("$.detail", is("No static resource v1/projects.")))
-                   .andExpect(jsonPath("$.instance", is("/v1/projects/")));
+                   .andExpect(jsonPath("$.detail", startsWith("No static resource")))
+                   .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH_WITH_FINAL_SLASH)));
         }
 
         @Test
@@ -664,7 +665,7 @@ class ProjectControllerIT {
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
                    .andExpect(jsonPath("$.detail", is("Failed to convert 'id' with value: '1'")))
-                   .andExpect(jsonPath("$.instance", is("/v1/projects/" + idToDelete)));
+                   .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH_WITH_FINAL_SLASH + idToDelete)));
         }
 
         @Test

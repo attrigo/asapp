@@ -23,7 +23,7 @@ package com.bcn.asapp.url.task;
  */
 public class TaskRestAPIURL {
 
-    public static final String TASKS_ROOT_PATH = "/v1/tasks";
+    public static final String TASKS_ROOT_PATH = "/api/tasks";
 
     public static final String TASKS_GET_BY_ID_PATH = "/{id}";
 

@@ -23,7 +23,7 @@ package com.bcn.asapp.url.project;
  */
 public class ProjectRestAPIURL {
 
-    public static final String PROJECTS_ROOT_PATH = "/v1/projects";
+    public static final String PROJECTS_ROOT_PATH = "/api/projects";
 
     public static final String PROJECTS_GET_BY_ID_PATH = "/{id}";
 

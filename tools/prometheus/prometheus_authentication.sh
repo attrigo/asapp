@@ -10,8 +10,8 @@ REFRESH_TOKEN=
 
 # UAA service URLs
 AUTH_HEALTH_ENDPOINT="${UAA_SERVICE_BASE_URL}/actuator/health"
-AUTH_ENDPOINT="${UAA_SERVICE_BASE_URL}/v1/auth/token"
-REFRESH_ENDPOINT="${UAA_SERVICE_BASE_URL}/v1/auth/refresh-token"
+AUTH_ENDPOINT="${UAA_SERVICE_BASE_URL}/api/auth/token"
+REFRESH_ENDPOINT="${UAA_SERVICE_BASE_URL}/api/auth/refresh-token"
 
 # Time to sleep between token refreshing
 SLEEP_TIME=$(( ACCESS_TOKEN_EXPIRATION_TIME * 8 / 10000 ))  # Convert from milliseconds and take 80%
