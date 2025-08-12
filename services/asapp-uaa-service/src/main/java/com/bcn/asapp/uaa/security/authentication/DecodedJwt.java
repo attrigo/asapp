@@ -166,13 +166,11 @@ public class DecodedJwt {
      * @return an {@link Optional} containing the claim value if present and type-safe, otherwise an {@link Optional#empty()}
      */
     public <T> Optional<T> getClaim(String claimName, Class<T> type) {
-
         try {
             return Optional.ofNullable(payload.get(claimName, type));
         } catch (RequiredTypeException e) {
             return Optional.empty();
         }
-
     }
 
     /**
@@ -203,7 +201,6 @@ public class DecodedJwt {
      * @throws InvalidJwtException if the JWT is {@literal null} or empty
      */
     private String validateJwt(String jwt) {
-
         if (jwt == null || jwt.isBlank()) {
             throw new InvalidJwtException("JWT could not be null or empty");
         }
@@ -219,7 +216,6 @@ public class DecodedJwt {
      * @throws InvalidJwtException if the header is {@literal null} or has an invalid type
      */
     private Header validateJwtHeader(Header jwtHeader) {
-
         if (jwtHeader == null) {
             throw new InvalidJwtException("Header could not be null");
         }
@@ -241,7 +237,6 @@ public class DecodedJwt {
      * @throws InvalidJwtException if the payload is {@literal null} or the required claims are missing or invalid
      */
     private Claims validateJwtPayload(Claims jwtPayload) {
-
         if (jwtPayload == null) {
             throw new InvalidJwtException("Payload could not be null");
         }

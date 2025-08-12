@@ -39,5 +39,10 @@ import org.springframework.lang.NonNull;
  * @author ttrigo
  */
 @Table("refresh_token")
-public record RefreshToken(@Id @Column("refresh_token_id") UUID id, @Column("user_id") UUID userId, @NonNull @Column("jwt") String jwt,
-        @NonNull @Column("created_at") Instant createdAt, @NonNull @Column("expires_at") Instant expiresAt) {}
+public record RefreshToken(
+        @Id @Column("refresh_token_id") UUID id,
+        @Column("user_id") UUID userId,
+        @NonNull @Column("jwt") String jwt,
+        @NonNull @Column("created_at") Instant createdAt,
+        @NonNull @Column("expires_at") Instant expiresAt
+) {}

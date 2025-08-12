@@ -105,7 +105,6 @@ public class JwtIssuer {
         } catch (DbActionExecutionException e) {
             throw new JwtIntegrityViolationException("Authentication could not be issued due to: " + e.getMessage(), e);
         }
-
     }
 
     /**

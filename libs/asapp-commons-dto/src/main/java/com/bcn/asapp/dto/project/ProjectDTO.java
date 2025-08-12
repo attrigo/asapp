@@ -29,5 +29,10 @@ import com.bcn.asapp.dto.task.TaskDTO;
  * @author ttrigo
  * @since 0.1.0
  */
-public record ProjectDTO(UUID id, @NotBlank(message = "The title of the project is mandatory") String title, String description, Instant startDateTime,
-        List<TaskDTO> tasks) {}
+public record ProjectDTO(
+        UUID id,
+        @NotBlank(message = "The title of the project is mandatory") String title,
+        String description,
+        Instant startDateTime,
+        List<TaskDTO> tasks
+) {}

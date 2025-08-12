@@ -58,7 +58,6 @@ public class JwtAssertions {
         } else {
             assertTrue(REFRESH_TOKEN_TYPE.equals(tokenType) && TOKEN_USE_REFRESH_CLAIM_VALUE.equals(tokenUseClaim));
         }
-
     }
 
     public static void assertJwtUsername(String actualJwt, String expectedUsername) {

@@ -217,13 +217,11 @@ public class JwtProvider {
      * @throws IllegalArgumentException if the authority does not match any known {@link Role}
      */
     private Role mapAuthorityToRole(String authority) {
-
         try {
             return Role.valueOf(authority);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Authentication authority is not valid");
         }
-
     }
 
 }

@@ -35,5 +35,9 @@ import org.springframework.lang.NonNull;
  * @author ttrigo
  */
 @Table("user")
-public record User(@Id @Column("user_id") UUID id, @NonNull @Column("username") String username, @NonNull @Column("password") String password,
-        @NonNull @Column("role") Role role) {}
+public record User(
+        @Id @Column("user_id") UUID id,
+        @NonNull @Column("username") String username,
+        @NonNull @Column("password") String password,
+        @NonNull @Column("role") Role role
+) {}
