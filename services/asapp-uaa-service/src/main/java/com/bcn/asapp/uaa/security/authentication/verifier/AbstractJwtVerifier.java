@@ -68,7 +68,6 @@ public abstract class AbstractJwtVerifier implements JwtVerifier {
      */
     @Override
     public final JwtAuthenticationToken verify(String jwt) {
-
         try {
             var decodedJwt = validateJwt(jwt);
 
@@ -78,7 +77,6 @@ public abstract class AbstractJwtVerifier implements JwtVerifier {
         } catch (Exception e) {
             throw createAuthenticationException(e);
         }
-
     }
 
     /**
@@ -110,7 +108,6 @@ public abstract class AbstractJwtVerifier implements JwtVerifier {
         if (!matches) {
             throw new JwtMismatchException(String.format("JWT does not match for user %s", decodedJwt.getSubject()));
         }
-
     }
 
     /**

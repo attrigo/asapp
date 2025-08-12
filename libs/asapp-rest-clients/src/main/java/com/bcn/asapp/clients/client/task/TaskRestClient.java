@@ -66,7 +66,6 @@ public class TaskRestClient implements TaskClient {
         } catch (RestClientException ignored) {
             return null;
         }
-
     }
 
 }

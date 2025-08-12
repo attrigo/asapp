@@ -92,7 +92,6 @@ public class JwtDecoder {
      * @throws InvalidJwtException If any validation error occurs during the decoding process
      */
     public DecodedJwt decode(String token) {
-
         try {
             var jwsClaims = Jwts.parser()
                                 .verifyWith(secretKey)
@@ -121,7 +120,6 @@ public class JwtDecoder {
             logger.error("Unexpected error while verifying JWT", e);
             throw new InvalidJwtException("Error verifying JWT token", e);
         }
-
     }
 
 }

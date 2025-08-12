@@ -30,5 +30,10 @@ import org.springframework.lang.NonNull;
  * @since 0.1.0
  */
 @Table("task")
-public record Task(@Id @Column("task_id") UUID id, @NonNull @Column("title") String title, @Column("description") String description,
-        @Column("start_date") Instant startDateTime, @Column("project_id") UUID projectId) {}
+public record Task(
+        @Id @Column("task_id") UUID id,
+        @NonNull @Column("title") String title,
+        @Column("description") String description,
+        @Column("start_date") Instant startDateTime,
+        @Column("project_id") UUID projectId
+) {}

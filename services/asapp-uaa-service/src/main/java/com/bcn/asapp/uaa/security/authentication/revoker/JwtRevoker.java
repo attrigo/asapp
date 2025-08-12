@@ -104,14 +104,12 @@ public class JwtRevoker {
      * @throws JwtIntegrityViolationException if any steps of the revocation process fails
      */
     private void revokeUserAuthentication(User user) {
-
         try {
             revokeAccessToken(user);
             revokeRefreshToken(user);
         } catch (DataAccessException e) {
             throw new JwtIntegrityViolationException("Authentication could not be revoked due to: " + e.getMessage(), e);
         }
-
     }
 
     /**

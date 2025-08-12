@@ -30,5 +30,9 @@ import org.springframework.lang.NonNull;
  * @since 0.1.0
  */
 @Table("project")
-public record Project(@Id @Column("project_id") UUID id, @NonNull @Column("title") String title, @Column("description") String description,
-        @Column("start_date") Instant startDateTime) {}
+public record Project(
+        @Id @Column("project_id") UUID id,
+        @NonNull @Column("title") String title,
+        @Column("description") String description,
+        @Column("start_date") Instant startDateTime
+) {}

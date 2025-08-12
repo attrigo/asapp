@@ -29,5 +29,7 @@ import jakarta.validation.constraints.NotNull;
  * @author ttrigo
  * @since 0.2.0
  */
-public record JwtAuthenticationDTO(@NotNull(message = "The access token is mandatory") @JsonProperty("access_token") AccessTokenDTO accessToken,
-        @NotNull(message = "The refresh token is mandatory") @JsonProperty("refresh_token") RefreshTokenDTO refreshToken) {}
+public record JwtAuthenticationDTO(
+        @NotNull(message = "The access token is mandatory") @JsonProperty("access_token") AccessTokenDTO accessToken,
+        @NotNull(message = "The refresh token is mandatory") @JsonProperty("refresh_token") RefreshTokenDTO refreshToken
+) {}

@@ -45,7 +45,6 @@ public class ValidRoleValidator implements ConstraintValidator<ValidRole, String
      */
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-
         if (StringUtils.isBlank(value)) {
             return false;
         }
@@ -56,7 +55,6 @@ public class ValidRoleValidator implements ConstraintValidator<ValidRole, String
         } catch (IllegalArgumentException e) {
             return false;
         }
-
     }
 
 }

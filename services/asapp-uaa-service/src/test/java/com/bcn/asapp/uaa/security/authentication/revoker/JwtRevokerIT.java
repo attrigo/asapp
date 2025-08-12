@@ -202,7 +202,6 @@ class JwtRevokerIT {
                 // Restore the table name
                 jdbcTemplate.execute("ALTER TABLE access_token_tmp RENAME TO access_token");
             }
-
         }
 
         @Test
@@ -234,7 +233,6 @@ class JwtRevokerIT {
                 // Restore the table name
                 jdbcTemplate.execute("ALTER TABLE refresh_token_tmp RENAME TO refresh_token");
             }
-
         }
 
         @Test
@@ -345,7 +343,6 @@ class JwtRevokerIT {
                 // Restore the table name
                 jdbcTemplate.execute("ALTER TABLE access_token_tmp RENAME TO access_token");
             }
-
         }
 
         @Test
@@ -375,7 +372,6 @@ class JwtRevokerIT {
                 // Restore the table name
                 jdbcTemplate.execute("ALTER TABLE refresh_token_tmp RENAME TO refresh_token");
             }
-
         }
 
         @Test
