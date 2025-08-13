@@ -63,8 +63,8 @@ import com.bcn.asapp.tasks.config.security.JwtTokenProvider;
 import com.bcn.asapp.tasks.config.security.SecurityConfiguration;
 import com.bcn.asapp.tasks.task.TaskService;
 
-@Import(value = { SecurityConfiguration.class, JwtTokenProvider.class, JwtAuthenticationEntryPoint.class })
 @WebMvcTest(TaskRestController.class)
+@Import(value = { SecurityConfiguration.class, JwtTokenProvider.class, JwtAuthenticationEntryPoint.class })
 @WithMockUser
 class TaskControllerIT {
 

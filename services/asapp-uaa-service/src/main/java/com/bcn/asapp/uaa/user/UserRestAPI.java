@@ -54,8 +54,8 @@ import com.bcn.asapp.dto.user.UserDTO;
  * @author ttrigo
  * @since 0.2.0
  */
-@Tag(name = "User Operations", description = "REST API contract for managing users")
 @RequestMapping(USERS_ROOT_PATH)
+@Tag(name = "User Operations", description = "REST API contract for managing users")
 public interface UserRestAPI {
 
     /**
@@ -74,14 +74,14 @@ public interface UserRestAPI {
      * @param id the id of the user to get
      * @return a {@link ResponseEntity} wrapping the {@link UserDTO} with the specified id or empty if not found
      */
+    @GetMapping(value = USERS_GET_BY_ID_PATH, produces = "application/json")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Gets a user by id", description = "Returns a user with the specified id, or empty if not found")
     @ApiResponse(responseCode = "200", description = "User found", content = { @Content(schema = @Schema(implementation = UserDTO.class)) })
     @ApiResponse(responseCode = "400", description = "Invalid user id format", content = { @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
     @ApiResponse(responseCode = "404", description = "User not found", content = { @Content })
-    @GetMapping(value = USERS_GET_BY_ID_PATH, produces = "application/json")
-    ResponseEntity<UserDTO> getUserById(@Parameter(description = "Id of the user to get") @PathVariable("id") UUID id);
+    ResponseEntity<UserDTO> getUserById(@PathVariable("id") @Parameter(description = "Id of the user to get") UUID id);
 
     /**
      * Get all users.
@@ -96,12 +96,12 @@ public interface UserRestAPI {
      *
      * @return a list of all {@link UserDTO}, or an empty list if no users exist
      */
+    @GetMapping(value = USERS_GET_ALL_PATH, produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Gets all users", description = "Returns a list of all users, or an empty list if no users exist")
     @ApiResponse(responseCode = "200", description = "Users found", content = { @Content(schema = @Schema(implementation = UserDTO.class)) })
     @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
-    @GetMapping(value = USERS_GET_ALL_PATH, produces = "application/json")
-    @ResponseStatus(HttpStatus.OK)
     List<UserDTO> getAllUsers();
 
     /**
@@ -118,13 +118,13 @@ public interface UserRestAPI {
      * @param user the user data to create
      * @return the created {@link UserDTO} with a generated id
      */
+    @PostMapping(value = USERS_CREATE_PATH, consumes = "application/json", produces = "application/json")
+    @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Creates a new user", description = "Creates a new user with a new generated id, any provided id will be ignored")
     @ApiResponse(responseCode = "201", description = "User created successfully", content = { @Content(schema = @Schema(implementation = UserDTO.class)) })
     @ApiResponse(responseCode = "400", description = "Request body validation failed", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @PostMapping(value = USERS_CREATE_PATH, consumes = "application/json", produces = "application/json")
-    @ResponseStatus(HttpStatus.CREATED)
-    UserDTO createUser(@Parameter(description = "User data to create", required = true) @Valid @RequestBody UserDTO user);
+    UserDTO createUser(@RequestBody @Valid @Parameter(description = "User data to create", required = true) UserDTO user);
 
     /**
      * Updates an existing user by id.
@@ -143,6 +143,7 @@ public interface UserRestAPI {
      * @param newUserData the user data to update
      * @return a {@link ResponseEntity} wrapping the updated {@link UserDTO}, or empty if not found
      */
+    @PutMapping(value = USERS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Updates an existing user by id", description = "Updates the data of an existing user by the specified id except the id, with the provided new data")
     @ApiResponse(responseCode = "200", description = "User has been updated", content = { @Content(schema = @Schema(implementation = UserDTO.class)) })
@@ -150,9 +151,8 @@ public interface UserRestAPI {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
     @ApiResponse(responseCode = "404", description = "User not found", content = { @Content })
-    @PutMapping(value = USERS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
-    ResponseEntity<UserDTO> updateUserById(@Parameter(description = "Id of the user to update") @PathVariable("id") UUID id,
-            @Parameter(description = "User data to update", required = true) @Valid @RequestBody UserDTO newUserData);
+    ResponseEntity<UserDTO> updateUserById(@PathVariable("id") @Parameter(description = "Id of the user to update") UUID id,
+            @RequestBody @Valid @Parameter(description = "User data to update", required = true) UserDTO newUserData);
 
     /**
      * Deletes a user by id.
@@ -172,13 +172,13 @@ public interface UserRestAPI {
      * @param id the id of the user to delete
      * @return a {@link ResponseEntity} with no content upon successful deletion
      */
+    @DeleteMapping(value = USERS_DELETE_BY_ID_PATH, produces = "application/json")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Deletes a user by id", description = "Deletes a user by the specified id, if the user is authenticated, it is revoked before the deletion")
     @ApiResponse(responseCode = "204", description = "User deleted successfully", content = { @Content })
     @ApiResponse(responseCode = "400", description = "Invalid user id format", content = { @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
     @ApiResponse(responseCode = "404", description = "User not found", content = { @Content })
-    @DeleteMapping(value = USERS_DELETE_BY_ID_PATH, produces = "application/json")
-    ResponseEntity<Void> deleteUserById(@Parameter(description = "Id of the user to delete") @PathVariable("id") UUID id);
+    ResponseEntity<Void> deleteUserById(@PathVariable("id") @Parameter(description = "Id of the user to delete") UUID id);
 
 }

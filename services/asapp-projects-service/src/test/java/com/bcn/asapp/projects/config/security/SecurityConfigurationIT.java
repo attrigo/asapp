@@ -38,10 +38,10 @@ import com.bcn.asapp.projects.AsappProjectsServiceApplication;
 import com.bcn.asapp.projects.testconfig.SecurityTestConfiguration;
 import com.bcn.asapp.projects.testutil.JwtTestGenerator;
 
+@SpringBootTest(classes = AsappProjectsServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(SecurityTestConfiguration.class)
 @AutoConfigureWebTestClient(timeout = "30000")
 @Testcontainers(disabledWithoutDocker = true)
-@Import(SecurityTestConfiguration.class)
-@SpringBootTest(classes = AsappProjectsServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SecurityConfigurationIT {
 
     @Container

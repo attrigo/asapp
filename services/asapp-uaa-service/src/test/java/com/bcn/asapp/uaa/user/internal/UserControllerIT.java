@@ -60,8 +60,8 @@ import com.bcn.asapp.uaa.security.web.JwtAuthenticationEntryPoint;
 import com.bcn.asapp.uaa.security.web.JwtAuthenticationFilter;
 import com.bcn.asapp.uaa.user.UserService;
 
-@Import(value = { SecurityConfiguration.class, JwtAuthenticationFilter.class, JwtAuthenticationEntryPoint.class })
 @WebMvcTest(UserRestController.class)
+@Import(value = { SecurityConfiguration.class, JwtAuthenticationFilter.class, JwtAuthenticationEntryPoint.class })
 @WithMockUser
 class UserControllerIT {
 

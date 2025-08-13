@@ -42,9 +42,9 @@ import com.bcn.asapp.uaa.user.Role;
 import com.bcn.asapp.uaa.user.User;
 import com.bcn.asapp.uaa.user.UserRepository;
 
-@Testcontainers(disabledWithoutDocker = true)
 @DataJdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Testcontainers(disabledWithoutDocker = true)
 class RefreshTokenRepositoryIT {
 
     @Container

@@ -54,9 +54,9 @@ import com.bcn.asapp.dto.task.TaskDTO;
  * @author ttrigo
  * @since 0.1.0
  */
-@Tag(name = "Tasks operations", description = "Defines the RESTful API for handling task operations")
-@SecurityRequirement(name = "Bearer Authentication")
 @RequestMapping(TASKS_ROOT_PATH)
+@SecurityRequirement(name = "Bearer Authentication")
+@Tag(name = "Tasks operations", description = "Defines the RESTful API for handling task operations")
 public interface TaskRestAPI {
 
     /**
@@ -71,11 +71,11 @@ public interface TaskRestAPI {
      * @param id the id of the task to get.
      * @return a {@link ResponseEntity} wrapping the task found, or wrapping empty if the given id has not been found.
      */
+    @GetMapping(value = TASKS_GET_BY_ID_PATH, produces = "application/json")
     @Operation(summary = "Gets a task by id", description = "Returns the task found, or empty if the given id has not been found")
     @ApiResponse(responseCode = "200", description = "Task has been found", content = { @Content(schema = @Schema(implementation = TaskDTO.class)) })
     @ApiResponse(responseCode = "404", description = "Task not found", content = { @Content })
-    @GetMapping(value = TASKS_GET_BY_ID_PATH, produces = "application/json")
-    ResponseEntity<TaskDTO> getTaskById(@Parameter(description = "Id of the task to get") @PathVariable("id") UUID id);
+    ResponseEntity<TaskDTO> getTaskById(@PathVariable("id") @Parameter(description = "Id of the task to get") UUID id);
 
     /**
      * Gets all tasks.
@@ -87,10 +87,10 @@ public interface TaskRestAPI {
      *
      * @return all tasks found, or an empty list if there aren't tasks.
      */
-    @Operation(summary = "Gets all tasks", description = "Returns all tasks, or an empty list if there aren't tasks")
-    @ApiResponse(responseCode = "200", description = "Tasks found", content = { @Content(schema = @Schema(implementation = TaskDTO.class)) })
     @GetMapping(value = TASKS_GET_ALL_PATH, produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Gets all tasks", description = "Returns all tasks, or an empty list if there aren't tasks")
+    @ApiResponse(responseCode = "200", description = "Tasks found", content = { @Content(schema = @Schema(implementation = TaskDTO.class)) })
     List<TaskDTO> getAllTasks();
 
     /**
@@ -104,11 +104,11 @@ public interface TaskRestAPI {
      * @param projectId the id of the project.
      * @return the tasks found, or empty if there aren't tasks for the given project.
      */
-    @Operation(summary = "Gets tasks by project id", description = "Returns the tasks found, or empty if there aren't tasks for the given project")
-    @ApiResponse(responseCode = "200", description = "Tasks found", content = { @Content(schema = @Schema(implementation = TaskDTO.class)) })
     @GetMapping(value = TASKS_GET_BY_PROJECT_ID_PATH, produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    List<TaskDTO> getTasksByProjectId(@Parameter(description = "Id of the project") @PathVariable("id") UUID projectId);
+    @Operation(summary = "Gets tasks by project id", description = "Returns the tasks found, or empty if there aren't tasks for the given project")
+    @ApiResponse(responseCode = "200", description = "Tasks found", content = { @Content(schema = @Schema(implementation = TaskDTO.class)) })
+    List<TaskDTO> getTasksByProjectId(@PathVariable("id") @Parameter(description = "Id of the project") UUID projectId);
 
     /**
      * Creates a task.
@@ -125,11 +125,11 @@ public interface TaskRestAPI {
      * @param task the task to create.
      * @return the created task.
      */
-    @Operation(summary = "Creates a task", description = "Creates the given task ignoring the id field, the resultant task always has a new id")
-    @ApiResponse(responseCode = "201", description = "Task has been created", content = { @Content(schema = @Schema(implementation = TaskDTO.class)) })
     @PostMapping(value = TASKS_CREATE_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
-    TaskDTO createTask(@Valid @RequestBody TaskDTO task);
+    @Operation(summary = "Creates a task", description = "Creates the given task ignoring the id field, the resultant task always has a new id")
+    @ApiResponse(responseCode = "201", description = "Task has been created", content = { @Content(schema = @Schema(implementation = TaskDTO.class)) })
+    TaskDTO createTask(@RequestBody @Valid TaskDTO task);
 
     /**
      * Updates a task by id.
@@ -146,12 +146,12 @@ public interface TaskRestAPI {
      * @param newTaskData the new task data.
      * @return a {@link ResponseEntity} wrapping the updated task, or empty if the given id has not been found.
      */
+    @PutMapping(value = TASKS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
     @Operation(summary = "Updates a task", description = "Updates all fields of the task except the id, with the given new data")
     @ApiResponse(responseCode = "200", description = "Task has been updated", content = { @Content(schema = @Schema(implementation = TaskDTO.class)) })
     @ApiResponse(responseCode = "404", description = "Task not found", content = { @Content })
-    @PutMapping(value = TASKS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
-    ResponseEntity<TaskDTO> updateTaskById(@Parameter(description = "Identifier of the task to update") @PathVariable("id") UUID id,
-            @Valid @RequestBody TaskDTO newTaskData);
+    ResponseEntity<TaskDTO> updateTaskById(@PathVariable("id") @Parameter(description = "Identifier of the task to update") UUID id,
+            @RequestBody @Valid TaskDTO newTaskData);
 
     /**
      * Deletes a task by id.
@@ -165,10 +165,10 @@ public interface TaskRestAPI {
      * @param id the id of the task to delete.
      * @return a {@link ResponseEntity} wrapping empty.
      */
+    @DeleteMapping(value = TASKS_DELETE_BY_ID_PATH, produces = "application/json")
     @Operation(summary = "Deletes a task by id", description = "Deletes a task by id")
     @ApiResponse(responseCode = "204", description = "Task has been deleted", content = { @Content })
     @ApiResponse(responseCode = "404", description = "Task not found", content = { @Content })
-    @DeleteMapping(value = TASKS_DELETE_BY_ID_PATH, produces = "application/json")
-    ResponseEntity<Void> deleteTaskById(@Parameter(description = "Id of the task to delete") @PathVariable("id") UUID id);
+    ResponseEntity<Void> deleteTaskById(@PathVariable("id") @Parameter(description = "Id of the task to delete") UUID id);
 
 }

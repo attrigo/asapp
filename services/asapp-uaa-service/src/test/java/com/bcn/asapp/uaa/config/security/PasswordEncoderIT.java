@@ -37,9 +37,9 @@ import com.bcn.asapp.uaa.security.authentication.verifier.JwtVerifier;
 import com.bcn.asapp.uaa.security.web.JwtAuthenticationEntryPoint;
 import com.bcn.asapp.uaa.security.web.JwtAuthenticationFilter;
 
-@ContextConfiguration(classes = { SecurityConfiguration.class, JwtAuthenticationFilter.class, JwtAuthenticationEntryPoint.class })
-@TestPropertySource(locations = "classpath:application.properties")
 @ExtendWith(SpringExtension.class)
+@TestPropertySource(locations = "classpath:application.properties")
+@ContextConfiguration(classes = { SecurityConfiguration.class, JwtAuthenticationFilter.class, JwtAuthenticationEntryPoint.class })
 class PasswordEncoderIT {
 
     @MockitoBean

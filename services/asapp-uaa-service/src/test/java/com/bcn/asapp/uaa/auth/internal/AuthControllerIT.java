@@ -55,8 +55,8 @@ import com.bcn.asapp.uaa.security.web.JwtAuthenticationEntryPoint;
 import com.bcn.asapp.uaa.security.web.JwtAuthenticationFilter;
 import com.bcn.asapp.uaa.testutil.JwtFaker;
 
-@Import(value = { SecurityConfiguration.class, JwtAuthenticationFilter.class, JwtAuthenticationEntryPoint.class })
 @WebMvcTest(AuthRestController.class)
+@Import(value = { SecurityConfiguration.class, JwtAuthenticationFilter.class, JwtAuthenticationEntryPoint.class })
 class AuthControllerIT {
 
     @Autowired
