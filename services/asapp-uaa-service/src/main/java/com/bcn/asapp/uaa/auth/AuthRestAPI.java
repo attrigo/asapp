@@ -42,8 +42,8 @@ import jakarta.validation.Valid;
  * @author ttrigo
  * @since 0.2.0
  */
-@Tag(name = "Authentication operations", description = "REST API contract for authentication operations")
 @RequestMapping(AUTH_ROOT_PATH)
+@Tag(name = "Authentication operations", description = "REST API contract for authentication operations")
 public interface AuthRestAPI {
 
     /**
@@ -62,15 +62,15 @@ public interface AuthRestAPI {
      * @return a {@link ResponseEntity} wrapping {@link JwtAuthenticationDTO} with the newly issued access and refresh tokens upon successful authentication
      * @throws AuthenticationException if authentication fails due to invalid credentials or other errors
      */
+    @PostMapping(value = AUTH_TOKEN_PATH, consumes = "application/json", produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Authenticates a user with the given credentials", description = "Authenticates a user with the given credentials and issues new JWT authentication, if the user is already authenticated, new JWT authentication (access and refresh tokens) are generated to override the existing ones")
     @ApiResponse(responseCode = "200", description = "The user has been authenticated successfully", content = {
             @Content(schema = @Schema(implementation = JwtAuthenticationDTO.class)) })
     @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "The user could not be authenticated due to invalid credentials", content = { @Content })
-    @PostMapping(value = AUTH_TOKEN_PATH, consumes = "application/json", produces = "application/json")
-    @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<JwtAuthenticationDTO> authenticate(@Valid @RequestBody UserCredentialsDTO userCredentials);
+    ResponseEntity<JwtAuthenticationDTO> authenticate(@RequestBody @Valid UserCredentialsDTO userCredentials);
 
     /**
      * Refreshes existing JWT authentication using the given refresh token.
@@ -88,6 +88,8 @@ public interface AuthRestAPI {
      * @return a {@link ResponseEntity} containing the refreshed {@link JwtAuthenticationDTO} with the refreshed access and refresh tokens
      * @throws AuthenticationException if the refresh token is invalid, expired, does not belong to an authenticated user, or the refresh process fails
      */
+    @PostMapping(value = AUTH_REFRESH_TOKEN_PATH, consumes = "application/json", produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Refreshes the JWT authentication", description = "Refreshes an existing JWT authentication using the given refresh token")
     @ApiResponse(responseCode = "200", description = "The JWT authentication tokens have been refreshed successfully", content = {
             @Content(schema = @Schema(implementation = JwtAuthenticationDTO.class)) })
@@ -95,9 +97,7 @@ public interface AuthRestAPI {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "The refresh token is invalid, expired, does not belong to an authenticated user, or the refresh process fails", content = {
             @Content })
-    @PostMapping(value = AUTH_REFRESH_TOKEN_PATH, consumes = "application/json", produces = "application/json")
-    @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<JwtAuthenticationDTO> refreshAuthentication(@Valid @RequestBody RefreshTokenDTO refreshToken);
+    ResponseEntity<JwtAuthenticationDTO> refreshAuthentication(@RequestBody @Valid RefreshTokenDTO refreshToken);
 
     /**
      * Revokes the existing JWT authentication of a user by the given access token.
@@ -115,14 +115,14 @@ public interface AuthRestAPI {
      * @return a {@link ResponseEntity} with no content if the revocation was successful
      * @throws AuthenticationException if the access token is invalid, expired, does not belong to an authenticated user, or the revoke process fails
      */
+    @PostMapping(value = AUTH_REVOKE_PATH, consumes = "application/json", produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Revokes the JWT authentication", description = "Revokes the JWT authentication of a user by the given access token")
     @ApiResponse(responseCode = "200", description = "The JWT authentication has been revoked successfully", content = { @Content })
     @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "The access token is invalid, expired, does not belong to an authenticated user, or the revoke process fails", content = {
             @Content })
-    @PostMapping(value = AUTH_REVOKE_PATH, consumes = "application/json", produces = "application/json")
-    @ResponseStatus(HttpStatus.OK)
-    ResponseEntity<Void> revokeAuthentication(@Valid @RequestBody AccessTokenDTO accessToken);
+    ResponseEntity<Void> revokeAuthentication(@RequestBody @Valid AccessTokenDTO accessToken);
 
 }

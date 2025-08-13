@@ -64,8 +64,8 @@ import com.bcn.asapp.projects.config.security.JwtTokenProvider;
 import com.bcn.asapp.projects.config.security.SecurityConfiguration;
 import com.bcn.asapp.projects.project.ProjectService;
 
-@Import(value = { SecurityConfiguration.class, JwtTokenProvider.class, JwtAuthenticationEntryPoint.class })
 @WebMvcTest(ProjectRestController.class)
+@Import(value = { SecurityConfiguration.class, JwtTokenProvider.class, JwtAuthenticationEntryPoint.class })
 @WithMockUser
 class ProjectControllerIT {
 

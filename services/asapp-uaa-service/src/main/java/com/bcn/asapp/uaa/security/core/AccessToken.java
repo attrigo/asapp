@@ -42,7 +42,7 @@ import org.springframework.lang.NonNull;
 public record AccessToken(
         @Id @Column("access_token_id") UUID id,
         @Column("user_id") UUID userId,
-        @NonNull @Column("jwt") String jwt,
-        @NonNull @Column("created_at") Instant createdAt,
-        @NonNull @Column("expires_at") Instant expiresAt
+        @Column("jwt") @NonNull String jwt,
+        @Column("created_at") @NonNull Instant createdAt,
+        @Column("expires_at") @NonNull Instant expiresAt
 ) {}

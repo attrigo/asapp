@@ -62,9 +62,9 @@ import com.bcn.asapp.uaa.user.Role;
 import com.bcn.asapp.uaa.user.User;
 import com.bcn.asapp.uaa.user.UserRepository;
 
+@SpringBootTest(classes = AsappUAAServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient(timeout = "30000")
 @Testcontainers(disabledWithoutDocker = true)
-@SpringBootTest(classes = AsappUAAServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 class AuthE2EIT {
 
     @Container

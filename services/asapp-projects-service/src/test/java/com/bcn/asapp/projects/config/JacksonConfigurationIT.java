@@ -39,8 +39,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
 @ExtendWith(SpringExtension.class)
-@AutoConfigureWebMvc
 @TestPropertySource(locations = "classpath:application.properties")
+@AutoConfigureWebMvc
 class JacksonConfigurationIT {
 
     @Autowired

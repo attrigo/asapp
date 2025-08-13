@@ -47,10 +47,10 @@ import com.bcn.asapp.uaa.user.Role;
 import com.bcn.asapp.uaa.user.User;
 import com.bcn.asapp.uaa.user.UserRepository;
 
+@SpringBootTest(classes = AsappUAAServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@Import(SecurityTestConfiguration.class)
 @AutoConfigureWebTestClient(timeout = "30000")
 @Testcontainers(disabledWithoutDocker = true)
-@Import(SecurityTestConfiguration.class)
-@SpringBootTest(classes = AsappUAAServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class SecurityConfigurationIT {
 
     @Container

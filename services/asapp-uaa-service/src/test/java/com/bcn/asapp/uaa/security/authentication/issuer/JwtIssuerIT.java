@@ -62,11 +62,11 @@ import com.bcn.asapp.uaa.user.Role;
 import com.bcn.asapp.uaa.user.User;
 import com.bcn.asapp.uaa.user.UserRepository;
 
-@Testcontainers(disabledWithoutDocker = true)
 @DataJdbcTest
-@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import({ JwtIssuer.class, JwtProvider.class })
 @TestPropertySource(locations = "classpath:application.properties")
+@Import({ JwtIssuer.class, JwtProvider.class })
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Testcontainers(disabledWithoutDocker = true)
 @Transactional(propagation = Propagation.NEVER)
 class JwtIssuerIT {
 

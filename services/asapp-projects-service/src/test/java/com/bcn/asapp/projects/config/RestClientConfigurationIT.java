@@ -45,9 +45,9 @@ import com.bcn.asapp.projects.config.security.JwtAuthenticationToken;
 import com.bcn.asapp.projects.testconfig.SecurityTestConfiguration;
 import com.bcn.asapp.projects.testutil.JwtTestGenerator;
 
-@Testcontainers(disabledWithoutDocker = true, parallel = true)
-@Import(SecurityTestConfiguration.class)
 @SpringBootTest(classes = AsappProjectsServiceApplication.class)
+@Import(SecurityTestConfiguration.class)
+@Testcontainers(disabledWithoutDocker = true, parallel = true)
 class RestClientConfigurationIT {
 
     @Container

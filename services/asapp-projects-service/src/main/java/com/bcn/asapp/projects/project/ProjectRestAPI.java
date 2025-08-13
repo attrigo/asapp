@@ -53,9 +53,9 @@ import com.bcn.asapp.dto.project.ProjectDTO;
  * @author ttrigo
  * @since 0.1.0
  */
-@Tag(name = "Projects operations", description = "Defines the RESTful API for handling project operations")
-@SecurityRequirement(name = "Bearer Authentication")
 @RequestMapping(PROJECTS_ROOT_PATH)
+@SecurityRequirement(name = "Bearer Authentication")
+@Tag(name = "Projects operations", description = "Defines the RESTful API for handling project operations")
 public interface ProjectRestAPI {
 
     /**
@@ -70,11 +70,11 @@ public interface ProjectRestAPI {
      * @param id the id of the project to get.
      * @return a {@link ResponseEntity} wrapping the project found, or wrapping empty if the given id has not been found.
      */
+    @GetMapping(value = PROJECTS_GET_BY_ID_PATH, produces = "application/json")
     @Operation(summary = "Gets a project by id", description = "Returns the project found, or empty if the given id has not been found")
     @ApiResponse(responseCode = "200", description = "Project has been found", content = { @Content(schema = @Schema(implementation = ProjectDTO.class)) })
     @ApiResponse(responseCode = "404", description = "Project not found", content = { @Content })
-    @GetMapping(value = PROJECTS_GET_BY_ID_PATH, produces = "application/json")
-    ResponseEntity<ProjectDTO> getProjectById(@Parameter(description = "Id of the project to get") @PathVariable("id") UUID id);
+    ResponseEntity<ProjectDTO> getProjectById(@PathVariable("id") @Parameter(description = "Id of the project to get") UUID id);
 
     /**
      * Gets all projects.
@@ -86,10 +86,10 @@ public interface ProjectRestAPI {
      *
      * @return all projects found, or an empty list if there aren't projects.
      */
-    @Operation(summary = "Gets all projects", description = "Returns all projects, or an empty list if there aren't projects")
-    @ApiResponse(responseCode = "200", description = "Projects found", content = { @Content(schema = @Schema(implementation = ProjectDTO.class)) })
     @GetMapping(value = PROJECTS_GET_ALL_PATH, produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Gets all projects", description = "Returns all projects, or an empty list if there aren't projects")
+    @ApiResponse(responseCode = "200", description = "Projects found", content = { @Content(schema = @Schema(implementation = ProjectDTO.class)) })
     List<ProjectDTO> getAllProjects();
 
     /**
@@ -107,11 +107,11 @@ public interface ProjectRestAPI {
      * @param project the project to create.
      * @return the created project.
      */
-    @Operation(summary = "Creates a project", description = "Creates the given project ignoring the id and the tasks fields, the resultant project always has a new id")
-    @ApiResponse(responseCode = "201", description = "Project has been created", content = { @Content(schema = @Schema(implementation = ProjectDTO.class)) })
     @PostMapping(value = PROJECTS_CREATE_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
-    ProjectDTO createProject(@Valid @RequestBody ProjectDTO project);
+    @Operation(summary = "Creates a project", description = "Creates the given project ignoring the id and the tasks fields, the resultant project always has a new id")
+    @ApiResponse(responseCode = "201", description = "Project has been created", content = { @Content(schema = @Schema(implementation = ProjectDTO.class)) })
+    ProjectDTO createProject(@RequestBody @Valid ProjectDTO project);
 
     /**
      * Updates a project by id.
@@ -128,12 +128,12 @@ public interface ProjectRestAPI {
      * @param newProjectData the new project data.
      * @return a {@link ResponseEntity} wrapping the updated project, or empty if the given id has not been found.
      */
+    @PutMapping(value = PROJECTS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
     @Operation(summary = "Updates a project", description = "Updates all fields of the project except the id and tasks, with the given new data")
     @ApiResponse(responseCode = "200", description = "Project has been updated", content = { @Content(schema = @Schema(implementation = ProjectDTO.class)) })
     @ApiResponse(responseCode = "404", description = "Project not found", content = { @Content })
-    @PutMapping(value = PROJECTS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
-    ResponseEntity<ProjectDTO> updateProjectById(@Parameter(description = "Identifier of the project to update") @PathVariable("id") UUID id,
-            @Valid @RequestBody ProjectDTO newProjectData);
+    ResponseEntity<ProjectDTO> updateProjectById(@PathVariable("id") @Parameter(description = "Identifier of the project to update") UUID id,
+            @RequestBody @Valid ProjectDTO newProjectData);
 
     /**
      * Deletes a project by id.
@@ -149,10 +149,10 @@ public interface ProjectRestAPI {
      * @param id the id of the project to delete.
      * @return a {@link ResponseEntity} wrapping empty.
      */
+    @DeleteMapping(value = PROJECTS_DELETE_BY_ID_PATH, produces = "application/json")
     @Operation(summary = "Deletes a project by id", description = "Deletes a project by id, the related tasks are not deleted")
     @ApiResponse(responseCode = "204", description = "Project has been deleted", content = { @Content })
     @ApiResponse(responseCode = "404", description = "Project not found", content = { @Content })
-    @DeleteMapping(value = PROJECTS_DELETE_BY_ID_PATH, produces = "application/json")
-    ResponseEntity<Void> deleteProjectById(@Parameter(description = "Id of the project to delete") @PathVariable("id") UUID id);
+    ResponseEntity<Void> deleteProjectById(@PathVariable("id") @Parameter(description = "Id of the project to delete") UUID id);
 
 }
