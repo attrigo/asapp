@@ -111,6 +111,7 @@ public interface ProjectRestAPI {
     @PostMapping(value = PROJECTS_CREATE_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Creates a project", description = "Creates the given project ignoring the id and the tasks fields, the resultant project always has a new id")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The project to create", required = true, content = @Content(schema = @Schema(implementation = ProjectDTO.class)))
     @ApiResponse(responseCode = "201", description = "Project has been created", content = { @Content(schema = @Schema(implementation = ProjectDTO.class)) })
     ProjectDTO createProject(@RequestBody @Valid ProjectDTO project);
 
@@ -131,6 +132,7 @@ public interface ProjectRestAPI {
      */
     @PutMapping(value = PROJECTS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
     @Operation(summary = "Updates a project", description = "Updates all fields of the project except the id and tasks, with the given new data")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The new project data", required = true, content = @Content(schema = @Schema(implementation = ProjectDTO.class)))
     @ApiResponse(responseCode = "200", description = "Project has been updated", content = { @Content(schema = @Schema(implementation = ProjectDTO.class)) })
     @ApiResponse(responseCode = "404", description = "Project not found", content = { @Content })
     ResponseEntity<ProjectDTO> updateProjectById(@PathVariable("id") @Parameter(description = "Identifier of the project to update") UUID id,
