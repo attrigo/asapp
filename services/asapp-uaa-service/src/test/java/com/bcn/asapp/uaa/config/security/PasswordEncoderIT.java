@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 package com.bcn.asapp.uaa.config.security;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;

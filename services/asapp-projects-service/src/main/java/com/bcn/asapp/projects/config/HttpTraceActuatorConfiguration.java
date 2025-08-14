@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 package com.bcn.asapp.projects.config;
 
 import org.springframework.boot.actuate.web.exchanges.InMemoryHttpExchangeRepository;

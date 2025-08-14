@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 package com.bcn.asapp.tasks.config;
 
 import org.springframework.data.jdbc.repository.config.EnableJdbcRepositories;
