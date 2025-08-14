@@ -57,6 +57,7 @@ import com.bcn.asapp.uaa.AsappUAAServiceApplication;
 import com.bcn.asapp.uaa.security.core.AccessToken;
 import com.bcn.asapp.uaa.security.core.AccessTokenRepository;
 import com.bcn.asapp.uaa.security.core.JwtType;
+import com.bcn.asapp.uaa.security.core.RefreshToken;
 import com.bcn.asapp.uaa.security.core.RefreshTokenRepository;
 import com.bcn.asapp.uaa.testutil.JwtFaker;
 import com.bcn.asapp.uaa.user.Role;
@@ -234,8 +235,7 @@ class AuthE2EIT {
             assertNotNull(currentAccessToken);
 
             var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
-            var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(null, userToBeAuthenticated.id(), fakeRefreshJwt, Instant.now(),
-                    Instant.now());
+            var fakeRefreshToken = new RefreshToken(null, userToBeAuthenticated.id(), fakeRefreshJwt, Instant.now(), Instant.now());
             var currentRefreshToken = refreshTokenRepository.save(fakeRefreshToken);
             assertNotNull(currentRefreshToken);
 
@@ -561,8 +561,7 @@ class AuthE2EIT {
             assertNotNull(currentAccessToken);
 
             var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
-            var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(null, userToBeAuthenticated.id(), fakeRefreshJwt, Instant.now(),
-                    Instant.now());
+            var fakeRefreshToken = new RefreshToken(null, userToBeAuthenticated.id(), fakeRefreshJwt, Instant.now(), Instant.now());
             var currentrefreshToken = refreshTokenRepository.save(fakeRefreshToken);
             assertNotNull(currentrefreshToken);
 
@@ -624,7 +623,7 @@ class AuthE2EIT {
             assertNotNull(accessTokenSaved);
 
             var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
-            var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(null, userSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
+            var fakeRefreshToken = new RefreshToken(null, userSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
             var refreshTokenSaved = refreshTokenRepository.save(fakeRefreshToken);
             assertNotNull(refreshTokenSaved);
 
@@ -674,8 +673,7 @@ class AuthE2EIT {
             assertNotNull(currentAccessToken);
 
             var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
-            var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(null, userToBeAuthenticated.id(), fakeRefreshJwt, Instant.now(),
-                    Instant.now());
+            var fakeRefreshToken = new RefreshToken(null, userToBeAuthenticated.id(), fakeRefreshJwt, Instant.now(), Instant.now());
             var currentrefreshToken = refreshTokenRepository.save(fakeRefreshToken);
             assertNotNull(currentrefreshToken);
 
@@ -733,7 +731,7 @@ class AuthE2EIT {
             assertNotNull(accessTokenSaved);
 
             var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
-            var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(null, userSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
+            var fakeRefreshToken = new RefreshToken(null, userSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
             var refreshTokenSaved = refreshTokenRepository.save(fakeRefreshToken);
             assertNotNull(refreshTokenSaved);
 
@@ -768,7 +766,7 @@ class AuthE2EIT {
             assertNotNull(accessTokenSaved);
 
             var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
-            var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(null, userSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
+            var fakeRefreshToken = new RefreshToken(null, userSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
             var refreshTokenSaved = refreshTokenRepository.save(fakeRefreshToken);
             assertNotNull(refreshTokenSaved);
 
@@ -803,7 +801,7 @@ class AuthE2EIT {
             assertNotNull(accessTokenSaved);
 
             var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
-            var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(null, userSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
+            var fakeRefreshToken = new RefreshToken(null, userSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
             var refreshTokenSaved = refreshTokenRepository.save(fakeRefreshToken);
             assertNotNull(refreshTokenSaved);
 
@@ -864,7 +862,7 @@ class AuthE2EIT {
             assertNotNull(accessTokenSaved);
 
             var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
-            var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(null, userSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
+            var fakeRefreshToken = new RefreshToken(null, userSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
             var refreshTokenSaved = refreshTokenRepository.save(fakeRefreshToken);
             assertNotNull(refreshTokenSaved);
 
@@ -922,7 +920,7 @@ class AuthE2EIT {
             assertNotNull(accessTokenSaved);
 
             var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
-            var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(null, userSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
+            var fakeRefreshToken = new RefreshToken(null, userSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
             var refreshTokenSaved = refreshTokenRepository.save(fakeRefreshToken);
             assertNotNull(refreshTokenSaved);
 
@@ -972,7 +970,7 @@ class AuthE2EIT {
             assertNotNull(accessTokenSaved);
 
             var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
-            var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(null, userSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
+            var fakeRefreshToken = new RefreshToken(null, userSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
             var refreshTokenSaved = refreshTokenRepository.save(fakeRefreshToken);
             assertNotNull(refreshTokenSaved);
 
