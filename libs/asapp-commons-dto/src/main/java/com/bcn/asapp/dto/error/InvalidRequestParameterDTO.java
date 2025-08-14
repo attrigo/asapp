@@ -22,4 +22,8 @@ package com.bcn.asapp.dto.error;
  * @author ttrigo
  * @since 0.1.0
  */
-public record InvalidRequestParameterDTO(String entity, String field, String message) {}
+public record InvalidRequestParameterDTO(
+        String entity,
+        String field,
+        String message
+) {}

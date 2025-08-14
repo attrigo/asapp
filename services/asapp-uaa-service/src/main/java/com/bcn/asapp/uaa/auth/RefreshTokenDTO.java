@@ -27,4 +27,6 @@ import jakarta.validation.constraints.NotBlank;
  * @author ttrigo
  * @since 0.2.0
  */
-public record RefreshTokenDTO(@JsonValue @NotBlank(message = "The refresh token must not be empty") String jwt) {}
+public record RefreshTokenDTO(
+        @JsonValue @NotBlank(message = "The refresh token must not be empty") String jwt
+) {}

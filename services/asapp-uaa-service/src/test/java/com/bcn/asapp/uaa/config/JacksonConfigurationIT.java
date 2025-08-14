@@ -166,8 +166,16 @@ class JacksonConfigurationIT {
         assertEquals(entityExpected, actualEntity);
     }
 
-    record TestEntity(UUID uuid, String string, List<String> list) {}
+    record TestEntity(
+            UUID uuid,
+            String string,
+            List<String> list
+    ) {}
 
-    record DateTestEntity(LocalDate localDate, LocalDateTime localDateTime, Instant instant) {}
+    record DateTestEntity(
+            LocalDate localDate,
+            LocalDateTime localDateTime,
+            Instant instant
+    ) {}
 
 }
