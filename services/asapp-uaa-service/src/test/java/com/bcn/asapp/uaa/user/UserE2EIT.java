@@ -59,6 +59,7 @@ import com.bcn.asapp.uaa.AsappUAAServiceApplication;
 import com.bcn.asapp.uaa.security.core.AccessToken;
 import com.bcn.asapp.uaa.security.core.AccessTokenRepository;
 import com.bcn.asapp.uaa.security.core.JwtType;
+import com.bcn.asapp.uaa.security.core.RefreshToken;
 import com.bcn.asapp.uaa.security.core.RefreshTokenRepository;
 import com.bcn.asapp.uaa.testconfig.SecurityTestConfiguration;
 import com.bcn.asapp.uaa.testutil.JwtFaker;
@@ -119,7 +120,7 @@ class UserE2EIT {
         assertNotNull(accessTokenSaved);
 
         var fakeRefreshTokenAsString = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
-        var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(null, authUser.id(), fakeRefreshTokenAsString, Instant.now(), Instant.now());
+        var fakeRefreshToken = new RefreshToken(null, authUser.id(), fakeRefreshTokenAsString, Instant.now(), Instant.now());
         var refreshTokenSaved = refreshTokenRepository.save(fakeRefreshToken);
         assertNotNull(refreshTokenSaved);
 

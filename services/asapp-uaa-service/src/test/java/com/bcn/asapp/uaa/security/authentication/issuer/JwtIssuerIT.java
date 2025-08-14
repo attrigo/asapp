@@ -197,7 +197,7 @@ class JwtIssuerIT {
             assertNotNull(accessTokenSaved);
 
             var fakeRefreshJwt = jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN);
-            var fakeRefreshToken = new com.bcn.asapp.uaa.security.core.RefreshToken(null, fakeUserSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
+            var fakeRefreshToken = new RefreshToken(null, fakeUserSaved.id(), fakeRefreshJwt, Instant.now(), Instant.now());
             var refreshTokenSaved = refreshTokenRepository.save(fakeRefreshToken);
             assertNotNull(refreshTokenSaved);
 
