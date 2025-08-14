@@ -129,6 +129,7 @@ public interface TaskRestAPI {
     @PostMapping(value = TASKS_CREATE_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Creates a task", description = "Creates the given task ignoring the id field, the resultant task always has a new id")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The task to create", content = @Content(schema = @Schema(implementation = TaskDTO.class)))
     @ApiResponse(responseCode = "201", description = "Task has been created", content = { @Content(schema = @Schema(implementation = TaskDTO.class)) })
     TaskDTO createTask(@RequestBody @Valid TaskDTO task);
 
@@ -149,6 +150,7 @@ public interface TaskRestAPI {
      */
     @PutMapping(value = TASKS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
     @Operation(summary = "Updates a task", description = "Updates all fields of the task except the id, with the given new data")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "the new task data", content = @Content(schema = @Schema(implementation = TaskDTO.class)))
     @ApiResponse(responseCode = "200", description = "Task has been updated", content = { @Content(schema = @Schema(implementation = TaskDTO.class)) })
     @ApiResponse(responseCode = "404", description = "Task not found", content = { @Content })
     ResponseEntity<TaskDTO> updateTaskById(@PathVariable("id") @Parameter(description = "Identifier of the task to update") UUID id,

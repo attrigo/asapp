@@ -122,10 +122,11 @@ public interface UserRestAPI {
     @PostMapping(value = USERS_CREATE_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Creates a new user", description = "Creates a new user with a new generated id, any provided id will be ignored")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The user data to create", required = true, content = @Content(schema = @Schema(implementation = UserDTO.class)))
     @ApiResponse(responseCode = "201", description = "User created successfully", content = { @Content(schema = @Schema(implementation = UserDTO.class)) })
     @ApiResponse(responseCode = "400", description = "Request body validation failed", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    UserDTO createUser(@RequestBody @Valid @Parameter(description = "User data to create", required = true) UserDTO user);
+    UserDTO createUser(@RequestBody @Valid UserDTO user);
 
     /**
      * Updates an existing user by id.
@@ -147,13 +148,14 @@ public interface UserRestAPI {
     @PutMapping(value = USERS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Updates an existing user by id", description = "Updates the data of an existing user by the specified id except the id, with the provided new data")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The user data to update", required = true, content = @Content(schema = @Schema(implementation = UserDTO.class)))
     @ApiResponse(responseCode = "200", description = "User has been updated", content = { @Content(schema = @Schema(implementation = UserDTO.class)) })
     @ApiResponse(responseCode = "400", description = "Invalid user id format or request body validation failed.", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
     @ApiResponse(responseCode = "404", description = "User not found", content = { @Content })
     ResponseEntity<UserDTO> updateUserById(@PathVariable("id") @Parameter(description = "Id of the user to update") UUID id,
-            @RequestBody @Valid @Parameter(description = "User data to update", required = true) UserDTO newUserData);
+            @RequestBody @Valid UserDTO newUserData);
 
     /**
      * Deletes a user by id.
