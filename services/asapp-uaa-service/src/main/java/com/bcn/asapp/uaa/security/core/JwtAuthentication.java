@@ -28,4 +28,7 @@ import jakarta.validation.constraints.NotNull;
  * @since 0.2.0
  * @author ttrigo
  */
-public record JwtAuthentication(@NotNull AccessToken accessToken, @NotNull RefreshToken refreshToken) {}
+public record JwtAuthentication(
+        @NotNull AccessToken accessToken,
+        @NotNull RefreshToken refreshToken
+) {}

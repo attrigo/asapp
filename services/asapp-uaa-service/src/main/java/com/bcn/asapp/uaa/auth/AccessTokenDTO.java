@@ -27,4 +27,6 @@ import jakarta.validation.constraints.NotBlank;
  * @author ttrigo
  * @since 0.2.0
  */
-public record AccessTokenDTO(@JsonValue @NotBlank(message = "The access token must not be empty") String jwt) {}
+public record AccessTokenDTO(
+        @JsonValue @NotBlank(message = "The access token must not be empty") String jwt
+) {}
