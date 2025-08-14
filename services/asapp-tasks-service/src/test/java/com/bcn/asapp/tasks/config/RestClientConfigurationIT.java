@@ -48,7 +48,7 @@ import com.bcn.asapp.tasks.testutil.JwtTestGenerator;
 
 @SpringBootTest(classes = AsappTasksServiceApplication.class)
 @Import(SecurityTestConfiguration.class)
-@Testcontainers(disabledWithoutDocker = true, parallel = true)
+@Testcontainers(disabledWithoutDocker = true)
 class RestClientConfigurationIT {
 
     @Container

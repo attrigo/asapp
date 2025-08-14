@@ -78,7 +78,7 @@ import com.bcn.asapp.projects.testutil.JwtTestGenerator;
 @SpringBootTest(classes = AsappProjectsServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @Import(SecurityTestConfiguration.class)
 @AutoConfigureWebTestClient(timeout = "30000")
-@Testcontainers(disabledWithoutDocker = true, parallel = true)
+@Testcontainers(disabledWithoutDocker = true)
 class ProjectE2EIT {
 
     @Container
