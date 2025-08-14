@@ -21,6 +21,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 /**
  * Application entry point.
+ * <p>
+ * Overrides default {@code scanBasePackages} to pick up beans defined in project libraries.
  *
  * @author ttrigo
  * @since 0.1.0
