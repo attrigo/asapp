@@ -332,11 +332,11 @@ class ProjectControllerIT {
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
-                   .andExpect(jsonPath("$.detail", containsString("The title of the project is mandatory")))
+                   .andExpect(jsonPath("$.detail", containsString("The title must not be empty")))
                    .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH)))
                    .andExpect(jsonPath("$.errors[0].entity", is("projectDTO")))
                    .andExpect(jsonPath("$.errors[0].field", is("title")))
-                   .andExpect(jsonPath("$.errors[0].message", is("The title of the project is mandatory")));
+                   .andExpect(jsonPath("$.errors[0].message", is("The title must not be empty")));
         }
 
         @Test
@@ -354,11 +354,11 @@ class ProjectControllerIT {
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
-                   .andExpect(jsonPath("$.detail", containsString("The title of the project is mandatory")))
+                   .andExpect(jsonPath("$.detail", containsString("The title must not be empty")))
                    .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH)))
                    .andExpect(jsonPath("$.errors[0].entity", is("projectDTO")))
                    .andExpect(jsonPath("$.errors[0].field", is("title")))
-                   .andExpect(jsonPath("$.errors[0].message", is("The title of the project is mandatory")));
+                   .andExpect(jsonPath("$.errors[0].message", is("The title must not be empty")));
         }
 
         @Test
@@ -522,11 +522,11 @@ class ProjectControllerIT {
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
-                   .andExpect(jsonPath("$.detail", containsString("The title of the project is mandatory")))
+                   .andExpect(jsonPath("$.detail", containsString("The title must not be empty")))
                    .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)))
                    .andExpect(jsonPath("$.errors[0].entity", is("projectDTO")))
                    .andExpect(jsonPath("$.errors[0].field", is("title")))
-                   .andExpect(jsonPath("$.errors[0].message", is("The title of the project is mandatory")));
+                   .andExpect(jsonPath("$.errors[0].message", is("The title must not be empty")));
         }
 
         @Test
@@ -545,11 +545,11 @@ class ProjectControllerIT {
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
-                   .andExpect(jsonPath("$.detail", containsString("The title of the project is mandatory")))
+                   .andExpect(jsonPath("$.detail", containsString("The title must not be empty")))
                    .andExpect(jsonPath("$.instance", is(PROJECTS_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)))
                    .andExpect(jsonPath("$.errors[0].entity", is("projectDTO")))
                    .andExpect(jsonPath("$.errors[0].field", is("title")))
-                   .andExpect(jsonPath("$.errors[0].message", is("The title of the project is mandatory")));
+                   .andExpect(jsonPath("$.errors[0].message", is("The title must not be empty")));
         }
 
         @Test

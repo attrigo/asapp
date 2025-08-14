@@ -439,11 +439,11 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
-                   .andExpect(jsonPath("$.detail", containsString("The title of the task is mandatory")))
+                   .andExpect(jsonPath("$.detail", containsString("The title must not be empty")))
                    .andExpect(jsonPath("$.instance", is(TASKS_ROOT_PATH)))
                    .andExpect(jsonPath("$.errors[0].entity", is("taskDTO")))
                    .andExpect(jsonPath("$.errors[0].field", is("title")))
-                   .andExpect(jsonPath("$.errors[0].message", is("The title of the task is mandatory")));
+                   .andExpect(jsonPath("$.errors[0].message", is("The title must not be empty")));
         }
 
         @Test
@@ -461,11 +461,11 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
-                   .andExpect(jsonPath("$.detail", containsString("The title of the task is mandatory")))
+                   .andExpect(jsonPath("$.detail", containsString("The title must not be empty")))
                    .andExpect(jsonPath("$.instance", is(TASKS_ROOT_PATH)))
                    .andExpect(jsonPath("$.errors[0].entity", is("taskDTO")))
                    .andExpect(jsonPath("$.errors[0].field", is("title")))
-                   .andExpect(jsonPath("$.errors[0].message", is("The title of the task is mandatory")));
+                   .andExpect(jsonPath("$.errors[0].message", is("The title must not be empty")));
         }
 
         @Test
@@ -655,11 +655,11 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
-                   .andExpect(jsonPath("$.detail", containsString("The title of the task is mandatory")))
+                   .andExpect(jsonPath("$.detail", containsString("The title must not be empty")))
                    .andExpect(jsonPath("$.instance", is(TASK_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)))
                    .andExpect(jsonPath("$.errors[0].entity", is("taskDTO")))
                    .andExpect(jsonPath("$.errors[0].field", is("title")))
-                   .andExpect(jsonPath("$.errors[0].message", is("The title of the task is mandatory")));
+                   .andExpect(jsonPath("$.errors[0].message", is("The title must not be empty")));
         }
 
         @Test
@@ -678,11 +678,11 @@ class TaskControllerIT {
                    .andExpect(jsonPath("$.type", is("about:blank")))
                    .andExpect(jsonPath("$.title", is("Bad Request")))
                    .andExpect(jsonPath("$.status", is(400)))
-                   .andExpect(jsonPath("$.detail", containsString("The title of the task is mandatory")))
+                   .andExpect(jsonPath("$.detail", containsString("The title must not be empty")))
                    .andExpect(jsonPath("$.instance", is(TASK_ROOT_PATH_WITH_FINAL_SLASH + idToUpdate)))
                    .andExpect(jsonPath("$.errors[0].entity", is("taskDTO")))
                    .andExpect(jsonPath("$.errors[0].field", is("title")))
-                   .andExpect(jsonPath("$.errors[0].message", is("The title of the task is mandatory")));
+                   .andExpect(jsonPath("$.errors[0].message", is("The title must not be empty")));
         }
 
         @Test
