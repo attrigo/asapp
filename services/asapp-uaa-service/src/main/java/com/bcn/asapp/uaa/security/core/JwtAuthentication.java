@@ -23,8 +23,8 @@ import jakarta.validation.constraints.NotNull;
  * <p>
  * Encapsulates the tokens required for user authentication and refresh token operations.
  *
- * @param accessToken  the {@link AccessToken} used for authenticating the user and granting access to resources
- * @param refreshToken the {@link RefreshToken} used for obtaining a new access token when the current one expires
+ * @param accessToken  the {@link AccessToken} used for authenticating the user and granting access to resources, must not be {@literal null}
+ * @param refreshToken the {@link RefreshToken} used for obtaining a new access token when the current one expires, must not be {@literal null}
  * @since 0.2.0
  * @author ttrigo
  */

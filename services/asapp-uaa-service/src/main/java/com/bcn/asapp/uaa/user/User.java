@@ -21,7 +21,9 @@ import java.util.UUID;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.lang.NonNull;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Represents a user entity in the UAA (User Account and Authentication) service.
@@ -29,16 +31,16 @@ import org.springframework.lang.NonNull;
  * Encapsulates the user's identity, credentials, and assigned role.
  *
  * @param id       the unique identifier of the user
- * @param username the username used for authentication and identification
- * @param password the encrypted password used for authentication
- * @param role     the {@link Role} assigned to the user, determining access permissions
+ * @param username the username used for authentication and identification, must not be {@literal blank}
+ * @param password the encrypted password used for authentication, must not be {@literal blank}
+ * @param role     the {@link Role} assigned to the user, determining access permissions, must not be {@literal null}
  * @since 0.2.0
  * @author ttrigo
  */
 @Table("user")
 public record User(
         @Id @Column("user_id") UUID id,
-        @Column("username") @NonNull String username,
-        @Column("password") @NonNull String password,
-        @Column("role") @NonNull Role role
+        @Column("username") @NotBlank String username,
+        @Column("password") @NotBlank String password,
+        @Column("role") @NotNull Role role
 ) {}

@@ -29,7 +29,7 @@ import jakarta.validation.constraints.NotBlank;
  */
 public record TaskDTO(
         UUID id,
-        @NotBlank(message = "The title of the task is mandatory") String title,
+        @NotBlank(message = "The title must not be empty") String title,
         String description,
         Instant startDateTime,
         UUID projectId

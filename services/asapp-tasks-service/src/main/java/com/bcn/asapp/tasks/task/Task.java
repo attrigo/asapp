@@ -22,7 +22,8 @@ import java.util.UUID;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.lang.NonNull;
+
+import jakarta.validation.constraints.NotBlank;
 
 /**
  * Represents a task entity.
@@ -33,7 +34,7 @@ import org.springframework.lang.NonNull;
 @Table("task")
 public record Task(
         @Id @Column("task_id") UUID id,
-        @Column("title") @NonNull String title,
+        @Column("title") @NotBlank String title,
         @Column("description") String description,
         @Column("start_date") Instant startDateTime,
         @Column("project_id") UUID projectId

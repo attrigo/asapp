@@ -22,7 +22,9 @@ import java.util.UUID;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Column;
 import org.springframework.data.relational.core.mapping.Table;
-import org.springframework.lang.NonNull;
+
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * Represents an access token entity in the UAA (User Account and Authentication) service.
@@ -32,18 +34,18 @@ import org.springframework.lang.NonNull;
  * This token is used to authenticate and authorize user requests within the system.
  *
  * @param id        the unique identifier for the access token
- * @param userId    the identifier of the user associated with this access token
- * @param jwt       the JWT (JSON Web Token) string used for authenticating the user
- * @param createdAt the timestamp when the access token was created
- * @param expiresAt the timestamp when the access token expires and becomes invalid
+ * @param userId    the identifier of the user associated with this access token, must not be {@literal blank}
+ * @param jwt       the JWT (JSON Web Token) string used for authenticating the user, must not be {@literal blank}
+ * @param createdAt the timestamp when the access token was created, must not be {@literal null}
+ * @param expiresAt the timestamp when the access token expires and becomes invalid, must not be {@literal null}
  * @since 0.2.0
  * @author ttrigo
  */
 @Table("access_token")
 public record AccessToken(
         @Id @Column("access_token_id") UUID id,
-        @Column("user_id") UUID userId,
-        @Column("jwt") @NonNull String jwt,
-        @Column("created_at") @NonNull Instant createdAt,
-        @Column("expires_at") @NonNull Instant expiresAt
+        @Column("user_id") @NotBlank UUID userId,
+        @Column("jwt") @NotBlank String jwt,
+        @Column("created_at") @NotNull Instant createdAt,
+        @Column("expires_at") @NotNull Instant expiresAt
 ) {}

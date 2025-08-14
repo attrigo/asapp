@@ -23,7 +23,7 @@ import jakarta.validation.constraints.NotBlank;
 /**
  * Represents a Data Transfer Object (DTO) for a refresh token JWT.
  *
- * @param jwt the raw JWT string value of the refresh token, must not be blank
+ * @param jwt the raw JWT string value of the refresh token, must not be {@literal blank}
  * @author ttrigo
  * @since 0.2.0
  */
