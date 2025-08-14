@@ -76,7 +76,7 @@ public class ProjectRestController implements ProjectRestAPI {
     @Override
     public ResponseEntity<Void> deleteProjectById(UUID id) {
         boolean projectHasBeenDeleted = projectService.deleteById(id);
-        return ResponseEntity.status(Boolean.TRUE.equals(projectHasBeenDeleted) ? HttpStatus.NO_CONTENT : HttpStatus.NOT_FOUND)
+        return ResponseEntity.status(projectHasBeenDeleted ? HttpStatus.NO_CONTENT : HttpStatus.NOT_FOUND)
                              .build();
     }
 

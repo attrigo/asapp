@@ -81,7 +81,7 @@ public class TaskRestController implements TaskRestAPI {
     @Override
     public ResponseEntity<Void> deleteTaskById(UUID id) {
         boolean taskHasBeenDeleted = taskService.deleteById(id);
-        return ResponseEntity.status(Boolean.TRUE.equals(taskHasBeenDeleted) ? HttpStatus.NO_CONTENT : HttpStatus.NOT_FOUND)
+        return ResponseEntity.status(taskHasBeenDeleted ? HttpStatus.NO_CONTENT : HttpStatus.NOT_FOUND)
                              .build();
     }
 
