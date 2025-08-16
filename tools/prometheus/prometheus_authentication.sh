@@ -9,7 +9,7 @@ ACCESS_TOKEN_FILE="${TOKEN_DIR}/bearer_token"
 REFRESH_TOKEN=
 
 # UAA service URLs
-AUTH_HEALTH_ENDPOINT="${UAA_SERVICE_BASE_URL}/actuator/health"
+AUTH_READINESS_ENDPOINT="${UAA_SERVICE_BASE_URL}/readyz"
 AUTH_ENDPOINT="${UAA_SERVICE_BASE_URL}/api/auth/token"
 REFRESH_ENDPOINT="${UAA_SERVICE_BASE_URL}/api/auth/refresh-token"
 
@@ -32,8 +32,8 @@ install_dependencies() {
 }
 
 wait_uaa_service_health() {
-    echo "Waiting for asapp-uaa-service to be healthy..."
-    until curl -s ${AUTH_HEALTH_ENDPOINT} | grep '"status":"UP"' > /dev/null; do
+    echo "Waiting for asapp-uaa-service to be ready..."
+    until curl -s ${AUTH_READINESS_ENDPOINT} | grep '"status":"UP"' > /dev/null; do
       echo "Still waiting..."
       sleep 10
     done

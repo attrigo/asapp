@@ -23,6 +23,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SERVER_PORT=8082
+      - MANAGEMENT_PORT=8092
       - DB_HOST=asapp-uaa-postgres-db
       - DB_PORT=5432
       - DB_NAME=uaadb

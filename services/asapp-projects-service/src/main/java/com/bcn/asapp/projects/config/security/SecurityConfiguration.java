@@ -18,8 +18,11 @@ package com.bcn.asapp.projects.config.security;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
+import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -35,6 +38,14 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * Sets up security for the application using Spring Security.
  * <p>
  * Defines security filters and specifies the behavior of authentication and authorization across the application.
+ * <p>
+ * The class creates three Security Filter Chain, one to protect the API endpoints, one to protect the Actuator endpoints, and another one to protect the root
+ * path; the declaration order of the filter chains is important, the first one to match will be used.
+ * <p>
+ * The purpose of the Spring Security Filter Chain is to provide a series of security filters that are executed in a specific order during each HTTP request.
+ * These filters handle various security concerns such as authentication, authorization, session management, and CSRF protection. The filter chain ensures that
+ * security-related operations are applied consistently across the application before any request is processed, enabling secure access control and protection of
+ * resources.
  *
  * @author ttrigo
  * @see SecurityFilterChain
@@ -45,7 +56,13 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfiguration {
 
-    private static final String[] WHITELIST_URLS = { "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html", "/actuator/health" };
+    private static final String API_MATCHER = "/api/**";
+
+    private static final String ROOT_MATCHER = "/**";
+
+    private static final String[] PROBES_URLS = { "/readyz", "/livez" };
+
+    private static final String[] ROOT_WHITELIST_URLS = { "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html" };
 
     private final JwtAuthenticationEntryPoint authenticationEntryPoint;
 
@@ -63,17 +80,12 @@ public class SecurityConfiguration {
     }
 
     /**
-     * Creates a {@link SecurityFilterChain} bean.
+     * Creates a {@link SecurityFilterChain} bean to protect any API (business) endpoints.
      * <p>
-     * The purpose of the Spring Security Filter Chain is to provide a series of security filters that are executed in a specific order during each HTTP
-     * request. These filters handle various security concerns such as authentication, authorization, session management, and CSRF protection. The filter chain
-     * ensures that security-related operations are applied consistently across the application before any request is processed, enabling secure access control
-     * and protection of resources.
-     * <p>
-     * Mainly these are the configurations applied to the filter chain:
+     * Mainly these are the configurations applied to this filter chain:
      * <ul>
      * <li>Disables CSRF.</li>
-     * <li>Configures the authentication requirements for the incoming request.</li>
+     * <li>Configures the authentication requirements for the incoming requests that matches {@literal /api/**}.</li>
      * <li>Adds the exception handler, which is invoked when any authentication fails.</li>
      * <li>Adds the JWT authentication filter.</li>
      * </ul>
@@ -83,10 +95,87 @@ public class SecurityConfiguration {
      * @throws Exception if an error occurs during configuration.
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    @Order(1)
+    public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
+            .securityMatcher(API_MATCHER)
+            .authorizeHttpRequests(auth -> auth.anyRequest()
+                                               .authenticated())
+            .httpBasic(Customizer.withDefaults());
+
+        http.sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
+
+        http.exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint));
+
+        http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    /**
+     * Creates a {@link SecurityFilterChain} bean to protect any management (Actuator) endpoints.
+     * <p>
+     * Mainly these are the configurations applied to this filter chain:
+     * <ul>
+     * <li>Disables CSRF.</li>
+     * <li>Disables CORS.</li>
+     * <li>Configures the authentication requirements for the incoming requests that matches {@literal /actuator/**}.</li>
+     * <li>Adds the exception handler, which is invoked when any authentication fails.</li>
+     * <li>Adds the JWT authentication filter.</li>
+     * </ul>
+     *
+     * @param http the {@link HttpSecurity} object used to configure HTTP security.
+     * @return an instance of {@link SecurityFilterChain}.
+     * @throws Exception if an error occurs during configuration.
+     */
+    @Bean
+    @Order(2)
+    public SecurityFilterChain actuatorFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable)
+            .cors(AbstractHttpConfigurer::disable)
+            .securityMatcher(EndpointRequest.toAnyEndpoint())
             .authorizeHttpRequests(auth -> {
-                auth.requestMatchers(WHITELIST_URLS)
+                auth.requestMatchers(EndpointRequest.to(HealthEndpoint.class))
+                    .permitAll();
+                auth.anyRequest()
+                    .authenticated();
+            })
+            .httpBasic(Customizer.withDefaults());
+
+        http.sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
+
+        http.exceptionHandling(exception -> exception.authenticationEntryPoint(authenticationEntryPoint));
+
+        http.addFilterBefore(authenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    /**
+     * Creates a {@link SecurityFilterChain} bean to protect the root path of the application, in other words secures any endpoint that does not match any of
+     * the previous filter chains.
+     * <p>
+     * Mainly these are the configurations applied to this filter chain:
+     * <ul>
+     * <li>Disables CSRF.</li>
+     * <li>Configures the authentication requirements for the incoming requests that matches {@literal /**}.</li>
+     * <li>Adds the exception handler, which is invoked when any authentication fails.</li>
+     * <li>Adds the JWT authentication filter.</li>
+     * </ul>
+     *
+     * @param http the {@link HttpSecurity} object used to configure HTTP security.
+     * @return an instance of {@link SecurityFilterChain}.
+     * @throws Exception if an error occurs during configuration.
+     */
+    @Bean
+    @Order(3)
+    public SecurityFilterChain rootFilterChain(HttpSecurity http) throws Exception {
+        http.csrf(AbstractHttpConfigurer::disable)
+            .securityMatcher(ROOT_MATCHER)
+            .authorizeHttpRequests(auth -> {
+                auth.requestMatchers(ROOT_WHITELIST_URLS)
+                    .permitAll();
+                auth.requestMatchers(PROBES_URLS)
                     .permitAll();
                 auth.anyRequest()
                     .authenticated();
