@@ -17,6 +17,7 @@
 package com.bcn.asapp.tasks.config.security;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.emptyOrNullString;
 import static org.hamcrest.Matchers.not;
 
@@ -178,6 +179,7 @@ class SecurityConfigurationIT {
         @Test
         @DisplayName("GIVEN JWT is not present WHEN call actuator endpoint THEN returns HTTP response with status Unauthorized And an empty body")
         void JwtIsNotPresent_CallActuatorEndpoint_ReturnsStatusUnauthorizedAndEmptyBody() {
+            // When & Then
             webTestClient.get()
                          .uri("/actuator")
                          .exchange()
@@ -188,8 +190,8 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        @DisplayName("GIVEN JWT is present WHEN call actuator endpoint THEN returns HTTP response with status OK And the body with the actuator content")
-        void JwtIsPresent_CallActuatorEndpoint_ReturnsStatusOkAndBodyWithContent() {
+        @DisplayName("GIVEN JWT is present WHEN call actuator endpoint THEN returns HTTP response with status OK And body contains all actuator links")
+        void JwtIsPresent_CallActuatorEndpoint_ReturnsStatusOkAndBodyContainsAllActuatorLinks() {
             // When & Then
             var bearerToken = "Bearer " + jwtTestGenerator.generateJwt();
 
@@ -199,20 +201,153 @@ class SecurityConfigurationIT {
                          .exchange()
                          .expectStatus()
                          .isOk()
-                         .expectBody(String.class)
-                         .value(body -> assertThat(body, not(emptyOrNullString())));
+                         .expectBody()
+                         .jsonPath("$._links.self")
+                         .exists()
+                         .jsonPath("$._links.beans")
+                         .exists()
+                         .jsonPath("$._links.caches-cache")
+                         .exists()
+                         .jsonPath("$._links.caches")
+                         .exists()
+                         .jsonPath("$._links.health")
+                         .exists()
+                         .jsonPath("$._links.health-path")
+                         .exists()
+                         .jsonPath("$._links.info")
+                         .exists()
+                         .jsonPath("$._links.conditions")
+                         .exists()
+                         .jsonPath("$._links.shutdown")
+                         .exists()
+                         .jsonPath("$._links.configprops")
+                         .exists()
+                         .jsonPath("$._links.configprops-prefix")
+                         .exists()
+                         .jsonPath("$._links.env")
+                         .exists()
+                         .jsonPath("$._links.env-toMatch")
+                         .exists()
+                         .jsonPath("$._links.liquibase")
+                         .exists()
+                         .jsonPath("$._links.loggers")
+                         .exists()
+                         .jsonPath("$._links.loggers-name")
+                         .exists()
+                         .jsonPath("$._links.heapdump")
+                         .exists()
+                         .jsonPath("$._links.threaddump")
+                         .exists()
+                         .jsonPath("$._links.prometheus")
+                         .exists()
+                         .jsonPath("$._links.metrics-requiredMetricName")
+                         .exists()
+                         .jsonPath("$._links.metrics")
+                         .exists()
+                         .jsonPath("$._links.sbom-id")
+                         .exists()
+                         .jsonPath("$._links.sbom")
+                         .exists()
+                         .jsonPath("$._links.scheduledtasks")
+                         .exists()
+                         .jsonPath("$._links.httpexchanges")
+                         .exists()
+                         .jsonPath("$._links.mappings")
+                         .exists();
         }
 
         @Test
-        @DisplayName("GIVEN JWT is not present WHEN call actuator health endpoint THEN returns HTTP response with status OK And the body with the actuator content")
-        void JwtIsNotPresent_CallActuatorHealthEndpoint_ReturnsStatusOkAndBodyWithContent() {
+        @DisplayName("GIVEN JWT is not present WHEN call actuator health endpoint THEN returns HTTP response with status OK And body contains status and groups")
+        void JwtIsNotPresent_CallActuatorHealthEndpoint_ReturnsStatusOkAndBodyContainsStatusAndGroups() {
+            // When & Then
             webTestClient.get()
                          .uri("/actuator/health")
                          .exchange()
                          .expectStatus()
                          .isOk()
-                         .expectBody(String.class)
-                         .value(body -> assertThat(body, not(emptyOrNullString())));
+                         .expectBody()
+                         .jsonPath("$.status")
+                         .exists()
+                         .jsonPath("$.groups")
+                         .exists()
+                         .jsonPath("$.groups")
+                         .value(containsInAnyOrder("liveness", "readiness"));
+        }
+
+        @Test
+        @DisplayName("GIVEN JWT is present WHEN call actuator health endpoint THEN returns HTTP response with status OK And body contains status and health details")
+        void JwtIsPresent_CallActuatorHealthEndpoint_ReturnsStatusOkAndBodyContainsStatusAndHealthDetails() {
+            // When & Then
+            var bearerToken = "Bearer " + jwtTestGenerator.generateJwt();
+
+            webTestClient.get()
+                         .uri("/actuator/health")
+                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                         .exchange()
+                         .expectStatus()
+                         .isOk()
+                         .expectBody()
+                         .jsonPath("$.status")
+                         .exists()
+                         .jsonPath("$.groups")
+                         .exists()
+                         .jsonPath("$.components")
+                         .exists()
+                         .jsonPath("$.components.db")
+                         .exists()
+                         .jsonPath("$.components.diskSpace")
+                         .exists()
+                         .jsonPath("$.components.livenessState")
+                         .exists()
+                         .jsonPath("$.components.ping")
+                         .exists()
+                         .jsonPath("$.components.readinessState")
+                         .exists()
+                         .jsonPath("$.components.ssl")
+                         .exists();
+        }
+
+        @Test
+        @DisplayName("GIVEN JWT is present WHEN call actuator health endpoint THEN returns HTTP response with status OK And body contains git, build, java, os and process details")
+        void JwtIsPresent_CallActuatorInfoEndpoint_ReturnsStatusOkAndBodyContainsGitBuildJavaOsProcessDetails() {
+            // When & Then
+            var bearerToken = "Bearer " + jwtTestGenerator.generateJwt();
+
+            webTestClient.get()
+                         .uri("/actuator/info")
+                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                         .exchange()
+                         .expectStatus()
+                         .isOk()
+                         .expectBody()
+                         .jsonPath("$.git")
+                         .exists()
+                         .jsonPath("$.build")
+                         .exists()
+                         .jsonPath("$.java")
+                         .exists()
+                         .jsonPath("$.os")
+                         .exists()
+                         .jsonPath("$.process")
+                         .exists();
+        }
+
+        @Test
+        @DisplayName("GIVEN JWT is present WHEN call actuator health endpoint THEN returns HTTP response with status OK And body contains SBOM application id")
+        void JwtIsPresent_CallActuatorSBOMEndpoint_ReturnsStatusOkAndBodyContainsSBOMApplicationId() {
+            // When & Then
+            var bearerToken = "Bearer " + jwtTestGenerator.generateJwt();
+
+            webTestClient.get()
+                         .uri("/actuator/sbom")
+                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                         .exchange()
+                         .expectStatus()
+                         .isOk()
+                         .expectBody()
+                         .jsonPath("$.ids")
+                         .exists()
+                         .jsonPath("$.ids.application");
         }
 
     }
@@ -223,6 +358,7 @@ class SecurityConfigurationIT {
         @Test
         @DisplayName("GIVEN JWT is not present WHEN call swagger endpoint THEN returns HTTP response with status Found And a location header pointing to index And empty body")
         void JwtIsNotPresent_CallSwaggerEndpoint_ReturnsStatusFoundAndHeaderLocationToSwaggerIndexAndEmptyBody() {
+            // When & Then
             webTestClient.get()
                          .uri("/swagger-ui.html")
                          .exchange()
@@ -237,6 +373,7 @@ class SecurityConfigurationIT {
         @Test
         @DisplayName("GIVEN JWT is not present WHEN call actuator index endpoint THEN returns HTTP response with status OK And the body with the index content")
         void JwtIsNotPresent_CallSwaggerIndexEndpoint_ReturnsStatusOkAndBodyWithContent() {
+            // When & Then
             webTestClient.get()
                          .uri("/swagger-ui/index.html")
                          .exchange()
@@ -254,6 +391,7 @@ class SecurityConfigurationIT {
         @Test
         @DisplayName("GIVEN JWT is not present WHEN call OpenApi endpoint THEN returns HTTP response with status OK And the body with the OpeApi content")
         void JwtIsNotPresent_CallOpenApiEndpoint_ReturnsStatusOkAndBodyWithContent() {
+            // When & Then
             webTestClient.get()
                          .uri("/v3/api-docs")
                          .exchange()

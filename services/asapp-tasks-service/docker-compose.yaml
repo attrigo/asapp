@@ -23,6 +23,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SERVER_PORT=8081
+      - MANAGEMENT_PORT=8091
       - DB_HOST=asapp-tasks-postgres-db
       - DB_PORT=5432
       - DB_NAME=tasksdb

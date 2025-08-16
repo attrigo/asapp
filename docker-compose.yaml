@@ -93,6 +93,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SERVER_PORT=8080
+      - MANAGEMENT_PORT=8090
       - DB_HOST=asapp-projects-postgres-db
       - DB_PORT=5432
       - DB_NAME=projectsdb
@@ -112,6 +113,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SERVER_PORT=8081
+      - MANAGEMENT_PORT=8091
       - DB_HOST=asapp-tasks-postgres-db
       - DB_PORT=5432
       - DB_NAME=tasksdb
@@ -130,6 +132,7 @@ services:
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SERVER_PORT=8082
+      - MANAGEMENT_PORT=8092
       - DB_HOST=asapp-uaa-postgres-db
       - DB_PORT=5432
       - DB_NAME=uaadb
