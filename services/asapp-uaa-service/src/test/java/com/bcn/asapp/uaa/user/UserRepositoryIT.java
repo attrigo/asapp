@@ -80,7 +80,7 @@ class UserRepositoryIT {
 
         @Test
         @DisplayName("GIVEN username exists WHEN find a user by username THEN finds the user And returns the user found")
-        void UsernameExists_FindByUsername_FindsTasksAndReturnsTasksFound() {
+        void UsernameExists_FindByUsername_FindsUserAndReturnsTasksFound() {
             // Given
             var fakeUser = new User(null, fakeUserUsername, fakeUserPassword, fakeUserRole);
             var userToBeFound = userRepository.save(fakeUser);
