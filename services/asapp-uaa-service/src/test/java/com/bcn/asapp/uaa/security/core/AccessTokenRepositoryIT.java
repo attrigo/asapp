@@ -107,7 +107,7 @@ class AccessTokenRepositoryIT {
 
         @Test
         @DisplayName("GIVEN user id exists WHEN find an access token by user id THEN finds the access token And returns the user found")
-        void UserIdExists_FindByUserId_FindsTasksAndReturnsTasksFound() {
+        void UserIdExists_FindByUserId_FindsAccessTokenAndReturnsTasksFound() {
             // Given
             var fakeUser = new User(null, fakeUserUsername, fakeUserPassword, fakeUserRole);
             var userToBeFound = userRepository.save(fakeUser);

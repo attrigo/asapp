@@ -346,7 +346,7 @@ class UserControllerIT {
         }
 
         @Test
-        @DisplayName("GIVEN user role field is invalid WHEN create a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+        @DisplayName("GIVEN user role field is invalid WHEN create a user THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
         void UserRoleFieldIsInvalid_CreateUser_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
             // When & Then
             var userToCreate = """
@@ -575,7 +575,7 @@ class UserControllerIT {
         }
 
         @Test
-        @DisplayName("GIVEN user role field is invalid WHEN update a task THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
+        @DisplayName("GIVEN user role field is invalid WHEN update a user THEN returns HTTP response with status BAD_REQUEST And the body with the problem details")
         void UserRoleFieldIsInvalid_UpdateUser_ReturnsStatusBadRequestAndBodyWithProblemDetails() throws Exception {
             // When & Then
             var idToUpdate = fakeUserId;
