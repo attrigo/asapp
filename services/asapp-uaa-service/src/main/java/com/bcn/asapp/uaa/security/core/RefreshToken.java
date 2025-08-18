@@ -41,9 +41,9 @@ import jakarta.validation.constraints.NotBlank;
  * @since 0.2.0
  * @author ttrigo
  */
-@Table("refresh_token")
+@Table("refresh_tokens")
 public record RefreshToken(
-        @Id @Column("refresh_token_id") UUID id,
+        @Id @Column("id") UUID id,
         @Column("user_id") @NotBlank UUID userId,
         @Column("jwt") @NotBlank String jwt,
         @Column("created_at") @NonNull Instant createdAt,

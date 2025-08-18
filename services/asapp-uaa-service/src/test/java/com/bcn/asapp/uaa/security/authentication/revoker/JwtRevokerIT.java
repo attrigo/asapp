@@ -188,7 +188,7 @@ class JwtRevokerIT {
             assertNotNull(refreshTokenSaved);
 
             // Rename the table to cause a database error
-            jdbcTemplate.execute("ALTER TABLE access_token RENAME TO access_token_tmp");
+            jdbcTemplate.execute("ALTER TABLE access_tokens RENAME TO access_tokens_tmp");
 
             try {
                 // When
@@ -201,7 +201,7 @@ class JwtRevokerIT {
                 assertThat(exceptionThrown.getMessage(), startsWith("Authentication could not be revoked due to:"));
             } finally {
                 // Restore the table name
-                jdbcTemplate.execute("ALTER TABLE access_token_tmp RENAME TO access_token");
+                jdbcTemplate.execute("ALTER TABLE access_tokens_tmp RENAME TO access_tokens");
             }
         }
 
@@ -219,7 +219,7 @@ class JwtRevokerIT {
             assertNotNull(accessTokenSaved);
 
             // Rename the table to cause a database error
-            jdbcTemplate.execute("ALTER TABLE refresh_token RENAME TO refresh_token_tmp");
+            jdbcTemplate.execute("ALTER TABLE refresh_tokens RENAME TO refresh_tokens_tmp");
 
             try {
                 // When
@@ -232,7 +232,7 @@ class JwtRevokerIT {
                 assertThat(exceptionThrown.getMessage(), startsWith("Authentication could not be revoked due to:"));
             } finally {
                 // Restore the table name
-                jdbcTemplate.execute("ALTER TABLE refresh_token_tmp RENAME TO refresh_token");
+                jdbcTemplate.execute("ALTER TABLE refresh_tokens_tmp RENAME TO refresh_tokens");
             }
         }
 
@@ -331,7 +331,7 @@ class JwtRevokerIT {
             assertNotNull(refreshTokenSaved);
 
             // Rename the table to cause a database error
-            jdbcTemplate.execute("ALTER TABLE access_token RENAME TO access_token_tmp");
+            jdbcTemplate.execute("ALTER TABLE access_tokens RENAME TO access_tokens_tmp");
 
             try {
                 // When
@@ -342,7 +342,7 @@ class JwtRevokerIT {
                 assertThat(exceptionThrown.getMessage(), startsWith("Authentication could not be revoked due to:"));
             } finally {
                 // Restore the table name
-                jdbcTemplate.execute("ALTER TABLE access_token_tmp RENAME TO access_token");
+                jdbcTemplate.execute("ALTER TABLE access_tokens_tmp RENAME TO access_tokens");
             }
         }
 
@@ -360,7 +360,7 @@ class JwtRevokerIT {
             assertNotNull(accessTokenSaved);
 
             // Rename the table to cause a database error
-            jdbcTemplate.execute("ALTER TABLE refresh_token RENAME TO refresh_token_tmp");
+            jdbcTemplate.execute("ALTER TABLE refresh_tokens RENAME TO refresh_token_tmps");
 
             try {
                 // When
@@ -371,7 +371,7 @@ class JwtRevokerIT {
                 assertThat(exceptionThrown.getMessage(), startsWith("Authentication could not be revoked due to:"));
             } finally {
                 // Restore the table name
-                jdbcTemplate.execute("ALTER TABLE refresh_token_tmp RENAME TO refresh_token");
+                jdbcTemplate.execute("ALTER TABLE refresh_tokens_tmp RENAME TO refresh_tokens");
             }
         }
 

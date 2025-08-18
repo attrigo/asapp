@@ -61,7 +61,7 @@ public interface RefreshTokenRepository extends ListCrudRepository<RefreshToken,
      * @throws IllegalArgumentException if {@code userId} is {@literal null}
      */
     @Modifying
-    @Query("DELETE FROM Refresh_Token a WHERE a.user_id = :userId")
+    @Query("DELETE FROM refresh_tokens a WHERE a.user_id = :userId")
     void deleteByUserId(UUID userId);
 
 }

@@ -31,9 +31,9 @@ import jakarta.validation.constraints.NotBlank;
  * @author ttrigo
  * @since 0.1.0
  */
-@Table("project")
+@Table("projects")
 public record Project(
-        @Id @Column("project_id") UUID id,
+        @Id @Column("id") UUID id,
         @Column("title") @NotBlank String title,
         @Column("description") String description,
         @Column("start_date") Instant startDateTime

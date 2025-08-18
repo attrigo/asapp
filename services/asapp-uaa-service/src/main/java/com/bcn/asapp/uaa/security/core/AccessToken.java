@@ -41,9 +41,9 @@ import jakarta.validation.constraints.NotNull;
  * @since 0.2.0
  * @author ttrigo
  */
-@Table("access_token")
+@Table("access_tokens")
 public record AccessToken(
-        @Id @Column("access_token_id") UUID id,
+        @Id @Column("id") UUID id,
         @Column("user_id") @NotBlank UUID userId,
         @Column("jwt") @NotBlank String jwt,
         @Column("created_at") @NotNull Instant createdAt,

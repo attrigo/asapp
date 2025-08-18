@@ -49,7 +49,7 @@ public interface TaskRepository extends ListCrudRepository<Task, UUID> {
      * @return the amount of deleted tasks.
      */
     @Modifying
-    @Query("delete from Task t where t.task_id = :id")
+    @Query("delete from tasks t where t.id = :id")
     Long deleteTaskById(UUID id);
 
 }
