@@ -40,7 +40,7 @@ public interface ProjectRepository extends ListCrudRepository<Project, UUID> {
      * @return the amount of deleted projects.
      */
     @Modifying
-    @Query("delete from Project t where t.project_id = :id")
+    @Query("delete from projects p where p.id = :id")
     Long deleteProjectById(UUID id);
 
 }

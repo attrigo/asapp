@@ -62,7 +62,7 @@ public interface AccessTokenRepository extends ListCrudRepository<AccessToken, U
      * @throws IllegalArgumentException if {@code userId} is {@literal null}
      */
     @Modifying
-    @Query("DELETE FROM Access_Token a WHERE a.user_id = :userId")
+    @Query("DELETE FROM access_tokens a WHERE a.user_id = :userId")
     void deleteByUserId(UUID userId);
 
 }

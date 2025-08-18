@@ -37,9 +37,9 @@ import jakarta.validation.constraints.NotNull;
  * @since 0.2.0
  * @author ttrigo
  */
-@Table("user")
+@Table("users")
 public record User(
-        @Id @Column("user_id") UUID id,
+        @Id @Column("id") UUID id,
         @Column("username") @NotBlank String username,
         @Column("password") @NotBlank String password,
         @Column("role") @NotNull Role role

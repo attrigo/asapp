@@ -8,12 +8,12 @@
     <changeSet id="20250423_3-1" author="atrigo">
         <preConditions onFail="MARK_RAN" onSqlOutput="TEST">
             <not>
-                <tableExists tableName="access_token"/>
+                <tableExists tableName="access_tokens"/>
             </not>
         </preConditions>
 
-        <createTable tableName="access_token">
-            <column name="access_token_id" type="uuid" defaultValueComputed="uuid_generate_v4()" remarks="Identifier of the refresh token">
+        <createTable tableName="access_tokens">
+            <column name="id" type="uuid" defaultValueComputed="uuid_generate_v4()" remarks="Identifier of the access token">
                 <constraints primaryKey="true" primaryKeyName="pk_access_token"/>
             </column>
             <column name="user_id" type="uuid" remarks="The id of the user, fk to user.user_id">
@@ -30,18 +30,18 @@
             </column>
         </createTable>
 
-        <addForeignKeyConstraint baseTableName="access_token" baseColumnNames="user_id" constraintName="fk_access_token_user" referencedTableName="user"
-                                 referencedColumnNames="user_id"/>
+        <addForeignKeyConstraint baseTableName="access_tokens" baseColumnNames="user_id" constraintName="fk_access_token_user" referencedTableName="users"
+                                 referencedColumnNames="id"/>
 
-        <createIndex tableName="access_token" indexName="idx_access_token_user_id">
+        <createIndex tableName="access_tokens" indexName="idx_access_token_user_id">
             <column name="user_id"/>
         </createIndex>
 
         <rollback>
-            <dropTable tableName="access_token"/>
+            <dropTable tableName="access_tokens"/>
         </rollback>
 
-        <comment>Creates the access_token table with columns access_token_id, user_id, jwt, createdAt and expiresAt, then creates the foreign key with user table
+        <comment>Creates the access tokens table with columns access_token_id, user_id, jwt, createdAt and expiresAt, then creates the foreign key with user table
             and finally creates an index for user_id field
         </comment>
     </changeSet>
