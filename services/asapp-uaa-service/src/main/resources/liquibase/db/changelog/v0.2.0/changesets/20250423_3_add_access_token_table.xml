@@ -30,10 +30,10 @@
             </column>
         </createTable>
 
-        <addForeignKeyConstraint baseTableName="access_token" baseColumnNames="user_id" constraintName="access_token_user_fk" referencedTableName="user"
+        <addForeignKeyConstraint baseTableName="access_token" baseColumnNames="user_id" constraintName="fk_access_token_user" referencedTableName="user"
                                  referencedColumnNames="user_id"/>
 
-        <createIndex tableName="access_token" indexName="access_token_user_id_idx">
+        <createIndex tableName="access_token" indexName="idx_access_token_user_id">
             <column name="user_id"/>
         </createIndex>
 
