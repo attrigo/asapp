@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20250818_1-1" author="atrigo">
+        <preConditions onFail="MARK_RAN" onSqlOutput="TEST">
+            <not>
+                <tableExists tableName="users"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="users">
+            <column name="id" type="uuid" defaultValueComputed="uuid_generate_v4()" remarks="Identifier of the user">
+                <constraints primaryKey="true" primaryKeyName="pk_user"/>
+            </column>
+            <column name="username" type="varchar(100)" remarks="The username of the user">
+                <constraints nullable="false" unique="true" uniqueConstraintName="uc_users_username"/>
+            </column>
+            <column name="password" type="varchar(500)" remarks="The password of the user, can be encoded using any Spring security compatible encoder">
+                <constraints nullable="false"/>
+            </column>
+            <column name="role" type="varchar(10)" remarks="The role of the user, could be ADMIN or USER">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex tableName="users" indexName="idx_users_username">
+            <column name="username"/>
+        </createIndex>
+
+        <rollback>
+            <dropTable tableName="users"/>
+        </rollback>
+
+        <comment>Creates the user table with columns user_id, username, password and role</comment>
+    </changeSet>
+
+</databaseChangeLog>

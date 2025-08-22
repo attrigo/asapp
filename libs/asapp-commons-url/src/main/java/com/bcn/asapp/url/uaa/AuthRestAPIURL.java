@@ -28,7 +28,7 @@ public class AuthRestAPIURL {
 
     public static final String AUTH_TOKEN_PATH = "/token";
 
-    public static final String AUTH_REFRESH_TOKEN_PATH = "/refresh-token";
+    public static final String AUTH_REFRESH_TOKEN_PATH = "/refresh";
 
     public static final String AUTH_REVOKE_PATH = "/revoke";
 

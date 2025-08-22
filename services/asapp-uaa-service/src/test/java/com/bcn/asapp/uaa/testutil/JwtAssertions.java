@@ -16,93 +16,174 @@
 
 package com.bcn.asapp.uaa.testutil;
 
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.ACCESS_TOKEN_TYPE;
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.REFRESH_TOKEN_TYPE;
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.TOKEN_USE_ACCESS_CLAIM_VALUE;
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.TOKEN_USE_CLAIM_NAME;
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.TOKEN_USE_REFRESH_CLAIM_VALUE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static com.bcn.asapp.uaa.domain.authentication.Jwt.ACCESS_TOKEN_USE_CLAIM_VALUE;
+import static com.bcn.asapp.uaa.domain.authentication.Jwt.REFRESH_TOKEN_USE_CLAIM_VALUE;
+import static com.bcn.asapp.uaa.domain.authentication.Jwt.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.uaa.domain.authentication.JwtType.ACCESS_TOKEN;
+import static com.bcn.asapp.uaa.domain.authentication.JwtType.REFRESH_TOKEN;
 
-import org.springframework.util.StringUtils;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.util.Properties;
 
+import org.assertj.core.api.AbstractAssert;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.api.InstanceOfAssertFactories;
+import org.assertj.core.api.SoftAssertions;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
-import com.bcn.asapp.uaa.security.core.JwtType;
-import com.bcn.asapp.uaa.user.Role;
+public class JwtAssertions extends AbstractAssert<JwtAssertions, Jws<Claims>> {
 
-public class JwtAssertions {
+    private static String JWT_SECRET;
 
-    private static final String UT_JWT_SECRET = "Cnpr50yQ04Q5y7GFUvR3ODWLYRlPjeAgOy7Y0Woo6PCqiViiOxxS3vo1FOyjro7T";
+    static {
+        loadJwtSecretProperty();
+    }
 
-    private JwtAssertions() {}
+    JwtAssertions(Jws<Claims> actual) {
+        super(actual, JwtAssertions.class);
+    }
 
-    public static void assertJwtType(String actualJwt, JwtType expectedType) {
-        var actualClaims = Jwts.parser()
-                               .verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(UT_JWT_SECRET)))
-                               .build()
-                               .parseSignedClaims(actualJwt);
+    public static JwtAssertions assertThatJwt(String actualJwt) {
+        var jws = Jwts.parser()
+                      .verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(JWT_SECRET)))
+                      .build()
+                      .parseSignedClaims(actualJwt);
 
-        var tokenType = actualClaims.getHeader()
-                                    .getType();
-        var tokenUseClaim = actualClaims.getPayload()
-                                        .get(TOKEN_USE_CLAIM_NAME, String.class);
+        return new JwtAssertions(jws);
+    }
 
-        assertTrue(StringUtils.hasText(tokenType));
-        assertTrue(tokenType.equals(ACCESS_TOKEN_TYPE) || tokenType.equals(REFRESH_TOKEN_TYPE));
+    public JwtAssertions isAccessToken() {
+        isNotNull();
+        hasHeader();
+        hasPayload();
 
-        if (JwtType.ACCESS_TOKEN.equals(expectedType)) {
-            assertTrue(ACCESS_TOKEN_TYPE.equals(tokenType) && TOKEN_USE_ACCESS_CLAIM_VALUE.equals(tokenUseClaim));
-        } else {
-            assertTrue(REFRESH_TOKEN_TYPE.equals(tokenType) && TOKEN_USE_REFRESH_CLAIM_VALUE.equals(tokenUseClaim));
+        var actualHeaderType = actual.getHeader()
+                                     .getType();
+        var actualTokenUseClaim = actual.getPayload()
+                                        .get(TOKEN_USE_CLAIM_NAME);
+        SoftAssertions.assertSoftly(softAssertions -> {
+            Assertions.assertThat(actualHeaderType)
+                      .isNotNull()
+                      .describedAs("type")
+                      .isEqualTo(ACCESS_TOKEN.type());
+            Assertions.assertThat(actualTokenUseClaim)
+                      .isNotNull()
+                      .describedAs("token use claim")
+                      .isEqualTo(ACCESS_TOKEN_USE_CLAIM_VALUE);
+        });
+
+        return myself;
+    }
+
+    public JwtAssertions isRefreshToken() {
+        isNotNull();
+        hasHeader();
+        hasPayload();
+
+        var actualHeaderType = actual.getHeader()
+                                     .getType();
+        var actualTokenUseClaim = actual.getPayload()
+                                        .get(TOKEN_USE_CLAIM_NAME);
+        SoftAssertions.assertSoftly(softAssertions -> {
+            Assertions.assertThat(actualHeaderType)
+                      .isNotNull()
+                      .describedAs("type")
+                      .isEqualTo(REFRESH_TOKEN.type());
+            Assertions.assertThat(actualTokenUseClaim)
+                      .isNotNull()
+                      .describedAs("token use claim")
+                      .isEqualTo(REFRESH_TOKEN_USE_CLAIM_VALUE);
+        });
+        return myself;
+    }
+
+    public JwtAssertions hasSubject(String expectedSubject) {
+        isNotNull();
+        hasPayload();
+
+        var actualSubject = actual.getPayload()
+                                  .getSubject();
+        Assertions.assertThat(actualSubject)
+                  .isNotNull()
+                  .describedAs("subject")
+                  .isEqualTo(expectedSubject);
+
+        return myself;
+    }
+
+    public JwtAssertions hasClaim(String expectedClaimName, Object expectedClaimValue, Class<?> expectedClaimValueType) {
+        isNotNull();
+        hasPayload();
+
+        var actualClaimValue = actual.getPayload()
+                                     .get(expectedClaimName, expectedClaimValueType);
+        Assertions.assertThat(actualClaimValue)
+                  .isNotNull()
+                  .describedAs("claim")
+                  .asInstanceOf(InstanceOfAssertFactories.type(expectedClaimValueType))
+                  .isEqualTo(expectedClaimValue);
+
+        return myself;
+    }
+
+    public JwtAssertions hasIssuedAt() {
+        isNotNull();
+        hasPayload();
+
+        var actualIssuedAt = actual.getPayload()
+                                   .getIssuedAt();
+        Assertions.assertThat(actualIssuedAt)
+                  .describedAs("issued")
+                  .isNotNull();
+
+        return myself;
+    }
+
+    public JwtAssertions hasExpiration() {
+        isNotNull();
+        hasPayload();
+
+        var actualExpiration = actual.getPayload()
+                                     .getExpiration();
+        Assertions.assertThat(actualExpiration)
+                  .describedAs("expiration")
+                  .isNotNull();
+
+        return this;
+    }
+
+    private void hasHeader() {
+        var actualHeader = actual.getHeader();
+        Assertions.assertThat(actualHeader)
+                  .describedAs("header")
+                  .isNotNull();
+    }
+
+    private void hasPayload() {
+        var actualPayload = actual.getPayload();
+        Assertions.assertThat(actualPayload)
+                  .describedAs("payload")
+                  .isNotNull();
+    }
+
+    private static void loadJwtSecretProperty() {
+        if (JWT_SECRET == null) {
+            try (InputStream input = JwtAssertions.class.getClassLoader()
+                                                        .getResourceAsStream("application.properties")) {
+                Properties props = new Properties();
+                props.load(input);
+                JWT_SECRET = props.getProperty("asapp.security.jwt-secret");
+            } catch (IOException e) {
+                throw new UncheckedIOException("Could not load JWT secret from properties", e);
+            }
         }
-    }
-
-    public static void assertJwtUsername(String actualJwt, String expectedUsername) {
-        var actualUsername = Jwts.parser()
-                                 .verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(UT_JWT_SECRET)))
-                                 .build()
-                                 .parseSignedClaims(actualJwt)
-                                 .getPayload()
-                                 .getSubject();
-
-        assertEquals(actualUsername, expectedUsername);
-    }
-
-    public static void assertJwtRole(String actualJwt, Role expectedRole) {
-        var actualAuthority = Jwts.parser()
-                                  .verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(UT_JWT_SECRET)))
-                                  .build()
-                                  .parseSignedClaims(actualJwt)
-                                  .getPayload()
-                                  .get("role");
-
-        assertEquals(actualAuthority, expectedRole.name());
-    }
-
-    public static void assertJwtIssuedAt(String actualJwt) {
-        var actualIssuedAt = Jwts.parser()
-                                 .verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(UT_JWT_SECRET)))
-                                 .build()
-                                 .parseSignedClaims(actualJwt)
-                                 .getPayload()
-                                 .getIssuedAt();
-
-        assertNotNull(actualIssuedAt);
-    }
-
-    public static void assertJwtExpiresAt(String actualJwt) {
-        var actualExpiresAt = Jwts.parser()
-                                  .verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(UT_JWT_SECRET)))
-                                  .build()
-                                  .parseSignedClaims(actualJwt)
-                                  .getPayload()
-                                  .getExpiration();
-
-        assertNotNull(actualExpiresAt);
     }
 
 }
