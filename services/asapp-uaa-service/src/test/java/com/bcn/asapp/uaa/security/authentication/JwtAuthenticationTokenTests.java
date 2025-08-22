@@ -34,7 +34,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import com.bcn.asapp.uaa.security.core.JwtType;
+import com.bcn.asapp.uaa.infrastructure.authentication.JwtAuthenticationToken;
+import com.bcn.asapp.uaa.infrastructure.authentication.JwtType;
 import com.bcn.asapp.uaa.testutil.JwtFaker;
 
 class JwtAuthenticationTokenTests {

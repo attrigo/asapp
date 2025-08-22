@@ -16,10 +16,10 @@
 
 package com.bcn.asapp.uaa.security.authentication;
 
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.ROLE_CLAIM_NAME;
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.TOKEN_USE_CLAIM_NAME;
-import static com.bcn.asapp.uaa.security.core.JwtType.ACCESS_TOKEN;
-import static com.bcn.asapp.uaa.security.core.JwtType.REFRESH_TOKEN;
+import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.ROLE_CLAIM_NAME;
+import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.uaa.infrastructure.authentication.JwtType.ACCESS_TOKEN;
+import static com.bcn.asapp.uaa.infrastructure.authentication.JwtType.REFRESH_TOKEN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -31,8 +31,9 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.function.Executable;
 
-import com.bcn.asapp.uaa.security.core.InvalidJwtException;
-import com.bcn.asapp.uaa.security.core.JwtType;
+import com.bcn.asapp.uaa.infrastructure.authentication.InvalidJwtException;
+import com.bcn.asapp.uaa.infrastructure.authentication.JwtDecoder;
+import com.bcn.asapp.uaa.infrastructure.authentication.JwtType;
 import com.bcn.asapp.uaa.testutil.JwtFaker;
 
 class JwtDecoderTests {

@@ -38,11 +38,11 @@ import org.mockito.Mock;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.bcn.asapp.uaa.security.core.JwtType;
+import com.bcn.asapp.uaa.domain.user.Role;
+import com.bcn.asapp.uaa.domain.user.User;
+import com.bcn.asapp.uaa.infrastructure.authentication.JwtType;
 import com.bcn.asapp.uaa.security.core.RefreshTokenRepository;
 import com.bcn.asapp.uaa.testutil.JwtFaker;
-import com.bcn.asapp.uaa.user.Role;
-import com.bcn.asapp.uaa.user.User;
 import com.bcn.asapp.uaa.user.UserRepository;
 
 @ExtendWith(SpringExtension.class)

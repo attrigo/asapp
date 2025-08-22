@@ -38,11 +38,12 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import io.jsonwebtoken.JwtException;
 
-import com.bcn.asapp.uaa.security.authentication.DecodedJwt;
-import com.bcn.asapp.uaa.security.authentication.InvalidRefreshTokenException;
-import com.bcn.asapp.uaa.security.authentication.JwtDecoder;
+import com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt;
+import com.bcn.asapp.uaa.infrastructure.authentication.JwtDecoder;
+import com.bcn.asapp.uaa.infrastructure.authentication.JwtType;
+import com.bcn.asapp.uaa.infrastructure.security.authentication.InvalidRefreshTokenException;
+import com.bcn.asapp.uaa.infrastructure.security.authentication.verifier.RefreshTokenVerifier;
 import com.bcn.asapp.uaa.security.authentication.matcher.JwtSessionMatcher;
-import com.bcn.asapp.uaa.security.core.JwtType;
 import com.bcn.asapp.uaa.testutil.JwtFaker;
 
 @ExtendWith(SpringExtension.class)

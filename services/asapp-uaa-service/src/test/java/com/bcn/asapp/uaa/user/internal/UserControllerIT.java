@@ -55,10 +55,10 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.bcn.asapp.dto.user.UserDTO;
-import com.bcn.asapp.uaa.config.SecurityConfiguration;
-import com.bcn.asapp.uaa.security.authentication.verifier.JwtVerifier;
-import com.bcn.asapp.uaa.security.web.JwtAuthenticationEntryPoint;
-import com.bcn.asapp.uaa.security.web.JwtAuthenticationFilter;
+import com.bcn.asapp.uaa.application.authentication.spi.JwtVerifier;
+import com.bcn.asapp.uaa.infrastructure.authentication.web.JwtAuthenticationEntryPoint;
+import com.bcn.asapp.uaa.infrastructure.authentication.web.JwtAuthenticationFilter;
+import com.bcn.asapp.uaa.infrastructure.config.SecurityConfiguration;
 import com.bcn.asapp.uaa.user.UserService;
 
 @WebMvcTest(UserRestController.class)

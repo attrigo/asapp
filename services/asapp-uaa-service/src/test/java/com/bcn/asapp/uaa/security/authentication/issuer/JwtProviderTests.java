@@ -36,8 +36,9 @@ import org.junit.jupiter.api.function.Executable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
-import com.bcn.asapp.uaa.security.core.JwtType;
-import com.bcn.asapp.uaa.user.Role;
+import com.bcn.asapp.uaa.domain.user.Role;
+import com.bcn.asapp.uaa.infrastructure.authentication.JwtProvider;
+import com.bcn.asapp.uaa.infrastructure.authentication.JwtType;
 
 class JwtProviderTests {
 

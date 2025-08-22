@@ -16,12 +16,12 @@
 
 package com.bcn.asapp.uaa.testutil;
 
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.ACCESS_TOKEN_TYPE;
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.REFRESH_TOKEN_TYPE;
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.ROLE_CLAIM_NAME;
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.TOKEN_USE_ACCESS_CLAIM_VALUE;
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.TOKEN_USE_CLAIM_NAME;
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.TOKEN_USE_REFRESH_CLAIM_VALUE;
+import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.ACCESS_TOKEN_TYPE;
+import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.REFRESH_TOKEN_TYPE;
+import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.ROLE_CLAIM_NAME;
+import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.TOKEN_USE_ACCESS_CLAIM_VALUE;
+import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.TOKEN_USE_REFRESH_CLAIM_VALUE;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -34,8 +34,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
-import com.bcn.asapp.uaa.security.authentication.DecodedJwt;
-import com.bcn.asapp.uaa.security.core.JwtType;
+import com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt;
+import com.bcn.asapp.uaa.infrastructure.authentication.JwtType;
 
 public class JwtFaker {
 

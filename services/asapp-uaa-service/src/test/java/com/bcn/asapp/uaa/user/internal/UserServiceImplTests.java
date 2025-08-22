@@ -46,9 +46,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.bcn.asapp.dto.user.UserDTO;
-import com.bcn.asapp.uaa.security.authentication.revoker.JwtRevoker;
-import com.bcn.asapp.uaa.user.Role;
-import com.bcn.asapp.uaa.user.User;
+import com.bcn.asapp.uaa.domain.user.Role;
+import com.bcn.asapp.uaa.domain.user.User;
+import com.bcn.asapp.uaa.infrastructure.authentication.spi.JwtRevokerAdapter;
 import com.bcn.asapp.uaa.user.UserMapperImpl;
 import com.bcn.asapp.uaa.user.UserRepository;
 
@@ -65,7 +65,7 @@ class UserServiceImplTests {
     private UserMapperImpl userMapperSpy;
 
     @Mock
-    private JwtRevoker jwtRevokerMock;
+    private JwtRevokerAdapter jwtRevokerAdapterMock;
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -397,7 +397,7 @@ class UserServiceImplTests {
             // Given
             var fakeUser = new User(fakeUserId, fakeUserUsername, fakeUserPassword, fakeUserRole);
             given(userRepositoryMock.findById(any(UUID.class))).willReturn(Optional.of(fakeUser));
-            willDoNothing().given(jwtRevokerMock)
+            willDoNothing().given(jwtRevokerAdapterMock)
                            .revokeAuthentication(any(User.class));
             given(userRepositoryMock.deleteUserById(any(UUID.class))).willReturn(1L);
 

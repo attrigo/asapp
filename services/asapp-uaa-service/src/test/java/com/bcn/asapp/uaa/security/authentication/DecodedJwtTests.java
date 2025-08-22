@@ -16,12 +16,12 @@
 
 package com.bcn.asapp.uaa.security.authentication;
 
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.ACCESS_TOKEN_TYPE;
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.REFRESH_TOKEN_TYPE;
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.ROLE_CLAIM_NAME;
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.TOKEN_USE_ACCESS_CLAIM_VALUE;
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.TOKEN_USE_CLAIM_NAME;
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.TOKEN_USE_REFRESH_CLAIM_VALUE;
+import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.ACCESS_TOKEN_TYPE;
+import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.REFRESH_TOKEN_TYPE;
+import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.ROLE_CLAIM_NAME;
+import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.TOKEN_USE_ACCESS_CLAIM_VALUE;
+import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.TOKEN_USE_REFRESH_CLAIM_VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -42,8 +42,9 @@ import io.jsonwebtoken.Header;
 import io.jsonwebtoken.impl.DefaultClaims;
 import io.jsonwebtoken.impl.DefaultHeader;
 
-import com.bcn.asapp.uaa.security.core.InvalidJwtException;
-import com.bcn.asapp.uaa.security.core.JwtType;
+import com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt;
+import com.bcn.asapp.uaa.infrastructure.authentication.InvalidJwtException;
+import com.bcn.asapp.uaa.infrastructure.authentication.JwtType;
 import com.bcn.asapp.uaa.testutil.JwtFaker;
 
 class DecodedJwtTests {

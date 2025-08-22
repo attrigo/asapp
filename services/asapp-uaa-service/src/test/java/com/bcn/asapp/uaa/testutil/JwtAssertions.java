@@ -16,11 +16,11 @@
 
 package com.bcn.asapp.uaa.testutil;
 
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.ACCESS_TOKEN_TYPE;
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.REFRESH_TOKEN_TYPE;
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.TOKEN_USE_ACCESS_CLAIM_VALUE;
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.TOKEN_USE_CLAIM_NAME;
-import static com.bcn.asapp.uaa.security.authentication.DecodedJwt.TOKEN_USE_REFRESH_CLAIM_VALUE;
+import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.ACCESS_TOKEN_TYPE;
+import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.REFRESH_TOKEN_TYPE;
+import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.TOKEN_USE_ACCESS_CLAIM_VALUE;
+import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.TOKEN_USE_REFRESH_CLAIM_VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -31,8 +31,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
-import com.bcn.asapp.uaa.security.core.JwtType;
-import com.bcn.asapp.uaa.user.Role;
+import com.bcn.asapp.uaa.domain.user.Role;
+import com.bcn.asapp.uaa.infrastructure.authentication.JwtType;
 
 public class JwtAssertions {
 

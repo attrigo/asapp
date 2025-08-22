@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20250818_2-1" author="atrigo">
+        <preConditions onFail="MARK_RAN" onSqlOutput="TEST">
+            <not>
+                <tableExists tableName="jwt_authentications"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="jwt_authentications">
+            <column name="id" type="uuid" defaultValueComputed="uuid_generate_v4()" remarks="Identifier of the user">
+                <constraints primaryKey="true" primaryKeyName="pk_jwt_authentication"/>
+            </column>
+            <column name="user_id" type="uuid" remarks="The id of the user, fk to users.user_id">
+                <constraints nullable="false"/>
+            </column>
+            <column name="access_token_jwt" type="varchar2(2000)" remarks="The JSON web token of the access token">
+                <constraints nullable="false"/>
+            </column>
+            <column name="access_token_issued_at" type="timestamp" remarks="Issue date of the access token">
+                <constraints nullable="false"/>
+            </column>
+            <column name="access_token_expires_at" type="timestamp" remarks="Expiration date of the access token">
+                <constraints nullable="false"/>
+            </column>
+            <column name="refresh_token_jwt" type="varchar2(2000)" remarks="The JSON web token of the refresh token">
+                <constraints nullable="false"/>
+            </column>
+            <column name="refresh_token_issued_at" type="timestamp" remarks="Issue date of the refresh token">
+                <constraints nullable="false"/>
+            </column>
+            <column name="refresh_token_expires_at" type="timestamp" remarks="Expiration date of the refresh token">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addForeignKeyConstraint baseTableName="jwt_authentications" baseColumnNames="user_id" constraintName="fk_jwt_authentications_users"
+                                 referencedTableName="users"
+                                 referencedColumnNames="id"/>
+
+        <createIndex tableName="jwt_authentications" indexName="idx_jwt_authentication_user_id">
+            <column name="user_id"/>
+        </createIndex>
+
+        <rollback>
+            <dropTable tableName="jwt_authentications"/>
+        </rollback>
+
+        <comment>
+            Creates the Jwt authentication table with columns user_id, access_token_jwt, access_token_issued_at, access_token_expires_at, refresh_token_jwt,
+            refresh_token_issued_at, refresh_token_expires_at, then creates the foreign key with user table and finally creates an index for user_id field
+        </comment>
+    </changeSet>
+
+</databaseChangeLog>

@@ -44,16 +44,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.bcn.asapp.uaa.application.authentication.spi.JwtVerifier;
 import com.bcn.asapp.uaa.auth.AccessTokenDTO;
 import com.bcn.asapp.uaa.auth.AuthService;
 import com.bcn.asapp.uaa.auth.JwtAuthenticationDTO;
 import com.bcn.asapp.uaa.auth.RefreshTokenDTO;
 import com.bcn.asapp.uaa.auth.UserCredentialsDTO;
-import com.bcn.asapp.uaa.config.SecurityConfiguration;
-import com.bcn.asapp.uaa.security.authentication.verifier.JwtVerifier;
-import com.bcn.asapp.uaa.security.core.JwtType;
-import com.bcn.asapp.uaa.security.web.JwtAuthenticationEntryPoint;
-import com.bcn.asapp.uaa.security.web.JwtAuthenticationFilter;
+import com.bcn.asapp.uaa.infrastructure.authentication.JwtType;
+import com.bcn.asapp.uaa.infrastructure.authentication.web.JwtAuthenticationEntryPoint;
+import com.bcn.asapp.uaa.infrastructure.authentication.web.JwtAuthenticationFilter;
+import com.bcn.asapp.uaa.infrastructure.config.SecurityConfiguration;
 import com.bcn.asapp.uaa.testutil.JwtFaker;
 
 @WebMvcTest(AuthRestController.class)
