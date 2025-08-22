@@ -3,9 +3,9 @@
 asapp-uaa-service is a REST service application that publishes the following authorization and user operations.
 
 * Authorization operations:
-    * Issue an authentication token
-    * Refresh an authentication token
-    * Revoke an authentication token
+    * Authenticate a user via username and password and issue an JWT authentication
+    * Refresh an JWT authentication
+    * Revoke an JWT authentication
 * User operations:
     * Find a user by id
     * Find all users
@@ -17,7 +17,30 @@ Each of these operations is exposed as an REST endpoint. \
 
 There are also exposed several non-business REST endpoints which are produced by Spring Boot Actuator.
 
-The architecture is mainly based on Java 21 and Spring Boot 3.4, and it follows some of the [Microservice Architecture Principles](https://microservices.io/):
+## Architecture
+
+***
+
+The service follows a **Hexagonal Architecture** (also known as Ports and Adapters pattern), which promotes a clear separation of concerns and high testability.
+The architecture is mainly based on Java 21 and Spring Boot 3.4.
+
+### Hexagonal Architecture Structure
+
+The codebase is organized into three main layers:
+
+* **Domain Layer** (`domain` package): Contains the core business logic, entities, value objects, and domain services. This layer is completely independent of
+  external frameworks and infrastructure concerns. The domain has been designed following **Domain-Driven Design (DDD) principles**, ensuring rich domain models
+  with encapsulated business rules and behavior.
+
+* **Application Layer** (`application` package): Contains the application services and use cases that orchestrate domain operations. This layer defines the
+  ports (interfaces) that the infrastructure layer implements.
+
+* **Infrastructure Layer** (`infrastructure` package): Contains the adapters that implement the ports defined in the application layer. This includes REST
+  controllers, database repositories, external service clients, and other framework-specific implementations.
+
+### Microservice Architecture Principles
+
+The service also follows some of the [Microservice Architecture Principles](https://microservices.io/):
 
 * The [Database per service](https://microservices.io/patterns/data/database-per-service.html) pattern, where the Database is managed by the service, in this
   case the management of database changes is delegated to Liquibase.
@@ -89,8 +112,9 @@ interaction. \
 You can use this [Swagger UI](http://localhost:8082/asapp-uaa-service/swagger-ui.html) or any other HTTP client to consume the API.
 
 Some of the exposed endpoints require authentication using JWT (JSON Web Token) bearer tokens. To access protected endpoints, you first need to get an access
-token by calling authenticate endpoint (/token) of UAA service with valid user credential. Once it expires, you can get a new one by calling the refresh
-authentication endpoint (/refresh-token).
+token by calling authenticate endpoint (/api/auth/token) of UAA service with valid user credential. Once it expires, you can get a new one by calling the
+refresh
+authentication endpoint (/api/auth/refresh).
 
 > Dates sent in requests must follow a standard ISO-8601 format.
 
@@ -111,21 +135,19 @@ To avoid wasting local machine resources, it is recommended to stop all started 
 
 ### Generate Docker image
 
-To build the Docker image:
-
-```sh
-mvn spring-boot:build-image
-```
+* To build the Docker image:
+    ```sh
+    mvn spring-boot:build-image
+    ```
 
 ### Start up a standalone database
 
-To start up the database in standalone mode:
+* To start up the database in standalone mode:
+    ```sh
+    docker-compose up -d asapp-uaa-postgres-db
+    ```
 
-```sh
-docker-compose up -d asapp-uaa-postgres-db
-```
-
-> This option creates an empty database. To update the database with the appropriate objects, use Liquibase.
+This option creates an empty database. To update the database with the appropriate objects, use Liquibase.
 
 ### Managing Database changes
 
@@ -139,7 +161,7 @@ docker-compose up -d asapp-uaa-postgres-db
     mvn liquibase:rollback
     ```
 
-> For more information about Liquibase actions visit [Liquibase docs](https://docs.liquibase.com/home.html)
+For more information about Liquibase actions visit [Liquibase docs](https://docs.liquibase.com/home.html)
 
 ### Generate the test coverage report
 
@@ -160,8 +182,8 @@ To generate the Javadoc:
 
 1. Generate the Javadoc files:
     ```sh
-    mvn clean package
-    ```
+   mvn clean package
+   ```
 
 2. Open the Javadoc: [index.html](target/site/apidocs/index.html)
 
@@ -188,6 +210,9 @@ Java code is formatted following style defined in [asapp_formatter.xml](../../as
 
 For further reference, please consider the following sections:
 
+* Architecture
+    * [Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/)
+    * [Domain-Driven Design](https://martinfowler.com/bliki/DomainDrivenDesign.html)
 * Spring Boot
     * [Spring Boot](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
     * [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#actuator)
@@ -205,6 +230,7 @@ For further reference, please consider the following sections:
     * [Liquibase Migration](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/index.html#howto.data-initialization.migration-tool.liquibase)
 * Testing
     * [Junit](https://junit.org/junit5/docs/current/user-guide/)
+    * [AssertJ](https://assertj.github.io/doc/)
     * [Mockito](https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html)
     * [TestContainers](https://java.testcontainers.org/)
 * Tools

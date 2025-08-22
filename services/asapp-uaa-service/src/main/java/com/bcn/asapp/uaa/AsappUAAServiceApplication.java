@@ -27,7 +27,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @since 0.2.0
  * @see SpringApplication
  * @see SpringBootApplication
- * @author ttrigo
+ * @author attrigo
  */
 @SpringBootApplication
 public class AsappUAAServiceApplication {
