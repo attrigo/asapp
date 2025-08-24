@@ -21,8 +21,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.uaa.application.authentication.spi.JwtAuthenticationManager;
-import com.bcn.asapp.uaa.domain.authentication.JwtAuthentication;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtAuthenticationToken;
+import com.bcn.asapp.uaa.domain.authentication.UsernamePasswordAuthentication;
 
 @Component
 public class JwtAuthenticationManagerAdapter implements JwtAuthenticationManager {
@@ -34,12 +33,12 @@ public class JwtAuthenticationManagerAdapter implements JwtAuthenticationManager
     }
 
     @Override
-    public JwtAuthentication authenticate(String username, String password) {
+    public UsernamePasswordAuthentication authenticate(String username, String password) {
         var authenticationRequest = new UsernamePasswordAuthenticationToken(username, password);
 
-        var authentication = (JwtAuthenticationToken) authenticationManager.authenticate(authenticationRequest);
+        var authentication = authenticationManager.authenticate(authenticationRequest);
 
-        return new JwtAuthentication(null, null);
+        return new UsernamePasswordAuthentication(authentication.getName(), null);
     }
 
 }

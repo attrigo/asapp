@@ -24,7 +24,7 @@ public record JwtAuthenticationId(
 
     public JwtAuthenticationId {
         if (id == null) {
-            throw new IllegalArgumentException("Jwt authentication id cannot be null");
+            throw new IllegalArgumentException("JWT Authentication id cannot be null");
         }
     }
 

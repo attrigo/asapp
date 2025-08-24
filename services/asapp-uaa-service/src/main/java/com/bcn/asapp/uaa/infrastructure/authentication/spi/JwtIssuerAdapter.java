@@ -47,8 +47,8 @@ public class JwtIssuerAdapter implements JwtIssuer {
         var user = resolveAuthenticationUser(authentication);
 
         try {
-            var newAccessToken = jwtProvider.generateAccessToken(user);
-            var newRefreshToken = jwtProvider.generateRefreshToken(user);
+            var newAccessToken = jwtProvider.provideAccessToken(user);
+            var newRefreshToken = jwtProvider.provideRefreshToken(user);
 
             authentication.setAccessToken(newAccessToken);
             authentication.setRefreshToken(newRefreshToken);
@@ -61,9 +61,7 @@ public class JwtIssuerAdapter implements JwtIssuer {
     }
 
     private User resolveAuthenticationUser(JwtAuthentication authentication) {
-        var authenticationId = authentication.getId()
-                                             .id();
-        return userRepository.findByAuthenticationId(authenticationId)
+        return userRepository.findByAuthenticationId(authentication.getId())
                              .orElseThrow(() -> new UsernameNotFoundException("User not exists by authentication id " + authentication.getId()));
     }
 

@@ -19,6 +19,7 @@ package com.bcn.asapp.uaa.application.authentication.spi;
 import java.util.Optional;
 
 import com.bcn.asapp.uaa.domain.authentication.JwtAuthentication;
+import com.bcn.asapp.uaa.domain.authentication.JwtAuthenticationId;
 
 public interface JwtAuthenticationRepository {
 
@@ -26,6 +27,10 @@ public interface JwtAuthenticationRepository {
 
     Optional<JwtAuthentication> findByRefreshToken(String refreshToken);
 
+    Boolean existsByAccessToken(String accessToken);
+
     JwtAuthentication save(JwtAuthentication jwtAuthentication);
+
+    void deleteById(JwtAuthenticationId id);
 
 }

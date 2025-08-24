@@ -37,18 +37,22 @@ public class UpdateUserService implements UpdateUserUseCase {
         this.userRepository = userRepository;
     }
 
-    // TODO: should this operation be consider as domain service?
     @Override
     public Optional<User> updateUserById(UserId userId, User user) {
-        var userExists = userRepository.existsById(userId);
-        if (!userExists) {
+        var optionalUser = userRepository.findById(userId);
+        if (optionalUser.isEmpty()) {
             return Optional.empty();
         }
 
+        // TODO: What happens when the password could not be encoded
         var passwordEncoded = passwordEncoder.encode(user.getPassword());
-        user.setPassword(passwordEncoded);
 
-        var userUpdated = userRepository.save(user);
+        var currentUser = optionalUser.get();
+        currentUser.setUsername(user.getUsername());
+        currentUser.setPassword(passwordEncoded);
+        currentUser.setRole(user.getRole());
+
+        var userUpdated = userRepository.save(currentUser);
 
         return Optional.of(userUpdated);
     }

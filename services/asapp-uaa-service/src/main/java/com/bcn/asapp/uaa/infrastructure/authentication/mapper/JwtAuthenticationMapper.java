@@ -18,9 +18,7 @@ package com.bcn.asapp.uaa.infrastructure.authentication.mapper;
 
 import org.mapstruct.Mapper;
 
-import com.bcn.asapp.dto.user.UserDTO;
 import com.bcn.asapp.uaa.domain.authentication.JwtAuthentication;
-import com.bcn.asapp.uaa.domain.user.User;
 import com.bcn.asapp.uaa.infrastructure.authentication.api.resource.AuthenticateRequest;
 import com.bcn.asapp.uaa.infrastructure.authentication.api.resource.AuthenticateResponse;
 import com.bcn.asapp.uaa.infrastructure.authentication.api.resource.RefreshAuthenticationRequest;
@@ -28,14 +26,6 @@ import com.bcn.asapp.uaa.infrastructure.authentication.api.resource.RefreshAuthe
 import com.bcn.asapp.uaa.infrastructure.authentication.api.resource.RevokeAuthenticationRequest;
 import com.bcn.asapp.uaa.infrastructure.authentication.entity.JwtAuthenticationEntity;
 
-/**
- * Mapper interface for converting between {@link User} entities and {@link UserDTO} data transfer objects.
- * <p>
- * This interface leverages <a href="https://mapstruct.org/">MapStruct</a> for generating type-safe and performant mapping implementations at compile time.
- *
- * @author ttrigo
- * @since 0.2.0
- */
 @Mapper(componentModel = "spring", uses = { JwtAuthenticationIdMapper.class })
 public interface JwtAuthenticationMapper {
 
@@ -49,7 +39,7 @@ public interface JwtAuthenticationMapper {
     JwtAuthenticationEntity toJwtAuthenticationEntity(JwtAuthentication jwtAuthentication);
 
     // JwtAuthenticationEntity -> JwtAuthentication
-    User toJwtAuthentication(JwtAuthenticationEntity jwtAuthenticationEntity);
+    JwtAuthentication toJwtAuthentication(JwtAuthenticationEntity jwtAuthenticationEntity);
 
     // JwtAuthentication -> Response
     AuthenticateResponse toAuthenticateResponse(JwtAuthentication jwtAuthentication);

@@ -28,9 +28,21 @@ public class JwtAuthentication {
 
     private RefreshToken refreshToken;
 
-    public JwtAuthentication(AccessToken accessToken, RefreshToken refreshToken) {
+    private JwtAuthentication(UserId userId, AccessToken accessToken, RefreshToken refreshToken) {
+        if (userId == null) {
+            throw new IllegalArgumentException("User must not be null");
+        }
+        this.userId = userId;
         this.accessToken = accessToken;
         this.refreshToken = refreshToken;
+    }
+
+    public static JwtAuthentication unAuthenticated(UserId userId) {
+        return new JwtAuthentication(userId, null, null);
+    }
+
+    public static JwtAuthentication authenticated(UserId userId, AccessToken accessToken, RefreshToken refreshToken) {
+        return new JwtAuthentication(userId, accessToken, refreshToken);
     }
 
     public JwtAuthenticationId getId() {

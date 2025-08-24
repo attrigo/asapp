@@ -18,23 +18,14 @@ package com.bcn.asapp.uaa.infrastructure.authentication;
 
 import org.springframework.security.core.AuthenticationException;
 
-/**
- * Exception thrown when a JWT (JSON Web Token) is not found during any authentication process.
- * <p>
- * Is typically thrown when the expected JWT is missing or unavailable.
- *
- * @since 0.2.0
- * @see AuthenticationException
- * @author ttrigo
- */
-public class JwtNotFoundException extends AuthenticationException {
+public class JwtAuthenticationNotFoundException extends AuthenticationException {
 
     /**
-     * Constructs a new {@code JwtNotFoundException} with the specified detail message.
+     * Constructs a new {@code JwtAuthenticationNotFoundException} with the specified detail message.
      *
      * @param message the detail message providing additional information about the exception
      */
-    public JwtNotFoundException(String message) {
+    public JwtAuthenticationNotFoundException(String message) {
         super(message);
     }
 

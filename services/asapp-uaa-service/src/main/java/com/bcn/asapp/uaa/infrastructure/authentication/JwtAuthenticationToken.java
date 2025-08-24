@@ -18,11 +18,10 @@ package com.bcn.asapp.uaa.infrastructure.authentication;
 
 import java.io.Serial;
 import java.util.Collection;
-import java.util.Set;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.Assert;
 
 import jakarta.annotation.Nullable;
@@ -61,11 +60,15 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
      * @param jwt     the raw JWT string, must not be {@literal null} or empty
      * @throws IllegalArgumentException if {@code jwt} is {@literal null} or empty
      */
-    JwtAuthenticationToken(String subject, String jwt) {
+    private JwtAuthenticationToken(String subject, String jwt) {
         super(null);
+
+        Assert.hasText(subject, "Subject must not be null or empty");
         Assert.hasText(jwt, "JWT must not be null or empty");
+
         this.subject = subject;
         this.jwt = jwt;
+
         super.setAuthenticated(false);
     }
 
@@ -77,11 +80,15 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
      * @param jwt         the raw JWT string, must not be {@literal null} or empty
      * @throws IllegalArgumentException if {@code authorities} is {@literal null}, or if {@code jwt} is {@literal null} or empty
      */
-    JwtAuthenticationToken(String subject, Collection<? extends GrantedAuthority> authorities, String jwt) {
+    private JwtAuthenticationToken(String subject, Collection<? extends GrantedAuthority> authorities, String jwt) {
         super(authorities);
+
+        Assert.hasText(subject, "Subject must not be null or empty");
         Assert.hasText(jwt, "JWT must not be null or empty");
+
         this.subject = subject;
         this.jwt = jwt;
+
         super.setAuthenticated(true);
     }
 
@@ -94,8 +101,11 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
      */
     public static JwtAuthenticationToken unauthenticated(DecodedJwt decodedJwt) {
         Assert.notNull(decodedJwt, "Decoded JWT must not be null");
-        var subject = decodedJwt.getSubject();
-        var jwt = decodedJwt.getJwt();
+
+        return unauthenticated(decodedJwt.getSubject(), decodedJwt.getJwt());
+    }
+
+    public static JwtAuthenticationToken unauthenticated(String subject, String jwt) {
         return new JwtAuthenticationToken(subject, jwt);
     }
 
@@ -110,10 +120,13 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
      */
     public static JwtAuthenticationToken authenticated(DecodedJwt decodedJwt) {
         Assert.notNull(decodedJwt, "Decoded JWT must not be null");
-        var subject = decodedJwt.getSubject();
-        var roleClaim = decodedJwt.getRole();
-        var authorities = Set.of((new SimpleGrantedAuthority(roleClaim.name())));
-        var jwt = decodedJwt.getJwt();
+
+        var authorities = AuthorityUtils.createAuthorityList(decodedJwt.getRole()
+                                                                       .name());
+        return authenticated(decodedJwt.getSubject(), authorities, decodedJwt.getJwt());
+    }
+
+    public static JwtAuthenticationToken authenticated(String subject, Collection<GrantedAuthority> authorities, String jwt) {
         return new JwtAuthenticationToken(subject, authorities, jwt);
     }
 

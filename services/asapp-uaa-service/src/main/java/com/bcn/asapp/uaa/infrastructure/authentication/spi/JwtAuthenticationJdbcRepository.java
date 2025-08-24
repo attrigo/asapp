@@ -16,14 +16,21 @@
 
 package com.bcn.asapp.uaa.infrastructure.authentication.spi;
 
+import java.util.Optional;
 import java.util.UUID;
 
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.bcn.asapp.uaa.application.authentication.spi.JwtAuthenticationRepository;
+import com.bcn.asapp.uaa.infrastructure.authentication.entity.JwtAuthenticationEntity;
 
 @Repository
-public interface JwtAuthenticationJdbcRepository extends ListCrudRepository<JwtAuthenticationRepository, UUID> {
+public interface JwtAuthenticationJdbcRepository extends ListCrudRepository<JwtAuthenticationEntity, UUID> {
+
+    Optional<JwtAuthenticationEntity> findByAccessTokenJwt(String accessToken);
+
+    Optional<JwtAuthenticationEntity> findByRefreshTokenJwt(String refreshToken);
+
+    Boolean existsByAccessTokenJwt(String accessToken);
 
 }

@@ -140,7 +140,7 @@ class JwtIssuerAdapterIT {
             var fakeAccessToken = new AccessToken(null, null, null, null, null);
 
             willReturn(fakeAccessToken).given(jwtProvider)
-                                       .generateAccessToken(any(Authentication.class));
+                                       .provideAccessToken(any(Authentication.class));
 
             // When
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, List.of(new SimpleGrantedAuthority("USER")));
@@ -167,9 +167,9 @@ class JwtIssuerAdapterIT {
             var fakeRefreshToken = new RefreshToken(null, null, null, null, null);
 
             willCallRealMethod().given(jwtProvider)
-                                .generateAccessToken(any(Authentication.class));
+                                .provideAccessToken(any(Authentication.class));
             willReturn(fakeRefreshToken).given(jwtProvider)
-                                        .generateRefreshToken(any(Authentication.class));
+                                        .provideRefreshToken(any(Authentication.class));
 
             // When
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, List.of(new SimpleGrantedAuthority("USER")));

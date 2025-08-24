@@ -46,6 +46,8 @@ public interface UserJdbcRepository extends ListCrudRepository<UserEntity, UUID>
      */
     Optional<UserEntity> findByUsername(String username);
 
+    Optional<UserEntity> findByAuthenticationId(UUID authenticationId);
+
     /**
      * Deletes a user by their id.
      *

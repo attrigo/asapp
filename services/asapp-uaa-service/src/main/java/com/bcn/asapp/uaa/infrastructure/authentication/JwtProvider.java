@@ -96,7 +96,7 @@ public class JwtProvider {
         this.refreshTokenExpirationTime = refreshTokenExpirationTime;
     }
 
-    public AccessToken generateAccessToken(User user) {
+    public AccessToken provideAccessToken(User user) {
         var issuedAt = Instant.now();
         var expiresAt = Instant.now()
                                .plusMillis(accessTokenExpirationTime);
@@ -106,7 +106,7 @@ public class JwtProvider {
         return new AccessToken(jwt, issuedAt, expiresAt);
     }
 
-    public RefreshToken generateRefreshToken(User user) {
+    public RefreshToken provideRefreshToken(User user) {
         var issuedAt = Instant.now();
         var expiresAt = Instant.now()
                                .plusMillis(refreshTokenExpirationTime);

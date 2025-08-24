@@ -21,14 +21,27 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
+import com.bcn.asapp.uaa.application.authentication.spi.JwtAuthenticationRepository;
+
 @Component
 public class JwtAuthenticationProvider implements AuthenticationProvider {
 
-    // TODO: add dependencies
+    private final JwtAuthenticationRepository jwtAuthenticationRepository;
+
+    public JwtAuthenticationProvider(JwtAuthenticationRepository jwtAuthenticationRepository) {
+        this.jwtAuthenticationRepository = jwtAuthenticationRepository;
+    }
 
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-        // TODO: Perform authentication logic here
+        if (authentication instanceof JwtAuthenticationToken jwtAuthentication) {
+            // TODO: Should check if authentication JWT belongs to the user in the system (JWT could username could not be modified)
+            var isAuthenticated = jwtAuthenticationRepository.existsByAccessToken(jwtAuthentication.getJwt());
+            if (isAuthenticated) {
+                return JwtAuthenticationToken.authenticated(jwtAuthentication.getName(), jwtAuthentication.getAuthorities(), jwtAuthentication.getJwt());
+            }
+        }
+        // TODO: Should return null (to delegate the authentication to next Provider) or throw an exception to stop the authentication flow
         return null;
     }
 

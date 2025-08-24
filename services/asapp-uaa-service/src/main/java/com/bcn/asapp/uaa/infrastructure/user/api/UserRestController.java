@@ -55,11 +55,6 @@ public class UserRestController implements UserRestAPI {
 
     private final UserMapper userMapper;
 
-    /**
-     * Constructs a new {@code UserRestController} with the specified user service.
-     *
-     * @param userService the service responsible for user business logic
-     */
     public UserRestController(ReadUserUseCase readUserUseCase, CreateUserUseCase createUserUseCase, UpdateUserUseCase updateUserUseCase,
             DeleteUserUseCase deleteUserUseCase, UserMapper userMapper) {
 

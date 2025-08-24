@@ -16,12 +16,9 @@
 
 package com.bcn.asapp.uaa.application.user.api.service;
 
-import java.util.Optional;
-
 import com.bcn.asapp.uaa.application.ApplicationService;
 import com.bcn.asapp.uaa.application.user.api.DeleteUserUseCase;
 import com.bcn.asapp.uaa.application.user.spi.UserRepository;
-import com.bcn.asapp.uaa.domain.user.User;
 import com.bcn.asapp.uaa.domain.user.UserId;
 
 @ApplicationService
@@ -33,18 +30,10 @@ public class DeleteUserService implements DeleteUserUseCase {
         this.userRepository = userRepository;
     }
 
-    // TODO: should this operation be consider as domain service?
     @Override
     public Boolean deleteUserById(UserId userId) {
-        Optional<User> userExists = userRepository.findById(userId);
-        if (userExists.isEmpty()) {
-            return false;
-        }
-
-        // TODO: revoke authentication before delete the user
-        // jwtRevoker.revokeAuthentication(userExists.get());
-
-        return userRepository.deleteUserById(userId.id()) > 0;
+        // TODO: Ensure user's authentication is revoked as well
+        return userRepository.deleteById(userId) > 0;
     }
 
 }

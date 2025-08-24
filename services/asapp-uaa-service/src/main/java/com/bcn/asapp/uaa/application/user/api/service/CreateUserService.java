@@ -36,6 +36,7 @@ public class CreateUserService implements CreateUserUseCase {
 
     @Override
     public User createUser(User user) {
+        // TODO: What happens when the password could not be encoded
         var passwordEncoded = userPasswordEncoder.encode(user.getPassword());
         user.setPassword(passwordEncoded);
 

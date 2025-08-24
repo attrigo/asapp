@@ -47,7 +47,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
-import com.bcn.asapp.dto.user.UserDTO;
 import com.bcn.asapp.uaa.infrastructure.user.api.resource.CreateUserRequest;
 import com.bcn.asapp.uaa.infrastructure.user.api.resource.CreateUserResponse;
 import com.bcn.asapp.uaa.infrastructure.user.api.resource.GetAllUsersResponse;
@@ -79,12 +78,12 @@ public interface UserRestAPI {
      * </ul>
      *
      * @param id the id of the user to get
-     * @return a {@link ResponseEntity} wrapping the {@link UserDTO} with the specified id or empty if not found
+     * @return
      */
     @GetMapping(value = USERS_GET_BY_ID_PATH, produces = "application/json")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Gets a user by id", description = "Returns a user with the specified id, or empty if not found")
-    @ApiResponse(responseCode = "200", description = "User found", content = { @Content(schema = @Schema(implementation = UserDTO.class)) })
+    @ApiResponse(responseCode = "200", description = "User found", content = { @Content(schema = @Schema(implementation = GetUserByIdResponse.class)) })
     @ApiResponse(responseCode = "400", description = "Invalid user id format", content = { @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
     @ApiResponse(responseCode = "404", description = "User not found", content = { @Content })
@@ -101,13 +100,13 @@ public interface UserRestAPI {
      * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
      * </ul>
      *
-     * @return a list of all {@link UserDTO}, or an empty list if no users exist
+     * @return
      */
     @GetMapping(value = USERS_GET_ALL_PATH, produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Gets all users", description = "Returns a list of all users, or an empty list if no users exist")
-    @ApiResponse(responseCode = "200", description = "Users found", content = { @Content(schema = @Schema(implementation = UserDTO.class)) })
+    @ApiResponse(responseCode = "200", description = "Users found", content = { @Content(schema = @Schema(implementation = GetAllUsersResponse.class)) })
     @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
     List<GetAllUsersResponse> getAllUsers();
 
@@ -123,13 +122,14 @@ public interface UserRestAPI {
      * </ul>
      *
      * @param request the request data to create
-     * @return the created {@link UserDTO} with a generated id
+     * @return
      */
     @PostMapping(value = USERS_CREATE_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Creates a new request", description = "Creates a new request with a new generated id, any provided id will be ignored")
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The request data to create", required = true, content = @Content(schema = @Schema(implementation = UserDTO.class)))
-    @ApiResponse(responseCode = "201", description = "User created successfully", content = { @Content(schema = @Schema(implementation = UserDTO.class)) })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The request data to create", required = true, content = @Content(schema = @Schema(implementation = CreateUserRequest.class)))
+    @ApiResponse(responseCode = "201", description = "User created successfully", content = {
+            @Content(schema = @Schema(implementation = CreateUserResponse.class)) })
     @ApiResponse(responseCode = "400", description = "Request body validation failed", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     CreateUserResponse createUser(@RequestBody @Valid CreateUserRequest request);
@@ -147,15 +147,16 @@ public interface UserRestAPI {
      * <li>404-NOT_FOUND: User not found.</li>
      * </ul>
      *
-     * @param id          the id of the request to update
-     * @param newUserData the request data to update
-     * @return a {@link ResponseEntity} wrapping the updated {@link UserDTO}, or empty if not found
+     * @param id      the id of the request to update
+     * @param request the request data to update
+     * @return
      */
     @PutMapping(value = USERS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
     @SecurityRequirement(name = "Bearer Authentication")
     @Operation(summary = "Updates an existing request by id", description = "Updates the data of an existing request by the specified id except the id, with the provided new data")
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The request data to update", required = true, content = @Content(schema = @Schema(implementation = UserDTO.class)))
-    @ApiResponse(responseCode = "200", description = "User has been updated", content = { @Content(schema = @Schema(implementation = UserDTO.class)) })
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The request data to update", required = true, content = @Content(schema = @Schema(implementation = UpdateUserRequest.class)))
+    @ApiResponse(responseCode = "200", description = "User has been updated", content = {
+            @Content(schema = @Schema(implementation = UpdateUserResponse.class)) })
     @ApiResponse(responseCode = "400", description = "Invalid request id format or request body validation failed.", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })

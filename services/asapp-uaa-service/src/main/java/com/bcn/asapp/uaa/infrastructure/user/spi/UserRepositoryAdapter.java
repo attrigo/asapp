@@ -18,11 +18,11 @@ package com.bcn.asapp.uaa.infrastructure.user.spi;
 
 import java.util.Collection;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.uaa.application.user.spi.UserRepository;
+import com.bcn.asapp.uaa.domain.authentication.JwtAuthenticationId;
 import com.bcn.asapp.uaa.domain.user.User;
 import com.bcn.asapp.uaa.domain.user.UserId;
 import com.bcn.asapp.uaa.infrastructure.user.mapper.UserMapper;
@@ -52,16 +52,17 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     @Override
+    public Optional<User> findByAuthenticationId(JwtAuthenticationId authenticationId) {
+        return userRepository.findByAuthenticationId(authenticationId.id())
+                             .map(userMapper::toUser);
+    }
+
+    @Override
     public Collection<User> findAll() {
         return userRepository.findAll()
                              .stream()
                              .map(userMapper::toUser)
                              .toList();
-    }
-
-    @Override
-    public Boolean existsById(UserId userId) {
-        return userRepository.existsById(userId.id());
     }
 
     @Override
@@ -72,8 +73,8 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     @Override
-    public Long deleteUserById(UUID id) {
-        return userRepository.deleteUserById(id);
+    public Long deleteById(UserId userId) {
+        return userRepository.deleteUserById(userId.id());
     }
 
 }

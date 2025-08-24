@@ -16,50 +16,42 @@
 
 package com.bcn.asapp.uaa.domain.user;
 
-import com.bcn.asapp.uaa.domain.authentication.JwtAuthentication;
-
-/**
- * Represents a user entity in the UAA (User Account and Authentication) service.
- * <p>
- * Encapsulates the user's identity, credentials, and assigned role.
- *
- * @param id       the unique identifier of the user
- * @param username the username used for authentication and identification, must not be {@literal blank}
- * @param password the encrypted password used for authentication, must not be {@literal blank}
- * @param role     the {@link Role} assigned to the user, determining access permissions, must not be {@literal null}
- * @author ttrigo
- * @since 0.2.0
- */
 public class User {
 
     private UserId id;
 
+    // TODO: Should be possible to change the username (may generate un-synchronized tokens)
     private String username;
 
     private String password;
 
     private Role role;
 
-    private JwtAuthentication authentication;
+    public User(UserId id, String username, String password, Role role) {
+        // TODO: Is a good practice to use setters in constructor
+        setId(id);
+        setUsername(username);
+        setPassword(password);
+        this.role = role;
+    }
 
     public User(String username, String password, Role role) {
-        if (username == null || username.isBlank()) {
-            throw new IllegalArgumentException("Username must not be null or empty");
-        }
-        if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("Password must not be null or empty");
-        }
-        this.username = username;
-        this.password = password;
+        setUsername(username);
+        setPassword(password);
         this.role = role;
+    }
+
+    public void setId(UserId id) {
+        if (id == null) {
+            throw new IllegalArgumentException("User id must not be null");
+        }
+        if (this.id == null) {
+            this.id = id;
+        }
     }
 
     public UserId getId() {
         return id;
-    }
-
-    public void setId(UserId id) {
-        this.id = id;
     }
 
     public String getUsername() {
@@ -67,6 +59,9 @@ public class User {
     }
 
     public void setUsername(String username) {
+        if (username == null || username.isBlank()) {
+            throw new IllegalArgumentException("Username must not be null or empty");
+        }
         this.username = username;
     }
 
@@ -75,6 +70,9 @@ public class User {
     }
 
     public void setPassword(String password) {
+        if (password == null || password.isBlank()) {
+            throw new IllegalArgumentException("Password must not be null or empty");
+        }
         this.password = password;
     }
 
@@ -84,14 +82,6 @@ public class User {
 
     public void setRole(Role role) {
         this.role = role;
-    }
-
-    public JwtAuthentication getAuthentication() {
-        return authentication;
-    }
-
-    public void setAuthentication(JwtAuthentication authentication) {
-        this.authentication = authentication;
     }
 
 }

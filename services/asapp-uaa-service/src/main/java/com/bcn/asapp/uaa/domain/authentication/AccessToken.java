@@ -18,21 +18,6 @@ package com.bcn.asapp.uaa.domain.authentication;
 
 import java.time.Instant;
 
-/**
- * Represents an access token entity in the UAA (User Account and Authentication) service.
- * <p>
- * Encapsulates the JWT access token string along with its associated user ID, creation timestamp, and expiration timestamp.
- * <p>
- * This token is used to authenticate and authorize user requests within the system.
- *
- * @param id        the unique identifier for the access token
- * @param userId    the identifier of the user associated with this access token, must not be {@literal blank}
- * @param jwt       the JWT (JSON Web Token) string used for authenticating the user, must not be {@literal blank}
- * @param createdAt the timestamp when the access token was created, must not be {@literal null}
- * @param expiresAt the timestamp when the access token expires and becomes invalid, must not be {@literal null}
- * @author ttrigo
- * @since 0.2.0
- */
 public record AccessToken(
         String jwt,
         Instant issuedAt,
@@ -40,14 +25,22 @@ public record AccessToken(
 ) {
 
     public AccessToken {
+        validate();
+    }
+
+    // TODO: Should put the validation in a separate method or keep it in constructor
+    private void validate() {
         if (jwt == null || jwt.isBlank()) {
             throw new IllegalArgumentException("JWT must not be null or empty");
         }
         if (issuedAt == null) {
-            throw new IllegalArgumentException("IssuedAt must not be null");
+            throw new IllegalArgumentException("Issued at timestamp must not be null");
         }
         if (expiresAt == null) {
-            throw new IllegalArgumentException("ExpiresAt must not be null");
+            throw new IllegalArgumentException("Expires at timestamp must not be null");
+        }
+        if (issuedAt.isAfter(expiresAt)) {
+            throw new IllegalArgumentException("Issued at timestamp must be before expires at timestamp");
         }
     }
 

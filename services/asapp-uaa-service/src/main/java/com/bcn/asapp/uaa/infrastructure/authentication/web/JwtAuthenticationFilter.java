@@ -30,17 +30,18 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import com.bcn.asapp.uaa.application.authentication.spi.JwtVerifier;
+import com.bcn.asapp.uaa.infrastructure.authentication.JwtAuthenticationToken;
+import com.bcn.asapp.uaa.infrastructure.authentication.JwtDecoder;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final JwtVerifier jwtVerifier;
+    private final JwtDecoder jwtDecoder;
 
     private final AuthenticationManager authenticationManager;
 
-    public JwtAuthenticationFilter(JwtVerifier jwtVerifier, AuthenticationManager authenticationManager) {
-        this.jwtVerifier = jwtVerifier;
+    public JwtAuthenticationFilter(JwtDecoder jwtDecoder, AuthenticationManager authenticationManager) {
+        this.jwtDecoder = jwtDecoder;
         this.authenticationManager = authenticationManager;
     }
 
@@ -50,9 +51,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (optionalBearerToken.isPresent()) {
             var bearerToken = optionalBearerToken.get();
-
-            var authenticationRequest = jwtVerifier.verifyAccessToken(bearerToken);
-
+            var decodedJwt = jwtDecoder.decode(bearerToken);
+            var authenticationRequest = JwtAuthenticationToken.unauthenticated(decodedJwt);
             var authentication = authenticationManager.authenticate(authenticationRequest);
 
             SecurityContextHolder.getContext()
