@@ -16,18 +16,18 @@
 
 package com.bcn.asapp.uaa.infrastructure.authentication.spi;
 
-import static com.bcn.asapp.uaa.infrastructure.authentication.JwtType.ACCESS_TOKEN;
-import static com.bcn.asapp.uaa.infrastructure.authentication.JwtType.REFRESH_TOKEN;
+import static com.bcn.asapp.uaa.domain.authentication.JwtType.ACCESS_TOKEN;
+import static com.bcn.asapp.uaa.domain.authentication.JwtType.REFRESH_TOKEN;
 
 import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.uaa.application.authentication.spi.JwtAuthenticationRepository;
 import com.bcn.asapp.uaa.application.authentication.spi.JwtVerifier;
+import com.bcn.asapp.uaa.domain.authentication.InvalidJwtException;
 import com.bcn.asapp.uaa.domain.authentication.JwtAuthentication;
-import com.bcn.asapp.uaa.infrastructure.authentication.InvalidJwtException;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtAuthenticationNotFoundException;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtDecoder;
-import com.bcn.asapp.uaa.infrastructure.authentication.UnexpectedJwtTypeException;
+import com.bcn.asapp.uaa.infrastructure.authentication.core.JwtAuthenticationNotFoundException;
+import com.bcn.asapp.uaa.infrastructure.authentication.core.JwtDecoder;
+import com.bcn.asapp.uaa.infrastructure.authentication.core.UnexpectedJwtTypeException;
 
 @Component
 public class JwtVerifierAdapter implements JwtVerifier {
@@ -44,16 +44,16 @@ public class JwtVerifierAdapter implements JwtVerifier {
     @Override
     public final JwtAuthentication verifyAccessToken(String accessToken) {
         try {
-            var decodedAccessToken = jwtDecoder.decode(accessToken);
+            var jwt = jwtDecoder.decode(accessToken);
 
-            if (!decodedAccessToken.isAccessToken()) {
-                throw new UnexpectedJwtTypeException(String.format("JWT %s is not a %s", decodedAccessToken.getJwt(), ACCESS_TOKEN));
+            if (!jwt.isAccessToken()) {
+                throw new UnexpectedJwtTypeException(String.format("JWT %s is not a %s", jwt.token(), ACCESS_TOKEN));
             }
 
             // TODO: Should check if access token belongs to the user in the system (JWT could username could not be modified)
-            return jwtAuthenticationRepository.findByAccessToken(decodedAccessToken.getJwt())
+            return jwtAuthenticationRepository.findByAccessToken(jwt.token())
                                               .orElseThrow(() -> new JwtAuthenticationNotFoundException(
-                                                      "Jwt authentication not found by access token " + decodedAccessToken.getJwt()));
+                                                      "Jwt authentication not found by access token " + jwt.token()));
         } catch (Exception e) {
             throw new InvalidJwtException("Access token is not valid", e);
         }
@@ -62,16 +62,16 @@ public class JwtVerifierAdapter implements JwtVerifier {
     @Override
     public final JwtAuthentication verifyRefreshToken(String refreshToken) {
         try {
-            var decodedRefreshToken = jwtDecoder.decode(refreshToken);
+            var jwt = jwtDecoder.decode(refreshToken);
 
-            if (!decodedRefreshToken.isRefreshToken()) {
-                throw new UnexpectedJwtTypeException(String.format("JWT %s is not a %s", decodedRefreshToken.getJwt(), REFRESH_TOKEN));
+            if (!jwt.isRefreshToken()) {
+                throw new UnexpectedJwtTypeException(String.format("JWT %s is not a %s", jwt.token(), REFRESH_TOKEN));
             }
 
             // TODO: Should check if refresh token belongs to the user in the system (JWT could username could not be modified)
-            return jwtAuthenticationRepository.findByRefreshToken(decodedRefreshToken.getJwt())
+            return jwtAuthenticationRepository.findByRefreshToken(jwt.token())
                                               .orElseThrow(() -> new JwtAuthenticationNotFoundException(
-                                                      "Jwt authentication not found by refresh token " + decodedRefreshToken.getJwt()));
+                                                      "Jwt authentication not found by refresh token " + jwt.token()));
         } catch (Exception e) {
             throw new InvalidJwtException("Refresh token is not valid", e);
         }

@@ -24,7 +24,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.stereotype.Component;
 
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtAuthenticationProvider;
+import com.bcn.asapp.uaa.infrastructure.authentication.core.JwtAuthenticationProvider;
 
 @Component
 public class JwtAuthenticationConfigurer extends AbstractHttpConfigurer<JwtAuthenticationConfigurer, HttpSecurity> {

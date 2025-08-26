@@ -25,18 +25,16 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 import com.bcn.asapp.uaa.domain.user.Role;
-import com.bcn.asapp.uaa.infrastructure.authentication.entity.JwtAuthenticationEntity;
 
 /**
  * Represents a user entity in the UAA (User Account and Authentication) service.
  * <p>
  * Encapsulates the user's identity, credentials, and assigned role.
  *
- * @param id             the unique identifier of the user
- * @param username       the username used for authentication and identification, must not be {@literal blank}
- * @param password       the encrypted password used for authentication, must not be {@literal blank}
- * @param role           the {@link Role} assigned to the user, determining access permissions, must not be {@literal null}
- * @param authentication the {@link JwtAuthenticationEntity} used for authentication, may be {@literal null}
+ * @param id       the unique identifier of the user
+ * @param username the username used for authentication and identification; must not be {@literal blank}
+ * @param password the encrypted password used for authentication; must not be {@literal blank}
+ * @param role     the {@link Role} assigned to the user, determining access permissions; must not be {@literal null}
  * @author ttrigo
  * @since 0.2.0
  */
@@ -45,8 +43,7 @@ public record UserEntity(
         @Id UUID id,
         @NotBlank String username,
         @NotBlank String password,
-        @NotNull Role role,
-        JwtAuthenticationEntity authentication
+        @NotNull Role role
 ) {
 
 }

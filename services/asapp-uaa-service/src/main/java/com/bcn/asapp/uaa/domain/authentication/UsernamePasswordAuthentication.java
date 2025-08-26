@@ -16,7 +16,31 @@
 
 package com.bcn.asapp.uaa.domain.authentication;
 
+import java.util.Collection;
+
+import com.bcn.asapp.uaa.domain.user.Role;
+
 public record UsernamePasswordAuthentication(
         String username,
-        String password
-) {}
+        String password,
+        Collection<Role> authorities
+) {
+
+    public UsernamePasswordAuthentication {
+        if (username == null || username.isEmpty()) {
+            throw new IllegalArgumentException("Username could be null or empty");
+        }
+    }
+
+    public static UsernamePasswordAuthentication unAuthenticated(String username, String password) {
+        return new UsernamePasswordAuthentication(username, password, null);
+    }
+
+    public static UsernamePasswordAuthentication authenticated(String username, String password, Collection<Role> authorities) {
+        if (authorities == null || authorities.isEmpty()) {
+            throw new IllegalArgumentException("Authorities could be null or empty");
+        }
+        return new UsernamePasswordAuthentication(username, password, authorities);
+    }
+
+}

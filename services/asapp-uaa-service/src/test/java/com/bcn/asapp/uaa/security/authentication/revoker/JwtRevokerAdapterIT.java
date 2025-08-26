@@ -50,11 +50,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import com.bcn.asapp.uaa.domain.authentication.AccessToken;
+import com.bcn.asapp.uaa.domain.authentication.JwtType;
 import com.bcn.asapp.uaa.domain.authentication.RefreshToken;
 import com.bcn.asapp.uaa.domain.user.Role;
 import com.bcn.asapp.uaa.domain.user.User;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtIntegrityViolationException;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtType;
+import com.bcn.asapp.uaa.infrastructure.authentication.core.JwtIntegrityViolationException;
 import com.bcn.asapp.uaa.infrastructure.authentication.spi.JwtRevokerAdapter;
 import com.bcn.asapp.uaa.security.core.AccessTokenRepository;
 import com.bcn.asapp.uaa.security.core.RefreshTokenRepository;

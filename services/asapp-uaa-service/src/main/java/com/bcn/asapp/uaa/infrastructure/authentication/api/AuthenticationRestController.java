@@ -18,9 +18,10 @@ package com.bcn.asapp.uaa.infrastructure.authentication.api;
 
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bcn.asapp.uaa.application.authentication.api.AuthenticateUserUseCase;
+import com.bcn.asapp.uaa.application.authentication.api.AuthenticateUseCase;
 import com.bcn.asapp.uaa.application.authentication.api.RefreshAuthenticationUseCase;
 import com.bcn.asapp.uaa.application.authentication.api.RevokeAuthenticationUseCase;
+import com.bcn.asapp.uaa.domain.authentication.UsernamePasswordAuthentication;
 import com.bcn.asapp.uaa.infrastructure.authentication.api.resource.AuthenticateRequest;
 import com.bcn.asapp.uaa.infrastructure.authentication.api.resource.AuthenticateResponse;
 import com.bcn.asapp.uaa.infrastructure.authentication.api.resource.RefreshAuthenticationRequest;
@@ -31,7 +32,7 @@ import com.bcn.asapp.uaa.infrastructure.authentication.mapper.JwtAuthenticationM
 @RestController
 public class AuthenticationRestController implements AuthenticationRestAPI {
 
-    private final AuthenticateUserUseCase authenticateUserUseCase;
+    private final AuthenticateUseCase authenticateUseCase;
 
     private final RefreshAuthenticationUseCase refreshAuthenticationUseCase;
 
@@ -39,10 +40,10 @@ public class AuthenticationRestController implements AuthenticationRestAPI {
 
     private final JwtAuthenticationMapper jwtAuthenticationMapper;
 
-    public AuthenticationRestController(AuthenticateUserUseCase authenticateUserUseCase, RefreshAuthenticationUseCase refreshAuthenticationUseCase,
+    public AuthenticationRestController(AuthenticateUseCase authenticateUseCase, RefreshAuthenticationUseCase refreshAuthenticationUseCase,
             RevokeAuthenticationUseCase revokeAuthenticationUseCase, JwtAuthenticationMapper jwtAuthenticationMapper) {
 
-        this.authenticateUserUseCase = authenticateUserUseCase;
+        this.authenticateUseCase = authenticateUseCase;
         this.refreshAuthenticationUseCase = refreshAuthenticationUseCase;
         this.revokeAuthenticationUseCase = revokeAuthenticationUseCase;
         this.jwtAuthenticationMapper = jwtAuthenticationMapper;
@@ -50,8 +51,9 @@ public class AuthenticationRestController implements AuthenticationRestAPI {
 
     @Override
     public AuthenticateResponse authenticate(AuthenticateRequest request) {
-        var credentialsToAuthenticate = authenticateUserUseCase.authenticate(request.username(), request.password());
-        return jwtAuthenticationMapper.toAuthenticateResponse(credentialsToAuthenticate);
+        var authenticationRequest = UsernamePasswordAuthentication.unAuthenticated(request.username(), request.password());
+        var authentication = authenticateUseCase.authenticate(authenticationRequest);
+        return jwtAuthenticationMapper.toAuthenticateResponse(authentication);
     }
 
     @Override

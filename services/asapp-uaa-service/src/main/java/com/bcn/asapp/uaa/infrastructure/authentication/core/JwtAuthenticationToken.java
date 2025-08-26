@@ -14,14 +14,13 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.uaa.infrastructure.authentication;
+package com.bcn.asapp.uaa.infrastructure.authentication.core;
 
 import java.io.Serial;
 import java.util.Collection;
 
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.util.Assert;
 
 import jakarta.annotation.Nullable;
@@ -38,6 +37,7 @@ import jakarta.annotation.Nullable;
  * @see AbstractAuthenticationToken
  * @since 0.2.0
  */
+// TODO: Review if is good idea to replace subject and jwt by Jwt type
 public class JwtAuthenticationToken extends AbstractAuthenticationToken {
 
     @Serial
@@ -62,13 +62,10 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
      */
     private JwtAuthenticationToken(String subject, String jwt) {
         super(null);
-
         Assert.hasText(subject, "Subject must not be null or empty");
         Assert.hasText(jwt, "JWT must not be null or empty");
-
         this.subject = subject;
         this.jwt = jwt;
-
         super.setAuthenticated(false);
     }
 
@@ -82,48 +79,15 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
      */
     private JwtAuthenticationToken(String subject, Collection<? extends GrantedAuthority> authorities, String jwt) {
         super(authorities);
-
         Assert.hasText(subject, "Subject must not be null or empty");
         Assert.hasText(jwt, "JWT must not be null or empty");
-
         this.subject = subject;
         this.jwt = jwt;
-
         super.setAuthenticated(true);
-    }
-
-    /**
-     * Creates an unauthenticated {@code JwtAuthenticationToken} instance from a decoded JWT.
-     *
-     * @param decodedJwt the decoded JWT object, must not be {@literal null}
-     * @return a new unauthenticated {@link JwtAuthenticationToken} instance
-     * @throws IllegalArgumentException if {@code decodedJwt} is {@literal null}
-     */
-    public static JwtAuthenticationToken unauthenticated(DecodedJwt decodedJwt) {
-        Assert.notNull(decodedJwt, "Decoded JWT must not be null");
-
-        return unauthenticated(decodedJwt.getSubject(), decodedJwt.getJwt());
     }
 
     public static JwtAuthenticationToken unauthenticated(String subject, String jwt) {
         return new JwtAuthenticationToken(subject, jwt);
-    }
-
-    /**
-     * Creates an authenticated {@code JwtAuthenticationToken} instance from a decoded JWT.
-     * <p>
-     * The authorities are extracted from the role claim of the decoded JWT.
-     *
-     * @param decodedJwt the decoded JWT object, must not be {@literal null}
-     * @return a new authenticated {@code JwtAuthenticationToken} instance
-     * @throws IllegalArgumentException if {@code decodedJwt} is {@literal null}
-     */
-    public static JwtAuthenticationToken authenticated(DecodedJwt decodedJwt) {
-        Assert.notNull(decodedJwt, "Decoded JWT must not be null");
-
-        var authorities = AuthorityUtils.createAuthorityList(decodedJwt.getRole()
-                                                                       .name());
-        return authenticated(decodedJwt.getSubject(), authorities, decodedJwt.getJwt());
     }
 
     public static JwtAuthenticationToken authenticated(String subject, Collection<GrantedAuthority> authorities, String jwt) {

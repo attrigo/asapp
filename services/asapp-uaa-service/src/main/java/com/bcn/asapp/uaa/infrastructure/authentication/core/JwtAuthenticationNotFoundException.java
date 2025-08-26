@@ -14,12 +14,19 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.uaa.application.authentication.api;
+package com.bcn.asapp.uaa.infrastructure.authentication.core;
 
-import com.bcn.asapp.uaa.domain.authentication.JwtAuthentication;
+import org.springframework.security.core.AuthenticationException;
 
-public interface AuthenticateUserUseCase {
+public class JwtAuthenticationNotFoundException extends AuthenticationException {
 
-    JwtAuthentication authenticate(String username, String password);
+    /**
+     * Constructs a new {@code JwtAuthenticationNotFoundException} with the specified detail message.
+     *
+     * @param message the detail message providing additional information about the exception
+     */
+    public JwtAuthenticationNotFoundException(String message) {
+        super(message);
+    }
 
 }

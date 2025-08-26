@@ -18,16 +18,6 @@ package com.bcn.asapp.uaa.infrastructure.authentication.api.resource;
 
 import jakarta.validation.constraints.NotBlank;
 
-/**
- * Represents a Data Transfer Object (DTO) for a user credentials.
- * <p>
- * Contains mandatory username and password fields for authentication requests.
- *
- * @param username the username, must not be {@code blank}
- * @param password the password, must not be {@code blank}
- * @author ttrigo
- * @since 0.2.0
- */
 public record AuthenticateRequest(
         @NotBlank(message = "The username must not be empty") String username,
         @NotBlank(message = "The password must not be empty") String password

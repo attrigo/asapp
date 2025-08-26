@@ -14,18 +14,26 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.uaa.infrastructure.authentication;
+package com.bcn.asapp.uaa.infrastructure.authentication.core;
 
 import org.springframework.security.core.AuthenticationException;
 
-public class JwtAuthenticationNotFoundException extends AuthenticationException {
+/**
+ * Exception thrown when a JSON Web Token (JWT) has an unexpected or unsupported type.
+ * <p>
+ * Is typically thrown when the type of JWT is not the expected one.
+ *
+ * @author ttrigo
+ * @since 0.2.0
+ */
+public class UnexpectedJwtTypeException extends AuthenticationException {
 
     /**
-     * Constructs a new {@code JwtAuthenticationNotFoundException} with the specified detail message.
+     * Constructs a new {@code UnexpectedJwtTypeException} with the specified detail message.
      *
      * @param message the detail message providing additional information about the exception
      */
-    public JwtAuthenticationNotFoundException(String message) {
+    public UnexpectedJwtTypeException(String message) {
         super(message);
     }
 

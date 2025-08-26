@@ -5,6 +5,7 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
+    <!-- TODO: Think if index by access token and refresh token are needed -->
     <changeSet id="20250818_2-1" author="atrigo">
         <preConditions onFail="MARK_RAN" onSqlOutput="TEST">
             <not>
@@ -19,7 +20,13 @@
             <column name="user_id" type="uuid" remarks="The id of the user, fk to users.user_id">
                 <constraints nullable="false"/>
             </column>
-            <column name="access_token_jwt" type="varchar2(2000)" remarks="The JSON web token of the access token">
+            <column name="access_token_token" type="varchar2(2000)" remarks="The JSON web token of the access token">
+                <constraints nullable="false"/>
+            </column>
+            <column name="access_token_type" type="varchar2(10)" remarks="The type of the access token">
+                <constraints nullable="false"/>
+            </column>
+            <column name="access_token_subject" type="varchar2(100)" remarks="The subject of the access token">
                 <constraints nullable="false"/>
             </column>
             <column name="access_token_issued_at" type="timestamp" remarks="Issue date of the access token">
@@ -28,7 +35,13 @@
             <column name="access_token_expires_at" type="timestamp" remarks="Expiration date of the access token">
                 <constraints nullable="false"/>
             </column>
-            <column name="refresh_token_jwt" type="varchar2(2000)" remarks="The JSON web token of the refresh token">
+            <column name="refresh_token_token" type="varchar2(2000)" remarks="The JSON web token of the refresh token">
+                <constraints nullable="false"/>
+            </column>
+            <column name="refresh_token_type" type="varchar2(10)" remarks="The type of the refresh token">
+                <constraints nullable="false"/>
+            </column>
+            <column name="refresh_token_subject" type="varchar2(100)" remarks="The subject of the refresh token">
                 <constraints nullable="false"/>
             </column>
             <column name="refresh_token_issued_at" type="timestamp" remarks="Issue date of the refresh token">
@@ -52,8 +65,8 @@
         </rollback>
 
         <comment>
-            Creates the Jwt authentication table with columns user_id, access_token_jwt, access_token_issued_at, access_token_expires_at, refresh_token_jwt,
-            refresh_token_issued_at, refresh_token_expires_at, then creates the foreign key with user table and finally creates an index for user_id field
+            Creates the Jwt authentication table with columns appropriate columns then creates the foreign key with user table and finally creates an index for
+            user_id field
         </comment>
     </changeSet>
 

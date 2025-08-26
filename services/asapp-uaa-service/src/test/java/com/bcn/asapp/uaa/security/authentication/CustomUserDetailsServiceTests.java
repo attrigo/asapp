@@ -40,7 +40,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.bcn.asapp.uaa.domain.user.Role;
 import com.bcn.asapp.uaa.domain.user.User;
-import com.bcn.asapp.uaa.infrastructure.authentication.CustomUserDetailsService;
+import com.bcn.asapp.uaa.infrastructure.authentication.core.CustomUserDetailsService;
 import com.bcn.asapp.uaa.user.UserRepository;
 
 @ExtendWith(SpringExtension.class)

@@ -21,7 +21,6 @@ import org.apache.commons.lang3.StringUtils;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 
-import com.bcn.asapp.dto.user.ValidRole;
 import com.bcn.asapp.uaa.domain.user.Role;
 
 /**

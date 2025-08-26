@@ -18,8 +18,6 @@ package com.bcn.asapp.uaa.infrastructure.user.api.resource;
 
 import jakarta.validation.constraints.NotBlank;
 
-import com.bcn.asapp.dto.user.ValidRole;
-
 public record CreateUserRequest(
         @NotBlank(message = "The username must not be empty") String username,
         @NotBlank(message = "The password must not be empty") String password,

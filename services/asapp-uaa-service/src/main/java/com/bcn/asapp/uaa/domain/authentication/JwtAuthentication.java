@@ -16,65 +16,77 @@
 
 package com.bcn.asapp.uaa.domain.authentication;
 
+import static com.bcn.asapp.uaa.domain.authentication.Jwt.ROLE_CLAIM_NAME;
+
 import com.bcn.asapp.uaa.domain.user.UserId;
 
-public class JwtAuthentication {
+public final class JwtAuthentication {
 
-    private JwtAuthenticationId id;
+    // TODO: Rethink if really needed
+    private final JwtAuthenticationId id;
 
-    private UserId userId;
+    private final UserId userId;
 
-    private AccessToken accessToken;
+    private Jwt accessToken;
 
-    private RefreshToken refreshToken;
+    private Jwt refreshToken;
 
-    private JwtAuthentication(UserId userId, AccessToken accessToken, RefreshToken refreshToken) {
+    private JwtAuthentication(JwtAuthenticationId id, UserId userId, Jwt accessToken, Jwt refreshToken) {
+        this.id = id;
         if (userId == null) {
-            throw new IllegalArgumentException("User must not be null");
+            throw new IllegalArgumentException("User id must not be null");
         }
         this.userId = userId;
-        this.accessToken = accessToken;
-        this.refreshToken = refreshToken;
+        setAccessToken(accessToken);
+        setRefreshToken(refreshToken);
     }
 
-    public static JwtAuthentication unAuthenticated(UserId userId) {
-        return new JwtAuthentication(userId, null, null);
+    public static JwtAuthentication unAuthenticated(UserId userId, Jwt accessToken, Jwt refreshToken) {
+        return new JwtAuthentication(null, userId, accessToken, refreshToken);
     }
 
-    public static JwtAuthentication authenticated(UserId userId, AccessToken accessToken, RefreshToken refreshToken) {
-        return new JwtAuthentication(userId, accessToken, refreshToken);
+    public static JwtAuthentication authenticated(JwtAuthenticationId id, UserId userId, Jwt accessToken, Jwt refreshToken) {
+        return new JwtAuthentication(id, userId, accessToken, refreshToken);
     }
 
     public JwtAuthenticationId getId() {
-        return id;
-    }
-
-    public void setId(JwtAuthenticationId id) {
-        this.id = id;
+        return this.id;
     }
 
     public UserId getUserId() {
-        return userId;
+        return this.userId;
     }
 
-    public void setUserId(UserId userId) {
-        this.userId = userId;
+    public Jwt getAccessToken() {
+        return this.accessToken;
     }
 
-    public AccessToken getAccessToken() {
-        return accessToken;
+    // TODO: Check if can be written simpler
+    public void setAccessToken(Jwt accessToken) {
+        if (accessToken != null && this.refreshToken != null) {
+            accessToken.getClaim(ROLE_CLAIM_NAME, String.class)
+                       .orElseThrow(() -> new IllegalArgumentException("Access token must contain Role claim"));
+            this.accessToken = accessToken;
+
+        } else if (accessToken == null && this.refreshToken == null) {
+            this.accessToken = null;
+        }
     }
 
-    public void setAccessToken(AccessToken accessToken) {
-        this.accessToken = accessToken;
+    public Jwt getRefreshToken() {
+        return this.refreshToken;
     }
 
-    public RefreshToken getRefreshToken() {
-        return refreshToken;
-    }
+    // TODO: Check if can be written simpler
+    public void setRefreshToken(Jwt refreshToken) {
+        if (refreshToken != null && this.accessToken != null) {
+            refreshToken.getClaim(ROLE_CLAIM_NAME, String.class)
+                        .orElseThrow(() -> new IllegalArgumentException("Refresh token must contain Role claim"));
+            this.refreshToken = refreshToken;
 
-    public void setRefreshToken(RefreshToken refreshToken) {
-        this.refreshToken = refreshToken;
+        } else if (refreshToken == null && this.accessToken == null) {
+            this.refreshToken = null;
+        }
     }
 
 }

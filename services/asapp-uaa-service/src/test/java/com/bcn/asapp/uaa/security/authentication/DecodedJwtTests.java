@@ -42,9 +42,9 @@ import io.jsonwebtoken.Header;
 import io.jsonwebtoken.impl.DefaultClaims;
 import io.jsonwebtoken.impl.DefaultHeader;
 
+import com.bcn.asapp.uaa.domain.authentication.InvalidJwtException;
+import com.bcn.asapp.uaa.domain.authentication.JwtType;
 import com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt;
-import com.bcn.asapp.uaa.infrastructure.authentication.InvalidJwtException;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtType;
 import com.bcn.asapp.uaa.testutil.JwtFaker;
 
 class DecodedJwtTests {

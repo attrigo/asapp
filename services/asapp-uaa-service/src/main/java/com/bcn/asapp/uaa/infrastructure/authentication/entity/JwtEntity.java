@@ -17,12 +17,21 @@
 package com.bcn.asapp.uaa.infrastructure.authentication.entity;
 
 import java.time.Instant;
+import java.util.Map;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public record AccessTokenEntity(
-        @NotBlank String jwt,
+import com.bcn.asapp.uaa.domain.authentication.JwtType;
+
+// TODO: Think how to easily store the claim in a column
+public record JwtEntity(
+        @NotBlank String token,
+        @NotNull JwtType type,
+        @NotBlank String subject,
+        @NotNull Map<String, Object> claims,
         @NotNull Instant issuedAt,
         @NotNull Instant expiresAt
-) {}
+) {
+
+}

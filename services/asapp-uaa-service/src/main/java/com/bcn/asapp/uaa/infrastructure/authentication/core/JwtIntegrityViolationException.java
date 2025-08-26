@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.uaa.infrastructure.authentication;
+package com.bcn.asapp.uaa.infrastructure.authentication.core;
 
 import org.springframework.security.core.AuthenticationException;
 

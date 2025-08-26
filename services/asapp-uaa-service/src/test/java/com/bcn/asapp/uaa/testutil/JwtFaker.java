@@ -34,8 +34,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+import com.bcn.asapp.uaa.domain.authentication.JwtType;
 import com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtType;
 
 public class JwtFaker {
 

@@ -19,7 +19,6 @@ package com.bcn.asapp.uaa.infrastructure.user.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-import com.bcn.asapp.dto.user.UserDTO;
 import com.bcn.asapp.uaa.domain.user.User;
 import com.bcn.asapp.uaa.infrastructure.user.api.resource.CreateUserRequest;
 import com.bcn.asapp.uaa.infrastructure.user.api.resource.CreateUserResponse;
@@ -29,14 +28,6 @@ import com.bcn.asapp.uaa.infrastructure.user.api.resource.UpdateUserRequest;
 import com.bcn.asapp.uaa.infrastructure.user.api.resource.UpdateUserResponse;
 import com.bcn.asapp.uaa.infrastructure.user.entity.UserEntity;
 
-/**
- * Mapper interface for converting between {@link User} entities and {@link UserDTO} data transfer objects.
- * <p>
- * This interface leverages <a href="https://mapstruct.org/">MapStruct</a> for generating type-safe and performant mapping implementations at compile time.
- *
- * @author ttrigo
- * @since 0.2.0
- */
 @Mapper(componentModel = "spring", uses = UserIdMapper.class)
 public interface UserMapper {
 

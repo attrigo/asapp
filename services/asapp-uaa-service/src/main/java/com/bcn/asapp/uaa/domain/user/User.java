@@ -16,29 +16,31 @@
 
 package com.bcn.asapp.uaa.domain.user;
 
-public class User {
+public final class User {
 
     private UserId id;
 
-    // TODO: Should be possible to change the username (may generate un-synchronized tokens)
     private String username;
 
     private String password;
 
     private Role role;
 
+    public User(String username, String password, Role role) {
+        setUsername(username);
+        setPassword(password);
+        this.role = role;
+    }
+
     public User(UserId id, String username, String password, Role role) {
-        // TODO: Is a good practice to use setters in constructor
         setId(id);
         setUsername(username);
         setPassword(password);
         this.role = role;
     }
 
-    public User(String username, String password, Role role) {
-        setUsername(username);
-        setPassword(password);
-        this.role = role;
+    public UserId getId() {
+        return this.id;
     }
 
     public void setId(UserId id) {
@@ -50,14 +52,11 @@ public class User {
         }
     }
 
-    public UserId getId() {
-        return id;
-    }
-
     public String getUsername() {
-        return username;
+        return this.username;
     }
 
+    // TODO: Should be possible to change the username (may generate un-synchronized tokens)
     public void setUsername(String username) {
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("Username must not be null or empty");
@@ -66,7 +65,7 @@ public class User {
     }
 
     public String getPassword() {
-        return password;
+        return this.password;
     }
 
     public void setPassword(String password) {
@@ -77,7 +76,7 @@ public class User {
     }
 
     public Role getRole() {
-        return role;
+        return this.role;
     }
 
     public void setRole(Role role) {

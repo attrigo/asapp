@@ -38,10 +38,10 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import com.bcn.asapp.uaa.domain.authentication.JwtType;
 import com.bcn.asapp.uaa.domain.authentication.RefreshToken;
 import com.bcn.asapp.uaa.domain.user.Role;
 import com.bcn.asapp.uaa.domain.user.User;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtType;
 import com.bcn.asapp.uaa.testutil.JwtFaker;
 import com.bcn.asapp.uaa.user.UserRepository;
 

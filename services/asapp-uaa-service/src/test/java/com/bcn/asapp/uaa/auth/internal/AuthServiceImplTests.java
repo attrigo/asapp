@@ -48,10 +48,10 @@ import com.bcn.asapp.uaa.auth.RefreshTokenDTO;
 import com.bcn.asapp.uaa.auth.UserCredentialsDTO;
 import com.bcn.asapp.uaa.domain.authentication.AccessToken;
 import com.bcn.asapp.uaa.domain.authentication.JwtAuthentication;
+import com.bcn.asapp.uaa.domain.authentication.JwtType;
 import com.bcn.asapp.uaa.domain.authentication.RefreshToken;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtAuthenticationToken;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtType;
-import com.bcn.asapp.uaa.infrastructure.authentication.spi.JwtIssuerAdapter;
+import com.bcn.asapp.uaa.infrastructure.authentication.core.JwtAuthenticationToken;
+import com.bcn.asapp.uaa.infrastructure.authentication.spi.AuthenticationProviderAdapter;
 import com.bcn.asapp.uaa.infrastructure.authentication.spi.JwtRevokerAdapter;
 import com.bcn.asapp.uaa.infrastructure.authentication.spi.JwtVerifierAdapter;
 import com.bcn.asapp.uaa.infrastructure.security.authentication.InvalidAccessTokenException;
@@ -72,7 +72,7 @@ class AuthServiceImplTests {
     private RefreshTokenVerifier refreshTokenVerifierMock;
 
     @Mock
-    private JwtIssuerAdapter jwtIssuerAdapterMock;
+    private AuthenticationProviderAdapter jwtIssuerAdapterMock;
 
     @Mock
     private JwtRevokerAdapter jwtRevokerAdapterMock;
@@ -115,7 +115,7 @@ class AuthServiceImplTests {
             then(authenticationManagerMock).should(times(1))
                                            .authenticate(any(UsernamePasswordAuthenticationToken.class));
             then(jwtIssuerAdapterMock).should(never())
-                                      .issueAuthentication(any(Authentication.class));
+                                      .generateAuthentication(any(Authentication.class));
         }
 
         @Test
@@ -129,7 +129,7 @@ class AuthServiceImplTests {
             var fakeRefreshToken = new RefreshToken(UUID.randomUUID(), UUID.randomUUID(), jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN), Instant.now(),
                     Instant.now());
             var fakeAuthenticationDTO = new JwtAuthentication(fakeAccessToken, fakeRefreshToken);
-            given(jwtIssuerAdapterMock.issueAuthentication(any(Authentication.class))).willReturn(fakeAuthenticationDTO);
+            given(jwtIssuerAdapterMock.generateAuthentication(any(Authentication.class))).willReturn(fakeAuthenticationDTO);
 
             // When
             var userCredentialsToAuthenticate = new UserCredentialsDTO(fakeUsername, fakePassword);
@@ -150,7 +150,7 @@ class AuthServiceImplTests {
             then(authenticationManagerMock).should(times(1))
                                            .authenticate(any(UsernamePasswordAuthenticationToken.class));
             then(jwtIssuerAdapterMock).should(times(1))
-                                      .issueAuthentication(any(UsernamePasswordAuthenticationToken.class));
+                                      .generateAuthentication(any(UsernamePasswordAuthenticationToken.class));
         }
 
     }
@@ -175,7 +175,7 @@ class AuthServiceImplTests {
             then(refreshTokenVerifierMock).should(times(1))
                                           .verify(anyString());
             then(jwtIssuerAdapterMock).should(never())
-                                      .issueAuthentication(any(JwtAuthenticationToken.class));
+                                      .generateAuthentication(any(JwtAuthenticationToken.class));
         }
 
         @Test
@@ -190,7 +190,7 @@ class AuthServiceImplTests {
             var fakeRefreshToken = new RefreshToken(UUID.randomUUID(), UUID.randomUUID(), jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN), Instant.now(),
                     Instant.now());
             var fakeAuthenticationDTO = new JwtAuthentication(fakeAccessToken, fakeRefreshToken);
-            given(jwtIssuerAdapterMock.issueAuthentication(any(Authentication.class))).willReturn(fakeAuthenticationDTO);
+            given(jwtIssuerAdapterMock.generateAuthentication(any(Authentication.class))).willReturn(fakeAuthenticationDTO);
 
             // When
             var refreshTokenToRefresh = new RefreshTokenDTO(jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN));
@@ -209,7 +209,7 @@ class AuthServiceImplTests {
             then(refreshTokenVerifierMock).should(times(1))
                                           .verify(anyString());
             then(jwtIssuerAdapterMock).should(times(1))
-                                      .issueAuthentication(any(JwtAuthenticationToken.class));
+                                      .generateAuthentication(any(JwtAuthenticationToken.class));
         }
 
     }

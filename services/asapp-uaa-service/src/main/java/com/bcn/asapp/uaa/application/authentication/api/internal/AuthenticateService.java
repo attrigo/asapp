@@ -17,29 +17,29 @@
 package com.bcn.asapp.uaa.application.authentication.api.internal;
 
 import com.bcn.asapp.uaa.application.ApplicationService;
-import com.bcn.asapp.uaa.application.authentication.api.RefreshAuthenticationUseCase;
+import com.bcn.asapp.uaa.application.authentication.api.AuthenticateUseCase;
 import com.bcn.asapp.uaa.application.authentication.spi.AuthenticationProvider;
-import com.bcn.asapp.uaa.application.authentication.spi.JwtVerifier;
+import com.bcn.asapp.uaa.application.authentication.spi.AuthenticatorManagerPort;
 import com.bcn.asapp.uaa.domain.authentication.JwtAuthentication;
+import com.bcn.asapp.uaa.domain.authentication.UsernamePasswordAuthentication;
 
 @ApplicationService
-public class RefreshAuthenticationService implements RefreshAuthenticationUseCase {
+public class AuthenticateService implements AuthenticateUseCase {
 
-    private final JwtVerifier jwtVerifier;
+    private final AuthenticatorManagerPort authenticatorManagerPort;
 
     private final AuthenticationProvider authenticationProvider;
 
-    public RefreshAuthenticationService(JwtVerifier jwtVerifier, AuthenticationProvider authenticationProvider) {
-        this.jwtVerifier = jwtVerifier;
+    public AuthenticateService(AuthenticatorManagerPort authenticatorManagerPort, AuthenticationProvider authenticationProvider) {
+        this.authenticatorManagerPort = authenticatorManagerPort;
         this.authenticationProvider = authenticationProvider;
     }
 
     @Override
-    public JwtAuthentication refreshAuthentication(String refreshToken) {
-        var authentication = jwtVerifier.verifyRefreshToken(refreshToken);
+    public JwtAuthentication authenticate(UsernamePasswordAuthentication authenticationRequest) {
+        var authentication = authenticatorManagerPort.authenticate(authenticationRequest);
 
-        return authenticationProvider.refreshAuthentication(authentication);
-
+        return authenticationProvider.generateAuthentication(authentication);
     }
 
 }

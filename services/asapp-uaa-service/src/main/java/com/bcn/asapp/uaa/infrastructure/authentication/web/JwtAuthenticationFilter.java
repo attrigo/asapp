@@ -30,8 +30,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtAuthenticationToken;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtDecoder;
+import com.bcn.asapp.uaa.infrastructure.authentication.core.JwtAuthenticationToken;
+import com.bcn.asapp.uaa.infrastructure.authentication.core.JwtDecoder;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -51,8 +51,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (optionalBearerToken.isPresent()) {
             var bearerToken = optionalBearerToken.get();
-            var decodedJwt = jwtDecoder.decode(bearerToken);
-            var authenticationRequest = JwtAuthenticationToken.unauthenticated(decodedJwt);
+            var jwt = jwtDecoder.decode(bearerToken);
+            var authenticationRequest = JwtAuthenticationToken.unauthenticated(jwt.subject(), jwt.token());
             var authentication = authenticationManager.authenticate(authenticationRequest);
 
             SecurityContextHolder.getContext()

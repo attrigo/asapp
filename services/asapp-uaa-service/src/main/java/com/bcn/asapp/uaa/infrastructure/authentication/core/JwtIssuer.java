@@ -14,33 +14,34 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.uaa.infrastructure.authentication;
+package com.bcn.asapp.uaa.infrastructure.authentication.core;
 
-import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.ACCESS_TOKEN_TYPE;
-import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.REFRESH_TOKEN_TYPE;
-import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.ROLE_CLAIM_NAME;
-import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.TOKEN_USE_ACCESS_CLAIM_VALUE;
-import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.TOKEN_USE_CLAIM_NAME;
-import static com.bcn.asapp.uaa.infrastructure.authentication.DecodedJwt.TOKEN_USE_REFRESH_CLAIM_VALUE;
+import static com.bcn.asapp.uaa.domain.authentication.Jwt.ROLE_CLAIM_NAME;
+import static com.bcn.asapp.uaa.domain.authentication.Jwt.TOKEN_USE_ACCESS_CLAIM_VALUE;
+import static com.bcn.asapp.uaa.domain.authentication.Jwt.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.uaa.domain.authentication.Jwt.TOKEN_USE_REFRESH_CLAIM_VALUE;
+import static com.bcn.asapp.uaa.domain.authentication.JwtType.ACCESS_TOKEN;
+import static com.bcn.asapp.uaa.domain.authentication.JwtType.REFRESH_TOKEN;
 
 import java.time.Instant;
 import java.util.Date;
+import java.util.Map;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
-import com.bcn.asapp.uaa.domain.authentication.AccessToken;
-import com.bcn.asapp.uaa.domain.authentication.RefreshToken;
+import com.bcn.asapp.uaa.domain.authentication.Jwt;
+import com.bcn.asapp.uaa.domain.authentication.JwtType;
+import com.bcn.asapp.uaa.domain.user.Role;
 import com.bcn.asapp.uaa.domain.user.User;
 
 /**
- * Provider responsible for generating signed JSON Web Tokens (JWTs) for authentication.
+ * Issuer responsible for generating signed JSON Web Tokens (JWTs) for authentication.
  * <p>
  * It can generate two types of tokens:
  * <ul>
@@ -57,13 +58,14 @@ import com.bcn.asapp.uaa.domain.user.User;
  * at), {@code exp} (expiration), and custom claims for {@code role} and {@code token_use} ("access" or "refresh").
  *
  * @author ttrigo
- * @see Authentication
  * @see Jwts
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc7519">RFC 7519 - JSON Web Token (JWT)</a>
  * @since 0.2.0
  */
 @Component
-public class JwtProvider {
+// TODO: Check if possible to reduce duplicated code
+// TODO: Can replace Map<String, Object> by var
+public class JwtIssuer {
 
     /**
      * Secret key used for signing JWTs. Derived from a Base64-encoded string.
@@ -81,13 +83,13 @@ public class JwtProvider {
     private final Long refreshTokenExpirationTime;
 
     /**
-     * Constructs a new {@code JwtProvider} with specified JWT secret and expiration settings.
+     * Constructs a new {@code JwtIssuer} with specified JWT secret and expiration settings.
      *
      * @param jwtSecret                  the Base64-encoded secret key for signing JWTs
      * @param accessTokenExpirationTime  expiration time for access tokens in milliseconds
      * @param refreshTokenExpirationTime expiration time for refresh tokens in milliseconds
      */
-    public JwtProvider(@Value("${asapp.security.jwt-secret}") String jwtSecret,
+    public JwtIssuer(@Value("${asapp.security.jwt-secret}") String jwtSecret,
             @Value("${asapp.security.access-token-expiration-time}") Long accessTokenExpirationTime,
             @Value("${asapp.security.refresh-token-expiration-time}") Long refreshTokenExpirationTime) {
 
@@ -96,41 +98,48 @@ public class JwtProvider {
         this.refreshTokenExpirationTime = refreshTokenExpirationTime;
     }
 
-    public AccessToken provideAccessToken(User user) {
+    public Jwt issueAccessToken(User user) {
+        return issueAccessToken(user.getUsername(), user.getRole());
+    }
+
+    public Jwt issueAccessToken(String subject, Role role) {
+        Map<String, Object> claims = Map.of(ROLE_CLAIM_NAME, role.name(), TOKEN_USE_CLAIM_NAME, TOKEN_USE_ACCESS_CLAIM_VALUE);
         var issuedAt = Instant.now();
         var expiresAt = Instant.now()
                                .plusMillis(accessTokenExpirationTime);
 
-        var jwt = generateJwt(user, ACCESS_TOKEN_TYPE, issuedAt, expiresAt);
+        var token = issueToken(subject, ACCESS_TOKEN, claims, issuedAt, expiresAt);
 
-        return new AccessToken(jwt, issuedAt, expiresAt);
+        return new Jwt(token, ACCESS_TOKEN, subject, claims, issuedAt, expiresAt);
     }
 
-    public RefreshToken provideRefreshToken(User user) {
+    public Jwt issueRefreshToken(User user) {
+        return issueRefreshToken(user.getUsername(), user.getRole());
+    }
+
+    public Jwt issueRefreshToken(String subject, Role role) {
+        Map<String, Object> claims = Map.of(ROLE_CLAIM_NAME, role.name(), TOKEN_USE_CLAIM_NAME, TOKEN_USE_REFRESH_CLAIM_VALUE);
         var issuedAt = Instant.now();
         var expiresAt = Instant.now()
                                .plusMillis(refreshTokenExpirationTime);
 
-        var jwt = generateJwt(user, REFRESH_TOKEN_TYPE, issuedAt, expiresAt);
+        var token = issueToken(subject, REFRESH_TOKEN, claims, issuedAt, expiresAt);
 
-        return new RefreshToken(jwt, issuedAt, expiresAt);
+        return new Jwt(token, REFRESH_TOKEN, subject, claims, issuedAt, expiresAt);
     }
 
-    private String generateJwt(User user, String tokenType, Instant issuedAt, Instant expiresAt) {
-        var role = user.getRole()
-                       .name();
-
+    private String issueToken(String subject, JwtType tokenType, Map<String, Object> claims, Instant issuedAt, Instant expiresAt) {
         return Jwts.builder()
                    .header()
-                   .type(tokenType)
+                   .type(tokenType.getType())
                    .and()
-                   .subject(user.getUsername())
-                   .claim(ROLE_CLAIM_NAME, role)
-                   .claim(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_TYPE.equals(tokenType) ? TOKEN_USE_ACCESS_CLAIM_VALUE : TOKEN_USE_REFRESH_CLAIM_VALUE)
+                   .subject(subject)
+                   .claims(claims)
                    .issuedAt(Date.from(issuedAt))
                    .expiration(Date.from(expiresAt))
                    .signWith(secretKey)
                    .compact();
+
     }
 
 }

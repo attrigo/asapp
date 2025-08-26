@@ -53,13 +53,13 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import com.bcn.asapp.uaa.domain.authentication.AccessToken;
+import com.bcn.asapp.uaa.domain.authentication.JwtType;
 import com.bcn.asapp.uaa.domain.authentication.RefreshToken;
 import com.bcn.asapp.uaa.domain.user.Role;
 import com.bcn.asapp.uaa.domain.user.User;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtIntegrityViolationException;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtProvider;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtType;
-import com.bcn.asapp.uaa.infrastructure.authentication.spi.JwtIssuerAdapter;
+import com.bcn.asapp.uaa.infrastructure.authentication.core.JwtIntegrityViolationException;
+import com.bcn.asapp.uaa.infrastructure.authentication.core.JwtIssuer;
+import com.bcn.asapp.uaa.infrastructure.authentication.spi.AuthenticationProviderAdapter;
 import com.bcn.asapp.uaa.security.core.AccessTokenRepository;
 import com.bcn.asapp.uaa.security.core.RefreshTokenRepository;
 import com.bcn.asapp.uaa.testutil.JwtFaker;
@@ -67,18 +67,18 @@ import com.bcn.asapp.uaa.user.UserRepository;
 
 @DataJdbcTest
 @TestPropertySource(locations = "classpath:application.properties")
-@Import({ JwtIssuerAdapter.class, JwtProvider.class })
+@Import({ AuthenticationProviderAdapter.class, JwtIssuer.class })
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers(disabledWithoutDocker = true)
 @Transactional(propagation = Propagation.NEVER)
-class JwtIssuerAdapterIT {
+class AuthenticationProviderAdapterIT {
 
     @Container
     @ServiceConnection
     static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"));
 
     @MockitoSpyBean
-    private JwtProvider jwtProvider;
+    private JwtIssuer jwtIssuer;
 
     @Autowired
     private UserRepository userRepository;
@@ -90,7 +90,7 @@ class JwtIssuerAdapterIT {
     private RefreshTokenRepository refreshTokenRepository;
 
     @Autowired
-    private JwtIssuerAdapter jwtIssuerAdapter;
+    private AuthenticationProviderAdapter jwtIssuerAdapter;
 
     private JwtFaker jwtFaker;
 
@@ -122,7 +122,7 @@ class JwtIssuerAdapterIT {
             // When
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, List.of(new SimpleGrantedAuthority("USER")));
 
-            Executable executable = () -> jwtIssuerAdapter.issueAuthentication(authentication);
+            Executable executable = () -> jwtIssuerAdapter.generateAuthentication(authentication);
 
             // Then
             var exceptionThrown = assertThrows(UsernameNotFoundException.class, executable);
@@ -139,13 +139,13 @@ class JwtIssuerAdapterIT {
 
             var fakeAccessToken = new AccessToken(null, null, null, null, null);
 
-            willReturn(fakeAccessToken).given(jwtProvider)
-                                       .provideAccessToken(any(Authentication.class));
+            willReturn(fakeAccessToken).given(jwtIssuer)
+                                       .issueAccessToken(any(Authentication.class));
 
             // When
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, List.of(new SimpleGrantedAuthority("USER")));
 
-            Executable executable = () -> jwtIssuerAdapter.issueAuthentication(authentication);
+            Executable executable = () -> jwtIssuerAdapter.generateAuthentication(authentication);
 
             // Then
             assertThrows(JwtIntegrityViolationException.class, executable);
@@ -166,15 +166,15 @@ class JwtIssuerAdapterIT {
 
             var fakeRefreshToken = new RefreshToken(null, null, null, null, null);
 
-            willCallRealMethod().given(jwtProvider)
-                                .provideAccessToken(any(Authentication.class));
-            willReturn(fakeRefreshToken).given(jwtProvider)
-                                        .provideRefreshToken(any(Authentication.class));
+            willCallRealMethod().given(jwtIssuer)
+                                .issueAccessToken(any(Authentication.class));
+            willReturn(fakeRefreshToken).given(jwtIssuer)
+                                        .issueRefreshToken(any(Authentication.class));
 
             // When
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, List.of(new SimpleGrantedAuthority("USER")));
 
-            Executable executable = () -> jwtIssuerAdapter.issueAuthentication(authentication);
+            Executable executable = () -> jwtIssuerAdapter.generateAuthentication(authentication);
 
             // Then
             assertThrows(JwtIntegrityViolationException.class, executable);
@@ -206,7 +206,7 @@ class JwtIssuerAdapterIT {
             // When
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, List.of(new SimpleGrantedAuthority("USER")));
 
-            var actualAuthentication = jwtIssuerAdapter.issueAuthentication(authentication);
+            var actualAuthentication = jwtIssuerAdapter.generateAuthentication(authentication);
 
             // Then
             assertNotNull(actualAuthentication);
@@ -231,7 +231,7 @@ class JwtIssuerAdapterIT {
             // When
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, List.of(new SimpleGrantedAuthority("USER")));
 
-            var actualAuthentication = jwtIssuerAdapter.issueAuthentication(authentication);
+            var actualAuthentication = jwtIssuerAdapter.generateAuthentication(authentication);
 
             // Then
             assertNotNull(actualAuthentication);

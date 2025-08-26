@@ -14,8 +14,10 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.uaa.infrastructure.authentication;
+package com.bcn.asapp.uaa.infrastructure.authentication.core;
 
+import java.time.Instant;
+import java.util.Map;
 import javax.crypto.SecretKey;
 
 import org.slf4j.Logger;
@@ -33,9 +35,12 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 
+import com.bcn.asapp.uaa.domain.authentication.InvalidJwtException;
+import com.bcn.asapp.uaa.domain.authentication.Jwt;
+import com.bcn.asapp.uaa.domain.authentication.JwtType;
+
 /**
- * Decodes and validates JWT (JSON Web Token) strings into {@link DecodedJwt} objects.
- *
+ * Decodes and validates JWT (JSON Web Token) strings into {@link Jwt} objects.
  * <p>
  * This component is responsible for parsing JWT strings, verifying their signatures using a secret key, and handling various validation errors that might occur
  * during the process. It serves as a core component in the JWT-based authentication system.
@@ -43,8 +48,6 @@ import io.jsonwebtoken.security.SignatureException;
  * The decoder uses HMAC-SHA algorithm with a secret key derived from a Base64-encoded string provided through system properties.
  *
  * @author ttrigo
- * @see DecodedJwt
- * @see InvalidJwtException
  * @see io.jsonwebtoken.Jwts
  * @since 0.2.0
  */
@@ -69,28 +72,7 @@ public class JwtDecoder {
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
 
-    /**
-     * Decodes and validates a JWT string.
-     * <p>
-     * Parses the provided JWT string, verifies its signature using the secret key, and returns a {@link DecodedJwt} object containing the validated token,
-     * header, and payload.
-     * <p>
-     * The method handles various validation errors that might occur during the process and wraps them in an {@link InvalidJwtException} with an appropriate
-     * message. The following errors are handled:
-     * <ul>
-     * <li>SignatureException - when the JWT signature is invalid</li>
-     * <li>MalformedJwtException - when the JWT is malformed</li>
-     * <li>ExpiredJwtException - when the JWT has expired</li>
-     * <li>UnsupportedJwtException - when the JWT format is not supported</li>
-     * <li>IllegalArgumentException - when the JWT claims are null or empty</li>
-     * <li>JwtException - for any other unexpected errors during JWT verification</li>
-     * </ul>
-     *
-     * @param token The JWT string to decode and validate
-     * @return A {@link DecodedJwt} object containing the validated token, header, and payload
-     * @throws InvalidJwtException If any validation error occurs during the decoding process
-     */
-    public DecodedJwt decode(String token) {
+    public Jwt decode(String token) {
         try {
             var jwsClaims = Jwts.parser()
                                 .verifyWith(secretKey)
@@ -98,7 +80,16 @@ public class JwtDecoder {
                                 .parse(token)
                                 .accept(Jws.CLAIMS);
 
-            return new DecodedJwt(token, jwsClaims.getHeader(), jwsClaims.getPayload());
+            var tokenHeader = jwsClaims.getHeader();
+            var tokenPayload = jwsClaims.getPayload();
+            var tokenType = JwtType.valueOf(tokenHeader.getType());
+            var tokenSubject = tokenPayload.getSubject();
+            var tokenClaims = (Map<String, Object>) tokenPayload;
+            var tokenIssuedAt = Instant.ofEpochMilli(tokenPayload.getIssuedAt()
+                                                                 .getTime());
+            var tokenExpiration = Instant.ofEpochMilli(tokenPayload.getExpiration()
+                                                                   .getTime());
+            return new Jwt(token, tokenType, tokenSubject, tokenClaims, tokenIssuedAt, tokenExpiration);
 
         } catch (SignatureException e) {
             logger.warn("Invalid JWT signature", e);

@@ -22,10 +22,12 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Embedded;
 import org.springframework.data.relational.core.mapping.Table;
 
+import jakarta.validation.constraints.NotNull;
+
 @Table("jwt_authentications")
 public record JwtAuthenticationEntity(
         @Id UUID id,
-        UUID userId,
-        @Embedded.Nullable(prefix = "access_token_") AccessTokenEntity accessToken,
-        @Embedded.Nullable(prefix = "refresh_token_") RefreshTokenEntity refreshToken
+        @NotNull UUID userId,
+        @Embedded.Nullable(prefix = "access_token_") JwtEntity accessToken,
+        @Embedded.Nullable(prefix = "refresh_token_") JwtEntity refreshToken
 ) {}

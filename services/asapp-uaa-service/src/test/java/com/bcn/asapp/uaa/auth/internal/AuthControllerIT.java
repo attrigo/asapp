@@ -50,7 +50,7 @@ import com.bcn.asapp.uaa.auth.AuthService;
 import com.bcn.asapp.uaa.auth.JwtAuthenticationDTO;
 import com.bcn.asapp.uaa.auth.RefreshTokenDTO;
 import com.bcn.asapp.uaa.auth.UserCredentialsDTO;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtType;
+import com.bcn.asapp.uaa.domain.authentication.JwtType;
 import com.bcn.asapp.uaa.infrastructure.authentication.web.JwtAuthenticationEntryPoint;
 import com.bcn.asapp.uaa.infrastructure.authentication.web.JwtAuthenticationFilter;
 import com.bcn.asapp.uaa.infrastructure.config.SecurityConfiguration;

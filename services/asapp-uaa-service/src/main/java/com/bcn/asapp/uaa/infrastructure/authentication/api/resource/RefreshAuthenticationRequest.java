@@ -18,16 +18,6 @@ package com.bcn.asapp.uaa.infrastructure.authentication.api.resource;
 
 import jakarta.validation.constraints.NotNull;
 
-/**
- * Data Transfer Object (DTO) encapsulating JWT authentication tokens.
- * <p>
- * Contains both an access token and a refresh token used in authentication flows.
- *
- * @param accessToken  the access token DTO, must not be {@literal null}
- * @param refreshToken the refresh token DTO, must not be {@literal null}
- * @author ttrigo
- * @since 0.2.0
- */
 public record RefreshAuthenticationRequest(
         @NotNull(message = "The refresh token is mandatory") String refreshToken
 ) {}

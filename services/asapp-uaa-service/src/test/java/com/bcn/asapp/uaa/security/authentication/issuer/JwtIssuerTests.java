@@ -36,17 +36,17 @@ import org.junit.jupiter.api.function.Executable;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import com.bcn.asapp.uaa.domain.authentication.JwtType;
 import com.bcn.asapp.uaa.domain.user.Role;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtProvider;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtType;
+import com.bcn.asapp.uaa.infrastructure.authentication.core.JwtIssuer;
 
-class JwtProviderTests {
+class JwtIssuerTests {
 
     private static final String UT_JWT_SECRET = "Cnpr50yQ04Q5y7GFUvR3ODWLYRlPjeAgOy7Y0Woo6PCqiViiOxxS3vo1FOyjro7T";
 
     private static final Long UT_JWT_EXPIRATION_TIME = 300000L;
 
-    private JwtProvider jwtProvider;
+    private JwtIssuer jwtIssuer;
 
     private String fakeUsername;
 
@@ -54,7 +54,7 @@ class JwtProviderTests {
 
     @BeforeEach
     void beforeEach() {
-        this.jwtProvider = new JwtProvider(UT_JWT_SECRET, UT_JWT_EXPIRATION_TIME, UT_JWT_EXPIRATION_TIME);
+        this.jwtIssuer = new JwtIssuer(UT_JWT_SECRET, UT_JWT_EXPIRATION_TIME, UT_JWT_EXPIRATION_TIME);
 
         this.fakeUsername = "TEST USERNAME";
         this.fakePassword = "TEST PASSWORD";
@@ -67,7 +67,7 @@ class JwtProviderTests {
         @DisplayName("GIVEN authentication is null WHEN generate an access token THEN does not generate the token And throws IllegalArgumentException")
         void AuthenticationIsNull_GenerateAccessToken_DoesNotGenerateTokenAndThrowsIllegalArgumentException() {
             // When
-            Executable executable = () -> jwtProvider.provideAccessToken(null);
+            Executable executable = () -> jwtIssuer.issueAccessToken(null);
 
             // Then
             var exceptionThrown = assertThrows(IllegalArgumentException.class, executable);
@@ -80,7 +80,7 @@ class JwtProviderTests {
             // When
             var authenticationWithoutUsername = new UsernamePasswordAuthenticationToken(null, fakePassword);
 
-            Executable executable = () -> jwtProvider.provideAccessToken(authenticationWithoutUsername);
+            Executable executable = () -> jwtIssuer.issueAccessToken(authenticationWithoutUsername);
 
             // Then
             var exceptionThrown = assertThrows(IllegalArgumentException.class, executable);
@@ -93,7 +93,7 @@ class JwtProviderTests {
             // When
             var authenticationWithEmptyUsername = new UsernamePasswordAuthenticationToken("", fakePassword);
 
-            Executable executable = () -> jwtProvider.provideAccessToken(authenticationWithEmptyUsername);
+            Executable executable = () -> jwtIssuer.issueAccessToken(authenticationWithEmptyUsername);
 
             // Then
             var exceptionThrown = assertThrows(IllegalArgumentException.class, executable);
@@ -106,7 +106,7 @@ class JwtProviderTests {
             // When
             var authenticationWithoutAuthorities = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, null);
 
-            Executable executable = () -> jwtProvider.provideAccessToken(authenticationWithoutAuthorities);
+            Executable executable = () -> jwtIssuer.issueAccessToken(authenticationWithoutAuthorities);
 
             // Then
             var exceptionThrown = assertThrows(IllegalArgumentException.class, executable);
@@ -119,7 +119,7 @@ class JwtProviderTests {
             // When
             var authenticationWithEmptyAuthorities = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, List.of());
 
-            Executable executable = () -> jwtProvider.provideAccessToken(authenticationWithEmptyAuthorities);
+            Executable executable = () -> jwtIssuer.issueAccessToken(authenticationWithEmptyAuthorities);
 
             // Then
             var exceptionThrown = assertThrows(IllegalArgumentException.class, executable);
@@ -133,7 +133,7 @@ class JwtProviderTests {
             var invalidAuthorities = List.of(new SimpleGrantedAuthority("NOT_VALID_ROLE"));
             var authenticationWithInvalidAuthorities = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, invalidAuthorities);
 
-            Executable executable = () -> jwtProvider.provideAccessToken(authenticationWithInvalidAuthorities);
+            Executable executable = () -> jwtIssuer.issueAccessToken(authenticationWithInvalidAuthorities);
 
             // Then
             var exceptionThrown = assertThrows(IllegalArgumentException.class, executable);
@@ -147,7 +147,7 @@ class JwtProviderTests {
             var authorities = List.of(new SimpleGrantedAuthority(Role.USER.name()));
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, authorities);
 
-            var actualAccessToken = jwtProvider.provideAccessToken(authentication);
+            var actualAccessToken = jwtIssuer.issueAccessToken(authentication);
 
             // Then
             assertNotNull(actualAccessToken);
@@ -169,7 +169,7 @@ class JwtProviderTests {
             var authorities = List.of(new SimpleGrantedAuthority(Role.ADMIN.name()));
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, authorities);
 
-            var actualAccessToken = jwtProvider.provideAccessToken(authentication);
+            var actualAccessToken = jwtIssuer.issueAccessToken(authentication);
 
             // Then
             assertNotNull(actualAccessToken);
@@ -193,7 +193,7 @@ class JwtProviderTests {
         @DisplayName("GIVEN authentication is null WHEN generate a refresh token THEN does not generate the token And throws IllegalArgumentException")
         void AuthenticationIsNull_GenerateRefreshToken_DoesNotGenerateTokenAndThrowsIllegalArgumentException() {
             // When
-            Executable executable = () -> jwtProvider.provideRefreshToken(null);
+            Executable executable = () -> jwtIssuer.issueRefreshToken(null);
 
             // Then
             var exceptionThrown = assertThrows(IllegalArgumentException.class, executable);
@@ -206,7 +206,7 @@ class JwtProviderTests {
             // When
             var authenticationWithoutUsername = new UsernamePasswordAuthenticationToken(null, fakePassword);
 
-            Executable executable = () -> jwtProvider.provideRefreshToken(authenticationWithoutUsername);
+            Executable executable = () -> jwtIssuer.issueRefreshToken(authenticationWithoutUsername);
 
             // Then
             var exceptionThrown = assertThrows(IllegalArgumentException.class, executable);
@@ -219,7 +219,7 @@ class JwtProviderTests {
             // When
             var authenticationWithEmptyUsername = new UsernamePasswordAuthenticationToken("", fakePassword);
 
-            Executable executable = () -> jwtProvider.provideRefreshToken(authenticationWithEmptyUsername);
+            Executable executable = () -> jwtIssuer.issueRefreshToken(authenticationWithEmptyUsername);
 
             // Then
             var exceptionThrown = assertThrows(IllegalArgumentException.class, executable);
@@ -232,7 +232,7 @@ class JwtProviderTests {
             // When
             var authenticationWithoutAuthorities = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, null);
 
-            Executable executable = () -> jwtProvider.provideRefreshToken(authenticationWithoutAuthorities);
+            Executable executable = () -> jwtIssuer.issueRefreshToken(authenticationWithoutAuthorities);
 
             // Then
             var exceptionThrown = assertThrows(IllegalArgumentException.class, executable);
@@ -245,7 +245,7 @@ class JwtProviderTests {
             // When
             var authenticationWithEmptyAuthorities = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, List.of());
 
-            Executable executable = () -> jwtProvider.provideRefreshToken(authenticationWithEmptyAuthorities);
+            Executable executable = () -> jwtIssuer.issueRefreshToken(authenticationWithEmptyAuthorities);
 
             // Then
             var exceptionThrown = assertThrows(IllegalArgumentException.class, executable);
@@ -259,7 +259,7 @@ class JwtProviderTests {
             var invalidAuthorities = List.of(new SimpleGrantedAuthority("NOT_VALID_ROLE"));
             var authenticationWithInvalidAuthorities = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, invalidAuthorities);
 
-            Executable executable = () -> jwtProvider.provideRefreshToken(authenticationWithInvalidAuthorities);
+            Executable executable = () -> jwtIssuer.issueRefreshToken(authenticationWithInvalidAuthorities);
 
             // Then
             var exceptionThrown = assertThrows(IllegalArgumentException.class, executable);
@@ -273,7 +273,7 @@ class JwtProviderTests {
             var authorities = List.of(new SimpleGrantedAuthority(Role.USER.name()));
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, authorities);
 
-            var actualRefreshToken = jwtProvider.provideRefreshToken(authentication);
+            var actualRefreshToken = jwtIssuer.issueRefreshToken(authentication);
 
             // Then
             assertNotNull(actualRefreshToken);
@@ -295,7 +295,7 @@ class JwtProviderTests {
             var authorities = List.of(new SimpleGrantedAuthority(Role.ADMIN.name()));
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword, authorities);
 
-            var actualRefreshToken = jwtProvider.provideRefreshToken(authentication);
+            var actualRefreshToken = jwtIssuer.issueRefreshToken(authentication);
 
             // Then
             assertNotNull(actualRefreshToken);

@@ -16,10 +16,14 @@
 
 package com.bcn.asapp.uaa.application.authentication.spi;
 
+import com.bcn.asapp.uaa.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.uaa.domain.authentication.UsernamePasswordAuthentication;
 
-public interface JwtAuthenticationManager {
+// TODO: Rethink class name, maybe something without Provider neither Service words
+public interface AuthenticationProvider {
 
-    UsernamePasswordAuthentication authenticate(String username, String password);
+    JwtAuthentication generateAuthentication(UsernamePasswordAuthentication authentication);
+
+    JwtAuthentication refreshAuthentication(JwtAuthentication authentication);
 
 }

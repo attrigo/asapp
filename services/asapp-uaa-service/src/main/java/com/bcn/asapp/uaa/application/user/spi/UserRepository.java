@@ -19,7 +19,6 @@ package com.bcn.asapp.uaa.application.user.spi;
 import java.util.Collection;
 import java.util.Optional;
 
-import com.bcn.asapp.uaa.domain.authentication.JwtAuthenticationId;
 import com.bcn.asapp.uaa.domain.user.User;
 import com.bcn.asapp.uaa.domain.user.UserId;
 
@@ -28,8 +27,6 @@ public interface UserRepository {
     Optional<User> findById(UserId userId);
 
     Optional<User> findByUsername(String username);
-
-    Optional<User> findByAuthenticationId(JwtAuthenticationId authenticationId);
 
     Collection<User> findAll();
 

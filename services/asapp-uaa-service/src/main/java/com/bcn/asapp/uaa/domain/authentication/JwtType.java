@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.uaa.infrastructure.authentication;
+package com.bcn.asapp.uaa.domain.authentication;
 
 /**
  * Defines the types of JWT (JSON Web Token) used for authentication and authorization purposes.
@@ -33,10 +33,21 @@ public enum JwtType {
     /**
      * Token type used to authenticate a user and authorize access to resources.
      */
-    ACCESS_TOKEN,
+    ACCESS_TOKEN("at+jwt"),
 
     /**
      * Token type used to refresh an expired access token.
      */
-    REFRESH_TOKEN;
+    REFRESH_TOKEN("rt+jwt");
+
+    private final String type;
+
+    JwtType(String type) {
+        this.type = type;
+    }
+
+    public String getType() {
+        return type;
+    }
+
 }

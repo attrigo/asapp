@@ -49,7 +49,7 @@ import com.bcn.asapp.uaa.domain.authentication.AccessToken;
 import com.bcn.asapp.uaa.domain.authentication.RefreshToken;
 import com.bcn.asapp.uaa.domain.user.Role;
 import com.bcn.asapp.uaa.domain.user.User;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtIntegrityViolationException;
+import com.bcn.asapp.uaa.infrastructure.authentication.core.JwtIntegrityViolationException;
 import com.bcn.asapp.uaa.infrastructure.authentication.spi.JwtRevokerAdapter;
 import com.bcn.asapp.uaa.security.core.AccessTokenRepository;
 import com.bcn.asapp.uaa.security.core.RefreshTokenRepository;

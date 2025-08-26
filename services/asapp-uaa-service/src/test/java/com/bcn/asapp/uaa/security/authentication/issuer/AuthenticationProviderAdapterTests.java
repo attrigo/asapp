@@ -50,23 +50,23 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.bcn.asapp.uaa.domain.authentication.AccessToken;
+import com.bcn.asapp.uaa.domain.authentication.JwtType;
 import com.bcn.asapp.uaa.domain.authentication.RefreshToken;
 import com.bcn.asapp.uaa.domain.user.Role;
 import com.bcn.asapp.uaa.domain.user.User;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtIntegrityViolationException;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtProvider;
-import com.bcn.asapp.uaa.infrastructure.authentication.JwtType;
-import com.bcn.asapp.uaa.infrastructure.authentication.spi.JwtIssuerAdapter;
+import com.bcn.asapp.uaa.infrastructure.authentication.core.JwtIntegrityViolationException;
+import com.bcn.asapp.uaa.infrastructure.authentication.core.JwtIssuer;
+import com.bcn.asapp.uaa.infrastructure.authentication.spi.AuthenticationProviderAdapter;
 import com.bcn.asapp.uaa.security.core.AccessTokenRepository;
 import com.bcn.asapp.uaa.security.core.RefreshTokenRepository;
 import com.bcn.asapp.uaa.testutil.JwtFaker;
 import com.bcn.asapp.uaa.user.UserRepository;
 
 @ExtendWith(SpringExtension.class)
-class JwtIssuerAdapterTests {
+class AuthenticationProviderAdapterTests {
 
     @Mock
-    private JwtProvider jwtProviderMock;
+    private JwtIssuer jwtIssuerMock;
 
     @Mock
     private UserRepository userRepositoryMock;
@@ -78,7 +78,7 @@ class JwtIssuerAdapterTests {
     private RefreshTokenRepository refreshTokenRepositoryMock;
 
     @InjectMocks
-    private JwtIssuerAdapter jwtIssuerAdapter;
+    private AuthenticationProviderAdapter jwtIssuerAdapter;
 
     private JwtFaker jwtFaker;
 
@@ -109,7 +109,7 @@ class JwtIssuerAdapterTests {
             // When
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword);
 
-            Executable executable = () -> jwtIssuerAdapter.issueAuthentication(authentication);
+            Executable executable = () -> jwtIssuerAdapter.generateAuthentication(authentication);
 
             // Then
             var exceptionThrown = assertThrows(UsernameNotFoundException.class, executable);
@@ -117,10 +117,10 @@ class JwtIssuerAdapterTests {
 
             then(userRepositoryMock).should(times(1))
                                     .findByUsername(anyString());
-            then(jwtProviderMock).should(never())
-                                 .provideAccessToken(any(Authentication.class));
-            then(jwtProviderMock).should(never())
-                                 .provideRefreshToken(any(Authentication.class));
+            then(jwtIssuerMock).should(never())
+                               .issueAccessToken(any(Authentication.class));
+            then(jwtIssuerMock).should(never())
+                               .issueRefreshToken(any(Authentication.class));
             then(accessTokenRepositoryMock).should(never())
                                            .save(any(AccessToken.class));
             then(refreshTokenRepositoryMock).should(never())
@@ -136,15 +136,15 @@ class JwtIssuerAdapterTests {
             var issuedRT = new RefreshToken(null, fakeUserId, jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN), Instant.now(), Instant.now());
             DbAction<?> fakeDbAction = new DbAction.Insert<>(null, null, null, Map.of(), null);
             given(userRepositoryMock.findByUsername(anyString())).willReturn(Optional.of(fakeUser));
-            given(jwtProviderMock.provideAccessToken(any(Authentication.class))).willReturn(issuedAT);
-            given(jwtProviderMock.provideRefreshToken(any(Authentication.class))).willReturn(issuedRT);
+            given(jwtIssuerMock.issueAccessToken(any(Authentication.class))).willReturn(issuedAT);
+            given(jwtIssuerMock.issueRefreshToken(any(Authentication.class))).willReturn(issuedRT);
             given(accessTokenRepositoryMock.save(any(AccessToken.class))).willThrow(
                     new DbActionExecutionException(fakeDbAction, new RuntimeException("TEST EXCEPTION")));
 
             // When
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword);
 
-            Executable executable = () -> jwtIssuerAdapter.issueAuthentication(authentication);
+            Executable executable = () -> jwtIssuerAdapter.generateAuthentication(authentication);
 
             // Then
             var exceptionThrown = assertThrows(JwtIntegrityViolationException.class, executable);
@@ -160,15 +160,15 @@ class JwtIssuerAdapterTests {
             var issuedRT = new RefreshToken(null, fakeUserId, jwtFaker.fakeJwt(JwtType.REFRESH_TOKEN), Instant.now(), Instant.now());
             DbAction<?> fakeDbAction = new DbAction.Insert<>(null, null, null, Map.of(), null);
             given(userRepositoryMock.findByUsername(anyString())).willReturn(Optional.of(fakeUser));
-            given(jwtProviderMock.provideAccessToken(any(Authentication.class))).willReturn(issuedAT);
-            given(jwtProviderMock.provideRefreshToken(any(Authentication.class))).willReturn(issuedRT);
+            given(jwtIssuerMock.issueAccessToken(any(Authentication.class))).willReturn(issuedAT);
+            given(jwtIssuerMock.issueRefreshToken(any(Authentication.class))).willReturn(issuedRT);
             given(refreshTokenRepositoryMock.save(any(RefreshToken.class))).willThrow(
                     new DbActionExecutionException(fakeDbAction, new RuntimeException("TEST EXCEPTION")));
 
             // When
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword);
 
-            Executable executable = () -> jwtIssuerAdapter.issueAuthentication(authentication);
+            Executable executable = () -> jwtIssuerAdapter.generateAuthentication(authentication);
 
             // Then
             var exceptionThrown = assertThrows(JwtIntegrityViolationException.class, executable);
@@ -188,8 +188,8 @@ class JwtIssuerAdapterTests {
             var savedRT = new RefreshToken(existingRT.id(), fakeUserId, issuedRT.jwt(), issuedRT.createdAt(), issuedRT.expiresAt());
 
             given(userRepositoryMock.findByUsername(anyString())).willReturn(Optional.of(fakeUser));
-            given(jwtProviderMock.provideAccessToken(any(Authentication.class))).willReturn(issuedAT);
-            given(jwtProviderMock.provideRefreshToken(any(Authentication.class))).willReturn(issuedRT);
+            given(jwtIssuerMock.issueAccessToken(any(Authentication.class))).willReturn(issuedAT);
+            given(jwtIssuerMock.issueRefreshToken(any(Authentication.class))).willReturn(issuedRT);
             given(accessTokenRepositoryMock.findByUserId(any(UUID.class))).willReturn(Optional.of(existingAT));
             given(refreshTokenRepositoryMock.findByUserId(any(UUID.class))).willReturn(Optional.of(existingRT));
             given(accessTokenRepositoryMock.save(any(AccessToken.class))).willReturn(savedAT);
@@ -198,7 +198,7 @@ class JwtIssuerAdapterTests {
             // When
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword);
 
-            var actualAuthentication = jwtIssuerAdapter.issueAuthentication(authentication);
+            var actualAuthentication = jwtIssuerAdapter.generateAuthentication(authentication);
 
             // Then
             assertNotNull(actualAuthentication);
@@ -213,10 +213,10 @@ class JwtIssuerAdapterTests {
 
             then(userRepositoryMock).should(times(1))
                                     .findByUsername(anyString());
-            then(jwtProviderMock).should(times(1))
-                                 .provideAccessToken(any(Authentication.class));
-            then(jwtProviderMock).should(times(1))
-                                 .provideRefreshToken(any(Authentication.class));
+            then(jwtIssuerMock).should(times(1))
+                               .issueAccessToken(any(Authentication.class));
+            then(jwtIssuerMock).should(times(1))
+                               .issueRefreshToken(any(Authentication.class));
             then(accessTokenRepositoryMock).should(times(1))
                                            .findByUserId(any(UUID.class));
             then(refreshTokenRepositoryMock).should(times(1))
@@ -238,8 +238,8 @@ class JwtIssuerAdapterTests {
             var savedRT = new RefreshToken(UUID.randomUUID(), fakeUserId, issuedRT.jwt(), issuedRT.createdAt(), issuedRT.expiresAt());
 
             given(userRepositoryMock.findByUsername(anyString())).willReturn(Optional.of(fakeUser));
-            given(jwtProviderMock.provideAccessToken(any(Authentication.class))).willReturn(issuedAT);
-            given(jwtProviderMock.provideRefreshToken(any(Authentication.class))).willReturn(issuedRT);
+            given(jwtIssuerMock.issueAccessToken(any(Authentication.class))).willReturn(issuedAT);
+            given(jwtIssuerMock.issueRefreshToken(any(Authentication.class))).willReturn(issuedRT);
             given(accessTokenRepositoryMock.findByUserId(any(UUID.class))).willReturn(Optional.empty());
             given(refreshTokenRepositoryMock.findByUserId(any(UUID.class))).willReturn(Optional.empty());
             given(accessTokenRepositoryMock.save(any(AccessToken.class))).willReturn(savedAT);
@@ -248,7 +248,7 @@ class JwtIssuerAdapterTests {
             // When
             var authentication = new UsernamePasswordAuthenticationToken(fakeUsername, fakePassword);
 
-            var actualAuthentication = jwtIssuerAdapter.issueAuthentication(authentication);
+            var actualAuthentication = jwtIssuerAdapter.generateAuthentication(authentication);
 
             // Then
             assertNotNull(actualAuthentication);
@@ -263,10 +263,10 @@ class JwtIssuerAdapterTests {
 
             then(userRepositoryMock).should(times(1))
                                     .findByUsername(anyString());
-            then(jwtProviderMock).should(times(1))
-                                 .provideAccessToken(any(Authentication.class));
-            then(jwtProviderMock).should(times(1))
-                                 .provideRefreshToken(any(Authentication.class));
+            then(jwtIssuerMock).should(times(1))
+                               .issueAccessToken(any(Authentication.class));
+            then(jwtIssuerMock).should(times(1))
+                               .issueRefreshToken(any(Authentication.class));
             then(accessTokenRepositoryMock).should(times(1))
                                            .findByUserId(any(UUID.class));
             then(refreshTokenRepositoryMock).should(times(1))

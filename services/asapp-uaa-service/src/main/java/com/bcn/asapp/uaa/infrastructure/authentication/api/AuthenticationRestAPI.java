@@ -23,7 +23,6 @@ import static com.bcn.asapp.url.uaa.AuthRestAPIURL.AUTH_TOKEN_PATH;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -65,16 +64,16 @@ public interface AuthenticationRestAPI {
      * <li>401-UNAUTHORIZED: The user could not be authenticated due to invalid credentials.</li>
      * </ul>
      *
-     * @param userCredentials the user credentials (username and password), must not be {@literal null} and must be valid
-     * @return a {@link ResponseEntity} wrapping {@link JwtAuthenticationDTO} with the newly issued access and refresh tokens upon successful authentication
+     * @param
+     * @return
      * @throws AuthenticationException if authentication fails due to invalid credentials or other errors
      */
     @PostMapping(value = AUTH_TOKEN_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Authenticates a user with the given credentials", description = "Authenticates a user with the given credentials and issues new JWT authentication, if the user is already authenticated, new JWT authentication (access and refresh tokens) are generated to override the existing ones")
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The user credentials (username and password)", required = true, content = @Content(schema = @Schema(implementation = UserCredentialsDTO.class)))
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The user credentials (username and password)", required = true, content = @Content(schema = @Schema(implementation = AuthenticateRequest.class)))
     @ApiResponse(responseCode = "200", description = "The user has been authenticated successfully", content = {
-            @Content(schema = @Schema(implementation = JwtAuthenticationDTO.class)) })
+            @Content(schema = @Schema(implementation = AuthenticateResponse.class)) })
     @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "The user could not be authenticated due to invalid credentials", content = { @Content })
@@ -92,16 +91,16 @@ public interface AuthenticationRestAPI {
      * <li>401-UNAUTHORIZED: The refresh token is invalid, expired, does not belong to an authenticated user, or the refresh process fails.</li>
      * </ul>
      *
-     * @param request the refresh token DTO used to obtain new JWT authentication, must not be {@literal null}
-     * @return a {@link ResponseEntity} containing the refreshed {@link JwtAuthenticationDTO} with the refreshed access and refresh tokens
+     * @param
+     * @return
      * @throws AuthenticationException if the refresh token is invalid, expired, does not belong to an authenticated user, or the refresh process fails
      */
     @PostMapping(value = AUTH_REFRESH_TOKEN_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Refreshes the JWT authentication", description = "Refreshes an existing JWT authentication using the given refresh token")
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The refresh token DTO used to obtain new JWT authentication", required = true, content = @Content(schema = @Schema(implementation = RefreshTokenDTO.class)))
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The refresh token DTO used to obtain new JWT authentication", required = true, content = @Content(schema = @Schema(implementation = RefreshAuthenticationRequest.class)))
     @ApiResponse(responseCode = "200", description = "The JWT authentication tokens have been refreshed successfully", content = {
-            @Content(schema = @Schema(implementation = JwtAuthenticationDTO.class)) })
+            @Content(schema = @Schema(implementation = RefreshAuthenticationResponse.class)) })
     @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "The refresh token is invalid, expired, does not belong to an authenticated user, or the refresh process fails", content = {
@@ -120,14 +119,14 @@ public interface AuthenticationRestAPI {
      * <li>401-UNAUTHORIZED: The access token is invalid, expired, does not belong to an authenticated user, or the revoke process fails.</li>
      * </ul>
      *
-     * @param request the access token DTO to be invalidated
-     * @return a {@link ResponseEntity} with no content if the revocation was successful
+     * @param
+     * @return
      * @throws AuthenticationException if the access token is invalid, expired, does not belong to an authenticated user, or the revoke process fails
      */
     @PostMapping(value = AUTH_REVOKE_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Revokes the JWT authentication", description = "Revokes the JWT authentication of a user by the given access token")
-    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The access token DTO to be invalidated", required = true, content = @Content(schema = @Schema(implementation = AccessTokenDTO.class)))
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "The access token DTO to be invalidated", required = true, content = @Content(schema = @Schema(implementation = RevokeAuthenticationRequest.class)))
     @ApiResponse(responseCode = "200", description = "The JWT authentication has been revoked successfully", content = { @Content })
     @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })

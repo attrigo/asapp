@@ -14,16 +14,13 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.uaa.infrastructure.authentication.entity;
+package com.bcn.asapp.uaa.application.authentication.api;
 
-import java.time.Instant;
+import com.bcn.asapp.uaa.domain.authentication.JwtAuthentication;
+import com.bcn.asapp.uaa.domain.authentication.UsernamePasswordAuthentication;
 
-import org.springframework.lang.NonNull;
+public interface AuthenticateUseCase {
 
-import jakarta.validation.constraints.NotBlank;
+    JwtAuthentication authenticate(UsernamePasswordAuthentication authenticationRequest);
 
-public record RefreshTokenEntity(
-        @NotBlank String jwt,
-        @NonNull Instant issuedAt,
-        @NonNull Instant expiresAt
-) {}
+}

@@ -22,7 +22,6 @@ import java.util.Optional;
 import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.uaa.application.user.spi.UserRepository;
-import com.bcn.asapp.uaa.domain.authentication.JwtAuthenticationId;
 import com.bcn.asapp.uaa.domain.user.User;
 import com.bcn.asapp.uaa.domain.user.UserId;
 import com.bcn.asapp.uaa.infrastructure.user.mapper.UserMapper;
@@ -48,12 +47,6 @@ public class UserRepositoryAdapter implements UserRepository {
     @Override
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username)
-                             .map(userMapper::toUser);
-    }
-
-    @Override
-    public Optional<User> findByAuthenticationId(JwtAuthenticationId authenticationId) {
-        return userRepository.findByAuthenticationId(authenticationId.id())
                              .map(userMapper::toUser);
     }
 

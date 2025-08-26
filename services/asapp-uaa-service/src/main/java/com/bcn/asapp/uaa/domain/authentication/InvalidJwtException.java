@@ -14,20 +14,18 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.uaa.infrastructure.authentication;
-
-import io.jsonwebtoken.JwtException;
+package com.bcn.asapp.uaa.domain.authentication;
 
 /**
  * Exception thrown when an invalid JWT (JSON Web Token) is encountered.
  * <p>
  * Is typically thrown when a JWT is malformed, expired, or fails validation.
  *
- * @since 0.2.0
- * @see JwtException
  * @author ttrigo
+ * @see RuntimeException
+ * @since 0.2.0
  */
-public class InvalidJwtException extends JwtException {
+public class InvalidJwtException extends RuntimeException {
 
     /**
      * Constructs a new {@code InvalidJwtException} with the specified detail message.
