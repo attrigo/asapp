@@ -18,6 +18,7 @@ package com.bcn.asapp.uaa.application.authentication.spi;
 
 import com.bcn.asapp.uaa.domain.authentication.JwtAuthentication;
 
+@FunctionalInterface
 public interface JwtRevoker {
 
     void revokeAuthentication(JwtAuthentication authentication);

@@ -54,33 +54,33 @@ public record Jwt(
 
     public Jwt {
         if (token == null || token.isBlank()) {
-            throw new InvalidJwtException("Token could not be null or empty");
+            throw new IllegalArgumentException("Token could not be null or empty");
         }
         if (type == null) {
-            throw new InvalidJwtException("Type could not be null");
+            throw new IllegalArgumentException("Type could not be null");
         }
         if (subject == null || subject.isBlank()) {
-            throw new InvalidJwtException("Subject could not be null");
+            throw new IllegalArgumentException("Subject could not be null");
         }
         if (claims == null || claims.isEmpty()) {
-            throw new InvalidJwtException("Claims could not be null or empty");
+            throw new IllegalArgumentException("Claims could not be null or empty");
         }
         var optionalTokenUse = getClaim(TOKEN_USE_CLAIM_NAME, String.class);
         if (optionalTokenUse.isEmpty()) {
-            throw new InvalidJwtException("Claims must contain the mandatory token use claim");
+            throw new IllegalArgumentException("Claims must contain the mandatory token use claim");
         }
         if (!TOKEN_USE_ACCESS_CLAIM_VALUE.equals(optionalTokenUse.get()) && !TOKEN_USE_REFRESH_CLAIM_VALUE.equals(optionalTokenUse.get())) {
-            throw new InvalidJwtException("Invalid JWT token use claim, expected " + TOKEN_USE_ACCESS_CLAIM_VALUE + " or " + TOKEN_USE_REFRESH_CLAIM_VALUE
+            throw new IllegalArgumentException("Invalid JWT token use claim, expected " + TOKEN_USE_ACCESS_CLAIM_VALUE + " or " + TOKEN_USE_REFRESH_CLAIM_VALUE
                     + " but was " + optionalTokenUse.get());
         }
         if (issuedAt == null) {
-            throw new InvalidJwtException("Issued at timestamp could not be null");
+            throw new IllegalArgumentException("Issued at timestamp could not be null");
         }
         if (expiresAt == null) {
-            throw new InvalidJwtException("Expires at timestamp could not be null");
+            throw new IllegalArgumentException("Expires at timestamp could not be null");
         }
         if (expiresAt.isBefore(issuedAt)) {
-            throw new InvalidJwtException("Expires at timestamp must be after issued at timestamp");
+            throw new IllegalArgumentException("Expires at timestamp must be after issued at timestamp");
         }
     }
 
@@ -98,6 +98,7 @@ public record Jwt(
 
     // TODO: Review why IntelliJ warns about possible NPE
     public <T> Optional<T> getClaim(String claimName, Class<T> requiredType) {
+        assert this.claims != null;
         var claimValue = this.claims.get(claimName);
         if (requiredType.isInstance(claimValue)) {
             var castedClaim = requiredType.cast(claimValue);

@@ -14,21 +14,14 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.uaa.testconfig;
+package com.bcn.asapp.uaa.application.authentication.spi;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
+import com.bcn.asapp.uaa.domain.authentication.JwtAuthentication;
+import com.bcn.asapp.uaa.domain.authentication.UsernamePasswordAuthentication;
 
-import com.bcn.asapp.uaa.testutil.JwtFaker;
+@FunctionalInterface
+public interface AuthenticationGranter {
 
-@TestConfiguration(proxyBeanMethods = false)
-public class SecurityTestConfiguration {
-
-    @Bean
-    JwtFaker jwtTestGenerator(@Value("${asapp.security.jwt-secret}") String jwtSecret,
-            @Value("${asapp.security.access-token-expiration-time}") Long jwtExpirationTime) {
-        return new JwtFaker(jwtSecret, jwtExpirationTime);
-    }
+    JwtAuthentication grantAuthentication(UsernamePasswordAuthentication authentication);
 
 }

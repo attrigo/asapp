@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.uaa.infrastructure.config;
 
-import static org.springframework.security.config.Customizer.withDefaults;
+import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.boot.actuate.health.HealthEndpoint;
@@ -32,8 +32,10 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.bcn.asapp.uaa.infrastructure.authentication.web.JwtAuthenticationConfigurer;
+import com.bcn.asapp.uaa.infrastructure.authentication.web.JwtAuthenticationEntryPoint;
+import com.bcn.asapp.uaa.infrastructure.authentication.web.JwtAuthenticationFilter;
 
 /**
  * Security configuration.
@@ -91,16 +93,13 @@ public class SecurityConfiguration {
      */
     private static final String[] ROOT_WHITELIST_URLS = { "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html" };
 
-    private final JwtAuthenticationConfigurer jwtAuthenticationConfigurer;
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    /**
-     * Constructs a new {@code SecurityConfiguration} with the specified dependencies.
-     *
-     * @param authenticationEntryPoint the authentication entry point for handling authentication exceptions
-     * @param authenticationFilter     the authentication filter to handle token authentication
-     */
-    public SecurityConfiguration(JwtAuthenticationConfigurer jwtAuthenticationConfigurer) {
-        this.jwtAuthenticationConfigurer = jwtAuthenticationConfigurer;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
+
+    public SecurityConfiguration(JwtAuthenticationFilter jwtAuthenticationFilter, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
     }
 
     /**
@@ -130,7 +129,9 @@ public class SecurityConfiguration {
             auth.anyRequest()
                 .authenticated();
         });
-        http.with(jwtAuthenticationConfigurer, withDefaults());
+        http.sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
         return http.build();
     }
@@ -161,7 +162,9 @@ public class SecurityConfiguration {
             auth.anyRequest()
                 .authenticated();
         });
-        http.with(jwtAuthenticationConfigurer, withDefaults());
+        http.sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
         return http.build();
     }
@@ -194,7 +197,9 @@ public class SecurityConfiguration {
             auth.anyRequest()
                 .authenticated();
         });
-        http.with(jwtAuthenticationConfigurer, withDefaults());
+        http.sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
+        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+        http.exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
         return http.build();
     }

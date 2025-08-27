@@ -20,21 +20,13 @@ import java.util.UUID;
 
 import org.mapstruct.Mapper;
 
-import com.bcn.asapp.dto.user.UserDTO;
 import com.bcn.asapp.uaa.domain.authentication.JwtAuthenticationId;
-import com.bcn.asapp.uaa.domain.user.User;
 
-/**
- * Mapper interface for converting between {@link User} entities and {@link UserDTO} data transfer objects.
- * <p>
- * This interface leverages <a href="https://mapstruct.org/">MapStruct</a> for generating type-safe and performant mapping implementations at compile time.
- *
- * @author ttrigo
- * @since 0.2.0
- */
 @Mapper(componentModel = "spring")
 public interface JwtAuthenticationIdMapper {
 
-    JwtAuthenticationId toJwtAuthenticationId(UUID jwtAuthenticationId);
+    JwtAuthenticationId toJwtAuthenticationId(UUID id);
+
+    UUID toId(JwtAuthenticationId jwtAuthenticationId);
 
 }

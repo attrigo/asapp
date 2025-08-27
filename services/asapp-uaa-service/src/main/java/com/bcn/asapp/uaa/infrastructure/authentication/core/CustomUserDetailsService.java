@@ -17,7 +17,6 @@
 package com.bcn.asapp.uaa.infrastructure.authentication.core;
 
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -31,14 +30,11 @@ import com.bcn.asapp.uaa.application.user.spi.UserRepository;
  * This service retrieves user information from a {@link UserRepository} and constructs a Spring Security {@link UserDetails} instance containing the username,
  * password, and authorities.
  * <p>
- * User roles are mapped to {@link SimpleGrantedAuthority} objects to represent granted authorities used by Spring Security during authorization decisions.
- * <p>
  * This class is typically used by Spring Security's authentication manager during user authentication.
  *
  * @author ttrigo
  * @see UserDetailsService
  * @see org.springframework.security.core.userdetails.User
- * @see SimpleGrantedAuthority
  * @since 0.2.0
  */
 @Component

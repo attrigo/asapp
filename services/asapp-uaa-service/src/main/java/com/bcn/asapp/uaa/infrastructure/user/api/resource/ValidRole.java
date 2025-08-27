@@ -27,9 +27,6 @@ import jakarta.validation.Payload;
 
 /**
  * Validation constraint annotation to ensure that a string value represents a valid Role.
- * <p>
- * This annotation is validated by a {@link jakarta.validation.ConstraintValidator} implementation that is discovered at runtime through the Service Provider
- * Interface (SPI) mechanism. The validator implementation must be registered in META-INF/services/jakarta.validation.ConstraintValidator.
  *
  * @author ttrigo
  * @see jakarta.validation.ConstraintValidator

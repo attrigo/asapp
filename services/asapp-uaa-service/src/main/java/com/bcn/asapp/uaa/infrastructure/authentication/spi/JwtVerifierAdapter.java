@@ -23,8 +23,8 @@ import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.uaa.application.authentication.spi.JwtAuthenticationRepository;
 import com.bcn.asapp.uaa.application.authentication.spi.JwtVerifier;
-import com.bcn.asapp.uaa.domain.authentication.InvalidJwtException;
 import com.bcn.asapp.uaa.domain.authentication.JwtAuthentication;
+import com.bcn.asapp.uaa.infrastructure.authentication.core.InvalidJwtException;
 import com.bcn.asapp.uaa.infrastructure.authentication.core.JwtAuthenticationNotFoundException;
 import com.bcn.asapp.uaa.infrastructure.authentication.core.JwtDecoder;
 import com.bcn.asapp.uaa.infrastructure.authentication.core.UnexpectedJwtTypeException;

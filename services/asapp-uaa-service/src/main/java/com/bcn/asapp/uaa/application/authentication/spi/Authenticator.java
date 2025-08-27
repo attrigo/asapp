@@ -14,19 +14,13 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.uaa.infrastructure.user.mapper;
+package com.bcn.asapp.uaa.application.authentication.spi;
 
-import java.util.UUID;
+import com.bcn.asapp.uaa.domain.authentication.UsernamePasswordAuthentication;
 
-import org.mapstruct.Mapper;
+@FunctionalInterface
+public interface Authenticator {
 
-import com.bcn.asapp.uaa.domain.user.UserId;
-
-@Mapper(componentModel = "spring")
-public interface UserIdMapper {
-
-    UserId toUserId(UUID id);
-
-    UUID toId(UserId userId);
+    UsernamePasswordAuthentication authenticate(UsernamePasswordAuthentication authenticationRequest);
 
 }

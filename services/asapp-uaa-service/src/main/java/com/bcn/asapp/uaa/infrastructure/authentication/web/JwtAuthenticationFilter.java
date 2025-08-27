@@ -16,10 +16,13 @@
 
 package com.bcn.asapp.uaa.infrastructure.authentication.web;
 
+import static com.bcn.asapp.uaa.domain.authentication.Jwt.ROLE_CLAIM_NAME;
+import static com.bcn.asapp.uaa.domain.user.Role.USER;
+
 import java.io.IOException;
 import java.util.Optional;
 
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -30,6 +33,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import com.bcn.asapp.uaa.application.authentication.spi.JwtAuthenticationRepository;
 import com.bcn.asapp.uaa.infrastructure.authentication.core.JwtAuthenticationToken;
 import com.bcn.asapp.uaa.infrastructure.authentication.core.JwtDecoder;
 
@@ -38,11 +42,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtDecoder jwtDecoder;
 
-    private final AuthenticationManager authenticationManager;
+    private final JwtAuthenticationRepository jwtAuthenticationRepository;
 
-    public JwtAuthenticationFilter(JwtDecoder jwtDecoder, AuthenticationManager authenticationManager) {
+    public JwtAuthenticationFilter(JwtDecoder jwtDecoder, JwtAuthenticationRepository jwtAuthenticationRepository) {
         this.jwtDecoder = jwtDecoder;
-        this.authenticationManager = authenticationManager;
+        this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }
 
     @Override
@@ -52,11 +56,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (optionalBearerToken.isPresent()) {
             var bearerToken = optionalBearerToken.get();
             var jwt = jwtDecoder.decode(bearerToken);
-            var authenticationRequest = JwtAuthenticationToken.unauthenticated(jwt.subject(), jwt.token());
-            var authentication = authenticationManager.authenticate(authenticationRequest);
 
-            SecurityContextHolder.getContext()
-                                 .setAuthentication(authentication);
+            var isAuthenticated = jwtAuthenticationRepository.existsByAccessToken(jwt.token());
+            if (isAuthenticated) {
+                var role = jwt.getClaim(ROLE_CLAIM_NAME, String.class)
+                              .orElse(USER.name());
+                var authorities = AuthorityUtils.createAuthorityList(role);
+                var authentication = JwtAuthenticationToken.authenticated(jwt.subject(), authorities, jwt.token());
+
+                var newContext = SecurityContextHolder.createEmptyContext();
+                newContext.setAuthentication(authentication);
+                SecurityContextHolder.setContext(newContext);
+            }
         }
 
         filterChain.doFilter(request, response);

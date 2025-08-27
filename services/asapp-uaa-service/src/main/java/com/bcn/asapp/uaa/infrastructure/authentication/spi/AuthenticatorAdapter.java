@@ -23,16 +23,16 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
-import com.bcn.asapp.uaa.application.authentication.spi.AuthenticatorManagerPort;
+import com.bcn.asapp.uaa.application.authentication.spi.Authenticator;
 import com.bcn.asapp.uaa.domain.authentication.UsernamePasswordAuthentication;
 import com.bcn.asapp.uaa.domain.user.Role;
 
 @Component
-public class AuthenticatorManagerAdapter implements AuthenticatorManagerPort {
+public class AuthenticatorAdapter implements Authenticator {
 
     private final AuthenticationManager authenticationManager;
 
-    public AuthenticatorManagerAdapter(org.springframework.security.authentication.AuthenticationManager authenticationManager) {
+    public AuthenticatorAdapter(org.springframework.security.authentication.AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
 

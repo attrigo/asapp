@@ -35,7 +35,6 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 
-import com.bcn.asapp.uaa.domain.authentication.InvalidJwtException;
 import com.bcn.asapp.uaa.domain.authentication.Jwt;
 import com.bcn.asapp.uaa.domain.authentication.JwtType;
 

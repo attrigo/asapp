@@ -14,16 +14,20 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.uaa.application.authentication.spi;
+package com.bcn.asapp.uaa.infrastructure.authentication.mapper;
 
-import com.bcn.asapp.uaa.domain.authentication.JwtAuthentication;
-import com.bcn.asapp.uaa.domain.authentication.UsernamePasswordAuthentication;
+import org.mapstruct.Mapper;
 
-// TODO: Rethink class name, maybe something without Provider neither Service words
-public interface AuthenticationProvider {
+import com.bcn.asapp.uaa.domain.authentication.Jwt;
+import com.bcn.asapp.uaa.infrastructure.authentication.entity.JwtEntity;
 
-    JwtAuthentication generateAuthentication(UsernamePasswordAuthentication authentication);
+@Mapper(componentModel = "spring")
+public interface JwtMapper {
 
-    JwtAuthentication refreshAuthentication(JwtAuthentication authentication);
+    // Jwt -> JwtEntity
+    JwtEntity toJwtEntity(Jwt jwt);
+
+    // JwtEntity -> Jwt
+    Jwt toJwt(JwtEntity jwtEntity);
 
 }

@@ -27,10 +27,10 @@ import com.bcn.asapp.uaa.infrastructure.authentication.entity.JwtAuthenticationE
 @Repository
 public interface JwtAuthenticationJdbcRepository extends ListCrudRepository<JwtAuthenticationEntity, UUID> {
 
-    Optional<JwtAuthenticationEntity> findByAccessTokenJwt(String accessToken);
+    Optional<JwtAuthenticationEntity> findByAccessTokenToken(String accessToken);
 
-    Optional<JwtAuthenticationEntity> findByRefreshTokenJwt(String refreshToken);
+    Optional<JwtAuthenticationEntity> findByRefreshTokenToken(String refreshToken);
 
-    Boolean existsByAccessTokenJwt(String accessToken);
+    Boolean existsByAccessTokenToken(String accessToken);
 
 }

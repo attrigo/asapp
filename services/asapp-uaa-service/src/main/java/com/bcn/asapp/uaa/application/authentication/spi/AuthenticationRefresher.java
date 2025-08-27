@@ -16,11 +16,11 @@
 
 package com.bcn.asapp.uaa.application.authentication.spi;
 
-import com.bcn.asapp.uaa.domain.authentication.UsernamePasswordAuthentication;
+import com.bcn.asapp.uaa.domain.authentication.JwtAuthentication;
 
-// TODO: Think another name, not containing "Port"
-public interface AuthenticatorManagerPort {
+@FunctionalInterface
+public interface AuthenticationRefresher {
 
-    UsernamePasswordAuthentication authenticate(UsernamePasswordAuthentication authenticationRequest);
+    JwtAuthentication refreshAuthentication(JwtAuthentication authentication);
 
 }

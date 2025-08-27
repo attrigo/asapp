@@ -39,19 +39,19 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
 
     @Override
     public Optional<JwtAuthentication> findByAccessToken(String accessToken) {
-        return jwtAuthenticationRepository.findByAccessTokenJwt(accessToken)
+        return jwtAuthenticationRepository.findByAccessTokenToken(accessToken)
                                           .map(jwtAuthenticationMapper::toJwtAuthentication);
     }
 
     @Override
     public Optional<JwtAuthentication> findByRefreshToken(String refreshToken) {
-        return jwtAuthenticationRepository.findByRefreshTokenJwt(refreshToken)
+        return jwtAuthenticationRepository.findByRefreshTokenToken(refreshToken)
                                           .map(jwtAuthenticationMapper::toJwtAuthentication);
     }
 
     @Override
     public Boolean existsByAccessToken(String accessToken) {
-        return jwtAuthenticationRepository.existsByAccessTokenJwt(accessToken);
+        return jwtAuthenticationRepository.existsByAccessTokenToken(accessToken);
     }
 
     @Override

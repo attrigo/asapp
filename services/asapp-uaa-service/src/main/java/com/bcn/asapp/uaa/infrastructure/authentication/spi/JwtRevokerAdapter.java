@@ -31,6 +31,7 @@ public class JwtRevokerAdapter implements JwtRevoker {
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }
 
+    @Override
     public void revokeAuthentication(JwtAuthentication authentication) {
         jwtAuthenticationRepository.deleteById(authentication.getId());
     }

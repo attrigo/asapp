@@ -28,7 +28,7 @@ import com.bcn.asapp.uaa.infrastructure.user.api.resource.UpdateUserRequest;
 import com.bcn.asapp.uaa.infrastructure.user.api.resource.UpdateUserResponse;
 import com.bcn.asapp.uaa.infrastructure.user.entity.UserEntity;
 
-@Mapper(componentModel = "spring", uses = UserIdMapper.class)
+@Mapper(componentModel = "spring", uses = { UserObjectFactory.class, UserIdMapper.class })
 public interface UserMapper {
 
     // Request -> User

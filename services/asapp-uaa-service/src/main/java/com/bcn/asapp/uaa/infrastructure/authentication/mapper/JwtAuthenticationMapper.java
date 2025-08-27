@@ -17,33 +17,30 @@
 package com.bcn.asapp.uaa.infrastructure.authentication.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import com.bcn.asapp.uaa.domain.authentication.JwtAuthentication;
-import com.bcn.asapp.uaa.infrastructure.authentication.api.resource.AuthenticateRequest;
 import com.bcn.asapp.uaa.infrastructure.authentication.api.resource.AuthenticateResponse;
-import com.bcn.asapp.uaa.infrastructure.authentication.api.resource.RefreshAuthenticationRequest;
 import com.bcn.asapp.uaa.infrastructure.authentication.api.resource.RefreshAuthenticationResponse;
-import com.bcn.asapp.uaa.infrastructure.authentication.api.resource.RevokeAuthenticationRequest;
 import com.bcn.asapp.uaa.infrastructure.authentication.entity.JwtAuthenticationEntity;
+import com.bcn.asapp.uaa.infrastructure.user.mapper.UserIdMapper;
 
-@Mapper(componentModel = "spring", uses = { JwtAuthenticationIdMapper.class })
+@Mapper(componentModel = "spring", uses = { JwtAuthenticationObjectFactory.class, JwtAuthenticationIdMapper.class, UserIdMapper.class, JwtMapper.class })
 public interface JwtAuthenticationMapper {
 
-    // Request -> JwtAuthentication
-    JwtAuthentication toJwtAuthentication(AuthenticateRequest request);
-
-    JwtAuthentication toJwtAuthentication(RefreshAuthenticationRequest request);
-
-    JwtAuthentication toJwtAuthentication(RevokeAuthenticationRequest request);
-
+    // JwtAuthentication -> JwtAuthenticationEntity
     JwtAuthenticationEntity toJwtAuthenticationEntity(JwtAuthentication jwtAuthentication);
 
     // JwtAuthenticationEntity -> JwtAuthentication
     JwtAuthentication toJwtAuthentication(JwtAuthenticationEntity jwtAuthenticationEntity);
 
     // JwtAuthentication -> Response
+    @Mapping(target = "accessToken", source = "accessToken.token")
+    @Mapping(target = "refreshToken", source = "refreshToken.token")
     AuthenticateResponse toAuthenticateResponse(JwtAuthentication jwtAuthentication);
 
+    @Mapping(target = "accessToken", source = "accessToken.token")
+    @Mapping(target = "refreshToken", source = "refreshToken.token")
     RefreshAuthenticationResponse toRefreshAuthenticationResponse(JwtAuthentication jwtAuthentication);
 
 }

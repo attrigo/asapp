@@ -18,7 +18,7 @@ package com.bcn.asapp.uaa.application.authentication.api.internal;
 
 import com.bcn.asapp.uaa.application.ApplicationService;
 import com.bcn.asapp.uaa.application.authentication.api.RefreshAuthenticationUseCase;
-import com.bcn.asapp.uaa.application.authentication.spi.AuthenticationProvider;
+import com.bcn.asapp.uaa.application.authentication.spi.AuthenticationRefresher;
 import com.bcn.asapp.uaa.application.authentication.spi.JwtVerifier;
 import com.bcn.asapp.uaa.domain.authentication.JwtAuthentication;
 
@@ -27,18 +27,18 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
 
     private final JwtVerifier jwtVerifier;
 
-    private final AuthenticationProvider authenticationProvider;
+    private final AuthenticationRefresher authenticationRefresher;
 
-    public RefreshAuthenticationService(JwtVerifier jwtVerifier, AuthenticationProvider authenticationProvider) {
+    public RefreshAuthenticationService(JwtVerifier jwtVerifier, AuthenticationRefresher authenticationRefresher) {
         this.jwtVerifier = jwtVerifier;
-        this.authenticationProvider = authenticationProvider;
+        this.authenticationRefresher = authenticationRefresher;
     }
 
     @Override
     public JwtAuthentication refreshAuthentication(String refreshToken) {
         var authentication = jwtVerifier.verifyRefreshToken(refreshToken);
 
-        return authenticationProvider.refreshAuthentication(authentication);
+        return authenticationRefresher.refreshAuthentication(authentication);
 
     }
 

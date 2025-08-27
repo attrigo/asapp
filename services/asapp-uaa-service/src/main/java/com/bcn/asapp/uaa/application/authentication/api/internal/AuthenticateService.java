@@ -18,28 +18,28 @@ package com.bcn.asapp.uaa.application.authentication.api.internal;
 
 import com.bcn.asapp.uaa.application.ApplicationService;
 import com.bcn.asapp.uaa.application.authentication.api.AuthenticateUseCase;
-import com.bcn.asapp.uaa.application.authentication.spi.AuthenticationProvider;
-import com.bcn.asapp.uaa.application.authentication.spi.AuthenticatorManagerPort;
+import com.bcn.asapp.uaa.application.authentication.spi.AuthenticationGranter;
+import com.bcn.asapp.uaa.application.authentication.spi.Authenticator;
 import com.bcn.asapp.uaa.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.uaa.domain.authentication.UsernamePasswordAuthentication;
 
 @ApplicationService
 public class AuthenticateService implements AuthenticateUseCase {
 
-    private final AuthenticatorManagerPort authenticatorManagerPort;
+    private final Authenticator authenticator;
 
-    private final AuthenticationProvider authenticationProvider;
+    private final AuthenticationGranter authenticationGranter;
 
-    public AuthenticateService(AuthenticatorManagerPort authenticatorManagerPort, AuthenticationProvider authenticationProvider) {
-        this.authenticatorManagerPort = authenticatorManagerPort;
-        this.authenticationProvider = authenticationProvider;
+    public AuthenticateService(Authenticator authenticator, AuthenticationGranter authenticationGranter) {
+        this.authenticator = authenticator;
+        this.authenticationGranter = authenticationGranter;
     }
 
     @Override
     public JwtAuthentication authenticate(UsernamePasswordAuthentication authenticationRequest) {
-        var authentication = authenticatorManagerPort.authenticate(authenticationRequest);
+        var authentication = authenticator.authenticate(authenticationRequest);
 
-        return authenticationProvider.generateAuthentication(authentication);
+        return authenticationGranter.grantAuthentication(authentication);
     }
 
 }

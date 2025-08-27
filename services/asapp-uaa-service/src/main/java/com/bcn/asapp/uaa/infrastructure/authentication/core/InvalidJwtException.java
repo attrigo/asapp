@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.uaa.domain.authentication;
+package com.bcn.asapp.uaa.infrastructure.authentication.core;
 
 /**
  * Exception thrown when an invalid JWT (JSON Web Token) is encountered.
