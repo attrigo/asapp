@@ -25,18 +25,18 @@ services:
       - POSTGRES_PASSWORD=secret
     volumes:
       - tasks-postgres-db-data:/data/db
-  asapp-uaa-postgres-db:
+  asapp-authentication-postgres-db:
     image: 'postgres:latest'
-    container_name: asapp-uaa-postgres-db
+    container_name: asapp-authentication-postgres-db
     restart: unless-stopped
     ports:
       - '5434:5432'
     environment:
-      - POSTGRES_DB=uaadb
+      - POSTGRES_DB=authenticationdb
       - POSTGRES_USER=user
       - POSTGRES_PASSWORD=secret
     volumes:
-      - uaa-postgres-db-data:/data/db
+      - authentication-postgres-db-data:/data/db
 
   # Tools
   asapp-prometheus-authentication:
@@ -45,15 +45,15 @@ services:
     user: "root"
     command: [ "/bin/sh", "/prometheus_authentication.sh" ]
     environment:
-      - UAA_SERVICE_BASE_URL=http://asapp-uaa-service:8082/asapp-uaa-service
-      - PROMETHEUS_USER=sa-prometheus
+      - AUTHENTICATION_SERVICE_BASE_URL=http://asapp-authentication-service:8082/asapp-authentication-service
+      - PROMETHEUS_USER=sa.prometheus@asapp.com
       - PROMETHEUS_PASSWORD=sa-secret
       - ACCESS_TOKEN_EXPIRATION_TIME=300000
     volumes:
       - ./tools/prometheus/prometheus_authentication.sh:/prometheus_authentication.sh:ro
       - prometheus_auth:/etc/prometheus/auth:rw
     depends_on:
-      - asapp-uaa-service
+      - asapp-authentication-service
   asapp-prometheus:
     image: prom/prometheus
     container_name: asapp-prometheus
@@ -122,10 +122,10 @@ services:
       - ASAPP_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
     depends_on:
       - asapp-tasks-postgres-db
-  asapp-uaa-service:
+  asapp-authentication-service:
     build: .
-    image: 'asapp-uaa-service:0.2.0-SNAPSHOT'
-    container_name: asapp-uaa-service
+    image: 'asapp-authentication-service:0.2.0-SNAPSHOT'
+    container_name: asapp-authentication-service
     restart: unless-stopped
     ports:
       - '8082:8082'
@@ -133,20 +133,20 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       - SERVER_PORT=8082
       - MANAGEMENT_PORT=8092
-      - DB_HOST=asapp-uaa-postgres-db
+      - DB_HOST=asapp-authentication-postgres-db
       - DB_PORT=5432
-      - DB_NAME=uaadb
+      - DB_NAME=authenticationdb
       - DB_USERNAME=user
       - DB_PASSWORD=secret
       - ASAPP_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
       - ASAPP_ACCESS_TOKEN_EXPIRATION_TIME=300000
       - ASAPP_REFRESH_TOKEN_EXPIRATION_TIME=3600000
     depends_on:
-      - asapp-uaa-postgres-db
+      - asapp-authentication-postgres-db
 
 volumes:
   projects-postgres-db-data:
   tasks-postgres-db-data:
-  uaa-postgres-db-data:
+  authentication-postgres-db-data:
   prometheus_auth:
 

@@ -20,10 +20,10 @@ scrape_configs:
       credentials_file: /etc/prometheus/auth/bearer_token
     static_configs:
       - targets: [ 'asapp-tasks-service:8091' ]
-  - job_name: 'asapp-uaa-service'
-    metrics_path: '/asapp-uaa-service/actuator/prometheus'
+  - job_name: 'asapp-authentication-service'
+    metrics_path: '/asapp-authentication-service/actuator/prometheus'
     authorization:
       type: Bearer
       credentials_file: /etc/prometheus/auth/bearer_token
     static_configs:
-      - targets: [ 'asapp-uaa-service:8092' ]
+      - targets: [ 'asapp-authentication-service:8092' ]

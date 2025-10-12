@@ -84,7 +84,7 @@ interaction. \
 You can use this [Swagger UI](http://localhost:8080/asapp-projects-service/swagger-ui.html) or any other HTTP client to consume the API.
 
 Some of the exposed endpoints require authentication using JWT (JSON Web Token) bearer tokens. To access protected endpoints, you first need to get an access
-token by calling authenticate endpoint (/token) of UAA service with valid user credential. Once it expires, you can get a new one by calling the refresh
+token by calling authenticate endpoint (/token) of the authentication service with valid user credential. Once it expires, you can get a new one by calling the refresh
 authentication endpoint (/refresh-token).
 
 > Dates sent in requests must follow a standard ISO-8601 format.
