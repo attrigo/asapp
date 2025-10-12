@@ -8,18 +8,18 @@ ACCESS_TOKEN_FILE="${TOKEN_DIR}/bearer_token"
 # Variable to store refresh token
 REFRESH_TOKEN=
 
-# UAA service URLs
-AUTH_READINESS_ENDPOINT="${UAA_SERVICE_BASE_URL}/readyz"
-AUTH_ENDPOINT="${UAA_SERVICE_BASE_URL}/api/auth/token"
-REFRESH_ENDPOINT="${UAA_SERVICE_BASE_URL}/api/auth/refresh-token"
+# Authentication service URLs
+AUTHENTICATION_READINESS_ENDPOINT="${AUTHENTICATION_SERVICE_BASE_URL}/readyz"
+AUTHENTICATE_ENDPOINT="${AUTHENTICATION_SERVICE_BASE_URL}/api/auth/token"
+REFRESH_ENDPOINT="${AUTHENTICATION_SERVICE_BASE_URL}/api/auth/refresh-token"
 
 # Time to sleep between token refreshing
 SLEEP_TIME=$(( ACCESS_TOKEN_EXPIRATION_TIME * 8 / 10000 ))  # Convert from milliseconds and take 80%
 
 validate_parameters() {
-    if [ -z "$UAA_SERVICE_BASE_URL" ] || [ -z "$PROMETHEUS_USER" ] || [ -z "$PROMETHEUS_PASSWORD" ] || [ -z "$ACCESS_TOKEN_EXPIRATION_TIME" ]; then
+    if [ -z "AUTHENTICATION_SERVICE_BASE_URL" ] || [ -z "$PROMETHEUS_USER" ] || [ -z "$PROMETHEUS_PASSWORD" ] || [ -z "$ACCESS_TOKEN_EXPIRATION_TIME" ]; then
         echo "Error: Required environment variables are not set"
-        echo "Please ensure UAA_SERVICE_BASE_URL, PROMETHEUS_USER, PROMETHEUS_PASSWORD, and ACCESS_TOKEN_EXPIRATION_TIME are set"
+        echo "Please ensure AUTHENTICATION_SERVICE_BASE_URL, PROMETHEUS_USER, PROMETHEUS_PASSWORD, and ACCESS_TOKEN_EXPIRATION_TIME are set"
         exit 1
     fi
 }
@@ -31,9 +31,9 @@ install_dependencies() {
     fi
 }
 
-wait_uaa_service_health() {
-    echo "Waiting for asapp-uaa-service to be ready..."
-    until curl -s ${AUTH_READINESS_ENDPOINT} | grep '"status":"UP"' > /dev/null; do
+wait_authentication_service_health() {
+    echo "Waiting for asapp-authentication-service to be ready..."
+    until curl -s ${AUTHENTICATION_READINESS_ENDPOINT} | grep '"status":"UP"' > /dev/null; do
       echo "Still waiting..."
       sleep 10
     done
@@ -67,7 +67,7 @@ parse_response() {
 
 authenticate() {
     echo "Performing initial authentication..."
-    RESPONSE=$(curl -s -X POST "${AUTH_ENDPOINT}" \
+    RESPONSE=$(curl -s -X POST "${AUTHENTICATE_ENDPOINT}" \
         -H "Content-Type: application/json" \
         -d "{\"username\": \"${PROMETHEUS_USER}\", \"password\": \"${PROMETHEUS_PASSWORD}\"}")
 
@@ -91,8 +91,8 @@ validate_parameters || exit 1
 # Install dependencies if not exists
 install_dependencies
 
-# Wait until UAA service is up and ready
-wait_uaa_service_health
+# Wait until authentication service is up and ready
+wait_authentication_service_health
 
 # Initial authentication
 authenticate || exit 1

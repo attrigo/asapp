@@ -1,0 +1,39 @@
+version: '3.8'
+services:
+  asapp-authentication-postgres-db:
+    image: 'postgres:latest'
+    container_name: asapp-authentication-postgres-db
+    restart: unless-stopped
+    ports:
+      - '5434:5432'
+    environment:
+      - POSTGRES_DB=authenticationdb
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=secret
+    volumes:
+      - authentication-postgres-db-data:/data/db
+
+  asapp-authentication-service:
+    build: .
+    image: 'asapp-authentication-service:0.2.0-SNAPSHOT'
+    container_name: asapp-authentication-service
+    restart: unless-stopped
+    ports:
+      - '8082:8082'
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=8082
+      - MANAGEMENT_PORT=8092
+      - DB_HOST=asapp-authentication-postgres-db
+      - DB_PORT=5432
+      - DB_NAME=authenticationdb
+      - DB_USERNAME=user
+      - DB_PASSWORD=secret
+      - ASAPP_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
+      - ASAPP_ACCESS_TOKEN_EXPIRATION_TIME=300000
+      - ASAPP_REFRESH_TOKEN_EXPIRATION_TIME=3600000
+    depends_on:
+      - asapp-authentication-postgres-db
+
+volumes:
+  authentication-postgres-db-data:

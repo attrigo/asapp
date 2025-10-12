@@ -263,7 +263,7 @@
     <modules>
         <module>asapp-projects-service</module>
         <module>asapp-tasks-service</module>
-        <module>asapp-uaa-service</module>
+        <module>asapp-authentication-service</module>
     </modules>
 
 </project>
