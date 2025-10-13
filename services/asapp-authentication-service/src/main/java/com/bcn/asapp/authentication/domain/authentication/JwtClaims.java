@@ -22,7 +22,9 @@ import java.util.Optional;
 /**
  * Represents a collection of JWT claims.
  * <p>
- * This value object wraps a map of claims ensuring they are not {@code null} or empty, and provides type-safe claim retrieval.
+ * This value object encapsulates a map of claims.
+ * <p>
+ * It enforces structural integrity by ensuring the claims are not {@code null} or empty.
  * <p>
  * The internal map is immutable to prevent modification.
  *

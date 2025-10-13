@@ -26,7 +26,7 @@ import com.bcn.asapp.authentication.domain.user.Role;
  * <p>
  * This value object encapsulates all essential JWT parts, including the encoded token, type, subject, claims, and temporal information.
  * <p>
- * It enforces structural integrity through validation of type consistency and temporal ordering.
+ * It enforces structural integrity by ensuring type consistency and temporal ordering.
  *
  * @param encodedToken the serialized JWT token
  * @param type         the token type (access or refresh)

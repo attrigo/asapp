@@ -21,7 +21,11 @@ import java.util.UUID;
 /**
  * Represents a unique user identifier.
  * <p>
- * This value object wraps a {@link UUID} and ensures it is not {@code null}, providing type safety and domain clarity for user identification.
+ * This value object encapsulates a user unique identifier value as {@link UUID}.
+ * <p>
+ * It enforces structural integrity by ensuring the unique identifier is not {@code null}.
+ * <p>
+ * Provides type safety and domain clarity for user identification.
  *
  * @param id the unique identifier for a user
  * @since 0.2.0

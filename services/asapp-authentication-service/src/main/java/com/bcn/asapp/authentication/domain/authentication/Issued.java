@@ -22,7 +22,9 @@ import java.util.Date;
 /**
  * Represents the issued-at timestamp of a JWT token.
  * <p>
- * This value object wraps the instant when a token was issued and ensures it is not {@code null}, providing type safety for JWT temporal claims.
+ * This value object encapsulates the issued timestamp as {@link Instant}.
+ * <p>
+ * It enforces structural integrity by ensuring the issued timestamp is not blank.
  *
  * @param issued the instant when the token was issued
  * @since 0.2.0
