@@ -19,9 +19,11 @@ package com.bcn.asapp.authentication.domain.authentication;
 /**
  * Represents an encoded JWT token string.
  * <p>
- * This value object wraps an encoded JWT token and ensures it is not {@code null} or blank, providing type safety for token transmission and storage.
+ * This value object encapsulates an encoded JWT token value as {@link String}.
+ * <p>
+ * It enforces structural integrity by ensuring the token is not blank.
  *
- * @param token the encoded JWT token string
+ * @param token the encoded JWT token value
  * @since 0.2.0
  * @author attrigo
  */

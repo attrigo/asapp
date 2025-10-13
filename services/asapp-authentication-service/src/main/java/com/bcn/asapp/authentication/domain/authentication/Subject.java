@@ -19,7 +19,9 @@ package com.bcn.asapp.authentication.domain.authentication;
 /**
  * Represents the subject claim of a JWT token.
  * <p>
- * This value object wraps the subject identifier (typically a user identifier) and ensures it is not blank, providing type safety for JWT claims.
+ * This value object encapsulates a subject value as {@link String}.
+ * <p>
+ * It enforces structural integrity by ensuring the subject is not blank.
  *
  * @param subject the subject identifier
  * @since 0.2.0

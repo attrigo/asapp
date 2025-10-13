@@ -19,8 +19,10 @@ package com.bcn.asapp.authentication.domain.user;
 /**
  * Represents an encoded (hashed) password.
  * <p>
- * This value object enforces that passwords follow a specific password encoder format, which includes an algorithm identifier prefix (e.g., {@code {bcrypt}},
- * {@code {argon2}}).
+ * This value object encapsulates an encoded password value as {@link String}.
+ * <p>
+ * It enforces structural integrity by ensuring the encoded password is not blank and follow a specific password encoder format, which includes an algorithm
+ * identifier prefix (e.g., {@code {bcrypt}}, {@code {argon2}}).
  *
  * @param password the encoded password value with algorithm prefix
  * @since 0.2.0

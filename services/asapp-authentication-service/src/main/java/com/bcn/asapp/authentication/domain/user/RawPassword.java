@@ -19,7 +19,9 @@ package com.bcn.asapp.authentication.domain.user;
 /**
  * Represents a raw (unhashed) password.
  * <p>
- * This value object enforces password validity by ensuring it is not blank and that its length is within defined boundaries.
+ * This value object encapsulates a raw password value as {@link String}.
+ * <p>
+ * It enforces structural integrity by ensuring the raw password is not blank and that its length is within defined boundaries.
  *
  * @param password the raw password value
  * @since 0.2.0

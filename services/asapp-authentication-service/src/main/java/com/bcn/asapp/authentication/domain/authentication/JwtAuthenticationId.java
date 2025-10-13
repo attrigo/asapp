@@ -21,7 +21,11 @@ import java.util.UUID;
 /**
  * Represents a unique JWT authentication identifier.
  * <p>
- * This value object wraps a {@link UUID} and ensures it is not {@code null}, providing type safety and domain clarity for JWT authentication identification.
+ * This value object encapsulates a JWT authentication unique identifier value as {@link UUID}.
+ * <p>
+ * It enforces structural integrity by ensuring the unique identifier is not {@code null}.
+ * <p>
+ * Provides type safety and domain clarity for JWT authentication identification.
  *
  * @param id the unique identifier for a JWT authentication
  * @since 0.2.0

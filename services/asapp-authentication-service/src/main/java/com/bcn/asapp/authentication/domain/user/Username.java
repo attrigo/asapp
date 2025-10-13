@@ -19,7 +19,9 @@ package com.bcn.asapp.authentication.domain.user;
 /**
  * Represents a username in email format.
  * <p>
- * This value object enforces that usernames follow a valid email address pattern, ensuring they are not blank and conform to the standard email structure.
+ * This value object encapsulates a username value as {@link String}.
+ * <p>
+ * It enforces structural integrity by ensuring the username is not blank and conform to the standard email structure.
  *
  * @param username the username value in the email format
  * @since 0.2.0

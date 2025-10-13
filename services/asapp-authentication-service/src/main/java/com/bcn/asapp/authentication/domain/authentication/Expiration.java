@@ -22,7 +22,9 @@ import java.util.Date;
 /**
  * Represents the expiration timestamp of a JWT token.
  * <p>
- * This value object wraps the instant when a token expires and ensures it is not {@code null}, providing type safety for JWT temporal claims.
+ * This value object encapsulates the expiration timestamp as {@link Instant}.
+ * <p>
+ * It enforces structural integrity by ensuring the expiration timestamp is not blank.
  *
  * @param expiration the instant when the token expires
  * @since 0.2.0
