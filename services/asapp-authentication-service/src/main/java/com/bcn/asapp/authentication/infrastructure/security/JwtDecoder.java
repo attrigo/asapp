@@ -47,6 +47,7 @@ import com.bcn.asapp.authentication.domain.authentication.Subject;
  * Parses encoded JWT tokens, verifies their signatures using HMAC-SHA, and constructs domain {@link Jwt} objects with validated claims and metadata.
  *
  * @since 0.2.0
+ * @see Jwts
  * @author attrigo
  */
 @Component

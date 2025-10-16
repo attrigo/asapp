@@ -57,7 +57,7 @@ public class CreateUserService implements CreateUserUseCase {
      *
      * @param command the {@link CreateUserCommand} containing user registration data
      * @return the created {@link User} with a persistent ID
-     * @throws IllegalArgumentException if username, password, or role is invalid
+     * @throws IllegalArgumentException if any data within the command is invalid
      */
     @Override
     public User createUser(CreateUserCommand command) {

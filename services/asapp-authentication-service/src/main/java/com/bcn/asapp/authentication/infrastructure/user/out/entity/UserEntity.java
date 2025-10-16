@@ -32,7 +32,7 @@ import jakarta.validation.constraints.NotNull;
  * @param id       the user's unique identifier
  * @param username the user's username; must not be blank
  * @param password the user's encoded password; must not be blank
- * @param role     the user's role as a string; must not be {@code null}
+ * @param role     the user's role; must not be {@code null}
  * @since 0.2.0
  * @author attrigo
  */

@@ -24,7 +24,7 @@ import java.util.UUID;
  * @param id       the user's unique identifier
  * @param username the user's username in the email format
  * @param password the user's masked password
- * @param role     the user's role as a string
+ * @param role     the user's role
  * @since 0.2.0
  * @author attrigo
  */
