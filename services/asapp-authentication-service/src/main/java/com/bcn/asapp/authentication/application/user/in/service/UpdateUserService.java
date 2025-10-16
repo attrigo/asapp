@@ -61,7 +61,7 @@ public class UpdateUserService implements UpdateUserUseCase {
      *
      * @param command the {@link UpdateUserCommand} containing user update data
      * @return an {@link Optional} containing the updated {@link User} if found, {@link Optional#empty} otherwise
-     * @throws IllegalArgumentException if username, password, or role is invalid
+     * @throws IllegalArgumentException if any data within the command is invalid
      */
     @Override
     public Optional<User> updateUserById(UpdateUserCommand command) {

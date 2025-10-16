@@ -101,8 +101,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     /**
      * Performs JWT authentication for each request.
      * <p>
-     * Extracts the Bearer token from the Authorization header, verifies it, and establishes the security context if valid. If no token is present or validation
-     * fails, the request continues without authentication.
+     * Extracts the Bearer token from the Authorization header, verifies it, and establishes the security context if valid.
+     * <p>
+     * If no token is present or validation fails, the request continues without authentication.
      *
      * @param request     the HTTP request
      * @param response    the HTTP response

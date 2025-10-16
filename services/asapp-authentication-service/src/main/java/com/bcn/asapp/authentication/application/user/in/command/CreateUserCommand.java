@@ -23,7 +23,7 @@ package com.bcn.asapp.authentication.application.user.in.command;
  *
  * @param username the user's username in the email format
  * @param password the user's raw password
- * @param role     the user's role as a string
+ * @param role     the user's role
  * @since 0.2.0
  * @author attrigo
  */

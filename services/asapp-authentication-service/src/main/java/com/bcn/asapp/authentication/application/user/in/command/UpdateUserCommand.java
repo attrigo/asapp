@@ -26,7 +26,7 @@ import java.util.UUID;
  * @param userId   the unique identifier of the user to update
  * @param username the updated username in email format
  * @param password the updated raw password
- * @param role     the updated role as a string
+ * @param role     the updated role
  * @since 0.2.0
  * @author attrigo
  */
