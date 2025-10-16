@@ -200,18 +200,18 @@ public record Jwt(
      * @throws IllegalArgumentException if type and token_use claim are inconsistent
      */
     private static void validateTypeConsistency(JwtType type, JwtClaims claims) {
-        var tokenUseValue = claims.claim(TOKEN_USE_CLAIM_NAME, String.class)
+        var tokenUseClaim = claims.claim(TOKEN_USE_CLAIM_NAME, String.class)
                                   .orElseThrow(() -> new IllegalArgumentException("Claims must contain the mandatory token use claim"));
 
-        if (!ACCESS_TOKEN_USE_CLAIM_VALUE.equals(tokenUseValue) && !REFRESH_TOKEN_USE_CLAIM_VALUE.equals(tokenUseValue)) {
+        if (!ACCESS_TOKEN_USE_CLAIM_VALUE.equals(tokenUseClaim) && !REFRESH_TOKEN_USE_CLAIM_VALUE.equals(tokenUseClaim)) {
             var message = String.format("Invalid JWT token use claim, expected %s or %s but was %s", ACCESS_TOKEN_USE_CLAIM_VALUE,
-                    REFRESH_TOKEN_USE_CLAIM_VALUE, tokenUseValue);
+                    REFRESH_TOKEN_USE_CLAIM_VALUE, tokenUseClaim);
             throw new IllegalArgumentException(message);
         }
 
-        if (type == ACCESS_TOKEN && !ACCESS_TOKEN_USE_CLAIM_VALUE.equals(tokenUseValue)
-                || type == REFRESH_TOKEN && !REFRESH_TOKEN_USE_CLAIM_VALUE.equals(tokenUseValue)) {
-            var message = String.format("Token type %s and token_use claim %s do not match", type, tokenUseValue);
+        if (type == ACCESS_TOKEN && !ACCESS_TOKEN_USE_CLAIM_VALUE.equals(tokenUseClaim)
+                || type == REFRESH_TOKEN && !REFRESH_TOKEN_USE_CLAIM_VALUE.equals(tokenUseClaim)) {
+            var message = String.format("Token type %s and token_use claim %s do not match", type, tokenUseClaim);
             throw new IllegalArgumentException(message);
         }
     }
