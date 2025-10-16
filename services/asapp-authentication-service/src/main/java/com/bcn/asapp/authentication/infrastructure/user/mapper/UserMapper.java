@@ -92,6 +92,7 @@ public interface UserMapper {
      * @param user the {@link User} domain entity
      * @return the {@link GetUserByIdResponse}
      */
+    @Mapping(target = "userId", source = "id")
     @Mapping(target = "password", constant = "*****")
     GetUserByIdResponse toGetUserByIdResponse(User user);
 
@@ -103,6 +104,7 @@ public interface UserMapper {
      * @param user the {@link User} domain entity
      * @return the {@link GetAllUsersResponse}
      */
+    @Mapping(target = "userId", source = "id")
     @Mapping(target = "password", constant = "*****")
     GetAllUsersResponse toGetAllUsersResponse(User user);
 
@@ -114,6 +116,7 @@ public interface UserMapper {
      * @param user the {@link User} domain entity
      * @return the {@link CreateUserResponse}
      */
+    @Mapping(target = "userId", source = "id")
     @Mapping(target = "password", constant = "*****")
     CreateUserResponse toCreateUserResponse(User user);
 
@@ -125,6 +128,7 @@ public interface UserMapper {
      * @param user the {@link User} domain entity
      * @return the {@link UpdateUserResponse}
      */
+    @Mapping(target = "userId", source = "id")
     @Mapping(target = "password", constant = "*****")
     UpdateUserResponse toUpdateUserResponse(User user);
 
