@@ -113,7 +113,7 @@ class JwtClaimsTests {
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Claim keys and values must be not null");
+                              .hasMessage("Claim keys and values must not be null");
         }
 
         @Test
@@ -123,7 +123,7 @@ class JwtClaimsTests {
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Claim keys and values must be not null");
+                              .hasMessage("Claim keys and values must not be null");
         }
 
         @Test
@@ -133,7 +133,7 @@ class JwtClaimsTests {
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Claim keys and values must be not null");
+                              .hasMessage("Claim keys and values must not be null");
         }
 
         @Test
@@ -143,7 +143,7 @@ class JwtClaimsTests {
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Claim keys and values must be not null");
+                              .hasMessage("Claim keys and values must not be null");
         }
 
         @Test

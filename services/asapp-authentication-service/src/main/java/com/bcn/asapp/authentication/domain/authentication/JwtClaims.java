@@ -128,7 +128,7 @@ public record JwtClaims(
      */
     private static void validateKeyValueClaims(String key1, Object value1, String key2, Object value2) {
         if (key1 == null || value1 == null || key2 == null || value2 == null) {
-            throw new IllegalArgumentException("Claim keys and values must be not null");
+            throw new IllegalArgumentException("Claim keys and values must not be null");
         }
     }
 
