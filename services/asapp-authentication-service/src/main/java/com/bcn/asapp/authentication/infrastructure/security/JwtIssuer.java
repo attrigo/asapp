@@ -152,11 +152,11 @@ public class JwtIssuer {
      * @param subject              the {@link Subject} identifier
      * @param role                 the {@link Role}
      * @param expirationTimeMillis the expiration time in milliseconds
-     * @param tokenUseClaimValue   the token_use claim value
+     * @param tokenUseClaim        the token_use claim value
      * @return the generated {@link Jwt}
      */
-    private Jwt issueToken(JwtType type, Subject subject, Role role, Long expirationTimeMillis, String tokenUseClaimValue) {
-        var claims = JwtClaims.of(ROLE_CLAIM_NAME, role.name(), TOKEN_USE_CLAIM_NAME, tokenUseClaimValue);
+    private Jwt issueToken(JwtType type, Subject subject, Role role, Long expirationTimeMillis, String tokenUseClaim) {
+        var claims = JwtClaims.of(ROLE_CLAIM_NAME, role.name(), TOKEN_USE_CLAIM_NAME, tokenUseClaim);
         var issued = Issued.now();
         var expiration = Expiration.of(issued, expirationTimeMillis);
 
