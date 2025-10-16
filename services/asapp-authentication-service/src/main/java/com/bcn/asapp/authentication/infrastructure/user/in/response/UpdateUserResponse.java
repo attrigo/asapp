@@ -21,7 +21,7 @@ import java.util.UUID;
 /**
  * Response for a successfully updated user.
  *
- * @param id       the user's unique identifier
+ * @param userId   the user's unique identifier
  * @param username the user's username in the email format
  * @param password the user's masked password
  * @param role     the user's role
@@ -29,7 +29,7 @@ import java.util.UUID;
  * @author attrigo
  */
 public record UpdateUserResponse(
-        UUID id,
+        UUID userId,
         String username,
         String password,
         String role
