@@ -55,7 +55,7 @@ public class JwtAuthenticationTokenTests {
     private final Jwt jwt = Jwt.of(encodedToken, ACCESS_TOKEN, subject, claims, issued, expiration);
 
     @Nested
-    class CreateAuthenticatedToken {
+    class CreateJwtAuthenticatedToken {
 
         @Test
         void ThenThrowsIllegalArgumentException_GivenJwtIsNull() {
@@ -86,7 +86,7 @@ public class JwtAuthenticationTokenTests {
         }
 
         @Test
-        void ThenCreatesAuthenticatedToken_GivenParametersAreValid() {
+        void ThenCreatesJwtAuthenticatedToken_GivenParametersAreValid() {
             // When
             var actual = JwtAuthenticationToken.authenticated(jwt);
 

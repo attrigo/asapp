@@ -77,6 +77,71 @@ class JwtDecoderTests {
     class DecodeToken {
 
         @Test
+        void ThenThrowsException_GivenMalformedToken() {
+            // Given
+            var encodedToken = EncodedToken.of("invalid.jwt.token");
+
+            // When
+            var thrown = catchThrowable(() -> jwtDecoder.decode(encodedToken));
+
+            // Then
+            assertThat(thrown).isInstanceOf(MalformedJwtException.class);
+        }
+
+        @Test
+        void ThenThrowsException_GivenTokenHasInvalidSignature() {
+            // Given
+            var differentSecretKey = Keys.hmacShaKeyFor("different-secret-key-with-at-least-32-bytes".getBytes());
+
+            var tokenWithInvalidSignature = Jwts.builder()
+                                                .header()
+                                                .type(ACCESS_TOKEN.type())
+                                                .and()
+                                                .subject(subjectValue)
+                                                .issuedAt(Date.from(issuedAtValue))
+                                                .expiration(Date.from(expirationValue))
+                                                .claims(accessTokenClaimsMap)
+                                                .signWith(differentSecretKey)
+                                                .compact();
+
+            var encodedToken = EncodedToken.of(tokenWithInvalidSignature);
+
+            // When
+            var thrown = catchThrowable(() -> jwtDecoder.decode(encodedToken));
+
+            // Then
+            assertThat(thrown).isInstanceOf(SignatureException.class);
+        }
+
+        @Test
+        void ThenThrowsException_GivenTokenHasExpired() {
+            // Given
+            var issuedAt = Instant.now()
+                                  .minus(1, ChronoUnit.HOURS);
+            var expiresAt = Instant.now()
+                                   .minus(30, ChronoUnit.MINUTES);
+
+            var expiredToken = Jwts.builder()
+                                   .header()
+                                   .type(ACCESS_TOKEN.type())
+                                   .and()
+                                   .subject(subjectValue)
+                                   .issuedAt(Date.from(issuedAt))
+                                   .expiration(Date.from(expiresAt))
+                                   .claims(accessTokenClaimsMap)
+                                   .signWith(secretKey)
+                                   .compact();
+
+            var encodedToken = EncodedToken.of(expiredToken);
+
+            // When
+            var thrown = catchThrowable(() -> jwtDecoder.decode(encodedToken));
+
+            // Then
+            assertThat(thrown).isInstanceOf(ExpiredJwtException.class);
+        }
+
+        @Test
         void ThenReturnsJwt_GivenAccessTokenIsValid() {
             // Given
             var accessToken = Jwts.builder()
@@ -144,71 +209,6 @@ class JwtDecoderTests {
                                        .isEqualTo(refreshTokenClaimsMap);
             assertThat(actual.isAccessToken()).isFalse();
             assertThat(actual.isRefreshToken()).isTrue();
-        }
-
-        @Test
-        void ThenThrowsException_GivenMalformedToken() {
-            // Given
-            var encodedToken = EncodedToken.of("invalid.jwt.token");
-
-            // When
-            var thrown = catchThrowable(() -> jwtDecoder.decode(encodedToken));
-
-            // Then
-            assertThat(thrown).isInstanceOf(MalformedJwtException.class);
-        }
-
-        @Test
-        void ThenThrowsException_GivenTokenHasInvalidSignature() {
-            // Given
-            var differentSecretKey = Keys.hmacShaKeyFor("different-secret-key-with-at-least-32-bytes".getBytes());
-
-            var tokenWithInvalidSignature = Jwts.builder()
-                                                .header()
-                                                .type(ACCESS_TOKEN.type())
-                                                .and()
-                                                .subject(subjectValue)
-                                                .issuedAt(Date.from(issuedAtValue))
-                                                .expiration(Date.from(expirationValue))
-                                                .claims(accessTokenClaimsMap)
-                                                .signWith(differentSecretKey)
-                                                .compact();
-
-            var encodedToken = EncodedToken.of(tokenWithInvalidSignature);
-
-            // When
-            var thrown = catchThrowable(() -> jwtDecoder.decode(encodedToken));
-
-            // Then
-            assertThat(thrown).isInstanceOf(SignatureException.class);
-        }
-
-        @Test
-        void ThenThrowsException_GivenTokenHasExpired() {
-            // Given
-            var issuedAt = Instant.now()
-                                  .minus(1, ChronoUnit.HOURS);
-            var expiresAt = Instant.now()
-                                   .minus(30, ChronoUnit.MINUTES);
-
-            var expiredToken = Jwts.builder()
-                                   .header()
-                                   .type(ACCESS_TOKEN.type())
-                                   .and()
-                                   .subject(subjectValue)
-                                   .issuedAt(Date.from(issuedAt))
-                                   .expiration(Date.from(expiresAt))
-                                   .claims(accessTokenClaimsMap)
-                                   .signWith(secretKey)
-                                   .compact();
-
-            var encodedToken = EncodedToken.of(expiredToken);
-
-            // When
-            var thrown = catchThrowable(() -> jwtDecoder.decode(encodedToken));
-
-            // Then
-            assertThat(thrown).isInstanceOf(ExpiredJwtException.class);
         }
 
     }
