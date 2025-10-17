@@ -38,7 +38,7 @@ class JwtTests {
 
     private final EncodedToken encodedToken = EncodedToken.of("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.encoded");
 
-    private final Subject subject = Subject.of("user");
+    private final Subject subject = Subject.of("user@asapp.com");
 
     private final JwtClaims accessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, ADMIN.name()));
 

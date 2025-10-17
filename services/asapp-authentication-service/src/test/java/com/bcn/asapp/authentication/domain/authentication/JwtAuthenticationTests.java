@@ -46,7 +46,7 @@ class JwtAuthenticationTests {
     @BeforeEach
     void beforeEach() {
         var token = EncodedToken.of("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.encoded");
-        var subject = Subject.of("user");
+        var subject = Subject.of("user@asapp.com");
         var accessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE));
         var refreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE));
         var issued = Issued.now();
