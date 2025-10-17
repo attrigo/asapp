@@ -24,9 +24,9 @@ import java.util.UUID;
  * Encapsulates the data required to modify a user’s account.
  *
  * @param userId   the unique identifier of the user to update
- * @param username the updated username in email format
- * @param password the updated raw password
- * @param role     the updated role
+ * @param username the user's username in the email format
+ * @param password the user's raw password
+ * @param role     the user's role
  * @since 0.2.0
  * @author attrigo
  */

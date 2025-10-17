@@ -31,7 +31,7 @@ import jakarta.validation.constraints.Size;
  *
  * @param username the user's username in the email format; must not be blank and must be a valid email address
  * @param password the user's raw password; must not be blank and must be between 8 and 64 characters
- * @param role     the user's role as; must not be blank and must be a valid Role
+ * @param role     the user's role; must not be blank and must be a valid Role
  * @since 0.2.0
  * @author attrigo
  */
