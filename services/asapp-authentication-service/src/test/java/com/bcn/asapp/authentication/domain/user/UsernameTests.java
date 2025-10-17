@@ -19,9 +19,12 @@ package com.bcn.asapp.authentication.domain.user;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 class UsernameTests {
@@ -42,7 +45,8 @@ class UsernameTests {
                               .hasMessage("Username must not be null or empty");
         }
 
-        @Test
+        @ParameterizedTest
+        @MethodSource("com.bcn.asapp.authentication.domain.user.UsernameTests#provideInvalidUsernames")
         void ThenThrowsIllegalArgumentException_GivenUsernameIsNotEmail() {
             // When
             var thrown = catchThrowable(() -> new Username("username_not_email"));
@@ -52,7 +56,8 @@ class UsernameTests {
                               .hasMessage("Username must be a valid email address");
         }
 
-        @Test
+        @ParameterizedTest
+        @MethodSource("com.bcn.asapp.authentication.domain.user.UsernameTests#provideValidUsernames")
         void ThenReturnsUsername_GivenUsernameIsValid() {
             // When
             var actual = new Username(usernameValue);
@@ -77,7 +82,8 @@ class UsernameTests {
                               .hasMessage("Username must not be null or empty");
         }
 
-        @Test
+        @ParameterizedTest
+        @MethodSource("com.bcn.asapp.authentication.domain.user.UsernameTests#provideInvalidUsernames")
         void ThenThrowsIllegalArgumentException_GivenUsernameIsNotEmail() {
             // When
             var thrown = catchThrowable(() -> Username.of("username_not_email"));
@@ -87,7 +93,8 @@ class UsernameTests {
                               .hasMessage("Username must be a valid email address");
         }
 
-        @Test
+        @ParameterizedTest
+        @MethodSource("com.bcn.asapp.authentication.domain.user.UsernameTests#provideValidUsernames")
         void ThenReturnsUsername_GivenUsernameIsValid() {
             // When
             var actual = Username.of(usernameValue);
@@ -113,6 +120,89 @@ class UsernameTests {
             assertThat(actual).isEqualTo(usernameValue);
         }
 
+    }
+
+    private static Stream<String> provideValidUsernames() {
+        return Stream.of(
+                // Standard formats
+                "user@example.com", "user@domain.co.uk", "firstname.lastname@example.com",
+
+                // Numbers in local part
+                "user123@example.com", "123user@example.com", "user.123@example.com",
+
+                // Underscore
+                "user_name@example.com", "first_last@example.com", "_user@example.com",
+
+                // Hyphen in local part and domain
+                "user-name@example.com", "user@my-domain.com", "user@sub-domain.example.com",
+
+                // Plus sign (common for email aliases)
+                "user+tag@example.com", "user+filter@example.com",
+
+                // Dots
+                "u.s.e.r@example.com", "user@sub.domain.example.com",
+
+                // Special characters allowed by your regex
+                "user!name@example.com", "user#name@example.com", "user$name@example.com", "user%name@example.com", "user&name@example.com",
+                "user'name@example.com", "user*name@example.com", "user/name@example.com", "user=name@example.com", "user?name@example.com",
+                "user`name@example.com", "user{name@example.com", "user|name@example.com", "user}name@example.com", "user~name@example.com",
+                "user^name@example.com",
+
+                // Short formats
+                "a@b.co", "x@y.io",
+
+                // Numeric domains
+                "user@123.456.789.012", "user@domain123.com",
+
+                // Mixed case (though should normalize to lowercase)
+                "User@Example.Com", "ADMIN@DOMAIN.COM");
+    }
+
+    private static Stream<String> provideInvalidUsernames() {
+        return Stream.of(
+                // Missing @ symbol
+                "userexample.com", "user.example.com",
+
+                // Missing local part
+                "@example.com",
+
+                // Missing domain
+                "user@",
+
+                // Multiple @ symbols
+                "user@@example.com", "user@domain@example.com",
+
+                // Invalid characters in local part
+                "user name@example.com", // space
+                "user\"name@example.com", // quotes (outside quotes context)
+                "user(name)@example.com", // parentheses
+                "user,name@example.com", // comma
+                "user:name@example.com", // colon
+                "user;name@example.com", // semicolon
+                "user<name>@example.com", // angle brackets
+                "user[name]@example.com", // square brackets
+                "user\\name@example.com", // backslash
+
+                // Invalid domain formats
+                "user@", // empty domain
+                "user@.com", // domain starts with dot
+                "user@example.", // domain ends with dot
+                "user@example..com", // consecutive dots
+                "user@domain .com", // space in domain
+                "user@-example.com", // domain starts with hyphen
+                "user@example-.com", // domain ends with hyphen
+
+                // Leading/trailing dots
+                ".user@example.com", "user.@example.com", "user@.example.com", "user@example.com.",
+
+                // Double dots
+                "user..name@example.com",
+
+                // Just whitespace
+                "   ",
+
+                // Special edge cases
+                "user@", "@", "user", "example.com");
     }
 
 }
