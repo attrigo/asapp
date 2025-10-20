@@ -35,7 +35,7 @@ import com.bcn.asapp.authentication.infrastructure.security.InvalidPrincipalExce
 import com.bcn.asapp.authentication.infrastructure.security.RoleNotFoundException;
 
 /**
- * Adapter implementation of {@link Authenticator} for authenticating users.
+ * Default implementation of {@link Authenticator} for authenticating users.
  * <p>
  * Bridges the application layer with Spring Security's {@link AuthenticationManager}, validating user credentials and extracting authenticated user
  * information.
@@ -45,9 +45,9 @@ import com.bcn.asapp.authentication.infrastructure.security.RoleNotFoundExceptio
  * @author attrigo
  */
 @Component
-public class AuthenticatorAdapter implements Authenticator {
+public class DefaultAuthenticator implements Authenticator {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticatorAdapter.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultAuthenticator.class);
 
     private final AuthenticationManager authenticationManager;
 
@@ -56,7 +56,7 @@ public class AuthenticatorAdapter implements Authenticator {
      *
      * @param authenticationManager the Spring Security authentication manager
      */
-    public AuthenticatorAdapter(org.springframework.security.authentication.AuthenticationManager authenticationManager) {
+    public DefaultAuthenticator(org.springframework.security.authentication.AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
 

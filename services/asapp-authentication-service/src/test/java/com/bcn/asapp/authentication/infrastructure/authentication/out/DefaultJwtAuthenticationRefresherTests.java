@@ -58,7 +58,7 @@ import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtAuthentica
 import com.bcn.asapp.authentication.infrastructure.security.JwtIssuer;
 
 @ExtendWith(MockitoExtension.class)
-class AuthenticationRefresherAdapterTests {
+class DefaultJwtAuthenticationRefresherTests {
 
     @Mock
     private JwtIssuer jwtIssuer;
@@ -67,7 +67,7 @@ class AuthenticationRefresherAdapterTests {
     private JwtAuthenticationRepository jwtAuthenticationRepository;
 
     @InjectMocks
-    private AuthenticationRefresherAdapter authenticationRefresherAdapter;
+    private DefaultJwtAuthenticationRefresher defaultJwtAuthenticationRefresher;
 
     private Subject subject;
 
@@ -111,7 +111,7 @@ class AuthenticationRefresherAdapterTests {
                                                                     .issueAccessToken(subject, role);
 
             // When
-            var thrown = catchThrowable(() -> authenticationRefresherAdapter.refreshAuthentication(jwtAuthentication));
+            var thrown = catchThrowable(() -> defaultJwtAuthenticationRefresher.refreshAuthentication(jwtAuthentication));
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
@@ -133,7 +133,7 @@ class AuthenticationRefresherAdapterTests {
                                                                     .issueRefreshToken(subject, role);
 
             // When
-            var thrown = catchThrowable(() -> authenticationRefresherAdapter.refreshAuthentication(jwtAuthentication));
+            var thrown = catchThrowable(() -> defaultJwtAuthenticationRefresher.refreshAuthentication(jwtAuthentication));
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
@@ -156,7 +156,7 @@ class AuthenticationRefresherAdapterTests {
                                                                      .save(jwtAuthentication);
 
             // When
-            var thrown = catchThrowable(() -> authenticationRefresherAdapter.refreshAuthentication(jwtAuthentication));
+            var thrown = catchThrowable(() -> defaultJwtAuthenticationRefresher.refreshAuthentication(jwtAuthentication));
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
@@ -178,7 +178,7 @@ class AuthenticationRefresherAdapterTests {
             given(jwtAuthenticationRepository.save(jwtAuthentication)).willReturn(jwtAuthentication);
 
             // When
-            var actual = authenticationRefresherAdapter.refreshAuthentication(jwtAuthentication);
+            var actual = defaultJwtAuthenticationRefresher.refreshAuthentication(jwtAuthentication);
 
             // Then
             assertThat(actual).isEqualTo(jwtAuthentication);

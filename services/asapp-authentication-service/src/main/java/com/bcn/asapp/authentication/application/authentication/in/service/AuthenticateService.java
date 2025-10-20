@@ -19,8 +19,8 @@ package com.bcn.asapp.authentication.application.authentication.in.service;
 import com.bcn.asapp.authentication.application.ApplicationService;
 import com.bcn.asapp.authentication.application.authentication.in.AuthenticateUseCase;
 import com.bcn.asapp.authentication.application.authentication.in.command.AuthenticateCommand;
-import com.bcn.asapp.authentication.application.authentication.out.AuthenticationGranter;
 import com.bcn.asapp.authentication.application.authentication.out.Authenticator;
+import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationGranter;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
 import com.bcn.asapp.authentication.domain.user.RawPassword;
@@ -37,17 +37,17 @@ public class AuthenticateService implements AuthenticateUseCase {
 
     private final Authenticator authenticator;
 
-    private final AuthenticationGranter authenticationGranter;
+    private final JwtAuthenticationGranter jwtAuthenticationGranter;
 
     /**
      * Constructs a new {@code AuthenticateService} with required dependencies.
      *
-     * @param authenticator         the authenticator for validating credentials
-     * @param authenticationGranter the authentication granter for generating JWT tokens
+     * @param authenticator            the authenticator for validating credentials
+     * @param jwtAuthenticationGranter the authentication granter for generating JWT tokens
      */
-    public AuthenticateService(Authenticator authenticator, AuthenticationGranter authenticationGranter) {
+    public AuthenticateService(Authenticator authenticator, JwtAuthenticationGranter jwtAuthenticationGranter) {
         this.authenticator = authenticator;
-        this.authenticationGranter = authenticationGranter;
+        this.jwtAuthenticationGranter = jwtAuthenticationGranter;
     }
 
     /**
@@ -67,7 +67,7 @@ public class AuthenticateService implements AuthenticateUseCase {
 
         var authentication = authenticator.authenticate(userAuthenticationRequest);
 
-        return authenticationGranter.grantAuthentication(authentication);
+        return jwtAuthenticationGranter.grantAuthentication(authentication);
     }
 
 }

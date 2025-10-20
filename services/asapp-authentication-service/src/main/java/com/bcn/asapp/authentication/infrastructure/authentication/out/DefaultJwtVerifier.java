@@ -33,7 +33,7 @@ import com.bcn.asapp.authentication.infrastructure.security.JwtDecoder;
 import com.bcn.asapp.authentication.infrastructure.security.UnexpectedJwtTypeException;
 
 /**
- * Adapter implementation of {@link JwtVerifier} for validating JWT tokens.
+ * Default implementation of {@link JwtVerifier} for validating JWT tokens.
  * <p>
  * Bridges the application layer with the infrastructure layer, decoding and verifying JWT tokens and retrieving their associated authentications from the
  * repository.
@@ -42,9 +42,9 @@ import com.bcn.asapp.authentication.infrastructure.security.UnexpectedJwtTypeExc
  * @author attrigo
  */
 @Component
-public class JwtVerifierAdapter implements JwtVerifier {
+public class DefaultJwtVerifier implements JwtVerifier {
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtVerifierAdapter.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultJwtVerifier.class);
 
     private final JwtDecoder jwtDecoder;
 
@@ -56,7 +56,7 @@ public class JwtVerifierAdapter implements JwtVerifier {
      * @param jwtDecoder                  the JWT decoder for decoding and validating tokens
      * @param jwtAuthenticationRepository the JWT authentication repository
      */
-    public JwtVerifierAdapter(JwtDecoder jwtDecoder, JwtAuthenticationRepository jwtAuthenticationRepository) {
+    public DefaultJwtVerifier(JwtDecoder jwtDecoder, JwtAuthenticationRepository jwtAuthenticationRepository) {
         this.jwtDecoder = jwtDecoder;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }

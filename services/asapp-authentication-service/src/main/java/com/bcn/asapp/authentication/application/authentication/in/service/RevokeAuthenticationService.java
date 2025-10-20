@@ -18,7 +18,7 @@ package com.bcn.asapp.authentication.application.authentication.in.service;
 
 import com.bcn.asapp.authentication.application.ApplicationService;
 import com.bcn.asapp.authentication.application.authentication.in.RevokeAuthenticationUseCase;
-import com.bcn.asapp.authentication.application.authentication.out.AuthenticationRevoker;
+import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRevoker;
 import com.bcn.asapp.authentication.application.authentication.out.JwtVerifier;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 
@@ -33,17 +33,17 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
 
     private final JwtVerifier jwtVerifier;
 
-    private final AuthenticationRevoker authenticationRevoker;
+    private final JwtAuthenticationRevoker jwtAuthenticationRevoker;
 
     /**
      * Constructs a new {@code RevokeAuthenticationService} with required dependencies.
      *
-     * @param jwtVerifier           the JWT verifier for validating access tokens
-     * @param authenticationRevoker the JWT revoker for removing authentications
+     * @param jwtVerifier              the JWT verifier for validating access tokens
+     * @param jwtAuthenticationRevoker the JWT revoker for removing authentications
      */
-    public RevokeAuthenticationService(JwtVerifier jwtVerifier, AuthenticationRevoker authenticationRevoker) {
+    public RevokeAuthenticationService(JwtVerifier jwtVerifier, JwtAuthenticationRevoker jwtAuthenticationRevoker) {
         this.jwtVerifier = jwtVerifier;
-        this.authenticationRevoker = authenticationRevoker;
+        this.jwtAuthenticationRevoker = jwtAuthenticationRevoker;
     }
 
     /**
@@ -60,7 +60,7 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
 
         var authentication = jwtVerifier.verifyAccessToken(rawAccessToken);
 
-        authenticationRevoker.revokeAuthentication(authentication);
+        jwtAuthenticationRevoker.revokeAuthentication(authentication);
     }
 
 }

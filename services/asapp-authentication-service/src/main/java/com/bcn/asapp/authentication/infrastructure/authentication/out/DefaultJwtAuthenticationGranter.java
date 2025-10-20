@@ -21,14 +21,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Component;
 
-import com.bcn.asapp.authentication.application.authentication.out.AuthenticationGranter;
+import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationGranter;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
 import com.bcn.asapp.authentication.infrastructure.security.JwtIssuer;
 
 /**
- * Adapter implementation of {@link AuthenticationGranter} for issuing JWT tokens.
+ * Default implementation of {@link JwtAuthenticationGranter} for issuing JWT tokens.
  * <p>
  * Bridges the application layer with the infrastructure layer, issuing JWT tokens and storing them in the repository.
  *
@@ -36,9 +36,9 @@ import com.bcn.asapp.authentication.infrastructure.security.JwtIssuer;
  * @author attrigo
  */
 @Component
-public class AuthenticationGranterAdapter implements AuthenticationGranter {
+public class DefaultJwtAuthenticationGranter implements JwtAuthenticationGranter {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationGranterAdapter.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultJwtAuthenticationGranter.class);
 
     private final JwtIssuer jwtIssuer;
 
@@ -50,7 +50,7 @@ public class AuthenticationGranterAdapter implements AuthenticationGranter {
      * @param jwtIssuer                   the JWT issuer for generating tokens
      * @param jwtAuthenticationRepository the JWT authentication repository
      */
-    public AuthenticationGranterAdapter(JwtIssuer jwtIssuer, JwtAuthenticationRepository jwtAuthenticationRepository) {
+    public DefaultJwtAuthenticationGranter(JwtIssuer jwtIssuer, JwtAuthenticationRepository jwtAuthenticationRepository) {
         this.jwtIssuer = jwtIssuer;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }
