@@ -52,13 +52,13 @@ import com.bcn.asapp.authentication.domain.user.UserId;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtAuthenticationException;
 
 @ExtendWith(MockitoExtension.class)
-class AuthenticationRevokerAdapterTests {
+class DefaultJwtAuthenticationRevokerTests {
 
     @Mock
     private JwtAuthenticationRepository jwtAuthenticationRepository;
 
     @InjectMocks
-    private AuthenticationRevokerAdapter authenticationRevokerAdapter;
+    private DefaultJwtAuthenticationRevoker defaultAuthenticationRevoker;
 
     private JwtAuthenticationId jwtAuthenticationId;
 
@@ -91,7 +91,7 @@ class AuthenticationRevokerAdapterTests {
                                                                             .deleteById(jwtAuthenticationId);
 
             // When
-            var thrown = catchThrowable(() -> authenticationRevokerAdapter.revokeAuthentication(jwtAuthentication));
+            var thrown = catchThrowable(() -> defaultAuthenticationRevoker.revokeAuthentication(jwtAuthentication));
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
@@ -109,7 +109,7 @@ class AuthenticationRevokerAdapterTests {
                            .deleteById(jwtAuthenticationId);
 
             // When
-            authenticationRevokerAdapter.revokeAuthentication(jwtAuthentication);
+            defaultAuthenticationRevoker.revokeAuthentication(jwtAuthentication);
 
             // Then
             then(jwtAuthenticationRepository).should(times(1))

@@ -28,7 +28,7 @@ import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
  * @author attrigo
  */
 @FunctionalInterface
-public interface AuthenticationGranter {
+public interface JwtAuthenticationGranter {
 
     /**
      * Grants a JWT authentication for an authenticated user.

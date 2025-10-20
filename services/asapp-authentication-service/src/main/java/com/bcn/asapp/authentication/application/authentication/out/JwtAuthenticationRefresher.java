@@ -27,7 +27,7 @@ import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
  * @author attrigo
  */
 @FunctionalInterface
-public interface AuthenticationRefresher {
+public interface JwtAuthenticationRefresher {
 
     /**
      * Refreshes a JWT authentication with new tokens.

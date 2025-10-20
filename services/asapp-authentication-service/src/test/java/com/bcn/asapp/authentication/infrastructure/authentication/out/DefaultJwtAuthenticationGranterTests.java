@@ -58,7 +58,7 @@ import com.bcn.asapp.authentication.domain.user.Username;
 import com.bcn.asapp.authentication.infrastructure.security.JwtIssuer;
 
 @ExtendWith(MockitoExtension.class)
-class AuthenticationGranterAdapterTests {
+class DefaultJwtAuthenticationGranterTests {
 
     @Mock
     private JwtIssuer jwtIssuer;
@@ -67,7 +67,7 @@ class AuthenticationGranterAdapterTests {
     private JwtAuthenticationRepository jwtAuthenticationRepository;
 
     @InjectMocks
-    private AuthenticationGranterAdapter authenticationGranterAdapter;
+    private DefaultJwtAuthenticationGranter defaultAuthenticationGranter;
 
     private UserId userId;
 
@@ -105,7 +105,7 @@ class AuthenticationGranterAdapterTests {
                                                                     .issueAccessToken(userAuthentication);
 
             // When
-            var thrown = catchThrowable(() -> authenticationGranterAdapter.grantAuthentication(userAuthentication));
+            var thrown = catchThrowable(() -> defaultAuthenticationGranter.grantAuthentication(userAuthentication));
 
             // Then
             assertThat(thrown).isInstanceOf(BadCredentialsException.class)
@@ -127,7 +127,7 @@ class AuthenticationGranterAdapterTests {
                                                                     .issueRefreshToken(userAuthentication);
 
             // When
-            var thrown = catchThrowable(() -> authenticationGranterAdapter.grantAuthentication(userAuthentication));
+            var thrown = catchThrowable(() -> defaultAuthenticationGranter.grantAuthentication(userAuthentication));
 
             // Then
             assertThat(thrown).isInstanceOf(BadCredentialsException.class)
@@ -150,7 +150,7 @@ class AuthenticationGranterAdapterTests {
                                                                      .save(any(JwtAuthentication.class));
 
             // When
-            var thrown = catchThrowable(() -> authenticationGranterAdapter.grantAuthentication(userAuthentication));
+            var thrown = catchThrowable(() -> defaultAuthenticationGranter.grantAuthentication(userAuthentication));
 
             // Then
             assertThat(thrown).isInstanceOf(BadCredentialsException.class)
@@ -174,7 +174,7 @@ class AuthenticationGranterAdapterTests {
             given(jwtAuthenticationRepository.save(any(JwtAuthentication.class))).willReturn(jwtAuthentication);
 
             // When
-            var actual = authenticationGranterAdapter.grantAuthentication(userAuthentication);
+            var actual = defaultAuthenticationGranter.grantAuthentication(userAuthentication);
 
             // Then
             assertThat(actual).isEqualTo(jwtAuthentication);

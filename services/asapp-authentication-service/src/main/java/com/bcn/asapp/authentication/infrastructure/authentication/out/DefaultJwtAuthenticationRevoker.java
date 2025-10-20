@@ -20,13 +20,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.bcn.asapp.authentication.application.authentication.out.AuthenticationRevoker;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
+import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRevoker;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtAuthenticationException;
 
 /**
- * Adapter implementation of {@link AuthenticationRevoker} for removing JWT authentications.
+ * Default implementation of {@link JwtAuthenticationRevoker} for removing JWT authentications.
  * <p>
  * Bridges the application layer with the infrastructure layer, removing JWT tokens from the repository.
  *
@@ -34,9 +34,9 @@ import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtAuthentica
  * @author attrigo
  */
 @Component
-public class AuthenticationRevokerAdapter implements AuthenticationRevoker {
+public class DefaultJwtAuthenticationRevoker implements JwtAuthenticationRevoker {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationRevokerAdapter.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultJwtAuthenticationRevoker.class);
 
     private final JwtAuthenticationRepository jwtAuthenticationRepository;
 
@@ -45,7 +45,7 @@ public class AuthenticationRevokerAdapter implements AuthenticationRevoker {
      *
      * @param jwtAuthenticationRepository the JWT authentication repository
      */
-    public AuthenticationRevokerAdapter(JwtAuthenticationRepository jwtAuthenticationRepository) {
+    public DefaultJwtAuthenticationRevoker(JwtAuthenticationRepository jwtAuthenticationRepository) {
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }
 

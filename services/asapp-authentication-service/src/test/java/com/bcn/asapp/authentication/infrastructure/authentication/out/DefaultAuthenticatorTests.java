@@ -49,13 +49,13 @@ import com.bcn.asapp.authentication.infrastructure.security.InvalidPrincipalExce
 import com.bcn.asapp.authentication.infrastructure.security.RoleNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
-class AuthenticatorAdapterTests {
+class DefaultAuthenticatorTests {
 
     @Mock
     private AuthenticationManager authenticationManager;
 
     @InjectMocks
-    private AuthenticatorAdapter authenticatorAdapter;
+    private DefaultAuthenticator defaultAuthenticator;
 
     private Username username;
 
@@ -86,7 +86,7 @@ class AuthenticatorAdapterTests {
                                                                          .authenticate(any(UsernamePasswordAuthenticationToken.class));
 
             // When
-            var thrown = catchThrowable(() -> authenticatorAdapter.authenticate(authenticationRequest));
+            var thrown = catchThrowable(() -> defaultAuthenticator.authenticate(authenticationRequest));
 
             // Then
             assertThat(thrown).isInstanceOf(BadCredentialsException.class)
@@ -104,7 +104,7 @@ class AuthenticatorAdapterTests {
             given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(authenticationToken);
 
             // When
-            var thrown = catchThrowable(() -> authenticatorAdapter.authenticate(authenticationRequest));
+            var thrown = catchThrowable(() -> defaultAuthenticator.authenticate(authenticationRequest));
 
             // Then
             assertThat(thrown).isInstanceOf(BadCredentialsException.class)
@@ -124,7 +124,7 @@ class AuthenticatorAdapterTests {
             given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(authenticationToken);
 
             // When
-            var thrown = catchThrowable(() -> authenticatorAdapter.authenticate(authenticationRequest));
+            var thrown = catchThrowable(() -> defaultAuthenticator.authenticate(authenticationRequest));
 
             // Then
             assertThat(thrown).isInstanceOf(BadCredentialsException.class)
@@ -144,7 +144,7 @@ class AuthenticatorAdapterTests {
             given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(authenticationToken);
 
             // When
-            var actual = authenticatorAdapter.authenticate(authenticationRequest);
+            var actual = defaultAuthenticator.authenticate(authenticationRequest);
 
             // Then
             assertThat(actual).isNotNull();

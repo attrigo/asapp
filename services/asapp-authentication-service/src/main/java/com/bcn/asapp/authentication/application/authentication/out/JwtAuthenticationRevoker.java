@@ -27,7 +27,7 @@ import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
  * @author attrigo
  */
 @FunctionalInterface
-public interface AuthenticationRevoker {
+public interface JwtAuthenticationRevoker {
 
     /**
      * Revokes a JWT authentication session.
