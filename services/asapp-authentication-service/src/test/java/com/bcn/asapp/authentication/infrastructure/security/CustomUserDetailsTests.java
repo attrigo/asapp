@@ -26,17 +26,14 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
-import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import com.bcn.asapp.authentication.domain.user.Role;
 
-@ExtendWith(MockitoExtension.class)
 public class CustomUserDetailsTests {
 
     private final UUID userIdValue = UUID.randomUUID();
