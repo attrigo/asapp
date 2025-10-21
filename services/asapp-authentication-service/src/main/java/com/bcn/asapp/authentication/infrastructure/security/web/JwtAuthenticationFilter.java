@@ -134,9 +134,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             SecurityContextHolder.setContext(newContext);
 
         } catch (InvalidJwtException e) {
-            logger.warn("Invalid bearer token: {}", bearerToken, e);
+            logger.warn("Invalid bearer token {}", bearerToken, e);
         } catch (Exception e) {
-            logger.warn("Error authenticating the bearer token: {}", bearerToken, e);
+            logger.warn("Error authenticating the bearer token {}", bearerToken, e);
         }
 
         filterChain.doFilter(request, response);

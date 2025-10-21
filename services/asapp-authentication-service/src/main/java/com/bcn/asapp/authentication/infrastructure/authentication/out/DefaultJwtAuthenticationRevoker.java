@@ -59,7 +59,7 @@ public class DefaultJwtAuthenticationRevoker implements JwtAuthenticationRevoker
      */
     @Override
     public void revokeAuthentication(JwtAuthentication authentication) {
-        logger.trace("Revoking authentication with id: {}", authentication.getId());
+        logger.trace("Revoking authentication with id {}", authentication.getId());
 
         try {
             jwtAuthenticationRepository.deleteById(authentication.getId());
