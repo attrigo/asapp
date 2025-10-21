@@ -114,7 +114,7 @@ public class JwtIssuer {
      * @return the generated {@link Jwt} access token
      */
     public Jwt issueAccessToken(Subject subject, Role role) {
-        logger.trace("Issuing access token for subject: {} and role: {}", subject, role);
+        logger.trace("Issuing access token for subject {} and role {}", subject, role);
 
         return issueToken(ACCESS_TOKEN, subject, role, accessTokenExpirationTime, ACCESS_TOKEN_USE_CLAIM_VALUE);
     }
@@ -140,7 +140,7 @@ public class JwtIssuer {
      * @return the generated {@link Jwt} refresh token
      */
     public Jwt issueRefreshToken(Subject subject, Role role) {
-        logger.trace("Issuing refresh token for subject: {} and role: {}", subject, role);
+        logger.trace("Issuing refresh token for subject {} and role {}", subject, role);
 
         return issueToken(REFRESH_TOKEN, subject, role, refreshTokenExpirationTime, REFRESH_TOKEN_USE_CLAIM_VALUE);
     }
@@ -177,7 +177,7 @@ public class JwtIssuer {
      * @return the signed JWT token string
      */
     private String issueToken(JwtType tokenType, Subject subject, JwtClaims claims, Issued issuedAt, Expiration expiration) {
-        logger.trace("Issuing {} token for subject: {} with claims: {}, issued at {} that will expire at {}", tokenType, subject, claims, issuedAt, expiration);
+        logger.trace("Issuing {} token for subject {} with claims {}, issued at {} that will expire at {}", tokenType, subject, claims, issuedAt, expiration);
 
         return Jwts.builder()
                    .header()

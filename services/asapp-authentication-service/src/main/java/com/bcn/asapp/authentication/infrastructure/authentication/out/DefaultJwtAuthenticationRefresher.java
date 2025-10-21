@@ -66,7 +66,7 @@ public class DefaultJwtAuthenticationRefresher implements JwtAuthenticationRefre
      */
     @Override
     public JwtAuthentication refreshAuthentication(JwtAuthentication jwtAuthentication) {
-        logger.trace("Refreshing authentication with id: {}", jwtAuthentication.getId());
+        logger.trace("Refreshing authentication with id {}", jwtAuthentication.getId());
 
         try {
             var currentAccessToken = jwtAuthentication.accessToken();

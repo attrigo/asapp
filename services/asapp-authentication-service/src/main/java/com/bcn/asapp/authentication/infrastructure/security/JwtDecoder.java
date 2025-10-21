@@ -76,7 +76,7 @@ public class JwtDecoder {
      * @throws io.jsonwebtoken.JwtException if the token is invalid, malformed, or expired
      */
     public Jwt decode(EncodedToken encodedToken) {
-        logger.trace("Decoding token: {}", encodedToken);
+        logger.trace("Decoding token {}", encodedToken);
 
         var jwsClaims = parseToken(encodedToken);
 
@@ -91,7 +91,7 @@ public class JwtDecoder {
      * @throws io.jsonwebtoken.JwtException if parsing or verification fails
      */
     private Jws<Claims> parseToken(EncodedToken encodedToken) {
-        logger.trace("Parsing token: {}", encodedToken);
+        logger.trace("Parsing token {}", encodedToken);
 
         return Jwts.parser()
                    .verifyWith(secretKey)
@@ -108,7 +108,7 @@ public class JwtDecoder {
      * @return the constructed {@link Jwt} domain object
      */
     private Jwt buildJwt(EncodedToken encodedToken, Jws<Claims> jwsClaims) {
-        logger.trace("Building JWT: {}", encodedToken);
+        logger.trace("Building JWT with encoded token {} and claims {}", encodedToken, jwsClaims);
 
         var tokenHeader = jwsClaims.getHeader();
         var tokenPayload = jwsClaims.getPayload();
