@@ -364,7 +364,7 @@ class UserControllerIT extends WebMvcTestContext {
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_UserIdPathIsInvalid() {
             // When & Then
             var userIdPath = 1L;
-            var userToUpdate = """
+            var requestBody = """
                     {
                     "username": "%s",
                     "password": "%s",
@@ -373,7 +373,7 @@ class UserControllerIT extends WebMvcTestContext {
                     """.formatted(DEFAULT_FAKE_USERNAME, DEFAULT_FAKE_RAW_PASSWORD, DEFAULT_FAKE_ROLE.name());
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
-                                                                              .content(userToUpdate);
+                                                                              .content(requestBody);
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
