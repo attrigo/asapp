@@ -24,10 +24,10 @@ import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
 import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
 import static com.bcn.asapp.authentication.testutil.JwtAssertions.assertThatJwt;
+import static com.bcn.asapp.authentication.testutil.TestDataFaker.EncodedJwtDataFaker.fakeEncodedJwtBuilder;
 import static com.bcn.asapp.authentication.testutil.TestDataFaker.JwtAuthenticationDataFaker.fakeJwtAuthenticationBuilder;
 import static com.bcn.asapp.authentication.testutil.TestDataFaker.JwtDataFaker.defaultFakeAccessToken;
 import static com.bcn.asapp.authentication.testutil.TestDataFaker.JwtDataFaker.defaultFakeRefreshToken;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.RawJwtDataFaker.fakeRawJwtBuilder;
 import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_RAW_PASSWORD;
 import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.defaultFakeUser;
 import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.fakeUserBuilder;
@@ -281,9 +281,9 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_RefreshTokenHasExpired() {
             // When
-            var refreshToken = fakeRawJwtBuilder().refreshToken()
-                                                  .expired()
-                                                  .build();
+            var refreshToken = fakeEncodedJwtBuilder().refreshToken()
+                                                      .expired()
+                                                      .build();
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken);
 
             webTestClient.post()
@@ -309,9 +309,9 @@ class AuthenticationE2EIT {
             assertThat(userCreated).isNotNull();
 
             // When
-            var refreshToken = fakeRawJwtBuilder().refreshToken()
-                                                  .withSubject("SUBJECT_NOT_EXISTS")
-                                                  .build();
+            var refreshToken = fakeEncodedJwtBuilder().refreshToken()
+                                                      .withSubject("SUBJECT_NOT_EXISTS")
+                                                      .build();
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken);
 
             webTestClient.post()
@@ -488,9 +488,9 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_AccessTokenHasExpired() {
             // When
-            var accessToken = fakeRawJwtBuilder().accessToken()
-                                                 .expired()
-                                                 .build();
+            var accessToken = fakeEncodedJwtBuilder().accessToken()
+                                                     .expired()
+                                                     .build();
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken);
 
             webTestClient.post()
@@ -516,9 +516,9 @@ class AuthenticationE2EIT {
             assertThat(userCreated).isNotNull();
 
             // When
-            var accessToken = fakeRawJwtBuilder().accessToken()
-                                                 .withSubject("SUBJECT_NOT_EXISTS")
-                                                 .build();
+            var accessToken = fakeEncodedJwtBuilder().accessToken()
+                                                     .withSubject("SUBJECT_NOT_EXISTS")
+                                                     .build();
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken);
 
             webTestClient.post()

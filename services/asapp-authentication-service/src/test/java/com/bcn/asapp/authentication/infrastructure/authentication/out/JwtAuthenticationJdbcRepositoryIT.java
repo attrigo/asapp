@@ -18,9 +18,9 @@ package com.bcn.asapp.authentication.infrastructure.authentication.out;
 
 import static com.bcn.asapp.authentication.domain.authentication.Jwt.ROLE_CLAIM_NAME;
 import static com.bcn.asapp.authentication.testutil.JwtAssertions.assertThatJwt;
+import static com.bcn.asapp.authentication.testutil.TestDataFaker.EncodedJwtDataFaker.defaultFakeEncodedAccessToken;
+import static com.bcn.asapp.authentication.testutil.TestDataFaker.EncodedJwtDataFaker.defaultFakeEncodedRefreshToken;
 import static com.bcn.asapp.authentication.testutil.TestDataFaker.JwtAuthenticationDataFaker.fakeJwtAuthenticationBuilder;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.RawJwtDataFaker.defaultFakeRawAccessToken;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.RawJwtDataFaker.defaultFakeRawRefreshToken;
 import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.defaultFakeUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -62,7 +62,7 @@ class JwtAuthenticationJdbcRepositoryIT {
         @Test
         void DoesNotFindJwtAuthenticationAndReturnsEmptyOptional_JwtAuthenticationNotExists() {
             // When
-            var accessToken = defaultFakeRawAccessToken();
+            var accessToken = defaultFakeEncodedAccessToken();
 
             var actualJwtAuthentication = jwtAuthenticationRepository.findByAccessTokenToken(accessToken);
 
@@ -101,7 +101,7 @@ class JwtAuthenticationJdbcRepositoryIT {
         @Test
         void DoesNotFindJwtAuthenticationAndReturnsEmptyOptional_JwtAuthenticationNotExists() {
             // When
-            var accessToken = defaultFakeRawRefreshToken();
+            var accessToken = defaultFakeEncodedRefreshToken();
 
             var actualJwtAuthentication = jwtAuthenticationRepository.findByRefreshTokenToken(accessToken);
 
