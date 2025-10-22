@@ -34,7 +34,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import com.bcn.asapp.authentication.domain.user.Role;
 
-public class CustomUserDetailsTests {
+class CustomUserDetailsTests {
 
     private final UUID userIdValue = UUID.randomUUID();
 

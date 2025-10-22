@@ -37,7 +37,7 @@ import com.bcn.asapp.authentication.domain.authentication.Jwt;
 import com.bcn.asapp.authentication.domain.authentication.JwtClaims;
 import com.bcn.asapp.authentication.domain.authentication.Subject;
 
-public class JwtAuthenticationTokenTests {
+class JwtAuthenticationTokenTests {
 
     private final EncodedToken encodedToken = EncodedToken.of("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.encoded");
 

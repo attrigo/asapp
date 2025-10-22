@@ -42,7 +42,7 @@ import com.bcn.asapp.authentication.infrastructure.user.out.UserJdbcRepository;
 import com.bcn.asapp.authentication.infrastructure.user.out.entity.UserEntity;
 
 @ExtendWith(MockitoExtension.class)
-public class CustomUserDetailsServiceTests {
+class CustomUserDetailsServiceTests {
 
     @Mock
     private UserJdbcRepository userRepositoryMock;
