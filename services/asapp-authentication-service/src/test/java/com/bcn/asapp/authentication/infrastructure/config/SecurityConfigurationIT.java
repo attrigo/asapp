@@ -16,9 +16,9 @@
 
 package com.bcn.asapp.authentication.infrastructure.config;
 
+import static com.bcn.asapp.authentication.testutil.TestDataFaker.EncodedJwtDataFaker.fakeEncodedJwtBuilder;
 import static com.bcn.asapp.authentication.testutil.TestDataFaker.JwtAuthenticationDataFaker.fakeJwtAuthenticationBuilder;
 import static com.bcn.asapp.authentication.testutil.TestDataFaker.JwtDataFaker.defaultFakeRefreshToken;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.RawJwtDataFaker.fakeRawJwtBuilder;
 import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.defaultFakeUser;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -115,9 +115,9 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsExpiredBearerTokenWithWrongSignature() {
             // When & Then
-            var bearerToken = "Bearer " + fakeRawJwtBuilder().accessToken()
-                                                             .signature("M0LBjhuY5Xgk25aRFCTp72EXM2HEnRY7KHAIlNQCxzwsMw7HgQBbdN4Mka94siHP")
-                                                             .build();
+            var bearerToken = "Bearer " + fakeEncodedJwtBuilder().accessToken()
+                                                                 .withSignature("M0LBjhuY5Xgk25aRFCTp72EXM2HEnRY7KHAIlNQCxzwsMw7HgQBbdN4Mka94siHP")
+                                                                 .build();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -132,9 +132,9 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsExpiredBearerToken() {
             // When & Then
-            var bearerToken = "Bearer " + fakeRawJwtBuilder().accessToken()
-                                                             .expired()
-                                                             .build();
+            var bearerToken = "Bearer " + fakeEncodedJwtBuilder().accessToken()
+                                                                 .expired()
+                                                                 .build();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -149,9 +149,9 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsNotSignedBearerToken() {
             // When & Then
-            var bearerToken = "Bearer " + fakeRawJwtBuilder().accessToken()
-                                                             .notSigned()
-                                                             .build();
+            var bearerToken = "Bearer " + fakeEncodedJwtBuilder().accessToken()
+                                                                 .notSigned()
+                                                                 .build();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -166,9 +166,9 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsBearerTokenWithoutType() {
             // When & Then
-            var bearerToken = "Bearer " + fakeRawJwtBuilder().ofType("")
-                                                             .notSigned()
-                                                             .build();
+            var bearerToken = "Bearer " + fakeEncodedJwtBuilder().ofType("")
+                                                                 .notSigned()
+                                                                 .build();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -183,9 +183,9 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsBearerTokenWithInvalidType() {
             // When & Then
-            var bearerToken = "Bearer " + fakeRawJwtBuilder().ofType("INVALID_TYPE")
-                                                             .notSigned()
-                                                             .build();
+            var bearerToken = "Bearer " + fakeEncodedJwtBuilder().ofType("INVALID_TYPE")
+                                                                 .notSigned()
+                                                                 .build();
 
             webTestClient.get()
                          .uri("/actuator")

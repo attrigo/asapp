@@ -23,9 +23,9 @@ import static com.bcn.asapp.authentication.domain.authentication.Jwt.TOKEN_USE_C
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
+import static com.bcn.asapp.authentication.testutil.TestDataFaker.EncodedJwtDataFaker.fakeEncodedJwtBuilder;
 import static com.bcn.asapp.authentication.testutil.TestDataFaker.JwtDataFaker.defaultFakeAccessToken;
 import static com.bcn.asapp.authentication.testutil.TestDataFaker.JwtDataFaker.defaultFakeRefreshToken;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.RawJwtDataFaker.fakeRawJwtBuilder;
 import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_ROLE;
 import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_USERNAME;
 import static java.time.temporal.ChronoUnit.SECONDS;
@@ -241,11 +241,11 @@ public class TestDataFaker {
                 }
 
                 public JwtEntity build() {
-                    var token = fakeRawJwtBuilder().ofType(type)
-                                                   .withSubject(subject)
-                                                   .withIssuedAt(issuedAt)
-                                                   .withExpiration(expiration)
-                                                   .build();
+                    var token = fakeEncodedJwtBuilder().ofType(type)
+                                                       .withSubject(subject)
+                                                       .withIssuedAt(issuedAt)
+                                                       .withExpiration(expiration)
+                                                       .build();
 
                     var tokenUseClaim = ACCESS_TOKEN.type()
                                                     .equals(type) ? ACCESS_TOKEN_USE_CLAIM_VALUE : REFRESH_TOKEN_USE_CLAIM_VALUE;
@@ -276,21 +276,21 @@ public class TestDataFaker {
 
     }
 
-    public static class RawJwtDataFaker {
+    public static class EncodedJwtDataFaker {
 
-        RawJwtDataFaker() {}
+        EncodedJwtDataFaker() {}
 
-        public static String defaultFakeRawAccessToken() {
+        public static String defaultFakeEncodedAccessToken() {
             return new Builder().accessToken()
                                 .build();
         }
 
-        public static String defaultFakeRawRefreshToken() {
+        public static String defaultFakeEncodedRefreshToken() {
             return new Builder().refreshToken()
                                 .build();
         }
 
-        public static Builder fakeRawJwtBuilder() {
+        public static Builder fakeEncodedJwtBuilder() {
             return new Builder();
         }
 
@@ -319,19 +319,19 @@ public class TestDataFaker {
 
             Builder() {}
 
-            public RawJwtContentBuilder ofType(String type) {
-                return new RawJwtContentBuilder(type);
+            public EncodedJwtContentBuilder ofType(String type) {
+                return new EncodedJwtContentBuilder(type);
             }
 
-            public RawJwtContentBuilder accessToken() {
-                return new RawJwtContentBuilder(ACCESS_TOKEN.type());
+            public EncodedJwtContentBuilder accessToken() {
+                return new EncodedJwtContentBuilder(ACCESS_TOKEN.type());
             }
 
-            public RawJwtContentBuilder refreshToken() {
-                return new RawJwtContentBuilder(REFRESH_TOKEN.type());
+            public EncodedJwtContentBuilder refreshToken() {
+                return new EncodedJwtContentBuilder(REFRESH_TOKEN.type());
             }
 
-            public static class RawJwtContentBuilder {
+            public static class EncodedJwtContentBuilder {
 
                 private final String type;
 
@@ -345,7 +345,7 @@ public class TestDataFaker {
 
                 private String signature;
 
-                RawJwtContentBuilder(String type) {
+                EncodedJwtContentBuilder(String type) {
                     this.type = type;
                     this.subject = DEFAULT_FAKE_USERNAME;
                     this.issuedAt = generateRandomIssueAt();
@@ -353,31 +353,31 @@ public class TestDataFaker {
                     this.signature = JWT_SECRET;
                 }
 
-                public RawJwtContentBuilder withSubject(String subject) {
+                public EncodedJwtContentBuilder withSubject(String subject) {
                     this.subject = subject;
                     return this;
                 }
 
-                public RawJwtContentBuilder withIssuedAt(Instant issuedAt) {
+                public EncodedJwtContentBuilder withIssuedAt(Instant issuedAt) {
                     this.issuedAt = issuedAt;
                     return this;
                 }
 
-                public RawJwtContentBuilder withExpiration(Instant expiration) {
+                public EncodedJwtContentBuilder withExpiration(Instant expiration) {
                     this.expiration = expiration;
                     return this;
                 }
 
-                public RawJwtContentBuilder expired() {
+                public EncodedJwtContentBuilder expired() {
                     return withExpiration(Instant.now());
                 }
 
-                public RawJwtContentBuilder signature(String signature) {
+                public EncodedJwtContentBuilder withSignature(String signature) {
                     this.signature = signature;
                     return this;
                 }
 
-                public RawJwtContentBuilder notSigned() {
+                public EncodedJwtContentBuilder notSigned() {
                     this.signed = false;
                     return this;
                 }
