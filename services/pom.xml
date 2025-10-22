@@ -264,6 +264,7 @@
         <module>asapp-projects-service</module>
         <module>asapp-tasks-service</module>
         <module>asapp-authentication-service</module>
+        <module>asapp-users-service</module>
     </modules>
 
 </project>

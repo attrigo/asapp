@@ -37,6 +37,18 @@ services:
       - POSTGRES_PASSWORD=secret
     volumes:
       - authentication-postgres-db-data:/data/db
+  asapp-users-postgres-db:
+    image: 'postgres:latest'
+    container_name: asapp-users-postgres-db
+    restart: unless-stopped
+    ports:
+      - '5435:5432'
+    environment:
+      - POSTGRES_DB=usersdb
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=secret
+    volumes:
+      - users-postgres-db-data:/data/db
 
   # Tools
   asapp-prometheus-authentication:
@@ -143,10 +155,30 @@ services:
       - ASAPP_REFRESH_TOKEN_EXPIRATION_TIME=3600000
     depends_on:
       - asapp-authentication-postgres-db
+  asapp-users-service:
+    build: .
+    image: 'asapp-users-service:0.2.0-SNAPSHOT'
+    container_name: asapp-users-service
+    restart: unless-stopped
+    ports:
+      - '8083:8083'
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=8083
+      - MANAGEMENT_PORT=8093
+      - DB_HOST=asapp-users-postgres-db
+      - DB_PORT=5432
+      - DB_NAME=usersdb
+      - DB_USERNAME=user
+      - DB_PASSWORD=secret
+      - ASAPP_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
+    depends_on:
+      - asapp-users-postgres-db
 
 volumes:
   projects-postgres-db-data:
   tasks-postgres-db-data:
   authentication-postgres-db-data:
+  users-postgres-db-data:
   prometheus_auth:
 
