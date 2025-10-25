@@ -17,11 +17,6 @@
     <name>asapp-users-service</name>
     <description>REST service to manage users operations</description>
 
-    <properties>
-        <!-- Dependencies Versions -->
-        <bcprov-jdk18on.version>1.80</bcprov-jdk18on.version>
-    </properties>
-
     <dependencies>
         <!-- Compile Dependencies -->
         <!-- * ASAPP Dependencies -->
