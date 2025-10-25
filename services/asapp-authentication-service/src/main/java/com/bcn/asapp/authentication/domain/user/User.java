@@ -41,7 +41,7 @@ public final class User {
     private Role role;
 
     /**
-     * Constructor a new inactive {@code User} instance and validates its integrity.
+     * Constructs a new inactive {@code User} instance and validates its integrity.
      *
      * @param username the user's username
      * @param password the user's encoded password
@@ -59,7 +59,7 @@ public final class User {
     }
 
     /**
-     * Constructor a new active {@code User} instance and validates its integrity.
+     * Constructs a new active {@code User} instance and validates its integrity.
      *
      * @param id       the user's unique identifier
      * @param username the user's username

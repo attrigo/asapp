@@ -24,7 +24,7 @@ import java.util.Date;
  * <p>
  * This value object encapsulates the issued timestamp as {@link Instant}.
  * <p>
- * It enforces structural integrity by ensuring the issued timestamp is not blank.
+ * It enforces structural integrity by ensuring the issued timestamp is not {@code null}.
  *
  * @param issued the instant when the token was issued
  * @since 0.2.0
