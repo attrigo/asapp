@@ -175,6 +175,23 @@ To launch the tests and generate the coverage report:
 
 The coverage report includes unit tests and integration tests
 
+### Run mutation testing
+
+[PITest](https://pitest.org/) is a mutation testing framework that evaluates the quality of your tests by introducing small changes (mutations) to your code and checking if your tests catch them. This helps identify weaknesses in your test suite.
+
+To run mutation testing on the domain layer:
+
+1. Execute PITest:
+    ```sh
+    mvn org.pitest:pitest-maven:mutationCoverage
+    ```
+
+2. Open the report: [index.html](target/pit-reports/index.html)
+
+The mutation testing is configured to target the domain layer (`com.bcn.asapp.authentication.domain.*`), ensuring that your core business logic has robust test coverage.
+
+PITest depends on the test execution results. Ensure tests have been executed previously (e.g., via `mvn test` or `mvn verify`) to generate the required test reports before running mutation testing.
+
 ### Generate the Javadoc
 
 To generate the Javadoc:
@@ -231,6 +248,7 @@ For further reference, please consider the following sections:
     * [Junit](https://junit.org/junit5/docs/current/user-guide/)
     * [AssertJ](https://assertj.github.io/doc/)
     * [Mockito](https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html)
+    * [PITest](https://pitest.org/)
     * [TestContainers](https://java.testcontainers.org/)
 * Tools
     * [MapStruct](https://mapstruct.org/documentation/)
