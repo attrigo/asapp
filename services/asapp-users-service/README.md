@@ -105,13 +105,13 @@ The application can be started in dev or docker mode.
 
 The project brings with an embedded [Swagger UI](https://swagger.io/tools/swagger-ui/), a web tool that facilitates the endpoint visualization and
 interaction. \
-You can use this [Swagger UI](http://localhost:8082/asapp-users-service/swagger-ui.html) or any other HTTP client to consume the API.
+You can use this [Swagger UI](http://localhost:8083/asapp-users-service/swagger-ui.html) or any other HTTP client to consume the API.
 
 Some of the exposed endpoints require authentication using JWT (JSON Web Token) bearer tokens. To access protected endpoints, you first need to get an access
 token by calling authenticate endpoint (/api/auth/token) of the authentication service with valid user credential. Once it expires, you can get a new one by
 calling the refresh authentication endpoint (/api/auth/refresh).
 
-> Dates sent in requests must follow a standard ISO-8601 format.
+Dates sent in requests must follow a standard ISO-8601 format.
 
 ### Shut down and clean
 
@@ -122,7 +122,7 @@ To avoid wasting local machine resources, it is recommended to stop all started 
     docker-compose down -v
     ```
 
-> The -v flag is optional, it deletes the volumes.
+The -v flag is optional, it deletes the volumes.
 
 ## Dev features
 
@@ -169,7 +169,7 @@ To launch the tests and generate the coverage report:
 
 2. Open the report: [index.html](target/site/jacoco-aggregate/index.html)
 
-> The coverage report includes unit tests and integration tests
+The coverage report includes unit tests and integration tests
 
 ### Generate the Javadoc
 
