@@ -8,7 +8,6 @@ ASAPP is a web application focused on task management.
 
 ASAPP application provides the following operations to work with projects and tasks:
 
-* Projects Operations
 * Tasks operations
 * Authentication operations
 
