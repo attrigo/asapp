@@ -272,10 +272,10 @@ public final class User {
     }
 
     /**
-     * Validates that the phoneNumber is not {@code null}.
+     * Validates that the phone Number is not {@code null}.
      *
-     * @param phoneNumber the phoneNumber to validate
-     * @throws IllegalArgumentException if the phoneNumber is {@code null}
+     * @param phoneNumber the phone Number to validate
+     * @throws IllegalArgumentException if the phone Number is {@code null}
      */
     private static void validatePhoneNumberIsNotNull(PhoneNumber phoneNumber) {
         if (phoneNumber == null) {

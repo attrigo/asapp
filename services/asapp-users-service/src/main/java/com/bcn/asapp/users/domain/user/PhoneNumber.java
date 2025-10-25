@@ -21,7 +21,7 @@ package com.bcn.asapp.users.domain.user;
  * <p>
  * This value object encapsulates a phone number value as {@link String}.
  * <p>
- * It enforces structural integrity by ensuring the raw password is not blank and conform to the standard phone number structure.
+ * It enforces structural integrity by ensuring the phone number is not blank and conform to the standard phone number structure.
  *
  * @param phoneNumber the phone number
  * @since 0.2.0

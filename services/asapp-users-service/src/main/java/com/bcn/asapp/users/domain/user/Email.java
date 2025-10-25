@@ -17,7 +17,7 @@
 package com.bcn.asapp.users.domain.user;
 
 /**
- * Represents a email.
+ * Represents an email.
  * <p>
  * This value object encapsulates an email value as {@link String}.
  * <p>
