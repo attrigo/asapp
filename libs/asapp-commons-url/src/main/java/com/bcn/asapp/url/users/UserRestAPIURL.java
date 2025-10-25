@@ -20,7 +20,7 @@ package com.bcn.asapp.url.users;
  * Defines the paths for user domain endpoints of asapp-users-service.
  *
  * @since 0.2.0
- * @author ttrigo
+ * @author attrigo
  */
 public class UserRestAPIURL {
 
