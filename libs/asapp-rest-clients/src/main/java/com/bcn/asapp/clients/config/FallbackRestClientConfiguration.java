@@ -29,8 +29,8 @@ import com.bcn.asapp.clients.internal.uri.UriHandler;
 /**
  * Fallback REST client configuration.
  *
- * @author ttrigo
  * @since 0.1.0
+ * @author attrigo
  */
 @Configuration
 public class FallbackRestClientConfiguration {
