@@ -7,7 +7,7 @@
 
     <includeAll path="changesets/" relativeToChangelogFile="true"/>
 
-    <changeSet id="tag_version_0_1_0" author="atrigo">
+    <changeSet id="tag_version_0_1_0" author="attrigo">
         <tagDatabase tag="0.1.0"/>
     </changeSet>
 

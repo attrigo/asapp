@@ -111,7 +111,7 @@ Steps to release a version
         ```
     2. Add the Liquibase changeset to create database tags to all vx_x_x-changelog.xml files
         ```xml
-        <changeSet id="tag_version_x_x_x" author="atrigo">
+        <changeSet id="tag_version_x_x_x" author="attrigo">
             <tagDatabase tag="x.x.x"/>
         </changeSet>
         ```
