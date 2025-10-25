@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+            http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20240412_2-1" author="atrigo">
+        <preConditions onFail="MARK_RAN" onSqlOutput="TEST">
+            <not>
+                <tableExists tableName="tasks"/>
+            </not>
+        </preConditions>
+
+        <createTable tableName="tasks">
+            <column name="id" type="uuid" defaultValueComputed="uuid_generate_v4()" remarks="The task's unique identifier">
+                <constraints primaryKey="true" primaryKeyName="pk_task"/>
+            </column>
+            <column name="user_id" type="uuid" remarks="The task's user unique identifier">
+                <constraints nullable="false"/>
+            </column>
+            <column name="title" type="varchar(50)" remarks="The task's title">
+                <constraints nullable="false"/>
+            </column>
+            <column name="description" type="varchar(50)" remarks="The task's description"/>
+            <column name="start_date" type="timestamp" remarks="The task's start date"/>
+            <column name="end_date" type="timestamp" remarks="The task's end date"/>
+        </createTable>
+
+        <rollback>
+            <dropTable tableName="tasks"/>
+        </rollback>
+
+        <comment>Creates the task table with columns id, user_id, title, description, start_date and end_date</comment>
+    </changeSet>
+
+</databaseChangeLog>

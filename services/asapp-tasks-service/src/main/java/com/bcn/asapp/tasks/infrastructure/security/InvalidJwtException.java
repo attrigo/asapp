@@ -14,31 +14,26 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.tasks;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+package com.bcn.asapp.tasks.infrastructure.security;
 
 /**
- * Main application entry point for the ASAPP tasks Service.
+ * Exception thrown when a JWT token is invalid.
  * <p>
- * Initializes and launches the Spring Boot application context.
+ * Indicates issues such as malformed tokens, invalid signatures, or expired tokens.
  *
- * @since 0.1.0
- * @see SpringApplication
- * @see SpringBootApplication
+ * @since 0.2.0
  * @author attrigo
  */
-@SpringBootApplication
-public class AsappTasksServiceApplication {
+public class InvalidJwtException extends RuntimeException {
 
     /**
-     * Starts the Spring Boot application.
+     * Constructs a new {@code InvalidJwtException} with the specified detail message and cause.
      *
-     * @param args command line arguments passed to the application
+     * @param message the detail message providing additional information about the exception
+     * @param cause   the underlying cause of the exception
      */
-    public static void main(String[] args) {
-        SpringApplication.run(AsappTasksServiceApplication.class, args);
+    public InvalidJwtException(String message, Throwable cause) {
+        super(message, cause);
     }
 
 }

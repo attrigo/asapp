@@ -15,7 +15,7 @@
     <artifactId>asapp-tasks-service</artifactId>
     <version>0.2.0-SNAPSHOT</version>
     <name>asapp-tasks-service</name>
-    <description>REST service to manage tasks</description>
+    <description>REST service to manage tasks operations</description>
 
     <dependencies>
         <!-- Compile Dependencies -->
@@ -139,6 +139,12 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>postgresql</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- * Other Dependencies -->
+        <dependency>
+            <groupId>net.javacrumbs.json-unit</groupId>
+            <artifactId>json-unit-assertj</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

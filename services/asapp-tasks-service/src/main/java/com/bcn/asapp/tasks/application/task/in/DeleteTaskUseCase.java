@@ -14,31 +14,27 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.tasks;
+package com.bcn.asapp.tasks.application.task.in;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import java.util.UUID;
 
 /**
- * Main application entry point for the ASAPP tasks Service.
+ * Use case for deleting an existing task from the system.
  * <p>
- * Initializes and launches the Spring Boot application context.
+ * Defines the contract for task deletion operations.
  *
- * @since 0.1.0
- * @see SpringApplication
- * @see SpringBootApplication
+ * @since 0.2.0
  * @author attrigo
  */
-@SpringBootApplication
-public class AsappTasksServiceApplication {
+public interface DeleteTaskUseCase {
 
     /**
-     * Starts the Spring Boot application.
+     * Deletes an existing task by their unique identifier.
      *
-     * @param args command line arguments passed to the application
+     * @param id the task's unique identifier
+     * @return {@code true} if the task was deleted, {@code false} if not found
+     * @throws IllegalArgumentException if the id is invalid
      */
-    public static void main(String[] args) {
-        SpringApplication.run(AsappTasksServiceApplication.class, args);
-    }
+    Boolean deleteTaskById(UUID id);
 
 }

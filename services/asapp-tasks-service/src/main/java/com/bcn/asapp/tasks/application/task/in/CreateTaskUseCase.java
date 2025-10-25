@@ -14,31 +14,28 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.tasks;
+package com.bcn.asapp.tasks.application.task.in;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+import com.bcn.asapp.tasks.application.task.in.command.CreateTaskCommand;
+import com.bcn.asapp.tasks.domain.task.Task;
 
 /**
- * Main application entry point for the ASAPP tasks Service.
+ * Use case for creating new tasks in the system.
  * <p>
- * Initializes and launches the Spring Boot application context.
+ * Defines the contract for task creation operations.
  *
- * @since 0.1.0
- * @see SpringApplication
- * @see SpringBootApplication
+ * @since 0.2.0
  * @author attrigo
  */
-@SpringBootApplication
-public class AsappTasksServiceApplication {
+public interface CreateTaskUseCase {
 
     /**
-     * Starts the Spring Boot application.
+     * Creates a new task based on the provided command.
      *
-     * @param args command line arguments passed to the application
+     * @param command the {@link CreateTaskCommand} containing task data
+     * @return the created {@link Task} with a persistent ID
+     * @throws IllegalArgumentException if any data within the command is invalid
      */
-    public static void main(String[] args) {
-        SpringApplication.run(AsappTasksServiceApplication.class, args);
-    }
+    Task createTask(CreateTaskCommand command);
 
 }
