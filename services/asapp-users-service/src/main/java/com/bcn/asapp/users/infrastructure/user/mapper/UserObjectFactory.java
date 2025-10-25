@@ -65,7 +65,7 @@ public class UserObjectFactory {
     /**
      * Creates a domain {@link User} from a database {@link UserEntity} entity.
      * <p>
-     * Maps entity fields to value objects and constructs an active user using the domain's factory method.
+     * Maps entity fields to value objects and constructs a reconstructed user using the domain's factory method.
      *
      * @param source the {@link UserEntity} database entity
      * @return the {@link User} domain entity
