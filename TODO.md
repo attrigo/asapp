@@ -63,53 +63,67 @@
 
 * [ ] Refactor services to Hexagonal Architecture + DDD
     * [X] Move to Hexagonal packaging
-    * [ ] Define domain model following DDD
-    * [ ] Adapt Tests
-    * [ ] Adapt Javadoc
-    * [ ] Adapt documentation
-    * [ ] Use JMolecules https://github.com/xmolecules/jmolecules?tab=readme-ov-file#using-the-annotation-based-model
-    * [ ] Add Spring Modulith?
+    * [X] Define domain model following DDD
+    * [X] Adapt Tests
+    * [X] Adapt Javadoc
+    * [X] Adapt documentation
+    * [ ] Delete and update a user use case should delete authentications via events
 * [X] Set up Observability Metrics
     * [X] Use Prometheus and Grafana
-    * [X] Add JVM dashboard for each service
+    * [X] Add a JVM dashboard for each service
     * [X] Update documentation
 * [ ] Add Spring Security
-    * [X] Create UAA service
-        * User's Username should be unique email not changeable
-        * User's password should meet some regexp
-        * Avoid invoking jwtAuthentication filter for non-protected endpoints
-        * Avoid fetching the user from the DB in AuthenticationGranterAdapter
-        * Set up configuration with custom Spring Configurer?
+    * [X] Create an authentication service
         * [X] Add authenticate endpoint
         * [X] Add refresh endpoint
         * [X] Add revoke endpoint
         * [X] Add basic CRUD endpoints for user (to be able to manage users)
-        * [ ] Support for multiple authentications by user
-        * [ ] Support multiple roles for a user
+        * [X] Support for multiple authentications by user
+        * [X] Add trace logging in all auth operations
+        * [ ] Change user's username or password must revoke all user authentications
+        * [ ] Create user must not create a user with the same username (email)
     * [X] Adapt other services
         * [X] Protect business endpoints
         * [X] Propagate JWT when performing HTTP calls
     * [ ] Use Redis to ensure JWT is still valid in the system
+        * (authentication-service) Move JwtVerifier to security package
+        * (authentication-service) Add DecodedToken
     * [X] Protect management endpoints
     * [ ] Update documentation
+* [ ] Create asapp-users-service
+    * [X] Build project
+    * [X] Add Liquibase
+    * [X] Add basic CRUD endpoints
+    * [X] Add management endpoints
+    * [X] Add unit and integration tests
+    * [X] Add a docker-compose file
+    * [X] Add service to prometheus
+    * [X] Add documentation as a README file
+    * [ ] Get endpoints should fetch tasks from asap-tasks-service
+    * [ ] Delete user must propagate deletion of user on authentication and tasks systems
+* [ ] Improvements on asapp-tasks-service
+    * [ ] Add the end date field to the task
+    * [ ] Remove gets tasks by project id endpoint
+    * [ ] Add endpoint to get tasks by user id
+    * [ ] Create and update a task must check user_id exists
 * [ ] Testing
-    * Remove @DisplayName?
-    * Review test coverage
-    * Create a specific test for OpenApi and Actuator content (split from SecurityConfigurationIT)?
     * [X] Make PostgresQL TestContainer a singleton instance
     * [X] Create a test data fake factory to generate test data
     * [X] Replace Hamcrest assertions by AssertJ assertions
-    * [ ] Add PiTest
+    * [X] Add PiTest
+    * [-] Review test coverage
+    * [-] Create a specific test for OpenApi and Actuator content (split from SecurityConfigurationIT)?
+    * [-] Improve domain tests checking fields are not blank
+    * [-] Improve Test faker
     * [ ] Update documentation
 * [ ] Improve management endpoints (Actuator)
-    * [ ] Review SBOM plugin warnings
     * [X] Show more health details when authenticated
     * [X] Move management to a separate port
     * [X] Add management probes endpoints (including readyz and livez)
     * [X] Add env, Java, OS and process details to info endpoint
     * [X] Add git details to info endpoint (git-commit-id plugin)
     * [X] Add SBOM endpoint (cyclonedx-maven-plugin)
-    * [X] Split Spring Security filter chain into several ones, one for api endpoints, one for management endpoints, and another one for root endpoints
+    * [X] Enable shutdown endpoint
     * [ ] Update documentation
 * [X] Improve date / datetime formating
     * [X] Refactor LocalDateTime by Instance
@@ -118,24 +132,27 @@
     * [X] Separate license from the package in all java files
     * [X] Not put empty lines before "try {" and after "}"
     * [X] Records
+    * [-] Wrap chained method invocations keeping two method calls
     * [ ] Wrap if statements by control flow keywords (&& and ||)
     * [ ] Update documentation
 * [ ] CI/CD
     * [X] Add a Unix (LF) line separator check to Git Hook
+    * [ ] Add maven profiles to avoid some steps during local builds
     * [ ] Improve GitHub actions
         * [ ] Build tags
     * [ ] Update documentation
 * [ ] Technical improvements
-    * [ ] Launch Openrewrite Spring Boot best practices
-    * [ ] Upgrade to Spring Boot 4
-    * [ ] Upgrade all external dependencies
-    * [ ] Upgrade to Java 25
-    * [ ] Upgrade maven wrapper
     * [X] Replace "/v1" with "/api" in the path of all endpoints
     * [X] Add "<relativePath>..</relativePath>" to libs and services poms
     * [X] Change the debug level of jdbc to info in application-docker.properties
     * [X] Rename database primary keys, from "*_id_pk" to "pk_"
     * [X] Improve data validation via Jakarta Annotations
+    * [-] Review console warnings
+    * [ ] Launch Openrewrite Spring Boot best practices
+    * [ ] Upgrade to Spring Boot 4
+    * [ ] Upgrade all external dependencies
+    * [ ] Upgrade to Java 25
+    * [ ] Upgrade maven wrapper
     * [ ] Launch Sonar analysis
     * [ ] Launch security analysis
     * [ ] Improve README using AI
@@ -146,14 +163,28 @@
 
 * [ ] Add Spring Cloud Config
 * [ ] Add Spring Service discovery
-* [ ] Improve logging
-    * [ ] Show console logs in plain text
-    * [ ] Save file logs in JSON format
-* [ ] Set up Observability Logs & Traces
-    * [ ] Use Loki for logs?
-    * [ ] Use Tempo for traces?
-* [ ] Improve GlobalExceptionHandler to return a sorted Map<Entity, LIst<FieldsError>>
-* [ ] Create @ConfiguratioProperties to manage REST and Security properties
+* [ ] Improvements to asapp-projects-service
+    * [ ] Remake asapp-projects-service to asapp-agenda-service
+* [ ] Improvements to asapp-authentication-service
+    * [ ] Support multiple roles for a user
+    * [ ] Put in place Spring's CompromisedPassword
+    * [ ] Add ArchUnit
+    * [ ] Add JMolecules
+    * [ ] Add Spring Modulith?
+        * [ ] Change @ApplicationService by @UseCase
+* [ ] Logging
+    * [ ] Console logs in plain text
+    * [ ] File logs in JSON format
+* [ ] Observability
+    * [ ] Update Grafana dashboard
+    * [ ] Add support for traces
+* [ ] Testing
+    * [ ] Add Spring Test Profiler
+* [ ] CI/CD
+    * Add Pitest to the CI pipeline
+* [ ] Technical improvements
+    * [ ] Improve GlobalExceptionHandler to return a sorted Map<Entity, List<FieldsError>>
+    * [ ] Create @ConfiguratioProperties to manage custom REST and Security properties
 
 ## Version 0.4.0
 
@@ -166,6 +197,10 @@
 
 ***
 
+## asapp-authentication-service
+
+* [ ] Change the endpoint that gets all users to return a page of users
+
 ## asapp-tasks-service
 
 * [ ] Change the endpoint that gets all tasks to return a page of tasks
@@ -174,31 +209,23 @@
     * [ ] Add operation to find tasks by list of ids
     * [ ] Add operation to update only certain fields
 
-## asapp-projects-service
+## asapp-users-service
 
-* [ ] Change the endpoint that gets all projects to return a page of projects
-* [ ] Add more business to projects service
-    * [ ] Add more fields to project domain like: creation date, end date, estimation, status, labels, user
-    * [ ] Add operation to find projects by list of ids
-    * [ ] Add operation to update only certain fields
-    * [ ] Implement integration between CUD operations and tasks service
-
-## asapp-uaa-service
-
-* [ ] Change the endpoint that gets all users to return a page of users
+* [ ] Change the endpoint that gets all tasks to return a page of tasks
 
 # asapp-rest-clients
 
 * [ ] Define Spring Stereotype of type Client?
 * [ ] Add circuit breaker
+* [ ] Add Retries
 
 ### Tech
 
 * [ ] Create custom starters
 * [ ] Add Native support
 * [ ] Add Graceful shutdown
-* [ ] Enable shutdown endpoint
 * [ ] Improve how docker volumes are created, to only create volumes when needed
+* [ ] Add Spring Rest Docs
 
 ### Observability
 
@@ -209,12 +236,10 @@
 * [ ] Integrate Spring Oauth2 server
 * [ ] Use public and private keys to encode the JWT
 * [ ] Create a background process to automatically revoke expired JWT
-* [ ] Add a double factor authentication
+* [ ] Add OTT authentication
 * [ ] Add email verification to the register process
 
 ### Tests
-
-* [ ] Decrease the execution time of tests
 
 ### Git
 
@@ -237,8 +262,3 @@
 ### Doc
 
 * [ ] Add Javadoc to mapper implementations requires version 1.6.0 of mapstruct ([ref](https://github.com/mapstruct/mapstruct/pull/3219))
-
-### Analysis
-
-* [ ] Review Request and Response naming (camelCase vs snake_case vs kebab-case)
-* [ ] Analyze record-builder : https://github.com/Randgalt/record-builder
