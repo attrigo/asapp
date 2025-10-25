@@ -41,7 +41,6 @@
     </build>
 
     <modules>
-        <module>asapp-commons-dto</module>
         <module>asapp-commons-url</module>
         <module>asapp-rest-clients</module>
     </modules>
