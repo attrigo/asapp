@@ -21,7 +21,7 @@ import java.util.UUID;
 /**
  * Command to update an existing user in the system.
  * <p>
- * Encapsulates the data required to modify a user’s account.
+ * Encapsulates the data required to modify a user.
  *
  * @param userId      the unique identifier of the user to update
  * @param firstName   the user's first name

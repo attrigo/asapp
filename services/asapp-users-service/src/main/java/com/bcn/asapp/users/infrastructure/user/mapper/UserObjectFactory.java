@@ -23,7 +23,7 @@ import com.bcn.asapp.users.domain.user.User;
 import com.bcn.asapp.users.infrastructure.user.out.entity.UserEntity;
 
 /**
- * MapStruct object factory for constructing {@link User} domain entities from database entities.
+ * MapStruct object factory for mapping between {@link User} domain entities and {@link UserEntity} database entities.
  * <p>
  * Ensures that domain entities are created through their proper factory methods with complete validation, maintaining domain integrity during mapping.
  *
