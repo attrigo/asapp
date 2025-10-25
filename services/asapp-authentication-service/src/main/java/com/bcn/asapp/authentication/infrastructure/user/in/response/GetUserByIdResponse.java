@@ -18,6 +18,8 @@ package com.bcn.asapp.authentication.infrastructure.user.in.response;
 
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 /**
  * Response for retrieving a user by its unique identifier.
  *
@@ -29,7 +31,7 @@ import java.util.UUID;
  * @author attrigo
  */
 public record GetUserByIdResponse(
-        UUID userId,
+        @JsonProperty("user_id") UUID userId,
         String username,
         String password,
         String role
