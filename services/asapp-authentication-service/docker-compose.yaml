@@ -5,7 +5,7 @@ services:
     container_name: asapp-authentication-postgres-db
     restart: unless-stopped
     ports:
-      - '5434:5432'
+      - '5432:5432'
     environment:
       - POSTGRES_DB=authenticationdb
       - POSTGRES_USER=user
@@ -19,11 +19,11 @@ services:
     container_name: asapp-authentication-service
     restart: unless-stopped
     ports:
-      - '8082:8082'
+      - '8080:8080'
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-      - SERVER_PORT=8082
-      - MANAGEMENT_PORT=8092
+      - SERVER_PORT=8080
+      - MANAGEMENT_PORT=8090
       - DB_HOST=asapp-authentication-postgres-db
       - DB_PORT=5432
       - DB_NAME=authenticationdb

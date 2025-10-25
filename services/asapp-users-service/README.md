@@ -105,7 +105,7 @@ The application can be started in dev or docker mode.
 
 The project brings with an embedded [Swagger UI](https://swagger.io/tools/swagger-ui/), a web tool that facilitates the endpoint visualization and
 interaction. \
-You can use this [Swagger UI](http://localhost:8083/asapp-users-service/swagger-ui.html) or any other HTTP client to consume the API.
+You can use this [Swagger UI](http://localhost:8082/asapp-users-service/swagger-ui.html) or any other HTTP client to consume the API.
 
 Some of the exposed endpoints require authentication using JWT (JSON Web Token) bearer tokens. To access protected endpoints, you first need to get an access
 token by calling authenticate endpoint (/api/auth/token) of the authentication service with valid user credential. Once it expires, you can get a new one by
