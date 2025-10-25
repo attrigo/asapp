@@ -43,7 +43,7 @@ public final class JwtAuthentication {
     /**
      * Constructs a new unauthenticated {@code JwtAuthentication} instance and validates its integrity.
      *
-     * @param userId  the user's unique identifier
+     * @param userId  the JWT authentication's user unique identifier
      * @param jwtPair the JWT token pair
      * @throws IllegalArgumentException if userId is {@code null}
      */
@@ -58,7 +58,7 @@ public final class JwtAuthentication {
      * Constructs a new authenticated {@code JwtAuthentication} instance and validates its integrity.
      *
      * @param id      the JWT authentication's unique identifier
-     * @param userId  the user's unique identifier
+     * @param userId  the JWT authentication's user unique identifier
      * @param jwtPair the JWT token pair
      * @throws IllegalArgumentException if id or userId is {@code null}
      */
@@ -92,7 +92,7 @@ public final class JwtAuthentication {
      * Typically used when reconstituting an authentication session from the database.
      *
      * @param id           the JWT authentication's unique identifier
-     * @param userId       the user's unique identifier
+     * @param userId       the JWT authentication's user unique identifier
      * @param accessToken  the access token
      * @param refreshToken the refresh token
      * @return a new authenticated {@code JwtAuthentication} instance
@@ -178,7 +178,7 @@ public final class JwtAuthentication {
     }
 
     /**
-     * Returns the user's unique identifier.
+     * Returns the JWT authentication's user unique identifier.
      *
      * @return the {@link UserId}
      */

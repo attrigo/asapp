@@ -24,7 +24,7 @@ import java.util.Date;
  * <p>
  * This value object encapsulates the expiration timestamp as {@link Instant}.
  * <p>
- * It enforces structural integrity by ensuring the expiration timestamp is not blank.
+ * It enforces structural integrity by ensuring the expiration timestamp is not {@code null}.
  *
  * @param expiration the instant when the token expires
  * @since 0.2.0

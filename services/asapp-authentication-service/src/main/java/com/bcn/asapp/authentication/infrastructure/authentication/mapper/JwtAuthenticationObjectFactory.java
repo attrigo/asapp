@@ -24,7 +24,7 @@ import com.bcn.asapp.authentication.infrastructure.authentication.out.entity.Jwt
 import com.bcn.asapp.authentication.infrastructure.user.mapper.UserIdMapper;
 
 /**
- * MapStruct object factory for constructing JWT authentication entities.
+ * MapStruct object factory for mapping between {@link JwtAuthentication} domain entities and {@link JwtAuthenticationEntity} database entities.
  * <p>
  * Ensures that domain and database entities are created through their proper factory methods with complete validation, maintaining domain integrity during
  * mapping.
