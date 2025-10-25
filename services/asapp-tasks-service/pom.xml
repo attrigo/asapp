@@ -118,11 +118,6 @@
         </dependency>
         <!-- * Org Dependencies -->
         <dependency>
-            <groupId>org.mock-server</groupId>
-            <artifactId>mockserver-netty</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.pitest</groupId>
             <artifactId>pitest-junit5-plugin</artifactId>
             <scope>test</scope>
@@ -130,11 +125,6 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.testcontainers</groupId>
-            <artifactId>mockserver</artifactId>
             <scope>test</scope>
         </dependency>
         <dependency>
