@@ -23,7 +23,6 @@ import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -68,16 +67,6 @@ public class SecurityConfiguration {
      * The base root URL pattern, this pattern matches all paths under `/`.
      */
     private static final String ROOT_MATCHER = "/**";
-
-    /**
-     * Array of API URL patterns that are excluded from authentication checks.
-     */
-    public static final String[] API_WHITELIST_URLS = { "/api/auth/**" };
-
-    /**
-     * Array of API POST URL patterns that are excluded from authentication checks.
-     */
-    public static final String[] API_WHITELIST_POST_URLS = { "/api/users" };
 
     /**
      * Array of root URL patterns that are excluded from authentication checks.
@@ -125,10 +114,6 @@ public class SecurityConfiguration {
         http.csrf(AbstractHttpConfigurer::disable);
         http.securityMatcher(API_MATCHER)
             .authorizeHttpRequests(auth -> {
-                auth.requestMatchers(API_WHITELIST_URLS)
-                    .permitAll();
-                auth.requestMatchers(HttpMethod.POST, API_WHITELIST_POST_URLS)
-                    .permitAll();
                 auth.anyRequest()
                     .authenticated();
             });

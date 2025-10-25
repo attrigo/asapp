@@ -203,12 +203,31 @@ class UserE2EIT {
     class CreateUser {
 
         @Test
+        void DoesNotCreateUserAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+            // When
+            var createUserRequestBody = new CreateUserRequest(DEFAULT_FAKE_FIRST_NAME, DEFAULT_FAKE_LAST_NAME, DEFAULT_FAKE_EMAIL, DEFAULT_FAKE_PHONE_NUMBER);
+
+            // When & Then
+            webTestClient.post()
+                         .uri(USERS_CREATE_FULL_PATH)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                         .bodyValue(createUserRequestBody)
+                         .exchange()
+                         .expectStatus()
+                         .isUnauthorized()
+                         .expectBody()
+                         .isEmpty();
+        }
+
+        @Test
         void CreatesUserAndReturnsStatusCreatedAndBodyWithUserCreated() {
             // When
             var createUserRequestBody = new CreateUserRequest(DEFAULT_FAKE_FIRST_NAME, DEFAULT_FAKE_LAST_NAME, DEFAULT_FAKE_EMAIL, DEFAULT_FAKE_PHONE_NUMBER);
 
             var response = webTestClient.post()
                                         .uri(USERS_CREATE_FULL_PATH)
+                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
                                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                                         .bodyValue(createUserRequestBody)

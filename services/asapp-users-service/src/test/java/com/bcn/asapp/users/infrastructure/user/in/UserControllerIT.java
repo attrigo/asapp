@@ -38,7 +38,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 
 import com.bcn.asapp.users.testutil.WebMvcTestContext;
@@ -93,7 +92,6 @@ class UserControllerIT extends WebMvcTestContext {
 
     }
 
-    @WithAnonymousUser
     @Nested
     class CreateUser {
 

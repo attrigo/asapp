@@ -16,8 +16,6 @@
 
 package com.bcn.asapp.users.infrastructure.security.web;
 
-import static com.bcn.asapp.users.infrastructure.config.SecurityConfiguration.API_WHITELIST_POST_URLS;
-import static com.bcn.asapp.users.infrastructure.config.SecurityConfiguration.API_WHITELIST_URLS;
 import static com.bcn.asapp.users.infrastructure.config.SecurityConfiguration.MANAGEMENT_WHITELIST_URLS;
 import static com.bcn.asapp.users.infrastructure.config.SecurityConfiguration.ROOT_WHITELIST_URLS;
 
@@ -31,7 +29,6 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
@@ -145,14 +142,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * @return a {@link Set} of {@link RequestMatcher} instances for excluded paths
      */
     private Set<RequestMatcher> buildExcludedMatchers() {
-        Set<RequestMatcher> excludedMatchers = Stream.of(API_WHITELIST_URLS, ROOT_WHITELIST_URLS, MANAGEMENT_WHITELIST_URLS)
-                                                     .flatMap(Arrays::stream)
-                                                     .map(AntPathRequestMatcher::new)
-                                                     .collect(Collectors.toSet());
-        Stream.of(API_WHITELIST_POST_URLS)
-              .map(url -> new AntPathRequestMatcher(url, HttpMethod.POST.name()))
-              .forEach(excludedMatchers::add);
-        return excludedMatchers;
+        return Stream.of(ROOT_WHITELIST_URLS, MANAGEMENT_WHITELIST_URLS)
+                     .flatMap(Arrays::stream)
+                     .map(AntPathRequestMatcher::new)
+                     .collect(Collectors.toSet());
     }
 
     /**
