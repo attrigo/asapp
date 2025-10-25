@@ -34,7 +34,8 @@ import com.bcn.asapp.authentication.infrastructure.user.mapper.UserIdMapper;
  * <p>
  * Uses custom object factories and component mappers for complex value object transformations.
  *
- * @author attrigo * @since 0.2.0
+ * @since 0.2.0
+ * @author attrigo
  */
 @Mapper(componentModel = "spring", uses = { JwtAuthenticationObjectFactory.class, JwtAuthenticationIdMapper.class, UserIdMapper.class, JwtMapper.class })
 public interface JwtAuthenticationMapper {
