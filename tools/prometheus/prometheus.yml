@@ -6,13 +6,6 @@ scrape_configs:
   - job_name: 'prometheus'
     static_configs:
       - targets: [ 'asapp-prometheus:9090' ]
-  - job_name: 'asapp-projects-service'
-    metrics_path: '/asapp-projects-service/actuator/prometheus'
-    authorization:
-      type: Bearer
-      credentials_file: /etc/prometheus/auth/bearer_token
-    static_configs:
-      - targets: [ 'asapp-projects-service:8090' ]
   - job_name: 'asapp-tasks-service'
     metrics_path: '/asapp-tasks-service/actuator/prometheus'
     authorization:
