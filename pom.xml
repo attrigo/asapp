@@ -19,6 +19,31 @@
     <name>asapp-parent</name>
     <description>ASAPP parent project</description>
 
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>attrigo</id>
+            <name>attrigo</name>
+            <roles>
+                <role>Developer</role>
+            </roles>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/attrigo/asapp.git</connection>
+        <developerConnection>scm:git:https://github.com/attrigo/asapp.git</developerConnection>
+        <url>https://github.com/attrigo/asapp</url>
+        <tag>HEAD</tag>
+    </scm>
+
     <properties>
         <!-- Main Properties -->
         <java.version>21</java.version>
