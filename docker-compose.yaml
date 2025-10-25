@@ -1,18 +1,6 @@
 version: '3.8'
 services:
   # Database services
-  asapp-tasks-postgres-db:
-    image: 'postgres:latest'
-    container_name: asapp-tasks-postgres-db
-    restart: unless-stopped
-    ports:
-      - '5433:5432'
-    environment:
-      - POSTGRES_DB=tasksdb
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=secret
-    volumes:
-      - tasks-postgres-db-data:/data/db
   asapp-authentication-postgres-db:
     image: 'postgres:latest'
     container_name: asapp-authentication-postgres-db
@@ -25,6 +13,18 @@ services:
       - POSTGRES_PASSWORD=secret
     volumes:
       - authentication-postgres-db-data:/data/db
+  asapp-tasks-postgres-db:
+    image: 'postgres:latest'
+    container_name: asapp-tasks-postgres-db
+    restart: unless-stopped
+    ports:
+      - '5433:5432'
+    environment:
+      - POSTGRES_DB=tasksdb
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=secret
+    volumes:
+      - tasks-postgres-db-data:/data/db
   asapp-users-postgres-db:
     image: 'postgres:latest'
     container_name: asapp-users-postgres-db
@@ -83,25 +83,6 @@ services:
       - asapp-prometheus
 
   # Services
-  asapp-tasks-service:
-    build: .
-    image: 'asapp-tasks-service:0.2.0-SNAPSHOT'
-    container_name: asapp-tasks-service
-    restart: unless-stopped
-    ports:
-      - '8081:8081'
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - SERVER_PORT=8081
-      - MANAGEMENT_PORT=8091
-      - DB_HOST=asapp-tasks-postgres-db
-      - DB_PORT=5432
-      - DB_NAME=tasksdb
-      - DB_USERNAME=user
-      - DB_PASSWORD=secret
-      - ASAPP_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
-    depends_on:
-      - asapp-tasks-postgres-db
   asapp-authentication-service:
     build: .
     image: 'asapp-authentication-service:0.2.0-SNAPSHOT'
@@ -123,6 +104,25 @@ services:
       - ASAPP_REFRESH_TOKEN_EXPIRATION_TIME=3600000
     depends_on:
       - asapp-authentication-postgres-db
+  asapp-tasks-service:
+    build: .
+    image: 'asapp-tasks-service:0.2.0-SNAPSHOT'
+    container_name: asapp-tasks-service
+    restart: unless-stopped
+    ports:
+      - '8081:8081'
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_PORT=8081
+      - MANAGEMENT_PORT=8091
+      - DB_HOST=asapp-tasks-postgres-db
+      - DB_PORT=5432
+      - DB_NAME=tasksdb
+      - DB_USERNAME=user
+      - DB_PASSWORD=secret
+      - ASAPP_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
+    depends_on:
+      - asapp-tasks-postgres-db
   asapp-users-service:
     build: .
     image: 'asapp-users-service:0.2.0-SNAPSHOT'
@@ -144,8 +144,8 @@ services:
       - asapp-users-postgres-db
 
 volumes:
-  tasks-postgres-db-data:
-  authentication-postgres-db-data:
-  users-postgres-db-data:
   prometheus_auth:
+  authentication-postgres-db-data:
+  tasks-postgres-db-data:
+  users-postgres-db-data:
 
