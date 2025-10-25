@@ -80,7 +80,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsInactiveUser_GivenParametersAreValid() {
+        void ThenReturnsNewUser_GivenParametersAreValid() {
             // When
             var actual = User.newUser(firstName, lastName, email, phoneNumber);
 
@@ -148,7 +148,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsInactiveUser_GivenParametersAreValid() {
+        void ThenReturnsNewUser_GivenParametersAreValid() {
             // When
             var actual = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
 
