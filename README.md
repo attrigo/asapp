@@ -8,8 +8,9 @@ ASAPP is a web application focused on task management.
 
 ASAPP application provides the following operations to work with projects and tasks:
 
-* Tasks operations
 * Authentication operations
+* Tasks operations
+* User operations
 
 The application also comes with a [Grafana](https://grafana.com/) instance; this provides some metrics dashboards to monitor the services.
 
