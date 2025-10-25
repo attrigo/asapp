@@ -157,6 +157,26 @@ class UserE2EIT {
         }
 
         @Test
+        void DoesNotGetUsersAndReturnsStatusOKAndEmptyBody_ThereAreNotUsers() {
+            // When
+            var response = webTestClient.get()
+                                        .uri(USERS_GET_ALL_FULL_PATH)
+                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                        .exchange()
+                                        .expectStatus()
+                                        .isOk()
+                                        .expectHeader()
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .expectBodyList(GetAllUsersResponse.class)
+                                        .returnResult()
+                                        .getResponseBody();
+            // Then
+            // Assert API response
+            assertThat(response).isEmpty();
+        }
+
+        @Test
         void GetsAllUsersAndReturnsStatusOKAndBodyWithFoundUsers_ThereAreUsers() {
             // Given
             var firstUser = fakeUserBuilder().withEmail("first.test.user@asapp.com")
