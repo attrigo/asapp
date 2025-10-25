@@ -7,10 +7,18 @@
 
     <changeSet id="20240412_1-1" author="attrigo">
         <preConditions onFail="MARK_RAN" onSqlOutput="TEST">
-            <sqlCheck expectedResult="0">SELECT COUNT(*) FROM pg_available_extensions WHERE name = 'uuid-ossp' AND installed_version IS NOT NULL</sqlCheck>
+            <sqlCheck expectedResult="0">
+                SELECT COUNT(*)
+                FROM pg_available_extensions
+                WHERE name = 'uuid-ossp'
+                  AND installed_version IS NOT NULL
+            </sqlCheck>
         </preConditions>
 
-        <sql>CREATE EXTENSION IF NOT EXISTS "uuid-ossp"</sql>
+        <sql>
+            CREATE
+            EXTENSION IF NOT EXISTS "uuid-ossp"
+        </sql>
 
         <rollback>
             <sql>DROP EXTENSION IF EXISTS "uuid-ossp"</sql>
