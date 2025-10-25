@@ -14,31 +14,25 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.tasks;
-
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
+package com.bcn.asapp.tasks.infrastructure.security;
 
 /**
- * Main application entry point for the ASAPP tasks Service.
+ * Exception thrown when a JWT token has an unexpected type.
  * <p>
- * Initializes and launches the Spring Boot application context.
+ * Indicates that the token type does not match the expected type (e.g., receiving a refresh token when an access token was expected).
  *
- * @since 0.1.0
- * @see SpringApplication
- * @see SpringBootApplication
+ * @since 0.2.0
  * @author attrigo
  */
-@SpringBootApplication
-public class AsappTasksServiceApplication {
+public class UnexpectedJwtTypeException extends RuntimeException {
 
     /**
-     * Starts the Spring Boot application.
+     * Constructs a new {@code UnexpectedJwtTypeException} with the specified message.
      *
-     * @param args command line arguments passed to the application
+     * @param message the detail message
      */
-    public static void main(String[] args) {
-        SpringApplication.run(AsappTasksServiceApplication.class, args);
+    public UnexpectedJwtTypeException(String message) {
+        super(message);
     }
 
 }

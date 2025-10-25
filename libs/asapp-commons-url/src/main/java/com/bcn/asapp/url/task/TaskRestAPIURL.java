@@ -17,10 +17,10 @@
 package com.bcn.asapp.url.task;
 
 /**
- * Task REST API URLs.
+ * Defines the paths for task domain endpoints of asapp-tasks-service.
  *
- * @author ttrigo
  * @since 0.1.0
+ * @author attrigo
  */
 public class TaskRestAPIURL {
 
@@ -30,7 +30,7 @@ public class TaskRestAPIURL {
 
     public static final String TASKS_GET_ALL_PATH = "";
 
-    public static final String TASKS_GET_BY_PROJECT_ID_PATH = "/project/{id}";
+    public static final String TASKS_GET_BY_USER_ID_PATH = "/user/{id}";
 
     public static final String TASKS_CREATE_PATH = "";
 
@@ -42,7 +42,7 @@ public class TaskRestAPIURL {
 
     public static final String TASKS_GET_ALL_FULL_PATH = TASKS_ROOT_PATH + TASKS_GET_ALL_PATH;
 
-    public static final String TASKS_GET_BY_PROJECT_ID_FULL_PATH = TASKS_ROOT_PATH + TASKS_GET_BY_PROJECT_ID_PATH;
+    public static final String TASKS_GET_BY_USER_ID_FULL_PATH = TASKS_ROOT_PATH + TASKS_GET_BY_USER_ID_PATH;
 
     public static final String TASKS_CREATE_FULL_PATH = TASKS_ROOT_PATH + TASKS_CREATE_PATH;
 
