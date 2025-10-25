@@ -13,46 +13,46 @@
         </preConditions>
 
         <createTable tableName="jwt_authentications">
-            <column name="id" type="uuid" defaultValueComputed="uuid_generate_v4()" remarks="Identifier of the user">
+            <column name="id" type="uuid" defaultValueComputed="uuid_generate_v4()" remarks="The JWT authentication's unique identifier">
                 <constraints primaryKey="true" primaryKeyName="pk_jwt_authentication"/>
             </column>
-            <column name="user_id" type="uuid" remarks="The id of the user, fk to users.user_id">
+            <column name="user_id" type="uuid" remarks="the JWT authentication's user unique identifier">
                 <constraints nullable="false"/>
             </column>
-            <column name="access_token_token" type="varchar2(2000)" remarks="The JSON web token of the access token">
+            <column name="access_token_token" type="varchar2(2000)" remarks="The access token encoded JWT token">
                 <constraints nullable="false"/>
             </column>
-            <column name="access_token_type" type="varchar2(15)" remarks="The type of the access token">
+            <column name="access_token_type" type="varchar2(15)" remarks="The access token token type">
                 <constraints nullable="false"/>
             </column>
-            <column name="access_token_subject" type="varchar2(100)" remarks="The subject of the access token">
+            <column name="access_token_subject" type="varchar2(100)" remarks="The access token subject identifier">
                 <constraints nullable="false"/>
             </column>
-            <column name="access_token_claims" type="jsonb" remarks="The claims of the access token stored as JSON">
+            <column name="access_token_claims" type="jsonb" remarks="The access token JWT claims">
                 <constraints nullable="false"/>
             </column>
-            <column name="access_token_issued" type="timestamp" remarks="Issued date of the access token">
+            <column name="access_token_issued" type="timestamp" remarks="The access token issued timestamp">
                 <constraints nullable="false"/>
             </column>
-            <column name="access_token_expiration" type="timestamp" remarks="Expiration date of the access token">
+            <column name="access_token_expiration" type="timestamp" remarks="The access token expiration timestamp">
                 <constraints nullable="false"/>
             </column>
-            <column name="refresh_token_token" type="varchar2(2000)" remarks="The JSON web token of the refresh token">
+            <column name="refresh_token_token" type="varchar2(2000)" remarks="The refresh token encoded JWT token">
                 <constraints nullable="false"/>
             </column>
-            <column name="refresh_token_type" type="varchar2(15)" remarks="The type of the refresh token">
+            <column name="refresh_token_type" type="varchar2(15)" remarks="The refresh token token type">
                 <constraints nullable="false"/>
             </column>
-            <column name="refresh_token_subject" type="varchar2(100)" remarks="The subject of the refresh token">
+            <column name="refresh_token_subject" type="varchar2(100)" remarks="The refresh token subject identifier">
                 <constraints nullable="false"/>
             </column>
-            <column name="refresh_token_claims" type="jsonb" remarks="The claims of the refresh token stored as JSON">
+            <column name="refresh_token_claims" type="jsonb" remarks="The refresh token JWT claims">
                 <constraints nullable="false"/>
             </column>
-            <column name="refresh_token_issued" type="timestamp" remarks="Issued date of the refresh token">
+            <column name="refresh_token_issued" type="timestamp" remarks="The refresh token issued timestamp">
                 <constraints nullable="false"/>
             </column>
-            <column name="refresh_token_expiration" type="timestamp" remarks="Expiration date of the refresh token">
+            <column name="refresh_token_expiration" type="timestamp" remarks="The refresh token expiration timestamp">
                 <constraints nullable="false"/>
             </column>
         </createTable>
