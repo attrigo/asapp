@@ -72,7 +72,7 @@ public record Issued(
      * @throws IllegalArgumentException if the issued date is {@code null}
      */
     public static Issued of(Date issuedDate) {
-        validateExpirationDateIsNotNull(issuedDate);
+        validateIssuedDateIsNotNull(issuedDate);
 
         var issuedInstant = Instant.ofEpochMilli(issuedDate.getTime());
         return new Issued(issuedInstant);
@@ -114,7 +114,7 @@ public record Issued(
      * @param issuedDate the issued date to validate
      * @throws IllegalArgumentException if the issued date is {@code null}
      */
-    private static void validateExpirationDateIsNotNull(Date issuedDate) {
+    private static void validateIssuedDateIsNotNull(Date issuedDate) {
         if (issuedDate == null) {
             throw new IllegalArgumentException("Issued date must not be null");
         }
