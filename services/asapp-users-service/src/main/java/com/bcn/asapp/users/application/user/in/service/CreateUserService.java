@@ -49,7 +49,7 @@ public class CreateUserService implements CreateUserUseCase {
     /**
      * Creates a new user based on the provided command.
      * <p>
-     * Validates and transforms command data into domain objects, creates an inactive user, and persists it to the repository.
+     * Validates and transforms command data into domain objects, creates a new user, and persists it to the repository.
      *
      * @param command the {@link CreateUserCommand} containing user registration data
      * @return the created {@link User} with a persistent ID

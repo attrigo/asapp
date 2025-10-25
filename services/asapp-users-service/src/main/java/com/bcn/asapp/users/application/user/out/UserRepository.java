@@ -50,9 +50,9 @@ public interface UserRepository {
     /**
      * Saves a user to the repository.
      * <p>
-     * If the user is inactive (without ID), it will be persisted and returned with a generated ID.
+     * If the user is new (without ID), it will be persisted and returned with a generated ID.
      * <p>
-     * If the user is active (with ID), it will be updated.
+     * If the user is reconstructed (with ID), it will be updated.
      *
      * @param user the {@link User} to save
      * @return the saved {@link User} with a persistent ID

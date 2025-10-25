@@ -23,7 +23,7 @@ import java.util.Objects;
  * <p>
  * This aggregate root encapsulates user identity and common user information.
  * <p>
- * Users can exist in two states: inactive (transient, without ID) and active (persistent, with ID).
+ * Users can exist in two states: new (transient, without ID) and reconstructed (persistent, with ID).
  * <p>
  * Equality is based on ID; new instances are not considered equal to any other instance.
  *
@@ -43,7 +43,7 @@ public final class User {
     private PhoneNumber phoneNumber;
 
     /**
-     * Constructor a new inactive {@code User} instance and validates its integrity.
+     * Constructs a new {@code User} instance and validates its integrity.
      *
      * @param firstName   the user's first name
      * @param lastName    the user's last name
@@ -64,7 +64,7 @@ public final class User {
     }
 
     /**
-     * Constructor a new active {@code User} instance and validates its integrity.
+     * Constructs a new reconstructed {@code User} instance and validates its integrity.
      *
      * @param id          the user's unique identifier
      * @param firstName   the user's first name
@@ -95,7 +95,7 @@ public final class User {
      * @param lastName    the user's last name
      * @param email       the user's email
      * @param phoneNumber the user's phone number
-     * @return a new inactive {@code User} instance
+     * @return a new {@code User} instance
      * @throws IllegalArgumentException if any parameter is {@code null}
      */
     // TODO: Think better name
@@ -113,7 +113,7 @@ public final class User {
      * @param lastName    the user's last name
      * @param email       the user's email
      * @param phoneNumber the user's phone number
-     * @return a new active {@code User} instance
+     * @return a new reconstructed {@code User} instance
      * @throws IllegalArgumentException if any parameter is {@code null}
      */
     // TODO: Think better name
@@ -169,7 +169,7 @@ public final class User {
     /**
      * Generates hash code based on user ID.
      * <p>
-     * Uses ID for authenticated instances and identity hash code for unauthenticated instances.
+     * Uses ID for reconstructed instances and identity hash code for new instances.
      *
      * @return the hash code
      */
@@ -181,7 +181,7 @@ public final class User {
     /**
      * Returns the user's unique identifier.
      *
-     * @return the {@link UserId}, or {@code null} for inactive users
+     * @return the {@link UserId}, or {@code null} for new users
      */
     public UserId getId() {
         return this.id;
