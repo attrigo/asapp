@@ -16,58 +16,79 @@
 
 package com.bcn.asapp.clients.config;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.client.RestClient;
 
-import com.bcn.asapp.clients.internal.uri.DefaultUriHandler;
-import com.bcn.asapp.clients.internal.uri.UriHandler;
-
 /**
- * Fallback REST client configuration.
+ * Fallback configuration for REST client infrastructure.
+ * <p>
+ * This configuration provides a default {@link RestClient.Builder} bean when no custom builder has been defined by the consuming application.
+ * <p>
+ * It follows Spring Boot's autoconfiguration pattern, allowing services to either use this basic builder or override it with their own customized version.
+ * <p>
+ * <b>Usage Pattern:</b>
+ * <ul>
+ * <li>If a service <b>does not define</b> a {@link RestClient.Builder} bean, this fallback provides a basic builder with default settings</li>
+ * <li>If a service <b>defines its own</b> {@link RestClient.Builder} bean, that bean takes precedence and this fallback is not created</li>
+ * </ul>
+ * <p>
+ * <b>Typical Override Example:</b>
+ * 
+ * <pre>
+ * &#64;Configuration
+ * public class CustomRestClientConfiguration {
+ *
+ *     &#64;Bean
+ *     RestClient.Builder restClientBuilder() {
+ *         return RestClient.builder()
+ *                          .requestInterceptor(new JwtInterceptor()) // Custom interceptor
+ *                          .defaultHeader("X-Custom-Header", "value");
+ *     }
+ * 
+ * }
+ * </pre>
+ * <p>
+ * This fallback ensures that REST client beans in this library (such as {@code TasksServiceClient}) can always resolve a {@link RestClient.Builder} dependency,
+ * whether the consuming service has provided custom configuration.
  *
  * @since 0.1.0
+ * @see RestClient.Builder
+ * @see ConditionalOnMissingBean
  * @author attrigo
  */
 @Configuration
 public class FallbackRestClientConfiguration {
 
     /**
-     * Provides a fallback {@link RestClient.Builder} bean.
+     * Provides a fallback {@link RestClient.Builder} bean with default configuration.
      * <p>
-     * The bean does not have any custom configuration, just the default {@link RestClient.Builder}.
+     * It returns a builder with Spring's default settings, suitable for basic HTTP communication.
      * <p>
-     * This bean can be used to perform HTTP calls to REST services.
+     * This bean is only created when no other {@link RestClient.Builder} bean exists in the application context, as indicated by the
+     * {@link ConditionalOnMissingBean} annotation.
      * <p>
-     * The bean is only created if the involved REST service has not declared a specific {@link RestClient.Builder}.
+     * <b>When This Bean Is Created:</b>
+     * <ul>
+     * <li>The consuming application has <b>not</b> defined its own {@link RestClient.Builder} bean</li>
+     * <li>REST client beans need a builder dependency</li>
+     * </ul>
+     * <p>
+     * <b>When This Bean Is Skipped:</b>
+     * <ul>
+     * <li>The consuming application provides a custom {@link RestClient.Builder} with specific configuration (interceptors, headers, error handlers, etc.)</li>
+     * </ul>
+     * <p>
+     * <b>Default Behavior:</b> The builder has no custom interceptors, headers, or error handling - just Spring's out-of-the-box REST client functionality.
+     * Applications requiring authentication, custom timeouts, or other HTTP client customizations should provide their own builder bean.
      *
-     * @return a {@link RestClient.Builder} instance.
+     * @return a {@link RestClient.Builder} instance with default configuration
      */
     @Bean
     @ConditionalOnMissingBean(RestClient.Builder.class)
     RestClient.Builder restClientBuilder() {
         return RestClient.builder();
-    }
-
-    /**
-     * Provides a fallback {@link UriHandler} bean.
-     * <p>
-     * This bean can be used to build URIs that points to the REST tasks service.
-     * <p>
-     * The bean is only created if the involved REST service has not declared a specific {@link UriHandler} bean with name {@literal tasksServiceUriHandler},
-     * and has declared the property {@literal asapp.tasks-service.base-url}.
-     *
-     * @param taskServiceURL the base URL of tasks REST service.
-     * @return a {@link UriHandler} instance.
-     */
-    @Bean
-    @ConditionalOnMissingBean(name = "tasksServiceUriHandler")
-    @ConditionalOnProperty("asapp.tasks-service.base-url")
-    UriHandler tasksServiceUriHandler(@Value("${asapp.tasks-service.base-url}") String taskServiceURL) {
-        return new DefaultUriHandler(taskServiceURL);
     }
 
 }
