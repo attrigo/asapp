@@ -14,21 +14,21 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.clients.internal.uri;
+package com.bcn.asapp.clients.tasks.response;
 
-import org.springframework.web.util.UriBuilder;
+import java.util.UUID;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Handler interface to provide clean instances of Spring's {@link UriBuilder}.
+ * Internal DTO for mapping task responses from the Tasks Service.
+ * <p>
+ * This record contains only the fields needed for extracting task IDs. Additional fields returned by the service are ignored.
+ *
+ * @param taskId the task's unique identifier
+ * @since 0.2.0
+ * @author attrigo
  */
-@FunctionalInterface
-public interface UriHandler {
-
-    /**
-     * Creates a new instance of {@link UriBuilder}.
-     *
-     * @return a new instance of {@link UriBuilder}.
-     */
-    UriBuilder newInstance();
-
-}
+public record TasksByUserIdResponse(
+        @JsonProperty("task_id") UUID taskId
+) {}
