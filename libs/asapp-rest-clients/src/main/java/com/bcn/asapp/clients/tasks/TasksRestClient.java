@@ -18,6 +18,7 @@ package com.bcn.asapp.clients.tasks;
 
 import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,12 +34,11 @@ import com.bcn.asapp.clients.util.UriHandler;
 /**
  * REST-based implementation of {@link TasksClient}.
  * <p>
- * This implementation communicates with the Tasks Service via HTTP REST calls.
+ * This implementation communicates with the Tasks Service via HTTP REST calls using Spring's {@link RestClient}.
  * <p>
- * It uses Spring's {@link RestClient} for making HTTP requests.
- * <p>
- * When communication with the Tasks Service fails, this implementation logs a warning and returns {@code null} to allow graceful degradation. This prevents
- * cascading failures when the Tasks Service is temporarily unavailable.
+ * When communication with the Tasks Service fails (network errors, service unavailability, or invalid responses), this implementation logs a warning and
+ * returns an empty list. This approach prevents cascading failures and allows the consuming service to continue operating even when the Tasks Service is
+ * temporarily unavailable. API consumers will receive an empty task list rather than experiencing a complete request failure.
  *
  * @since 0.2.0
  * @author attrigo
@@ -65,13 +65,10 @@ public class TasksRestClient implements TasksClient {
     /**
      * Retrieves all task identifiers for a specific user by calling the Tasks Service REST API.
      * <p>
-     * Makes a GET request and extracts the task IDs from the response.
-     * <p>
-     * If the request fails due to network issues, service unavailability, or any other {@link RestClientException}, this method logs a warning and returns
-     * {@code null} to enable graceful degradation.
+     * Makes a GET request to the Tasks Service and extracts the task IDs from the response.
      *
      * @param userId the unique identifier of the user whose task IDs should be retrieved
-     * @return a {@link List} of task UUIDs belonging to the user, an empty list if the user has no tasks or {@code null} if an error occurs
+     * @return a {@link List} of task UUIDs belonging to the user; an empty list if the user has no tasks or if an error occurs during retrieval
      * @throws IllegalArgumentException if userId is {@code null}
      */
     @Override
@@ -91,7 +88,8 @@ public class TasksRestClient implements TasksClient {
                                                                .body(new ParameterizedTypeReference<>() {});
 
             if (tasks == null) {
-                return null;
+                logger.warn("Received null response body from Tasks Service for user {}. Returning empty list.", userId);
+                return Collections.emptyList();
             }
 
             return tasks.stream()
@@ -99,8 +97,8 @@ public class TasksRestClient implements TasksClient {
                         .toList();
 
         } catch (RestClientException e) {
-            logger.warn("Failed to retrieve tasks for user {}: {}", userId, e.getMessage());
-            return null;
+            logger.warn("Failed to retrieve tasks for user {}: {}. Returning empty list.", userId, e.getMessage());
+            return Collections.emptyList();
         }
     }
 

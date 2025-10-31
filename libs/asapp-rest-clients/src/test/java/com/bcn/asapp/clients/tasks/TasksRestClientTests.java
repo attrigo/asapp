@@ -75,7 +75,7 @@ class TasksRestClientTests {
     class GetTaskIdsByUserId {
 
         @Test
-        void ThenReturnsNull_GivenServerError() {
+        void ThenReturnsEmptyList_GivenServerError() {
             // Given
             var expectedUri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
             var uriVariables = USER_ID.toString();
@@ -88,7 +88,8 @@ class TasksRestClientTests {
             var actual = tasksRestClient.getTaskIdsByUserId(USER_ID);
 
             // Then
-            assertThat(actual).isNull();
+            assertThat(actual).isNotNull()
+                              .isEmpty();
         }
 
         @Test
@@ -102,7 +103,7 @@ class TasksRestClientTests {
         }
 
         @Test
-        void ThenReturnsNull_GivenResponseIsNull() {
+        void ThenReturnsEmptyList_GivenResponseIsNull() {
             // Given
             var expectedUri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
             var uriVariables = USER_ID.toString();
@@ -115,7 +116,8 @@ class TasksRestClientTests {
             var actual = tasksRestClient.getTaskIdsByUserId(USER_ID);
 
             // Then
-            assertThat(actual).isNull();
+            assertThat(actual).isNotNull()
+                              .isEmpty();
         }
 
         @Test
