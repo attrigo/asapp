@@ -16,6 +16,7 @@
 
 package com.bcn.asapp.users.infrastructure.user.in.response;
 
+import java.util.List;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -28,6 +29,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @param lastName    the user's last name
  * @param email       the user's email
  * @param phoneNumber the user's phone number
+ * @param taskIds     the user's task identifiers
  * @since 0.2.0
  * @author attrigo
  */
@@ -36,5 +38,6 @@ public record GetUserByIdResponse(
         @JsonProperty("first_name") String firstName,
         @JsonProperty("last_name") String lastName,
         String email,
-        @JsonProperty("phone_number") String phoneNumber
+        @JsonProperty("phone_number") String phoneNumber,
+        @JsonProperty("task_ids") List<UUID> taskIds
 ) {}

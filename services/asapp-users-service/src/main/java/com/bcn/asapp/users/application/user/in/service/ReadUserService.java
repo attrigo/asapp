@@ -22,6 +22,8 @@ import java.util.UUID;
 
 import com.bcn.asapp.users.application.ApplicationService;
 import com.bcn.asapp.users.application.user.in.ReadUserUseCase;
+import com.bcn.asapp.users.application.user.in.result.UserWithTasksResult;
+import com.bcn.asapp.users.application.user.out.TasksGateway;
 import com.bcn.asapp.users.application.user.out.UserRepository;
 import com.bcn.asapp.users.domain.user.User;
 import com.bcn.asapp.users.domain.user.UserId;
@@ -37,27 +39,44 @@ public class ReadUserService implements ReadUserUseCase {
 
     private final UserRepository userRepository;
 
+    private final TasksGateway tasksGateway;
+
     /**
      * Constructs a new {@code ReadUserService} with required dependencies.
      *
-     * @param userRepository the user repository
+     * @param userRepository the user repository for accessing user persistence
+     * @param tasksGateway   the task gateway for accessing task information from Tasks Service
      */
-    public ReadUserService(UserRepository userRepository) {
+    public ReadUserService(UserRepository userRepository, TasksGateway tasksGateway) {
         this.userRepository = userRepository;
+        this.tasksGateway = tasksGateway;
     }
 
     /**
-     * Retrieves a user by their unique identifier.
+     * Retrieves a user by their unique identifier, enriched with task references.
+     * <p>
+     * This method orchestrates data retrieval from multiple sources:
+     * <ol>
+     * <li>Fetches the user from the repository</li>
+     * <li>Fetches associated task IDs from the task gateway</li>
+     * <li>Combines the results into a {@link UserWithTasksResult}</li>
+     * </ol>
+     * <p>
+     * If task retrieval fails or the Task Service is unavailable, the result will contain the user with an empty task list, allowing graceful degradation.
      *
      * @param id the user's unique identifier
-     * @return an {@link Optional} containing the {@link User} if found, {@link Optional#empty} otherwise
+     * @return an {@link Optional} containing the {@link UserWithTasksResult} if the user is found, {@link Optional#empty} otherwise
      * @throws IllegalArgumentException if the id is invalid
      */
     @Override
-    public Optional<User> getUserById(UUID id) {
+    public Optional<UserWithTasksResult> getUserById(UUID id) {
         var userId = UserId.of(id);
 
-        return this.userRepository.findById(userId);
+        return this.userRepository.findById(userId)
+                                  .map(user -> {
+                                      var taskIds = tasksGateway.getTaskIdsByUserId(user.getId());
+                                      return new UserWithTasksResult(user, taskIds);
+                                  });
     }
 
     /**

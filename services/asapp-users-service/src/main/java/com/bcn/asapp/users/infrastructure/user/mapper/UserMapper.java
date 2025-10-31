@@ -23,6 +23,7 @@ import org.mapstruct.Mapping;
 
 import com.bcn.asapp.users.application.user.in.command.CreateUserCommand;
 import com.bcn.asapp.users.application.user.in.command.UpdateUserCommand;
+import com.bcn.asapp.users.application.user.in.result.UserWithTasksResult;
 import com.bcn.asapp.users.domain.user.User;
 import com.bcn.asapp.users.infrastructure.user.in.request.CreateUserRequest;
 import com.bcn.asapp.users.infrastructure.user.in.request.UpdateUserRequest;
@@ -87,13 +88,20 @@ public interface UserMapper {
     User toUser(UserEntity userEntity);
 
     /**
-     * Maps a domain {@link User} to a {@link GetUserByIdResponse}.
+     * Maps a {@link UserWithTasksResult} to a {@link GetUserByIdResponse}.
+     * <p>
+     * Combines user information with task references into a single response.
      *
-     * @param user the {@link User} domain entity
-     * @return the {@link GetUserByIdResponse}
+     * @param result the {@link UserWithTasksResult} containing user and task information
+     * @return the {@link GetUserByIdResponse} with user data and task IDs
      */
-    @Mapping(target = "userId", source = "id")
-    GetUserByIdResponse toGetUserByIdResponse(User user);
+    @Mapping(target = "userId", source = "user.id")
+    @Mapping(target = "firstName", source = "user.firstName")
+    @Mapping(target = "lastName", source = "user.lastName")
+    @Mapping(target = "email", source = "user.email")
+    @Mapping(target = "phoneNumber", source = "user.phoneNumber")
+    @Mapping(target = "taskIds", source = "taskIds")
+    GetUserByIdResponse toGetUserByIdResponse(UserWithTasksResult result);
 
     /**
      * Maps a domain {@link User} to a {@link GetAllUsersResponse}.
