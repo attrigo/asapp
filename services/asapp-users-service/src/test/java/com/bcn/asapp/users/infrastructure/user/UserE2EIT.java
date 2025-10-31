@@ -16,6 +16,7 @@
 
 package com.bcn.asapp.users.infrastructure.user;
 
+import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_CREATE_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_DELETE_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_ALL_FULL_PATH;
@@ -29,20 +30,36 @@ import static com.bcn.asapp.users.testutil.TestDataFaker.UserDataFaker.DEFAULT_F
 import static com.bcn.asapp.users.testutil.TestDataFaker.UserDataFaker.defaultFakeUser;
 import static com.bcn.asapp.users.testutil.TestDataFaker.UserDataFaker.fakeUserBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockserver.matchers.Times.once;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockserver.client.MockServerClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.system.CapturedOutput;
+import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.testcontainers.containers.MockServerContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
 import com.bcn.asapp.users.AsappUsersServiceApplication;
 import com.bcn.asapp.users.infrastructure.user.in.request.CreateUserRequest;
@@ -57,7 +74,20 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 @SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient(timeout = "30000")
 @Import(TestContainerConfiguration.class)
+@Testcontainers
+@ExtendWith(OutputCaptureExtension.class)
 class UserE2EIT {
+
+    @Container
+    static MockServerContainer mockServerContainer = new MockServerContainer(DockerImageName.parse("mockserver/mockserver:5.15.0"));
+
+    static MockServerClient mockServerClient;
+
+    @DynamicPropertySource
+    static void overrideProperties(DynamicPropertyRegistry registry) {
+        mockServerClient = new MockServerClient(mockServerContainer.getHost(), mockServerContainer.getServerPort());
+        registry.add("asapp.client.tasks.base-url", mockServerContainer::getEndpoint);
+    }
 
     @Autowired
     private UserJdbcRepository userRepository;
@@ -70,6 +100,7 @@ class UserE2EIT {
     @BeforeEach
     void beforeEach() {
         userRepository.deleteAll();
+        mockServerClient.reset();
 
         bearerToken = "Bearer " + defaultFakeEncodedAccessToken();
     }
@@ -93,6 +124,42 @@ class UserE2EIT {
         }
 
         @Test
+        void GetsUserAndReturnsStatusOKAndBodyWithFoundUserWithoutTasks_UserExistsAndTasksServiceFails(CapturedOutput output) {
+            // Given
+            var user = defaultFakeUser();
+            var userCreated = userRepository.save(user);
+            assertThat(userCreated).isNotNull();
+
+            mockRequestToGetTasksByUserIdWithServerErrorResponse(userCreated.id());
+
+            // When
+            var userIdPath = userCreated.id();
+
+            var response = webTestClient.get()
+                                        .uri(USERS_GET_BY_ID_FULL_PATH, userIdPath)
+                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                        .exchange()
+                                        .expectStatus()
+                                        .isOk()
+                                        .expectHeader()
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .expectBody(GetUserByIdResponse.class)
+                                        .returnResult()
+                                        .getResponseBody();
+
+            // Then
+            // Assert API response - graceful degradation returns empty list
+            var expectedResponse = new GetUserByIdResponse(userCreated.id(), userCreated.firstName(), userCreated.lastName(), userCreated.email(),
+                    userCreated.phoneNumber(), Collections.emptyList());
+            assertThat(response).isEqualTo(expectedResponse);
+
+            // Assert warning logs appear due to service failure
+            assertThat(output.getAll()).contains("Failed to retrieve tasks for user " + userCreated.id())
+                                       .contains("Returning empty list");
+        }
+
+        @Test
         void DoesNotGetUserAndReturnsStatusNotFoundAndEmptyBody_UserNotExists() {
             // When & Then
             var userIdPath = UUID.randomUUID();
@@ -109,11 +176,13 @@ class UserE2EIT {
         }
 
         @Test
-        void GetsUserAndReturnsStatusOKAndBodyWithFoundUser_UserExists() {
+        void GetsUserAndReturnsStatusOKAndBodyWithFoundUserWithoutTasks_UserExistsWithoutTasks(CapturedOutput output) {
             // Given
             var user = defaultFakeUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
+
+            mockRequestToGetTasksByUserIdWithOkResponse(userCreated.id(), Collections.emptyList());
 
             // When
             var userIdPath = userCreated.id();
@@ -134,7 +203,48 @@ class UserE2EIT {
             // Then
             // Assert API response
             var expectedResponse = new GetUserByIdResponse(userCreated.id(), userCreated.firstName(), userCreated.lastName(), userCreated.email(),
-                    userCreated.phoneNumber());
+                    userCreated.phoneNumber(), Collections.emptyList());
+            assertThat(response).isEqualTo(expectedResponse);
+
+            // Assert NO warning logs appear for a successful empty response
+            assertThat(output.getAll()).doesNotContain("Failed to retrieve tasks")
+                                       .doesNotContain("Returning empty list");
+        }
+
+        @Test
+        void GetsUserAndReturnsStatusOKAndBodyWithFoundUserWithTasks_UserExistsWithTasks() {
+            // Given
+            var user = defaultFakeUser();
+            var userCreated = userRepository.save(user);
+            assertThat(userCreated).isNotNull();
+
+            var taskId1 = UUID.randomUUID();
+            var taskId2 = UUID.randomUUID();
+            var taskId3 = UUID.randomUUID();
+            var taskIds = List.of(taskId1, taskId2, taskId3);
+
+            mockRequestToGetTasksByUserIdWithOkResponse(userCreated.id(), taskIds);
+
+            // When
+            var userIdPath = userCreated.id();
+
+            var response = webTestClient.get()
+                                        .uri(USERS_GET_BY_ID_FULL_PATH, userIdPath)
+                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                        .exchange()
+                                        .expectStatus()
+                                        .isOk()
+                                        .expectHeader()
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .expectBody(GetUserByIdResponse.class)
+                                        .returnResult()
+                                        .getResponseBody();
+
+            // Then
+            // Assert API response
+            var expectedResponse = new GetUserByIdResponse(userCreated.id(), userCreated.firstName(), userCreated.lastName(), userCreated.email(),
+                    userCreated.phoneNumber(), taskIds);
             assertThat(response).isEqualTo(expectedResponse);
         }
 
@@ -460,6 +570,36 @@ class UserE2EIT {
             assertThat(optionalActualUser).isEmpty();
         }
 
+    }
+
+    private void mockRequestToGetTasksByUserIdWithOkResponse(UUID userId, List<UUID> taskIds) {
+        try {
+            var responseBody = taskIds.stream()
+                                      .map(taskId -> String.format("{\"task_id\":\"%s\"}", taskId))
+                                      .toList();
+            var jsonResponse = "[" + String.join(",", responseBody) + "]";
+
+            var request = request().withMethod(HttpMethod.GET.name())
+                                   .withPath(TASKS_GET_BY_USER_ID_FULL_PATH)
+                                   .withPathParameter("id", userId.toString());
+            var times = once();
+            mockServerClient.when(request, times)
+                            .respond(response().withStatusCode(200)
+                                               .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                               .withBody(jsonResponse));
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to mock tasks service response", e);
+        }
+    }
+
+    private void mockRequestToGetTasksByUserIdWithServerErrorResponse(UUID userId) {
+        var request = request().withMethod(HttpMethod.GET.name())
+                               .withPath(TASKS_GET_BY_USER_ID_FULL_PATH)
+                               .withPathParameter("id", userId.toString());
+        var times = once();
+        mockServerClient.when(request, times)
+                        .respond(response().withStatusCode(500)
+                                           .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE));
     }
 
 }

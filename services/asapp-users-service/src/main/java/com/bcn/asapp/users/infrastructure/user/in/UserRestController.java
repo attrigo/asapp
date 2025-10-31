@@ -76,7 +76,11 @@ public class UserRestController implements UserRestAPI {
     }
 
     /**
-     * Gets a user by their unique identifier.
+     * Gets a user by their unique identifier, enriched with task references.
+     * <p>
+     * This endpoint returns user information along with a list of task identifiers associated with the user.
+     * <p>
+     * If task retrieval fails, the response will contain the user with an empty task list (graceful degradation).
      *
      * @param id the user's unique identifier
      * @return a {@link ResponseEntity} wrapping the {@link GetUserByIdResponse} if found, otherwise wrapping empty

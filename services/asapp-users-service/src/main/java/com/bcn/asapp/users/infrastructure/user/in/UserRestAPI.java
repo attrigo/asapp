@@ -68,11 +68,15 @@ import com.bcn.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
 public interface UserRestAPI {
 
     /**
-     * Gets a user by their unique identifier.
+     * Gets a user by their unique identifier, enriched with task references.
+     * <p>
+     * This endpoint retrieves user information along with a list of task identifiers associated with the user.
+     * <p>
+     * If task retrieval fails, the response will contain the user with an empty task list (graceful degradation).
      * <p>
      * Response codes:
      * <ul>
-     * <li>20O-OK: User found.</li>
+     * <li>200-OK: User found (with or without tasks).</li>
      * <li>400-BAD_REQUEST: Invalid user id format.</li>
      * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
      * <li>404-NOT_FOUND: User not found.</li>
@@ -82,8 +86,9 @@ public interface UserRestAPI {
      * @return a {@link ResponseEntity} wrapping the {@link GetUserByIdResponse} if found, otherwise wrapping empty
      */
     @GetMapping(value = USERS_GET_BY_ID_PATH, produces = "application/json")
-    @Operation(summary = "Gets a user by their unique identifier", description = "Retrieves detailed information about a specific user by their unique identifier. This endpoint requires authentication.")
-    @ApiResponse(responseCode = "200", description = "User found", content = { @Content(schema = @Schema(implementation = GetUserByIdResponse.class)) })
+    @Operation(summary = "Gets a user by their unique identifier with task references", description = "Retrieves detailed information about a specific user by their unique identifier, including a list of associated task IDs. This endpoint requires authentication.")
+    @ApiResponse(responseCode = "200", description = "User found (with or without tasks)", content = {
+            @Content(schema = @Schema(implementation = GetUserByIdResponse.class)) })
     @ApiResponse(responseCode = "400", description = "Invalid user identifier format", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })

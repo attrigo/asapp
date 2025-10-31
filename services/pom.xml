@@ -23,6 +23,7 @@
         <jjwt.version>0.12.6</jjwt.version>
         <json-unit-assertj.version>4.1.1</json-unit-assertj.version>
         <mapstruct.version>1.6.3</mapstruct.version>
+        <mockserver-client-java.version>5.15.0</mockserver-client-java.version>
         <pitest-maven.version>1.20.4</pitest-maven.version>
         <springdoc-openapi-starter.version>2.8.5</springdoc-openapi-starter.version>
 
@@ -84,6 +85,12 @@
                 <groupId>org.pitest</groupId>
                 <artifactId>pitest-junit5-plugin</artifactId>
                 <version>${pitest-junit5-plugin.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mock-server</groupId>
+                <artifactId>mockserver-client-java</artifactId>
+                <version>${mockserver-client-java.version}</version>
                 <scope>test</scope>
             </dependency>
             <!-- * Other Dependencies -->
