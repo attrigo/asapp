@@ -170,7 +170,7 @@ public interface TaskRestAPI {
      *
      * @param id      the task's unique identifier
      * @param request the {@link UpdateTaskRequest} containing updated task data
-     * @return a {@link ResponseEntity} containing the {@link UpdateTaskResponse} with the task identifier if found, otherwise wrapping empty
+     * @return a {@link ResponseEntity} wrapping the {@link UpdateTaskResponse} with the task identifier if found, otherwise wrapping empty
      */
     @PutMapping(value = TASKS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
     @Operation(summary = "Updates an existing task by their unique identifier", description = "Updates the information of an existing task identified by their unique identifier. This endpoint requires authentication. Only the fields provided in the request will be updated. Returns the task identifier. Use GET endpoint to retrieve full task details.")

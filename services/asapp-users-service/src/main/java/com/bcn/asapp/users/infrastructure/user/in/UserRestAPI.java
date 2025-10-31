@@ -150,7 +150,7 @@ public interface UserRestAPI {
      *
      * @param id      the user's unique identifier
      * @param request the {@link UpdateUserRequest} containing updated user data
-     * @return a {@link ResponseEntity} containing the {@link UpdateUserResponse} with the user identifier if found, otherwise wrapping empty
+     * @return a {@link ResponseEntity} wrapping the {@link UpdateUserResponse} with the user identifier if found, otherwise wrapping empty
      */
     @PutMapping(value = USERS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
     @Operation(summary = "Updates an existing user by their unique identifier", description = "Updates the information of an existing user identified by their unique identifier. This endpoint requires authentication. Only the fields provided in the request will be updated. Returns the user identifier. Use GET endpoint to retrieve full user details.")

@@ -54,7 +54,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * @param headers the HTTP headers
      * @param status  the HTTP status
      * @param request the web request
-     * @return a {@link ResponseEntity} containing the {@link ProblemDetail} with validation errors
+     * @return a {@link ResponseEntity} wrapping the {@link ProblemDetail} with validation errors
      */
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, @NonNull HttpHeaders headers,

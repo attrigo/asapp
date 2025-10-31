@@ -138,7 +138,7 @@ public class TaskRestController implements TaskRestAPI {
      *
      * @param id      the task's unique identifier
      * @param request the {@link UpdateTaskRequest} containing updated task data
-     * @return a {@link ResponseEntity} containing the {@link UpdateTaskResponse} if found, otherwise wrapping empty
+     * @return a {@link ResponseEntity} wrapping the {@link UpdateTaskResponse} if found, otherwise wrapping empty
      */
     @Override
     public ResponseEntity<UpdateTaskResponse> updateTaskById(UUID id, UpdateTaskRequest request) {
