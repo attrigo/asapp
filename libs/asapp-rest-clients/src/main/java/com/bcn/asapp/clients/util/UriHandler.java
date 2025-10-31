@@ -37,9 +37,9 @@ import org.springframework.web.util.UriBuilder;
  *
  * <pre>
  * public class SomeServiceClient {
- * 
+ *
  *     private final RestClient restClient;
- * 
+ *
  *     private final UriHandler uriHandler;
  *
  *     public void callService(String param) {
@@ -52,7 +52,7 @@ import org.springframework.web.util.UriBuilder;
  *                   .retrieve()
  *                   .body(ResponseType.class);
  *     }
- * 
+ *
  * }
  * </pre>
  * <p>
@@ -76,15 +76,14 @@ public interface UriHandler {
      * Each invocation should return a fresh, independent builder instance to ensure thread-safety and prevent unintended state sharing between concurrent
      * requests. The returned builder is typically preconfigured with a base URI, allowing callers to append paths and parameters as needed.
      * <p>
-     * <b>Thread Safety:</b> Implementations must ensure that each returned builder is a new instance, not a shared singleton, to support concurrent usage
-     * without synchronization.
+     * Implementations must ensure that each returned builder is a new instance, not a shared singleton, to support concurrent usage without synchronization.
      * <p>
      * <b>Example:</b>
      *
      * <pre>
-     * 
+     *
      * UriHandler handler = new DefaultUriHandler("http://localhost:8080/api");
-     * 
+     *
      * URI uri = handler.newInstance()
      *                  .path("/users/{id}")
      *                  .queryParam("format", "json")
