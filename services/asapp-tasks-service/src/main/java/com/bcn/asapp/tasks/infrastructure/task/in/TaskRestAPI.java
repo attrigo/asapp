@@ -16,13 +16,13 @@
 
 package com.bcn.asapp.tasks.infrastructure.task.in;
 
-import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_CREATE_PATH;
-import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_DELETE_BY_ID_PATH;
-import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_ALL_PATH;
-import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_BY_ID_PATH;
-import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_BY_USER_ID_PATH;
-import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_ROOT_PATH;
-import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_UPDATE_BY_ID_PATH;
+import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_CREATE_PATH;
+import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_DELETE_BY_ID_PATH;
+import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_ALL_PATH;
+import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_ID_PATH;
+import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_PATH;
+import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_ROOT_PATH;
+import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_UPDATE_BY_ID_PATH;
 
 import java.util.List;
 import java.util.UUID;

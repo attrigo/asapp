@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.users.infrastructure.user;
 
-import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
+import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_CREATE_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_DELETE_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_ALL_FULL_PATH;
