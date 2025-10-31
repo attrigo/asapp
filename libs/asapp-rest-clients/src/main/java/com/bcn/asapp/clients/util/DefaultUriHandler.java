@@ -31,15 +31,15 @@ import io.micrometer.common.util.StringUtils;
  * Each call to {@link #newInstance()} returns a new {@link UriBuilder} initialized with the configured base URI, ensuring that concurrent REST client
  * operations do not interfere with each other through shared builder state.
  * <p>
- * <b>Thread Safety:</b> This class is immutable and thread-safe. The base URI is stored as a final field and never modified after construction. Each builder
- * instance is created fresh, preventing any shared mutable state.
+ * This class is immutable and thread-safe. The base URI is stored as a final field and never modified after construction. Each builder instance is created
+ * fresh, preventing any shared mutable state.
  * <p>
  * <b>Usage Example:</b>
  *
  * <pre>
- * 
+ *
  * UriHandler handler = new DefaultUriHandler("http://localhost:8080/api");
- * 
+ *
  * URI uri = handler.newInstance()
  *                  .path("/users/{id}")
  *                  .build("123");
@@ -60,8 +60,8 @@ public class DefaultUriHandler implements UriHandler {
      * The base URI should be a complete, valid URI string representing the root URL of the target service (e.g., {@code "http://localhost:8080/api"}). This URI
      * will be prepended to all paths constructed using builders returned by {@link #newInstance()}.
      * <p>
-     * <b>Validation:</b> The base URI must not be {@code null} or blank. If an invalid URI is provided, the behavior depends on Spring's
-     * {@link UriComponentsBuilder} parsing rules.
+     * The base URI must not be {@code null} or blank. If an invalid URI is provided, the behavior depends on Spring's {@link UriComponentsBuilder} parsing
+     * rules.
      * <p>
      * <b>Examples:</b>
      * <ul>
@@ -89,13 +89,10 @@ public class DefaultUriHandler implements UriHandler {
      * The returned builder delegates to Spring's {@link UriComponentsBuilder}, providing full support for URI templates, path expansion, query parameters, and
      * URI encoding.
      * <p>
-     * <b>Thread Safety:</b> This method is thread-safe and can be called concurrently. Each call creates a new builder instance, preventing shared state
-     * issues.
-     * <p>
      * <b>Example Usage:</b>
      *
      * <pre>
-     * 
+     *
      * // Simple path appending
      * URI uri1 = handler.newInstance()
      *                   .path("/users")
@@ -113,7 +110,7 @@ public class DefaultUriHandler implements UriHandler {
      * CompletableFuture&lt;URI&gt; future1 = CompletableFuture.supplyAsync(() -&gt; handler.newInstance()
      *                                                                             .path("/endpoint1")
      *                                                                             .build());
-     * 
+     *
      * CompletableFuture&lt;URI&gt; future2 = CompletableFuture.supplyAsync(() -&gt; handler.newInstance()
      *                                                                             .path("/endpoint2")
      *                                                                             .build());

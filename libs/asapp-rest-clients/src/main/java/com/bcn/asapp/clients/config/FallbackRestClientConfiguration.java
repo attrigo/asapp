@@ -35,7 +35,7 @@ import org.springframework.web.client.RestClient;
  * </ul>
  * <p>
  * <b>Typical Override Example:</b>
- * 
+ *
  * <pre>
  * &#64;Configuration
  * public class CustomRestClientConfiguration {
@@ -46,7 +46,7 @@ import org.springframework.web.client.RestClient;
  *                          .requestInterceptor(new JwtInterceptor()) // Custom interceptor
  *                          .defaultHeader("X-Custom-Header", "value");
  *     }
- * 
+ *
  * }
  * </pre>
  * <p>
@@ -80,8 +80,8 @@ public class FallbackRestClientConfiguration {
      * <li>The consuming application provides a custom {@link RestClient.Builder} with specific configuration (interceptors, headers, error handlers, etc.)</li>
      * </ul>
      * <p>
-     * <b>Default Behavior:</b> The builder has no custom interceptors, headers, or error handling - just Spring's out-of-the-box REST client functionality.
-     * Applications requiring authentication, custom timeouts, or other HTTP client customizations should provide their own builder bean.
+     * The builder has no custom interceptors, headers, or error handling - just Spring's out-of-the-box REST client functionality. Applications requiring
+     * authentication, custom timeouts, or other HTTP client customizations should provide their own builder bean.
      *
      * @return a {@link RestClient.Builder} instance with default configuration
      */
