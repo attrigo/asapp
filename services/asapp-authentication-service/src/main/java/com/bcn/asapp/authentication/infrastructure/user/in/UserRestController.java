@@ -123,7 +123,7 @@ public class UserRestController implements UserRestAPI {
      *
      * @param id      the user's unique identifier
      * @param request the {@link UpdateUserRequest} containing updated user data
-     * @return a {@link ResponseEntity} containing the {@link UpdateUserResponse} if found, otherwise wrapping empty
+     * @return a {@link ResponseEntity} wrapping the {@link UpdateUserResponse} if found, otherwise wrapping empty
      */
     @Override
     public ResponseEntity<UpdateUserResponse> updateUserById(UUID id, UpdateUserRequest request) {

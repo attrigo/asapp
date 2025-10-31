@@ -144,7 +144,7 @@ public interface UserRestAPI {
      *
      * @param id      the user's unique identifier
      * @param request the {@link UpdateUserRequest} containing updated user data
-     * @return a {@link ResponseEntity} containing the {@link UpdateUserResponse} with the user identifier if found, otherwise wrapping empty
+     * @return a {@link ResponseEntity} wrapping the {@link UpdateUserResponse} with the user identifier if found, otherwise wrapping empty
      */
     @PutMapping(value = USERS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
     @SecurityRequirement(name = "Bearer Authentication")
