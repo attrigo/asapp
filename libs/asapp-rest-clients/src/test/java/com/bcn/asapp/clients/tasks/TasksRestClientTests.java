@@ -39,7 +39,7 @@ import com.bcn.asapp.clients.util.DefaultUriHandler;
 
 class TasksRestClientTests {
 
-    private static final String BASE_URL = "http://localhost:8083/asapp-tasks-service";
+    private static final String BASE_URL = "http://localhost:8081/asapp-tasks-service";
 
     private static final UUID USER_ID = UUID.randomUUID();
 
