@@ -373,13 +373,8 @@ class UserE2EIT {
             // Then
             // Assert API response
             assertThat(response).isNotNull()
-                                .satisfies(createUserResponse -> {
-                                    assertThat(createUserResponse.userId()).isNotNull();
-                                    assertThat(createUserResponse.firstName()).isEqualTo(DEFAULT_FAKE_FIRST_NAME);
-                                    assertThat(createUserResponse.lastName()).isEqualTo(DEFAULT_FAKE_LAST_NAME);
-                                    assertThat(createUserResponse.email()).isEqualTo(DEFAULT_FAKE_EMAIL);
-                                    assertThat(createUserResponse.phoneNumber()).isEqualTo(DEFAULT_FAKE_PHONE_NUMBER);
-                                });
+                                .extracting(CreateUserResponse::userId)
+                                .isNotNull();
 
             // Assert user has been created
             var optionalActualUser = userRepository.findById(response.userId());
@@ -387,10 +382,10 @@ class UserE2EIT {
                                           .get()
                                           .satisfies(userEntity -> {
                                               assertThat(userEntity.id()).isEqualTo(response.userId());
-                                              assertThat(userEntity.firstName()).isEqualTo(response.firstName());
-                                              assertThat(userEntity.lastName()).isEqualTo(response.lastName());
-                                              assertThat(userEntity.email()).isEqualTo(response.email());
-                                              assertThat(userEntity.phoneNumber()).isEqualTo(response.phoneNumber());
+                                              assertThat(userEntity.firstName()).isEqualTo(DEFAULT_FAKE_FIRST_NAME);
+                                              assertThat(userEntity.lastName()).isEqualTo(DEFAULT_FAKE_LAST_NAME);
+                                              assertThat(userEntity.email()).isEqualTo(DEFAULT_FAKE_EMAIL);
+                                              assertThat(userEntity.phoneNumber()).isEqualTo(DEFAULT_FAKE_PHONE_NUMBER);
                                           });
         }
 
@@ -464,10 +459,9 @@ class UserE2EIT {
 
             // Then
             // Assert API response
-            var expectedResponse = new UpdateUserResponse(userCreated.id(), updateUserRequest.firstName(), updateUserRequest.lastName(),
-                    updateUserRequest.email(), updateUserRequest.phoneNumber());
             assertThat(response).isNotNull()
-                                .isEqualTo(expectedResponse);
+                                .extracting(UpdateUserResponse::userId)
+                                .isEqualTo(userCreated.id());
 
             // Assert user has been updated
             var optionalActualUser = userRepository.findById(response.userId());
@@ -475,10 +469,10 @@ class UserE2EIT {
                                           .get()
                                           .satisfies(userEntity -> {
                                               assertThat(userEntity.id()).isEqualTo(response.userId());
-                                              assertThat(userEntity.firstName()).isEqualTo(response.firstName());
-                                              assertThat(userEntity.lastName()).isEqualTo(response.lastName());
-                                              assertThat(userEntity.email()).isEqualTo(response.email());
-                                              assertThat(userEntity.phoneNumber()).isEqualTo(response.phoneNumber());
+                                              assertThat(userEntity.firstName()).isEqualTo(updateUserRequest.firstName());
+                                              assertThat(userEntity.lastName()).isEqualTo(updateUserRequest.lastName());
+                                              assertThat(userEntity.email()).isEqualTo(updateUserRequest.email());
+                                              assertThat(userEntity.phoneNumber()).isEqualTo(updateUserRequest.phoneNumber());
                                           });
         }
 

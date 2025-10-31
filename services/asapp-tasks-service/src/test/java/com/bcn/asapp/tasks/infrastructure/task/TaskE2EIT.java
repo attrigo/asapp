@@ -352,14 +352,8 @@ class TaskE2EIT {
             // Then
             // Assert API response
             assertThat(response).isNotNull()
-                                .satisfies(createTaskResponse -> {
-                                    assertThat(createTaskResponse.taskId()).isNotNull();
-                                    assertThat(createTaskResponse.userId()).isEqualTo(userId);
-                                    assertThat(createTaskResponse.title()).isEqualTo(DEFAULT_FAKE_TITLE);
-                                    assertThat(createTaskResponse.description()).isEqualTo(DEFAULT_FAKE_DESCRIPTION);
-                                    assertThat(createTaskResponse.startDate()).isEqualTo(DEFAULT_FAKE_START_DATE);
-                                    assertThat(createTaskResponse.endDate()).isEqualTo(DEFAULT_FAKE_END_DATE);
-                                });
+                                .extracting(CreateTaskResponse::taskId)
+                                .isNotNull();
 
             // Assert task has been created
             var optionalActualTask = taskRepository.findById(response.taskId());
@@ -367,11 +361,11 @@ class TaskE2EIT {
                                           .get()
                                           .satisfies(taskEntity -> {
                                               assertThat(taskEntity.id()).isEqualTo(response.taskId());
-                                              assertThat(taskEntity.userId()).isEqualTo(response.userId());
-                                              assertThat(taskEntity.title()).isEqualTo(response.title());
-                                              assertThat(taskEntity.description()).isEqualTo(response.description());
-                                              assertThat(taskEntity.startDate()).isEqualTo(response.startDate());
-                                              assertThat(taskEntity.endDate()).isEqualTo(response.endDate());
+                                              assertThat(taskEntity.userId()).isEqualTo(userId);
+                                              assertThat(taskEntity.title()).isEqualTo(DEFAULT_FAKE_TITLE);
+                                              assertThat(taskEntity.description()).isEqualTo(DEFAULT_FAKE_DESCRIPTION);
+                                              assertThat(taskEntity.startDate()).isEqualTo(DEFAULT_FAKE_START_DATE);
+                                              assertThat(taskEntity.endDate()).isEqualTo(DEFAULT_FAKE_END_DATE);
                                           });
         }
 
@@ -453,10 +447,9 @@ class TaskE2EIT {
 
             // Then
             // Assert API response
-            var expectedResponse = new UpdateTaskResponse(taskCreated.id(), UUID.fromString(updateTaskRequest.userId()), updateTaskRequest.title(),
-                    updateTaskRequest.description(), updateTaskRequest.startDate(), updateTaskRequest.endDate());
             assertThat(response).isNotNull()
-                                .isEqualTo(expectedResponse);
+                                .extracting(UpdateTaskResponse::taskId)
+                                .isEqualTo(taskCreated.id());
 
             // Assert task has been updated
             var optionalActualTask = taskRepository.findById(response.taskId());
@@ -464,11 +457,11 @@ class TaskE2EIT {
                                           .get()
                                           .satisfies(taskEntity -> {
                                               assertThat(taskEntity.id()).isEqualTo(response.taskId());
-                                              assertThat(taskEntity.userId()).isEqualTo(response.userId());
-                                              assertThat(taskEntity.title()).isEqualTo(response.title());
-                                              assertThat(taskEntity.description()).isEqualTo(response.description());
-                                              assertThat(taskEntity.startDate()).isEqualTo(response.startDate());
-                                              assertThat(taskEntity.endDate()).isEqualTo(response.endDate());
+                                              assertThat(taskEntity.userId()).isEqualTo(UUID.fromString(updateTaskRequest.userId()));
+                                              assertThat(taskEntity.title()).isEqualTo(updateTaskRequest.title());
+                                              assertThat(taskEntity.description()).isEqualTo(updateTaskRequest.description());
+                                              assertThat(taskEntity.startDate()).isEqualTo(updateTaskRequest.startDate());
+                                              assertThat(taskEntity.endDate()).isEqualTo(updateTaskRequest.endDate());
                                           });
         }
 
