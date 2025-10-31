@@ -119,11 +119,11 @@ public interface UserRestAPI {
      * </ul>
      *
      * @param request the {@link CreateUserRequest} containing user data
-     * @return the {@link CreateUserResponse} containing the created user's information
+     * @return the {@link CreateUserResponse} containing the created user's identifier
      */
     @PostMapping(value = USERS_CREATE_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Creates a new user", description = "Creates a new user account in the system with the provided user information.")
+    @Operation(summary = "Creates a new user", description = "Creates a new user account in the system with the provided user information. Returns the user identifier. Use GET endpoint to retrieve full user details.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User creation request containing all necessary user information", required = true, content = @Content(schema = @Schema(implementation = CreateUserRequest.class)))
     @ApiResponse(responseCode = "201", description = "User created successfully", content = {
             @Content(schema = @Schema(implementation = CreateUserResponse.class)) })
@@ -144,11 +144,11 @@ public interface UserRestAPI {
      *
      * @param id      the user's unique identifier
      * @param request the {@link UpdateUserRequest} containing updated user data
-     * @return a {@link ResponseEntity} containing the {@link UpdateUserResponse} if found, otherwise wrapping empty
+     * @return a {@link ResponseEntity} containing the {@link UpdateUserResponse} with the user identifier if found, otherwise wrapping empty
      */
     @PutMapping(value = USERS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
     @SecurityRequirement(name = "Bearer Authentication")
-    @Operation(summary = "Updates an existing user by their unique identifier", description = "Updates the information of an existing user identified by their unique identifier. This endpoint requires authentication. Only the fields provided in the request will be updated.")
+    @Operation(summary = "Updates an existing user by their unique identifier", description = "Updates the information of an existing user identified by their unique identifier. This endpoint requires authentication. Only the fields provided in the request will be updated. Returns the user identifier. Use GET endpoint to retrieve full user details.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User update request containing the user information to be modified", required = true, content = @Content(schema = @Schema(implementation = UpdateUserRequest.class)))
     @ApiResponse(responseCode = "200", description = "User updated successfully", content = {
             @Content(schema = @Schema(implementation = UpdateUserResponse.class)) })

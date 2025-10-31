@@ -240,12 +240,8 @@ class UserE2EIT {
             // Then
             // Assert API response
             assertThat(response).isNotNull()
-                                .satisfies(createUserResponse -> {
-                                    assertThat(createUserResponse.userId()).isNotNull();
-                                    assertThat(createUserResponse.username()).isEqualTo(DEFAULT_FAKE_USERNAME);
-                                    assertThat(createUserResponse.password()).isEqualTo("*****");
-                                    assertThat(createUserResponse.role()).isEqualTo(DEFAULT_FAKE_ROLE.name());
-                                });
+                                .extracting(CreateUserResponse::userId)
+                                .isNotNull();
 
             // Assert user has been created
             var optionalActualUser = userRepository.findById(response.userId());
@@ -253,9 +249,9 @@ class UserE2EIT {
                                           .get()
                                           .satisfies(userEntity -> {
                                               assertThat(userEntity.id()).isEqualTo(response.userId());
-                                              assertThat(userEntity.username()).isEqualTo(response.username());
+                                              assertThat(userEntity.username()).isEqualTo(DEFAULT_FAKE_USERNAME);
                                               assertThat(userEntity.password()).isNotNull();
-                                              assertThat(userEntity.role()).isEqualTo(response.role());
+                                              assertThat(userEntity.role()).isEqualTo(DEFAULT_FAKE_ROLE.name());
                                           });
         }
 
@@ -329,9 +325,9 @@ class UserE2EIT {
 
             // Then
             // Assert API response
-            var expectedResponse = new UpdateUserResponse(userCreated.id(), updateUserRequest.username(), "*****", updateUserRequest.role());
             assertThat(response).isNotNull()
-                                .isEqualTo(expectedResponse);
+                                .extracting(UpdateUserResponse::userId)
+                                .isEqualTo(userCreated.id());
 
             // Assert user has been updated
             var optionalActualUser = userRepository.findById(response.userId());
@@ -339,10 +335,10 @@ class UserE2EIT {
                                           .get()
                                           .satisfies(userEntity -> {
                                               assertThat(userEntity.id()).isEqualTo(response.userId());
-                                              assertThat(userEntity.username()).isEqualTo(response.username());
+                                              assertThat(userEntity.username()).isEqualTo(updateUserRequest.username());
                                               assertThat(userEntity.password()).isNotNull()
                                                                                .isNotEqualTo(userCreated.password());
-                                              assertThat(userEntity.role()).isEqualTo(response.role());
+                                              assertThat(userEntity.role()).isEqualTo(updateUserRequest.role());
                                           });
         }
 

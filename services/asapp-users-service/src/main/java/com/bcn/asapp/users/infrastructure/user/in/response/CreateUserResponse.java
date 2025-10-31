@@ -23,18 +23,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Response for a successfully created user.
  *
- * @param userId      the user's unique identifier
- * @param firstName   the user's first name
- * @param lastName    the user's last name
- * @param email       the user's email
- * @param phoneNumber the user's phone number
+ * @param userId the user's unique identifier
  * @since 0.2.0
  * @author attrigo
  */
 public record CreateUserResponse(
-        @JsonProperty("user_id") UUID userId,
-        @JsonProperty("first_name") String firstName,
-        @JsonProperty("last_name") String lastName,
-        String email,
-        @JsonProperty("phone_number") String phoneNumber
+        @JsonProperty("user_id") UUID userId
 ) {}

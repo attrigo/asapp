@@ -144,11 +144,11 @@ public interface TaskRestAPI {
      * </ul>
      *
      * @param request the {@link CreateTaskRequest} containing task data
-     * @return the {@link CreateTaskResponse} containing the created task's information
+     * @return the {@link CreateTaskResponse} containing the created task's identifier
      */
     @PostMapping(value = TASKS_CREATE_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Creates a new task", description = "Creates a new task in the system with the provided task information. This endpoint requires authentication.")
+    @Operation(summary = "Creates a new task", description = "Creates a new task in the system with the provided task information. This endpoint requires authentication. Returns the task identifier. Use GET endpoint to retrieve full task details.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Task creation request containing all necessary task information", required = true, content = @Content(schema = @Schema(implementation = CreateTaskRequest.class)))
     @ApiResponse(responseCode = "201", description = "Task created successfully", content = {
             @Content(schema = @Schema(implementation = CreateTaskResponse.class)) })
@@ -170,10 +170,10 @@ public interface TaskRestAPI {
      *
      * @param id      the task's unique identifier
      * @param request the {@link UpdateTaskRequest} containing updated task data
-     * @return a {@link ResponseEntity} containing the {@link UpdateTaskResponse} if found, otherwise wrapping empty
+     * @return a {@link ResponseEntity} containing the {@link UpdateTaskResponse} with the task identifier if found, otherwise wrapping empty
      */
     @PutMapping(value = TASKS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
-    @Operation(summary = "Updates an existing task by their unique identifier", description = "Updates the information of an existing task identified by their unique identifier. This endpoint requires authentication. Only the fields provided in the request will be updated.")
+    @Operation(summary = "Updates an existing task by their unique identifier", description = "Updates the information of an existing task identified by their unique identifier. This endpoint requires authentication. Only the fields provided in the request will be updated. Returns the task identifier. Use GET endpoint to retrieve full task details.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Task update request containing the task information to be modified", required = true, content = @Content(schema = @Schema(implementation = UpdateTaskRequest.class)))
     @ApiResponse(responseCode = "200", description = "Task updated successfully", content = {
             @Content(schema = @Schema(implementation = UpdateTaskResponse.class)) })

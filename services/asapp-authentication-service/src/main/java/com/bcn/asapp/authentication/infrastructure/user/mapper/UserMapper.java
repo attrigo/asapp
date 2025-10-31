@@ -110,26 +110,20 @@ public interface UserMapper {
 
     /**
      * Maps a domain {@link User} to a {@link CreateUserResponse}.
-     * <p>
-     * Masks the password field for security.
      *
      * @param user the {@link User} domain entity
      * @return the {@link CreateUserResponse}
      */
     @Mapping(target = "userId", source = "id")
-    @Mapping(target = "password", constant = "*****")
     CreateUserResponse toCreateUserResponse(User user);
 
     /**
      * Maps a domain {@link User} to a {@link UpdateUserResponse}.
-     * <p>
-     * Masks the password field for security.
      *
      * @param user the {@link User} domain entity
      * @return the {@link UpdateUserResponse}
      */
     @Mapping(target = "userId", source = "id")
-    @Mapping(target = "password", constant = "*****")
     UpdateUserResponse toUpdateUserResponse(User user);
 
 }

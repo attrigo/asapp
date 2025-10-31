@@ -16,7 +16,6 @@
 
 package com.bcn.asapp.tasks.infrastructure.task.in.response;
 
-import java.time.Instant;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -24,20 +23,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Response for a successfully created task.
  *
- * @param taskId      the task's unique identifier
- * @param userId      the task's user unique identifier
- * @param title       the task's title
- * @param description the task's description
- * @param startDate   the task's start date
- * @param endDate     the task's end date
+ * @param taskId the task's unique identifier
  * @since 0.2.0
  * @author attrigo
  */
 public record CreateTaskResponse(
-        @JsonProperty("task_id") UUID taskId,
-        @JsonProperty("user_id") UUID userId,
-        String title,
-        String description,
-        @JsonProperty("start_date") Instant startDate,
-        @JsonProperty("end_date") Instant endDate
+        @JsonProperty("task_id") UUID taskId
 ) {}
