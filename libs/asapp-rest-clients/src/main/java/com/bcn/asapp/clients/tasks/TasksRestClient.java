@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.clients.tasks;
 
-import static com.bcn.asapp.url.task.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
+import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
 
 import java.util.Collections;
 import java.util.List;

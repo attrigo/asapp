@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.url.task;
+package com.bcn.asapp.url.tasks;
 
 /**
  * Defines the paths for task domain endpoints of asapp-tasks-service.
