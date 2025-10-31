@@ -29,7 +29,7 @@ services:
       - DB_NAME=tasksdb
       - DB_USERNAME=user
       - DB_PASSWORD=secret
-      - ASAPP_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
+      - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
     depends_on:
       - asapp-tasks-postgres-db
 
