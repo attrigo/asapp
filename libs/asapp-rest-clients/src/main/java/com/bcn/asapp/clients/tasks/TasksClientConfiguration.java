@@ -29,7 +29,7 @@ import com.bcn.asapp.clients.util.UriHandler;
 /**
  * Configuration class for the Tasks Service client beans.
  * <p>
- * This configuration is conditionally enabled only when the property {@code asapp.clients.tasks.base-url} is defined, allowing consuming services to opt in to
+ * This configuration is conditionally enabled only when the property {@code asapp.client.tasks.base-url} is defined, allowing consuming services to opt in to
  * Tasks Service integration by providing the service's base URL.
  * <p>
  * The configuration creates:
@@ -47,7 +47,7 @@ import com.bcn.asapp.clients.util.UriHandler;
  * @author attrigo
  */
 @Configuration
-@ConditionalOnProperty(name = "asapp.clients.tasks.base-url")
+@ConditionalOnProperty(name = "asapp.client.tasks.base-url")
 public class TasksClientConfiguration {
 
     /**
@@ -55,7 +55,7 @@ public class TasksClientConfiguration {
      * <p>
      * This handler is used to build URIs for Tasks Service endpoints by prepending the configured base URL to endpoint paths.
      *
-     * @param taskClientBaseUrl the base URL of the Tasks Service, injected from {@code asapp.clients.tasks.base-url} property
+     * @param taskClientBaseUrl the base URL of the Tasks Service, injected from {@code asapp.client.tasks.base-url} property
      * @return a configured {@link UriHandler} for the Tasks Service
      */
     @Bean
