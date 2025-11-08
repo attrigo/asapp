@@ -41,7 +41,7 @@ class DecodedTokenTests {
 
     private final String subject = "user@asapp.com";
 
-    private final Map<String, String> claims = Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
+    private final Map<String, Object> claims = Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
 
     @Nested
     class CreateDecodedToken {
@@ -132,7 +132,7 @@ class DecodedTokenTests {
         @Test
         void ThenReturnsFalse_GivenTokenUseClaimIsNotAccess() {
             // Given
-            var refreshTokenClaims = Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
+            var refreshTokenClaims = Map.<String, Object>of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
             var decodedToken = new DecodedToken(encodedToken, type, subject, refreshTokenClaims);
 
             // When
@@ -145,7 +145,7 @@ class DecodedTokenTests {
         @Test
         void ThenReturnsFalse_GivenTypeIsAccessTokenButTokenUseClaimIsRefresh() {
             // Given
-            var mixedClaims = Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
+            var mixedClaims = Map.<String, Object>of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
             var decodedToken = new DecodedToken(encodedToken, type, subject, mixedClaims);
 
             // When
@@ -175,8 +175,21 @@ class DecodedTokenTests {
         @Test
         void ThenReturnsNull_GivenRoleClaimIsNotPresent() {
             // Given
-            var claimsWithoutRole = Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE);
+            var claimsWithoutRole = Map.<String, Object>of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE);
             var decodedToken = new DecodedToken(encodedToken, type, subject, claimsWithoutRole);
+
+            // When
+            var result = decodedToken.roleClaim();
+
+            // Then
+            assertThat(result).isNull();
+        }
+
+        @Test
+        void ThenReturnsNull_GivenRoleClaimIsNotString() {
+            // Given
+            var claimsWithNonStringRole = Map.<String, Object>of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, 123);
+            var decodedToken = new DecodedToken(encodedToken, type, subject, claimsWithNonStringRole);
 
             // When
             var result = decodedToken.roleClaim();
