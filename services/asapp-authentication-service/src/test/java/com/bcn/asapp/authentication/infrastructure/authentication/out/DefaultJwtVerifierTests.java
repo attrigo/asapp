@@ -167,10 +167,10 @@ class DefaultJwtVerifierTests {
             given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(Optional.of(jwtAuthentication));
 
             // When
-            var result = defaultJwtVerifier.verifyAccessToken(encodedAccessToken);
+            var actual = defaultJwtVerifier.verifyAccessToken(encodedAccessToken);
 
             // Then
-            assertThat(result).isEqualTo(jwtAuthentication);
+            assertThat(actual).isEqualTo(jwtAuthentication);
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedAccessToken);
@@ -250,10 +250,10 @@ class DefaultJwtVerifierTests {
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(jwtAuthentication));
 
             // When
-            var result = defaultJwtVerifier.verifyRefreshToken(encodedRefreshToken);
+            var actual = defaultJwtVerifier.verifyRefreshToken(encodedRefreshToken);
 
             // Then
-            assertThat(result).isEqualTo(jwtAuthentication);
+            assertThat(actual).isEqualTo(jwtAuthentication);
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedRefreshToken);
