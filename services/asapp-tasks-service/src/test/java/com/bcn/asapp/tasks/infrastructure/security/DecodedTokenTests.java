@@ -102,14 +102,14 @@ class DecodedTokenTests {
         @Test
         void ThenCreatesDecodedToken_GivenAllParametersAreValid() {
             // When
-            var result = new DecodedToken(encodedToken, type, subject, claims);
+            var actual = new DecodedToken(encodedToken, type, subject, claims);
 
             // Then
-            assertThat(result).isNotNull();
-            assertThat(result.encodedToken()).isEqualTo(encodedToken);
-            assertThat(result.type()).isEqualTo(type);
-            assertThat(result.subject()).isEqualTo(subject);
-            assertThat(result.claims()).isEqualTo(claims);
+            assertThat(actual).isNotNull();
+            assertThat(actual.encodedToken()).isEqualTo(encodedToken);
+            assertThat(actual.type()).isEqualTo(type);
+            assertThat(actual.subject()).isEqualTo(subject);
+            assertThat(actual.claims()).isEqualTo(claims);
         }
 
     }
@@ -123,10 +123,10 @@ class DecodedTokenTests {
             var decodedToken = new DecodedToken(encodedToken, REFRESH_TOKEN_TYPE, subject, claims);
 
             // When
-            var result = decodedToken.isAccessToken();
+            var actual = decodedToken.isAccessToken();
 
             // Then
-            assertThat(result).isFalse();
+            assertThat(actual).isFalse();
         }
 
         @Test
@@ -136,10 +136,10 @@ class DecodedTokenTests {
             var decodedToken = new DecodedToken(encodedToken, type, subject, refreshTokenClaims);
 
             // When
-            var result = decodedToken.isAccessToken();
+            var actual = decodedToken.isAccessToken();
 
             // Then
-            assertThat(result).isFalse();
+            assertThat(actual).isFalse();
         }
 
         @Test
@@ -149,10 +149,10 @@ class DecodedTokenTests {
             var decodedToken = new DecodedToken(encodedToken, type, subject, mixedClaims);
 
             // When
-            var result = decodedToken.isAccessToken();
+            var actual = decodedToken.isAccessToken();
 
             // Then
-            assertThat(result).isFalse();
+            assertThat(actual).isFalse();
         }
 
         @Test
@@ -161,10 +161,10 @@ class DecodedTokenTests {
             var decodedToken = new DecodedToken(encodedToken, type, subject, claims);
 
             // When
-            var result = decodedToken.isAccessToken();
+            var actual = decodedToken.isAccessToken();
 
             // Then
-            assertThat(result).isTrue();
+            assertThat(actual).isTrue();
         }
 
     }
@@ -179,10 +179,10 @@ class DecodedTokenTests {
             var decodedToken = new DecodedToken(encodedToken, type, subject, claimsWithoutRole);
 
             // When
-            var result = decodedToken.roleClaim();
+            var actual = decodedToken.roleClaim();
 
             // Then
-            assertThat(result).isNull();
+            assertThat(actual).isNull();
         }
 
         @Test
@@ -192,10 +192,10 @@ class DecodedTokenTests {
             var decodedToken = new DecodedToken(encodedToken, type, subject, claimsWithNonStringRole);
 
             // When
-            var result = decodedToken.roleClaim();
+            var actual = decodedToken.roleClaim();
 
             // Then
-            assertThat(result).isNull();
+            assertThat(actual).isNull();
         }
 
         @Test
@@ -204,10 +204,10 @@ class DecodedTokenTests {
             var decodedToken = new DecodedToken(encodedToken, type, subject, claims);
 
             // When
-            var result = decodedToken.roleClaim();
+            var actual = decodedToken.roleClaim();
 
             // Then
-            assertThat(result).isEqualTo("USER");
+            assertThat(actual).isEqualTo("USER");
         }
 
     }

@@ -99,11 +99,11 @@ class JwtVerifierTests {
             given(jwtDecoder.decode(accessToken)).willReturn(decodedAccessToken);
 
             // When
-            var result = jwtVerifier.verifyAccessToken(accessToken);
+            var actual = jwtVerifier.verifyAccessToken(accessToken);
 
             // Then
-            assertThat(result).isEqualTo(decodedAccessToken);
-            assertThat(result.isAccessToken()).isTrue();
+            assertThat(actual).isEqualTo(decodedAccessToken);
+            assertThat(actual.isAccessToken()).isTrue();
 
             then(jwtDecoder).should(times(1))
                             .decode(accessToken);
