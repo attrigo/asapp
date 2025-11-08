@@ -24,8 +24,10 @@ import static com.bcn.asapp.authentication.domain.user.Role.USER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
+import java.time.Instant;
 import java.util.Map;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;
@@ -39,17 +41,23 @@ import com.bcn.asapp.authentication.domain.authentication.Subject;
 
 class JwtAuthenticationTokenTests {
 
-    private final EncodedToken encodedToken = EncodedToken.of("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.encoded");
+    private final EncodedToken encodedToken = EncodedToken.of("eyJhbGciOiJFUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0NiJ9.c2lnNg");
 
     private final Subject subject = Subject.of("user@asapp.com");
 
-    private final JwtClaims claims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, USER.name()));
+    private final String roleClaimValue = USER.name();
 
-    private final Issued issued = Issued.now();
+    private final Issued issued = Issued.of(Instant.parse("2025-01-01T10:00:00Z"));
 
-    private final Expiration expiration = Expiration.of(issued, 1000L);
+    private final Expiration expiration = Expiration.of(issued, 30000L);
 
-    private final Jwt jwt = Jwt.of(encodedToken, ACCESS_TOKEN, subject, claims, issued, expiration);
+    private Jwt jwt;
+
+    @BeforeEach
+    void beforeEach() {
+        var claims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, roleClaimValue));
+        jwt = Jwt.of(encodedToken, ACCESS_TOKEN, subject, claims, issued, expiration);
+    }
 
     @Nested
     class CreateJwtAuthenticatedToken {
@@ -95,7 +103,7 @@ class JwtAuthenticationTokenTests {
             assertThat(actual.getCredentials()).isNull();
             assertThat(actual.getAuthorities()).hasSize(1)
                                                .extracting(GrantedAuthority::getAuthority)
-                                               .containsExactly(USER.name());
+                                               .containsExactly(roleClaimValue);
         }
 
     }

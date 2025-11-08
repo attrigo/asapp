@@ -16,9 +16,8 @@
 
 package com.bcn.asapp.authentication.infrastructure.config;
 
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_RAW_PASSWORD;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.defaultFakeUser;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.fakeUserBuilder;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestUser;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.testUserBuilder;
 import static com.bcn.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_TOKEN_FULL_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -70,12 +69,12 @@ class PasswordEncoderIT {
         @Test
         void AuthenticatesUserAndReturnsStatusOkAndBodyWithGeneratedAuthentication_StoredUserPasswordHasBcryptEncode() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             // When & Then
-            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), DEFAULT_FAKE_RAW_PASSWORD);
+            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), "TEST@09_password?!");
 
             webTestClient.post()
                          .uri(AUTH_TOKEN_FULL_PATH)
@@ -94,13 +93,13 @@ class PasswordEncoderIT {
         void AuthenticatesUserAndReturnsStatusOkAndBodyWithGeneratedAuthentication_StoredUserPasswordHasArgon2Encode() {
             // Given
             var argon2Encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
-            var user = fakeUserBuilder().withPasswordEncoder("{argon2@SpringSecurity_v5_8}", argon2Encoder)
+            var user = testUserBuilder().withPasswordEncoder("{argon2@SpringSecurity_v5_8}", argon2Encoder)
                                         .build();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             // When & Then
-            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), DEFAULT_FAKE_RAW_PASSWORD);
+            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), "TEST@09_password?!");
 
             webTestClient.post()
                          .uri(AUTH_TOKEN_FULL_PATH)
@@ -119,13 +118,13 @@ class PasswordEncoderIT {
         void AuthenticatesUserAndReturnsStatusOkAndBodyWithGeneratedAuthentication_StoredUserPasswordHasPbkdf2Encode() {
             // Given
             var pbkdf2Encoder = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
-            var user = fakeUserBuilder().withPasswordEncoder("{pbkdf2@SpringSecurity_v5_8}", pbkdf2Encoder)
+            var user = testUserBuilder().withPasswordEncoder("{pbkdf2@SpringSecurity_v5_8}", pbkdf2Encoder)
                                         .build();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             // When & Then
-            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), DEFAULT_FAKE_RAW_PASSWORD);
+            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), "TEST@09_password?!");
 
             webTestClient.post()
                          .uri(AUTH_TOKEN_FULL_PATH)
@@ -144,13 +143,13 @@ class PasswordEncoderIT {
         void AuthenticatesUserAndReturnsStatusOkAndBodyWithGeneratedAuthentication_StoredUserPasswordHasScryptEncode() {
             // Given
             var scryptEncoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8();
-            var user = fakeUserBuilder().withPasswordEncoder("{scrypt@SpringSecurity_v5_8}", scryptEncoder)
+            var user = testUserBuilder().withPasswordEncoder("{scrypt@SpringSecurity_v5_8}", scryptEncoder)
                                         .build();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             // When & Then
-            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), DEFAULT_FAKE_RAW_PASSWORD);
+            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), "TEST@09_password?!");
 
             webTestClient.post()
                          .uri(AUTH_TOKEN_FULL_PATH)
@@ -169,13 +168,13 @@ class PasswordEncoderIT {
         void AuthenticatesUserAndReturnsStatusOkAndBodyWithGeneratedAuthentication_StoredUserPasswordHasNoopEncode() {
             // Given
             var noOpEncoder = NoOpPasswordEncoder.getInstance();
-            var user = fakeUserBuilder().withPasswordEncoder("{noop}", noOpEncoder)
+            var user = testUserBuilder().withPasswordEncoder("{noop}", noOpEncoder)
                                         .build();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             // When & Then
-            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), DEFAULT_FAKE_RAW_PASSWORD);
+            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), "TEST@09_password?!");
 
             webTestClient.post()
                          .uri(AUTH_TOKEN_FULL_PATH)

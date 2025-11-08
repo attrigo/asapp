@@ -29,7 +29,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 class UsernameTests {
 
-    private final String usernameValue = "username@asapp.com";
+    private final String usernameValue = "user@asapp.com";
 
     @Nested
     class CreateUsernameWithConstructor {

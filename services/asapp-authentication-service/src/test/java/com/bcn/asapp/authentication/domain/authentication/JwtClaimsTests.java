@@ -202,7 +202,7 @@ class JwtClaimsTests {
             var jwtClaims = JwtClaims.of(claimsValue);
 
             // When
-            var actual = jwtClaims.claim("non_existent", String.class);
+            var actual = jwtClaims.claim("not_exists_claim_name", String.class);
 
             // Then
             assertThat(actual).isEmpty();

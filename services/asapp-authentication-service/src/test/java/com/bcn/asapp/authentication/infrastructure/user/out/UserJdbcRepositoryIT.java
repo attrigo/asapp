@@ -16,8 +16,7 @@
 
 package com.bcn.asapp.authentication.infrastructure.user.out;
 
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_USERNAME;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.defaultFakeUser;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;
@@ -57,7 +56,7 @@ class UserJdbcRepositoryIT {
         @Test
         void DoesNotFindUserAndReturnsEmptyOptional_UserNotExists() {
             // When
-            var actualUser = userRepository.findByUsername(DEFAULT_FAKE_USERNAME);
+            var actualUser = userRepository.findByUsername("not_exist_user@asapp.com");
 
             // Then
             assertThat(actualUser).isEmpty();
@@ -66,7 +65,7 @@ class UserJdbcRepositoryIT {
         @Test
         void FindsUserAndReturnsTasksFound_UserExists() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -88,7 +87,7 @@ class UserJdbcRepositoryIT {
         @Test
         void DoesNotDeleteUserAndReturnsZero_UserNotExists() {
             // When
-            var userId = UUID.randomUUID();
+            var userId = UUID.fromString("4a9d8f7e-3c2b-4e1f-a6d9-8e7f6c5d4b3a");
 
             var actual = userRepository.deleteUserById(userId);
 
@@ -99,7 +98,7 @@ class UserJdbcRepositoryIT {
         @Test
         void DeletesUserAndReturnsAmountOfUsersDeleted_UserExists() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 

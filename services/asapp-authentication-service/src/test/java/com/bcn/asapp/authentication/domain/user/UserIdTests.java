@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 class UserIdTests {
 
-    private final UUID idValue = UUID.randomUUID();
+    private final UUID idValue = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
 
     @Nested
     class CreateUserIdWithConstructor {

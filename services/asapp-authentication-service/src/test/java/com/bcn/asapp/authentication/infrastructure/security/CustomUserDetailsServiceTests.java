@@ -75,9 +75,9 @@ class CustomUserDetailsServiceTests {
         @EnumSource(value = Role.class)
         void ThenReturnsCustomUserDetails_GivenUsernameExistsWithRole(Role role) {
             // Given
-            var userId = UUID.randomUUID();
-            var user = new UserEntity(userId, usernameValue, "{bcrypt}password", role.name());
-
+            var userId = UUID.fromString("36f65be6-b9b7-43ef-9f89-b49a724aea0a");
+            var password = "{bcrypt}password";
+            var user = new UserEntity(userId, usernameValue, password, role.name());
             given(userRepositoryMock.findByUsername(usernameValue)).willReturn(Optional.of(user));
 
             // When
@@ -90,7 +90,7 @@ class CustomUserDetailsServiceTests {
                               .extracting(CustomUserDetails::getUserId)
                               .isEqualTo(userId);
             assertThat(actual.getUsername()).isEqualTo(usernameValue);
-            assertThat(actual.getPassword()).isEqualTo("{bcrypt}password");
+            assertThat(actual.getPassword()).isEqualTo(password);
             assertThat(actual.getAuthorities()).hasSize(1)
                                                .extracting(GrantedAuthority::getAuthority)
                                                .containsExactly(role.name());

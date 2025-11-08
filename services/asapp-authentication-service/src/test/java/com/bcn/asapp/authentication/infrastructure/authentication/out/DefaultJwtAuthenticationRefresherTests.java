@@ -32,6 +32,7 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
@@ -69,35 +70,28 @@ class DefaultJwtAuthenticationRefresherTests {
     @InjectMocks
     private DefaultJwtAuthenticationRefresher defaultJwtAuthenticationRefresher;
 
-    private Subject subject;
+    private final Subject subject = Subject.of("user@asapp.com");
 
-    private Role role;
+    private final Role role = USER;
 
-    private Jwt newAccessToken;
+    private Jwt accessToken;
 
-    private Jwt newRefreshToken;
+    private Jwt refreshToken;
 
     private JwtAuthentication jwtAuthentication;
 
     @BeforeEach
     void beforeEach() {
-        var token = EncodedToken.of("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.encoded");
-        var newToken = EncodedToken.of("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.newEncoded");
-        subject = Subject.of("user@asapp.com");
-        role = USER;
+        var token = EncodedToken.of("eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0MiJ9.c2lnMg");
         var accessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, role.name()));
         var refreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, role.name()));
-        var issued = Issued.now();
-        var expiration = Expiration.of(issued, 1000L);
+        var issued = Issued.of(Instant.parse("2025-01-01T10:00:00Z"));
+        var expiration = Expiration.of(issued, 30000L);
+        accessToken = Jwt.of(token, ACCESS_TOKEN, subject, accessTokenClaims, issued, expiration);
+        refreshToken = Jwt.of(token, REFRESH_TOKEN, subject, refreshTokenClaims, issued, expiration);
 
-        newAccessToken = Jwt.of(newToken, ACCESS_TOKEN, subject, accessTokenClaims, issued, expiration);
-        newRefreshToken = Jwt.of(newToken, REFRESH_TOKEN, subject, refreshTokenClaims, issued, expiration);
-
-        var jwtAuthenticationId = JwtAuthenticationId.of(UUID.randomUUID());
-        var userId = UserId.of(UUID.randomUUID());
-        var accessToken = Jwt.of(token, ACCESS_TOKEN, subject, accessTokenClaims, issued, expiration);
-        var refreshToken = Jwt.of(token, REFRESH_TOKEN, subject, refreshTokenClaims, issued, expiration);
-
+        var jwtAuthenticationId = JwtAuthenticationId.of(UUID.fromString("9c07df84-5c66-49c9-a8a8-78f1b4cf635c"));
+        var userId = UserId.of(UUID.fromString("a8fc2926-473a-4e84-b5ce-3e063e7d2aab"));
         jwtAuthentication = JwtAuthentication.authenticated(jwtAuthenticationId, userId, accessToken, refreshToken);
     }
 
@@ -128,7 +122,8 @@ class DefaultJwtAuthenticationRefresherTests {
         @Test
         void ThenThrowsInvalidJwtAuthenticationException_GivenRefreshTokenIssuanceFails() {
             // Given
-            given(jwtIssuer.issueAccessToken(subject, role)).willReturn(newAccessToken);
+            given(jwtIssuer.issueAccessToken(subject, role)).willReturn(accessToken);
+
             willThrow(new RuntimeException("Token issuance failed")).given(jwtIssuer)
                                                                     .issueRefreshToken(subject, role);
 
@@ -150,8 +145,10 @@ class DefaultJwtAuthenticationRefresherTests {
         @Test
         void ThenThrowsInvalidJwtAuthenticationException_GivenRepositorySaveFails() {
             // Given
-            given(jwtIssuer.issueAccessToken(subject, role)).willReturn(newAccessToken);
-            given(jwtIssuer.issueRefreshToken(subject, role)).willReturn(newRefreshToken);
+            given(jwtIssuer.issueAccessToken(subject, role)).willReturn(accessToken);
+
+            given(jwtIssuer.issueRefreshToken(subject, role)).willReturn(refreshToken);
+
             willThrow(new RuntimeException("Repository save failed")).given(jwtAuthenticationRepository)
                                                                      .save(jwtAuthentication);
 
@@ -173,8 +170,10 @@ class DefaultJwtAuthenticationRefresherTests {
         @Test
         void ThenRefreshesAuthentication_GivenJwtAuthenticationIsValid() {
             // Given
-            given(jwtIssuer.issueAccessToken(subject, role)).willReturn(newAccessToken);
-            given(jwtIssuer.issueRefreshToken(subject, role)).willReturn(newRefreshToken);
+            given(jwtIssuer.issueAccessToken(subject, role)).willReturn(accessToken);
+
+            given(jwtIssuer.issueRefreshToken(subject, role)).willReturn(refreshToken);
+
             given(jwtAuthenticationRepository.save(jwtAuthentication)).willReturn(jwtAuthentication);
 
             // When
@@ -182,8 +181,8 @@ class DefaultJwtAuthenticationRefresherTests {
 
             // Then
             assertThat(actual).isEqualTo(jwtAuthentication);
-            assertThat(actual.accessToken()).isEqualTo(newAccessToken);
-            assertThat(actual.refreshToken()).isEqualTo(newRefreshToken);
+            assertThat(actual.accessToken()).isEqualTo(accessToken);
+            assertThat(actual.refreshToken()).isEqualTo(refreshToken);
 
             then(jwtIssuer).should(times(1))
                            .issueAccessToken(subject, role);

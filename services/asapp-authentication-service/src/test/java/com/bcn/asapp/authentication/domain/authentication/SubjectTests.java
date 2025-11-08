@@ -26,7 +26,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 class SubjectTests {
 
-    private final String subjectValue = "subject";
+    private final String subjectValue = "user@asapp.com";
 
     @Nested
     class CreateSubjectWithConstructor {

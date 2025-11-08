@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 class JwtAuthenticationIdTests {
 
-    private final UUID idValue = UUID.randomUUID();
+    private final UUID idValue = UUID.fromString("9b3e7f12-4c8a-4d3e-a9f2-6e5d4c3b2a10");
 
     @Nested
     class CreateJwtAuthenticationIdWithConstructor {
