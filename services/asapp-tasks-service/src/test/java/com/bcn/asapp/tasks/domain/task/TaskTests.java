@@ -20,7 +20,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Nested;
@@ -28,20 +27,17 @@ import org.junit.jupiter.api.Test;
 
 class TaskTests {
 
-    private final TaskId id = TaskId.of(UUID.randomUUID());
+    private final TaskId id = TaskId.of(UUID.fromString("d68ca3f3-c27f-4602-9679-64e4b871811d"));
 
-    private final UserId userId = UserId.of(UUID.randomUUID());
+    private final UserId userId = UserId.of(UUID.fromString("09726a94-df21-48ad-864a-f3612499ff3d"));
 
     private final Title title = Title.of("Title");
 
     private final Description description = Description.of("Description");
 
-    private final StartDate startDate = StartDate.of(Instant.now()
-                                                            .truncatedTo(ChronoUnit.SECONDS));
+    private final StartDate startDate = StartDate.of(Instant.parse("2025-01-01T11:00:00Z"));
 
-    private final EndDate endDate = EndDate.of(startDate.startDate()
-                                                        .plus(1, ChronoUnit.DAYS)
-                                                        .truncatedTo(ChronoUnit.SECONDS));
+    private final EndDate endDate = EndDate.of(Instant.parse("2025-02-02T12:00:00Z"));
 
     @Nested
     class CreateNewTask {
@@ -215,10 +211,10 @@ class TaskTests {
             // Given
             var task = Task.newTask(userId, title, description, startDate, endDate);
 
-            var newTitle = Title.of("new_title");
-            var newDescription = Description.of("new_description");
-            var newStartDate = StartDate.of(Instant.now());
-            var newEndDate = EndDate.of(Instant.now());
+            var newTitle = Title.of("NewTitle");
+            var newDescription = Description.of("NewDescription");
+            var newStartDate = StartDate.of(Instant.parse("2025-03-03T13:00:00Z"));
+            var newEndDate = EndDate.of(Instant.parse("2025-04-04T14:00:00Z"));
 
             // When
             var thrown = catchThrowable(() -> task.update(null, newTitle, newDescription, newStartDate, newEndDate));
@@ -233,10 +229,10 @@ class TaskTests {
             // Given
             var task = Task.newTask(userId, title, description, startDate, endDate);
 
-            var newUserId = UserId.of(UUID.randomUUID());
-            var newDescription = Description.of("new_description");
-            var newStartDate = StartDate.of(Instant.now());
-            var newEndDate = EndDate.of(Instant.now());
+            var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
+            var newDescription = Description.of("NewDescription");
+            var newStartDate = StartDate.of(Instant.parse("2025-03-03T13:00:00Z"));
+            var newEndDate = EndDate.of(Instant.parse("2025-04-04T14:00:00Z"));
 
             // When
             var thrown = catchThrowable(() -> task.update(newUserId, null, newDescription, newStartDate, newEndDate));
@@ -251,10 +247,10 @@ class TaskTests {
             // Given
             var task = Task.newTask(userId, title, description, startDate, endDate);
 
-            var newUserId = UserId.of(UUID.randomUUID());
-            var newTitle = Title.of("new_title");
-            var newStartDate = StartDate.of(Instant.now());
-            var newEndDate = EndDate.of(Instant.now());
+            var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
+            var newTitle = Title.of("NewTitle");
+            var newStartDate = StartDate.of(Instant.parse("2025-03-03T13:00:00Z"));
+            var newEndDate = EndDate.of(Instant.parse("2025-04-04T14:00:00Z"));
 
             // When
             task.update(newUserId, newTitle, null, newStartDate, newEndDate);
@@ -273,10 +269,10 @@ class TaskTests {
             // Given
             var task = Task.newTask(userId, title, description, startDate, endDate);
 
-            var newUserId = UserId.of(UUID.randomUUID());
-            var newTitle = Title.of("new_title");
-            var newDescription = Description.of("new_description");
-            var newEndDate = EndDate.of(Instant.now());
+            var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
+            var newTitle = Title.of("NewTitle");
+            var newDescription = Description.of("NewDescription");
+            var newEndDate = EndDate.of(Instant.parse("2025-04-04T14:00:00Z"));
 
             // When
             task.update(newUserId, newTitle, newDescription, null, newEndDate);
@@ -295,10 +291,10 @@ class TaskTests {
             // Given
             var task = Task.newTask(userId, title, description, startDate, endDate);
 
-            var newUserId = UserId.of(UUID.randomUUID());
-            var newTitle = Title.of("new_title");
-            var newDescription = Description.of("new_description");
-            var newStartDate = StartDate.of(Instant.now());
+            var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
+            var newTitle = Title.of("NewTitle");
+            var newDescription = Description.of("NewDescription");
+            var newStartDate = StartDate.of(Instant.parse("2025-03-03T13:00:00Z"));
 
             // When
             task.update(newUserId, newTitle, newDescription, newStartDate, null);
@@ -317,11 +313,11 @@ class TaskTests {
             // Given
             var task = Task.newTask(userId, title, description, startDate, endDate);
 
-            var newUserId = UserId.of(UUID.randomUUID());
-            var newTitle = Title.of("new_title");
-            var newDescription = Description.of("new_description");
-            var newStartDate = StartDate.of(Instant.now());
-            var newEndDate = EndDate.of(Instant.now());
+            var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
+            var newTitle = Title.of("NewTitle");
+            var newDescription = Description.of("NewDescription");
+            var newStartDate = StartDate.of(Instant.parse("2025-03-03T13:00:00Z"));
+            var newEndDate = EndDate.of(Instant.parse("2025-04-04T14:00:00Z"));
 
             // When
             task.update(newUserId, newTitle, newDescription, newStartDate, newEndDate);
@@ -340,10 +336,10 @@ class TaskTests {
             // Given
             var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
 
-            var newTitle = Title.of("new_title");
-            var newDescription = Description.of("new_description");
-            var newStartDate = StartDate.of(Instant.now());
-            var newEndDate = EndDate.of(Instant.now());
+            var newTitle = Title.of("NewTitle");
+            var newDescription = Description.of("NewDescription");
+            var newStartDate = StartDate.of(Instant.parse("2025-03-03T13:00:00Z"));
+            var newEndDate = EndDate.of(Instant.parse("2025-04-04T14:00:00Z"));
 
             // When
             var thrown = catchThrowable(() -> task.update(null, newTitle, newDescription, newStartDate, newEndDate));
@@ -358,10 +354,10 @@ class TaskTests {
             // Given
             var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
 
-            var newUserId = UserId.of(UUID.randomUUID());
-            var newDescription = Description.of("new_description");
-            var newStartDate = StartDate.of(Instant.now());
-            var newEndDate = EndDate.of(Instant.now());
+            var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
+            var newDescription = Description.of("NewDescription");
+            var newStartDate = StartDate.of(Instant.parse("2025-03-03T13:00:00Z"));
+            var newEndDate = EndDate.of(Instant.parse("2025-04-04T14:00:00Z"));
 
             // When
             var thrown = catchThrowable(() -> task.update(newUserId, null, newDescription, newStartDate, newEndDate));
@@ -376,10 +372,10 @@ class TaskTests {
             // Given
             var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
 
-            var newUserId = UserId.of(UUID.randomUUID());
-            var newTitle = Title.of("new_title");
-            var newStartDate = StartDate.of(Instant.now());
-            var newEndDate = EndDate.of(Instant.now());
+            var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
+            var newTitle = Title.of("NewTitle");
+            var newStartDate = StartDate.of(Instant.parse("2025-03-03T13:00:00Z"));
+            var newEndDate = EndDate.of(Instant.parse("2025-04-04T14:00:00Z"));
 
             // When
             task.update(newUserId, newTitle, null, newStartDate, newEndDate);
@@ -398,10 +394,10 @@ class TaskTests {
             // Given
             var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
 
-            var newUserId = UserId.of(UUID.randomUUID());
-            var newTitle = Title.of("new_title");
-            var newDescription = Description.of("new_description");
-            var newEndDate = EndDate.of(Instant.now());
+            var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
+            var newTitle = Title.of("NewTitle");
+            var newDescription = Description.of("NewDescription");
+            var newEndDate = EndDate.of(Instant.parse("2025-04-04T14:00:00Z"));
 
             // When
             task.update(newUserId, newTitle, newDescription, null, newEndDate);
@@ -420,11 +416,10 @@ class TaskTests {
             // Given
             var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
 
-            var newUserId = UserId.of(UUID.randomUUID());
-            var newTitle = Title.of("new_title");
-            var newDescription = Description.of("new_description");
-            var newStartDate = StartDate.of(Instant.now()
-                                                   .truncatedTo(ChronoUnit.SECONDS));
+            var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
+            var newTitle = Title.of("NewTitle");
+            var newDescription = Description.of("NewDescription");
+            var newStartDate = StartDate.of(Instant.parse("2025-03-03T13:00:00Z"));
 
             // When
             task.update(newUserId, newTitle, newDescription, newStartDate, null);
@@ -434,7 +429,7 @@ class TaskTests {
             assertThat(task.getUserId()).isEqualTo(newUserId);
             assertThat(task.getTitle()).isEqualTo(newTitle);
             assertThat(task.getDescription()).isEqualTo(newDescription);
-            assertThat(task.getStartDate()).isEqualTo(startDate);
+            assertThat(task.getStartDate()).isEqualTo(newStartDate);
             assertThat(task.getEndDate()).isNull();
         }
 
@@ -443,11 +438,11 @@ class TaskTests {
             // Given
             var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
 
-            var newUserId = UserId.of(UUID.randomUUID());
-            var newTitle = Title.of("new_title");
-            var newDescription = Description.of("new_description");
-            var newStartDate = StartDate.of(Instant.now());
-            var newEndDate = EndDate.of(Instant.now());
+            var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
+            var newTitle = Title.of("NewTitle");
+            var newDescription = Description.of("NewDescription");
+            var newStartDate = StartDate.of(Instant.parse("2025-03-03T13:00:00Z"));
+            var newEndDate = EndDate.of(Instant.parse("2025-04-04T14:00:00Z"));
 
             // When
             task.update(newUserId, newTitle, newDescription, newStartDate, newEndDate);
@@ -539,9 +534,12 @@ class TaskTests {
         @Test
         void ThenReturnsFalse_GivenThreeReconstructedTasksWithDifferentId() {
             // Given
-            var task1 = Task.reconstructedTask(TaskId.of(UUID.randomUUID()), userId, title, description, startDate, endDate);
-            var task2 = Task.reconstructedTask(TaskId.of(UUID.randomUUID()), userId, title, description, startDate, endDate);
-            var task3 = Task.reconstructedTask(TaskId.of(UUID.randomUUID()), userId, title, description, startDate, endDate);
+            var taskId1 = TaskId.of(UUID.fromString("e1f2a3b4-c5d6-4e7f-8a9b-0c1d2e3f4a5b"));
+            var taskId2 = TaskId.of(UUID.fromString("f2a3b4c5-d6e7-4f8a-9b0c-1d2e3f4a5b6c"));
+            var taskId3 = TaskId.of(UUID.fromString("a3b4c5d6-e7f8-4a9b-0c1d-2e3f4a5b6c7d"));
+            var task1 = Task.reconstructedTask(taskId1, userId, title, description, startDate, endDate);
+            var task2 = Task.reconstructedTask(taskId2, userId, title, description, startDate, endDate);
+            var task3 = Task.reconstructedTask(taskId3, userId, title, description, startDate, endDate);
 
             // When
             var actual1 = task1.equals(task2);
@@ -604,8 +602,10 @@ class TaskTests {
         @Test
         void ThenReturnsDifferentHashCode_GivenTwoReconstructedTasksWithDifferentId() {
             // Given
-            var task1 = Task.reconstructedTask(TaskId.of(UUID.randomUUID()), userId, title, description, startDate, endDate);
-            var task2 = Task.reconstructedTask(TaskId.of(UUID.randomUUID()), userId, title, description, startDate, endDate);
+            var taskId1 = TaskId.of(UUID.fromString("b4c5d6e7-f8a9-4b0c-1d2e-3f4a5b6c7d8e"));
+            var taskId2 = TaskId.of(UUID.fromString("c5d6e7f8-a9b0-4c1d-2e3f-4a5b6c7d8e9f"));
+            var task1 = Task.reconstructedTask(taskId1, userId, title, description, startDate, endDate);
+            var task2 = Task.reconstructedTask(taskId2, userId, title, description, startDate, endDate);
 
             // When
             var actual1 = task1.hashCode();
@@ -734,7 +734,7 @@ class TaskTests {
     }
 
     @Nested
-    class getStartDate {
+    class GetStartDate {
 
         @Test
         void ThenReturnsStartDate_GivenNewTask() {
@@ -763,7 +763,7 @@ class TaskTests {
     }
 
     @Nested
-    class getEndDate {
+    class GetEndDate {
 
         @Test
         void ThenReturnsEndDate_GivenNewTask() {

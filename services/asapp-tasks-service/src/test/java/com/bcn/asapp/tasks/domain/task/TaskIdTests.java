@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 class TaskIdTests {
 
-    private final UUID idValue = UUID.randomUUID();
+    private final UUID idValue = UUID.fromString("d68ca3f3-c27f-4602-9679-64e4b871811d");;
 
     @Nested
     class CreateTaskIdWithConstructor {

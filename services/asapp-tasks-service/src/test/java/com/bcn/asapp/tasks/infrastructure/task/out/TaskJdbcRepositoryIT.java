@@ -16,8 +16,8 @@
 
 package com.bcn.asapp.tasks.infrastructure.task.out;
 
-import static com.bcn.asapp.tasks.testutil.TestDataFaker.TaskDataFaker.defaultFakeTask;
-import static com.bcn.asapp.tasks.testutil.TestDataFaker.TaskDataFaker.fakeTaskBuilder;
+import static com.bcn.asapp.tasks.testutil.TestFactory.TestTaskFactory.defaultTestTask;
+import static com.bcn.asapp.tasks.testutil.TestFactory.TestTaskFactory.testTaskBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;
@@ -51,7 +51,7 @@ class TaskJdbcRepositoryIT {
         @Test
         void DoesNotFindTasksAndReturnsEmptyList_TasksNotExistsByUserId() {
             // When
-            var userId = UUID.randomUUID();
+            var userId = UUID.fromString("c8e5a2f9-4d7b-46af-9d8e-6b3f1c9a5e2d");
 
             var actual = taskRepository.findByUserId(userId);
 
@@ -62,27 +62,27 @@ class TaskJdbcRepositoryIT {
         @Test
         void FindsTasksAndReturnsTasksFound_TasksExistsByUserId() {
             // Given
-            var userId = UUID.randomUUID();
+            var userId = UUID.fromString("c8e5a2f9-4d7b-46af-9d8e-6b3f1c9a5e2d");
 
-            var firstTask = fakeTaskBuilder().withUserId(userId)
-                                             .build();
-            var secondTask = fakeTaskBuilder().withUserId(userId)
-                                              .build();
-            var thirdTask = fakeTaskBuilder().withUserId(userId)
-                                             .build();
-            var firstTaskCreated = taskRepository.save(firstTask);
-            var secondTaskCreated = taskRepository.save(secondTask);
-            var thirdTaskCreated = taskRepository.save(thirdTask);
-            assertThat(firstTaskCreated).isNotNull();
-            assertThat(secondTaskCreated).isNotNull();
-            assertThat(thirdTaskCreated).isNotNull();
+            var task1 = testTaskBuilder().withUserId(userId)
+                                         .build();
+            var task2 = testTaskBuilder().withUserId(userId)
+                                         .build();
+            var task3 = testTaskBuilder().withUserId(userId)
+                                         .build();
+            var taskCreated1 = taskRepository.save(task1);
+            var taskCreated2 = taskRepository.save(task2);
+            var taskCreated3 = taskRepository.save(task3);
+            assertThat(taskCreated1).isNotNull();
+            assertThat(taskCreated2).isNotNull();
+            assertThat(taskCreated3).isNotNull();
 
             // When
             var actual = taskRepository.findByUserId(userId);
 
             // Then
             assertThat(actual).hasSize(3)
-                              .containsOnly(firstTaskCreated, secondTaskCreated, thirdTaskCreated);
+                              .containsExactlyInAnyOrder(taskCreated1, taskCreated2, taskCreated3);
         }
 
     }
@@ -93,7 +93,7 @@ class TaskJdbcRepositoryIT {
         @Test
         void DoesNotDeleteTaskAndReturnsZero_TaskNotExists() {
             // When
-            var taskId = UUID.randomUUID();
+            var taskId = UUID.fromString("e2a7c9f4-6b3d-48ab-9f1a-8d5b3e7c2a9f");
 
             var actual = taskRepository.deleteTaskById(taskId);
 
@@ -104,7 +104,7 @@ class TaskJdbcRepositoryIT {
         @Test
         void DeletesTaskAndReturnsAmountOfTasksDeleted_TaskExists() {
             // Given
-            var task = defaultFakeTask();
+            var task = defaultTestTask();
             var taskCreated = taskRepository.save(task);
             assertThat(taskCreated).isNotNull();
 

@@ -16,10 +16,6 @@
 
 package com.bcn.asapp.tasks.infrastructure.task.in;
 
-import static com.bcn.asapp.tasks.testutil.TestDataFaker.TaskDataFaker.DEFAULT_FAKE_DESCRIPTION;
-import static com.bcn.asapp.tasks.testutil.TestDataFaker.TaskDataFaker.DEFAULT_FAKE_END_DATE;
-import static com.bcn.asapp.tasks.testutil.TestDataFaker.TaskDataFaker.DEFAULT_FAKE_START_DATE;
-import static com.bcn.asapp.tasks.testutil.TestDataFaker.TaskDataFaker.DEFAULT_FAKE_TITLE;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_CREATE_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_DELETE_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_ID_FULL_PATH;
@@ -32,6 +28,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
@@ -119,9 +116,9 @@ class TaskControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetails_UserIdPathIsInvalid() {
             // When & Then
-            var idToFind = 1L;
+            var userIdPath = 1L;
 
-            var requestBuilder = get(TASKS_GET_BY_USER_ID_FULL_PATH, idToFind);
+            var requestBuilder = get(TASKS_GET_BY_USER_ID_FULL_PATH, userIdPath);
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -270,6 +267,9 @@ class TaskControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusNotFoundAndBodyWithProblemDetail_TaskIdPathIsNotPresent() {
             // When & Then
+            var newUserId = UUID.fromString("c2f7d9e3-5a8b-46cf-9d4e-8a2f7b3c5e1d");
+            var newStartDate = Instant.parse("2025-03-03T13:00:00Z");
+            var newEndDate = Instant.parse("2025-04-04T14:00:00Z");
             var requestBody = """
                     {
                     "user_id": "%s",
@@ -278,9 +278,7 @@ class TaskControllerIT extends WebMvcTestContext {
                     "start_date": "%s",
                     "end_date": "%s"
                     }
-                    """.formatted(UUID.randomUUID()
-                                      .toString(),
-                    DEFAULT_FAKE_TITLE, DEFAULT_FAKE_DESCRIPTION, DEFAULT_FAKE_START_DATE, DEFAULT_FAKE_END_DATE);
+                    """.formatted(newUserId, "NewTitle", "NewDescription", newStartDate, newEndDate);
 
             var requestBuilder = put(TASKS_ROOT_PATH + "/").contentType(MediaType.APPLICATION_JSON)
                                                            .content(requestBody);
@@ -304,6 +302,9 @@ class TaskControllerIT extends WebMvcTestContext {
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_TaskIdPathIsInvalid() {
             // When & Then
             var taskIdPath = 1L;
+            var newUserId = UUID.fromString("c2f7d9e3-5a8b-46cf-9d4e-8a2f7b3c5e1d");
+            var newStartDate = Instant.parse("2025-03-03T13:00:00Z");
+            var newEndDate = Instant.parse("2025-04-04T14:00:00Z");
             var requestBody = """
                     {
                     "user_id": "%s",
@@ -312,9 +313,7 @@ class TaskControllerIT extends WebMvcTestContext {
                     "start_date": "%s",
                     "end_date": "%s"
                     }
-                    """.formatted(UUID.randomUUID()
-                                      .toString(),
-                    DEFAULT_FAKE_TITLE, DEFAULT_FAKE_DESCRIPTION, DEFAULT_FAKE_START_DATE, DEFAULT_FAKE_END_DATE);
+                    """.formatted(newUserId, "NewTitle", "NewDescription", newStartDate, newEndDate);
 
             var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskIdPath).contentType(MediaType.APPLICATION_JSON)
                                                                               .content(requestBody);
@@ -337,7 +336,7 @@ class TaskControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyIsNotJson() {
             // When & Then
-            var taskIdPath = UUID.randomUUID();
+            var taskIdPath = UUID.fromString("e3a8c5d1-7f9b-482b-9f6a-2d8e5b7c9f3a");
             var requestBody = "";
 
             var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskIdPath).contentType(MediaType.TEXT_PLAIN)
@@ -361,7 +360,7 @@ class TaskControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsNotPresent() {
             // When & Then
-            var taskIdPath = UUID.randomUUID();
+            var taskIdPath = UUID.fromString("e3a8c5d1-7f9b-482b-9f6a-2d8e5b7c9f3a");
             var requestBody = "";
 
             var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskIdPath).contentType(MediaType.APPLICATION_JSON)
@@ -385,7 +384,7 @@ class TaskControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsEmpty() {
             // When & Then
-            var taskIdPath = UUID.randomUUID();
+            var taskIdPath = UUID.fromString("e3a8c5d1-7f9b-482b-9f6a-2d8e5b7c9f3a");
             var requestBody = "{}";
 
             var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskIdPath).contentType(MediaType.APPLICATION_JSON)
@@ -420,7 +419,7 @@ class TaskControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyMandatoryFieldsAreEmpty() {
             // When & Then
-            var taskIdPath = UUID.randomUUID();
+            var taskIdPath = UUID.fromString("e3a8c5d1-7f9b-482b-9f6a-2d8e5b7c9f3a");
             var requestBody = """
                     {
                     "user_id": "",

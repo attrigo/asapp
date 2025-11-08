@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 
 class EndDateTests {
 
-    private final Instant endDateValue = Instant.now();
+    private final Instant endDateValue = Instant.parse("2025-01-02T10:00:00Z");
 
     @Nested
     class CreateEndDateWithConstructor {

@@ -26,7 +26,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 class TitleTests {
 
-    private final String titleValue = "title";
+    private final String titleValue = "Title";
 
     @Nested
     class CreateTitleWithConstructor {
