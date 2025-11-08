@@ -42,7 +42,7 @@ class UserTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenFirstNameIsNull() {
             // When
-            var thrown = catchThrowable(() -> User.newUser(null, lastName, email, phoneNumber));
+            var thrown = catchThrowable(() -> User.create(null, lastName, email, phoneNumber));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -52,7 +52,7 @@ class UserTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenLastNameIsNull() {
             // When
-            var thrown = catchThrowable(() -> User.newUser(firstName, null, email, phoneNumber));
+            var thrown = catchThrowable(() -> User.create(firstName, null, email, phoneNumber));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -62,7 +62,7 @@ class UserTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenEmailIsNull() {
             // When
-            var thrown = catchThrowable(() -> User.newUser(firstName, lastName, null, phoneNumber));
+            var thrown = catchThrowable(() -> User.create(firstName, lastName, null, phoneNumber));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -72,7 +72,7 @@ class UserTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenPhoneNumberIsNull() {
             // When
-            var thrown = catchThrowable(() -> User.newUser(firstName, lastName, email, null));
+            var thrown = catchThrowable(() -> User.create(firstName, lastName, email, null));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -82,7 +82,7 @@ class UserTests {
         @Test
         void ThenReturnsNewUser_GivenParametersAreValid() {
             // When
-            var actual = User.newUser(firstName, lastName, email, phoneNumber);
+            var actual = User.create(firstName, lastName, email, phoneNumber);
 
             // Then
             assertThat(actual.getId()).isNull();
@@ -95,12 +95,12 @@ class UserTests {
     }
 
     @Nested
-    class CreateReconstructedUser {
+    class CreateReconstitutedUser {
 
         @Test
         void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
             // When
-            var thrown = catchThrowable(() -> User.reconstructedUser(null, firstName, lastName, email, phoneNumber));
+            var thrown = catchThrowable(() -> User.reconstitute(null, firstName, lastName, email, phoneNumber));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -110,7 +110,7 @@ class UserTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenFirstNameIsNull() {
             // When
-            var thrown = catchThrowable(() -> User.reconstructedUser(id, null, lastName, email, phoneNumber));
+            var thrown = catchThrowable(() -> User.reconstitute(id, null, lastName, email, phoneNumber));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -120,7 +120,7 @@ class UserTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenLastNameIsNull() {
             // When
-            var thrown = catchThrowable(() -> User.reconstructedUser(id, firstName, null, email, phoneNumber));
+            var thrown = catchThrowable(() -> User.reconstitute(id, firstName, null, email, phoneNumber));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -130,7 +130,7 @@ class UserTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenEmailIsNull() {
             // When
-            var thrown = catchThrowable(() -> User.reconstructedUser(id, firstName, lastName, null, phoneNumber));
+            var thrown = catchThrowable(() -> User.reconstitute(id, firstName, lastName, null, phoneNumber));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -140,7 +140,7 @@ class UserTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenPhoneNumberIsNull() {
             // When
-            var thrown = catchThrowable(() -> User.reconstructedUser(id, firstName, lastName, email, null));
+            var thrown = catchThrowable(() -> User.reconstitute(id, firstName, lastName, email, null));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -148,9 +148,9 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsNewUser_GivenParametersAreValid() {
+        void ThenReturnsReconstitutedUser_GivenParametersAreValid() {
             // When
-            var actual = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
+            var actual = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
             // Then
             assertThat(actual.getId()).isEqualTo(id);
@@ -168,7 +168,7 @@ class UserTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenFirstNameIsNullOnNewUser() {
             // Given
-            var user = User.newUser(firstName, lastName, email, phoneNumber);
+            var user = User.create(firstName, lastName, email, phoneNumber);
 
             var newLastName = LastName.of("NewLastName");
             var newEmail = Email.of("new_user@asapp.com");
@@ -185,7 +185,7 @@ class UserTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenLastNameIsNullOnNewUser() {
             // Given
-            var user = User.newUser(firstName, lastName, email, phoneNumber);
+            var user = User.create(firstName, lastName, email, phoneNumber);
 
             var newFirstName = FirstName.of("NewFirstName");
             var newEmail = Email.of("new_user@asapp.com");
@@ -202,7 +202,7 @@ class UserTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenEmailIsNullOnNewUser() {
             // Given
-            var user = User.newUser(firstName, lastName, email, phoneNumber);
+            var user = User.create(firstName, lastName, email, phoneNumber);
 
             var newFirstName = FirstName.of("NewFirstName");
             var newLastName = LastName.of("NewLastName");
@@ -219,7 +219,7 @@ class UserTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenPhoneNumberIsNullOnNewUser() {
             // Given
-            var user = User.newUser(firstName, lastName, email, phoneNumber);
+            var user = User.create(firstName, lastName, email, phoneNumber);
 
             var newFirstName = FirstName.of("NewFirstName");
             var newLastName = LastName.of("NewLastName");
@@ -236,7 +236,7 @@ class UserTests {
         @Test
         void ThenUpdatesAllFields_GivenParametersAreValidOnNewUser() {
             // Given
-            var user = User.newUser(firstName, lastName, email, phoneNumber);
+            var user = User.create(firstName, lastName, email, phoneNumber);
 
             var newFirstName = FirstName.of("NewFirstName");
             var newLastName = LastName.of("NewLastName");
@@ -255,9 +255,9 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenFirstNameIsNullOnReconstructedUser() {
+        void ThenThrowsIllegalArgumentException_GivenFirstNameIsNullOnReconstitutedUser() {
             // Given
-            var user = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
+            var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
             var newLastName = LastName.of("NewLastName");
             var newEmail = Email.of("new_user@asapp.com");
@@ -272,9 +272,9 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenLastNameIsNullOnReconstructedUser() {
+        void ThenThrowsIllegalArgumentException_GivenLastNameIsNullOnReconstitutedUser() {
             // Given
-            var user = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
+            var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
             var newFirstName = FirstName.of("NewFirstName");
             var newEmail = Email.of("new_user@asapp.com");
@@ -289,9 +289,9 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenEmailIsNullOnReconstructedUser() {
+        void ThenThrowsIllegalArgumentException_GivenEmailIsNullOnReconstitutedUser() {
             // Given
-            var user = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
+            var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
             var newFirstName = FirstName.of("NewFirstName");
             var newLastName = LastName.of("NewLastName");
@@ -306,9 +306,9 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenPhoneNumberIsNullOnReconstructedUser() {
+        void ThenThrowsIllegalArgumentException_GivenPhoneNumberIsNullOnReconstitutedUser() {
             // Given
-            var user = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
+            var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
             var newFirstName = FirstName.of("NewFirstName");
             var newLastName = LastName.of("NewLastName");
@@ -323,9 +323,9 @@ class UserTests {
         }
 
         @Test
-        void ThenUpdatesAllFields_GivenParametersAreValidOnReconstructedUser() {
+        void ThenUpdatesAllFields_GivenParametersAreValidOnReconstitutedUser() {
             // Given
-            var user = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
+            var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
             var newFirstName = FirstName.of("NewFirstName");
             var newLastName = LastName.of("NewLastName");
@@ -351,7 +351,7 @@ class UserTests {
         @Test
         void ThenReturnsFalse_GivenOtherUserIsNull() {
             // Given
-            var user = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
+            var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
             // When
             var actual = user.equals(null);
@@ -363,7 +363,7 @@ class UserTests {
         @Test
         void ThenReturnsFalse_GivenOtherClassIsNotUser() {
             // Given
-            var user = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
+            var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
             var other = "not a user";
 
             // When
@@ -376,7 +376,7 @@ class UserTests {
         @Test
         void ThenReturnsTrue_GivenOtherUserIsSameObject() {
             // Given
-            var user = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
+            var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
             // When
             var actual = user.equals(user);
@@ -386,10 +386,10 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenNewUserAndReconstructedUser() {
+        void ThenReturnsFalse_GivenNewUserAndReconstitutedUser() {
             // Given
-            var user1 = User.newUser(firstName, lastName, email, phoneNumber);
-            var user2 = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
+            var user1 = User.create(firstName, lastName, email, phoneNumber);
+            var user2 = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
             // When
             var actual1 = user1.equals(user2);
@@ -401,11 +401,11 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsTrue_GivenThreeReconstructedUsersWithSameId() {
+        void ThenReturnsTrue_GivenThreeReconstitutedUsersWithSameId() {
             // Given
-            var user1 = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
-            var user2 = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
-            var user3 = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
+            var user1 = User.reconstitute(id, firstName, lastName, email, phoneNumber);
+            var user2 = User.reconstitute(id, firstName, lastName, email, phoneNumber);
+            var user3 = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
             // When
             var actual1 = user1.equals(user2);
@@ -419,14 +419,14 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenThreeReconstructedUsersWithDifferentId() {
+        void ThenReturnsFalse_GivenThreeReconstitutedUsersWithDifferentId() {
             // Given
             var userId1 = UserId.of(UUID.fromString("6ba7b810-9dad-11d1-80b4-00c04fd430c8"));
             var userId2 = UserId.of(UUID.fromString("8f7e3d2a-5c4b-4e9f-9a1e-3b2c1d0e5f6a"));
             var userId3 = UserId.of(UUID.fromString("3f8d2a1b-6c5e-4f7d-9a8b-2c1e0d9f8e7c"));
-            var user1 = User.reconstructedUser(userId1, firstName, lastName, email, phoneNumber);
-            var user2 = User.reconstructedUser(userId2, firstName, lastName, email, phoneNumber);
-            var user3 = User.reconstructedUser(userId3, firstName, lastName, email, phoneNumber);
+            var user1 = User.reconstitute(userId1, firstName, lastName, email, phoneNumber);
+            var user2 = User.reconstitute(userId2, firstName, lastName, email, phoneNumber);
+            var user3 = User.reconstitute(userId3, firstName, lastName, email, phoneNumber);
 
             // When
             var actual1 = user1.equals(user2);
@@ -447,8 +447,8 @@ class UserTests {
         @Test
         void ThenReturnsDifferentHashCode_GivenTwoNewUsers() {
             // Given
-            var user1 = User.newUser(firstName, lastName, email, phoneNumber);
-            var user2 = User.newUser(firstName, lastName, email, phoneNumber);
+            var user1 = User.create(firstName, lastName, email, phoneNumber);
+            var user2 = User.create(firstName, lastName, email, phoneNumber);
 
             // When
             var actual1 = user1.hashCode();
@@ -459,10 +459,10 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsDifferentHashCode_GivenNewUserAndReconstructedUser() {
+        void ThenReturnsDifferentHashCode_GivenNewUserAndReconstitutedUser() {
             // Given
-            var user1 = User.newUser(firstName, lastName, email, phoneNumber);
-            var user2 = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
+            var user1 = User.create(firstName, lastName, email, phoneNumber);
+            var user2 = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
             // When
             var actual1 = user1.hashCode();
@@ -473,10 +473,10 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsSameHashCode_GivenTwoReconstructedUsersWithSameId() {
+        void ThenReturnsSameHashCode_GivenTwoReconstitutedUsersWithSameId() {
             // Given
-            var user1 = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
-            var user2 = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
+            var user1 = User.reconstitute(id, firstName, lastName, email, phoneNumber);
+            var user2 = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
             // When
             var actual1 = user1.hashCode();
@@ -487,12 +487,12 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsDifferentHashCode_GivenTwoReconstructedUsersWithDifferentId() {
+        void ThenReturnsDifferentHashCode_GivenTwoReconstitutedUsersWithDifferentId() {
             // Given
             var userId1 = UserId.of(UUID.fromString("7c9e4a2f-3d1b-4e8c-9f5a-6b8d2c3e1f4a"));
             var userId2 = UserId.of(UUID.fromString("5a6b7c8d-9e0f-4a1b-2c3d-4e5f6a7b8c9d"));
-            var user1 = User.reconstructedUser(userId1, firstName, lastName, email, phoneNumber);
-            var user2 = User.reconstructedUser(userId2, firstName, lastName, email, phoneNumber);
+            var user1 = User.reconstitute(userId1, firstName, lastName, email, phoneNumber);
+            var user2 = User.reconstitute(userId2, firstName, lastName, email, phoneNumber);
 
             // When
             var actual1 = user1.hashCode();
@@ -510,7 +510,7 @@ class UserTests {
         @Test
         void ThenReturnsNull_GivenNewUser() {
             // Given
-            var user = User.newUser(firstName, lastName, email, phoneNumber);
+            var user = User.create(firstName, lastName, email, phoneNumber);
 
             // When
             var actual = user.getId();
@@ -520,9 +520,9 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsId_GivenReconstructedUser() {
+        void ThenReturnsId_GivenReconstitutedUser() {
             // Given
-            var user = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
+            var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
             // When
             var actual = user.getId();
@@ -539,7 +539,7 @@ class UserTests {
         @Test
         void ThenReturnsFirstName_GivenNewUser() {
             // Given
-            var user = User.newUser(firstName, lastName, email, phoneNumber);
+            var user = User.create(firstName, lastName, email, phoneNumber);
 
             // When
             var actual = user.getFirstName();
@@ -549,9 +549,9 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsFirstName_GivenReconstructedUser() {
+        void ThenReturnsFirstName_GivenReconstitutedUser() {
             // Given
-            var user = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
+            var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
             // When
             var actual = user.getFirstName();
@@ -568,7 +568,7 @@ class UserTests {
         @Test
         void ThenReturnsLastName_GivenNewUser() {
             // Given
-            var user = User.newUser(firstName, lastName, email, phoneNumber);
+            var user = User.create(firstName, lastName, email, phoneNumber);
 
             // When
             var actual = user.getLastName();
@@ -578,9 +578,9 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsLastName_GivenReconstructedUser() {
+        void ThenReturnsLastName_GivenReconstitutedUser() {
             // Given
-            var user = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
+            var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
             // When
             var actual = user.getLastName();
@@ -597,7 +597,7 @@ class UserTests {
         @Test
         void ThenReturnsEmail_GivenNewUser() {
             // Given
-            var user = User.newUser(firstName, lastName, email, phoneNumber);
+            var user = User.create(firstName, lastName, email, phoneNumber);
 
             // When
             var actual = user.getEmail();
@@ -607,9 +607,9 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsEmail_GivenReconstructedUser() {
+        void ThenReturnsEmail_GivenReconstitutedUser() {
             // Given
-            var user = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
+            var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
             // When
             var actual = user.getEmail();
@@ -626,7 +626,7 @@ class UserTests {
         @Test
         void ThenReturnsPhoneNumber_GivenNewUser() {
             // Given
-            var user = User.newUser(firstName, lastName, email, phoneNumber);
+            var user = User.create(firstName, lastName, email, phoneNumber);
 
             // When
             var actual = user.getPhoneNumber();
@@ -636,9 +636,9 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsPhoneNumber_GivenReconstructedUser() {
+        void ThenReturnsPhoneNumber_GivenReconstitutedUser() {
             // Given
-            var user = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
+            var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
             // When
             var actual = user.getPhoneNumber();
