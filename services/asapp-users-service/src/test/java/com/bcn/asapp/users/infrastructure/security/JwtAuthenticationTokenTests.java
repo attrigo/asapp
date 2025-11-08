@@ -54,7 +54,7 @@ class JwtAuthenticationTokenTests {
         @Test
         void ThenCreatesAuthenticatedToken_GivenParametersAreValid() {
             // Given
-            var claims = Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, role);
+            var claims = Map.<String, Object>of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, role);
             var decodedToken = new DecodedToken(token, ACCESS_TOKEN_TYPE, principal, claims);
 
             // When
@@ -79,7 +79,7 @@ class JwtAuthenticationTokenTests {
         @Test
         void ThenReturnsNull_GivenJwtIsValid() {
             // Given
-            var claims = Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, role);
+            var claims = Map.<String, Object>of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, role);
             var decodedToken = new DecodedToken(token, ACCESS_TOKEN_TYPE, principal, claims);
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedToken);
 
@@ -98,7 +98,7 @@ class JwtAuthenticationTokenTests {
         @Test
         void ThenReturnsPrincipalAsSubject_GivenJwtIsValid() {
             // Given
-            var claims = Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, role);
+            var claims = Map.<String, Object>of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, role);
             var decodedToken = new DecodedToken(token, ACCESS_TOKEN_TYPE, principal, claims);
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedToken);
 
@@ -117,7 +117,7 @@ class JwtAuthenticationTokenTests {
         @Test
         void ThenReturnsToken_GivenJwtIsValid() {
             // Given
-            var claims = Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, role);
+            var claims = Map.<String, Object>of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, role);
             var decodedToken = new DecodedToken(token, ACCESS_TOKEN_TYPE, principal, claims);
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedToken);
 
