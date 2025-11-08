@@ -86,7 +86,7 @@ class DecodedTokenTests {
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessageContaining("Claim must not be empty");
+                              .hasMessageContaining("Claims must not be empty");
         }
 
         @Test
@@ -96,7 +96,7 @@ class DecodedTokenTests {
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessageContaining("Claim must not be empty");
+                              .hasMessageContaining("Claims must not be empty");
         }
 
         @Test
