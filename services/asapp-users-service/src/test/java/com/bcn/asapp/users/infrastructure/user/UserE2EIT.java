@@ -22,13 +22,9 @@ import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_DELETE_BY_ID_FULL_PAT
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_ALL_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_UPDATE_BY_ID_FULL_PATH;
-import static com.bcn.asapp.users.testutil.TestDataFaker.EncodedJwtDataFaker.defaultFakeEncodedAccessToken;
-import static com.bcn.asapp.users.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_EMAIL;
-import static com.bcn.asapp.users.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_FIRST_NAME;
-import static com.bcn.asapp.users.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_LAST_NAME;
-import static com.bcn.asapp.users.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_PHONE_NUMBER;
-import static com.bcn.asapp.users.testutil.TestDataFaker.UserDataFaker.defaultFakeUser;
-import static com.bcn.asapp.users.testutil.TestDataFaker.UserDataFaker.fakeUserBuilder;
+import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
+import static com.bcn.asapp.users.testutil.TestFactory.TestUserFactory.defaultTestUser;
+import static com.bcn.asapp.users.testutil.TestFactory.TestUserFactory.testUserBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockserver.matchers.Times.once;
 import static org.mockserver.model.HttpRequest.request;
@@ -102,7 +98,7 @@ class UserE2EIT {
         userRepository.deleteAll();
         mockServerClient.reset();
 
-        bearerToken = "Bearer " + defaultFakeEncodedAccessToken();
+        bearerToken = "Bearer " + defaultTestEncodedAccessToken();
     }
 
     @Nested
@@ -111,7 +107,7 @@ class UserE2EIT {
         @Test
         void DoesNotGetUserAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e");
 
             webTestClient.get()
                          .uri(USERS_GET_BY_ID_FULL_PATH, userIdPath)
@@ -126,7 +122,7 @@ class UserE2EIT {
         @Test
         void GetsUserAndReturnsStatusOKAndBodyWithFoundUserWithoutTasks_UserExistsAndTasksServiceFails(CapturedOutput output) {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -162,7 +158,7 @@ class UserE2EIT {
         @Test
         void DoesNotGetUserAndReturnsStatusNotFoundAndEmptyBody_UserNotExists() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e");
 
             webTestClient.get()
                          .uri(USERS_GET_BY_ID_FULL_PATH, userIdPath)
@@ -178,7 +174,7 @@ class UserE2EIT {
         @Test
         void GetsUserAndReturnsStatusOKAndBodyWithFoundUserWithoutTasks_UserExistsWithoutTasks(CapturedOutput output) {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -214,13 +210,13 @@ class UserE2EIT {
         @Test
         void GetsUserAndReturnsStatusOKAndBodyWithFoundUserWithTasks_UserExistsWithTasks() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
-            var taskId1 = UUID.randomUUID();
-            var taskId2 = UUID.randomUUID();
-            var taskId3 = UUID.randomUUID();
+            var taskId1 = UUID.fromString("d3e4f5a6-b7c8-4d9e-0f1a-2b3c4d5e6f7a");
+            var taskId2 = UUID.fromString("e4f5a6b7-c8d9-4e0f-1a2b-3c4d5e6f7a8b");
+            var taskId3 = UUID.fromString("f5a6b7c8-d9e0-4f1a-2b3c-4d5e6f7a8b9c");
             var taskIds = List.of(taskId1, taskId2, taskId3);
 
             mockRequestToGetTasksByUserIdWithOkResponse(userCreated.id(), taskIds);
@@ -289,18 +285,18 @@ class UserE2EIT {
         @Test
         void GetsAllUsersAndReturnsStatusOKAndBodyWithFoundUsers_ThereAreUsers() {
             // Given
-            var firstUser = fakeUserBuilder().withEmail("first.test.user@asapp.com")
-                                             .build();
-            var secondUser = fakeUserBuilder().withEmail("second.test.user@asapp.com")
-                                              .build();
-            var thirdUser = fakeUserBuilder().withEmail("third.test.user@asapp.com")
-                                             .build();
-            var firstUserCreated = userRepository.save(firstUser);
-            var secondUserCreated = userRepository.save(secondUser);
-            var thirdUserCreated = userRepository.save(thirdUser);
-            assertThat(firstUserCreated).isNotNull();
-            assertThat(secondUserCreated).isNotNull();
-            assertThat(thirdUserCreated).isNotNull();
+            var user1 = testUserBuilder().withEmail("user1@asapp.com")
+                                         .build();
+            var user2 = testUserBuilder().withEmail("user2@asapp.com")
+                                         .build();
+            var user3 = testUserBuilder().withEmail("user3@asapp.com")
+                                         .build();
+            var userCreated1 = userRepository.save(user1);
+            var userCreated2 = userRepository.save(user2);
+            var userCreated3 = userRepository.save(user3);
+            assertThat(userCreated1).isNotNull();
+            assertThat(userCreated2).isNotNull();
+            assertThat(userCreated3).isNotNull();
 
             // When
             var response = webTestClient.get()
@@ -317,14 +313,14 @@ class UserE2EIT {
                                         .getResponseBody();
             // Then
             // Assert API response
-            var firstUserResponse = new GetAllUsersResponse(firstUserCreated.id(), firstUserCreated.firstName(), firstUserCreated.lastName(),
-                    firstUserCreated.email(), firstUserCreated.phoneNumber());
-            var secondUserResponse = new GetAllUsersResponse(secondUserCreated.id(), secondUserCreated.firstName(), secondUserCreated.lastName(),
-                    secondUserCreated.email(), secondUserCreated.phoneNumber());
-            var thirdUserResponse = new GetAllUsersResponse(thirdUserCreated.id(), thirdUserCreated.firstName(), thirdUserCreated.lastName(),
-                    thirdUserCreated.email(), thirdUserCreated.phoneNumber());
+            var userResponse1 = new GetAllUsersResponse(userCreated1.id(), userCreated1.firstName(), userCreated1.lastName(), userCreated1.email(),
+                    userCreated1.phoneNumber());
+            var userResponse2 = new GetAllUsersResponse(userCreated2.id(), userCreated2.firstName(), userCreated2.lastName(), userCreated2.email(),
+                    userCreated2.phoneNumber());
+            var userResponse3 = new GetAllUsersResponse(userCreated3.id(), userCreated3.firstName(), userCreated3.lastName(), userCreated3.email(),
+                    userCreated3.phoneNumber());
             assertThat(response).hasSize(3)
-                                .contains(firstUserResponse, secondUserResponse, thirdUserResponse);
+                                .containsExactlyInAnyOrder(userResponse1, userResponse2, userResponse3);
         }
 
     }
@@ -335,7 +331,7 @@ class UserE2EIT {
         @Test
         void DoesNotCreateUserAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
             // When
-            var createUserRequestBody = new CreateUserRequest(DEFAULT_FAKE_FIRST_NAME, DEFAULT_FAKE_LAST_NAME, DEFAULT_FAKE_EMAIL, DEFAULT_FAKE_PHONE_NUMBER);
+            var createUserRequestBody = new CreateUserRequest("FirstName", "LastName", "user@asapp.com", "555 555 555");
 
             // When & Then
             webTestClient.post()
@@ -353,7 +349,7 @@ class UserE2EIT {
         @Test
         void CreatesUserAndReturnsStatusCreatedAndBodyWithUserCreated() {
             // When
-            var createUserRequestBody = new CreateUserRequest(DEFAULT_FAKE_FIRST_NAME, DEFAULT_FAKE_LAST_NAME, DEFAULT_FAKE_EMAIL, DEFAULT_FAKE_PHONE_NUMBER);
+            var createUserRequestBody = new CreateUserRequest("FirstName", "LastName", "user@asapp.com", "555 555 555");
 
             var response = webTestClient.post()
                                         .uri(USERS_CREATE_FULL_PATH)
@@ -376,16 +372,16 @@ class UserE2EIT {
                                 .extracting(CreateUserResponse::userId)
                                 .isNotNull();
 
-            // Assert user has been created
+            // Assert the user has been created
             var optionalActualUser = userRepository.findById(response.userId());
             assertThat(optionalActualUser).isNotEmpty()
                                           .get()
                                           .satisfies(userEntity -> {
                                               assertThat(userEntity.id()).isEqualTo(response.userId());
-                                              assertThat(userEntity.firstName()).isEqualTo(DEFAULT_FAKE_FIRST_NAME);
-                                              assertThat(userEntity.lastName()).isEqualTo(DEFAULT_FAKE_LAST_NAME);
-                                              assertThat(userEntity.email()).isEqualTo(DEFAULT_FAKE_EMAIL);
-                                              assertThat(userEntity.phoneNumber()).isEqualTo(DEFAULT_FAKE_PHONE_NUMBER);
+                                              assertThat(userEntity.firstName()).isEqualTo(createUserRequestBody.firstName());
+                                              assertThat(userEntity.lastName()).isEqualTo(createUserRequestBody.lastName());
+                                              assertThat(userEntity.email()).isEqualTo(createUserRequestBody.email());
+                                              assertThat(userEntity.phoneNumber()).isEqualTo(createUserRequestBody.phoneNumber());
                                           });
         }
 
@@ -397,8 +393,9 @@ class UserE2EIT {
         @Test
         void DoesNotUpdateUserAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
-            var updateUserRequest = new UpdateUserRequest(DEFAULT_FAKE_FIRST_NAME, DEFAULT_FAKE_LAST_NAME, DEFAULT_FAKE_EMAIL, DEFAULT_FAKE_PHONE_NUMBER);
+            var userIdPath = UUID.fromString("a6b7c8d9-e0f1-4a2b-3c4d-5e6f7a8b9c0d");
+
+            var updateUserRequest = new UpdateUserRequest("NewFirstName", "NewLastName", "new_user@asapp.com", "555-555-555");
 
             webTestClient.put()
                          .uri(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath)
@@ -415,8 +412,9 @@ class UserE2EIT {
         @Test
         void DoesNotUpdateUserAndReturnsStatusNotFoundAndEmptyBody_UserNotExists() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
-            var updateUserRequest = new UpdateUserRequest(DEFAULT_FAKE_FIRST_NAME, DEFAULT_FAKE_LAST_NAME, DEFAULT_FAKE_EMAIL, DEFAULT_FAKE_PHONE_NUMBER);
+            var userIdPath = UUID.fromString("a6b7c8d9-e0f1-4a2b-3c4d-5e6f7a8b9c0d");
+
+            var updateUserRequest = new UpdateUserRequest("NewFirstName", "NewLastName", "new_user@asapp.com", "555-555-555");
 
             webTestClient.put()
                          .uri(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath)
@@ -434,13 +432,14 @@ class UserE2EIT {
         @Test
         void UpdatesUserAndReturnsStatusOkAndBodyWithUpdatedUser_UserExists() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             // When
             var userIdPath = userCreated.id();
-            var updateUserRequest = new UpdateUserRequest("new_first_name", "new_last_name", "new.test.user@asapp.com", "777777777");
+
+            var updateUserRequest = new UpdateUserRequest("NewFirstName", "NewLastName", "new_user@asapp.com", "555-555-555");
 
             var response = webTestClient.put()
                                         .uri(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath)
@@ -463,7 +462,7 @@ class UserE2EIT {
                                 .extracting(UpdateUserResponse::userId)
                                 .isEqualTo(userCreated.id());
 
-            // Assert user has been updated
+            // Assert the user has been updated
             var optionalActualUser = userRepository.findById(response.userId());
             assertThat(optionalActualUser).isNotEmpty()
                                           .get()
@@ -484,7 +483,7 @@ class UserE2EIT {
         @Test
         void DoesNotDeleteUserAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("c8d9e0f1-a2b3-4c4d-5e6f-7a8b9c0d1e2f");
 
             webTestClient.delete()
                          .uri(USERS_DELETE_BY_ID_FULL_PATH, userIdPath)
@@ -499,7 +498,7 @@ class UserE2EIT {
         @Test
         void DoesNotDeleteUserAndReturnsStatusNotFoundAndEmptyBody_UserNotExists() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("c8d9e0f1-a2b3-4c4d-5e6f-7a8b9c0d1e2f");
 
             webTestClient.delete()
                          .uri(USERS_DELETE_BY_ID_FULL_PATH, userIdPath)
@@ -515,7 +514,7 @@ class UserE2EIT {
         @Test
         void DeletesUserAndReturnsStatusNoContentAndEmptyBody_UserExists() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -533,7 +532,7 @@ class UserE2EIT {
                          .isEmpty();
 
             // Then
-            // Assert user has been deleted
+            // Assert the user has been deleted
             var optionalActualUser = userRepository.findById(userCreated.id());
             assertThat(optionalActualUser).isEmpty();
         }
@@ -541,7 +540,7 @@ class UserE2EIT {
         @Test
         void DeletesUserAndReturnsStatusNoContentAndEmptyBody_UserExistsAndHasBeenAuthenticated() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -559,7 +558,7 @@ class UserE2EIT {
                          .isEmpty();
 
             // Then
-            // Assert user has been deleted
+            // Assert the user has been deleted
             var optionalActualUser = userRepository.findById(userCreated.id());
             assertThat(optionalActualUser).isEmpty();
         }

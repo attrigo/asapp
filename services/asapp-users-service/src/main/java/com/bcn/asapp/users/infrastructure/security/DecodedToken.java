@@ -36,6 +36,7 @@ public record DecodedToken(
         String encodedToken,
         String type,
         String subject,
+        // TODO : convert to Map<String, Object>
         Map<String, String> claims
 ) {
 

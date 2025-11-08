@@ -26,11 +26,11 @@ import org.junit.jupiter.api.Test;
 
 class UserTests {
 
-    private final UserId id = UserId.of(UUID.randomUUID());
+    private final UserId id = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
 
-    private final FirstName firstName = FirstName.of("John");
+    private final FirstName firstName = FirstName.of("FirstName");
 
-    private final LastName lastName = LastName.of("Doe");
+    private final LastName lastName = LastName.of("LastName");
 
     private final Email email = Email.of("user@asapp.com");
 
@@ -170,8 +170,8 @@ class UserTests {
             // Given
             var user = User.newUser(firstName, lastName, email, phoneNumber);
 
-            var newLastName = LastName.of("new_last_name");
-            var newEmail = Email.of("new_email@asapp.com");
+            var newLastName = LastName.of("NewLastName");
+            var newEmail = Email.of("new_user@asapp.com");
             var newPhoneNumber = PhoneNumber.of("555-555-555");
 
             // When
@@ -187,8 +187,8 @@ class UserTests {
             // Given
             var user = User.newUser(firstName, lastName, email, phoneNumber);
 
-            var newFirstName = FirstName.of("new_first_name");
-            var newEmail = Email.of("new_email@asapp.com");
+            var newFirstName = FirstName.of("NewFirstName");
+            var newEmail = Email.of("new_user@asapp.com");
             var newPhoneNumber = PhoneNumber.of("555-555-555");
 
             // When
@@ -204,12 +204,12 @@ class UserTests {
             // Given
             var user = User.newUser(firstName, lastName, email, phoneNumber);
 
-            var newFirstName = FirstName.of("new_first_name");
-            var newLastName = LastName.of("new_last_name");
+            var newFirstName = FirstName.of("NewFirstName");
+            var newLastName = LastName.of("NewLastName");
             var newPhoneNumber = PhoneNumber.of("555-555-555");
 
             // When
-            var thrown = catchThrowable(() -> user.update(newFirstName, lastName, null, newPhoneNumber));
+            var thrown = catchThrowable(() -> user.update(newFirstName, newLastName, null, newPhoneNumber));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -221,12 +221,12 @@ class UserTests {
             // Given
             var user = User.newUser(firstName, lastName, email, phoneNumber);
 
-            var newFirstName = FirstName.of("new_first_name");
-            var newLastName = LastName.of("new_last_name");
-            var newEmail = Email.of("new_email@asapp.com");
+            var newFirstName = FirstName.of("NewFirstName");
+            var newLastName = LastName.of("NewLastName");
+            var newEmail = Email.of("new_user@asapp.com");
 
             // When
-            var thrown = catchThrowable(() -> user.update(newFirstName, lastName, email, null));
+            var thrown = catchThrowable(() -> user.update(newFirstName, newLastName, newEmail, null));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -238,9 +238,9 @@ class UserTests {
             // Given
             var user = User.newUser(firstName, lastName, email, phoneNumber);
 
-            var newFirstName = FirstName.of("new_first_name");
-            var newLastName = LastName.of("new_last_name");
-            var newEmail = Email.of("new_email@asapp.com");
+            var newFirstName = FirstName.of("NewFirstName");
+            var newLastName = LastName.of("NewLastName");
+            var newEmail = Email.of("new_user@asapp.com");
             var newPhoneNumber = PhoneNumber.of("555-555-555");
 
             // When
@@ -259,8 +259,8 @@ class UserTests {
             // Given
             var user = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
 
-            var newLastName = LastName.of("new_last_name");
-            var newEmail = Email.of("new_email@asapp.com");
+            var newLastName = LastName.of("NewLastName");
+            var newEmail = Email.of("new_user@asapp.com");
             var newPhoneNumber = PhoneNumber.of("555-555-555");
 
             // When
@@ -276,8 +276,8 @@ class UserTests {
             // Given
             var user = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
 
-            var newFirstName = FirstName.of("new_first_name");
-            var newEmail = Email.of("new_email@asapp.com");
+            var newFirstName = FirstName.of("NewFirstName");
+            var newEmail = Email.of("new_user@asapp.com");
             var newPhoneNumber = PhoneNumber.of("555-555-555");
 
             // When
@@ -293,12 +293,12 @@ class UserTests {
             // Given
             var user = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
 
-            var newFirstName = FirstName.of("new_first_name");
-            var newLastName = LastName.of("new_last_name");
+            var newFirstName = FirstName.of("NewFirstName");
+            var newLastName = LastName.of("NewLastName");
             var newPhoneNumber = PhoneNumber.of("555-555-555");
 
             // When
-            var thrown = catchThrowable(() -> user.update(newFirstName, lastName, null, newPhoneNumber));
+            var thrown = catchThrowable(() -> user.update(newFirstName, newLastName, null, newPhoneNumber));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -310,12 +310,12 @@ class UserTests {
             // Given
             var user = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
 
-            var newFirstName = FirstName.of("new_first_name");
-            var newLastName = LastName.of("new_last_name");
-            var newEmail = Email.of("new_email@asapp.com");
+            var newFirstName = FirstName.of("NewFirstName");
+            var newLastName = LastName.of("NewLastName");
+            var newEmail = Email.of("new_user@asapp.com");
 
             // When
-            var thrown = catchThrowable(() -> user.update(newFirstName, lastName, email, null));
+            var thrown = catchThrowable(() -> user.update(newFirstName, newLastName, newEmail, null));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -327,9 +327,9 @@ class UserTests {
             // Given
             var user = User.reconstructedUser(id, firstName, lastName, email, phoneNumber);
 
-            var newFirstName = FirstName.of("new_first_name");
-            var newLastName = LastName.of("new_last_name");
-            var newEmail = Email.of("new_email@asapp.com");
+            var newFirstName = FirstName.of("NewFirstName");
+            var newLastName = LastName.of("NewLastName");
+            var newEmail = Email.of("new_user@asapp.com");
             var newPhoneNumber = PhoneNumber.of("555-555-555");
 
             // When
@@ -421,9 +421,12 @@ class UserTests {
         @Test
         void ThenReturnsFalse_GivenThreeReconstructedUsersWithDifferentId() {
             // Given
-            var user1 = User.reconstructedUser(UserId.of(UUID.randomUUID()), firstName, lastName, email, phoneNumber);
-            var user2 = User.reconstructedUser(UserId.of(UUID.randomUUID()), firstName, lastName, email, phoneNumber);
-            var user3 = User.reconstructedUser(UserId.of(UUID.randomUUID()), firstName, lastName, email, phoneNumber);
+            var userId1 = UserId.of(UUID.fromString("6ba7b810-9dad-11d1-80b4-00c04fd430c8"));
+            var userId2 = UserId.of(UUID.fromString("8f7e3d2a-5c4b-4e9f-9a1e-3b2c1d0e5f6a"));
+            var userId3 = UserId.of(UUID.fromString("3f8d2a1b-6c5e-4f7d-9a8b-2c1e0d9f8e7c"));
+            var user1 = User.reconstructedUser(userId1, firstName, lastName, email, phoneNumber);
+            var user2 = User.reconstructedUser(userId2, firstName, lastName, email, phoneNumber);
+            var user3 = User.reconstructedUser(userId3, firstName, lastName, email, phoneNumber);
 
             // When
             var actual1 = user1.equals(user2);
@@ -486,8 +489,10 @@ class UserTests {
         @Test
         void ThenReturnsDifferentHashCode_GivenTwoReconstructedUsersWithDifferentId() {
             // Given
-            var user1 = User.reconstructedUser(UserId.of(UUID.randomUUID()), firstName, lastName, email, phoneNumber);
-            var user2 = User.reconstructedUser(UserId.of(UUID.randomUUID()), firstName, lastName, email, phoneNumber);
+            var userId1 = UserId.of(UUID.fromString("7c9e4a2f-3d1b-4e8c-9f5a-6b8d2c3e1f4a"));
+            var userId2 = UserId.of(UUID.fromString("5a6b7c8d-9e0f-4a1b-2c3d-4e5f6a7b8c9d"));
+            var user1 = User.reconstructedUser(userId1, firstName, lastName, email, phoneNumber);
+            var user2 = User.reconstructedUser(userId2, firstName, lastName, email, phoneNumber);
 
             // When
             var actual1 = user1.hashCode();

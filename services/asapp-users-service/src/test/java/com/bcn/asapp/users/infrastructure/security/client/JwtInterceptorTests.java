@@ -20,6 +20,7 @@ import static com.bcn.asapp.users.infrastructure.security.DecodedToken.ACCESS_TO
 import static com.bcn.asapp.users.infrastructure.security.DecodedToken.ACCESS_TOKEN_USE_CLAIM_VALUE;
 import static com.bcn.asapp.users.infrastructure.security.DecodedToken.ROLE_CLAIM_NAME;
 import static com.bcn.asapp.users.infrastructure.security.DecodedToken.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.ArgumentMatchers.eq;
@@ -50,8 +51,6 @@ import com.bcn.asapp.users.infrastructure.security.JwtAuthenticationToken;
 @ExtendWith(MockitoExtension.class)
 public class JwtInterceptorTests {
 
-    private static final String ENCODED_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.encoded.token";
-
     @Mock
     private HttpRequest request;
 
@@ -60,8 +59,6 @@ public class JwtInterceptorTests {
 
     @Mock
     private SecurityContext securityContext;
-
-    private final HttpHeaders headers = new HttpHeaders();
 
     private final JwtInterceptor jwtInterceptor = new JwtInterceptor();
 
@@ -96,7 +93,7 @@ public class JwtInterceptorTests {
         @Test
         void ThenThrowsIllegalStateException_GivenAuthenticationIsNotJwtAuthenticationToken() {
             // Given
-            var authentication = new UsernamePasswordAuthenticationToken("user", "password");
+            var authentication = new UsernamePasswordAuthenticationToken("username", "password");
             given(securityContext.getAuthentication()).willReturn(authentication);
 
             var body = new byte[0];
@@ -113,20 +110,22 @@ public class JwtInterceptorTests {
         @Test
         void ThenAddsAuthorizationHeaderAndExecutesRequest_GivenAuthenticationIsValid() throws IOException {
             // Given
+            var encodedToken = defaultTestEncodedAccessToken();
             var claims = Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
-            var decodedToken = new DecodedToken(ENCODED_TOKEN, ACCESS_TOKEN_TYPE, "user@asapp.com", claims);
+            var decodedToken = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, "user@asapp.com", claims);
             var authentication = JwtAuthenticationToken.authenticated(decodedToken);
             given(securityContext.getAuthentication()).willReturn(authentication);
 
+            var headers = new HttpHeaders();
             given(request.getHeaders()).willReturn(headers);
 
             var body = new byte[0];
 
             // When
-            var actual = jwtInterceptor.intercept(request, body, execution);
+            jwtInterceptor.intercept(request, body, execution);
 
             // Then
-            assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer " + ENCODED_TOKEN);
+            assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer " + decodedToken.encodedToken());
 
             then(execution).should(times(1))
                            .execute(eq(request), eq(body));
