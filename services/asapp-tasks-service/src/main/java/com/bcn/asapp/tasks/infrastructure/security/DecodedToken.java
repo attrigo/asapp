@@ -84,7 +84,7 @@ public record DecodedToken(
         Assert.hasText(encodedToken, "Encoded token must not be blank");
         Assert.hasText(type, "Type must not be blank");
         Assert.hasText(subject, "Subject must not be blank");
-        Assert.notEmpty(claims, "Claim must not be empty");
+        Assert.notEmpty(claims, "Claims must not be empty");
     }
 
     /**
