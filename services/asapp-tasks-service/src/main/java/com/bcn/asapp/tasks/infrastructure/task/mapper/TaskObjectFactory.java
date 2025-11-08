@@ -75,7 +75,7 @@ public class TaskObjectFactory {
     /**
      * Creates a domain {@link Task} from a database {@link TaskEntity} entity.
      * <p>
-     * Maps entity fields to value objects and constructs an active task using the domain's factory method.
+     * Maps entity fields to value objects and reconstitutes a task using the domain's factory method.
      *
      * @param source the {@link TaskEntity} database entity
      * @return the {@link Task} domain entity
@@ -89,7 +89,7 @@ public class TaskObjectFactory {
         var startDate = StartDate.ofNullable(source.startDate());
         var endDate = EndDate.ofNullable(source.endDate());
 
-        return Task.reconstructedTask(taskId, userId, title, description, startDate, endDate);
+        return Task.reconstitute(taskId, userId, title, description, startDate, endDate);
     }
 
 }

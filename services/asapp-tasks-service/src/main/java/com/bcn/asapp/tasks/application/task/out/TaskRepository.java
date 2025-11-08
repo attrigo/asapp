@@ -61,7 +61,7 @@ public interface TaskRepository {
      * <p>
      * If the task is new (without ID), it will be persisted and returned with a generated ID.
      * <p>
-     * If the task is reconstructed (with ID), it will be updated.
+     * If the task is reconstituted (with ID), it will be updated.
      *
      * @param task the {@link Task} to save
      * @return the saved {@link Task} with a persistent ID

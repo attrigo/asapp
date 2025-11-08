@@ -23,7 +23,7 @@ import java.util.Objects;
  * <p>
  * This aggregate root encapsulates task identity and common task information.
  * <p>
- * Tasks can exist in two states: new (transient, without ID) and reconstructed (persistent, with ID).
+ * Tasks can exist in two states: new (transient, without ID) and reconstituted (persistent, with ID).
  * <p>
  * Equality is based on ID; new instances are not considered equal to any other instance.
  *
@@ -66,7 +66,7 @@ public final class Task {
     }
 
     /**
-     * Constructs a new reconstructed {@code Task} instance and validates its integrity.
+     * Constructs a reconstituted {@code Task} instance and validates its integrity.
      *
      * @param id          the task's unique identifier
      * @param userId      the task's user unique identifier
@@ -101,13 +101,12 @@ public final class Task {
      * @return a new {@code Task} instance
      * @throws IllegalArgumentException if any parameter is {@code null}
      */
-    // TODO: Think better name
-    public static Task newTask(UserId userId, Title title, Description description, StartDate startDate, EndDate endDate) {
+    public static Task create(UserId userId, Title title, Description description, StartDate startDate, EndDate endDate) {
         return new Task(userId, title, description, startDate, endDate);
     }
 
     /**
-     * Factory method to create a task with a persistent ID.
+     * Factory method to reconstitute a task with a persistent ID.
      * <p>
      * Typically used when reconstituting a task from the database.
      *
@@ -117,11 +116,10 @@ public final class Task {
      * @param description the task's description
      * @param startDate   the task's start date
      * @param endDate     the task's end date
-     * @return a new reconstructed {@code Task} instance
+     * @return a reconstituted {@code Task} instance
      * @throws IllegalArgumentException if any parameter is {@code null}
      */
-    // TODO: Think better name
-    public static Task reconstructedTask(TaskId id, UserId userId, Title title, Description description, StartDate startDate, EndDate endDate) {
+    public static Task reconstitute(TaskId id, UserId userId, Title title, Description description, StartDate startDate, EndDate endDate) {
         return new Task(id, userId, title, description, startDate, endDate);
     }
 
@@ -172,7 +170,7 @@ public final class Task {
     /**
      * Generates hash code based on task ID.
      * <p>
-     * Uses ID for reconstructed instances and identity hash code for new instances.
+     * Uses ID for reconstituted instances and identity hash code for new instances.
      *
      * @return the hash code
      */
