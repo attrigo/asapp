@@ -23,7 +23,7 @@ import java.util.Objects;
  * <p>
  * This aggregate root encapsulates user identity and common user information.
  * <p>
- * Users can exist in two states: new (transient, without ID) and reconstructed (persistent, with ID).
+ * Users can exist in two states: new (transient, without ID) and reconstituted (persistent, with ID).
  * <p>
  * Equality is based on ID; new instances are not considered equal to any other instance.
  *
@@ -64,7 +64,7 @@ public final class User {
     }
 
     /**
-     * Constructs a new reconstructed {@code User} instance and validates its integrity.
+     * Constructs a reconstituted {@code User} instance and validates its integrity.
      *
      * @param id          the user's unique identifier
      * @param firstName   the user's first name
@@ -98,13 +98,12 @@ public final class User {
      * @return a new {@code User} instance
      * @throws IllegalArgumentException if any parameter is {@code null}
      */
-    // TODO: Think better name
-    public static User newUser(FirstName firstName, LastName lastName, Email email, PhoneNumber phoneNumber) {
+    public static User create(FirstName firstName, LastName lastName, Email email, PhoneNumber phoneNumber) {
         return new User(firstName, lastName, email, phoneNumber);
     }
 
     /**
-     * Factory method to create a user with a persistent ID.
+     * Factory method to reconstitute a user with a persistent ID.
      * <p>
      * Typically used when reconstituting a user from the database.
      *
@@ -113,11 +112,10 @@ public final class User {
      * @param lastName    the user's last name
      * @param email       the user's email
      * @param phoneNumber the user's phone number
-     * @return a new reconstructed {@code User} instance
+     * @return a reconstituted {@code User} instance
      * @throws IllegalArgumentException if any parameter is {@code null}
      */
-    // TODO: Think better name
-    public static User reconstructedUser(UserId id, FirstName firstName, LastName lastName, Email email, PhoneNumber phoneNumber) {
+    public static User reconstitute(UserId id, FirstName firstName, LastName lastName, Email email, PhoneNumber phoneNumber) {
         return new User(id, firstName, lastName, email, phoneNumber);
     }
 
@@ -169,7 +167,7 @@ public final class User {
     /**
      * Generates hash code based on user ID.
      * <p>
-     * Uses ID for reconstructed instances and identity hash code for new instances.
+     * Uses ID for reconstituted instances and identity hash code for new instances.
      *
      * @return the hash code
      */

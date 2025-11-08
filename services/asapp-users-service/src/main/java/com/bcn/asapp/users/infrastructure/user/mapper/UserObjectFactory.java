@@ -65,7 +65,7 @@ public class UserObjectFactory {
     /**
      * Creates a domain {@link User} from a database {@link UserEntity} entity.
      * <p>
-     * Maps entity fields to value objects and constructs a reconstructed user using the domain's factory method.
+     * Maps entity fields to value objects and reconstitutes a user using the domain's factory method.
      *
      * @param source the {@link UserEntity} database entity
      * @return the {@link User} domain entity
@@ -78,7 +78,7 @@ public class UserObjectFactory {
         var email = emailMapper.toEmail(source.email());
         var phoneNumber = phoneNumberMapper.toPhoneNumber(source.phoneNumber());
 
-        return User.reconstructedUser(userId, firstName, lastName, email, phoneNumber);
+        return User.reconstitute(userId, firstName, lastName, email, phoneNumber);
     }
 
 }

@@ -62,9 +62,9 @@ public class CreateUserService implements CreateUserUseCase {
         var email = Email.of(command.email());
         var phoneNumber = PhoneNumber.of(command.phoneNumber());
 
-        var newUser = User.newUser(firstName, lastName, email, phoneNumber);
+        var createdUser = User.create(firstName, lastName, email, phoneNumber);
 
-        return userRepository.save(newUser);
+        return userRepository.save(createdUser);
     }
 
 }
