@@ -26,7 +26,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 class DescriptionTests {
 
-    private final String descriptionValue = "description";
+    private final String descriptionValue = "Description";
 
     @Nested
     class CreateDescriptionWithConstructor {

@@ -22,12 +22,12 @@ import static com.bcn.asapp.tasks.infrastructure.security.DecodedToken.REFRESH_T
 import static com.bcn.asapp.tasks.infrastructure.security.DecodedToken.REFRESH_TOKEN_USE_CLAIM_VALUE;
 import static com.bcn.asapp.tasks.infrastructure.security.DecodedToken.ROLE_CLAIM_NAME;
 import static com.bcn.asapp.tasks.infrastructure.security.DecodedToken.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.tasks.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -35,21 +35,13 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 class DecodedTokenTests {
 
-    private String encodedToken;
+    private final String encodedToken = defaultTestEncodedAccessToken();
 
-    private String type;
+    private final String type = ACCESS_TOKEN_TYPE;
 
-    private String subject;
+    private final String subject = "user@asapp.com";
 
-    private Map<String, String> claims;
-
-    @BeforeEach
-    void beforeEach() {
-        encodedToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.encoded";
-        type = ACCESS_TOKEN_TYPE;
-        subject = "user@asapp.com";
-        claims = Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
-    }
+    private final Map<String, String> claims = Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
 
     @Nested
     class CreateDecodedToken {
@@ -140,8 +132,8 @@ class DecodedTokenTests {
         @Test
         void ThenReturnsFalse_GivenTokenUseClaimIsNotAccess() {
             // Given
-            var refreshClaims = Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
-            var decodedToken = new DecodedToken(encodedToken, type, subject, refreshClaims);
+            var refreshTokenClaims = Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
+            var decodedToken = new DecodedToken(encodedToken, type, subject, refreshTokenClaims);
 
             // When
             var result = decodedToken.isAccessToken();
@@ -154,7 +146,7 @@ class DecodedTokenTests {
         void ThenReturnsFalse_GivenTypeIsAccessTokenButTokenUseClaimIsRefresh() {
             // Given
             var mixedClaims = Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
-            var decodedToken = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, mixedClaims);
+            var decodedToken = new DecodedToken(encodedToken, type, subject, mixedClaims);
 
             // When
             var result = decodedToken.isAccessToken();
@@ -166,7 +158,7 @@ class DecodedTokenTests {
         @Test
         void ThenReturnsTrue_GivenTypeAndTokenUseClaimAreAccessToken() {
             // Given
-            var decodedToken = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, claims);
+            var decodedToken = new DecodedToken(encodedToken, type, subject, claims);
 
             // When
             var result = decodedToken.isAccessToken();
