@@ -36,8 +36,7 @@ public record DecodedToken(
         String encodedToken,
         String type,
         String subject,
-        // TODO : convert to Map<String, Object>
-        Map<String, String> claims
+        Map<String, Object> claims
 ) {
 
     /**
@@ -100,10 +99,10 @@ public record DecodedToken(
     /**
      * Extracts the role from the JWT claims.
      *
-     * @return the role from claims, or {@code null} if not present
+     * @return the role from claims, or {@code null} if neither present nor a {@link String}
      */
     public String roleClaim() {
-        return this.claims.get(ROLE_CLAIM_NAME);
+        return this.claims.get(ROLE_CLAIM_NAME) instanceof String roleClaim ? roleClaim : null;
     }
 
 }
