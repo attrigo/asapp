@@ -45,7 +45,7 @@ class TaskTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenUserIdIsNull() {
             // When
-            var thrown = catchThrowable(() -> Task.newTask(null, title, description, startDate, endDate));
+            var thrown = catchThrowable(() -> Task.create(null, title, description, startDate, endDate));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -55,7 +55,7 @@ class TaskTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenTitleIsNull() {
             // When
-            var thrown = catchThrowable(() -> Task.newTask(userId, null, description, startDate, endDate));
+            var thrown = catchThrowable(() -> Task.create(userId, null, description, startDate, endDate));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -65,7 +65,7 @@ class TaskTests {
         @Test
         void ThenReturnsNewTaskWithNullDescription_GivenDescriptionIsNull() {
             // When
-            var actual = Task.newTask(userId, title, null, startDate, endDate);
+            var actual = Task.create(userId, title, null, startDate, endDate);
 
             // Then
             assertThat(actual.getId()).isNull();
@@ -78,7 +78,7 @@ class TaskTests {
         @Test
         void ThenReturnsNewTaskWithNullStartDate_GivenStartDateIsNull() {
             // When
-            var actual = Task.newTask(userId, title, description, null, endDate);
+            var actual = Task.create(userId, title, description, null, endDate);
 
             // Then
             assertThat(actual.getId()).isNull();
@@ -91,7 +91,7 @@ class TaskTests {
         @Test
         void ThenReturnsNewTaskWithNullEndDate_GivenEndDateIsNull() {
             // When
-            var actual = Task.newTask(userId, title, description, startDate, null);
+            var actual = Task.create(userId, title, description, startDate, null);
 
             // Then
             assertThat(actual.getId()).isNull();
@@ -104,7 +104,7 @@ class TaskTests {
         @Test
         void ThenReturnsNewTask_GivenParametersAreValid() {
             // When
-            var actual = Task.newTask(userId, title, description, startDate, endDate);
+            var actual = Task.create(userId, title, description, startDate, endDate);
 
             // Then
             assertThat(actual.getId()).isNull();
@@ -117,12 +117,12 @@ class TaskTests {
     }
 
     @Nested
-    class CreateReconstructedTask {
+    class CreateReconstitutedTask {
 
         @Test
         void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
             // When
-            var thrown = catchThrowable(() -> Task.reconstructedTask(null, userId, title, description, startDate, endDate));
+            var thrown = catchThrowable(() -> Task.reconstitute(null, userId, title, description, startDate, endDate));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -132,7 +132,7 @@ class TaskTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenUserIdIsNull() {
             // When
-            var thrown = catchThrowable(() -> Task.reconstructedTask(id, null, title, description, startDate, endDate));
+            var thrown = catchThrowable(() -> Task.reconstitute(id, null, title, description, startDate, endDate));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -142,7 +142,7 @@ class TaskTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenTitleIsNull() {
             // When
-            var thrown = catchThrowable(() -> Task.reconstructedTask(id, userId, null, description, startDate, endDate));
+            var thrown = catchThrowable(() -> Task.reconstitute(id, userId, null, description, startDate, endDate));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -150,9 +150,9 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsNewTaskWithNullDescription_GivenDescriptionIsNull() {
+        void ThenReturnsReconstitutedTaskWithNullDescription_GivenDescriptionIsNull() {
             // When
-            var actual = Task.reconstructedTask(id, userId, title, null, startDate, endDate);
+            var actual = Task.reconstitute(id, userId, title, null, startDate, endDate);
 
             // Then
             assertThat(actual.getId()).isEqualTo(id);
@@ -163,9 +163,9 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsNewTaskWithNullStartDate_GivenStartDateIsNull() {
+        void ThenReturnsReconstitutedTaskWithNullStartDate_GivenStartDateIsNull() {
             // When
-            var actual = Task.reconstructedTask(id, userId, title, description, null, endDate);
+            var actual = Task.reconstitute(id, userId, title, description, null, endDate);
 
             // Then
             assertThat(actual.getId()).isEqualTo(id);
@@ -176,9 +176,9 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsNewTaskWithNullEndDate_GivenEndDateIsNull() {
+        void ThenReturnsReconstitutedTaskWithNullEndDate_GivenEndDateIsNull() {
             // When
-            var actual = Task.reconstructedTask(id, userId, title, description, startDate, null);
+            var actual = Task.reconstitute(id, userId, title, description, startDate, null);
 
             // Then
             assertThat(actual.getId()).isEqualTo(id);
@@ -189,9 +189,9 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsNewTask_GivenParametersAreValid() {
+        void ThenReturnsReconstitutedTask_GivenParametersAreValid() {
             // When
-            var actual = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var actual = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
             // Then
             assertThat(actual.getId()).isEqualTo(id);
@@ -209,7 +209,7 @@ class TaskTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenUserIdIsNullOnNewTask() {
             // Given
-            var task = Task.newTask(userId, title, description, startDate, endDate);
+            var task = Task.create(userId, title, description, startDate, endDate);
 
             var newTitle = Title.of("NewTitle");
             var newDescription = Description.of("NewDescription");
@@ -227,7 +227,7 @@ class TaskTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenTitleIsNullOnNewTask() {
             // Given
-            var task = Task.newTask(userId, title, description, startDate, endDate);
+            var task = Task.create(userId, title, description, startDate, endDate);
 
             var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
             var newDescription = Description.of("NewDescription");
@@ -245,7 +245,7 @@ class TaskTests {
         @Test
         void ThenUpdatesAllFields_GivenDescriptionIsNullOnNewTask() {
             // Given
-            var task = Task.newTask(userId, title, description, startDate, endDate);
+            var task = Task.create(userId, title, description, startDate, endDate);
 
             var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
             var newTitle = Title.of("NewTitle");
@@ -267,7 +267,7 @@ class TaskTests {
         @Test
         void ThenUpdatesAllFields_GivenStartDateIsNullOnNewTask() {
             // Given
-            var task = Task.newTask(userId, title, description, startDate, endDate);
+            var task = Task.create(userId, title, description, startDate, endDate);
 
             var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
             var newTitle = Title.of("NewTitle");
@@ -289,7 +289,7 @@ class TaskTests {
         @Test
         void ThenUpdatesAllFields_GivenEndDateIsNullOnNewTask() {
             // Given
-            var task = Task.newTask(userId, title, description, startDate, endDate);
+            var task = Task.create(userId, title, description, startDate, endDate);
 
             var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
             var newTitle = Title.of("NewTitle");
@@ -311,7 +311,7 @@ class TaskTests {
         @Test
         void ThenUpdatesAllFields_GivenParametersAreValidOnNewTask() {
             // Given
-            var task = Task.newTask(userId, title, description, startDate, endDate);
+            var task = Task.create(userId, title, description, startDate, endDate);
 
             var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
             var newTitle = Title.of("NewTitle");
@@ -332,9 +332,9 @@ class TaskTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUserIdIsNullOnReconstructedTask() {
+        void ThenThrowsIllegalArgumentException_GivenUserIdIsNullOnReconstitutedTask() {
             // Given
-            var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
             var newTitle = Title.of("NewTitle");
             var newDescription = Description.of("NewDescription");
@@ -350,9 +350,9 @@ class TaskTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenTitleIsNullOnReconstructedTask() {
+        void ThenThrowsIllegalArgumentException_GivenTitleIsNullOnReconstitutedTask() {
             // Given
-            var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
             var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
             var newDescription = Description.of("NewDescription");
@@ -368,9 +368,9 @@ class TaskTests {
         }
 
         @Test
-        void ThenUpdatesAllFields_GivenDescriptionIsNullOnReconstructedTask() {
+        void ThenUpdatesAllFields_GivenDescriptionIsNullOnReconstitutedTask() {
             // Given
-            var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
             var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
             var newTitle = Title.of("NewTitle");
@@ -390,9 +390,9 @@ class TaskTests {
         }
 
         @Test
-        void ThenUpdatesAllFields_GivenStartDateIsNullOnReconstructedTask() {
+        void ThenUpdatesAllFields_GivenStartDateIsNullOnReconstitutedTask() {
             // Given
-            var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
             var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
             var newTitle = Title.of("NewTitle");
@@ -412,9 +412,9 @@ class TaskTests {
         }
 
         @Test
-        void ThenUpdatesAllFields_GivenEndDateIsNullOnReconstructedTask() {
+        void ThenUpdatesAllFields_GivenEndDateIsNullOnReconstitutedTask() {
             // Given
-            var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
             var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
             var newTitle = Title.of("NewTitle");
@@ -434,9 +434,9 @@ class TaskTests {
         }
 
         @Test
-        void ThenUpdatesAllFields_GivenParametersAreValidOnReconstructedTask() {
+        void ThenUpdatesAllFields_GivenParametersAreValidOnReconstitutedTask() {
             // Given
-            var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
             var newUserId = UserId.of(UUID.fromString("d0e1f2a3-b4c5-4d6e-7f8a-9b0c1d2e3f4a"));
             var newTitle = Title.of("NewTitle");
@@ -464,7 +464,7 @@ class TaskTests {
         @Test
         void ThenReturnsFalse_GivenOtherTaskIsNull() {
             // Given
-            var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
             // When
             var actual = task.equals(null);
@@ -476,7 +476,7 @@ class TaskTests {
         @Test
         void ThenReturnsFalse_GivenOtherClassIsNotTask() {
             // Given
-            var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
             var other = "not a task";
 
             // When
@@ -489,7 +489,7 @@ class TaskTests {
         @Test
         void ThenReturnsTrue_GivenOtherTaskIsSameObject() {
             // Given
-            var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
             // When
             var actual = task.equals(task);
@@ -499,10 +499,10 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenNewTaskAndReconstructedTask() {
+        void ThenReturnsFalse_GivenNewTaskAndReconstitutedTask() {
             // Given
-            var task1 = Task.newTask(userId, title, description, startDate, endDate);
-            var task2 = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var task1 = Task.create(userId, title, description, startDate, endDate);
+            var task2 = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
             // When
             var actual1 = task1.equals(task2);
@@ -514,11 +514,11 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsTrue_GivenThreeReconstructedTasksWithSameId() {
+        void ThenReturnsTrue_GivenThreeReconstitutedTasksWithSameId() {
             // Given
-            var task1 = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
-            var task2 = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
-            var task3 = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var task1 = Task.reconstitute(id, userId, title, description, startDate, endDate);
+            var task2 = Task.reconstitute(id, userId, title, description, startDate, endDate);
+            var task3 = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
             // When
             var actual1 = task1.equals(task2);
@@ -532,14 +532,14 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenThreeReconstructedTasksWithDifferentId() {
+        void ThenReturnsFalse_GivenThreeReconstitutedTasksWithDifferentId() {
             // Given
             var taskId1 = TaskId.of(UUID.fromString("e1f2a3b4-c5d6-4e7f-8a9b-0c1d2e3f4a5b"));
             var taskId2 = TaskId.of(UUID.fromString("f2a3b4c5-d6e7-4f8a-9b0c-1d2e3f4a5b6c"));
             var taskId3 = TaskId.of(UUID.fromString("a3b4c5d6-e7f8-4a9b-0c1d-2e3f4a5b6c7d"));
-            var task1 = Task.reconstructedTask(taskId1, userId, title, description, startDate, endDate);
-            var task2 = Task.reconstructedTask(taskId2, userId, title, description, startDate, endDate);
-            var task3 = Task.reconstructedTask(taskId3, userId, title, description, startDate, endDate);
+            var task1 = Task.reconstitute(taskId1, userId, title, description, startDate, endDate);
+            var task2 = Task.reconstitute(taskId2, userId, title, description, startDate, endDate);
+            var task3 = Task.reconstitute(taskId3, userId, title, description, startDate, endDate);
 
             // When
             var actual1 = task1.equals(task2);
@@ -560,8 +560,8 @@ class TaskTests {
         @Test
         void ThenReturnsDifferentHashCode_GivenTwoNewTasks() {
             // Given
-            var task1 = Task.newTask(userId, title, description, startDate, endDate);
-            var task2 = Task.newTask(userId, title, description, startDate, endDate);
+            var task1 = Task.create(userId, title, description, startDate, endDate);
+            var task2 = Task.create(userId, title, description, startDate, endDate);
 
             // When
             var actual1 = task1.hashCode();
@@ -572,10 +572,10 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsDifferentHashCode_GivenNewTaskAndReconstructedTask() {
+        void ThenReturnsDifferentHashCode_GivenNewTaskAndReconstitutedTask() {
             // Given
-            var task1 = Task.newTask(userId, title, description, startDate, endDate);
-            var task2 = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var task1 = Task.create(userId, title, description, startDate, endDate);
+            var task2 = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
             // When
             var actual1 = task1.hashCode();
@@ -586,10 +586,10 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsSameHashCode_GivenTwoReconstructedTasksWithSameId() {
+        void ThenReturnsSameHashCode_GivenTwoReconstitutedTasksWithSameId() {
             // Given
-            var task1 = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
-            var task2 = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var task1 = Task.reconstitute(id, userId, title, description, startDate, endDate);
+            var task2 = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
             // When
             var actual1 = task1.hashCode();
@@ -600,12 +600,12 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsDifferentHashCode_GivenTwoReconstructedTasksWithDifferentId() {
+        void ThenReturnsDifferentHashCode_GivenTwoReconstitutedTasksWithDifferentId() {
             // Given
             var taskId1 = TaskId.of(UUID.fromString("b4c5d6e7-f8a9-4b0c-1d2e-3f4a5b6c7d8e"));
             var taskId2 = TaskId.of(UUID.fromString("c5d6e7f8-a9b0-4c1d-2e3f-4a5b6c7d8e9f"));
-            var task1 = Task.reconstructedTask(taskId1, userId, title, description, startDate, endDate);
-            var task2 = Task.reconstructedTask(taskId2, userId, title, description, startDate, endDate);
+            var task1 = Task.reconstitute(taskId1, userId, title, description, startDate, endDate);
+            var task2 = Task.reconstitute(taskId2, userId, title, description, startDate, endDate);
 
             // When
             var actual1 = task1.hashCode();
@@ -623,7 +623,7 @@ class TaskTests {
         @Test
         void ThenReturnsNull_GivenNewTask() {
             // Given
-            var task = Task.newTask(userId, title, description, startDate, endDate);
+            var task = Task.create(userId, title, description, startDate, endDate);
 
             // When
             var actual = task.getId();
@@ -633,9 +633,9 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsId_GivenReconstructedTask() {
+        void ThenReturnsId_GivenReconstitutedTask() {
             // Given
-            var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
             // When
             var actual = task.getId();
@@ -652,7 +652,7 @@ class TaskTests {
         @Test
         void ThenReturnsUserId_GivenNewTask() {
             // Given
-            var task = Task.newTask(userId, title, description, startDate, endDate);
+            var task = Task.create(userId, title, description, startDate, endDate);
 
             // When
             var actual = task.getUserId();
@@ -662,9 +662,9 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsUserId_GivenReconstructedTask() {
+        void ThenReturnsUserId_GivenReconstitutedTask() {
             // Given
-            var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
             // When
             var actual = task.getUserId();
@@ -681,7 +681,7 @@ class TaskTests {
         @Test
         void ThenReturnsTitle_GivenNewTask() {
             // Given
-            var task = Task.newTask(userId, title, description, startDate, endDate);
+            var task = Task.create(userId, title, description, startDate, endDate);
 
             // When
             var actual = task.getTitle();
@@ -691,9 +691,9 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsTitle_GivenReconstructedTask() {
+        void ThenReturnsTitle_GivenReconstitutedTask() {
             // Given
-            var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
             // When
             var actual = task.getTitle();
@@ -710,7 +710,7 @@ class TaskTests {
         @Test
         void ThenReturnsDescription_GivenNewTask() {
             // Given
-            var task = Task.newTask(userId, title, description, startDate, endDate);
+            var task = Task.create(userId, title, description, startDate, endDate);
 
             // When
             var actual = task.getDescription();
@@ -720,9 +720,9 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsDescription_GivenReconstructedTask() {
+        void ThenReturnsDescription_GivenReconstitutedTask() {
             // Given
-            var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
             // When
             var actual = task.getDescription();
@@ -739,7 +739,7 @@ class TaskTests {
         @Test
         void ThenReturnsStartDate_GivenNewTask() {
             // Given
-            var task = Task.newTask(userId, title, description, startDate, endDate);
+            var task = Task.create(userId, title, description, startDate, endDate);
 
             // When
             var actual = task.getStartDate();
@@ -749,9 +749,9 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsStartDate_GivenReconstructedTask() {
+        void ThenReturnsStartDate_GivenReconstitutedTask() {
             // Given
-            var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
             // When
             var actual = task.getStartDate();
@@ -768,7 +768,7 @@ class TaskTests {
         @Test
         void ThenReturnsEndDate_GivenNewTask() {
             // Given
-            var task = Task.newTask(userId, title, description, startDate, endDate);
+            var task = Task.create(userId, title, description, startDate, endDate);
 
             // When
             var actual = task.getEndDate();
@@ -778,9 +778,9 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsEndDate_GivenReconstructedTask() {
+        void ThenReturnsEndDate_GivenReconstitutedTask() {
             // Given
-            var task = Task.reconstructedTask(id, userId, title, description, startDate, endDate);
+            var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
             // When
             var actual = task.getEndDate();

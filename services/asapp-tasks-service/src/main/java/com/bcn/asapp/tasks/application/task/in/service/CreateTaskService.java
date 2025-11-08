@@ -64,9 +64,9 @@ public class CreateTaskService implements CreateTaskUseCase {
         var startDate = StartDate.ofNullable(command.startDate());
         var endDate = EndDate.ofNullable(command.endDate());
 
-        var newTask = Task.newTask(userId, title, description, startDate, endDate);
+        var createdTask = Task.create(userId, title, description, startDate, endDate);
 
-        return taskRepository.save(newTask);
+        return taskRepository.save(createdTask);
     }
 
 }
