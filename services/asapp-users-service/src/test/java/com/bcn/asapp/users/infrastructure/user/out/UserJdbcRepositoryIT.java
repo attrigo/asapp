@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.users.infrastructure.user.out;
 
-import static com.bcn.asapp.users.testutil.TestDataFaker.UserDataFaker.defaultFakeUser;
+import static com.bcn.asapp.users.testutil.TestFactory.TestUserFactory.defaultTestUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;
@@ -50,7 +50,7 @@ class UserJdbcRepositoryIT {
         @Test
         void DoesNotDeleteUserAndReturnsZero_UserNotExists() {
             // When
-            var userId = UUID.randomUUID();
+            var userId = UUID.fromString("9c3a7f0e-4d2b-4e8a-9f1c-5b6d7e8f9a0b");
 
             var actual = userRepository.deleteUserById(userId);
 
@@ -61,7 +61,7 @@ class UserJdbcRepositoryIT {
         @Test
         void DeletesUserAndReturnsAmountOfUsersDeleted_UserExists() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 

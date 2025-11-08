@@ -22,6 +22,8 @@ import static com.bcn.asapp.users.infrastructure.security.DecodedToken.REFRESH_T
 import static com.bcn.asapp.users.infrastructure.security.DecodedToken.REFRESH_TOKEN_USE_CLAIM_VALUE;
 import static com.bcn.asapp.users.infrastructure.security.DecodedToken.ROLE_CLAIM_NAME;
 import static com.bcn.asapp.users.infrastructure.security.DecodedToken.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
+import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.BDDMockito.given;
@@ -31,7 +33,6 @@ import static org.mockito.Mockito.times;
 
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -48,52 +49,37 @@ class JwtVerifierTests {
     @InjectMocks
     private JwtVerifier jwtVerifier;
 
-    private String encodedAccessToken;
-
-    private DecodedToken decodedAccessToken;
-
-    private DecodedToken decodedRefreshToken;
-
-    @BeforeEach
-    void beforeEach() {
-        encodedAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.accessToken";
-        String encodedRefreshToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refreshToken";
-
-        var subject = "user@asapp.com";
-        var accessTokenClaims = Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
-        var refreshTokenClaims = Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
-
-        decodedAccessToken = new DecodedToken(encodedAccessToken, ACCESS_TOKEN_TYPE, subject, accessTokenClaims);
-        decodedRefreshToken = new DecodedToken(encodedRefreshToken, REFRESH_TOKEN_TYPE, subject, refreshTokenClaims);
-    }
-
     @Nested
     class VerifyAccessToken {
 
         @Test
         void ThenThrowsInvalidJwtException_GivenDecoderFails() {
             // Given
+            var accessToken = defaultTestEncodedAccessToken();
             willThrow(new RuntimeException("Decoder failed")).given(jwtDecoder)
-                                                             .decode(encodedAccessToken);
+                                                             .decode(accessToken);
 
             // When
-            var thrown = catchThrowable(() -> jwtVerifier.verifyAccessToken(encodedAccessToken));
+            var thrown = catchThrowable(() -> jwtVerifier.verifyAccessToken(accessToken));
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtException.class)
                               .hasMessageContaining("Access token is not valid");
 
             then(jwtDecoder).should(times(1))
-                            .decode(encodedAccessToken);
+                            .decode(accessToken);
         }
 
         @Test
         void ThenThrowsInvalidJwtException_GivenTokenIsNotAccessToken() {
             // Given
-            given(jwtDecoder.decode(encodedAccessToken)).willReturn(decodedRefreshToken);
+            var refreshToken = defaultTestEncodedRefreshToken();
+            var refreshTokenClaims = Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
+            var decodedRefreshToken = new DecodedToken(refreshToken, REFRESH_TOKEN_TYPE, "user@asapp.com", refreshTokenClaims);
+            given(jwtDecoder.decode(refreshToken)).willReturn(decodedRefreshToken);
 
             // When
-            var thrown = catchThrowable(() -> jwtVerifier.verifyAccessToken(encodedAccessToken));
+            var thrown = catchThrowable(() -> jwtVerifier.verifyAccessToken(refreshToken));
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtException.class)
@@ -101,23 +87,26 @@ class JwtVerifierTests {
                               .hasCauseInstanceOf(UnexpectedJwtTypeException.class);
 
             then(jwtDecoder).should(times(1))
-                            .decode(encodedAccessToken);
+                            .decode(refreshToken);
         }
 
         @Test
         void ThenVerifiesAccessToken_GivenAccessTokenIsValid() {
             // Given
-            given(jwtDecoder.decode(encodedAccessToken)).willReturn(decodedAccessToken);
+            var accessToken = defaultTestEncodedAccessToken();
+            var accessTokenClaims = Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
+            var decodedAccessToken = new DecodedToken(accessToken, ACCESS_TOKEN_TYPE, "user@asapp.com", accessTokenClaims);
+            given(jwtDecoder.decode(accessToken)).willReturn(decodedAccessToken);
 
             // When
-            var result = jwtVerifier.verifyAccessToken(encodedAccessToken);
+            var result = jwtVerifier.verifyAccessToken(accessToken);
 
             // Then
             assertThat(result).isEqualTo(decodedAccessToken);
             assertThat(result.isAccessToken()).isTrue();
 
             then(jwtDecoder).should(times(1))
-                            .decode(encodedAccessToken);
+                            .decode(accessToken);
         }
 
     }

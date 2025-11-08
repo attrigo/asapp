@@ -26,7 +26,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 class FirstNameTests {
 
-    private final String firstNameValue = "John";
+    private final String firstNameValue = "FirstName";
 
     @Nested
     class CreateFirstNameWithConstructor {

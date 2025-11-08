@@ -21,10 +21,6 @@ import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_DELETE_BY_ID_FULL_PAT
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_ROOT_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_UPDATE_BY_ID_FULL_PATH;
-import static com.bcn.asapp.users.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_EMAIL;
-import static com.bcn.asapp.users.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_FIRST_NAME;
-import static com.bcn.asapp.users.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_LAST_NAME;
-import static com.bcn.asapp.users.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_PHONE_NUMBER;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -235,10 +231,10 @@ class UserControllerIT extends WebMvcTestContext {
                     {
                     "first_name": "%s",
                     "last_name": "%s",
-                    "email": "INVALID_EMAIL",
+                    "email": "invalid_email",
                     "phone_number": "%s"
                     }
-                    """.formatted(DEFAULT_FAKE_FIRST_NAME, DEFAULT_FAKE_LAST_NAME, DEFAULT_FAKE_PHONE_NUMBER);
+                    """.formatted("FirstName", "LastName", "555 555 555");
 
             var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                              .content(requestBody);
@@ -275,9 +271,9 @@ class UserControllerIT extends WebMvcTestContext {
                     "first_name": "%s",
                     "last_name": "%s",
                     "email": "%s",
-                    "phone_number": "INVALID_PHONE_NUMBER"
+                    "phone_number": "invalid_phone_number"
                     }
-                    """.formatted(DEFAULT_FAKE_FIRST_NAME, DEFAULT_FAKE_LAST_NAME, DEFAULT_FAKE_EMAIL);
+                    """.formatted("FirstName", "LastName", "user@asapp.com");
 
             var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                              .content(requestBody);
@@ -321,7 +317,7 @@ class UserControllerIT extends WebMvcTestContext {
                     "email": "%s",
                     "phone_number": "%s"
                     }
-                    """.formatted(DEFAULT_FAKE_FIRST_NAME, DEFAULT_FAKE_LAST_NAME, DEFAULT_FAKE_EMAIL, DEFAULT_FAKE_PHONE_NUMBER);
+                    """.formatted("NewFirstName", "NewLastName", "new_user@asapp.com", "555-555-555");
 
             var requestBuilder = put(USERS_ROOT_PATH + "/").contentType(MediaType.APPLICATION_JSON)
                                                            .content(requestBody);
@@ -352,7 +348,7 @@ class UserControllerIT extends WebMvcTestContext {
                     "email": "%s",
                     "phone_number": "%s"
                     }
-                    """.formatted(DEFAULT_FAKE_FIRST_NAME, DEFAULT_FAKE_LAST_NAME, DEFAULT_FAKE_EMAIL, DEFAULT_FAKE_PHONE_NUMBER);
+                    """.formatted("NewFirstName", "NewLastName", "new_user@asapp.com", "555-555-555");
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
                                                                               .content(requestBody);
@@ -375,7 +371,7 @@ class UserControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyIsNotJson() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = "";
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.TEXT_PLAIN)
@@ -399,7 +395,7 @@ class UserControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsNotPresent() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = "";
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
@@ -423,7 +419,7 @@ class UserControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsEmpty() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = "{}";
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
@@ -462,7 +458,7 @@ class UserControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyMandatoryFieldsAreEmpty() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = """
                     {
                     "first_name": "",
@@ -512,15 +508,15 @@ class UserControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyEmailFieldIsInvalid() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = """
                     {
                     "first_name": "%s",
                     "last_name": "%s",
-                    "email": "INVALID_EMAIL",
+                    "email": "invalid_email",
                     "phone_number": "%s"
                     }
-                    """.formatted(DEFAULT_FAKE_FIRST_NAME, DEFAULT_FAKE_LAST_NAME, DEFAULT_FAKE_PHONE_NUMBER);
+                    """.formatted("NewFirstName", "NewLastName", "555-555-555");
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
                                                                               .content(requestBody);
@@ -552,15 +548,15 @@ class UserControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyPhoneNumberFieldIsInvalid() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = """
                     {
                     "first_name": "%s",
                     "last_name": "%s",
                     "email": "%s",
-                    "phone_number": "INVALID_PHONE_NUMBER"
+                    "phone_number": "invalid_phone_number"
                     }
-                    """.formatted(DEFAULT_FAKE_FIRST_NAME, DEFAULT_FAKE_LAST_NAME, DEFAULT_FAKE_EMAIL);
+                    """.formatted("NewFirstName", "NewLastName", "new_user@asapp.com");
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
                                                                               .content(requestBody);

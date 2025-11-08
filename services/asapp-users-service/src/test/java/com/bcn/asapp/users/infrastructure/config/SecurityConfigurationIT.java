@@ -16,10 +16,10 @@
 
 package com.bcn.asapp.users.infrastructure.config;
 
-import static com.bcn.asapp.users.testutil.TestDataFaker.EncodedJwtDataFaker.defaultFakeEncodedAccessToken;
-import static com.bcn.asapp.users.testutil.TestDataFaker.EncodedJwtDataFaker.defaultFakeEncodedRefreshToken;
-import static com.bcn.asapp.users.testutil.TestDataFaker.EncodedJwtDataFaker.fakeEncodedJwtBuilder;
-import static com.bcn.asapp.users.testutil.TestDataFaker.UserDataFaker.defaultFakeUser;
+import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
+import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
+import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.testEncodedTokenBuilder;
+import static com.bcn.asapp.users.testutil.TestFactory.TestUserFactory.defaultTestUser;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -66,7 +66,7 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsInvalidBearerToken() {
             // When & Then
-            var nonBearerToken = "INVALID_BEARER_TOKEN";
+            var nonBearerToken = "invalid_bearer_token";
 
             webTestClient.get()
                          .uri("/actuator")
@@ -96,7 +96,7 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderNotContainsBearerToken() {
             // When & Then
-            var bearerToken = "Bearer " + "INVALID_BEARER_TOKEN";
+            var bearerToken = "Bearer " + "invalid_bearer_token";
 
             webTestClient.get()
                          .uri("/actuator")
@@ -111,9 +111,9 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsExpiredBearerTokenWithWrongSignature() {
             // When & Then
-            var bearerToken = "Bearer " + fakeEncodedJwtBuilder().accessToken()
-                                                                 .withSignature("M0LBjhuY5Xgk25aRFCTp72EXM2HEnRY7KHAIlNQCxzwsMw7HgQBbdN4Mka94siHP")
-                                                                 .build();
+            var bearerToken = "Bearer " + testEncodedTokenBuilder().accessToken()
+                                                                   .withSecretKey("M0LBjhuY5Xgk25aRFCTp72EXM2HEnRY7KHAIlNQCxzwsMw7HgQBbdN4Mka94siHP")
+                                                                   .build();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -128,9 +128,9 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsExpiredBearerToken() {
             // When & Then
-            var bearerToken = "Bearer " + fakeEncodedJwtBuilder().accessToken()
-                                                                 .expired()
-                                                                 .build();
+            var bearerToken = "Bearer " + testEncodedTokenBuilder().accessToken()
+                                                                   .expired()
+                                                                   .build();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -145,9 +145,9 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsNotSignedBearerToken() {
             // When & Then
-            var bearerToken = "Bearer " + fakeEncodedJwtBuilder().accessToken()
-                                                                 .notSigned()
-                                                                 .build();
+            var bearerToken = "Bearer " + testEncodedTokenBuilder().accessToken()
+                                                                   .notSigned()
+                                                                   .build();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -162,9 +162,9 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsBearerTokenWithoutType() {
             // When & Then
-            var bearerToken = "Bearer " + fakeEncodedJwtBuilder().ofType("")
-                                                                 .notSigned()
-                                                                 .build();
+            var bearerToken = "Bearer " + testEncodedTokenBuilder().withType("")
+                                                                   .notSigned()
+                                                                   .build();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -179,9 +179,9 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsBearerTokenWithInvalidType() {
             // When & Then
-            var bearerToken = "Bearer " + fakeEncodedJwtBuilder().ofType("INVALID_TYPE")
-                                                                 .notSigned()
-                                                                 .build();
+            var bearerToken = "Bearer " + testEncodedTokenBuilder().withType("invalid_type")
+                                                                   .notSigned()
+                                                                   .build();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -196,7 +196,7 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsRefreshBearerToken() {
             // When & Then
-            var bearerToken = "Bearer " + defaultFakeEncodedRefreshToken();
+            var bearerToken = "Bearer " + defaultTestEncodedRefreshToken();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -219,11 +219,11 @@ class SecurityConfigurationIT {
         void beforeEach() {
             userRepository.deleteAll();
 
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
-            bearerToken = "Bearer " + defaultFakeEncodedAccessToken();
+            bearerToken = "Bearer " + defaultTestEncodedAccessToken();
         }
 
         @Test
