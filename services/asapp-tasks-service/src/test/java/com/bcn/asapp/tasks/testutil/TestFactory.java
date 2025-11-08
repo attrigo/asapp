@@ -208,7 +208,7 @@ public class TestFactory {
             }
 
             public Builder withClaims(Map<String, Object> claims) {
-                this.claims = Map.copyOf(claims);
+                this.claims = claims;
                 return this;
             }
 

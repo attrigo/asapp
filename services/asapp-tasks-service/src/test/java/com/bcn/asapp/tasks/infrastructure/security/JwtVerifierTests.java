@@ -74,7 +74,7 @@ class JwtVerifierTests {
         void ThenThrowsInvalidJwtException_GivenTokenIsNotAccessToken() {
             // Given
             var refreshToken = defaultTestEncodedRefreshToken();
-            var refreshTokenClaims = Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
+            var refreshTokenClaims = Map.<String, Object>of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
             var decodedRefreshToken = new DecodedToken(refreshToken, REFRESH_TOKEN_TYPE, "user@asapp.com", refreshTokenClaims);
             given(jwtDecoder.decode(refreshToken)).willReturn(decodedRefreshToken);
 
@@ -94,7 +94,7 @@ class JwtVerifierTests {
         void ThenVerifiesAccessToken_GivenAccessTokenIsValid() {
             // Given
             var accessToken = defaultTestEncodedAccessToken();
-            var accessTokenClaims = Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
+            var accessTokenClaims = Map.<String, Object>of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
             var decodedAccessToken = new DecodedToken(accessToken, ACCESS_TOKEN_TYPE, "user@asapp.com", accessTokenClaims);
             given(jwtDecoder.decode(accessToken)).willReturn(decodedAccessToken);
 
