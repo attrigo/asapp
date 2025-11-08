@@ -53,7 +53,7 @@ class JacksonConfigurationIT {
         @Test
         void SerializesJsonWithoutNullValues_EntityHasNullValues() throws Exception {
             // Given
-            var uuid = UUID.randomUUID();
+            var uuid = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
             var testEntity = new TestEntity(uuid, "Test", null);
 
             // When
@@ -68,7 +68,7 @@ class JacksonConfigurationIT {
         @Test
         void SerializesJsonWithEmptyList_EntityHasEmptyList() throws Exception {
             // Given
-            var uuid = UUID.randomUUID();
+            var uuid = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
             var testEntity = new TestEntity(uuid, "Test", Collections.emptyList());
 
             // When

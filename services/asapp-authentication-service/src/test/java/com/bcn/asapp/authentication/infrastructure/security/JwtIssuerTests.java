@@ -44,19 +44,19 @@ import com.bcn.asapp.authentication.domain.user.Username;
 
 class JwtIssuerTests {
 
-    private final UUID userIdValue = UUID.randomUUID();
+    private final UUID userIdValue = UUID.fromString("184c3f38-0783-4b4e-a570-709416bd856b");
 
     private final String usernameValue = "user@asapp.com";
 
     private JwtIssuer jwtIssuer;
 
     @BeforeEach
-    void setUp() {
+    void beforeEach() {
         var secretKey = Keys.hmacShaKeyFor(new byte[32]);
         var jwtSecret = Base64.getEncoder()
                               .encodeToString(secretKey.getEncoded());
-        Long accessTokenExpirationTime = 900000L;// 15 minutes
-        Long refreshTokenExpirationTime = 604800000L;// 7 days
+        var accessTokenExpirationTime = 900000L; // 15 minutes
+        var refreshTokenExpirationTime = 604800000L; // 7 days
         jwtIssuer = new JwtIssuer(jwtSecret, accessTokenExpirationTime, refreshTokenExpirationTime);
     }
 

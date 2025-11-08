@@ -32,11 +32,11 @@ import com.bcn.asapp.authentication.domain.user.Username;
 
 class UseAuthenticationTests {
 
-    private final UserId userId = UserId.of(UUID.randomUUID());
+    private final UserId userId = UserId.of(UUID.fromString("7f3d8e2a-91c4-4b6f-a8d2-5e9f1c3b7a4d"));
 
     private final Username username = Username.of("user@asapp.com");
 
-    private final RawPassword password = RawPassword.of("password");
+    private final RawPassword password = RawPassword.of("TEST@09_password?!");
 
     private final Role role = USER;
 

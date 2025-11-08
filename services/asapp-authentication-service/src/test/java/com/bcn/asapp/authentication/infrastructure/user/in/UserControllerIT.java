@@ -16,9 +16,8 @@
 
 package com.bcn.asapp.authentication.infrastructure.user.in;
 
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_RAW_PASSWORD;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_ROLE;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_USERNAME;
+import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
+import static com.bcn.asapp.authentication.domain.user.Role.USER;
 import static com.bcn.asapp.url.authentication.UserRestAPIURL.USERS_CREATE_FULL_PATH;
 import static com.bcn.asapp.url.authentication.UserRestAPIURL.USERS_DELETE_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.authentication.UserRestAPIURL.USERS_GET_BY_ID_FULL_PATH;
@@ -229,11 +228,11 @@ class UserControllerIT extends WebMvcTestContext {
             // When & Then
             var requestBody = """
                     {
-                    "username": "INVALID_USERNAME",
+                    "username": "invalid_username",
                     "password": "%s",
                     "role": "%s"
                     }
-                    """.formatted(DEFAULT_FAKE_RAW_PASSWORD, DEFAULT_FAKE_ROLE.name());
+                    """.formatted("TEST@09_password?!", USER.name());
 
             var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                              .content(requestBody);
@@ -268,10 +267,10 @@ class UserControllerIT extends WebMvcTestContext {
             var requestBody = """
                     {
                     "username": "%s",
-                    "password": "INV_PWD",
+                    "password": "invalid",
                     "role": "%s"
                     }
-                    """.formatted(DEFAULT_FAKE_USERNAME, DEFAULT_FAKE_ROLE.name());
+                    """.formatted("user@asapp.com", USER.name());
 
             var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                              .content(requestBody);
@@ -307,9 +306,9 @@ class UserControllerIT extends WebMvcTestContext {
                     {
                     "username": "%s",
                     "password": "%s",
-                    "role": "INVALID_ROLE"
+                    "role": "invalid_role"
                     }
-                    """.formatted(DEFAULT_FAKE_USERNAME, DEFAULT_FAKE_RAW_PASSWORD);
+                    """.formatted("user@asapp.com", "TEST@09_password?!");
 
             var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                              .content(requestBody);
@@ -352,7 +351,7 @@ class UserControllerIT extends WebMvcTestContext {
                     "password": "%s",
                     "role": "%s"
                     }
-                    """.formatted(DEFAULT_FAKE_USERNAME, DEFAULT_FAKE_RAW_PASSWORD, DEFAULT_FAKE_ROLE.name());
+                    """.formatted("new_user@asapp.com", "new_test#Password12", ADMIN.name());
 
             var requestBuilder = put(USERS_ROOT_PATH + "/").contentType(MediaType.APPLICATION_JSON)
                                                            .content(requestBody);
@@ -382,7 +381,7 @@ class UserControllerIT extends WebMvcTestContext {
                     "password": "%s",
                     "role": "%s"
                     }
-                    """.formatted(DEFAULT_FAKE_USERNAME, DEFAULT_FAKE_RAW_PASSWORD, DEFAULT_FAKE_ROLE.name());
+                    """.formatted("new_user@asapp.com", "new_test#Password12", ADMIN.name());
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
                                                                               .content(requestBody);
@@ -405,7 +404,7 @@ class UserControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyIsNotJson() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("5b0e9f8d-4a7c-4d2e-b3f8-9d6e8c7f5a4b");
             var requestBody = "";
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.TEXT_PLAIN)
@@ -429,7 +428,7 @@ class UserControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsNotPresent() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("6c1f0a9e-5b8d-4e3f-c4a9-0e7f9d8e6b5c");
             var requestBody = "";
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
@@ -453,7 +452,7 @@ class UserControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsEmpty() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("7d2a1b0f-6c9e-4f4a-d5b0-1f8a0e9f7d6e");
             var requestBody = "{}";
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
@@ -490,7 +489,7 @@ class UserControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyMandatoryFieldsAreEmpty() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("8e3b2c1a-7d0f-4a5b-e6c1-2a9b1f0e8d7f");
             var requestBody = """
                     {
                     "username": "",
@@ -537,14 +536,14 @@ class UserControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyUsernameFieldIsInvalid() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("9f4c3d2b-8e1a-4b6c-f7d2-3b0c2a1f9e8a");
             var requestBody = """
                     {
-                    "username": "INVALID_USERNAME",
+                    "username": "invalid_username",
                     "password": "%s",
                     "role": "%s"
                     }
-                    """.formatted(DEFAULT_FAKE_RAW_PASSWORD, DEFAULT_FAKE_ROLE.name());
+                    """.formatted("TEST@09_password?!", ADMIN.name());
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
                                                                               .content(requestBody);
@@ -576,14 +575,14 @@ class UserControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyPasswordFieldIsInvalid() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("0a5d4e3c-9f2b-4c7d-a8e3-4d1c3b2a0f9b");
             var requestBody = """
                     {
                     "username": "%s",
-                    "password": "INV_PWD",
+                    "password": "invalid",
                     "role": "%s"
                     }
-                    """.formatted(DEFAULT_FAKE_USERNAME, DEFAULT_FAKE_ROLE.name());
+                    """.formatted("new_user@asapp.com", ADMIN.name());
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
                                                                               .content(requestBody);
@@ -615,14 +614,14 @@ class UserControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyRoleFieldIsInvalid() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("1b6e5f4d-0a3c-4d8e-b9f4-5e2d4c3b2a1c");
             var requestBody = """
                     {
                     "username": "%s",
                     "password": "%s",
-                    "role": "INVALID_ROLE"
+                    "role": "invalid_role"
                     }
-                    """.formatted(DEFAULT_FAKE_USERNAME, DEFAULT_FAKE_RAW_PASSWORD);
+                    """.formatted("new_user@asapp.com", "new_test#Password12");
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
                                                                               .content(requestBody);

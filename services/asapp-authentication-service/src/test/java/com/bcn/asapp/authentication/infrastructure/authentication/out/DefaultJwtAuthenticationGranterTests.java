@@ -18,6 +18,7 @@ package com.bcn.asapp.authentication.infrastructure.authentication.out;
 
 import static com.bcn.asapp.authentication.domain.authentication.Jwt.ACCESS_TOKEN_USE_CLAIM_VALUE;
 import static com.bcn.asapp.authentication.domain.authentication.Jwt.REFRESH_TOKEN_USE_CLAIM_VALUE;
+import static com.bcn.asapp.authentication.domain.authentication.Jwt.ROLE_CLAIM_NAME;
 import static com.bcn.asapp.authentication.domain.authentication.Jwt.TOKEN_USE_CLAIM_NAME;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
@@ -31,6 +32,7 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
@@ -69,30 +71,33 @@ class DefaultJwtAuthenticationGranterTests {
     @InjectMocks
     private DefaultJwtAuthenticationGranter defaultAuthenticationGranter;
 
-    private UserId userId;
-
     private Jwt accessToken;
 
     private Jwt refreshToken;
 
     private UserAuthentication userAuthentication;
 
+    private JwtAuthentication jwtAuthentication;
+
     @BeforeEach
     void beforeEach() {
-        var token = EncodedToken.of("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.encoded");
-        var subject = Subject.of("user@asapp.com");
-        var accessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE));
-        var refreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE));
-        var issued = Issued.now();
-        var expiration = Expiration.of(issued, 1000L);
+        var userId = UserId.of(UUID.fromString("e079923c-3a55-4d66-980d-b8873b8860c4"));
+        var role = USER;
 
-        userId = UserId.of(UUID.randomUUID());
+        var token = EncodedToken.of("eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0MSJ9.c2lnMQ");
+        var subject = Subject.of("user@asapp.com");
+        var accessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, role.name()));
+        var refreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, role.name()));
+        var issued = Issued.of(Instant.parse("2025-01-01T10:00:00Z"));
+        var expiration = Expiration.of(issued, 30000L);
         accessToken = Jwt.of(token, ACCESS_TOKEN, subject, accessTokenClaims, issued, expiration);
         refreshToken = Jwt.of(token, REFRESH_TOKEN, subject, refreshTokenClaims, issued, expiration);
 
         var username = Username.of("user@asapp.com");
+        userAuthentication = UserAuthentication.authenticated(userId, username, role);
 
-        userAuthentication = UserAuthentication.authenticated(userId, username, USER);
+        var jwtAuthenticationId = JwtAuthenticationId.of(UUID.fromString("447fcd76-efcf-4f52-a998-02c232548f5d"));
+        jwtAuthentication = JwtAuthentication.authenticated(jwtAuthenticationId, userId, accessToken, refreshToken);
     }
 
     @Nested
@@ -123,6 +128,7 @@ class DefaultJwtAuthenticationGranterTests {
         void ThenThrowsBadCredentialsException_GivenRefreshTokenIssuanceFails() {
             // Given
             given(jwtIssuer.issueAccessToken(userAuthentication)).willReturn(accessToken);
+
             willThrow(new RuntimeException("Token issuance failed")).given(jwtIssuer)
                                                                     .issueRefreshToken(userAuthentication);
 
@@ -145,7 +151,9 @@ class DefaultJwtAuthenticationGranterTests {
         void ThenThrowsBadCredentialsException_GivenRepositorySaveFails() {
             // Given
             given(jwtIssuer.issueAccessToken(userAuthentication)).willReturn(accessToken);
+
             given(jwtIssuer.issueRefreshToken(userAuthentication)).willReturn(refreshToken);
+
             willThrow(new RuntimeException("Repository save failed")).given(jwtAuthenticationRepository)
                                                                      .save(any(JwtAuthentication.class));
 
@@ -167,10 +175,10 @@ class DefaultJwtAuthenticationGranterTests {
         @Test
         void ThenGrantsAuthentication_GivenUserAuthenticationIsValid() {
             // Given
-            var jwtAuthentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), userId, accessToken, refreshToken);
-
             given(jwtIssuer.issueAccessToken(userAuthentication)).willReturn(accessToken);
+
             given(jwtIssuer.issueRefreshToken(userAuthentication)).willReturn(refreshToken);
+
             given(jwtAuthenticationRepository.save(any(JwtAuthentication.class))).willReturn(jwtAuthentication);
 
             // When

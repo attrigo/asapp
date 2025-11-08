@@ -27,7 +27,7 @@ import org.junit.jupiter.api.Test;
 
 class ExpirationTests {
 
-    private final Instant expirationValue = Instant.parse("2025-10-01T10:30:00Z");
+    private final Instant expirationValue = Instant.parse("2025-01-01T11:00:00Z");
 
     @Nested
     class CreateExpirationWithConstructor {

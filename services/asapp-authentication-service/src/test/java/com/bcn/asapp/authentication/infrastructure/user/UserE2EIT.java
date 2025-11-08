@@ -17,12 +17,10 @@
 package com.bcn.asapp.authentication.infrastructure.user;
 
 import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.JwtAuthenticationDataFaker.fakeJwtAuthenticationBuilder;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_RAW_PASSWORD;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_ROLE;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_USERNAME;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.defaultFakeUser;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.fakeUserBuilder;
+import static com.bcn.asapp.authentication.domain.user.Role.USER;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestJwtAuthenticationFactory.testJwtAuthenticationBuilder;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestUser;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.testUserBuilder;
 import static com.bcn.asapp.url.authentication.UserRestAPIURL.USERS_CREATE_FULL_PATH;
 import static com.bcn.asapp.url.authentication.UserRestAPIURL.USERS_DELETE_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.authentication.UserRestAPIURL.USERS_GET_ALL_FULL_PATH;
@@ -62,10 +60,10 @@ import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 class UserE2EIT {
 
     @Autowired
-    private UserJdbcRepository userRepository;
+    private JwtAuthenticationJdbcRepository jwtAuthenticationRepository;
 
     @Autowired
-    private JwtAuthenticationJdbcRepository jwtAuthenticationRepository;
+    private UserJdbcRepository userRepository;
 
     @Autowired
     private WebTestClient webTestClient;
@@ -79,12 +77,12 @@ class UserE2EIT {
         jwtAuthenticationRepository.deleteAll();
         userRepository.deleteAll();
 
-        var user = fakeUserBuilder().withUsername("auth.test.user@asapp.com")
+        var user = testUserBuilder().withUsername("auth_user@asapp.com")
                                     .build();
         authenticatedUser = userRepository.save(user);
         assertThat(authenticatedUser).isNotNull();
 
-        var jwtAuthentication = fakeJwtAuthenticationBuilder().withUserId(authenticatedUser.id())
+        var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(authenticatedUser.id())
                                                               .build();
         var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
         assertThat(jwtAuthenticationCreated).isNotNull();
@@ -99,7 +97,7 @@ class UserE2EIT {
         @Test
         void DoesNotGetUserAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("b9e4d3c2-5c7f-4ba0-c3e9-8f4d6b2a0c5e");
 
             webTestClient.get()
                          .uri(USERS_GET_BY_ID_FULL_PATH, userIdPath)
@@ -114,7 +112,7 @@ class UserE2EIT {
         @Test
         void DoesNotGetUserAndReturnsStatusNotFoundAndEmptyBody_UserNotExists() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("b9e4d3c2-5c7f-4ba0-c3e9-8f4d6b2a0c5e");
 
             webTestClient.get()
                          .uri(USERS_GET_BY_ID_FULL_PATH, userIdPath)
@@ -130,7 +128,7 @@ class UserE2EIT {
         @Test
         void GetsUserAndReturnsStatusOKAndBodyWithFoundUser_UserExists() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -177,18 +175,18 @@ class UserE2EIT {
         @Test
         void GetsAllUsersAndReturnsStatusOKAndBodyWithFoundUsers_ThereAreUsers() {
             // Given
-            var firstUser = fakeUserBuilder().withUsername("first.test.username@asapp.com")
-                                             .build();
-            var secondUser = fakeUserBuilder().withUsername("second.test.username@asapp.com")
-                                              .build();
-            var thirdUser = fakeUserBuilder().withUsername("third.test.username@asapp.com")
-                                             .build();
-            var firstUserCreated = userRepository.save(firstUser);
-            var secondUserCreated = userRepository.save(secondUser);
-            var thirdUserCreated = userRepository.save(thirdUser);
-            assertThat(firstUserCreated).isNotNull();
-            assertThat(secondUserCreated).isNotNull();
-            assertThat(thirdUserCreated).isNotNull();
+            var user1 = testUserBuilder().withUsername("user1@asapp.com")
+                                         .build();
+            var user2 = testUserBuilder().withUsername("user2@asapp.com")
+                                         .build();
+            var user3 = testUserBuilder().withUsername("user3@asapp.com")
+                                         .build();
+            var userCreated1 = userRepository.save(user1);
+            var userCreated2 = userRepository.save(user2);
+            var userCreated3 = userRepository.save(user3);
+            assertThat(userCreated1).isNotNull();
+            assertThat(userCreated2).isNotNull();
+            assertThat(userCreated3).isNotNull();
 
             // When
             var response = webTestClient.get()
@@ -206,11 +204,11 @@ class UserE2EIT {
             // Then
             // Assert API response
             var authUserResponse = new GetAllUsersResponse(authenticatedUser.id(), authenticatedUser.username(), "*****", authenticatedUser.role());
-            var firstUserResponse = new GetAllUsersResponse(firstUserCreated.id(), firstUserCreated.username(), "*****", firstUserCreated.role());
-            var secondUserResponse = new GetAllUsersResponse(secondUserCreated.id(), secondUserCreated.username(), "*****", secondUserCreated.role());
-            var thirdUserResponse = new GetAllUsersResponse(thirdUserCreated.id(), thirdUserCreated.username(), "*****", thirdUserCreated.role());
+            var userResponse1 = new GetAllUsersResponse(userCreated1.id(), userCreated1.username(), "*****", userCreated1.role());
+            var userResponse2 = new GetAllUsersResponse(userCreated2.id(), userCreated2.username(), "*****", userCreated2.role());
+            var userResponse3 = new GetAllUsersResponse(userCreated3.id(), userCreated3.username(), "*****", userCreated3.role());
             assertThat(response).hasSize(4)
-                                .contains(authUserResponse, firstUserResponse, secondUserResponse, thirdUserResponse);
+                                .containsExactlyInAnyOrder(authUserResponse, userResponse1, userResponse2, userResponse3);
         }
 
     }
@@ -221,7 +219,7 @@ class UserE2EIT {
         @Test
         void CreatesUserAndReturnsStatusCreatedAndBodyWithUserCreated() {
             // When
-            var createUserRequestBody = new CreateUserRequest(DEFAULT_FAKE_USERNAME, DEFAULT_FAKE_RAW_PASSWORD, DEFAULT_FAKE_ROLE.name());
+            var createUserRequestBody = new CreateUserRequest("user@asapp.com", "TEST@09_password?!", USER.name());
 
             var response = webTestClient.post()
                                         .uri(USERS_CREATE_FULL_PATH)
@@ -243,15 +241,15 @@ class UserE2EIT {
                                 .extracting(CreateUserResponse::userId)
                                 .isNotNull();
 
-            // Assert user has been created
+            // Assert the user has been created
             var optionalActualUser = userRepository.findById(response.userId());
             assertThat(optionalActualUser).isNotEmpty()
                                           .get()
                                           .satisfies(userEntity -> {
                                               assertThat(userEntity.id()).isEqualTo(response.userId());
-                                              assertThat(userEntity.username()).isEqualTo(DEFAULT_FAKE_USERNAME);
+                                              assertThat(userEntity.username()).isEqualTo(createUserRequestBody.username());
                                               assertThat(userEntity.password()).isNotNull();
-                                              assertThat(userEntity.role()).isEqualTo(DEFAULT_FAKE_ROLE.name());
+                                              assertThat(userEntity.role()).isEqualTo(createUserRequestBody.role());
                                           });
         }
 
@@ -263,8 +261,8 @@ class UserE2EIT {
         @Test
         void DoesNotUpdateUserAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
-            var updateUserRequest = new UpdateUserRequest(DEFAULT_FAKE_USERNAME, DEFAULT_FAKE_RAW_PASSWORD, DEFAULT_FAKE_ROLE.name());
+            var userIdPath = UUID.fromString("d1a6f5e4-7e9a-4dc2-e5fb-0a6f8d4c2e7a");
+            var updateUserRequest = new UpdateUserRequest("new_user@asapp.com", "new_test#Password12", ADMIN.name());
 
             webTestClient.put()
                          .uri(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath)
@@ -281,8 +279,8 @@ class UserE2EIT {
         @Test
         void DoesNotUpdateUserAndReturnsStatusNotFoundAndEmptyBody_UserNotExists() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
-            var updateUserRequest = new UpdateUserRequest(DEFAULT_FAKE_USERNAME, DEFAULT_FAKE_RAW_PASSWORD, DEFAULT_FAKE_ROLE.name());
+            var userIdPath = UUID.fromString("d1a6f5e4-7e9a-4dc2-e5fb-0a6f8d4c2e7a");
+            var updateUserRequest = new UpdateUserRequest("new_user@asapp.com", "new_test#Password12", ADMIN.name());
 
             webTestClient.put()
                          .uri(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath)
@@ -300,13 +298,13 @@ class UserE2EIT {
         @Test
         void UpdatesUserAndReturnsStatusOkAndBodyWithUpdatedUser_UserExists() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             // When
             var userIdPath = userCreated.id();
-            var updateUserRequest = new UpdateUserRequest("new.test.username@asapp.com", "new_test#Password12", ADMIN.name());
+            var updateUserRequest = new UpdateUserRequest("new_user@asapp.com", "new_test#Password12", ADMIN.name());
 
             var response = webTestClient.put()
                                         .uri(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath)
@@ -329,7 +327,7 @@ class UserE2EIT {
                                 .extracting(UpdateUserResponse::userId)
                                 .isEqualTo(userCreated.id());
 
-            // Assert user has been updated
+            // Assert the user has been updated
             var optionalActualUser = userRepository.findById(response.userId());
             assertThat(optionalActualUser).isNotEmpty()
                                           .get()
@@ -350,7 +348,7 @@ class UserE2EIT {
         @Test
         void DoesNotDeleteUserAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("f3c8b7a6-9ebc-4fe4-a7bd-2c8b0f6e4a9c");
 
             webTestClient.delete()
                          .uri(USERS_DELETE_BY_ID_FULL_PATH, userIdPath)
@@ -365,7 +363,7 @@ class UserE2EIT {
         @Test
         void DoesNotDeleteUserAndReturnsStatusNotFoundAndEmptyBody_UserNotExists() {
             // When & Then
-            var userIdPath = UUID.randomUUID();
+            var userIdPath = UUID.fromString("f3c8b7a6-9ebc-4fe4-a7bd-2c8b0f6e4a9c");
 
             webTestClient.delete()
                          .uri(USERS_DELETE_BY_ID_FULL_PATH, userIdPath)
@@ -381,7 +379,7 @@ class UserE2EIT {
         @Test
         void DeletesUserAndReturnsStatusNoContentAndEmptyBody_UserExists() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -399,7 +397,7 @@ class UserE2EIT {
                          .isEmpty();
 
             // Then
-            // Assert user has been deleted
+            // Assert the user has been deleted
             var optionalActualUser = userRepository.findById(userCreated.id());
             assertThat(optionalActualUser).isEmpty();
         }
@@ -407,18 +405,18 @@ class UserE2EIT {
         @Test
         void RevokesAuthenticationsAndDeletesUserAndReturnsStatusNoContentAndEmptyBody_UserExistsAndHasBeenAuthenticated() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
-            var firstJwtAuthentication = fakeJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                       .build();
-            var secondJwtAuthentication = fakeJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                        .build();
-            var firstJwtAuthenticationCreated = jwtAuthenticationRepository.save(firstJwtAuthentication);
-            var secondJwtAuthenticationCreated = jwtAuthenticationRepository.save(secondJwtAuthentication);
-            assertThat(firstJwtAuthenticationCreated).isNotNull();
-            assertThat(secondJwtAuthenticationCreated).isNotNull();
+            var jwtAuthentication1 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
+                                                                   .build();
+            var jwtAuthentication2 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
+                                                                   .build();
+            var jwtAuthenticationCreated1 = jwtAuthenticationRepository.save(jwtAuthentication1);
+            var jwtAuthenticationCreated2 = jwtAuthenticationRepository.save(jwtAuthentication2);
+            assertThat(jwtAuthenticationCreated1).isNotNull();
+            assertThat(jwtAuthenticationCreated2).isNotNull();
 
             // When
             var userIdPath = userCreated.id();
@@ -434,13 +432,13 @@ class UserE2EIT {
                          .isEmpty();
 
             // Then
-            // Assert authentications have been revoked
-            var optionalActualAuthentication = jwtAuthenticationRepository.findById(firstJwtAuthenticationCreated.id());
+            // Assert the authentications have been revoked
+            var optionalActualAuthentication = jwtAuthenticationRepository.findById(jwtAuthenticationCreated1.id());
             assertThat(optionalActualAuthentication).isEmpty();
-            optionalActualAuthentication = jwtAuthenticationRepository.findById(secondJwtAuthenticationCreated.id());
+            optionalActualAuthentication = jwtAuthenticationRepository.findById(jwtAuthenticationCreated2.id());
             assertThat(optionalActualAuthentication).isEmpty();
 
-            // Assert user has been deleted
+            // Assert the user has been deleted
             var optionalActualUser = userRepository.findById(userCreated.id());
             assertThat(optionalActualUser).isEmpty();
         }

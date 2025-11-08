@@ -18,10 +18,10 @@ package com.bcn.asapp.authentication.infrastructure.authentication.out;
 
 import static com.bcn.asapp.authentication.domain.authentication.Jwt.ROLE_CLAIM_NAME;
 import static com.bcn.asapp.authentication.testutil.JwtAssertions.assertThatJwt;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.EncodedJwtDataFaker.defaultFakeEncodedAccessToken;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.EncodedJwtDataFaker.defaultFakeEncodedRefreshToken;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.JwtAuthenticationDataFaker.fakeJwtAuthenticationBuilder;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.defaultFakeUser;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestJwtAuthenticationFactory.testJwtAuthenticationBuilder;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.assertj.core.api.SoftAssertions;
@@ -45,10 +45,10 @@ import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 class JwtAuthenticationJdbcRepositoryIT {
 
     @Autowired
-    private UserJdbcRepository userRepository;
+    private JwtAuthenticationJdbcRepository jwtAuthenticationRepository;
 
     @Autowired
-    private JwtAuthenticationJdbcRepository jwtAuthenticationRepository;
+    private UserJdbcRepository userRepository;
 
     @BeforeEach
     void beforeEach() {
@@ -62,7 +62,7 @@ class JwtAuthenticationJdbcRepositoryIT {
         @Test
         void DoesNotFindJwtAuthenticationAndReturnsEmptyOptional_JwtAuthenticationNotExists() {
             // When
-            var accessToken = defaultFakeEncodedAccessToken();
+            var accessToken = defaultTestEncodedAccessToken();
 
             var actualJwtAuthentication = jwtAuthenticationRepository.findByAccessTokenToken(accessToken);
 
@@ -73,11 +73,11 @@ class JwtAuthenticationJdbcRepositoryIT {
         @Test
         void FindsJwtAuthenticationAndReturnsJwtAuthentication_JwtAuthenticationExists() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
-            var jwtAuthentication = fakeJwtAuthenticationBuilder().withUserId(userCreated.id())
+            var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(userCreated.id())
                                                                   .build();
             var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
             assertThat(jwtAuthenticationCreated).isNotNull();
@@ -101,7 +101,7 @@ class JwtAuthenticationJdbcRepositoryIT {
         @Test
         void DoesNotFindJwtAuthenticationAndReturnsEmptyOptional_JwtAuthenticationNotExists() {
             // When
-            var accessToken = defaultFakeEncodedRefreshToken();
+            var accessToken = defaultTestEncodedRefreshToken();
 
             var actualJwtAuthentication = jwtAuthenticationRepository.findByRefreshTokenToken(accessToken);
 
@@ -112,11 +112,11 @@ class JwtAuthenticationJdbcRepositoryIT {
         @Test
         void FindsJwtAuthenticationAndReturnsJwtAuthentication_JwtAuthenticationExists() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
-            var jwtAuthentication = fakeJwtAuthenticationBuilder().withUserId(userCreated.id())
+            var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(userCreated.id())
                                                                   .build();
             var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
             assertThat(jwtAuthenticationCreated).isNotNull();
@@ -140,18 +140,18 @@ class JwtAuthenticationJdbcRepositoryIT {
         @Test
         void DeletesUserAuthentications_UserHasAuthentications() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
-            var firstJwtAuthentication = fakeJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                       .build();
-            var secondJwtAuthentication = fakeJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                        .build();
-            var firstJwtAuthenticationCreated = jwtAuthenticationRepository.save(firstJwtAuthentication);
-            var secondJwtAuthenticationCreated = jwtAuthenticationRepository.save(secondJwtAuthentication);
-            assertThat(firstJwtAuthenticationCreated).isNotNull();
-            assertThat(secondJwtAuthenticationCreated).isNotNull();
+            var jwtAuthentication1 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
+                                                                   .build();
+            var jwtAuthentication2 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
+                                                                   .build();
+            var jwtAuthenticationCreated1 = jwtAuthenticationRepository.save(jwtAuthentication1);
+            var jwtAuthenticationCreated2 = jwtAuthenticationRepository.save(jwtAuthentication2);
+            assertThat(jwtAuthenticationCreated1).isNotNull();
+            assertThat(jwtAuthenticationCreated2).isNotNull();
 
             // When
             var userId = userCreated.id();
@@ -159,12 +159,12 @@ class JwtAuthenticationJdbcRepositoryIT {
             jwtAuthenticationRepository.deleteAllJwtAuthenticationByUserId(userId);
 
             // Then
-            var actualFirstJwtAuthentication = jwtAuthenticationRepository.findByAccessTokenToken(firstJwtAuthenticationCreated.accessToken()
-                                                                                                                               .token());
-            assertThat(actualFirstJwtAuthentication).isEmpty();
-            var actualSecondJwtAuthentication = jwtAuthenticationRepository.findByAccessTokenToken(secondJwtAuthenticationCreated.accessToken()
-                                                                                                                                 .token());
-            assertThat(actualSecondJwtAuthentication).isEmpty();
+            var expectedJwtAuthentication1 = jwtAuthenticationRepository.findByAccessTokenToken(jwtAuthenticationCreated1.accessToken()
+                                                                                                                         .token());
+            assertThat(expectedJwtAuthentication1).isEmpty();
+            var expectedJwtAuthentication2 = jwtAuthenticationRepository.findByAccessTokenToken(jwtAuthenticationCreated2.accessToken()
+                                                                                                                         .token());
+            assertThat(expectedJwtAuthentication2).isEmpty();
         }
 
     }

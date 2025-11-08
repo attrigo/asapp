@@ -24,13 +24,12 @@ import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
 import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
 import static com.bcn.asapp.authentication.testutil.JwtAssertions.assertThatJwt;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.EncodedJwtDataFaker.fakeEncodedJwtBuilder;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.JwtAuthenticationDataFaker.fakeJwtAuthenticationBuilder;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.JwtDataFaker.defaultFakeAccessToken;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.JwtDataFaker.defaultFakeRefreshToken;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.DEFAULT_FAKE_RAW_PASSWORD;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.defaultFakeUser;
-import static com.bcn.asapp.authentication.testutil.TestDataFaker.UserDataFaker.fakeUserBuilder;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.testEncodedTokenBuilder;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestJwtAuthenticationFactory.testJwtAuthenticationBuilder;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestUser;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.testUserBuilder;
 import static com.bcn.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_REFRESH_TOKEN_FULL_PATH;
 import static com.bcn.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_REVOKE_FULL_PATH;
 import static com.bcn.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_TOKEN_FULL_PATH;
@@ -68,10 +67,10 @@ import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 class AuthenticationE2EIT {
 
     @Autowired
-    private UserJdbcRepository userRepository;
+    private JwtAuthenticationJdbcRepository jwtAuthenticationRepository;
 
     @Autowired
-    private JwtAuthenticationJdbcRepository jwtAuthenticationRepository;
+    private UserJdbcRepository userRepository;
 
     @Autowired
     private WebTestClient webTestClient;
@@ -88,12 +87,12 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotAuthenticateAndReturnsStatusUnauthorizedAndEmptyBody_UsernameNotExists() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             // When
-            var authenticateRequestBody = new AuthenticateRequest("USERNAME_NOT_EXISTS", DEFAULT_FAKE_RAW_PASSWORD);
+            var authenticateRequestBody = new AuthenticateRequest("not_exists_username", "TEST@09_password?!");
 
             webTestClient.post()
                          .uri(AUTH_TOKEN_FULL_PATH)
@@ -113,12 +112,12 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotAuthenticateReturnsStatusUnauthorizedAndEmptyBody_PasswordNotMatch() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             // When
-            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), "PASSWORD_NOT_MATCH");
+            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), "not_match_password");
 
             webTestClient.post()
                          .uri(AUTH_TOKEN_FULL_PATH)
@@ -138,12 +137,12 @@ class AuthenticationE2EIT {
         @Test
         void AuthenticatesUserAndReturnsStatusOkAndBodyWithGeneratedAuthentication_UserNotAuthenticated() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             // When
-            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), DEFAULT_FAKE_RAW_PASSWORD);
+            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), "TEST@09_password?!");
 
             var response = webTestClient.post()
                                         .uri(AUTH_TOKEN_FULL_PATH)
@@ -168,13 +167,13 @@ class AuthenticationE2EIT {
         @Test
         void AuthenticatesUserAndReturnsStatusOkAndBodyWithGeneratedAuthentication_AdminUserNotAuthenticated() {
             // Given
-            var user = fakeUserBuilder().withRole(ADMIN.name())
+            var user = testUserBuilder().withRole(ADMIN.name())
                                         .build();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             // When
-            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), DEFAULT_FAKE_RAW_PASSWORD);
+            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), "TEST@09_password?!");
 
             var response = webTestClient.post()
                                         .uri(AUTH_TOKEN_FULL_PATH)
@@ -199,17 +198,17 @@ class AuthenticationE2EIT {
         @Test
         void AuthenticatesUserAndReturnsStatusOkAndBodyWithNewGeneratedAuthentication_UserAuthenticated() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
-            var jwtAuthentication = fakeJwtAuthenticationBuilder().withUserId(userCreated.id())
+            var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(userCreated.id())
                                                                   .build();
             var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
             assertThat(jwtAuthenticationCreated).isNotNull();
 
             // When
-            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), DEFAULT_FAKE_RAW_PASSWORD);
+            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), "TEST@09_password?!");
 
             var response = webTestClient.post()
                                         .uri(AUTH_TOKEN_FULL_PATH)
@@ -240,7 +239,7 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_InvalidRefreshToken() {
             // When
-            var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest("INVALID_REFRESH_TOKEN");
+            var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest("invalid_refresh_token");
 
             webTestClient.post()
                          .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
@@ -260,7 +259,7 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_JwtIsAccessToken() {
             // When
-            var accessToken = defaultFakeAccessToken().token();
+            var accessToken = defaultTestEncodedAccessToken();
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(accessToken);
 
             webTestClient.post()
@@ -281,9 +280,9 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_RefreshTokenHasExpired() {
             // When
-            var refreshToken = fakeEncodedJwtBuilder().refreshToken()
-                                                      .expired()
-                                                      .build();
+            var refreshToken = testEncodedTokenBuilder().refreshToken()
+                                                        .expired()
+                                                        .build();
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken);
 
             webTestClient.post()
@@ -304,14 +303,14 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_RefreshTokenSubjectNotExists() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             // When
-            var refreshToken = fakeEncodedJwtBuilder().refreshToken()
-                                                      .withSubject("SUBJECT_NOT_EXISTS")
-                                                      .build();
+            var refreshToken = testEncodedTokenBuilder().refreshToken()
+                                                        .withSubject("not_exists_subject")
+                                                        .build();
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken);
 
             webTestClient.post()
@@ -332,12 +331,12 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_RefreshTokenNotExists() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             // When
-            var refreshToken = defaultFakeRefreshToken().token();
+            var refreshToken = defaultTestEncodedRefreshToken();
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken);
 
             webTestClient.post()
@@ -358,11 +357,11 @@ class AuthenticationE2EIT {
         @Test
         void RefreshesAuthenticationAndReturnsStatusOkAndBodyWithRefreshedAuthentication_RefreshTokenBelongsToUserAuthenticated() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
-            var jwtAuthentication = fakeJwtAuthenticationBuilder().withUserId(userCreated.id())
+            var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(userCreated.id())
                                                                   .build();
             var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
             assertThat(jwtAuthenticationCreated).isNotNull();
@@ -397,22 +396,22 @@ class AuthenticationE2EIT {
         @Test
         void RefreshesAuthenticationAndReturnsStatusOkAndBodyWithRefreshedAuthentication_RefreshTokenBelongsToUserHasSeveralAuthentications() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
-            var firstJwtAuthentication = fakeJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                       .build();
-            var secondJwtAuthentication = fakeJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                        .build();
-            var firstJwtAuthenticationCreated = jwtAuthenticationRepository.save(firstJwtAuthentication);
-            var secondJwtAuthenticationCreated = jwtAuthenticationRepository.save(secondJwtAuthentication);
-            assertThat(firstJwtAuthenticationCreated).isNotNull();
-            assertThat(secondJwtAuthenticationCreated).isNotNull();
+            var jwtAuthentication1 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
+                                                                   .build();
+            var jwtAuthentication2 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
+                                                                   .build();
+            var jwtAuthenticationCreated1 = jwtAuthenticationRepository.save(jwtAuthentication1);
+            var jwtAuthenticationCreated2 = jwtAuthenticationRepository.save(jwtAuthentication2);
+            assertThat(jwtAuthenticationCreated1).isNotNull();
+            assertThat(jwtAuthenticationCreated2).isNotNull();
 
             // When
-            var refreshToken = firstJwtAuthenticationCreated.refreshToken()
-                                                            .token();
+            var refreshToken = jwtAuthenticationCreated1.refreshToken()
+                                                        .token();
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken);
 
             var response = webTestClient.post()
@@ -433,10 +432,10 @@ class AuthenticationE2EIT {
             assertThat(response).isNotNull();
             assertAPIResponse(response.accessToken(), response.refreshToken(), userCreated);
             assertAuthenticationHasBeenCreated(response.accessToken(), response.refreshToken(), userCreated);
-            assertAuthenticationHasBeenRefreshed(response.refreshToken(), firstJwtAuthenticationCreated.refreshToken()
-                                                                                                       .token());
-            assertAuthenticationHasNotBeenRefreshed(secondJwtAuthenticationCreated.refreshToken()
-                                                                                  .token());
+            assertAuthenticationHasBeenRefreshed(response.refreshToken(), jwtAuthenticationCreated1.refreshToken()
+                                                                                                   .token());
+            assertAuthenticationHasNotBeenRefreshed(jwtAuthenticationCreated2.refreshToken()
+                                                                             .token());
         }
 
     }
@@ -447,7 +446,7 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_InvalidAccessToken() {
             // When
-            var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest("INVALID_ACCESS_TOKEN");
+            var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest("invalid_access_token");
 
             webTestClient.post()
                          .uri(AUTH_REVOKE_FULL_PATH)
@@ -467,7 +466,7 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_JwtIsRefreshToken() {
             // When
-            var refreshToken = defaultFakeRefreshToken().token();
+            var refreshToken = defaultTestEncodedRefreshToken();
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(refreshToken);
 
             webTestClient.post()
@@ -488,9 +487,9 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_AccessTokenHasExpired() {
             // When
-            var accessToken = fakeEncodedJwtBuilder().accessToken()
-                                                     .expired()
-                                                     .build();
+            var accessToken = testEncodedTokenBuilder().accessToken()
+                                                       .expired()
+                                                       .build();
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken);
 
             webTestClient.post()
@@ -511,14 +510,14 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_AccessTokenSubjectNotExists() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             // When
-            var accessToken = fakeEncodedJwtBuilder().accessToken()
-                                                     .withSubject("SUBJECT_NOT_EXISTS")
-                                                     .build();
+            var accessToken = testEncodedTokenBuilder().accessToken()
+                                                       .withSubject("not_exists_subject")
+                                                       .build();
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken);
 
             webTestClient.post()
@@ -539,12 +538,12 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_AccessTokenNotExists() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             // When
-            var accessToken = defaultFakeAccessToken().token();
+            var accessToken = defaultTestEncodedAccessToken();
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken);
 
             webTestClient.post()
@@ -565,11 +564,11 @@ class AuthenticationE2EIT {
         @Test
         void RevokesAuthenticationAndReturnsStatusOkAndEmptyBody_AccessTokenBelongsToUserAuthenticated() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
-            var jwtAuthentication = fakeJwtAuthenticationBuilder().withUserId(userCreated.id())
+            var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(userCreated.id())
                                                                   .build();
             var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
             assertThat(jwtAuthenticationCreated).isNotNull();
@@ -598,22 +597,22 @@ class AuthenticationE2EIT {
         @Test
         void RevokesAuthenticationAndReturnsStatusOkAndEmptyBody_AccessTokenBelongsToUserHasSeveralAuthentications() {
             // Given
-            var user = defaultFakeUser();
+            var user = defaultTestUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
-            var firstJwtAuthentication = fakeJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                       .build();
-            var secondJwtAuthentication = fakeJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                        .build();
-            var firstJwtAuthenticationCreated = jwtAuthenticationRepository.save(firstJwtAuthentication);
-            var secondJwtAuthenticationCreated = jwtAuthenticationRepository.save(secondJwtAuthentication);
-            assertThat(firstJwtAuthenticationCreated).isNotNull();
-            assertThat(secondJwtAuthenticationCreated).isNotNull();
+            var jwtAuthentication1 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
+                                                                   .build();
+            var jwtAuthentication2 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
+                                                                   .build();
+            var jwtAuthenticationCreated1 = jwtAuthenticationRepository.save(jwtAuthentication1);
+            var jwtAuthenticationCreated2 = jwtAuthenticationRepository.save(jwtAuthentication2);
+            assertThat(jwtAuthenticationCreated1).isNotNull();
+            assertThat(jwtAuthenticationCreated2).isNotNull();
 
             // When
-            var accessToken = firstJwtAuthenticationCreated.accessToken()
-                                                           .token();
+            var accessToken = jwtAuthenticationCreated1.accessToken()
+                                                       .token();
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken);
 
             webTestClient.post()
@@ -628,10 +627,10 @@ class AuthenticationE2EIT {
                          .isEmpty();
 
             // Then
-            assertAuthenticationHasBeenRevoked(firstJwtAuthenticationCreated.accessToken()
-                                                                            .token());
-            assertAuthenticationHasNotBeenRevoked(secondJwtAuthenticationCreated.accessToken()
-                                                                                .token());
+            assertAuthenticationHasBeenRevoked(jwtAuthenticationCreated1.accessToken()
+                                                                        .token());
+            assertAuthenticationHasNotBeenRevoked(jwtAuthenticationCreated2.accessToken()
+                                                                           .token());
         }
 
     }

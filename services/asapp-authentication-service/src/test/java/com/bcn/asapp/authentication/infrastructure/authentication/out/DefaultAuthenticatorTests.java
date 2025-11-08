@@ -27,7 +27,6 @@ import static org.mockito.Mockito.times;
 
 import java.util.UUID;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -57,24 +56,13 @@ class DefaultAuthenticatorTests {
     @InjectMocks
     private DefaultAuthenticator defaultAuthenticator;
 
-    private Username username;
+    private final UUID userId = UUID.fromString("61c5064b-1906-4d11-a8ab-5bfd309e2631");
 
-    private RawPassword password;
+    private final Username username = Username.of("user@asapp.com");
 
-    private UserAuthentication authenticationRequest;
+    private final RawPassword password = RawPassword.of("TEST@09_password?!");
 
-    private UUID userId;
-
-    private Role role;
-
-    @BeforeEach
-    void beforeEach() {
-        username = Username.of("user@asapp.com");
-        password = RawPassword.of("password123");
-        authenticationRequest = UserAuthentication.unAuthenticated(username, password);
-        userId = UUID.randomUUID();
-        role = USER;
-    }
+    private final Role role = USER;
 
     @Nested
     class Authenticate {
@@ -84,6 +72,8 @@ class DefaultAuthenticatorTests {
             // Given
             willThrow(new BadCredentialsException("Invalid credentials")).given(authenticationManager)
                                                                          .authenticate(any(UsernamePasswordAuthenticationToken.class));
+
+            var authenticationRequest = UserAuthentication.unAuthenticated(username, password);
 
             // When
             var thrown = catchThrowable(() -> defaultAuthenticator.authenticate(authenticationRequest));
@@ -99,9 +89,10 @@ class DefaultAuthenticatorTests {
         @Test
         void ThenThrowsBadCredentialsException_GivenPrincipalIsNotCustomUserDetails() {
             // Given
-            var authenticationToken = new UsernamePasswordAuthenticationToken("invalidPrincipal", null, AuthorityUtils.createAuthorityList(role.name()));
-
+            var authenticationToken = new UsernamePasswordAuthenticationToken("invalid_principal", null, AuthorityUtils.createAuthorityList(role.name()));
             given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(authenticationToken);
+
+            var authenticationRequest = UserAuthentication.unAuthenticated(username, password);
 
             // When
             var thrown = catchThrowable(() -> defaultAuthenticator.authenticate(authenticationRequest));
@@ -120,8 +111,9 @@ class DefaultAuthenticatorTests {
             // Given
             var userDetails = new CustomUserDetails(userId, username.value(), password.value(), AuthorityUtils.NO_AUTHORITIES);
             var authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, AuthorityUtils.NO_AUTHORITIES);
-
             given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(authenticationToken);
+
+            var authenticationRequest = UserAuthentication.unAuthenticated(username, password);
 
             // When
             var thrown = catchThrowable(() -> defaultAuthenticator.authenticate(authenticationRequest));
@@ -140,8 +132,9 @@ class DefaultAuthenticatorTests {
             // Given
             var userDetails = new CustomUserDetails(userId, username.value(), password.value(), AuthorityUtils.createAuthorityList(role.name()));
             var authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, AuthorityUtils.createAuthorityList(role.name()));
-
             given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(authenticationToken);
+
+            var authenticationRequest = UserAuthentication.unAuthenticated(username, password);
 
             // When
             var actual = defaultAuthenticator.authenticate(authenticationRequest);

@@ -18,12 +18,16 @@ package com.bcn.asapp.authentication.domain.authentication;
 
 import static com.bcn.asapp.authentication.domain.authentication.Jwt.ACCESS_TOKEN_USE_CLAIM_VALUE;
 import static com.bcn.asapp.authentication.domain.authentication.Jwt.REFRESH_TOKEN_USE_CLAIM_VALUE;
+import static com.bcn.asapp.authentication.domain.authentication.Jwt.ROLE_CLAIM_NAME;
 import static com.bcn.asapp.authentication.domain.authentication.Jwt.TOKEN_USE_CLAIM_NAME;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
+import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
+import static com.bcn.asapp.authentication.domain.user.Role.USER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
 
@@ -45,15 +49,15 @@ class JwtAuthenticationTests {
 
     @BeforeEach
     void beforeEach() {
-        var token = EncodedToken.of("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.encoded");
+        var token = EncodedToken.of("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyIn0.aGFzaFZhbHVl");
         var subject = Subject.of("user@asapp.com");
-        var accessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE));
-        var refreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE));
-        var issued = Issued.now();
-        var expiration = Expiration.of(issued, 1000L);
+        var accessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, USER.name()));
+        var refreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, USER.name()));
+        var issued = Issued.of(Instant.parse("2025-01-01T10:00:00Z"));
+        var expiration = Expiration.of(issued, 30000L);
 
-        id = JwtAuthenticationId.of(UUID.randomUUID());
-        userId = UserId.of(UUID.randomUUID());
+        id = JwtAuthenticationId.of(UUID.fromString("2c3d4e5f-6789-4012-a345-6789abcdef12"));
+        userId = UserId.of(UUID.fromString("3d4e5f67-8901-4234-b567-890abcdef123"));
         accessToken = Jwt.of(token, ACCESS_TOKEN, subject, accessTokenClaims, issued, expiration);
         refreshToken = Jwt.of(token, REFRESH_TOKEN, subject, refreshTokenClaims, issued, expiration);
     }
@@ -254,14 +258,14 @@ class JwtAuthenticationTests {
             // Given
             var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, accessToken, refreshToken);
 
-            var token = EncodedToken.of("new_token");
-            var subject = Subject.of("new_subject");
-            var accessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE));
-            var refreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE));
-            var issued = Issued.now();
-            var expiration = Expiration.of(issued, 1000L);
-            var newAccessToken = Jwt.of(token, ACCESS_TOKEN, subject, accessTokenClaims, issued, expiration);
-            var newRefreshToken = Jwt.of(token, REFRESH_TOKEN, subject, refreshTokenClaims, issued, expiration);
+            var newEncodedToken = EncodedToken.of("eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQGFzYXBwLmNvbSJ9.dGVzdFNpZ25hdHVyZQ");
+            var newSubject = Subject.of("new_user@asapp.com");
+            var newAccessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, ADMIN.name()));
+            var newRefreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, ADMIN.name()));
+            var newIssued = Issued.of(Instant.parse("2025-02-02T12:00:00Z"));
+            var newEexpiration = Expiration.of(newIssued, 30000L);
+            var newAccessToken = Jwt.of(newEncodedToken, ACCESS_TOKEN, newSubject, newAccessTokenClaims, newIssued, newEexpiration);
+            var newRefreshToken = Jwt.of(newEncodedToken, REFRESH_TOKEN, newSubject, newRefreshTokenClaims, newIssued, newEexpiration);
 
             // When
             jwtAuthentication.updateTokens(newAccessToken, newRefreshToken);
@@ -302,14 +306,14 @@ class JwtAuthenticationTests {
             // Given
             var jwtAuthentication = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
 
-            var token = EncodedToken.of("new_token");
-            var subject = Subject.of("new_subject");
-            var accessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE));
-            var refreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE));
-            var issued = Issued.now();
-            var expiration = Expiration.of(issued, 1000L);
-            var newAccessToken = Jwt.of(token, ACCESS_TOKEN, subject, accessTokenClaims, issued, expiration);
-            var newRefreshToken = Jwt.of(token, REFRESH_TOKEN, subject, refreshTokenClaims, issued, expiration);
+            var newEncodedToken = EncodedToken.of("eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQGFzYXBwLmNvbSJ9.dGVzdFNpZ25hdHVyZQ");
+            var newSubject = Subject.of("new_user@asapp.com");
+            var newAccessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, ADMIN.name()));
+            var newRefreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, ADMIN.name()));
+            var newIssued = Issued.of(Instant.parse("2025-02-02T12:00:00Z"));
+            var newExpiration = Expiration.of(newIssued, 30000L);
+            var newAccessToken = Jwt.of(newEncodedToken, ACCESS_TOKEN, newSubject, newAccessTokenClaims, newIssued, newExpiration);
+            var newRefreshToken = Jwt.of(newEncodedToken, REFRESH_TOKEN, newSubject, newRefreshTokenClaims, newIssued, newExpiration);
 
             // When
             jwtAuthentication.updateTokens(newAccessToken, newRefreshToken);
@@ -340,7 +344,7 @@ class JwtAuthenticationTests {
         void ThenReturnsFalse_GivenOtherClassIsNotJwtAuthentication() {
             // Given
             var jwtAuthentication = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
-            var other = "other";
+            var other = "not a jwt authentication";
 
             // When
             var actual = jwtAuthentication.equals(other);
@@ -397,9 +401,12 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsFalse_GivenThreeJwtAuthenticationWithDifferentId() {
             // Given
-            var jwtAuthentication1 = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), userId, accessToken, refreshToken);
-            var jwtAuthentication2 = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), userId, accessToken, refreshToken);
-            var jwtAuthentication3 = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), userId, accessToken, refreshToken);
+            var jwtAuthenticationId1 = JwtAuthenticationId.of(UUID.fromString("4e5f6789-0123-4456-c789-0abcdef12345"));
+            var jwtAuthenticationId2 = JwtAuthenticationId.of(UUID.fromString("5f678901-2345-4678-d90a-bcdef1234567"));
+            var jwtAuthenticationId3 = JwtAuthenticationId.of(UUID.fromString("67890123-4567-4890-a123-bcdef1234567"));
+            var jwtAuthentication1 = JwtAuthentication.authenticated(jwtAuthenticationId1, userId, accessToken, refreshToken);
+            var jwtAuthentication2 = JwtAuthentication.authenticated(jwtAuthenticationId2, userId, accessToken, refreshToken);
+            var jwtAuthentication3 = JwtAuthentication.authenticated(jwtAuthenticationId3, userId, accessToken, refreshToken);
 
             // When
             var actual1 = jwtAuthentication1.equals(jwtAuthentication2);
@@ -462,8 +469,10 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsDifferentHashCode_GivenTwoJwtAuthenticatedWithDifferentId() {
             // Given
-            var jwtAuthentication1 = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), userId, accessToken, refreshToken);
-            var jwtAuthentication2 = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), userId, accessToken, refreshToken);
+            var jwtAuthenticationId1 = JwtAuthenticationId.of(UUID.fromString("78901234-5678-4abc-b234-def123456789"));
+            var jwtAuthenticationId2 = JwtAuthenticationId.of(UUID.fromString("89012345-6789-4bcd-c345-ef1234567890"));
+            var jwtAuthentication1 = JwtAuthentication.authenticated(jwtAuthenticationId1, userId, accessToken, refreshToken);
+            var jwtAuthentication2 = JwtAuthentication.authenticated(jwtAuthenticationId2, userId, accessToken, refreshToken);
 
             // When
             var actual1 = jwtAuthentication1.hashCode();

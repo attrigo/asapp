@@ -98,7 +98,7 @@ class JwtTypeTests {
         @ParameterizedTest
         @EmptySource
         @ValueSource(strings = { "invalid", "jwt", "AT+JWT", "RT+JWT", "access_token", "refresh_token", "at jwt", "rt jwt" })
-        void ThrowsIllegalArgumentException_TypeIsInvalid(String invalidType) {
+        void ThrowsIllegalArgumentException_GivenTypeIsInvalid(String invalidType) {
             // When
             var thrown = catchThrowable(() -> JwtType.ofType(invalidType));
 

@@ -23,11 +23,12 @@ import static com.bcn.asapp.authentication.domain.authentication.Jwt.TOKEN_USE_C
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
+import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
@@ -53,14 +54,13 @@ class JwtDecoderTests {
 
     private final String subjectValue = "user@asapp.com";
 
-    private final Instant issuedAtValue = Instant.now()
-                                                 .truncatedTo(ChronoUnit.SECONDS);
-
-    private final Instant expirationValue = issuedAtValue.plus(15, ChronoUnit.MINUTES);
-
     private final Map<String, Object> accessTokenClaimsMap = Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, USER.name());
 
     private final Map<String, Object> refreshTokenClaimsMap = Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, USER.name());
+
+    private final Instant issuedAtValue = Instant.now();
+
+    private final Instant expirationValue = issuedAtValue.plus(5, MINUTES);
 
     private final SecretKey secretKey = Keys.hmacShaKeyFor(new byte[32]);
 
@@ -79,10 +79,10 @@ class JwtDecoderTests {
         @Test
         void ThenThrowsException_GivenMalformedToken() {
             // Given
-            var encodedToken = EncodedToken.of("invalid.jwt.token");
+            var malformedEncodedToken = EncodedToken.of("invalid_token");
 
             // When
-            var thrown = catchThrowable(() -> jwtDecoder.decode(encodedToken));
+            var thrown = catchThrowable(() -> jwtDecoder.decode(malformedEncodedToken));
 
             // Then
             assertThat(thrown).isInstanceOf(MalformedJwtException.class);
@@ -92,7 +92,6 @@ class JwtDecoderTests {
         void ThenThrowsException_GivenTokenHasInvalidSignature() {
             // Given
             var differentSecretKey = Keys.hmacShaKeyFor("different-secret-key-with-at-least-32-bytes".getBytes());
-
             var tokenWithInvalidSignature = Jwts.builder()
                                                 .header()
                                                 .type(ACCESS_TOKEN.type())
@@ -103,11 +102,10 @@ class JwtDecoderTests {
                                                 .claims(accessTokenClaimsMap)
                                                 .signWith(differentSecretKey)
                                                 .compact();
-
-            var encodedToken = EncodedToken.of(tokenWithInvalidSignature);
+            var invalidSignatureEncodedToken = EncodedToken.of(tokenWithInvalidSignature);
 
             // When
-            var thrown = catchThrowable(() -> jwtDecoder.decode(encodedToken));
+            var thrown = catchThrowable(() -> jwtDecoder.decode(invalidSignatureEncodedToken));
 
             // Then
             assertThat(thrown).isInstanceOf(SignatureException.class);
@@ -116,11 +114,8 @@ class JwtDecoderTests {
         @Test
         void ThenThrowsException_GivenTokenHasExpired() {
             // Given
-            var issuedAt = Instant.now()
-                                  .minus(1, ChronoUnit.HOURS);
-            var expiresAt = Instant.now()
-                                   .minus(30, ChronoUnit.MINUTES);
-
+            var issuedAt = Instant.parse("2025-01-01T10:00:00Z");
+            var expiresAt = Instant.parse("2025-01-01T11:00:00Z");
             var expiredToken = Jwts.builder()
                                    .header()
                                    .type(ACCESS_TOKEN.type())
@@ -131,11 +126,10 @@ class JwtDecoderTests {
                                    .claims(accessTokenClaimsMap)
                                    .signWith(secretKey)
                                    .compact();
-
-            var encodedToken = EncodedToken.of(expiredToken);
+            var expiredEncodedToken = EncodedToken.of(expiredToken);
 
             // When
-            var thrown = catchThrowable(() -> jwtDecoder.decode(encodedToken));
+            var thrown = catchThrowable(() -> jwtDecoder.decode(expiredEncodedToken));
 
             // Then
             assertThat(thrown).isInstanceOf(ExpiredJwtException.class);
@@ -167,9 +161,9 @@ class JwtDecoderTests {
             assertThat(actual.subject()).extracting(Subject::value)
                                         .isEqualTo(subjectValue);
             assertThat(actual.issued()).extracting(Issued::value)
-                                       .isEqualTo(issuedAtValue);
+                                       .isEqualTo(issuedAtValue.truncatedTo(SECONDS));
             assertThat(actual.expiration()).extracting(Expiration::value)
-                                           .isEqualTo(expirationValue);
+                                           .isEqualTo(expirationValue.truncatedTo(SECONDS));
             assertThat(actual.claims()).extracting(JwtClaims::value)
                                        .isEqualTo(accessTokenClaimsMap);
             assertThat(actual.isAccessToken()).isTrue();
@@ -202,9 +196,9 @@ class JwtDecoderTests {
             assertThat(actual.subject()).extracting(Subject::value)
                                         .isEqualTo(subjectValue);
             assertThat(actual.issued()).extracting(Issued::value)
-                                       .isEqualTo(issuedAtValue);
+                                       .isEqualTo(issuedAtValue.truncatedTo(SECONDS));
             assertThat(actual.expiration()).extracting(Expiration::value)
-                                           .isEqualTo(expirationValue);
+                                           .isEqualTo(expirationValue.truncatedTo(SECONDS));
             assertThat(actual.claims()).extracting(JwtClaims::value)
                                        .isEqualTo(refreshTokenClaimsMap);
             assertThat(actual.isAccessToken()).isFalse();

@@ -18,12 +18,15 @@ package com.bcn.asapp.authentication.domain.authentication;
 
 import static com.bcn.asapp.authentication.domain.authentication.Jwt.ACCESS_TOKEN_USE_CLAIM_VALUE;
 import static com.bcn.asapp.authentication.domain.authentication.Jwt.REFRESH_TOKEN_USE_CLAIM_VALUE;
+import static com.bcn.asapp.authentication.domain.authentication.Jwt.ROLE_CLAIM_NAME;
 import static com.bcn.asapp.authentication.domain.authentication.Jwt.TOKEN_USE_CLAIM_NAME;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
+import static com.bcn.asapp.authentication.domain.user.Role.USER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
+import java.time.Instant;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -38,12 +41,12 @@ class JwtPairTests {
 
     @BeforeEach
     void beforeEach() {
-        var token = EncodedToken.of("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.encoded");
+        var token = EncodedToken.of("eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NDA5OTU0MDB9.dGVzdFBhaXJTaWdu");
         var subject = Subject.of("user@asapp.com");
-        var accessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE));
-        var refreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE));
-        var issued = Issued.now();
-        var expiration = Expiration.of(issued, 1000L);
+        var accessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, USER.name()));
+        var refreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, USER.name()));
+        var issued = Issued.of(Instant.parse("2025-01-01T10:00:00Z"));
+        var expiration = Expiration.of(issued, 30000L);
 
         accessToken = Jwt.of(token, ACCESS_TOKEN, subject, accessTokenClaims, issued, expiration);
         refreshToken = Jwt.of(token, REFRESH_TOKEN, subject, refreshTokenClaims, issued, expiration);

@@ -16,12 +16,12 @@
 
 package com.bcn.asapp.authentication.domain.authentication;
 
+import static java.time.temporal.ChronoUnit.MILLIS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.Date;
 
 import org.junit.jupiter.api.Nested;
@@ -29,7 +29,7 @@ import org.junit.jupiter.api.Test;
 
 class IssuedTests {
 
-    private final Instant issuedValue = Instant.parse("2025-10-01T10:30:00Z");
+    private final Instant issuedValue = Instant.parse("2025-01-01T10:00:00Z");
 
     @Nested
     class CreateIssuedWithConstructor {
@@ -64,7 +64,7 @@ class IssuedTests {
             var actual = Issued.now();
 
             // Then
-            assertThat(actual.issued()).isCloseTo(Instant.now(), within(100, ChronoUnit.MILLIS));
+            assertThat(actual.issued()).isCloseTo(Instant.now(), within(100, MILLIS));
         }
 
     }

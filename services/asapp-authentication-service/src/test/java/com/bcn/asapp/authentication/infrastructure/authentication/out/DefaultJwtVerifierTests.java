@@ -18,9 +18,11 @@ package com.bcn.asapp.authentication.infrastructure.authentication.out;
 
 import static com.bcn.asapp.authentication.domain.authentication.Jwt.ACCESS_TOKEN_USE_CLAIM_VALUE;
 import static com.bcn.asapp.authentication.domain.authentication.Jwt.REFRESH_TOKEN_USE_CLAIM_VALUE;
+import static com.bcn.asapp.authentication.domain.authentication.Jwt.ROLE_CLAIM_NAME;
 import static com.bcn.asapp.authentication.domain.authentication.Jwt.TOKEN_USE_CLAIM_NAME;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
+import static com.bcn.asapp.authentication.domain.user.Role.USER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -30,6 +32,7 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
+import java.time.Instant;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -69,9 +72,9 @@ class DefaultJwtVerifierTests {
     @InjectMocks
     private DefaultJwtVerifier defaultJwtVerifier;
 
-    private EncodedToken encodedAccessToken;
+    private final EncodedToken encodedAccessToken = EncodedToken.of("eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0NCJ9.c2lnNA");
 
-    private EncodedToken encodedRefreshToken;
+    private final EncodedToken encodedRefreshToken = EncodedToken.of("eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0NSJ9.c2lnNQ");
 
     private Jwt accessToken;
 
@@ -81,20 +84,16 @@ class DefaultJwtVerifierTests {
 
     @BeforeEach
     void beforeEach() {
-        encodedAccessToken = EncodedToken.of("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.accessToken");
-        encodedRefreshToken = EncodedToken.of("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.refreshToken");
-
         var subject = Subject.of("user@asapp.com");
-        var accessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE));
-        var refreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE));
-        var issued = Issued.now();
-        var expiration = Expiration.of(issued, 1000L);
-
+        var accessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, USER.name()));
+        var refreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, USER.name()));
+        var issued = Issued.of(Instant.parse("2025-01-01T10:00:00Z"));
+        var expiration = Expiration.of(issued, 30000L);
         accessToken = Jwt.of(encodedAccessToken, ACCESS_TOKEN, subject, accessTokenClaims, issued, expiration);
         refreshToken = Jwt.of(encodedRefreshToken, REFRESH_TOKEN, subject, refreshTokenClaims, issued, expiration);
 
-        var jwtAuthenticationId = JwtAuthenticationId.of(UUID.randomUUID());
-        var userId = UserId.of(UUID.randomUUID());
+        var jwtAuthenticationId = JwtAuthenticationId.of(UUID.fromString("f2577bfb-5783-4eda-9389-77ee0ac2af6e"));
+        var userId = UserId.of(UUID.fromString("62396701-3f26-4e42-a5d8-13f1e3f06685"));
         jwtAuthentication = JwtAuthentication.authenticated(jwtAuthenticationId, userId, accessToken, refreshToken);
     }
 
@@ -143,6 +142,7 @@ class DefaultJwtVerifierTests {
         void ThenThrowsInvalidJwtException_GivenAuthenticationNotFoundInRepository() {
             // Given
             given(jwtDecoder.decode(encodedAccessToken)).willReturn(accessToken);
+
             given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(Optional.empty());
 
             // When
@@ -163,6 +163,7 @@ class DefaultJwtVerifierTests {
         void ThenVerifiesAccessToken_GivenAccessTokenIsValid() {
             // Given
             given(jwtDecoder.decode(encodedAccessToken)).willReturn(accessToken);
+
             given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(Optional.of(jwtAuthentication));
 
             // When
@@ -224,6 +225,7 @@ class DefaultJwtVerifierTests {
         void ThenThrowsInvalidJwtException_GivenAuthenticationNotFoundInRepository() {
             // Given
             given(jwtDecoder.decode(encodedRefreshToken)).willReturn(refreshToken);
+
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.empty());
 
             // When
@@ -244,6 +246,7 @@ class DefaultJwtVerifierTests {
         void ThenVerifiesRefreshToken_GivenRefreshTokenIsValid() {
             // Given
             given(jwtDecoder.decode(encodedRefreshToken)).willReturn(refreshToken);
+
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(jwtAuthentication));
 
             // When

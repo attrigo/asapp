@@ -24,13 +24,13 @@ import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UncheckedIOException;
 import java.util.Properties;
 
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
 import org.assertj.core.api.SoftAssertions;
+import org.springframework.util.Assert;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
@@ -40,10 +40,21 @@ import io.jsonwebtoken.security.Keys;
 
 public class JwtAssertions extends AbstractAssert<JwtAssertions, Jws<Claims>> {
 
-    private static String JWT_SECRET;
+    private static final String JWT_SECRET;
 
     static {
-        loadJwtSecretProperty();
+        try (InputStream input = JwtAssertions.class.getClassLoader()
+                                                    .getResourceAsStream("application.properties")) {
+            if (input == null) {
+                throw new IllegalStateException("application.properties not found in classpath");
+            }
+            Properties props = new Properties();
+            props.load(input);
+            JWT_SECRET = props.getProperty("asapp.security.jwt-secret");
+            Assert.hasText(JWT_SECRET, "asapp.security.jwt-secret not found or empty in application.properties");
+        } catch (IOException e) {
+            throw new IllegalStateException("Could not load JWT secret from properties", e);
+        }
     }
 
     JwtAssertions(Jws<Claims> actual) {
@@ -171,19 +182,6 @@ public class JwtAssertions extends AbstractAssert<JwtAssertions, Jws<Claims>> {
         Assertions.assertThat(actualPayload)
                   .describedAs("payload")
                   .isNotNull();
-    }
-
-    private static void loadJwtSecretProperty() {
-        if (JWT_SECRET == null) {
-            try (InputStream input = JwtAssertions.class.getClassLoader()
-                                                        .getResourceAsStream("application.properties")) {
-                Properties props = new Properties();
-                props.load(input);
-                JWT_SECRET = props.getProperty("asapp.security.jwt-secret");
-            } catch (IOException e) {
-                throw new UncheckedIOException("Could not load JWT secret from properties", e);
-            }
-        }
     }
 
 }

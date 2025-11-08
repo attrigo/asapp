@@ -26,7 +26,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
 
 class EncodedTokenTests {
 
-    private final String tokenValue = "token";
+    private final String tokenValue = "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW4ifQ.c2lnbmF0dXJlVGVzdA";
 
     @Nested
     class CreateEncodedTokenWithConstructor {

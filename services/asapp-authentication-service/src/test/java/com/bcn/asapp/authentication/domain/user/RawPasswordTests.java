@@ -27,7 +27,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 class RawPasswordTests {
 
-    private final String passwordValue = "password";
+    private final String passwordValue = "TEST@09_password?!";
 
     @Nested
     class CreateRawPasswordWithConstructor {

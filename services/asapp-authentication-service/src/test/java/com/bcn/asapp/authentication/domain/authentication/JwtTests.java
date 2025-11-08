@@ -22,7 +22,6 @@ import static com.bcn.asapp.authentication.domain.authentication.Jwt.ROLE_CLAIM_
 import static com.bcn.asapp.authentication.domain.authentication.Jwt.TOKEN_USE_CLAIM_NAME;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
-import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,17 +35,21 @@ import org.junit.jupiter.api.Test;
 
 class JwtTests {
 
-    private final EncodedToken encodedToken = EncodedToken.of("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.encoded");
+    private final EncodedToken encodedToken = EncodedToken.of("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.c2lnbmF0dXJl");
+
+    private final JwtType accessTokenType = ACCESS_TOKEN;
+
+    private final JwtType refreshTokenType = REFRESH_TOKEN;
 
     private final Subject subject = Subject.of("user@asapp.com");
 
-    private final JwtClaims accessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, ADMIN.name()));
+    private final JwtClaims accessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, USER.name()));
 
     private final JwtClaims refreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, USER.name()));
 
-    private final Issued issued = Issued.of(Instant.parse("2024-01-15T10:00:00Z"));
+    private final Issued issued = Issued.of(Instant.parse("2025-01-01T10:00:00Z"));
 
-    private final Expiration expiration = Expiration.of(issued, 1000L);
+    private final Expiration expiration = Expiration.of(issued, 30000L);
 
     @Nested
     class CreateJwtWithConstructor {
@@ -54,7 +57,7 @@ class JwtTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenEncodedTokenIsNull() {
             // When
-            var thrown = catchThrowable(() -> new Jwt(null, ACCESS_TOKEN, subject, accessTokenClaims, issued, expiration));
+            var thrown = catchThrowable(() -> new Jwt(null, accessTokenType, subject, accessTokenClaims, issued, expiration));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -74,7 +77,7 @@ class JwtTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenSubjectIsNull() {
             // When
-            var thrown = catchThrowable(() -> new Jwt(encodedToken, ACCESS_TOKEN, null, accessTokenClaims, issued, expiration));
+            var thrown = catchThrowable(() -> new Jwt(encodedToken, accessTokenType, null, accessTokenClaims, issued, expiration));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -84,7 +87,7 @@ class JwtTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenClaimsIsNull() {
             // When
-            var thrown = catchThrowable(() -> new Jwt(encodedToken, ACCESS_TOKEN, subject, null, issued, expiration));
+            var thrown = catchThrowable(() -> new Jwt(encodedToken, accessTokenType, subject, null, issued, expiration));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -94,10 +97,10 @@ class JwtTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenClaimsMissingTokenUseClaim() {
             // Given
-            var invalidClaims = JwtClaims.of(Map.of(ROLE_CLAIM_NAME, ADMIN.name()));
+            var invalidClaims = JwtClaims.of(Map.of(ROLE_CLAIM_NAME, USER.name()));
 
             // When
-            var thrown = catchThrowable(() -> new Jwt(encodedToken, ACCESS_TOKEN, subject, invalidClaims, issued, expiration));
+            var thrown = catchThrowable(() -> new Jwt(encodedToken, accessTokenType, subject, invalidClaims, issued, expiration));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -107,23 +110,23 @@ class JwtTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenClaimsHasInvalidTokenUseClaim() {
             // Given
-            var invalidClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, "invalid", ROLE_CLAIM_NAME, ADMIN.name()));
+            var invalidClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, "invalid_token_claim", ROLE_CLAIM_NAME, USER.name()));
 
             // When
-            var thrown = catchThrowable(() -> new Jwt(encodedToken, ACCESS_TOKEN, subject, invalidClaims, issued, expiration));
+            var thrown = catchThrowable(() -> new Jwt(encodedToken, accessTokenType, subject, invalidClaims, issued, expiration));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
                               .hasMessageContaining("Invalid JWT token use claim")
                               .hasMessageContaining("access")
                               .hasMessageContaining("refresh")
-                              .hasMessageContaining("invalid");
+                              .hasMessageContaining("invalid_token_claim");
         }
 
         @Test
         void ThenThrowsIllegalArgumentException_GivenAccessTokenTypeWithRefreshTokenUseClaim() {
             // When
-            var thrown = catchThrowable(() -> new Jwt(encodedToken, ACCESS_TOKEN, subject, refreshTokenClaims, issued, expiration));
+            var thrown = catchThrowable(() -> new Jwt(encodedToken, accessTokenType, subject, refreshTokenClaims, issued, expiration));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -135,7 +138,7 @@ class JwtTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenRefreshTokenTypeWithAccessTokenUseClaim() {
             // When
-            var thrown = catchThrowable(() -> new Jwt(encodedToken, REFRESH_TOKEN, subject, accessTokenClaims, issued, expiration));
+            var thrown = catchThrowable(() -> new Jwt(encodedToken, refreshTokenType, subject, accessTokenClaims, issued, expiration));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -147,11 +150,12 @@ class JwtTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenExpirationBeforeIssued() {
             // Given
-            var invalidExpiration = new Expiration(issued.value()
-                                                         .minus(1, DAYS));
+            var expirationValue = issued.value()
+                                        .minus(1, DAYS);
+            var invalidExpiration = new Expiration(expirationValue);
 
             // When
-            var thrown = catchThrowable(() -> new Jwt(encodedToken, ACCESS_TOKEN, subject, accessTokenClaims, issued, invalidExpiration));
+            var thrown = catchThrowable(() -> new Jwt(encodedToken, accessTokenType, subject, accessTokenClaims, issued, invalidExpiration));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -161,12 +165,12 @@ class JwtTests {
         @Test
         void ThenReturnsJwt_GivenParametersAreValidOnAccessToken() {
             // When
-            var actual = new Jwt(encodedToken, ACCESS_TOKEN, subject, accessTokenClaims, issued, expiration);
+            var actual = new Jwt(encodedToken, accessTokenType, subject, accessTokenClaims, issued, expiration);
 
             // Then
             assertThat(actual).isNotNull();
             assertThat(actual.encodedToken()).isEqualTo(encodedToken);
-            assertThat(actual.type()).isEqualTo(ACCESS_TOKEN);
+            assertThat(actual.type()).isEqualTo(accessTokenType);
             assertThat(actual.subject()).isEqualTo(subject);
             assertThat(actual.claims()).isEqualTo(accessTokenClaims);
             assertThat(actual.issued()).isEqualTo(issued);
@@ -176,12 +180,12 @@ class JwtTests {
         @Test
         void ThenReturnsJwt_GivenParametersAreValidOnRefreshToken() {
             // When
-            var actual = new Jwt(encodedToken, REFRESH_TOKEN, subject, refreshTokenClaims, issued, expiration);
+            var actual = new Jwt(encodedToken, refreshTokenType, subject, refreshTokenClaims, issued, expiration);
 
             // Then
             assertThat(actual).isNotNull();
             assertThat(actual.encodedToken()).isEqualTo(encodedToken);
-            assertThat(actual.type()).isEqualTo(REFRESH_TOKEN);
+            assertThat(actual.type()).isEqualTo(refreshTokenType);
             assertThat(actual.subject()).isEqualTo(subject);
             assertThat(actual.claims()).isEqualTo(refreshTokenClaims);
             assertThat(actual.issued()).isEqualTo(issued);
@@ -196,7 +200,7 @@ class JwtTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenEncodedTokenIsNull() {
             // When
-            var thrown = catchThrowable(() -> Jwt.of(null, ACCESS_TOKEN, subject, accessTokenClaims, issued, expiration));
+            var thrown = catchThrowable(() -> Jwt.of(null, accessTokenType, subject, accessTokenClaims, issued, expiration));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -216,7 +220,7 @@ class JwtTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenSubjectIsNull() {
             // When
-            var thrown = catchThrowable(() -> Jwt.of(encodedToken, ACCESS_TOKEN, null, accessTokenClaims, issued, expiration));
+            var thrown = catchThrowable(() -> Jwt.of(encodedToken, accessTokenType, null, accessTokenClaims, issued, expiration));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -226,7 +230,7 @@ class JwtTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenClaimsIsNull() {
             // When
-            var thrown = catchThrowable(() -> Jwt.of(encodedToken, ACCESS_TOKEN, subject, null, issued, expiration));
+            var thrown = catchThrowable(() -> Jwt.of(encodedToken, accessTokenType, subject, null, issued, expiration));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -236,10 +240,10 @@ class JwtTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenClaimsMissingTokenUseClaim() {
             // Given
-            var invalidClaims = JwtClaims.of(Map.of(ROLE_CLAIM_NAME, ADMIN.name()));
+            var invalidClaims = JwtClaims.of(Map.of(ROLE_CLAIM_NAME, USER.name()));
 
             // When
-            var thrown = catchThrowable(() -> Jwt.of(encodedToken, ACCESS_TOKEN, subject, invalidClaims, issued, expiration));
+            var thrown = catchThrowable(() -> Jwt.of(encodedToken, accessTokenType, subject, invalidClaims, issued, expiration));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -249,23 +253,23 @@ class JwtTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenClaimsHasInvalidTokenUseClaim() {
             // Given
-            var invalidClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, "invalid", ROLE_CLAIM_NAME, ADMIN.name()));
+            var invalidClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, "invalid_token_claim", ROLE_CLAIM_NAME, USER.name()));
 
             // When
-            var thrown = catchThrowable(() -> Jwt.of(encodedToken, ACCESS_TOKEN, subject, invalidClaims, issued, expiration));
+            var thrown = catchThrowable(() -> Jwt.of(encodedToken, accessTokenType, subject, invalidClaims, issued, expiration));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
                               .hasMessageContaining("Invalid JWT token use claim")
                               .hasMessageContaining("access")
                               .hasMessageContaining("refresh")
-                              .hasMessageContaining("invalid");
+                              .hasMessageContaining("invalid_token_claim");
         }
 
         @Test
         void ThenThrowsIllegalArgumentException_GivenAccessTokenTypeWithRefreshTokenUseClaim() {
             // When
-            var thrown = catchThrowable(() -> Jwt.of(encodedToken, ACCESS_TOKEN, subject, refreshTokenClaims, issued, expiration));
+            var thrown = catchThrowable(() -> Jwt.of(encodedToken, accessTokenType, subject, refreshTokenClaims, issued, expiration));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -277,7 +281,7 @@ class JwtTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenRefreshTokenTypeWithAccessTokenUseClaim() {
             // When
-            var thrown = catchThrowable(() -> Jwt.of(encodedToken, REFRESH_TOKEN, subject, accessTokenClaims, issued, expiration));
+            var thrown = catchThrowable(() -> Jwt.of(encodedToken, refreshTokenType, subject, accessTokenClaims, issued, expiration));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -289,11 +293,12 @@ class JwtTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenExpirationBeforeIssued() {
             // Given
-            var invalidExpiration = new Expiration(issued.value()
-                                                         .minus(1, DAYS));
+            var expirationValue = issued.value()
+                                        .minus(1, DAYS);
+            var invalidExpiration = new Expiration(expirationValue);
 
             // When
-            var thrown = catchThrowable(() -> Jwt.of(encodedToken, ACCESS_TOKEN, subject, accessTokenClaims, issued, invalidExpiration));
+            var thrown = catchThrowable(() -> Jwt.of(encodedToken, accessTokenType, subject, accessTokenClaims, issued, invalidExpiration));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -303,12 +308,12 @@ class JwtTests {
         @Test
         void ThenReturnsJwt_GivenParametersAreValidOnAccessToken() {
             // When
-            var actual = Jwt.of(encodedToken, ACCESS_TOKEN, subject, accessTokenClaims, issued, expiration);
+            var actual = Jwt.of(encodedToken, accessTokenType, subject, accessTokenClaims, issued, expiration);
 
             // Then
             assertThat(actual).isNotNull();
             assertThat(actual.encodedToken()).isEqualTo(encodedToken);
-            assertThat(actual.type()).isEqualTo(ACCESS_TOKEN);
+            assertThat(actual.type()).isEqualTo(accessTokenType);
             assertThat(actual.subject()).isEqualTo(subject);
             assertThat(actual.claims()).isEqualTo(accessTokenClaims);
             assertThat(actual.issued()).isEqualTo(issued);
@@ -318,12 +323,12 @@ class JwtTests {
         @Test
         void ThenReturnsJwt_GivenParametersAreValidOnRefreshToken() {
             // When
-            var actual = Jwt.of(encodedToken, REFRESH_TOKEN, subject, refreshTokenClaims, issued, expiration);
+            var actual = Jwt.of(encodedToken, refreshTokenType, subject, refreshTokenClaims, issued, expiration);
 
             // Then
             assertThat(actual).isNotNull();
             assertThat(actual.encodedToken()).isEqualTo(encodedToken);
-            assertThat(actual.type()).isEqualTo(REFRESH_TOKEN);
+            assertThat(actual.type()).isEqualTo(refreshTokenType);
             assertThat(actual.subject()).isEqualTo(subject);
             assertThat(actual.claims()).isEqualTo(refreshTokenClaims);
             assertThat(actual.issued()).isEqualTo(issued);
@@ -338,7 +343,7 @@ class JwtTests {
         @Test
         void ThenReturnsTrue_GivenJwtIsAccessToken() {
             // Given
-            var jwt = Jwt.of(encodedToken, ACCESS_TOKEN, subject, accessTokenClaims, issued, expiration);
+            var jwt = Jwt.of(encodedToken, accessTokenType, subject, accessTokenClaims, issued, expiration);
 
             // When
             var actual = jwt.isAccessToken();
@@ -350,7 +355,7 @@ class JwtTests {
         @Test
         void ThenReturnsFalse_GivenJwtIsRefreshToken() {
             // Given
-            var jwt = Jwt.of(encodedToken, REFRESH_TOKEN, subject, refreshTokenClaims, issued, expiration);
+            var jwt = Jwt.of(encodedToken, refreshTokenType, subject, refreshTokenClaims, issued, expiration);
 
             // When
             var actual = jwt.isAccessToken();
@@ -367,7 +372,7 @@ class JwtTests {
         @Test
         void ThenReturnsTrue_GivenJwtIsRefreshToken() {
             // Given
-            var jwt = Jwt.of(encodedToken, REFRESH_TOKEN, subject, refreshTokenClaims, issued, expiration);
+            var jwt = Jwt.of(encodedToken, refreshTokenType, subject, refreshTokenClaims, issued, expiration);
 
             // When
             var actual = jwt.isRefreshToken();
@@ -379,7 +384,7 @@ class JwtTests {
         @Test
         void ThenReturnsFalse_GivenJwtIsAccessToken() {
             // Given
-            var jwt = Jwt.of(encodedToken, ACCESS_TOKEN, subject, accessTokenClaims, issued, expiration);
+            var jwt = Jwt.of(encodedToken, accessTokenType, subject, accessTokenClaims, issued, expiration);
 
             // When
             var actual = jwt.isRefreshToken();
@@ -396,7 +401,7 @@ class JwtTests {
         @Test
         void ThenReturnsEncodedTokenValue_GivenJwtIsValid() {
             // Given
-            var jwt = Jwt.of(encodedToken, ACCESS_TOKEN, subject, accessTokenClaims, issued, expiration);
+            var jwt = Jwt.of(encodedToken, accessTokenType, subject, accessTokenClaims, issued, expiration);
 
             // When
             var actual = jwt.encodedTokenValue();
@@ -413,20 +418,20 @@ class JwtTests {
         @Test
         void ThenReturnsRole_GivenRoleClaimExists() {
             // Given
-            var jwt = Jwt.of(encodedToken, ACCESS_TOKEN, subject, accessTokenClaims, issued, expiration);
+            var jwt = Jwt.of(encodedToken, accessTokenType, subject, accessTokenClaims, issued, expiration);
 
             // When
             var actual = jwt.roleClaim();
 
             // Then
-            assertThat(actual).isEqualTo(ADMIN);
+            assertThat(actual).isEqualTo(USER);
         }
 
         @Test
         void ThenReturnsNull_GivenRoleClaimNotExist() {
             // Given
             var claims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE));
-            var jwt = Jwt.of(encodedToken, ACCESS_TOKEN, subject, claims, issued, expiration);
+            var jwt = Jwt.of(encodedToken, accessTokenType, subject, claims, issued, expiration);
 
             // When
             var actual = jwt.roleClaim();

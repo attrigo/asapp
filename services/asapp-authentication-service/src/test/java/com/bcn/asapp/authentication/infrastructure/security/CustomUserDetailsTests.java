@@ -20,8 +20,6 @@ import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Nested;
@@ -30,28 +28,40 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import com.bcn.asapp.authentication.domain.user.Role;
 
 class CustomUserDetailsTests {
 
-    private final UUID userIdValue = UUID.randomUUID();
+    private final UUID userIdValue = UUID.fromString("ce1dd321-b023-4abf-8af9-eb4c69ebb4e0");
 
     private final String usernameValue = "user@asapp.com";
 
-    private final String passwordValue = "{bcrypt}encodedPassword";
-
-    private final Collection<? extends GrantedAuthority> authorities = List.of(new SimpleGrantedAuthority(USER.name()));
+    private final String passwordValue = "{bcrypt}password";
 
     @Nested
     class CreateCustomUserDetails {
 
+        @Test
+        void ThenReturnsCustomUserDetailsWithEmptyAuthorities_GivenWithEmptyAuthorities() {
+            // Given
+            var emptyAuthorities = AuthorityUtils.NO_AUTHORITIES;
+
+            // When
+            var actual = new CustomUserDetails(userIdValue, usernameValue, passwordValue, emptyAuthorities);
+
+            // Then
+            assertThat(actual.getAuthorities()).isEmpty();
+        }
+
         @ParameterizedTest
         @EnumSource(value = Role.class)
         void ThenReturnsCustomUserDetails_GivenAllParametersAreValid(Role role) {
+            // Given
+            var authorities = AuthorityUtils.createAuthorityList(role.name());
+
             // When
-            var actual = new CustomUserDetails(userIdValue, usernameValue, passwordValue, AuthorityUtils.createAuthorityList(role.name()));
+            var actual = new CustomUserDetails(userIdValue, usernameValue, passwordValue, authorities);
 
             // Then
             assertThat(actual).isNotNull();
@@ -77,18 +87,6 @@ class CustomUserDetailsTests {
                                                .containsExactlyInAnyOrder(USER.name(), ADMIN.name());
         }
 
-        @Test
-        void ThenReturnsCustomUserDetailsWithEmptyAuthorities_GivenWithEmptyAuthorities() {
-            // Given
-            var emptyAuthorities = AuthorityUtils.NO_AUTHORITIES;
-
-            // When
-            var actual = new CustomUserDetails(userIdValue, usernameValue, passwordValue, emptyAuthorities);
-
-            // Then
-            assertThat(actual.getAuthorities()).isEmpty();
-        }
-
     }
 
     @Nested
@@ -97,6 +95,7 @@ class CustomUserDetailsTests {
         @Test
         void ThenReturnsUserId() {
             // Given
+            var authorities = AuthorityUtils.createAuthorityList(USER.name());
             var userDetails = new CustomUserDetails(userIdValue, usernameValue, passwordValue, authorities);
 
             // When

@@ -28,11 +28,11 @@ import org.junit.jupiter.api.Test;
 
 class UserTests {
 
-    private final UserId id = UserId.of(UUID.randomUUID());
+    private final UserId id = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
 
     private final Username username = Username.of("user@asapp.com");
 
-    private final EncodedPassword password = EncodedPassword.of("{noop}pass");
+    private final EncodedPassword password = EncodedPassword.of("{noop}password");
 
     private final Role role = USER;
 
@@ -138,7 +138,7 @@ class UserTests {
             // Given
             var user = User.inactiveUser(username, password, role);
 
-            var newPassword = EncodedPassword.of("{noop}new_pass");
+            var newPassword = EncodedPassword.of("{noop}new_password");
             var newRole = ADMIN;
 
             // When
@@ -173,7 +173,7 @@ class UserTests {
             var user = User.inactiveUser(username, password, role);
 
             var newUsername = Username.of("new_user@asapp.com");
-            var newPassword = EncodedPassword.of("{noop}new_pass");
+            var newPassword = EncodedPassword.of("{noop}new_password");
 
             // When
             var thrown = catchThrowable(() -> user.update(newUsername, newPassword, null));
@@ -184,12 +184,12 @@ class UserTests {
         }
 
         @Test
-        void ThenUpdatesAllFields_GivenParametersAreValidOnInactiveUser() {
+        void ThenUpdatesAllFieldsExpectPassword_GivenParametersAreValidOnInactiveUser() {
             // Given
             var user = User.inactiveUser(username, password, role);
 
             var newUsername = Username.of("new_user@asapp.com");
-            var newPassword = EncodedPassword.of("{noop}new_pass");
+            var newPassword = EncodedPassword.of("{noop}new_password");
             var newRole = ADMIN;
 
             // When
@@ -207,7 +207,7 @@ class UserTests {
             // Given
             var user = User.activeUser(id, username, role);
 
-            var newPassword = EncodedPassword.of("{noop}new_pass");
+            var newPassword = EncodedPassword.of("{noop}new_password");
             var newRole = ADMIN;
 
             // When
@@ -240,7 +240,7 @@ class UserTests {
             var user = User.activeUser(id, username, role);
 
             var newUsername = Username.of("new_user@asapp.com");
-            var newPassword = EncodedPassword.of("{noop}new_pass");
+            var newPassword = EncodedPassword.of("{noop}new_password");
 
             // When
             var thrown = catchThrowable(() -> user.update(newUsername, newPassword, null));
@@ -251,12 +251,12 @@ class UserTests {
         }
 
         @Test
-        void ThenUpdatesUsernameAndRole_GivenParametersAreValidOnActiveUser() {
+        void ThenUpdatesAllFields_GivenParametersAreValidOnActiveUser() {
             // Given
             var user = User.activeUser(id, username, role);
 
             var newUsername = Username.of("new_user@asapp.com");
-            var newPassword = EncodedPassword.of("{noop}new_pass");
+            var newPassword = EncodedPassword.of("{noop}new_password");
             var newRole = ADMIN;
 
             // When
@@ -350,8 +350,8 @@ class UserTests {
         @Test
         void ThenReturnsFalse_GivenInactiveUserAndActiveUser() {
             // Given
-            var user1 = User.inactiveUser(Username.of("inactive.user@asapp.com"), password, USER);
-            var user2 = User.activeUser(id, Username.of("active.user@asapp.com"), USER);
+            var user1 = User.inactiveUser(Username.of("inactive_user@asapp.com"), password, USER);
+            var user2 = User.activeUser(id, Username.of("active_user@asapp.com"), USER);
 
             // When
             var actual1 = user1.equals(user2);
@@ -383,9 +383,12 @@ class UserTests {
         @Test
         void ThenReturnsFalse_GivenThreeActiveUsersWithDifferentId() {
             // Given
-            var user1 = User.activeUser(UserId.of(UUID.randomUUID()), username, USER);
-            var user2 = User.activeUser(UserId.of(UUID.randomUUID()), username, USER);
-            var user3 = User.activeUser(UserId.of(UUID.randomUUID()), username, USER);
+            var userId1 = UserId.of(UUID.fromString("6ba7b810-9dad-11d1-80b4-00c04fd430c8"));
+            var userId2 = UserId.of(UUID.fromString("8f7e3d2a-5c4b-4e9f-9a1e-3b2c1d0e5f6a"));
+            var userId3 = UserId.of(UUID.fromString("3f8d2a1b-6c5e-4f7d-9a8b-2c1e0d9f8e7c"));
+            var user1 = User.activeUser(userId1, username, USER);
+            var user2 = User.activeUser(userId2, username, USER);
+            var user3 = User.activeUser(userId3, username, USER);
 
             // When
             var actual1 = user1.equals(user2);
@@ -434,8 +437,8 @@ class UserTests {
         @Test
         void ThenReturnsDifferentHashCode_GivenInactiveUserAndActiveUser() {
             // Given
-            var user1 = User.inactiveUser(Username.of("inactive.user@asapp.com"), password, USER);
-            var user2 = User.activeUser(id, Username.of("active.user@asapp.com"), USER);
+            var user1 = User.inactiveUser(Username.of("inactive_user@asapp.com"), password, USER);
+            var user2 = User.activeUser(id, Username.of("active_user@asapp.com"), USER);
 
             // When
             var actual1 = user1.hashCode();
@@ -462,8 +465,10 @@ class UserTests {
         @Test
         void ThenReturnsDifferentHashCode_GivenTwoActiveUsersWithDifferentId() {
             // Given
-            var user1 = User.activeUser(UserId.of(UUID.randomUUID()), username, USER);
-            var user2 = User.activeUser(UserId.of(UUID.randomUUID()), username, USER);
+            var userId1 = UserId.of(UUID.fromString("7c9e4a2f-3d1b-4e8c-9f5a-6b8d2c3e1f4a"));
+            var userId2 = UserId.of(UUID.fromString("5a6b7c8d-9e0f-4a1b-2c3d-4e5f6a7b8c9d"));
+            var user1 = User.activeUser(userId1, username, USER);
+            var user2 = User.activeUser(userId2, username, USER);
 
             // When
             var actual1 = user1.hashCode();
