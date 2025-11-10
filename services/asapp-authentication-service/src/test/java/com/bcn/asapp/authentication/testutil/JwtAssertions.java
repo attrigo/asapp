@@ -16,11 +16,11 @@
 
 package com.bcn.asapp.authentication.testutil;
 
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.ACCESS_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.REFRESH_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.TOKEN_USE_CLAIM_NAME;
-import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
-import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ACCESS_TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.REFRESH_TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.ACCESS_TOKEN_TYPE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.REFRESH_TOKEN_TYPE;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,16 +78,16 @@ public class JwtAssertions extends AbstractAssert<JwtAssertions, Jws<Claims>> {
         var actualHeaderType = actual.getHeader()
                                      .getType();
         var actualTokenUseClaim = actual.getPayload()
-                                        .get(TOKEN_USE_CLAIM_NAME);
+                                        .get(TOKEN_USE);
         SoftAssertions.assertSoftly(softAssertions -> {
             Assertions.assertThat(actualHeaderType)
                       .isNotNull()
                       .describedAs("type")
-                      .isEqualTo(ACCESS_TOKEN.type());
+                      .isEqualTo(ACCESS_TOKEN_TYPE);
             Assertions.assertThat(actualTokenUseClaim)
                       .isNotNull()
                       .describedAs("token use claim")
-                      .isEqualTo(ACCESS_TOKEN_USE_CLAIM_VALUE);
+                      .isEqualTo(ACCESS_TOKEN_USE);
         });
 
         return myself;
@@ -101,16 +101,16 @@ public class JwtAssertions extends AbstractAssert<JwtAssertions, Jws<Claims>> {
         var actualHeaderType = actual.getHeader()
                                      .getType();
         var actualTokenUseClaim = actual.getPayload()
-                                        .get(TOKEN_USE_CLAIM_NAME);
+                                        .get(TOKEN_USE);
         SoftAssertions.assertSoftly(softAssertions -> {
             Assertions.assertThat(actualHeaderType)
                       .isNotNull()
                       .describedAs("type")
-                      .isEqualTo(REFRESH_TOKEN.type());
+                      .isEqualTo(REFRESH_TOKEN_TYPE);
             Assertions.assertThat(actualTokenUseClaim)
                       .isNotNull()
                       .describedAs("token use claim")
-                      .isEqualTo(REFRESH_TOKEN_USE_CLAIM_VALUE);
+                      .isEqualTo(REFRESH_TOKEN_USE);
         });
         return myself;
     }

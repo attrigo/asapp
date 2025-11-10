@@ -16,10 +16,10 @@
 
 package com.bcn.asapp.authentication.infrastructure.security;
 
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.ACCESS_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.REFRESH_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.ROLE_CLAIM_NAME;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ACCESS_TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.REFRESH_TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ROLE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
 
@@ -116,7 +116,7 @@ public class JwtIssuer {
     public Jwt issueAccessToken(Subject subject, Role role) {
         logger.trace("Issuing access token for subject {} and role {}", subject, role);
 
-        return issueToken(ACCESS_TOKEN, subject, role, accessTokenExpirationTime, ACCESS_TOKEN_USE_CLAIM_VALUE);
+        return issueToken(ACCESS_TOKEN, subject, role, accessTokenExpirationTime, ACCESS_TOKEN_USE);
     }
 
     /**
@@ -142,7 +142,7 @@ public class JwtIssuer {
     public Jwt issueRefreshToken(Subject subject, Role role) {
         logger.trace("Issuing refresh token for subject {} and role {}", subject, role);
 
-        return issueToken(REFRESH_TOKEN, subject, role, refreshTokenExpirationTime, REFRESH_TOKEN_USE_CLAIM_VALUE);
+        return issueToken(REFRESH_TOKEN, subject, role, refreshTokenExpirationTime, REFRESH_TOKEN_USE);
     }
 
     /**
@@ -156,7 +156,7 @@ public class JwtIssuer {
      * @return the generated {@link Jwt}
      */
     private Jwt issueToken(JwtType type, Subject subject, Role role, Long expirationTimeMillis, String tokenUseClaim) {
-        var claims = JwtClaims.of(ROLE_CLAIM_NAME, role.name(), TOKEN_USE_CLAIM_NAME, tokenUseClaim);
+        var claims = JwtClaims.of(ROLE, role.name(), TOKEN_USE, tokenUseClaim);
         var issued = Issued.now();
         var expiration = Expiration.of(issued, expirationTimeMillis);
 

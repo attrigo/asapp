@@ -16,9 +16,9 @@
 
 package com.bcn.asapp.authentication.infrastructure.security;
 
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.ACCESS_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.ROLE_CLAIM_NAME;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ACCESS_TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ROLE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +55,7 @@ class JwtAuthenticationTokenTests {
 
     @BeforeEach
     void beforeEach() {
-        var claims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, roleClaimValue));
+        var claims = JwtClaims.of(Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, roleClaimValue));
         jwt = Jwt.of(encodedToken, ACCESS_TOKEN, subject, claims, issued, expiration);
     }
 
@@ -75,7 +75,7 @@ class JwtAuthenticationTokenTests {
         @Test
         void ThenCreatesAuthenticatedTokenWithoutAuthorities_GivenJwtNotContainsRoleClaim() {
             // Given
-            var claimsWithoutRole = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE));
+            var claimsWithoutRole = JwtClaims.of(Map.of(TOKEN_USE, ACCESS_TOKEN_USE));
             var jwtWithoutRoleClaim = Jwt.of(encodedToken, ACCESS_TOKEN, subject, claimsWithoutRole, issued, expiration);
 
             // When
