@@ -16,12 +16,12 @@
 
 package com.bcn.asapp.authentication.testutil;
 
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.ACCESS_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.REFRESH_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.ROLE_CLAIM_NAME;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.TOKEN_USE_CLAIM_NAME;
-import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
-import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ACCESS_TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.REFRESH_TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ROLE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.ACCESS_TOKEN_TYPE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.REFRESH_TOKEN_TYPE;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.EXPIRATION_TIME;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.testEncodedTokenBuilder;
@@ -147,8 +147,8 @@ public class TestFactory {
 
             Builder() {
                 this.userId = UUID.randomUUID();
-                this.accessToken = createJwtEntity(ACCESS_TOKEN.type());
-                this.refreshToken = createJwtEntity(REFRESH_TOKEN.type());
+                this.accessToken = createJwtEntity(ACCESS_TOKEN_TYPE);
+                this.refreshToken = createJwtEntity(REFRESH_TOKEN_TYPE);
             }
 
             public Builder withUserId(UUID userId) {
@@ -174,9 +174,8 @@ public class TestFactory {
                 var subject = TEST_JWT_AUTH_SUBJECT;
                 var issuedAt = generateRandomIssueAt();
                 var expiration = issuedAt.plus(EXPIRATION_TIME, SECONDS);
-                var tokenUseClaim = ACCESS_TOKEN.type()
-                                                .equals(type) ? ACCESS_TOKEN_USE_CLAIM_VALUE : REFRESH_TOKEN_USE_CLAIM_VALUE;
-                Map<String, Object> claimsMap = Map.of(TOKEN_USE_CLAIM_NAME, tokenUseClaim, ROLE_CLAIM_NAME, TEST_JWT_AUTH_ROLE);
+                var tokenUseClaim = ACCESS_TOKEN_TYPE.equals(type) ? ACCESS_TOKEN_USE : REFRESH_TOKEN_USE;
+                Map<String, Object> claimsMap = Map.of(TOKEN_USE, tokenUseClaim, ROLE, TEST_JWT_AUTH_ROLE);
 
                 var token = testEncodedTokenBuilder().withType(type)
                                                      .withSubject(subject)
@@ -203,11 +202,9 @@ public class TestFactory {
 
         static final String TEST_ENCODED_TOKEN_ROLE_CLAIM = USER.name();
 
-        static final Map<String, Object> TEST_ENCODED_TOKEN_AT_CLAIMS = Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME,
-                TEST_ENCODED_TOKEN_ROLE_CLAIM);
+        static final Map<String, Object> TEST_ENCODED_TOKEN_AT_CLAIMS = Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, TEST_ENCODED_TOKEN_ROLE_CLAIM);
 
-        static final Map<String, Object> TEST_ENCODED_TOKEN_RT_CLAIMS = Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME,
-                TEST_ENCODED_TOKEN_ROLE_CLAIM);
+        static final Map<String, Object> TEST_ENCODED_TOKEN_RT_CLAIMS = Map.of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, TEST_ENCODED_TOKEN_ROLE_CLAIM);
 
         static {
             try (InputStream input = TestEncodedTokenFactory.class.getClassLoader()
@@ -264,11 +261,11 @@ public class TestFactory {
             }
 
             public Builder accessToken() {
-                return withType(ACCESS_TOKEN.type()).withClaims(TEST_ENCODED_TOKEN_AT_CLAIMS);
+                return withType(ACCESS_TOKEN_TYPE).withClaims(TEST_ENCODED_TOKEN_AT_CLAIMS);
             }
 
             public Builder refreshToken() {
-                return withType(REFRESH_TOKEN.type()).withClaims(TEST_ENCODED_TOKEN_RT_CLAIMS);
+                return withType(REFRESH_TOKEN_TYPE).withClaims(TEST_ENCODED_TOKEN_RT_CLAIMS);
             }
 
             public Builder withType(String type) {

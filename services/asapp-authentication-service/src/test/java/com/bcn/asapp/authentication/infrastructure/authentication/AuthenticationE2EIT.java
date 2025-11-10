@@ -16,10 +16,10 @@
 
 package com.bcn.asapp.authentication.infrastructure.authentication;
 
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.ACCESS_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.REFRESH_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.ROLE_CLAIM_NAME;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ACCESS_TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.REFRESH_TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ROLE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
 import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
@@ -642,13 +642,13 @@ class AuthenticationE2EIT {
             assertThatJwt(actualAccessToken).isNotNull()
                                             .isAccessToken()
                                             .hasSubject(expectedUser.username())
-                                            .hasClaim(ROLE_CLAIM_NAME, expectedRoleName, String.class)
+                                            .hasClaim(ROLE, expectedRoleName, String.class)
                                             .hasIssuedAt()
                                             .hasExpiration();
             assertThatJwt(actualRefreshToken).isNotNull()
                                              .isRefreshToken()
                                              .hasSubject(expectedUser.username())
-                                             .hasClaim(ROLE_CLAIM_NAME, expectedRoleName, String.class)
+                                             .hasClaim(ROLE, expectedRoleName, String.class)
                                              .hasIssuedAt()
                                              .hasExpiration();
         });
@@ -668,8 +668,8 @@ class AuthenticationE2EIT {
                                             .satisfies(jwtEntity -> assertThat(jwtEntity.token()).isEqualTo(expectedAccessToken),
                                                     jwtEntity -> assertThat(jwtEntity.type()).isEqualTo(ACCESS_TOKEN.type()),
                                                     jwtEntity -> assertThat(jwtEntity.subject()).isEqualTo(expectedUser.username()),
-                                                    jwtEntity -> assertThat(jwtEntity.claims().claims().get(TOKEN_USE_CLAIM_NAME)).isEqualTo(ACCESS_TOKEN_USE_CLAIM_VALUE),
-                                                    jwtEntity -> assertThat(jwtEntity.claims().claims().get(ROLE_CLAIM_NAME)).isEqualTo(expectedRoleName),
+                                                    jwtEntity -> assertThat(jwtEntity.claims().claims().get(TOKEN_USE)).isEqualTo(ACCESS_TOKEN_USE),
+                                                    jwtEntity -> assertThat(jwtEntity.claims().claims().get(ROLE)).isEqualTo(expectedRoleName),
                                                     jwtEntity -> assertThat(jwtEntity.issued()).isNotNull(),
                                                     jwtEntity -> assertThat(jwtEntity.expiration()).isNotNull());
 
@@ -678,8 +678,8 @@ class AuthenticationE2EIT {
                                             .satisfies(jwtEntity -> assertThat(jwtEntity.token()).isEqualTo(expectedRefreshToken),
                                                     jwtEntity -> assertThat(jwtEntity.type()).isEqualTo(REFRESH_TOKEN.type()),
                                                     jwtEntity -> assertThat(jwtEntity.subject()).isEqualTo(expectedUser.username()),
-                                                    jwtEntity -> assertThat(jwtEntity.claims().claims().get(TOKEN_USE_CLAIM_NAME)).isEqualTo(REFRESH_TOKEN_USE_CLAIM_VALUE),
-                                                    jwtEntity -> assertThat(jwtEntity.claims().claims().get(ROLE_CLAIM_NAME)).isEqualTo(expectedRoleName),
+                                                    jwtEntity -> assertThat(jwtEntity.claims().claims().get(TOKEN_USE)).isEqualTo(REFRESH_TOKEN_USE),
+                                                    jwtEntity -> assertThat(jwtEntity.claims().claims().get(ROLE)).isEqualTo(expectedRoleName),
                                                     jwtEntity -> assertThat(jwtEntity.issued()).isNotNull(),
                                                     jwtEntity -> assertThat(jwtEntity.expiration()).isNotNull());
         });

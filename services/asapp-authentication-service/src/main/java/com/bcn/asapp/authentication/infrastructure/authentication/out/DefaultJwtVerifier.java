@@ -16,9 +16,6 @@
 
 package com.bcn.asapp.authentication.infrastructure.authentication.out;
 
-import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
-import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -77,15 +74,15 @@ public class DefaultJwtVerifier implements JwtVerifier {
         logger.trace("Verifying access token {}", accessToken);
 
         try {
-            var jwt = jwtDecoder.decode(accessToken);
+            var decodedToken = jwtDecoder.decode(accessToken.value());
 
-            if (!jwt.isAccessToken()) {
-                throw new UnexpectedJwtTypeException(String.format("JWT %s is not a %s", jwt.encodedTokenValue(), ACCESS_TOKEN));
+            if (!decodedToken.isAccessToken()) {
+                throw new UnexpectedJwtTypeException(String.format("JWT %s is not an access token", decodedToken.encodedToken()));
             }
 
-            return jwtAuthenticationRepository.findByAccessToken(jwt.encodedToken())
+            return jwtAuthenticationRepository.findByAccessToken(EncodedToken.of(decodedToken.encodedToken()))
                                               .orElseThrow(() -> new JwtAuthenticationNotFoundException(
-                                                      String.format("Jwt authentication not found by access token %s", jwt.encodedTokenValue())));
+                                                      String.format("Jwt authentication not found by access token %s", decodedToken.encodedToken())));
 
         } catch (Exception e) {
             var message = String.format("Access token is not valid: %s", accessToken);
@@ -110,15 +107,15 @@ public class DefaultJwtVerifier implements JwtVerifier {
         logger.trace("Verifying refresh token {}", refreshToken);
 
         try {
-            var jwt = jwtDecoder.decode(refreshToken);
+            var decodedToken = jwtDecoder.decode(refreshToken.value());
 
-            if (!jwt.isRefreshToken()) {
-                throw new UnexpectedJwtTypeException(String.format("JWT %s is not a %s", jwt.encodedTokenValue(), REFRESH_TOKEN));
+            if (!decodedToken.isRefreshToken()) {
+                throw new UnexpectedJwtTypeException(String.format("JWT %s is not a refresh token", decodedToken.encodedToken()));
             }
 
-            return jwtAuthenticationRepository.findByRefreshToken(jwt.encodedToken())
+            return jwtAuthenticationRepository.findByRefreshToken(EncodedToken.of(decodedToken.encodedToken()))
                                               .orElseThrow(() -> new JwtAuthenticationNotFoundException(
-                                                      String.format("Jwt authentication not found by refresh token %s", jwt.encodedTokenValue())));
+                                                      String.format("Jwt authentication not found by refresh token %s", decodedToken.encodedToken())));
 
         } catch (Exception e) {
             var message = String.format("Refresh token is not valid: %s", refreshToken);

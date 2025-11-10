@@ -16,10 +16,10 @@
 
 package com.bcn.asapp.authentication.infrastructure.security;
 
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.ACCESS_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.REFRESH_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.ROLE_CLAIM_NAME;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ACCESS_TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.REFRESH_TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ROLE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,7 +79,7 @@ class JwtIssuerTests {
             assertThat(actual.subject()).extracting(Subject::value)
                                         .isEqualTo(usernameValue);
             assertThat(actual.claims()).extracting(JwtClaims::value)
-                                       .isEqualTo(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, role.name()));
+                                       .isEqualTo(Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, role.name()));
             assertThat(actual.issued()
                              .value()).isBefore(actual.expiration()
                                                       .value());
@@ -108,7 +108,7 @@ class JwtIssuerTests {
             assertThat(actual.subject()).extracting(Subject::value)
                                         .isEqualTo(usernameValue);
             assertThat(actual.claims()).extracting(JwtClaims::value)
-                                       .isEqualTo(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, role.name()));
+                                       .isEqualTo(Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, role.name()));
             assertThat(actual.issued()
                              .value()).isBefore(actual.expiration()
                                                       .value());
@@ -137,7 +137,7 @@ class JwtIssuerTests {
             assertThat(actual.subject()).extracting(Subject::value)
                                         .isEqualTo(usernameValue);
             assertThat(actual.claims()).extracting(JwtClaims::value)
-                                       .isEqualTo(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, role.name()));
+                                       .isEqualTo(Map.of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, role.name()));
             assertThat(actual.issued()
                              .value()).isBefore(actual.expiration()
                                                       .value());
@@ -166,7 +166,7 @@ class JwtIssuerTests {
             assertThat(actual.subject()).extracting(Subject::value)
                                         .isEqualTo(usernameValue);
             assertThat(actual.claims()).extracting(JwtClaims::value)
-                                       .isEqualTo(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, role.name()));
+                                       .isEqualTo(Map.of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, role.name()));
             assertThat(actual.issued()
                              .value()).isBefore(actual.expiration()
                                                       .value());

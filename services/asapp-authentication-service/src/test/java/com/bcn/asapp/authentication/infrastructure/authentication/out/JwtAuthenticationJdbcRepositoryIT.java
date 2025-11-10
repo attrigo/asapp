@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.authentication.infrastructure.authentication.out;
 
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.ROLE_CLAIM_NAME;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ROLE;
 import static com.bcn.asapp.authentication.testutil.JwtAssertions.assertThatJwt;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
@@ -178,13 +178,13 @@ class JwtAuthenticationJdbcRepositoryIT {
             assertThatJwt(accessToken.token()).isNotNull()
                                               .isAccessToken()
                                               .hasSubject(expectedUser.username())
-                                              .hasClaim(ROLE_CLAIM_NAME, expectedRoleName, String.class)
+                                              .hasClaim(ROLE, expectedRoleName, String.class)
                                               .hasIssuedAt()
                                               .hasExpiration();
             assertThatJwt(refreshToken.token()).isNotNull()
                                                .isRefreshToken()
                                                .hasSubject(expectedUser.username())
-                                               .hasClaim(ROLE_CLAIM_NAME, expectedRoleName, String.class)
+                                               .hasClaim(ROLE, expectedRoleName, String.class)
                                                .hasIssuedAt()
                                                .hasExpiration();
         });

@@ -16,8 +16,8 @@
 
 package com.bcn.asapp.authentication.infrastructure.security;
 
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.ROLE_CLAIM_NAME;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ROLE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
 
 import java.util.Map;
 import javax.crypto.SecretKey;
@@ -33,18 +33,10 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
-import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
-import com.bcn.asapp.authentication.domain.authentication.Expiration;
-import com.bcn.asapp.authentication.domain.authentication.Issued;
-import com.bcn.asapp.authentication.domain.authentication.Jwt;
-import com.bcn.asapp.authentication.domain.authentication.JwtClaims;
-import com.bcn.asapp.authentication.domain.authentication.JwtType;
-import com.bcn.asapp.authentication.domain.authentication.Subject;
-
 /**
  * Component for decoding and validating JWT tokens.
  * <p>
- * Parses encoded JWT tokens, verifies their signatures using HMAC-SHA, and constructs domain {@link Jwt} objects with validated claims and metadata.
+ * Parses JWT tokens, verifies their signatures using HMAC-SHA, and constructs {@link DecodedToken} objects.
  *
  * @since 0.2.0
  * @see Jwts
@@ -69,70 +61,57 @@ public class JwtDecoder {
     /**
      * Decodes and validates an encoded JWT token.
      * <p>
-     * Parses the token, verifies its signature, and constructs a domain {@link Jwt} object with all claims and metadata.
+     * Parses the token, verifies its signature, and constructs a {@link DecodedToken}.
      *
-     * @param encodedToken the {@link EncodedToken} to decode
-     * @return the decoded and validated {@link Jwt}
+     * @param token the encoded token to decode
+     * @return the decoded and validated {@link DecodedToken}
      * @throws io.jsonwebtoken.JwtException if the token is invalid, malformed, or expired
      */
-    public Jwt decode(EncodedToken encodedToken) {
-        logger.trace("Decoding token {}", encodedToken);
+    public DecodedToken decode(String token) {
+        logger.trace("Decoding token {}", token);
 
-        var jwsClaims = parseToken(encodedToken);
+        var jwsClaims = parseToken(token);
 
-        return buildJwt(encodedToken, jwsClaims);
+        return buildDecodedToken(token, jwsClaims);
     }
 
     /**
      * Parses and verifies the token signature.
      *
-     * @param encodedToken the {@link EncodedToken} to parse
+     * @param token the token to parse
      * @return the parsed {@link Jws} containing claims
      * @throws io.jsonwebtoken.JwtException if parsing or verification fails
      */
-    private Jws<Claims> parseToken(EncodedToken encodedToken) {
-        logger.trace("Parsing token {}", encodedToken);
+    private Jws<Claims> parseToken(String token) {
+        logger.trace("Parsing token {}", token);
 
         return Jwts.parser()
                    .verifyWith(secretKey)
                    .build()
-                   .parse(encodedToken.value())
+                   .parse(token)
                    .accept(Jws.CLAIMS);
     }
 
     /**
-     * Builds a domain {@link Jwt} from parsed JWT claims.
+     * Builds a {@link DecodedToken} from parsed JWT claims.
      *
-     * @param encodedToken the original {@link EncodedToken}
-     * @param jwsClaims    the parsed JWT claims
-     * @return the constructed {@link Jwt} domain object
+     * @param token     the original encoded token
+     * @param jwsClaims the parsed JWT claims
+     * @return the constructed {@link DecodedToken} object
      */
-    private Jwt buildJwt(EncodedToken encodedToken, Jws<Claims> jwsClaims) {
-        logger.trace("Building JWT with encoded token {} and claims {}", encodedToken, jwsClaims);
+    private DecodedToken buildDecodedToken(String token, Jws<Claims> jwsClaims) {
+        logger.trace("Building decoded token with encoded token {} and claims {}", token, jwsClaims);
 
         var tokenHeader = jwsClaims.getHeader();
         var tokenPayload = jwsClaims.getPayload();
 
-        var type = JwtType.ofType(tokenHeader.getType());
-        var subject = Subject.of(tokenPayload.getSubject());
-        var claims = JwtClaims.of(buildClaimsFromPayload(tokenPayload));
-        var issued = Issued.of(tokenPayload.getIssuedAt());
-        var expiration = Expiration.of(tokenPayload.getExpiration());
+        var type = tokenHeader.getType();
+        var subject = tokenPayload.getSubject();
+        var tokenUseClaim = tokenPayload.get(TOKEN_USE, String.class);
+        var roleClaim = tokenPayload.get(ROLE, String.class);
+        var claims = Map.<String, Object>of(TOKEN_USE, tokenUseClaim, ROLE, roleClaim);
 
-        return Jwt.of(encodedToken, type, subject, claims, issued, expiration);
-    }
-
-    /**
-     * Extracts custom claims from the JWT payload.
-     *
-     * @param payload the JWT claims payload
-     * @return a {@link Map} containing token_use and role claims
-     */
-    private Map<String, Object> buildClaimsFromPayload(Claims payload) {
-        var tokenUseClaim = payload.get(TOKEN_USE_CLAIM_NAME, String.class);
-        var roleClaim = payload.get(ROLE_CLAIM_NAME, String.class);
-
-        return Map.of(TOKEN_USE_CLAIM_NAME, tokenUseClaim, ROLE_CLAIM_NAME, roleClaim);
+        return new DecodedToken(token, type, subject, claims);
     }
 
 }
