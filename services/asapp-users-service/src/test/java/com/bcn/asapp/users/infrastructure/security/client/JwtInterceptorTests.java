@@ -16,10 +16,10 @@
 
 package com.bcn.asapp.users.infrastructure.security.client;
 
-import static com.bcn.asapp.users.infrastructure.security.DecodedToken.ACCESS_TOKEN_TYPE;
-import static com.bcn.asapp.users.infrastructure.security.DecodedToken.ACCESS_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.users.infrastructure.security.DecodedToken.ROLE_CLAIM_NAME;
-import static com.bcn.asapp.users.infrastructure.security.DecodedToken.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.ACCESS_TOKEN_USE;
+import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.ROLE;
+import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.TOKEN_USE;
+import static com.bcn.asapp.users.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
 import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
@@ -111,7 +111,7 @@ public class JwtInterceptorTests {
         void ThenAddsAuthorizationHeaderAndExecutesRequest_GivenAuthenticationIsValid() throws IOException {
             // Given
             var encodedToken = defaultTestEncodedAccessToken();
-            var claims = Map.<String, Object>of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
+            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
             var decodedToken = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, "user@asapp.com", claims);
             var authentication = JwtAuthenticationToken.authenticated(decodedToken);
             given(securityContext.getAuthentication()).willReturn(authentication);

@@ -16,8 +16,8 @@
 
 package com.bcn.asapp.users.infrastructure.security;
 
-import static com.bcn.asapp.users.infrastructure.security.DecodedToken.ROLE_CLAIM_NAME;
-import static com.bcn.asapp.users.infrastructure.security.DecodedToken.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.ROLE;
+import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.TOKEN_USE;
 
 import java.util.Map;
 import javax.crypto.SecretKey;
@@ -107,9 +107,9 @@ public class JwtDecoder {
 
         var type = tokenHeader.getType();
         var subject = tokenPayload.getSubject();
-        var tokenUseClaim = tokenPayload.get(TOKEN_USE_CLAIM_NAME, String.class);
-        var roleClaim = tokenPayload.get(ROLE_CLAIM_NAME, String.class);
-        var claims = Map.<String, Object>of(TOKEN_USE_CLAIM_NAME, tokenUseClaim, ROLE_CLAIM_NAME, roleClaim);
+        var tokenUseClaim = tokenPayload.get(TOKEN_USE, String.class);
+        var roleClaim = tokenPayload.get(ROLE, String.class);
+        var claims = Map.<String, Object>of(TOKEN_USE, tokenUseClaim, ROLE, roleClaim);
 
         return new DecodedToken(token, type, subject, claims);
     }
