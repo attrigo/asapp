@@ -16,12 +16,12 @@
 
 package com.bcn.asapp.tasks.infrastructure.security;
 
-import static com.bcn.asapp.tasks.infrastructure.security.DecodedToken.ACCESS_TOKEN_TYPE;
-import static com.bcn.asapp.tasks.infrastructure.security.DecodedToken.ACCESS_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.tasks.infrastructure.security.DecodedToken.REFRESH_TOKEN_TYPE;
-import static com.bcn.asapp.tasks.infrastructure.security.DecodedToken.REFRESH_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.tasks.infrastructure.security.DecodedToken.ROLE_CLAIM_NAME;
-import static com.bcn.asapp.tasks.infrastructure.security.DecodedToken.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.ACCESS_TOKEN_USE;
+import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.REFRESH_TOKEN_USE;
+import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.ROLE;
+import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.TOKEN_USE;
+import static com.bcn.asapp.tasks.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
+import static com.bcn.asapp.tasks.infrastructure.security.JwtTypeNames.REFRESH_TOKEN_TYPE;
 import static com.bcn.asapp.tasks.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
 import static com.bcn.asapp.tasks.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -74,7 +74,7 @@ class JwtVerifierTests {
         void ThenThrowsInvalidJwtException_GivenTokenIsNotAccessToken() {
             // Given
             var refreshToken = defaultTestEncodedRefreshToken();
-            var refreshTokenClaims = Map.<String, Object>of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
+            var refreshTokenClaims = Map.<String, Object>of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, "USER");
             var decodedRefreshToken = new DecodedToken(refreshToken, REFRESH_TOKEN_TYPE, "user@asapp.com", refreshTokenClaims);
             given(jwtDecoder.decode(refreshToken)).willReturn(decodedRefreshToken);
 
@@ -94,7 +94,7 @@ class JwtVerifierTests {
         void ThenVerifiesAccessToken_GivenAccessTokenIsValid() {
             // Given
             var accessToken = defaultTestEncodedAccessToken();
-            var accessTokenClaims = Map.<String, Object>of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
+            var accessTokenClaims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
             var decodedAccessToken = new DecodedToken(accessToken, ACCESS_TOKEN_TYPE, "user@asapp.com", accessTokenClaims);
             given(jwtDecoder.decode(accessToken)).willReturn(decodedAccessToken);
 
