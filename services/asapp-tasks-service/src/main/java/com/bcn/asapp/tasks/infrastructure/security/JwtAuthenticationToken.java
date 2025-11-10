@@ -29,7 +29,7 @@ import jakarta.annotation.Nullable;
 /**
  * Spring Security authentication token for JWT-based authentication.
  * <p>
- * Represents an authenticated task with a validated JWT token.
+ * Represents an authenticated user with a validated JWT token.
  * <p>
  * Extends {@link AbstractAuthenticationToken} to integrate with Spring Security's authentication framework.
  *

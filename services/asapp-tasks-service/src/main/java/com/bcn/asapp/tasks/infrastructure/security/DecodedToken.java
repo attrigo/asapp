@@ -16,6 +16,11 @@
 
 package com.bcn.asapp.tasks.infrastructure.security;
 
+import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.ACCESS_TOKEN_USE;
+import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.ROLE;
+import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.TOKEN_USE;
+import static com.bcn.asapp.tasks.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
+
 import java.util.Map;
 
 import org.springframework.util.Assert;
@@ -38,36 +43,6 @@ public record DecodedToken(
         String subject,
         Map<String, Object> claims
 ) {
-
-    /**
-     * Access token type for authorizing API requests.
-     */
-    public static final String ACCESS_TOKEN_TYPE = "at+jwt";
-
-    /**
-     * Refresh token type for authorizing API requests.
-     */
-    public static final String REFRESH_TOKEN_TYPE = "rt+jwt";
-
-    /**
-     * Claim name for the role.
-     */
-    public static final String ROLE_CLAIM_NAME = "role";
-
-    /**
-     * Claim name indicating token usage.
-     */
-    public static final String TOKEN_USE_CLAIM_NAME = "token_use";
-
-    /**
-     * Claim value indicating access token usage.
-     */
-    public static final String ACCESS_TOKEN_USE_CLAIM_VALUE = "access";
-
-    /**
-     * Claim value indicating refresh token usage.
-     */
-    public static final String REFRESH_TOKEN_USE_CLAIM_VALUE = "refresh";
 
     /**
      * Constructs a new {@code DecodedToken} instance and validates its integrity.
@@ -93,7 +68,7 @@ public record DecodedToken(
      * @return {@code true} if this is an access token, {@code false} otherwise
      */
     public Boolean isAccessToken() {
-        return ACCESS_TOKEN_TYPE.equals(this.type) && ACCESS_TOKEN_USE_CLAIM_VALUE.equals(this.claims.get(TOKEN_USE_CLAIM_NAME));
+        return ACCESS_TOKEN_TYPE.equals(this.type) && ACCESS_TOKEN_USE.equals(this.claims.get(TOKEN_USE));
     }
 
     /**
@@ -102,7 +77,7 @@ public record DecodedToken(
      * @return the role from claims, or {@code null} if neither present nor a {@link String}
      */
     public String roleClaim() {
-        return this.claims.get(ROLE_CLAIM_NAME) instanceof String roleClaim ? roleClaim : null;
+        return this.claims.get(ROLE) instanceof String roleClaim ? roleClaim : null;
     }
 
 }

@@ -16,12 +16,12 @@
 
 package com.bcn.asapp.tasks.infrastructure.security;
 
-import static com.bcn.asapp.tasks.infrastructure.security.DecodedToken.ACCESS_TOKEN_TYPE;
-import static com.bcn.asapp.tasks.infrastructure.security.DecodedToken.ACCESS_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.tasks.infrastructure.security.DecodedToken.REFRESH_TOKEN_TYPE;
-import static com.bcn.asapp.tasks.infrastructure.security.DecodedToken.REFRESH_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.tasks.infrastructure.security.DecodedToken.ROLE_CLAIM_NAME;
-import static com.bcn.asapp.tasks.infrastructure.security.DecodedToken.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.ACCESS_TOKEN_USE;
+import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.REFRESH_TOKEN_USE;
+import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.ROLE;
+import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.TOKEN_USE;
+import static com.bcn.asapp.tasks.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
+import static com.bcn.asapp.tasks.infrastructure.security.JwtTypeNames.REFRESH_TOKEN_TYPE;
 import static com.bcn.asapp.tasks.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
@@ -41,7 +41,7 @@ class DecodedTokenTests {
 
     private final String subject = "user@asapp.com";
 
-    private final Map<String, Object> claims = Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
+    private final Map<String, Object> claims = Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
 
     @Nested
     class CreateDecodedToken {
@@ -132,7 +132,7 @@ class DecodedTokenTests {
         @Test
         void ThenReturnsFalse_GivenTokenUseClaimIsNotAccess() {
             // Given
-            var refreshTokenClaims = Map.<String, Object>of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
+            var refreshTokenClaims = Map.<String, Object>of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, "USER");
             var decodedToken = new DecodedToken(encodedToken, type, subject, refreshTokenClaims);
 
             // When
@@ -145,7 +145,7 @@ class DecodedTokenTests {
         @Test
         void ThenReturnsFalse_GivenTypeIsAccessTokenButTokenUseClaimIsRefresh() {
             // Given
-            var mixedClaims = Map.<String, Object>of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, "USER");
+            var mixedClaims = Map.<String, Object>of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, "USER");
             var decodedToken = new DecodedToken(encodedToken, type, subject, mixedClaims);
 
             // When
@@ -175,7 +175,7 @@ class DecodedTokenTests {
         @Test
         void ThenReturnsNull_GivenRoleClaimIsNotPresent() {
             // Given
-            var claimsWithoutRole = Map.<String, Object>of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE);
+            var claimsWithoutRole = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE);
             var decodedToken = new DecodedToken(encodedToken, type, subject, claimsWithoutRole);
 
             // When
@@ -188,7 +188,7 @@ class DecodedTokenTests {
         @Test
         void ThenReturnsNull_GivenRoleClaimIsNotString() {
             // Given
-            var claimsWithNonStringRole = Map.<String, Object>of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, 123);
+            var claimsWithNonStringRole = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, 123);
             var decodedToken = new DecodedToken(encodedToken, type, subject, claimsWithNonStringRole);
 
             // When
