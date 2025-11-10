@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.users.infrastructure.security;
 
-import static com.bcn.asapp.users.infrastructure.security.DecodedToken.ACCESS_TOKEN_TYPE;
+import static com.bcn.asapp.users.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

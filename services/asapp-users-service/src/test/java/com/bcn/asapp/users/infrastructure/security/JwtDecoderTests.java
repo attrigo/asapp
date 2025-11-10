@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.users.infrastructure.security;
 
-import static com.bcn.asapp.users.infrastructure.security.DecodedToken.ACCESS_TOKEN_TYPE;
+import static com.bcn.asapp.users.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
 import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.testEncodedTokenBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
