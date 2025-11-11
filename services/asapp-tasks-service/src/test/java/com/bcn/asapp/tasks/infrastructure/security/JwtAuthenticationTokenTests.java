@@ -26,6 +26,7 @@ import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
 import java.util.Map;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;
@@ -37,6 +38,14 @@ class JwtAuthenticationTokenTests {
     private final String role = "USER";
 
     private final String token = defaultTestEncodedAccessToken();
+
+    private DecodedToken decodedToken;
+
+    @BeforeEach
+    void beforeEach() {
+        var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, role);
+        decodedToken = new DecodedToken(token, ACCESS_TOKEN_TYPE, principal, claims);
+    }
 
     @Nested
     class CreateJwtAuthenticatedToken {
@@ -53,10 +62,6 @@ class JwtAuthenticationTokenTests {
 
         @Test
         void ThenCreatesAuthenticatedToken_GivenParametersAreValid() {
-            // Given
-            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, role);
-            var decodedToken = new DecodedToken(token, ACCESS_TOKEN_TYPE, principal, claims);
-
             // When
             var actual = JwtAuthenticationToken.authenticated(decodedToken);
 
@@ -79,8 +84,6 @@ class JwtAuthenticationTokenTests {
         @Test
         void ThenReturnsNull_GivenJwtIsValid() {
             // Given
-            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, role);
-            var decodedToken = new DecodedToken(token, ACCESS_TOKEN_TYPE, principal, claims);
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedToken);
 
             // When
@@ -98,8 +101,6 @@ class JwtAuthenticationTokenTests {
         @Test
         void ThenReturnsPrincipalAsSubject_GivenJwtIsValid() {
             // Given
-            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, role);
-            var decodedToken = new DecodedToken(token, ACCESS_TOKEN_TYPE, principal, claims);
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedToken);
 
             // When
@@ -117,8 +118,6 @@ class JwtAuthenticationTokenTests {
         @Test
         void ThenReturnsToken_GivenJwtIsValid() {
             // Given
-            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, role);
-            var decodedToken = new DecodedToken(token, ACCESS_TOKEN_TYPE, principal, claims);
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedToken);
 
             // When
