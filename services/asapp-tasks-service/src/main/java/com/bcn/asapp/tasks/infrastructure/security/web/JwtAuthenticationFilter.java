@@ -119,9 +119,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         var bearerToken = optionalBearerToken.get();
         try {
-            var jwtAuthentication = jwtVerifier.verifyAccessToken(bearerToken);
+            var decodedToken = jwtVerifier.verifyAccessToken(bearerToken);
 
-            var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(jwtAuthentication);
+            var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedToken);
 
             var newContext = SecurityContextHolder.createEmptyContext();
             newContext.setAuthentication(jwtAuthenticationToken);
