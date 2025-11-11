@@ -37,11 +37,11 @@ class DecodedTokenTests {
 
     private final String encodedToken = defaultTestEncodedAccessToken();
 
-    private final String type = ACCESS_TOKEN_TYPE;
-
     private final String subject = "user@asapp.com";
 
-    private final Map<String, Object> claims = Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
+    private final String roleClaim = "USER";
+
+    private final Map<String, Object> claims = Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, roleClaim);
 
     @Nested
     class CreateDecodedToken {
@@ -50,7 +50,7 @@ class DecodedTokenTests {
         @NullAndEmptySource
         void ThenThrowsIllegalArgumentException_GivenEncodedTokenIsNull(String encodedToken) {
             // When
-            var thrown = catchThrowable(() -> new DecodedToken(encodedToken, type, subject, claims));
+            var thrown = catchThrowable(() -> new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, claims));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -72,7 +72,7 @@ class DecodedTokenTests {
         @NullAndEmptySource
         void ThenThrowsIllegalArgumentException_GivenSubjectIsNull(String subject) {
             // When
-            var thrown = catchThrowable(() -> new DecodedToken(encodedToken, type, subject, claims));
+            var thrown = catchThrowable(() -> new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, claims));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -82,7 +82,7 @@ class DecodedTokenTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenClaimsIsNull() {
             // When
-            var thrown = catchThrowable(() -> new DecodedToken(encodedToken, type, subject, null));
+            var thrown = catchThrowable(() -> new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, null));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -92,7 +92,7 @@ class DecodedTokenTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenClaimsIsEmpty() {
             // When
-            var thrown = catchThrowable(() -> new DecodedToken(encodedToken, type, subject, Map.of()));
+            var thrown = catchThrowable(() -> new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, Map.of()));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -102,12 +102,12 @@ class DecodedTokenTests {
         @Test
         void ThenCreatesDecodedToken_GivenAllParametersAreValid() {
             // When
-            var actual = new DecodedToken(encodedToken, type, subject, claims);
+            var actual = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, claims);
 
             // Then
             assertThat(actual).isNotNull();
             assertThat(actual.encodedToken()).isEqualTo(encodedToken);
-            assertThat(actual.type()).isEqualTo(type);
+            assertThat(actual.type()).isEqualTo(ACCESS_TOKEN_TYPE);
             assertThat(actual.subject()).isEqualTo(subject);
             assertThat(actual.claims()).isEqualTo(claims);
         }
@@ -132,8 +132,8 @@ class DecodedTokenTests {
         @Test
         void ThenReturnsFalse_GivenTokenUseClaimIsNotAccess() {
             // Given
-            var refreshTokenClaims = Map.<String, Object>of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, "USER");
-            var decodedToken = new DecodedToken(encodedToken, type, subject, refreshTokenClaims);
+            var refreshTokenClaims = Map.<String, Object>of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, roleClaim);
+            var decodedToken = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, refreshTokenClaims);
 
             // When
             var actual = decodedToken.isAccessToken();
@@ -145,8 +145,8 @@ class DecodedTokenTests {
         @Test
         void ThenReturnsFalse_GivenTypeIsAccessTokenButTokenUseClaimIsRefresh() {
             // Given
-            var mixedClaims = Map.<String, Object>of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, "USER");
-            var decodedToken = new DecodedToken(encodedToken, type, subject, mixedClaims);
+            var refreshTokenClaims = Map.<String, Object>of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, roleClaim);
+            var decodedToken = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, refreshTokenClaims);
 
             // When
             var actual = decodedToken.isAccessToken();
@@ -158,7 +158,7 @@ class DecodedTokenTests {
         @Test
         void ThenReturnsTrue_GivenTypeAndTokenUseClaimAreAccessToken() {
             // Given
-            var decodedToken = new DecodedToken(encodedToken, type, subject, claims);
+            var decodedToken = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, claims);
 
             // When
             var actual = decodedToken.isAccessToken();
@@ -176,7 +176,7 @@ class DecodedTokenTests {
         void ThenReturnsNull_GivenRoleClaimIsNotPresent() {
             // Given
             var claimsWithoutRole = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE);
-            var decodedToken = new DecodedToken(encodedToken, type, subject, claimsWithoutRole);
+            var decodedToken = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, claimsWithoutRole);
 
             // When
             var actual = decodedToken.roleClaim();
@@ -189,7 +189,7 @@ class DecodedTokenTests {
         void ThenReturnsNull_GivenRoleClaimIsNotString() {
             // Given
             var claimsWithNonStringRole = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, 123);
-            var decodedToken = new DecodedToken(encodedToken, type, subject, claimsWithNonStringRole);
+            var decodedToken = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, claimsWithNonStringRole);
 
             // When
             var actual = decodedToken.roleClaim();
@@ -201,13 +201,13 @@ class DecodedTokenTests {
         @Test
         void ThenReturnsRoleClaim_GivenRoleClaimIsPresent() {
             // Given
-            var decodedToken = new DecodedToken(encodedToken, type, subject, claims);
+            var decodedToken = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, claims);
 
             // When
             var actual = decodedToken.roleClaim();
 
             // Then
-            assertThat(actual).isEqualTo("USER");
+            assertThat(actual).isEqualTo(roleClaim);
         }
 
     }
