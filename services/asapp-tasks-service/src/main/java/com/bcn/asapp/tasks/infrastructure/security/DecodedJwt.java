@@ -37,7 +37,7 @@ import org.springframework.util.Assert;
  * @since 0.2.0
  * @author attrigo
  */
-public record DecodedToken(
+public record DecodedJwt(
         String encodedToken,
         String type,
         String subject,
@@ -45,7 +45,7 @@ public record DecodedToken(
 ) {
 
     /**
-     * Constructs a new {@code DecodedToken} instance and validates its integrity.
+     * Constructs a new {@code DecodedJwt} instance and validates its integrity.
      * <p>
      * Validates that all required fields are present.
      *
@@ -55,7 +55,7 @@ public record DecodedToken(
      * @param claims       the JWT claims
      * @throws IllegalArgumentException if any validation fails
      */
-    public DecodedToken {
+    public DecodedJwt {
         Assert.hasText(encodedToken, "Encoded token must not be blank");
         Assert.hasText(type, "Type must not be blank");
         Assert.hasText(subject, "Subject must not be blank");
@@ -63,7 +63,7 @@ public record DecodedToken(
     }
 
     /**
-     * Checks if this decoded token is an access token.
+     * Checks if this decoded JWT is an access token.
      *
      * @return {@code true} if this is an access token, {@code false} otherwise
      */

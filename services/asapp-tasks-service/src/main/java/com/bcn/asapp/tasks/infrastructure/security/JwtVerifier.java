@@ -16,8 +16,6 @@
 
 package com.bcn.asapp.tasks.infrastructure.security;
 
-import static com.bcn.asapp.tasks.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -25,7 +23,9 @@ import org.springframework.stereotype.Component;
 /**
  * Component for verifying JWT tokens.
  * <p>
- * Decodes and verifies JWT tokens.
+ * Verifies JWT tokens by validating their signature and expiration.
+ * <p>
+ * Used by the authentication filter for lightweight token validation.
  *
  * @since 0.2.0
  * @author attrigo
@@ -38,7 +38,7 @@ public class JwtVerifier {
     private final JwtDecoder jwtDecoder;
 
     /**
-     * Constructs a new {@code JwtVerifierAdapter} with required dependencies.
+     * Constructs a new {@code JwtVerifier} with required dependencies.
      *
      * @param jwtDecoder the JWT decoder for decoding and validating tokens
      */
@@ -49,24 +49,24 @@ public class JwtVerifier {
     /**
      * Verifies an access token.
      * <p>
-     * Validates the token's signature, expiration, and type, then returns the validated decoded token.
+     * Validates the token's signature, expiration, and type, then returns the validated decoded JWT.
      *
      * @param accessToken the encoded access token to verify
-     * @return the {@link DecodedToken} associated with the access token
+     * @return the {@link DecodedJwt} containing the decoded JWT data
      * @throws InvalidJwtException        if the token is invalid or verification fails
      * @throws UnexpectedJwtTypeException if the token is not an access token
      */
-    public final DecodedToken verifyAccessToken(String accessToken) {
+    public DecodedJwt verifyAccessToken(String accessToken) {
         logger.trace("Verifying access token {}", accessToken);
 
         try {
-            var decodedToken = jwtDecoder.decode(accessToken);
+            var decodedJwt = jwtDecoder.decode(accessToken);
 
-            if (!decodedToken.isAccessToken()) {
-                throw new UnexpectedJwtTypeException(String.format("JWT %s is not a %s", accessToken, ACCESS_TOKEN_TYPE));
+            if (!decodedJwt.isAccessToken()) {
+                throw new UnexpectedJwtTypeException(String.format("JWT %s is not an access token", decodedJwt.encodedToken()));
             }
 
-            return decodedToken;
+            return decodedJwt;
 
         } catch (Exception e) {
             var message = String.format("Access token is not valid: %s", accessToken);
