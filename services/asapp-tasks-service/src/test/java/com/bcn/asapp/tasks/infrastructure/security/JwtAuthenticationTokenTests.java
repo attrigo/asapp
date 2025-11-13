@@ -39,12 +39,12 @@ class JwtAuthenticationTokenTests {
 
     private final String token = defaultTestEncodedAccessToken();
 
-    private DecodedToken decodedToken;
+    private DecodedJwt decodedJwt;
 
     @BeforeEach
     void beforeEach() {
         var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, role);
-        decodedToken = new DecodedToken(token, ACCESS_TOKEN_TYPE, principal, claims);
+        decodedJwt = new DecodedJwt(token, ACCESS_TOKEN_TYPE, principal, claims);
     }
 
     @Nested
@@ -57,18 +57,36 @@ class JwtAuthenticationTokenTests {
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Decoded token must not be null");
+                              .hasMessage("Decoded JWT must not be null");
         }
 
         @Test
-        void ThenCreatesAuthenticatedToken_GivenParametersAreValid() {
+        void ThenCreatesJwtAuthenticatedTokenWithoutAuthorities_GivenJwtNotContainsRoleClaim() {
+            // Given
+            var claimsWithoutRole = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE);
+            var decodedJwtWithoutRoleClaim = new DecodedJwt(token, ACCESS_TOKEN_TYPE, principal, claimsWithoutRole);
+
             // When
-            var actual = JwtAuthenticationToken.authenticated(decodedToken);
+            var actual = JwtAuthenticationToken.authenticated(decodedJwtWithoutRoleClaim);
 
             // Then
             assertThat(actual).isNotNull();
             assertThat(actual.isAuthenticated()).isTrue();
-            assertThat(actual.getToken()).isEqualTo(token);
+            assertThat(actual.getJwt()).isEqualTo(token);
+            assertThat(actual.getPrincipal()).isEqualTo(principal);
+            assertThat(actual.getCredentials()).isNull();
+            assertThat(actual.getAuthorities()).isEmpty();
+        }
+
+        @Test
+        void ThenCreatesJwtAuthenticatedToken_GivenParametersAreValid() {
+            // When
+            var actual = JwtAuthenticationToken.authenticated(decodedJwt);
+
+            // Then
+            assertThat(actual).isNotNull();
+            assertThat(actual.isAuthenticated()).isTrue();
+            assertThat(actual.getJwt()).isEqualTo(token);
             assertThat(actual.getPrincipal()).isEqualTo(principal);
             assertThat(actual.getCredentials()).isNull();
             assertThat(actual.getAuthorities()).hasSize(1)
@@ -84,7 +102,7 @@ class JwtAuthenticationTokenTests {
         @Test
         void ThenReturnsNull_GivenJwtIsValid() {
             // Given
-            var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedToken);
+            var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
             // When
             var actual = jwtAuthenticationToken.getCredentials();
@@ -101,7 +119,7 @@ class JwtAuthenticationTokenTests {
         @Test
         void ThenReturnsPrincipalAsSubject_GivenJwtIsValid() {
             // Given
-            var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedToken);
+            var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
             // When
             var actual = jwtAuthenticationToken.getPrincipal();
@@ -113,15 +131,15 @@ class JwtAuthenticationTokenTests {
     }
 
     @Nested
-    class GetToken {
+    class GetJwt {
 
         @Test
-        void ThenReturnsToken_GivenJwtIsValid() {
+        void ThenReturnsJwt_GivenJwtIsValid() {
             // Given
-            var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedToken);
+            var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
             // When
-            var actual = jwtAuthenticationToken.getToken();
+            var actual = jwtAuthenticationToken.getJwt();
 
             // Then
             assertThat(actual).isEqualTo(token);
