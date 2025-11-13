@@ -26,8 +26,6 @@ import org.springframework.util.Assert;
 
 import jakarta.annotation.Nullable;
 
-import com.bcn.asapp.authentication.domain.authentication.Jwt;
-
 /**
  * Spring Security authentication token for JWT-based authentication.
  * <p>
@@ -44,35 +42,44 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
     @Serial
     private static final long serialVersionUID = 6479402217923388079L;
 
-    private final Jwt jwt;
+    private final String principal;
+
+    private final String token;
 
     /**
      * Constructs a new authenticated {@code JwtAuthenticationToken}.
      *
-     * @param jwt         the validated {@link Jwt}
+     * @param principal   the principal (subject) extracted from the JWT
+     * @param token       the encoded JWT token
      * @param authorities the granted authorities extracted from the JWT
      */
-    private JwtAuthenticationToken(Jwt jwt, Collection<? extends GrantedAuthority> authorities) {
+    private JwtAuthenticationToken(String principal, String token, Collection<? extends GrantedAuthority> authorities) {
         super(authorities);
-        this.jwt = jwt;
+        this.principal = principal;
+        this.token = token;
         super.setAuthenticated(true);
     }
 
     /**
      * Factory method to create an authenticated {@code JwtAuthenticationToken}.
      * <p>
-     * Extracts the role from the JWT and creates the corresponding authorities.
+     * Extracts the subject, the encoded token and the role from the decoded JWT.
+     * <p>
+     * Creates the corresponding authorities from the role. If the role claim is not present, no authorities are assigned.
      *
-     * @param jwt the validated {@link Jwt}
+     * @param decodedJwt the validated {@link DecodedJwt}
      * @return a new authenticated {@code JwtAuthenticationToken}
      * @throws IllegalArgumentException if jwt is {@code null}
      */
-    public static JwtAuthenticationToken authenticated(Jwt jwt) {
-        Assert.notNull(jwt, "JWT must not be null");
+    public static JwtAuthenticationToken authenticated(DecodedJwt decodedJwt) {
+        Assert.notNull(decodedJwt, "Decoded JWT must not be null");
 
-        var role = jwt.roleClaim();
-        var authorities = role == null ? AuthorityUtils.NO_AUTHORITIES : AuthorityUtils.createAuthorityList(role.name());
-        return new JwtAuthenticationToken(jwt, authorities);
+        var principal = decodedJwt.subject();
+        var token = decodedJwt.encodedToken();
+        var role = decodedJwt.roleClaim();
+        var authorities = role == null ? AuthorityUtils.NO_AUTHORITIES : AuthorityUtils.createAuthorityList(decodedJwt.roleClaim());
+
+        return new JwtAuthenticationToken(principal, token, authorities);
     }
 
     /**
@@ -95,7 +102,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
      */
     @Override
     public Object getPrincipal() {
-        return jwt.subject();
+        return this.principal;
     }
 
     /**
@@ -104,7 +111,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
      * @return the encoded JWT token
      */
     public String getJwt() {
-        return jwt.encodedTokenValue();
+        return this.token;
     }
 
 }

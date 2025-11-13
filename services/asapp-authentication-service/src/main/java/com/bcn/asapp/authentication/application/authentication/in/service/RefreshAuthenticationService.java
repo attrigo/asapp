@@ -19,7 +19,7 @@ package com.bcn.asapp.authentication.application.authentication.in.service;
 import com.bcn.asapp.authentication.application.ApplicationService;
 import com.bcn.asapp.authentication.application.authentication.in.RefreshAuthenticationUseCase;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRefresher;
-import com.bcn.asapp.authentication.application.authentication.out.JwtVerifier;
+import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationVerifier;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 
@@ -32,18 +32,18 @@ import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 @ApplicationService
 public class RefreshAuthenticationService implements RefreshAuthenticationUseCase {
 
-    private final JwtVerifier jwtVerifier;
+    private final JwtAuthenticationVerifier jwtAuthenticationVerifier;
 
     private final JwtAuthenticationRefresher jwtAuthenticationRefresher;
 
     /**
      * Constructs a new {@code RefreshAuthenticationService} with required dependencies.
      *
-     * @param jwtVerifier                the JWT verifier for validating refresh tokens
+     * @param jwtAuthenticationVerifier  the JWT authentication verifier for validating refresh tokens
      * @param jwtAuthenticationRefresher the authentication refresher for generating new tokens
      */
-    public RefreshAuthenticationService(JwtVerifier jwtVerifier, JwtAuthenticationRefresher jwtAuthenticationRefresher) {
-        this.jwtVerifier = jwtVerifier;
+    public RefreshAuthenticationService(JwtAuthenticationVerifier jwtAuthenticationVerifier, JwtAuthenticationRefresher jwtAuthenticationRefresher) {
+        this.jwtAuthenticationVerifier = jwtAuthenticationVerifier;
         this.jwtAuthenticationRefresher = jwtAuthenticationRefresher;
     }
 
@@ -60,7 +60,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
     public JwtAuthentication refreshAuthentication(String refreshToken) {
         var rawRefreshToken = EncodedToken.of(refreshToken);
 
-        var authentication = jwtVerifier.verifyRefreshToken(rawRefreshToken);
+        var authentication = jwtAuthenticationVerifier.verifyRefreshToken(rawRefreshToken);
 
         return jwtAuthenticationRefresher.refreshAuthentication(authentication);
 

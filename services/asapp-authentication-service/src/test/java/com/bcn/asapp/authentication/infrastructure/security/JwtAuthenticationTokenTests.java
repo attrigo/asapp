@@ -19,12 +19,12 @@ package com.bcn.asapp.authentication.infrastructure.security;
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ACCESS_TOKEN_USE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ROLE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
-import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
+import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.ACCESS_TOKEN_TYPE;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
-import java.time.Instant;
 import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -32,31 +32,20 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;
 
-import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
-import com.bcn.asapp.authentication.domain.authentication.Expiration;
-import com.bcn.asapp.authentication.domain.authentication.Issued;
-import com.bcn.asapp.authentication.domain.authentication.Jwt;
-import com.bcn.asapp.authentication.domain.authentication.JwtClaims;
-import com.bcn.asapp.authentication.domain.authentication.Subject;
-
 class JwtAuthenticationTokenTests {
 
-    private final EncodedToken encodedToken = EncodedToken.of("eyJhbGciOiJFUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0NiJ9.c2lnNg");
+    private final String principal = "user@asapp.com";
 
-    private final Subject subject = Subject.of("user@asapp.com");
+    private final String role = USER.name();
 
-    private final String roleClaimValue = USER.name();
+    private final String token = defaultTestEncodedAccessToken();
 
-    private final Issued issued = Issued.of(Instant.parse("2025-01-01T10:00:00Z"));
-
-    private final Expiration expiration = Expiration.of(issued, 30000L);
-
-    private Jwt jwt;
+    private DecodedJwt decodedJwt;
 
     @BeforeEach
     void beforeEach() {
-        var claims = JwtClaims.of(Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, roleClaimValue));
-        jwt = Jwt.of(encodedToken, ACCESS_TOKEN, subject, claims, issued, expiration);
+        var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, role);
+        decodedJwt = new DecodedJwt(token, ACCESS_TOKEN_TYPE, principal, claims);
     }
 
     @Nested
@@ -69,23 +58,23 @@ class JwtAuthenticationTokenTests {
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("JWT must not be null");
+                              .hasMessage("Decoded JWT must not be null");
         }
 
         @Test
-        void ThenCreatesAuthenticatedTokenWithoutAuthorities_GivenJwtNotContainsRoleClaim() {
+        void ThenCreatesJwtAuthenticatedTokenWithoutAuthorities_GivenJwtNotContainsRoleClaim() {
             // Given
-            var claimsWithoutRole = JwtClaims.of(Map.of(TOKEN_USE, ACCESS_TOKEN_USE));
-            var jwtWithoutRoleClaim = Jwt.of(encodedToken, ACCESS_TOKEN, subject, claimsWithoutRole, issued, expiration);
+            var claimsWithoutRole = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE);
+            var decodedJwtWithoutRoleClaim = new DecodedJwt(token, ACCESS_TOKEN_TYPE, principal, claimsWithoutRole);
 
             // When
-            var actual = JwtAuthenticationToken.authenticated(jwtWithoutRoleClaim);
+            var actual = JwtAuthenticationToken.authenticated(decodedJwtWithoutRoleClaim);
 
             // Then
             assertThat(actual).isNotNull();
             assertThat(actual.isAuthenticated()).isTrue();
-            assertThat(actual.getJwt()).isEqualTo(encodedToken.value());
-            assertThat(actual.getPrincipal()).isEqualTo(subject);
+            assertThat(actual.getJwt()).isEqualTo(token);
+            assertThat(actual.getPrincipal()).isEqualTo(principal);
             assertThat(actual.getCredentials()).isNull();
             assertThat(actual.getAuthorities()).isEmpty();
         }
@@ -93,17 +82,17 @@ class JwtAuthenticationTokenTests {
         @Test
         void ThenCreatesJwtAuthenticatedToken_GivenParametersAreValid() {
             // When
-            var actual = JwtAuthenticationToken.authenticated(jwt);
+            var actual = JwtAuthenticationToken.authenticated(decodedJwt);
 
             // Then
             assertThat(actual).isNotNull();
             assertThat(actual.isAuthenticated()).isTrue();
-            assertThat(actual.getJwt()).isEqualTo(encodedToken.value());
-            assertThat(actual.getPrincipal()).isEqualTo(subject);
+            assertThat(actual.getJwt()).isEqualTo(token);
+            assertThat(actual.getPrincipal()).isEqualTo(principal);
             assertThat(actual.getCredentials()).isNull();
             assertThat(actual.getAuthorities()).hasSize(1)
                                                .extracting(GrantedAuthority::getAuthority)
-                                               .containsExactly(roleClaimValue);
+                                               .containsExactly(role);
         }
 
     }
@@ -114,7 +103,7 @@ class JwtAuthenticationTokenTests {
         @Test
         void ThenReturnsNull_GivenJwtIsValid() {
             // Given
-            var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(jwt);
+            var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
             // When
             var actual = jwtAuthenticationToken.getCredentials();
@@ -131,13 +120,13 @@ class JwtAuthenticationTokenTests {
         @Test
         void ThenReturnsPrincipalAsSubject_GivenJwtIsValid() {
             // Given
-            var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(jwt);
+            var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
             // When
             var actual = jwtAuthenticationToken.getPrincipal();
 
             // Then
-            assertThat(actual).isEqualTo(subject);
+            assertThat(actual).isEqualTo(principal);
         }
 
     }
@@ -148,13 +137,13 @@ class JwtAuthenticationTokenTests {
         @Test
         void ThenReturnsJwt_GivenJwtIsValid() {
             // Given
-            var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(jwt);
+            var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
             // When
             var actual = jwtAuthenticationToken.getJwt();
 
             // Then
-            assertThat(actual).isEqualTo(encodedToken.value());
+            assertThat(actual).isEqualTo(token);
         }
 
     }

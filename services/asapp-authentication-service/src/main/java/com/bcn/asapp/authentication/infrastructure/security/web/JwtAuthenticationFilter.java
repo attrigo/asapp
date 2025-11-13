@@ -43,10 +43,9 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import com.bcn.asapp.authentication.application.authentication.out.JwtVerifier;
-import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
 import com.bcn.asapp.authentication.infrastructure.security.JwtAuthenticationToken;
+import com.bcn.asapp.authentication.infrastructure.security.JwtVerifier;
 
 /**
  * HTTP filter for JWT-based verification integrated with Spring Security.
@@ -123,18 +122,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         var bearerToken = optionalBearerToken.get();
         try {
-            var encodedToken = EncodedToken.of(bearerToken);
+            var decodedJwt = jwtVerifier.verifyAccessToken(bearerToken);
 
-            var jwtAuthentication = jwtVerifier.verifyAccessToken(encodedToken);
-
-            var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(jwtAuthentication.accessToken());
+            var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
             var newContext = SecurityContextHolder.createEmptyContext();
             newContext.setAuthentication(jwtAuthenticationToken);
             SecurityContextHolder.setContext(newContext);
 
         } catch (InvalidJwtException e) {
-            logger.warn("Invalid bearer token {}", bearerToken, e);
+            logger.warn("Invalid bearer token: {}", bearerToken, e);
         } catch (Exception e) {
             logger.warn("Error authenticating the bearer token {}", bearerToken, e);
         }

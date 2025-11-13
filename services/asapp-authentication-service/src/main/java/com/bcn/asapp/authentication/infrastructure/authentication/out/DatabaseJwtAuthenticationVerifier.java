@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
-import com.bcn.asapp.authentication.application.authentication.out.JwtVerifier;
+import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationVerifier;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
@@ -30,30 +30,29 @@ import com.bcn.asapp.authentication.infrastructure.security.JwtDecoder;
 import com.bcn.asapp.authentication.infrastructure.security.UnexpectedJwtTypeException;
 
 /**
- * Default implementation of {@link JwtVerifier} for validating JWT tokens.
+ * Database-backed implementation of {@link JwtAuthenticationVerifier} for validating JWT tokens.
  * <p>
- * Bridges the application layer with the infrastructure layer, decoding and verifying JWT tokens and retrieving their associated authentications from the
- * repository.
+ * Bridges the application layer with the infrastructure layer, verifying JWT tokens by validating their signature and checking their existence in the database.
  *
  * @since 0.2.0
  * @author attrigo
  */
 @Component
-public class DefaultJwtVerifier implements JwtVerifier {
+public class DatabaseJwtAuthenticationVerifier implements JwtAuthenticationVerifier {
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultJwtVerifier.class);
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseJwtAuthenticationVerifier.class);
 
     private final JwtDecoder jwtDecoder;
 
     private final JwtAuthenticationRepository jwtAuthenticationRepository;
 
     /**
-     * Constructs a new {@code JwtVerifierAdapter} with required dependencies.
+     * Constructs a new {@code DatabaseJwtAuthenticationVerifier} with required dependencies.
      *
      * @param jwtDecoder                  the JWT decoder for decoding and validating tokens
      * @param jwtAuthenticationRepository the JWT authentication repository
      */
-    public DefaultJwtVerifier(JwtDecoder jwtDecoder, JwtAuthenticationRepository jwtAuthenticationRepository) {
+    public DatabaseJwtAuthenticationVerifier(JwtDecoder jwtDecoder, JwtAuthenticationRepository jwtAuthenticationRepository) {
         this.jwtDecoder = jwtDecoder;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }
@@ -61,7 +60,7 @@ public class DefaultJwtVerifier implements JwtVerifier {
     /**
      * Verifies an access token and retrieves its associated authentication.
      * <p>
-     * Validates the token's signature, expiration, and type, then returns the corresponding authentication.
+     * Validates the token's signature, expiration, and type, then returns the corresponding authentication from the database.
      *
      * @param accessToken the encoded access token to verify
      * @return the {@link JwtAuthentication} associated with the access token
@@ -70,19 +69,19 @@ public class DefaultJwtVerifier implements JwtVerifier {
      * @throws JwtAuthenticationNotFoundException if no authentication is found for the token
      */
     @Override
-    public final JwtAuthentication verifyAccessToken(EncodedToken accessToken) {
+    public JwtAuthentication verifyAccessToken(EncodedToken accessToken) {
         logger.trace("Verifying access token {}", accessToken);
 
         try {
-            var decodedToken = jwtDecoder.decode(accessToken.value());
+            var decodedJwt = jwtDecoder.decode(accessToken.value());
 
-            if (!decodedToken.isAccessToken()) {
-                throw new UnexpectedJwtTypeException(String.format("JWT %s is not an access token", decodedToken.encodedToken()));
+            if (!decodedJwt.isAccessToken()) {
+                throw new UnexpectedJwtTypeException(String.format("JWT %s is not an access token", decodedJwt.encodedToken()));
             }
 
-            return jwtAuthenticationRepository.findByAccessToken(EncodedToken.of(decodedToken.encodedToken()))
+            return jwtAuthenticationRepository.findByAccessToken(EncodedToken.of(decodedJwt.encodedToken()))
                                               .orElseThrow(() -> new JwtAuthenticationNotFoundException(
-                                                      String.format("Jwt authentication not found by access token %s", decodedToken.encodedToken())));
+                                                      String.format("Jwt authentication not found by access token %s", decodedJwt.encodedToken())));
 
         } catch (Exception e) {
             var message = String.format("Access token is not valid: %s", accessToken);
@@ -94,7 +93,7 @@ public class DefaultJwtVerifier implements JwtVerifier {
     /**
      * Verifies a refresh token and retrieves its associated authentication.
      * <p>
-     * Validates the token's signature, expiration, and type, then returns the corresponding authentication.
+     * Validates the token's signature, expiration, and type, then returns the corresponding authentication from the database.
      *
      * @param refreshToken the encoded refresh token to verify
      * @return the {@link JwtAuthentication} associated with the refresh token
@@ -103,19 +102,19 @@ public class DefaultJwtVerifier implements JwtVerifier {
      * @throws JwtAuthenticationNotFoundException if no authentication is found for the token
      */
     @Override
-    public final JwtAuthentication verifyRefreshToken(EncodedToken refreshToken) {
+    public JwtAuthentication verifyRefreshToken(EncodedToken refreshToken) {
         logger.trace("Verifying refresh token {}", refreshToken);
 
         try {
-            var decodedToken = jwtDecoder.decode(refreshToken.value());
+            var decodedJwt = jwtDecoder.decode(refreshToken.value());
 
-            if (!decodedToken.isRefreshToken()) {
-                throw new UnexpectedJwtTypeException(String.format("JWT %s is not a refresh token", decodedToken.encodedToken()));
+            if (!decodedJwt.isRefreshToken()) {
+                throw new UnexpectedJwtTypeException(String.format("JWT %s is not a refresh token", decodedJwt.encodedToken()));
             }
 
-            return jwtAuthenticationRepository.findByRefreshToken(EncodedToken.of(decodedToken.encodedToken()))
+            return jwtAuthenticationRepository.findByRefreshToken(EncodedToken.of(decodedJwt.encodedToken()))
                                               .orElseThrow(() -> new JwtAuthenticationNotFoundException(
-                                                      String.format("Jwt authentication not found by refresh token %s", decodedToken.encodedToken())));
+                                                      String.format("Jwt authentication not found by refresh token %s", decodedJwt.encodedToken())));
 
         } catch (Exception e) {
             var message = String.format("Refresh token is not valid: %s", refreshToken);
