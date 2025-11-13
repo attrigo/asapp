@@ -36,7 +36,7 @@ import io.jsonwebtoken.security.Keys;
 /**
  * Component for decoding and validating JWT tokens.
  * <p>
- * Parses JWT tokens, verifies their signatures using HMAC-SHA, and constructs {@link DecodedToken} objects.
+ * Parses JWT tokens, verifies their signatures using HMAC-SHA, and constructs {@link DecodedJwt} objects.
  *
  * @since 0.2.0
  * @see Jwts
@@ -61,18 +61,18 @@ public class JwtDecoder {
     /**
      * Decodes and validates an encoded JWT token.
      * <p>
-     * Parses the token, verifies its signature, and constructs a {@link DecodedToken}.
+     * Parses the token, verifies its signature, and constructs a {@link DecodedJwt}.
      *
      * @param token the encoded token to decode
-     * @return the decoded and validated {@link DecodedToken}
+     * @return the decoded and validated {@link DecodedJwt}
      * @throws io.jsonwebtoken.JwtException if the token is invalid, malformed, or expired
      */
-    public DecodedToken decode(String token) {
+    public DecodedJwt decode(String token) {
         logger.trace("Decoding token {}", token);
 
         var jwsClaims = parseToken(token);
 
-        return buildDecodedToken(token, jwsClaims);
+        return buildDecodedJwt(token, jwsClaims);
     }
 
     /**
@@ -93,14 +93,14 @@ public class JwtDecoder {
     }
 
     /**
-     * Builds a {@link DecodedToken} from parsed JWT claims.
+     * Builds a {@link DecodedJwt} from parsed JWT claims.
      *
      * @param token     the original encoded token
      * @param jwsClaims the parsed JWT claims
-     * @return the constructed {@link DecodedToken} object
+     * @return the constructed {@link DecodedJwt} object
      */
-    private DecodedToken buildDecodedToken(String token, Jws<Claims> jwsClaims) {
-        logger.trace("Building decoded token with encoded token {} and claims {}", token, jwsClaims);
+    private DecodedJwt buildDecodedJwt(String token, Jws<Claims> jwsClaims) {
+        logger.trace("Building decoded JWT with encoded token {} and claims {}", token, jwsClaims);
 
         var tokenHeader = jwsClaims.getHeader();
         var tokenPayload = jwsClaims.getPayload();
@@ -111,7 +111,7 @@ public class JwtDecoder {
         var roleClaim = tokenPayload.get(ROLE, String.class);
         var claims = Map.<String, Object>of(TOKEN_USE, tokenUseClaim, ROLE, roleClaim);
 
-        return new DecodedToken(token, type, subject, claims);
+        return new DecodedJwt(token, type, subject, claims);
     }
 
 }

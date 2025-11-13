@@ -25,7 +25,6 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import com.bcn.asapp.authentication.application.authentication.in.AuthenticateUseCase;
 import com.bcn.asapp.authentication.application.authentication.in.RefreshAuthenticationUseCase;
 import com.bcn.asapp.authentication.application.authentication.in.RevokeAuthenticationUseCase;
-import com.bcn.asapp.authentication.application.authentication.out.JwtVerifier;
 import com.bcn.asapp.authentication.application.user.in.service.CreateUserService;
 import com.bcn.asapp.authentication.application.user.in.service.DeleteUserService;
 import com.bcn.asapp.authentication.application.user.in.service.ReadUserService;
@@ -33,6 +32,7 @@ import com.bcn.asapp.authentication.application.user.in.service.UpdateUserServic
 import com.bcn.asapp.authentication.infrastructure.authentication.in.AuthenticationRestController;
 import com.bcn.asapp.authentication.infrastructure.authentication.mapper.JwtAuthenticationMapper;
 import com.bcn.asapp.authentication.infrastructure.config.SecurityConfiguration;
+import com.bcn.asapp.authentication.infrastructure.security.JwtVerifier;
 import com.bcn.asapp.authentication.infrastructure.security.web.JwtAuthenticationEntryPoint;
 import com.bcn.asapp.authentication.infrastructure.security.web.JwtAuthenticationFilter;
 import com.bcn.asapp.authentication.infrastructure.user.in.UserRestController;

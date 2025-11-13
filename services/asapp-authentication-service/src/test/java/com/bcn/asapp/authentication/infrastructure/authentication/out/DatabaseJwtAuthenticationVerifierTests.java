@@ -57,14 +57,14 @@ import com.bcn.asapp.authentication.domain.authentication.JwtAuthenticationId;
 import com.bcn.asapp.authentication.domain.authentication.JwtClaims;
 import com.bcn.asapp.authentication.domain.authentication.Subject;
 import com.bcn.asapp.authentication.domain.user.UserId;
-import com.bcn.asapp.authentication.infrastructure.security.DecodedToken;
+import com.bcn.asapp.authentication.infrastructure.security.DecodedJwt;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
 import com.bcn.asapp.authentication.infrastructure.security.JwtAuthenticationNotFoundException;
 import com.bcn.asapp.authentication.infrastructure.security.JwtDecoder;
 import com.bcn.asapp.authentication.infrastructure.security.UnexpectedJwtTypeException;
 
 @ExtendWith(MockitoExtension.class)
-class DefaultJwtVerifierTests {
+class DatabaseJwtAuthenticationVerifierTests {
 
     @Mock
     private JwtDecoder jwtDecoder;
@@ -73,15 +73,15 @@ class DefaultJwtVerifierTests {
     private JwtAuthenticationRepository jwtAuthenticationRepository;
 
     @InjectMocks
-    private DefaultJwtVerifier defaultJwtVerifier;
+    private DatabaseJwtAuthenticationVerifier databaseJwtAuthenticationVerifier;
 
     private final EncodedToken encodedAccessToken = EncodedToken.of("eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0NCJ9.c2lnNA");
 
     private final EncodedToken encodedRefreshToken = EncodedToken.of("eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0NSJ9.c2lnNQ");
 
-    private DecodedToken decodedAccessToken;
+    private DecodedJwt decodedAccessJwt;
 
-    private DecodedToken decodedRefreshToken;
+    private DecodedJwt decodedRefreshJwt;
 
     private JwtAuthentication jwtAuthentication;
 
@@ -93,8 +93,8 @@ class DefaultJwtVerifierTests {
         var issued = Issued.of(Instant.parse("2025-01-01T10:00:00Z"));
         var expiration = Expiration.of(issued, 30000L);
 
-        decodedAccessToken = new DecodedToken(encodedAccessToken.value(), ACCESS_TOKEN_TYPE, subject.value(), accessTokenClaims.value());
-        decodedRefreshToken = new DecodedToken(encodedRefreshToken.value(), REFRESH_TOKEN_TYPE, subject.value(), refreshTokenClaims.value());
+        decodedAccessJwt = new DecodedJwt(encodedAccessToken.value(), ACCESS_TOKEN_TYPE, subject.value(), accessTokenClaims.value());
+        decodedRefreshJwt = new DecodedJwt(encodedRefreshToken.value(), REFRESH_TOKEN_TYPE, subject.value(), refreshTokenClaims.value());
 
         var jwtAuthenticationId = JwtAuthenticationId.of(UUID.fromString("f2577bfb-5783-4eda-9389-77ee0ac2af6e"));
         var userId = UserId.of(UUID.fromString("62396701-3f26-4e42-a5d8-13f1e3f06685"));
@@ -113,7 +113,7 @@ class DefaultJwtVerifierTests {
                                                              .decode(encodedAccessToken.value());
 
             // When
-            var thrown = catchThrowable(() -> defaultJwtVerifier.verifyAccessToken(encodedAccessToken));
+            var thrown = catchThrowable(() -> databaseJwtAuthenticationVerifier.verifyAccessToken(encodedAccessToken));
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtException.class)
@@ -128,10 +128,10 @@ class DefaultJwtVerifierTests {
         @Test
         void ThenThrowsInvalidJwtException_GivenTokenIsNotAccessToken() {
             // Given
-            given(jwtDecoder.decode(encodedAccessToken.value())).willReturn(decodedRefreshToken);
+            given(jwtDecoder.decode(encodedAccessToken.value())).willReturn(decodedRefreshJwt);
 
             // When
-            var thrown = catchThrowable(() -> defaultJwtVerifier.verifyAccessToken(encodedAccessToken));
+            var thrown = catchThrowable(() -> databaseJwtAuthenticationVerifier.verifyAccessToken(encodedAccessToken));
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtException.class)
@@ -145,14 +145,14 @@ class DefaultJwtVerifierTests {
         }
 
         @Test
-        void ThenThrowsInvalidJwtException_GivenAuthenticationNotFoundInRepository() {
+        void ThenThrowsInvalidJwtException_GivenAuthenticationNotFoundInDatabase() {
             // Given
-            given(jwtDecoder.decode(encodedAccessToken.value())).willReturn(decodedAccessToken);
+            given(jwtDecoder.decode(encodedAccessToken.value())).willReturn(decodedAccessJwt);
 
             given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(Optional.empty());
 
             // When
-            var thrown = catchThrowable(() -> defaultJwtVerifier.verifyAccessToken(encodedAccessToken));
+            var thrown = catchThrowable(() -> databaseJwtAuthenticationVerifier.verifyAccessToken(encodedAccessToken));
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtException.class)
@@ -168,12 +168,12 @@ class DefaultJwtVerifierTests {
         @Test
         void ThenVerifiesAccessToken_GivenAccessTokenIsValid() {
             // Given
-            given(jwtDecoder.decode(encodedAccessToken.value())).willReturn(decodedAccessToken);
+            given(jwtDecoder.decode(encodedAccessToken.value())).willReturn(decodedAccessJwt);
 
             given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(Optional.of(jwtAuthentication));
 
             // When
-            var actual = defaultJwtVerifier.verifyAccessToken(encodedAccessToken);
+            var actual = databaseJwtAuthenticationVerifier.verifyAccessToken(encodedAccessToken);
 
             // Then
             assertThat(actual).isEqualTo(jwtAuthentication);
@@ -196,7 +196,7 @@ class DefaultJwtVerifierTests {
                                                              .decode(encodedRefreshToken.value());
 
             // When
-            var thrown = catchThrowable(() -> defaultJwtVerifier.verifyRefreshToken(encodedRefreshToken));
+            var thrown = catchThrowable(() -> databaseJwtAuthenticationVerifier.verifyRefreshToken(encodedRefreshToken));
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtException.class)
@@ -211,10 +211,10 @@ class DefaultJwtVerifierTests {
         @Test
         void ThenThrowsInvalidJwtException_GivenTokenIsNotRefreshToken() {
             // Given
-            given(jwtDecoder.decode(encodedRefreshToken.value())).willReturn(decodedAccessToken);
+            given(jwtDecoder.decode(encodedRefreshToken.value())).willReturn(decodedAccessJwt);
 
             // When
-            var thrown = catchThrowable(() -> defaultJwtVerifier.verifyRefreshToken(encodedRefreshToken));
+            var thrown = catchThrowable(() -> databaseJwtAuthenticationVerifier.verifyRefreshToken(encodedRefreshToken));
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtException.class)
@@ -228,14 +228,14 @@ class DefaultJwtVerifierTests {
         }
 
         @Test
-        void ThenThrowsInvalidJwtException_GivenAuthenticationNotFoundInRepository() {
+        void ThenThrowsInvalidJwtException_GivenAuthenticationNotFoundInDatabase() {
             // Given
-            given(jwtDecoder.decode(encodedRefreshToken.value())).willReturn(decodedRefreshToken);
+            given(jwtDecoder.decode(encodedRefreshToken.value())).willReturn(decodedRefreshJwt);
 
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.empty());
 
             // When
-            var thrown = catchThrowable(() -> defaultJwtVerifier.verifyRefreshToken(encodedRefreshToken));
+            var thrown = catchThrowable(() -> databaseJwtAuthenticationVerifier.verifyRefreshToken(encodedRefreshToken));
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtException.class)
@@ -251,12 +251,12 @@ class DefaultJwtVerifierTests {
         @Test
         void ThenVerifiesRefreshToken_GivenRefreshTokenIsValid() {
             // Given
-            given(jwtDecoder.decode(encodedRefreshToken.value())).willReturn(decodedRefreshToken);
+            given(jwtDecoder.decode(encodedRefreshToken.value())).willReturn(decodedRefreshJwt);
 
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(jwtAuthentication));
 
             // When
-            var actual = defaultJwtVerifier.verifyRefreshToken(encodedRefreshToken);
+            var actual = databaseJwtAuthenticationVerifier.verifyRefreshToken(encodedRefreshToken);
 
             // Then
             assertThat(actual).isEqualTo(jwtAuthentication);

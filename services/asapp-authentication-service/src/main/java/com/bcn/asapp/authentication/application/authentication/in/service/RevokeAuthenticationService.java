@@ -19,7 +19,7 @@ package com.bcn.asapp.authentication.application.authentication.in.service;
 import com.bcn.asapp.authentication.application.ApplicationService;
 import com.bcn.asapp.authentication.application.authentication.in.RevokeAuthenticationUseCase;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRevoker;
-import com.bcn.asapp.authentication.application.authentication.out.JwtVerifier;
+import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationVerifier;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 
 /**
@@ -31,18 +31,18 @@ import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 @ApplicationService
 public class RevokeAuthenticationService implements RevokeAuthenticationUseCase {
 
-    private final JwtVerifier jwtVerifier;
+    private final JwtAuthenticationVerifier jwtAuthenticationVerifier;
 
     private final JwtAuthenticationRevoker jwtAuthenticationRevoker;
 
     /**
      * Constructs a new {@code RevokeAuthenticationService} with required dependencies.
      *
-     * @param jwtVerifier              the JWT verifier for validating access tokens
-     * @param jwtAuthenticationRevoker the JWT revoker for removing authentications
+     * @param jwtAuthenticationVerifier the JWT authentication verifier for validating access tokens
+     * @param jwtAuthenticationRevoker  the JWT revoker for removing authentications
      */
-    public RevokeAuthenticationService(JwtVerifier jwtVerifier, JwtAuthenticationRevoker jwtAuthenticationRevoker) {
-        this.jwtVerifier = jwtVerifier;
+    public RevokeAuthenticationService(JwtAuthenticationVerifier jwtAuthenticationVerifier, JwtAuthenticationRevoker jwtAuthenticationRevoker) {
+        this.jwtAuthenticationVerifier = jwtAuthenticationVerifier;
         this.jwtAuthenticationRevoker = jwtAuthenticationRevoker;
     }
 
@@ -58,7 +58,7 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
     public void revokeAuthentication(String accessToken) {
         var rawAccessToken = EncodedToken.of(accessToken);
 
-        var authentication = jwtVerifier.verifyAccessToken(rawAccessToken);
+        var authentication = jwtAuthenticationVerifier.verifyAccessToken(rawAccessToken);
 
         jwtAuthenticationRevoker.revokeAuthentication(authentication);
     }

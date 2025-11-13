@@ -91,7 +91,7 @@ class JwtDecoderTests {
         }
 
         @Test
-        void ThenReturnsDecodedToken_GivenAccessTokenIsValid() {
+        void ThenReturnsDecodedJwt_GivenAccessTokenIsValid() {
             // Given
             var accessToken = testEncodedTokenBuilder().accessToken()
                                                        .withSecretKey(secretKey)
@@ -111,7 +111,7 @@ class JwtDecoderTests {
         }
 
         @Test
-        void ThenReturnsDecodedToken_GivenRefreshTokenIsValid() {
+        void ThenReturnsDecodedJwt_GivenRefreshTokenIsValid() {
             // Given
             var refreshToken = testEncodedTokenBuilder().refreshToken()
                                                         .withSecretKey(secretKey)

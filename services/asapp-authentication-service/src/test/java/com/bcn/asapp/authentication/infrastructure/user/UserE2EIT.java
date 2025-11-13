@@ -18,6 +18,7 @@ package com.bcn.asapp.authentication.infrastructure.user;
 
 import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.testEncodedTokenBuilder;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestJwtAuthenticationFactory.testJwtAuthenticationBuilder;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestUser;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.testUserBuilder;
@@ -51,7 +52,6 @@ import com.bcn.asapp.authentication.infrastructure.user.in.response.GetAllUsersR
 import com.bcn.asapp.authentication.infrastructure.user.in.response.GetUserByIdResponse;
 import com.bcn.asapp.authentication.infrastructure.user.in.response.UpdateUserResponse;
 import com.bcn.asapp.authentication.infrastructure.user.out.UserJdbcRepository;
-import com.bcn.asapp.authentication.infrastructure.user.out.entity.UserEntity;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 
 @SpringBootTest(classes = AsappAuthenticationServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -68,27 +68,13 @@ class UserE2EIT {
     @Autowired
     private WebTestClient webTestClient;
 
-    private UserEntity authenticatedUser;
-
-    private String bearerToken;
+    private final String bearerToken = "Bearer " + testEncodedTokenBuilder().accessToken()
+                                                                            .build();
 
     @BeforeEach
     void beforeEach() {
         jwtAuthenticationRepository.deleteAll();
         userRepository.deleteAll();
-
-        var user = testUserBuilder().withUsername("auth_user@asapp.com")
-                                    .build();
-        authenticatedUser = userRepository.save(user);
-        assertThat(authenticatedUser).isNotNull();
-
-        var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(authenticatedUser.id())
-                                                              .build();
-        var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
-        assertThat(jwtAuthenticationCreated).isNotNull();
-
-        bearerToken = "Bearer " + jwtAuthenticationCreated.accessToken()
-                                                          .token();
     }
 
     @Nested
@@ -203,12 +189,11 @@ class UserE2EIT {
                                         .getResponseBody();
             // Then
             // Assert API response
-            var authUserResponse = new GetAllUsersResponse(authenticatedUser.id(), authenticatedUser.username(), "*****", authenticatedUser.role());
             var userResponse1 = new GetAllUsersResponse(userCreated1.id(), userCreated1.username(), "*****", userCreated1.role());
             var userResponse2 = new GetAllUsersResponse(userCreated2.id(), userCreated2.username(), "*****", userCreated2.role());
             var userResponse3 = new GetAllUsersResponse(userCreated3.id(), userCreated3.username(), "*****", userCreated3.role());
-            assertThat(response).hasSize(4)
-                                .containsExactlyInAnyOrder(authUserResponse, userResponse1, userResponse2, userResponse3);
+            assertThat(response).hasSize(3)
+                                .containsExactlyInAnyOrder(userResponse1, userResponse2, userResponse3);
         }
 
     }

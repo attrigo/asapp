@@ -34,7 +34,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
-class DecodedTokenTests {
+class DecodedJwtTests {
 
     private final String encodedToken = defaultTestEncodedAccessToken();
 
@@ -47,13 +47,13 @@ class DecodedTokenTests {
     private final Map<String, Object> refreshTokenClaims = Map.of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, roleClaim);
 
     @Nested
-    class CreateDecodedToken {
+    class CreateDecodedJwt {
 
         @ParameterizedTest
         @NullAndEmptySource
         void ThenThrowsIllegalArgumentException_GivenEncodedTokenIsNull(String encodedToken) {
             // When
-            var thrown = catchThrowable(() -> new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, accessTokenClaims));
+            var thrown = catchThrowable(() -> new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, accessTokenClaims));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -64,7 +64,7 @@ class DecodedTokenTests {
         @NullAndEmptySource
         void ThenThrowsIllegalArgumentException_GivenTypeIsNull(String type) {
             // When
-            var thrown = catchThrowable(() -> new DecodedToken(encodedToken, type, subject, accessTokenClaims));
+            var thrown = catchThrowable(() -> new DecodedJwt(encodedToken, type, subject, accessTokenClaims));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -75,7 +75,7 @@ class DecodedTokenTests {
         @NullAndEmptySource
         void ThenThrowsIllegalArgumentException_GivenSubjectIsNull(String subject) {
             // When
-            var thrown = catchThrowable(() -> new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, accessTokenClaims));
+            var thrown = catchThrowable(() -> new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, accessTokenClaims));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -85,7 +85,7 @@ class DecodedTokenTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenClaimsIsNull() {
             // When
-            var thrown = catchThrowable(() -> new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, null));
+            var thrown = catchThrowable(() -> new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, null));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -95,7 +95,7 @@ class DecodedTokenTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenClaimsIsEmpty() {
             // When
-            var thrown = catchThrowable(() -> new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, Map.of()));
+            var thrown = catchThrowable(() -> new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, Map.of()));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -103,9 +103,9 @@ class DecodedTokenTests {
         }
 
         @Test
-        void ThenCreatesDecodedToken_GivenAllParametersAreValid() {
+        void ThenCreatesDecodedJwt_GivenAllParametersAreValid() {
             // When
-            var actual = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, accessTokenClaims);
+            var actual = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, accessTokenClaims);
 
             // Then
             assertThat(actual).isNotNull();
@@ -123,10 +123,10 @@ class DecodedTokenTests {
         @Test
         void ThenReturnsFalse_GivenTypeIsNotAccessToken() {
             // Given
-            var decodedToken = new DecodedToken(encodedToken, REFRESH_TOKEN_TYPE, subject, accessTokenClaims);
+            var decodedJwt = new DecodedJwt(encodedToken, REFRESH_TOKEN_TYPE, subject, accessTokenClaims);
 
             // When
-            var actual = decodedToken.isAccessToken();
+            var actual = decodedJwt.isAccessToken();
 
             // Then
             assertThat(actual).isFalse();
@@ -135,10 +135,10 @@ class DecodedTokenTests {
         @Test
         void ThenReturnsFalse_GivenTokenUseClaimIsNotAccess() {
             // Given
-            var decodedToken = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, refreshTokenClaims);
+            var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, refreshTokenClaims);
 
             // When
-            var actual = decodedToken.isAccessToken();
+            var actual = decodedJwt.isAccessToken();
 
             // Then
             assertThat(actual).isFalse();
@@ -148,10 +148,10 @@ class DecodedTokenTests {
         void ThenReturnsFalse_GivenTypeIsAccessTokenButTokenUseClaimIsRefresh() {
             // Given
             var mixedClaims = Map.<String, Object>of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, roleClaim);
-            var decodedToken = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, mixedClaims);
+            var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, mixedClaims);
 
             // When
-            var actual = decodedToken.isAccessToken();
+            var actual = decodedJwt.isAccessToken();
 
             // Then
             assertThat(actual).isFalse();
@@ -160,10 +160,10 @@ class DecodedTokenTests {
         @Test
         void ThenReturnsTrue_GivenTypeAndTokenUseClaimAreAccessToken() {
             // Given
-            var decodedToken = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, accessTokenClaims);
+            var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, accessTokenClaims);
 
             // When
-            var actual = decodedToken.isAccessToken();
+            var actual = decodedJwt.isAccessToken();
 
             // Then
             assertThat(actual).isTrue();
@@ -177,10 +177,10 @@ class DecodedTokenTests {
         @Test
         void ThenReturnsFalse_GivenTypeIsNotRefreshToken() {
             // Given
-            var decodedToken = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, accessTokenClaims);
+            var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, accessTokenClaims);
 
             // When
-            var actual = decodedToken.isRefreshToken();
+            var actual = decodedJwt.isRefreshToken();
 
             // Then
             assertThat(actual).isFalse();
@@ -190,10 +190,10 @@ class DecodedTokenTests {
         void ThenReturnsFalse_GivenTokenUseClaimIsNotRefresh() {
             // Given
             var accessTokenClaims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, roleClaim);
-            var decodedToken = new DecodedToken(encodedToken, REFRESH_TOKEN_TYPE, subject, accessTokenClaims);
+            var decodedJwt = new DecodedJwt(encodedToken, REFRESH_TOKEN_TYPE, subject, accessTokenClaims);
 
             // When
-            var actual = decodedToken.isRefreshToken();
+            var actual = decodedJwt.isRefreshToken();
 
             // Then
             assertThat(actual).isFalse();
@@ -203,10 +203,10 @@ class DecodedTokenTests {
         void ThenReturnsFalse_GivenTypeIsRefreshTokenButTokenUseClaimIsAccess() {
             // Given
             var mixedClaims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, roleClaim);
-            var decodedToken = new DecodedToken(encodedToken, REFRESH_TOKEN_TYPE, subject, mixedClaims);
+            var decodedJwt = new DecodedJwt(encodedToken, REFRESH_TOKEN_TYPE, subject, mixedClaims);
 
             // When
-            var actual = decodedToken.isRefreshToken();
+            var actual = decodedJwt.isRefreshToken();
 
             // Then
             assertThat(actual).isFalse();
@@ -215,10 +215,10 @@ class DecodedTokenTests {
         @Test
         void ThenReturnsTrue_GivenTypeAndTokenUseClaimAreRefreshToken() {
             // Given
-            var decodedToken = new DecodedToken(encodedToken, REFRESH_TOKEN_TYPE, subject, refreshTokenClaims);
+            var decodedJwt = new DecodedJwt(encodedToken, REFRESH_TOKEN_TYPE, subject, refreshTokenClaims);
 
             // When
-            var actual = decodedToken.isRefreshToken();
+            var actual = decodedJwt.isRefreshToken();
 
             // Then
             assertThat(actual).isTrue();
@@ -233,10 +233,10 @@ class DecodedTokenTests {
         void ThenReturnsNull_GivenRoleClaimIsNotPresent() {
             // Given
             var claimsWithoutRole = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE);
-            var decodedToken = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, claimsWithoutRole);
+            var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, claimsWithoutRole);
 
             // When
-            var actual = decodedToken.roleClaim();
+            var actual = decodedJwt.roleClaim();
 
             // Then
             assertThat(actual).isNull();
@@ -246,10 +246,10 @@ class DecodedTokenTests {
         void ThenReturnsNull_GivenRoleClaimIsNotString() {
             // Given
             var claimsWithNonStringRole = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, 123);
-            var decodedToken = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, claimsWithNonStringRole);
+            var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, claimsWithNonStringRole);
 
             // When
-            var actual = decodedToken.roleClaim();
+            var actual = decodedJwt.roleClaim();
 
             // Then
             assertThat(actual).isNull();
@@ -258,10 +258,10 @@ class DecodedTokenTests {
         @Test
         void ThenReturnsRoleClaim_GivenRoleClaimIsPresent() {
             // Given
-            var decodedToken = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, subject, accessTokenClaims);
+            var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, accessTokenClaims);
 
             // When
-            var actual = decodedToken.roleClaim();
+            var actual = decodedJwt.roleClaim();
 
             // Then
             assertThat(actual).isEqualTo(roleClaim);

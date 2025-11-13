@@ -20,14 +20,14 @@ import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 
 /**
- * Port for verifying and validating JWT tokens.
+ * Port for verifying and validating JWT tokens for authentication use cases.
  * <p>
  * Defines the contract for validating JWT tokens and retrieving their associated authentications.
  *
  * @since 0.2.0
  * @author attrigo
  */
-public interface JwtVerifier {
+public interface JwtAuthenticationVerifier {
 
     /**
      * Verifies an access token and retrieves its associated authentication.

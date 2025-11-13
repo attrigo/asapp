@@ -18,12 +18,9 @@ package com.bcn.asapp.authentication.infrastructure.config;
 
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.testEncodedTokenBuilder;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestJwtAuthenticationFactory.testJwtAuthenticationBuilder;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestUser;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,20 +31,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import com.bcn.asapp.authentication.AsappAuthenticationServiceApplication;
-import com.bcn.asapp.authentication.infrastructure.authentication.out.JwtAuthenticationJdbcRepository;
-import com.bcn.asapp.authentication.infrastructure.user.out.UserJdbcRepository;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 
 @SpringBootTest(classes = AsappAuthenticationServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient(timeout = "30000")
 @Import(TestContainerConfiguration.class)
 class SecurityConfigurationIT {
-
-    @Autowired
-    private UserJdbcRepository userRepository;
-
-    @Autowired
-    private JwtAuthenticationJdbcRepository jwtAuthenticationRepository;
 
     @Autowired
     private WebTestClient webTestClient;
@@ -217,25 +206,8 @@ class SecurityConfigurationIT {
     @Nested
     class ActuatorAuthentication {
 
-        private String bearerToken;
-
-        @BeforeEach
-        void beforeEach() {
-            jwtAuthenticationRepository.deleteAll();
-            userRepository.deleteAll();
-
-            var user = defaultTestUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
-
-            var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                  .build();
-            var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
-            assertThat(jwtAuthenticationCreated).isNotNull();
-
-            bearerToken = "Bearer " + jwtAuthenticationCreated.accessToken()
-                                                              .token();
-        }
+        private final String bearerToken = "Bearer " + testEncodedTokenBuilder().accessToken()
+                                                                                .build();
 
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_AccessActuatorEndpoint_AuthorizationHeaderIsNotPresent() {
