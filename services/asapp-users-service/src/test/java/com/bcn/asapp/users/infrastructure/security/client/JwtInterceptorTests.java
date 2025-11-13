@@ -45,7 +45,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.bcn.asapp.users.infrastructure.security.DecodedToken;
+import com.bcn.asapp.users.infrastructure.security.DecodedJwt;
 import com.bcn.asapp.users.infrastructure.security.JwtAuthenticationToken;
 
 @ExtendWith(MockitoExtension.class)
@@ -112,8 +112,8 @@ public class JwtInterceptorTests {
             // Given
             var encodedToken = defaultTestEncodedAccessToken();
             var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
-            var decodedToken = new DecodedToken(encodedToken, ACCESS_TOKEN_TYPE, "user@asapp.com", claims);
-            var authentication = JwtAuthenticationToken.authenticated(decodedToken);
+            var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, "user@asapp.com", claims);
+            var authentication = JwtAuthenticationToken.authenticated(decodedJwt);
             given(securityContext.getAuthentication()).willReturn(authentication);
 
             var headers = new HttpHeaders();
@@ -125,7 +125,7 @@ public class JwtInterceptorTests {
             jwtInterceptor.intercept(request, body, execution);
 
             // Then
-            assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer " + decodedToken.encodedToken());
+            assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer " + decodedJwt.encodedToken());
 
             then(execution).should(times(1))
                            .execute(eq(request), eq(body));

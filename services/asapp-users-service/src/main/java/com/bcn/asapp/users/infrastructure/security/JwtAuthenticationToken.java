@@ -63,20 +63,21 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
     /**
      * Factory method to create an authenticated {@code JwtAuthenticationToken}.
      * <p>
-     * Extracts the subject, the encoded token and the role from the decoded token.
+     * Extracts the subject, the encoded token and the role from the decoded JWT.
      * <p>
-     * Creates the corresponding authorities from the role.
+     * Creates the corresponding authorities from the role. If the role claim is not present, no authorities are assigned.
      *
-     * @param decodedToken the validated {@link DecodedToken}
+     * @param decodedJwt the validated {@link DecodedJwt}
      * @return a new authenticated {@code JwtAuthenticationToken}
      * @throws IllegalArgumentException if jwt is {@code null}
      */
-    public static JwtAuthenticationToken authenticated(DecodedToken decodedToken) {
-        Assert.notNull(decodedToken, "Decoded token must not be null");
+    public static JwtAuthenticationToken authenticated(DecodedJwt decodedJwt) {
+        Assert.notNull(decodedJwt, "Decoded JWT must not be null");
 
-        var principal = decodedToken.subject();
-        var token = decodedToken.encodedToken();
-        var authorities = AuthorityUtils.createAuthorityList(decodedToken.roleClaim());
+        var principal = decodedJwt.subject();
+        var token = decodedJwt.encodedToken();
+        var role = decodedJwt.roleClaim();
+        var authorities = role == null ? AuthorityUtils.NO_AUTHORITIES : AuthorityUtils.createAuthorityList(decodedJwt.roleClaim());
 
         return new JwtAuthenticationToken(principal, token, authorities);
     }
@@ -109,7 +110,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
      *
      * @return the encoded JWT token
      */
-    public String getToken() {
+    public String getJwt() {
         return this.token;
     }
 

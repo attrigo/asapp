@@ -98,7 +98,7 @@ public class JwtInterceptor implements ClientHttpRequestInterceptor {
                                                                                                           .getName());
         }
 
-        return jwtAuthentication.getToken();
+        return jwtAuthentication.getJwt();
     }
 
 }
