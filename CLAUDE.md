@@ -9,27 +9,21 @@ ASAPP is a Spring Boot 3.4.3 microservices application for task management, buil
 - **asapp-users-service**: Manages user profile information
 - **asapp-tasks-service**: Manages tasks and projects
 
-## Documentation Structure
+## Documentation
 
-This documentation is organized into focused files for easier maintenance:
+Essential guides for understanding and working with ASAPP:
 
 ### Architecture
 @docs/claude/architecture.md
 
-### Build & Development
-@docs/claude/build-and-run.md
-
 ### Testing
 @docs/claude/testing.md
 
-### Shared Libraries
-@docs/claude/shared-libraries.md
+### API Conventions
+@docs/claude/api-conventions.md
 
-### Code Style & Standards
+### Code Style & Build
 @docs/claude/code-style.md
 
-### Development Patterns
+### Development Workflows
 @docs/claude/development-patterns.md
-
-### Technology Stack
-@docs/claude/tech-stack.md
