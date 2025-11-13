@@ -1,258 +1,413 @@
-# ASAPP-TASKS-SERVICE
+# ASAPP Tasks Service
 
-asapp-tasks-service is a REST service application that publishes the following tasks operations.
+> Task management and lifecycle operations for the ASAPP microservices ecosystem
 
-* Task operations:
-    * Find a task by id
-    * Find all tasks
-    * Find tasks by user id
-    * Create a task
-    * Update a task by id
-    * Delete a task by id
+[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/technologies/downloads/#java21)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.3-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
-Each of these operations is exposed as an REST endpoint. \
+## Overview
 
-There are also exposed several non-business REST endpoints which are produced by Spring Boot Actuator.
+The Tasks Service manages task creation, updates, and lifecycle within the ASAPP ecosystem. It provides task CRUD operations and enables users to organize their work items with titles, descriptions, and date ranges.
+
+**Key Responsibilities**:
+- 📝 Task CRUD operations (create, read, update, delete)
+- 👤 User task ownership and queries
+- 📅 Task scheduling (start date, end date)
+- 🔗 Integration with Users service
+- 🛡️ JWT-based authentication and authorization
+
+## Features
+
+### Task Operations
+
+- **Create Task** - Create new task for a user
+  - `POST /api/tasks`
+  - Requires: userId, title, description, startDate, endDate
+
+- **Get Task by ID** - Retrieve specific task
+  - `GET /api/tasks/{id}`
+  - Returns task details
+
+- **Get Tasks by User ID** - Retrieve all tasks for a user
+  - `GET /api/tasks/user/{id}`
+  - Supports filtering by user
+
+- **Get All Tasks** - List all tasks in system
+  - `GET /api/tasks`
+  - Returns all tasks across all users
+
+- **Update Task** - Modify task details
+  - `PUT /api/tasks/{id}`
+  - Updates title, description, dates
+
+- **Delete Task** - Remove task
+  - `DELETE /api/tasks/{id}`
+  - Cascade delete from database
+
+### Date Handling
+
+- **ISO-8601 Format**: All dates use standard ISO-8601 format
+- **Optional Dates**: Start and end dates are optional
+- **Validation**: Dates validated at domain level
+
+### Observability
+
+- **Health Check** - Service health and dependencies
+  - `GET /actuator/health`
+
+- **Metrics** - Prometheus-formatted application metrics
+  - `GET /actuator/prometheus`
+
+- **API Documentation** - Interactive Swagger UI
+  - `http://localhost:8081/asapp-tasks-service/swagger-ui.html`
 
 ## Architecture
 
-***
+### Hexagonal Architecture
 
-The service follows a **Hexagonal Architecture** (also known as Ports and Adapters pattern), which promotes a clear separation of concerns and high testability.
-The architecture is mainly based on Java 21 and Spring Boot 3.4.
+The service follows **Hexagonal Architecture** (Ports & Adapters) with clear separation of concerns:
 
-### Hexagonal Architecture Structure
+**Domain Layer** (`domain/`):
+- Pure business logic with no framework dependencies
+- **Aggregate**: Task
+- **Value Objects**: TaskId, UserId, Title, Description, StartDate, EndDate
 
-The codebase is organized into three main layers:
+**Application Layer** (`application/`):
+- Use cases and orchestration
+- **Input Ports**: CreateTaskUseCase, ReadTaskUseCase, UpdateTaskUseCase, DeleteTaskUseCase
+- **Output Ports**: TaskRepository
+- **Services**: Annotated with `@ApplicationService`
 
-* **Domain Layer** (`domain` package): Contains the core business logic, entities, value objects, and domain services. This layer is completely independent of
-  external frameworks and infrastructure concerns. The domain has been designed following **Domain-Driven Design (DDD) principles**, ensuring rich domain models
-  with encapsulated business rules and behavior.
+**Infrastructure Layer** (`infrastructure/`):
+- External concerns (REST, database, security)
+- REST controllers and DTOs
+- Repository adapters (Spring Data JDBC)
+- Security components (JWT validation)
 
-* **Application Layer** (`application` package): Contains the application services and use cases that orchestrate domain operations. This layer defines the
-  ports (interfaces) that the infrastructure layer implements.
+### Domain-Driven Design
 
-* **Infrastructure Layer** (`infrastructure` package): Contains the adapters that implement the ports defined in the application layer. This includes REST
-  controllers, database repositories, external service clients, and other framework-specific implementations.
+The service implements **DDD patterns**:
 
-### Microservice Architecture Principles
+**Aggregate**:
+- `Task` - Two-state pattern (create/reconstitute)
+- Encapsulates: userId (owner), title, description, startDate, endDate
 
-The service also follows some of the [Microservice Architecture Principles](https://microservices.io/):
+**Value Objects**: Immutable records with validation
+- TaskId, UserId, Title, Description, StartDate, EndDate
 
-* The [Database per service](https://microservices.io/patterns/data/database-per-service.html) pattern, where the Database is managed by the service, in this
-  case the management of database changes is delegated to Liquibase.
-* The [Application metrics](https://microservices.io/patterns/observability/application-metrics.html) pattern, there is a specific endpoint that exposes the
-  most relevant metrics of the service.
+**Bounded Context**:
+- Manages tasks independently
+- References users via userId (no direct dependency on Users service)
+- Provides task queries for Users service integration
+
+## Quick Start
+
+### Prerequisites
+
+- Java 21+
+- Maven 3.9+
+- Docker & Docker Compose
+- PostgreSQL (via Docker)
+- Authentication Service (for JWT validation)
+
+### Run Locally (Development Mode)
+
+```bash
+# 1. Start PostgreSQL database
+docker-compose up -d asapp-tasks-postgres-db
+
+# 2. Run the service
+mvn spring-boot:run
+
+# 3. Access Swagger UI
+open http://localhost:8081/asapp-tasks-service/swagger-ui.html
+```
+
+### Run with Docker
+
+```bash
+# 1. Build Docker image
+mvn spring-boot:build-image
+
+# 2. Start service with database
+docker-compose up -d
+
+# 3. View logs
+docker-compose logs -f asapp-tasks-service
+
+# 4. Stop and clean
+docker-compose down -v
+```
+
+### Example API Usage
+
+```bash
+# 1. Get JWT token from Authentication service
+TOKEN=$(curl -X POST http://localhost:8080/asapp-authentication-service/api/auth/token \
+  -H "Content-Type: application/json" \
+  -d '{"username":"user@asapp.com","password":"SecurePass123!"}' \
+  | jq -r '.access_token')
+
+# 2. Create a task
+curl -X POST http://localhost:8081/asapp-tasks-service/api/tasks \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{
+    "user_id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    "title": "Complete project documentation",
+    "description": "Update all README files with current information",
+    "start_date": "2025-01-15T09:00:00Z",
+    "end_date": "2025-01-20T17:00:00Z"
+  }'
+
+# 3. Get tasks by user ID
+curl -X GET http://localhost:8081/asapp-tasks-service/api/tasks/user/{userId} \
+  -H "Authorization: Bearer $TOKEN"
+
+# 4. Update task
+curl -X PUT http://localhost:8081/asapp-tasks-service/api/tasks/{id} \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $TOKEN" \
+  -d '{
+    "title": "Updated title",
+    "description": "Updated description",
+    "start_date": "2025-01-16T09:00:00Z",
+    "end_date": "2025-01-21T17:00:00Z"
+  }'
+```
+
+## Configuration
+
+### Application Properties
+
+**Key Configuration** (`application.properties`):
+
+```properties
+# Server
+server.port=8081
+server.servlet.context-path=/asapp-tasks-service
+
+# Database
+spring.datasource.url=jdbc:postgresql://localhost:5433/tasksdb
+spring.datasource.username=user
+spring.datasource.password=secret
+
+# JWT Security
+asapp.security.jwt-secret=<base64-encoded-secret>
+
+# Actuator (management port)
+management.server.port=8091
+management.endpoints.web.exposure.include=*
+```
+
+### Environment-Specific Configuration
+
+- `application.properties` - Default (local development)
+- `application-docker.properties` - Docker Compose environment
+
+## Development
+
+### Build and Test
+
+```bash
+# Build project
+mvn clean install
+
+# Run all tests (unit + integration)
+mvn clean verify
+
+# Run unit tests only
+mvn test
+
+# Run integration tests only
+mvn verify -DskipUnitTests
+
+# Run mutation testing
+mvn org.pitest:pitest-maven:mutationCoverage
+```
+
+### Code Quality
+
+```bash
+# Check code formatting
+mvn spotless:check
+
+# Apply formatting
+mvn spotless:apply
+
+# Install git hooks (pre-commit, commit-msg)
+mvn git-build-hook:install
+```
+
+### Database Management
+
+```bash
+# Start standalone database
+docker-compose up -d asapp-tasks-postgres-db
+
+# Apply Liquibase migrations
+mvn liquibase:update
+
+# Generate migration SQL (dry-run)
+mvn liquibase:updateSQL
+
+# Rollback last changeset
+mvn liquibase:rollback -Dliquibase.rollbackCount=1
+```
+
+### Generate Documentation
+
+```bash
+# Generate Javadoc
+mvn clean verify
+
+# View Javadoc
+open target/asapp-tasks-service-<version>-javadoc.jar
+# Or: target/site/apidocs/index.html
+
+# View Test Coverage
+open target/site/jacoco-aggregate/index.html
+
+# View Mutation Testing Report
+open target/pit-reports/<timestamp>/index.html
+```
+
+## API Endpoints
+
+### Task Endpoints (All Protected)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/tasks` | Create task | ✅ |
+| GET | `/api/tasks` | Get all tasks | ✅ |
+| GET | `/api/tasks/{id}` | Get task by ID | ✅ |
+| GET | `/api/tasks/user/{id}` | Get tasks by user ID | ✅ |
+| PUT | `/api/tasks/{id}` | Update task | ✅ |
+| DELETE | `/api/tasks/{id}` | Delete task | ✅ |
+
+### Actuator Endpoints (Protected)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/actuator/health` | Health status |
+| GET | `/actuator/prometheus` | Prometheus metrics |
+| GET | `/actuator/metrics` | Available metrics list |
+| GET | `/actuator/info` | Application info |
+
+**Actuator Port**: `8091` (separate from application port `8081`)
+
+## Technology Stack
+
+- **Java**: 21
+- **Spring Boot**: 3.4.3
+- **Database**: PostgreSQL
+- **Migrations**: Liquibase
+- **Security**: Spring Security + JWT validation
+- **Mapping**: MapStruct 1.6.3
+- **Testing**: JUnit 5, AssertJ, TestContainers, PITest
+- **Documentation**: SpringDoc OpenAPI 2.8.5
+- **Observability**: Spring Boot Actuator, Micrometer
+
+## Project Structure
+
+```
+src/main/java/com/bcn/asapp/tasks/
+├── domain/                           # Pure business logic
+│   └── task/                         # Task aggregate
+├── application/                      # Use cases
+│   ├── task/in/                      # Task use cases
+│   └── task/out/                     # Task repository (port)
+└── infrastructure/                   # External concerns
+    ├── task/in/                      # Task REST controllers
+    ├── task/out/                     # Task repository adapter
+    ├── security/                     # JWT validation components
+    ├── config/                       # Spring configuration
+    └── error/                        # Exception handling
+```
+
+## Database Schema
+
+**Tables**:
+- `tasks` - Tasks (id, user_id, title, description, start_date, end_date)
+
+**Migrations**: Managed by Liquibase in `src/main/resources/liquibase/db/changelog/`
+
+**Indexes**:
+- Primary key on `id`
+- Foreign key reference to user via `user_id`
+- Index on `user_id` for efficient user task queries
+
+## Testing
+
+**Test Types**:
+- Unit Tests (`*Tests.java`) - Domain and application logic
+- Integration Tests (`*IT.java`) - With TestContainers PostgreSQL
+- Controller Tests (`*ControllerIT.java`) - WebMvcTest slice
+- E2E Tests (`*E2EIT.java`) - Full application context
+
+**Coverage**: JaCoCo reports (unit, integration, aggregate)
+**Mutation Testing**: PITest for domain layer
+**Test Containers**: PostgreSQL for integration tests
+
+## Monitoring
+
+**Actuator Endpoints**: `http://localhost:8091/asapp-tasks-service/actuator`
+
+**Prometheus Integration**: Metrics scraped every 15s for monitoring
+
+**Available Metrics**:
+- JVM metrics (memory, GC, threads)
+- HTTP request metrics (rate, duration, errors)
+- Database connection pool metrics
+- Task-specific business metrics
+
+## Dependencies
+
+**Internal Dependencies**:
+- `asapp-commons-url` - Endpoint constants
+
+**External Dependencies**:
+- Authentication Service (for JWT validation)
 
 ## Requirements
 
-***
+- **Java**: 21 or higher
+- **Maven**: 3.9.0 or higher
+- **Docker**: 20.10+
+- **Docker Compose**: 2.0+
+- **PostgreSQL**: 15+ (via Docker)
 
-* [Java 21 (Java SDK 21)](https://www.oracle.com/es/java/technologies/downloads/#java21)
-* [Apache Maven](https://maven.apache.org/download.cgi)
-* [Docker](https://www.docker.com/)
-* [Docker Compose](https://docs.docker.com/compose/)
+## Contributing
 
-## Installation
+This service is part of the ASAPP monorepo. See the [main repository](../../README.md) for contribution guidelines.
 
-***
+**Key Guidelines**:
+- Follow Hexagonal Architecture and DDD patterns
+- Use Conventional Commits (`feat:`, `fix:`, `test:`, etc.)
+- Run `mvn spotless:apply` before committing
+- Ensure all tests pass (`mvn verify`)
+- Update OpenAPI documentation for API changes
 
-The recommended way to install this project is to do it from the parent ASAPP project, which fully installs the service and its dependencies. \
-In any case, if you prefer, there is a way to only install this service:
+## Related Documentation
 
-1. Clone the project:
-    ```sh
-    git clone https://github.com/attrigo/asapp-tasks-service.git
-    ```
+- [ASAPP Main Repository](../../README.md)
+- [Architecture Guide](../../docs/claude/architecture.md)
+- [Testing Strategy](../../docs/claude/testing.md)
+- [API Conventions](../../docs/claude/api-conventions.md)
 
-2. Navigate to the project:
-    ```sh
-    cd asapp-tasks-service
-    ```
+## External Resources
 
-3. Install the project:
-    ```sh
-    mvn clean install
-    ```
-
-## Getting Started
-
-***
-
-### Start up
-
-The application can be started in dev or docker mode.
-
-* Development mode.
-    1. Start a standalone database:
-        ```sh
-        docker-compose up -d asapp-tasks-postgres-db
-        ```
-
-    2. Launch the main class [AsappTasksServiceApplication](src/main/java/com/bcn/asapp/tasks/AsappTasksServiceApplication.java).
-
-* Docker mode.
-    1. Build the service:
-        ```sh
-        mvn spring-boot:build-image
-        ```
-
-    2. Launch the service:
-        ```sh
-        docker-compose up -d
-        ```
-
-### Usage
-
-The project brings with an embedded [Swagger UI](https://swagger.io/tools/swagger-ui/), a web tool that facilitates the endpoint visualization and
-interaction. \
-You can use this [Swagger UI](http://localhost:8081/asapp-tasks-service/swagger-ui.html) or any other HTTP client to consume the API.
-
-Some of the exposed endpoints require authentication using JWT (JSON Web Token) bearer tokens. To access protected endpoints, you first need to get an access
-token by calling authenticate endpoint (/api/auth/token) of the authentication service with valid user credential. Once it expires, you can get a new one by
-calling the refresh authentication endpoint (/api/auth/refresh).
-
-Dates sent in requests must follow a standard ISO-8601 format.
-
-### Shut down and clean
-
-To avoid wasting local machine resources, it is recommended to stop all started Docker services once they are no longer necessary.
-
-* To stop the service:
-    ```sh
-    docker-compose down -v
-    ```
-
-The -v flag is optional, it deletes the volumes.
-
-## Dev features
-
-***
-
-### Generate Docker image
-
-* To build the Docker image:
-    ```sh
-    mvn spring-boot:build-image
-    ```
-
-### Start up a standalone database
-
-* To start up the database in standalone mode:
-    ```sh
-    docker-compose up -d asapp-tasks-postgres-db
-    ```
-
-This option creates an empty database. To update the database with the appropriate objects, use Liquibase.
-
-### Managing Database changes
-
-* To apply the changes:
-    ```sh
-    mvn liquibase:update
-    ```
-
-* To roll back the changes:
-    ```sh
-    mvn liquibase:rollback
-    ```
-
-For more information about Liquibase actions visit [Liquibase docs](https://docs.liquibase.com/home.html)
-
-### Generate the test coverage report
-
-To launch the tests and generate the coverage report:
-
-1. Generate the test report:
-    ```sh
-    mvn clean verify
-    ```
-
-2. Open the report: [index.html](target/site/jacoco-aggregate/index.html)
-
-The coverage report includes unit tests and integration tests
-
-### Run mutation testing
-
-[PITest](https://pitest.org/) is a mutation testing framework that evaluates the quality of your tests by introducing small changes (mutations) to your code and checking if your tests catch them. This helps identify weaknesses in your test suite.
-
-To run mutation testing on the domain layer:
-
-1. Execute PITest:
-    ```sh
-    mvn org.pitest:pitest-maven:mutationCoverage
-    ```
-
-2. Open the report: [index.html](target/pit-reports/index.html)
-
-The mutation testing is configured to target the domain layer (`com.bcn.asapp.tasks.domain.*`), ensuring that your core business logic has robust test coverage.
-
-PITest depends on the test execution results. Ensure tests have been executed previously (e.g., via `mvn test` or `mvn verify`) to generate the required test reports before running mutation testing.
-
-### Generate the Javadoc
-
-To generate the Javadoc:
-
-1. Generate the Javadoc files:
-    ```sh
-   mvn clean package
-   ```
-
-2. Open the Javadoc: [index.html](target/site/apidocs/index.html)
-
-### Format code
-
-The project uses [Spotless](https://github.com/diffplug/spotless/tree/main/plugin-maven) maven plugin to properly format the code. \
-Java code is formatted following style defined in [asapp_formatter.xml](../../asapp_formatter.xml) file.
-
-* To check code style: identifies code not well formatted.
-    ```sh
-    mvn spotless:check
-    ```
-
-* To format files: formats any unformatted code.
-    ```sh
-    mvn spotless:apply
-    ```
-
-## Resources
-
-***
-
-### Reference Documentation
-
-For further reference, please consider the following sections:
-
-* Architecture
-    * [Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/)
-    * [Domain-Driven Design](https://martinfowler.com/bliki/DomainDrivenDesign.html)
-* Spring Boot
-    * [Spring Boot](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
-    * [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#actuator)
-    * [Spring Boot DevTools](https://docs.spring.io/spring-boot/docs/current/reference/html/using.html#using.devtools)
-    * [Spring Boot Test](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.testing)
-* Spring
-    * [Spring Web MVC](https://docs.spring.io/spring-framework/reference/web/webmvc.html)
-    * [Spring Security](https://docs.spring.io/spring-security/reference/index.html)
-    * [Spring Data JDBC](https://docs.spring.io/spring-data/relational/reference/jdbc.html)
-    * [Spring Validation](https://docs.spring.io/spring-framework/reference/core/validation.html)
-    * [Spring OpenAPI](https://springdoc.org/)
-    * [Spring Security](https://docs.spring.io/spring-security/reference/)
-* Database
-    * [PostgresQL](https://www.postgresql.org/docs/current/)
-    * [Liquibase Migration](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/index.html#howto.data-initialization.migration-tool.liquibase)
-* Testing
-    * [Junit](https://junit.org/junit5/docs/current/user-guide/)
-    * [AssertJ](https://assertj.github.io/doc/)
-    * [Mockito](https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html)
-    * [PITest](https://pitest.org/)
-    * [TestContainers](https://java.testcontainers.org/)
-* Tools
-    * [MapStruct](https://mapstruct.org/documentation/)
-    * [Java JsonWebToken](https://github.com/jwtk/jjwt)
+- [Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/)
+- [Domain-Driven Design](https://martinfowler.com/bliki/DomainDrivenDesign.html)
+- [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
+- [Spring Data JDBC](https://docs.spring.io/spring-data/relational/reference/jdbc.html)
+- [Liquibase](https://docs.liquibase.com/)
 
 ## License
 
-***
+ASAPP Tasks Service is Open Source software released under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0).
 
-asapp-tasks-service is Open Source software released under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0").
+---
+
+**Part of the [ASAPP Project](../../README.md)** - A Spring Boot microservices application for task management.

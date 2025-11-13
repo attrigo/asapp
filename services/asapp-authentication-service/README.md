@@ -1,261 +1,435 @@
-# ASAPP-AUTHENTICATION-SERVICE
+# ASAPP Authentication Service
 
-asapp-authentication-service is a REST service application that publishes the following authorization and user operations.
+> JWT-based authentication and user credential management for the ASAPP microservices ecosystem
 
-* Authorization operations:
-    * Authenticate a user via username and password and issue an JWT authentication
-    * Refresh an JWT authentication
-    * Revoke an JWT authentication
-* User operations:
-    * Find a user by id
-    * Find all users
-    * Create a user
-    * Update a user by id
-    * Delete a user by id
+[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/technologies/downloads/#java21)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.3-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
-Each of these operations is exposed as an REST endpoint. \
+## Overview
 
-There are also exposed several non-business REST endpoints which are produced by Spring Boot Actuator.
+The Authentication Service is a core microservice in the ASAPP ecosystem, responsible for managing user credentials and JWT token lifecycle. It provides secure authentication, token refresh, and revocation capabilities for all ASAPP services.
+
+**Key Responsibilities**:
+- 🔐 User credential management (username, password, role)
+- 🎫 JWT token generation (access + refresh tokens)
+- 🔄 Token refresh and revocation
+- 👤 User CRUD operations (for authentication purposes)
+- 🛡️ Security enforcement for downstream services
+
+## Features
+
+### Authentication Operations
+
+- **Authenticate** - Issue JWT tokens for valid credentials
+  - `POST /api/auth/token`
+  - Returns access token (5 min expiry) + refresh token (1 hour expiry)
+
+- **Refresh Authentication** - Get new tokens using refresh token
+  - `POST /api/auth/refresh`
+  - Extends session without re-entering credentials
+
+- **Revoke Authentication** - Invalidate active tokens
+  - `POST /api/auth/revoke`
+  - Logs user out by removing token from database
+
+### User Management Operations
+
+- **Create User** - Register new user with credentials
+  - `POST /api/users`
+  - Assigns role (ADMIN or USER)
+
+- **Get User** - Retrieve user by ID
+  - `GET /api/users/{id}`
+
+- **Get All Users** - List all registered users
+  - `GET /api/users`
+
+- **Update User** - Modify user credentials or role
+  - `PUT /api/users/{id}`
+
+- **Delete User** - Remove user and revoke all tokens
+  - `DELETE /api/users/{id}`
+
+### Observability
+
+- **Health Check** - Service health and dependencies
+  - `GET /actuator/health`
+
+- **Metrics** - Prometheus-formatted application metrics
+  - `GET /actuator/prometheus`
+
+- **API Documentation** - Interactive Swagger UI
+  - `http://localhost:8080/asapp-authentication-service/swagger-ui.html`
 
 ## Architecture
 
-***
+### Hexagonal Architecture
 
-The service follows a **Hexagonal Architecture** (also known as Ports and Adapters pattern), which promotes a clear separation of concerns and high testability.
-The architecture is mainly based on Java 21 and Spring Boot 3.4.
+The service follows **Hexagonal Architecture** (Ports & Adapters) with clear separation of concerns:
 
-### Hexagonal Architecture Structure
+**Domain Layer** (`domain/`):
+- Pure business logic with no framework dependencies
+- **Aggregates**: User, JwtAuthentication
+- **Value Objects**: Username, Password, Role, Jwt, EncodedToken, Subject, etc.
+- **Domain Services**: PasswordService
 
-The codebase is organized into three main layers:
+**Application Layer** (`application/`):
+- Use cases and orchestration
+- **Input Ports**: AuthenticateUseCase, CreateUserUseCase, etc.
+- **Output Ports**: UserRepository, JwtAuthenticationRepository, Authenticator
+- **Services**: Annotated with `@ApplicationService`
 
-* **Domain Layer** (`domain` package): Contains the core business logic, entities, value objects, and domain services. This layer is completely independent of
-  external frameworks and infrastructure concerns. The domain has been designed following **Domain-Driven Design (DDD) principles**, ensuring rich domain models
-  with encapsulated business rules and behavior.
+**Infrastructure Layer** (`infrastructure/`):
+- External concerns (REST, database, security)
+- REST controllers and DTOs
+- Repository adapters (Spring Data JDBC)
+- Security components (JWT handling, filters)
 
-* **Application Layer** (`application` package): Contains the application services and use cases that orchestrate domain operations. This layer defines the
-  ports (interfaces) that the infrastructure layer implements.
+### Domain-Driven Design
 
-* **Infrastructure Layer** (`infrastructure` package): Contains the adapters that implement the ports defined in the application layer. This includes REST
-  controllers, database repositories, external service clients, and other framework-specific implementations.
+The service implements **DDD patterns**:
 
-### Microservice Architecture Principles
+**Aggregates**:
+- `User` - Two-state pattern (inactive/active)
+- `JwtAuthentication` - Manages token pairs with lifecycle
 
-The service also follows some of the [Microservice Architecture Principles](https://microservices.io/):
+**Value Objects**: 15+ immutable records with validation
+- Username (email format), RawPassword, EncodedPassword, Role
+- Jwt, JwtPair, EncodedToken, Subject, JwtClaims, Issued, Expiration
 
-* The [Database per service](https://microservices.io/patterns/data/database-per-service.html) pattern, where the Database is managed by the service, in this
-  case the management of database changes is delegated to Liquibase.
-* The [Application metrics](https://microservices.io/patterns/observability/application-metrics.html) pattern, there is a specific endpoint that exposes the
-  most relevant metrics of the service.
+**Factories**: State-based creation
+- `User.inactiveUser()` / `User.activeUser()`
+- `JwtAuthentication.unAuthenticated()` / `authenticated()`
+
+### Security Model
+
+**JWT Token Structure**:
+```json
+{
+  "typ": "at+jwt",
+  "sub": "user@asapp.com",
+  "role": "USER",
+  "token_use": "access",
+  "iat": 1234567890,
+  "exp": 1234567990
+}
+```
+
+**Token Types**:
+- **Access Token** (`at+jwt`) - 5-minute expiry, used for API access
+- **Refresh Token** (`rt+jwt`) - 1-hour expiry, used to obtain new access tokens
+
+**Security Components**:
+- `JwtIssuer` - Creates signed tokens with HMAC-SHA
+- `JwtDecoder` - Validates signatures and extracts claims
+- `JwtVerifier` - Ensures correct token type
+- `JwtAuthenticationFilter` - Intercepts and validates requests
+
+## Quick Start
+
+### Prerequisites
+
+- Java 21+
+- Maven 3.9+
+- Docker & Docker Compose
+- PostgreSQL (via Docker)
+
+### Run Locally (Development Mode)
+
+```bash
+# 1. Start PostgreSQL database
+docker-compose up -d asapp-authentication-postgres-db
+
+# 2. Run the service
+mvn spring-boot:run
+
+# 3. Access Swagger UI
+open http://localhost:8080/asapp-authentication-service/swagger-ui.html
+```
+
+### Run with Docker
+
+```bash
+# 1. Build Docker image
+mvn spring-boot:build-image
+
+# 2. Start service with database
+docker-compose up -d
+
+# 3. View logs
+docker-compose logs -f asapp-authentication-service
+
+# 4. Stop and clean
+docker-compose down -v
+```
+
+### Example API Usage
+
+```bash
+# 1. Create a user
+curl -X POST http://localhost:8080/asapp-authentication-service/api/users \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "user@asapp.com",
+    "password": "SecurePass123!",
+    "role": "USER"
+  }'
+
+# 2. Authenticate
+curl -X POST http://localhost:8080/asapp-authentication-service/api/auth/token \
+  -H "Content-Type: application/json" \
+  -d '{
+    "username": "user@asapp.com",
+    "password": "SecurePass123!"
+  }'
+
+# Response:
+{
+  "access_token": "eyJhbGc...",
+  "refresh_token": "eyJhbGc..."
+}
+
+# 3. Use access token
+curl -X GET http://localhost:8080/asapp-authentication-service/api/users \
+  -H "Authorization: Bearer <access_token>"
+```
+
+## Configuration
+
+### Application Properties
+
+**Key Configuration** (`application.properties`):
+
+```properties
+# Server
+server.port=8080
+server.servlet.context-path=/asapp-authentication-service
+
+# Database
+spring.datasource.url=jdbc:postgresql://localhost:5432/authenticationdb
+spring.datasource.username=user
+spring.datasource.password=secret
+
+# JWT Security
+asapp.security.jwt-secret=<base64-encoded-secret>
+asapp.security.access-token-expiration-time=300000    # 5 minutes
+asapp.security.refresh-token-expiration-time=3600000  # 1 hour
+
+# Actuator (management port)
+management.server.port=8090
+management.endpoints.web.exposure.include=*
+```
+
+### Environment-Specific Configuration
+
+- `application.properties` - Default (local development)
+- `application-docker.properties` - Docker Compose environment
+
+## Development
+
+### Build and Test
+
+```bash
+# Build project
+mvn clean install
+
+# Run all tests (unit + integration)
+mvn clean verify
+
+# Run unit tests only
+mvn test
+
+# Run integration tests only
+mvn verify -DskipUnitTests
+
+# Run mutation testing
+mvn org.pitest:pitest-maven:mutationCoverage
+```
+
+### Code Quality
+
+```bash
+# Check code formatting
+mvn spotless:check
+
+# Apply formatting
+mvn spotless:apply
+
+# Install git hooks (pre-commit, commit-msg)
+mvn git-build-hook:install
+```
+
+### Database Management
+
+```bash
+# Start standalone database
+docker-compose up -d asapp-authentication-postgres-db
+
+# Apply Liquibase migrations
+mvn liquibase:update
+
+# Generate migration SQL (dry-run)
+mvn liquibase:updateSQL
+
+# Rollback last changeset
+mvn liquibase:rollback -Dliquibase.rollbackCount=1
+```
+
+### Generate Documentation
+
+```bash
+# Generate Javadoc
+mvn clean verify
+
+# View Javadoc
+open target/asapp-authentication-service-<version>-javadoc.jar
+# Or: target/site/apidocs/index.html
+
+# View Test Coverage
+open target/site/jacoco-aggregate/index.html
+
+# View Mutation Testing Report
+open target/pit-reports/<timestamp>/index.html
+```
+
+## API Endpoints
+
+### Authentication Endpoints (Public)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/auth/token` | Authenticate user | ❌ |
+| POST | `/api/auth/refresh` | Refresh tokens | ❌ |
+| POST | `/api/auth/revoke` | Revoke tokens | ✅ |
+
+### User Management Endpoints (Protected)
+
+| Method | Endpoint | Description | Auth Required |
+|--------|----------|-------------|---------------|
+| POST | `/api/users` | Create user | ❌ |
+| GET | `/api/users` | Get all users | ✅ |
+| GET | `/api/users/{id}` | Get user by ID | ✅ |
+| PUT | `/api/users/{id}` | Update user | ✅ |
+| DELETE | `/api/users/{id}` | Delete user | ✅ |
+
+### Actuator Endpoints (Protected)
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | `/actuator/health` | Health status |
+| GET | `/actuator/prometheus` | Prometheus metrics |
+| GET | `/actuator/metrics` | Available metrics list |
+| GET | `/actuator/info` | Application info |
+
+**Actuator Port**: `8090` (separate from application port `8080`)
+
+## Technology Stack
+
+- **Java**: 21
+- **Spring Boot**: 3.4.3
+- **Database**: PostgreSQL
+- **Migrations**: Liquibase
+- **Security**: Spring Security + JJWT (JWT library)
+- **Mapping**: MapStruct 1.6.3
+- **Testing**: JUnit 5, AssertJ, TestContainers, PITest
+- **Documentation**: SpringDoc OpenAPI 2.8.5
+- **Observability**: Spring Boot Actuator, Micrometer
+
+## Project Structure
+
+```
+src/main/java/com/bcn/asapp/authentication/
+├── domain/                           # Pure business logic
+│   ├── user/                         # User aggregate
+│   └── authentication/               # JwtAuthentication aggregate
+├── application/                      # Use cases
+│   ├── user/in/                      # User use cases
+│   ├── user/out/                     # User repositories (ports)
+│   ├── authentication/in/            # Auth use cases
+│   └── authentication/out/           # Auth repositories (ports)
+└── infrastructure/                   # External concerns
+    ├── user/in/                      # User REST controllers
+    ├── user/out/                     # User repository adapters
+    ├── authentication/in/            # Auth REST controllers
+    ├── authentication/out/           # Auth repository adapters
+    ├── security/                     # JWT components, filters
+    ├── config/                       # Spring configuration
+    └── error/                        # Exception handling
+```
+
+## Database Schema
+
+**Tables**:
+- `users` - User credentials (id, username, password, role)
+- `jwt_authentications` - Active token sessions (id, user_id, access_token, refresh_token)
+
+**Migrations**: Managed by Liquibase in `src/main/resources/liquibase/db/changelog/`
+
+## Testing
+
+**Test Types**:
+- Unit Tests (`*Tests.java`) - Domain and application logic
+- Integration Tests (`*IT.java`) - With TestContainers PostgreSQL
+- Controller Tests (`*ControllerIT.java`) - WebMvcTest slice
+- E2E Tests (`*E2EIT.java`) - Full application context
+
+**Coverage**: JaCoCo reports (unit, integration, aggregate)
+**Mutation Testing**: PITest for domain layer
+**Test Containers**: PostgreSQL for integration tests
+
+## Monitoring
+
+**Actuator Endpoints**: `http://localhost:8090/asapp-authentication-service/actuator`
+
+**Prometheus Integration**: Metrics scraped every 15s for monitoring
+
+**Available Metrics**:
+- JVM metrics (memory, GC, threads)
+- HTTP request metrics (rate, duration, errors)
+- Database connection pool metrics
+- Custom business metrics
 
 ## Requirements
 
-***
+- **Java**: 21 or higher
+- **Maven**: 3.9.0 or higher
+- **Docker**: 20.10+
+- **Docker Compose**: 2.0+
+- **PostgreSQL**: 15+ (via Docker)
 
-* [Java 21 (Java SDK 21)](https://www.oracle.com/es/java/technologies/downloads/#java21)
-* [Apache Maven](https://maven.apache.org/download.cgi)
-* [Docker](https://www.docker.com/)
-* [Docker Compose](https://docs.docker.com/compose/)
+## Contributing
 
-## Installation
+This service is part of the ASAPP monorepo. See the [main repository](../../README.md) for contribution guidelines.
 
-***
+**Key Guidelines**:
+- Follow Hexagonal Architecture and DDD patterns
+- Use Conventional Commits (`feat:`, `fix:`, `test:`, etc.)
+- Run `mvn spotless:apply` before committing
+- Ensure all tests pass (`mvn verify`)
+- Update OpenAPI documentation for API changes
 
-The recommended way to install this project is to do it from the parent ASAPP project, which fully installs the service and its dependencies. \
-In any case, if you prefer, there is a way to only install this service:
+## Related Documentation
 
-1. Clone the project:
-    ```sh
-    git clone https://github.com/attrigo/asapp-authentication-service.git
-    ```
+- [ASAPP Main Repository](../../README.md)
+- [Architecture Guide](../../docs/claude/architecture.md)
+- [Domain-Driven Design Patterns](../../docs/claude/domain-driven-design.md)
+- [Testing Strategy](../../docs/claude/testing.md)
+- [API Conventions](../../docs/claude/api-conventions.md)
 
-2. Navigate to the project:
-    ```sh
-    cd asapp-authentication-service
-    ```
+## External Resources
 
-3. Install the project:
-    ```sh
-    mvn clean install
-    ```
-
-## Getting Started
-
-***
-
-### Start up
-
-The application can be started in dev or docker mode.
-
-* Development mode.
-    1. Start a standalone database:
-        ```sh
-        docker-compose up -d asapp-authentication-postgres-db
-        ```
-
-    2. Launch the main class [AsappAuthenticationServiceApplication](src/main/java/com/bcn/asapp/authentication/AsappAuthenticationServiceApplication.java).
-
-* Docker mode.
-    1. Build the service:
-        ```sh
-        mvn spring-boot:build-image
-        ```
-
-    2. Launch the service:
-        ```sh
-        docker-compose up -d
-        ```
-
-### Usage
-
-The project brings with an embedded [Swagger UI](https://swagger.io/tools/swagger-ui/), a web tool that facilitates the endpoint visualization and
-interaction. \
-You can use this [Swagger UI](http://localhost:8080/asapp-authentication-service/swagger-ui.html) or any other HTTP client to consume the API.
-
-Some of the exposed endpoints require authentication using JWT (JSON Web Token) bearer tokens. To access protected endpoints, you first need to get an access
-token by calling authenticate endpoint (/api/auth/token) of the authentication service with valid user credential. Once it expires, you can get a new one by
-calling the refresh authentication endpoint (/api/auth/refresh).
-
-Dates sent in requests must follow a standard ISO-8601 format.
-
-### Shut down and clean
-
-To avoid wasting local machine resources, it is recommended to stop all started Docker services once they are no longer necessary.
-
-* To stop the service:
-    ```sh
-    docker-compose down -v
-    ```
-
-The -v flag is optional, it deletes the volumes.
-
-## Dev features
-
-***
-
-### Generate Docker image
-
-* To build the Docker image:
-    ```sh
-    mvn spring-boot:build-image
-    ```
-
-### Start up a standalone database
-
-* To start up the database in standalone mode:
-    ```sh
-    docker-compose up -d asapp-authentication-postgres-db
-    ```
-
-This option creates an empty database. To update the database with the appropriate objects, use Liquibase.
-
-### Managing Database changes
-
-* To apply the changes:
-    ```sh
-    mvn liquibase:update
-    ```
-
-* To roll back the changes:
-    ```sh
-    mvn liquibase:rollback
-    ```
-
-For more information about Liquibase actions visit [Liquibase docs](https://docs.liquibase.com/home.html)
-
-### Generate the test coverage report
-
-To launch the tests and generate the coverage report:
-
-1. Generate the test report:
-    ```sh
-    mvn clean verify
-    ```
-
-2. Open the report: [index.html](target/site/jacoco-aggregate/index.html)
-
-The coverage report includes unit tests and integration tests
-
-### Run mutation testing
-
-[PITest](https://pitest.org/) is a mutation testing framework that evaluates the quality of your tests by introducing small changes (mutations) to your code and checking if your tests catch them. This helps identify weaknesses in your test suite.
-
-To run mutation testing on the domain layer:
-
-1. Execute PITest:
-    ```sh
-    mvn org.pitest:pitest-maven:mutationCoverage
-    ```
-
-2. Open the report: [index.html](target/pit-reports/index.html)
-
-The mutation testing is configured to target the domain layer (`com.bcn.asapp.authentication.domain.*`), ensuring that your core business logic has robust test coverage.
-
-PITest depends on the test execution results. Ensure tests have been executed previously (e.g., via `mvn test` or `mvn verify`) to generate the required test reports before running mutation testing.
-
-### Generate the Javadoc
-
-To generate the Javadoc:
-
-1. Generate the Javadoc files:
-    ```sh
-   mvn clean package
-   ```
-
-2. Open the Javadoc: [index.html](target/site/apidocs/index.html)
-
-### Format code
-
-The project uses [Spotless](https://github.com/diffplug/spotless/tree/main/plugin-maven) maven plugin to properly format the code. \
-Java code is formatted following style defined in [asapp_formatter.xml](../../asapp_formatter.xml) file.
-
-* To check code style: identifies code not well formatted.
-    ```sh
-    mvn spotless:check
-    ```
-
-* To format files: formats any unformatted code.
-    ```sh
-    mvn spotless:apply
-    ```
-
-## Resources
-
-***
-
-### Reference Documentation
-
-For further reference, please consider the following sections:
-
-* Architecture
-    * [Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/)
-    * [Domain-Driven Design](https://martinfowler.com/bliki/DomainDrivenDesign.html)
-* Spring Boot
-    * [Spring Boot](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
-    * [Spring Boot Actuator](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/#actuator)
-    * [Spring Boot DevTools](https://docs.spring.io/spring-boot/docs/current/reference/html/using.html#using.devtools)
-    * [Spring Boot Test](https://docs.spring.io/spring-boot/docs/current/reference/html/features.html#features.testing)
-* Spring
-    * [Spring Web MVC](https://docs.spring.io/spring-framework/reference/web/webmvc.html)
-    * [Spring Security](https://docs.spring.io/spring-security/reference/index.html)
-    * [Spring Data JDBC](https://docs.spring.io/spring-data/relational/reference/jdbc.html)
-    * [Spring Validation](https://docs.spring.io/spring-framework/reference/core/validation.html)
-    * [Spring OpenAPI](https://springdoc.org/)
-    * [Spring Security](https://docs.spring.io/spring-security/reference/)
-* Database
-    * [PostgresQL](https://www.postgresql.org/docs/current/)
-    * [Liquibase Migration](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/index.html#howto.data-initialization.migration-tool.liquibase)
-* Testing
-    * [Junit](https://junit.org/junit5/docs/current/user-guide/)
-    * [AssertJ](https://assertj.github.io/doc/)
-    * [Mockito](https://javadoc.io/doc/org.mockito/mockito-core/latest/org/mockito/Mockito.html)
-    * [PITest](https://pitest.org/)
-    * [TestContainers](https://java.testcontainers.org/)
-* Tools
-    * [MapStruct](https://mapstruct.org/documentation/)
-    * [Java JsonWebToken](https://github.com/jwtk/jjwt)
+- [Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/)
+- [Domain-Driven Design](https://martinfowler.com/bliki/DomainDrivenDesign.html)
+- [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
+- [Spring Security](https://docs.spring.io/spring-security/reference/)
+- [JJWT (Java JWT)](https://github.com/jwtk/jjwt)
+- [Liquibase](https://docs.liquibase.com/)
 
 ## License
 
-***
+ASAPP Authentication Service is Open Source software released under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0).
 
-asapp-authentication-service is Open Source software released under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0").
+---
+
+**Part of the [ASAPP Project](../../README.md)** - A Spring Boot microservices application for task management.
