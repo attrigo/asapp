@@ -1,134 +1,231 @@
 # Testing Strategy
 
-## Test Types and Naming
-- **Unit tests**: `*Tests.java` - Fast, isolated domain/application logic tests
-- **Integration tests**: `*IT.java` - Use TestContainers for PostgreSQL
-- **Controller tests**: `*ControllerIT.java` - WebTestClient for HTTP testing
-- **E2E tests**: `*E2EIT.java` - Full application context and workflows
+## Quick Reference
 
-## Test Structure and Conventions
+**Test Types**:
+- `*Tests.java` - Unit tests (domain/application logic)
+- `*IT.java` - Integration tests (with database)
+- `*E2EIT.java` - End-to-end tests (full context)
 
-### Test Class Organization
-- Use `@Nested` classes to group related tests by method
-- Nested class names use **PascalCase** describing the method or behavior under test
-  - Examples: `CreateInactiveUser`, `Authenticate`, `CheckIsAccessToken`, `GetRoleClaim`
+**Integration Test Strategies**:
 
-### Test Method Naming
-Follow the pattern: `Then<Expected>_Given<Condition>`
-- **Then** part: Describes the expected outcome or behavior
-- **Given** part: Describes the input condition or scenario
-- Examples:
-  - `ThenThrowsIllegalArgumentException_GivenUsernameIsNull()`
-  - `ThenReturnsTrue_GivenTypeAndTokenUseClaimAreAccessToken()`
-  - `ThenAuthenticatesUser_GivenAuthenticationRequestIsValid()`
+| Type | Speed | Scope | Database | Use For |
+|------|-------|-------|----------|---------|
+| **@WebMvcTest** | ⚡⚡⚡ ~2-3s | Controllers only | ❌ Mocked | REST API, validation |
+| **@DataJdbcTest** | ⚡⚡ ~5-7s | Repositories only | ✅ Real | CRUD, queries |
+| **@SpringBootTest** | ⚡ ~10-15s | Full app | ✅ Real | E2E workflows |
 
-### Test Body Structure (Given-When-Then)
-All tests follow the **Given-When-Then** pattern with comments:
+**Key Tools**:
+- **JaCoCo**: Coverage reports (`mvn verify` → `target/site/jacoco-aggregate/index.html`)
+- **PITest**: Mutation testing (`mvn org.pitest:pitest-maven:mutationCoverage`)
+- **TestContainers**: PostgreSQL containers (⚠️ use `static` for singletons!)
+- **MockServer**: Mock external services in E2E tests
 
+**CI/CD**: GitHub Actions runs `mvn verify` on push/PR to main
+
+## Key Patterns
+
+### Test Naming
 ```java
-@Test
-void ThenThrowsIllegalArgumentException_GivenUsernameIsNull() {
-    // Given
-    var user = User.inactiveUser(username, password, role);
-    var newPassword = EncodedPassword.of("{noop}new_password");
-
-    // When
-    var thrown = catchThrowable(() -> user.update(null, newPassword, role));
-
-    // Then
-    assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                      .hasMessage("Username must not be null");
-}
-```
-
-### Mocking with BDDMockito
-- Always use **BDDMockito** style instead of regular Mockito
-- Use `@ExtendWith(MockitoExtension.class)` for tests with mocks
-- Use `@Mock` for dependencies and `@InjectMocks` for the class under test
-- BDDMockito methods:
-  - `given()`: Setup mock behavior (replaces `when()`)
-  - `willThrow()`: Setup exception throwing (replaces `doThrow()`)
-  - `then()`: Verify interactions (replaces `verify()`)
-
-```java
-@ExtendWith(MockitoExtension.class)
-class DefaultAuthenticatorTests {
-
-    @Mock
-    private AuthenticationManager authenticationManager;
-
-    @InjectMocks
-    private DefaultAuthenticator defaultAuthenticator;
+@Nested
+class CreateInactiveUser {  // PascalCase: method/behavior under test
 
     @Test
-    void ThenThrowsBadCredentialsException_GivenAuthenticationFails() {
+    void ThenReturnsUser_GivenValidParameters() {  // Then<Expected>_Given<Condition>
         // Given
-        willThrow(new BadCredentialsException("Invalid credentials"))
-            .given(authenticationManager)
-            .authenticate(any(UsernamePasswordAuthenticationToken.class));
+        var username = Username.of("user@asapp.com");
 
         // When
-        var thrown = catchThrowable(() -> defaultAuthenticator.authenticate(request));
+        var user = User.inactiveUser(username, password, role);
 
         // Then
-        assertThat(thrown).isInstanceOf(BadCredentialsException.class);
-        then(authenticationManager).should(times(1))
-                                   .authenticate(any(UsernamePasswordAuthenticationToken.class));
+        assertThat(user.getId()).isNull();
     }
 }
 ```
 
-### Common Patterns
-- Use `catchThrowable()` from AssertJ to test exceptions
-- Use `assertThat()` from AssertJ for all assertions
-- Define test data as class-level constants when reused across multiple tests
-- Use `@ParameterizedTest` with `@NullAndEmptySource` for validating null/empty inputs
-
-## Test Data Builders
-Located in `testutil/` packages:
-- `UserDataFaker`: Generate fake user data
-- `JwtDataFaker`: Generate fake JWT tokens
-- `TestDataFaker`: Domain-specific test data generators
-- `TestContainerConfiguration`: PostgreSQL test container setup
-
-### When to Use Builders vs Inline Test Data
-
-**Use Test Data Builders for:**
-- **Complex technical setup**: JWT tokens, HTTP requests, database entities with many fields
-- **Infrastructure objects**: Objects that require intricate API calls (e.g., JJWT builder, Spring mocks)
-- **Repeated test data**: When the same complex setup appears across multiple tests
-- **Rationale**: Builders hide irrelevant technical details and let tests focus on the scenario being tested
-
-**Create Inline for:**
-- **Simple data**: Primitives, Strings, simple POJOs with 2-3 fields
-- **Domain objects under test**: When the object itself is what you're testing
-- **Unique scenarios**: One-off test cases where the specific values matter for understanding
-- **Rationale**: Keeps tests self-contained and explicit about what's being tested
-
-**Example:**
+### BDDMockito (Not Regular Mockito)
 ```java
-// ✅ Use builder for JWT tokens (complex technical setup)
-var expiredToken = testEncodedTokenBuilder().accessToken()
-                                           .withSecretKey(secretKey)
-                                           .expired()
-                                           .build();
+@ExtendWith(MockitoExtension.class)
+class ServiceTests {
+    @Mock private Repository repo;
+    @InjectMocks private Service service;
 
-// ✅ Create inline for simple domain objects
-var username = Username.of("user@asapp.com");
-var password = EncodedPassword.of("{noop}password");
-var role = Role.USER;
+    @Test
+    void test() {
+        // Given
+        given(repo.find()).willReturn(user);  // NOT when()
+
+        // When
+        service.execute();
+
+        // Then
+        then(repo).should().find();  // NOT verify()
+    }
+}
 ```
 
-The key principle: **Hide technical complexity that's irrelevant to the test's intent, but keep domain concepts explicit.**
+### Integration Test Patterns
 
-## Running Specific Tests
+**@WebMvcTest** (Extend WebMvcTestContext):
+```java
+class ControllerTests extends WebMvcTestContext {
+    // Mocks inherited, mockMvc available
+}
+```
+
+**@DataJdbcTest** (Repository tests):
+```java
+@DataJdbcTest
+@AutoConfigureTestDatabase(replace = NONE)
+@Import(TestContainerConfiguration.class)
+class RepositoryIT { }
+```
+
+**@SpringBootTest** (E2E tests):
+```java
+@SpringBootTest(webEnvironment = RANDOM_PORT)
+@AutoConfigureWebTestClient
+@Import(TestContainerConfiguration.class)
+@Testcontainers
+class E2EIT {
+    @Container
+    static MockServerContainer mockServer = ...;  // static = singleton!
+}
+```
+
+### Test Data Builders
+
+**Use Builders for**: Complex objects (JWT tokens, HTTP requests, entities with many fields)
+**Use Inline for**: Simple data (primitives, 2-3 field objects, domain objects under test)
+
+```java
+// Builder for complex JWT
+var token = testEncodedTokenBuilder().accessToken().expired().build();
+
+// Inline for simple domain
+var username = Username.of("user@asapp.com");
+```
+
+## Details
+
+### Test Structure Conventions
+
+**@Nested Classes**:
+- Group tests by method or behavior
+- Use PascalCase names
+- Examples: `CreateInactiveUser`, `Authenticate`, `GetRoleClaim`
+
+**Method Names**: `Then<Expected>_Given<Condition>`
+- Examples: `ThenThrowsException_GivenNull()`, `ThenReturnsTrue_GivenValid()`
+
+**Body Structure**: Always use Given-When-Then with comments
+
+**Common Patterns**:
+- Use `catchThrowable()` for exceptions (AssertJ)
+- Use `assertThat()` for all assertions (AssertJ)
+- Use `@ParameterizedTest` with `@NullAndEmptySource` for null/empty validation
+- Define test data as class-level constants when reused
+
+### WebMvcTestContext
+
+**Purpose**: Loads only web layer (controllers + security), **not** services/repositories/database
+
+**Performance**: 5-7x faster than @SpringBootTest (~2-3s vs ~10-15s)
+
+**Location**: `testutil/WebMvcTestContext.java`
+
+**Usage**: Extend this class in controller tests to inherit mocked dependencies and `mockMvc`
+
+### TestContainers Performance
+
+**⚠️ CRITICAL**: Always use `static` containers for singleton pattern:
+
+```java
+✅ CORRECT:
+@Container
+public static PostgreSQLContainer<?> container = ...;  // Starts once
+
+❌ WRONG:
+@Container
+public PostgreSQLContainer<?> container = ...;  // Starts per test class!
+```
+
+**Impact**: Static = ~5s once vs Non-static = ~5s × number of test classes
+
+### Code Coverage (JaCoCo)
+
+**Reports**:
+- Unit: `target/site/jacoco-ut/index.html`
+- Integration: `target/site/jacoco-it/index.html`
+- Aggregate: `target/site/jacoco-aggregate/index.html`
+
+**Commands**:
 ```bash
-# Run single test class
+mvn clean verify                 # Run all tests with coverage
+mvn verify -DskipUnitTests       # Integration tests only
+```
+
+**Metrics**: Line, branch, method, class, complexity coverage
+
+### Mutation Testing (PITest)
+
+**Purpose**: Validates test quality by introducing code mutations
+
+**Command**:
+```bash
+mvn org.pitest:pitest-maven:mutationCoverage
+```
+
+**Report**: `target/pit-reports/<timestamp>/index.html`
+
+**Results**:
+- Killed ✅ = Test caught mutation (good)
+- Survived ❌ = Test missed mutation (weak test)
+
+### MockServer for E2E Tests
+
+**Setup**:
+```java
+@Container
+static MockServerContainer mockServer =
+    new MockServerContainer(DockerImageName.parse("mockserver/mockserver:5.15.0"));
+
+@DynamicPropertySource
+static void overrideProperties(DynamicPropertyRegistry registry) {
+    registry.add("asapp.client.tasks.base-url", mockServer::getEndpoint);
+}
+```
+
+**Usage**: Mock external service responses in E2E tests
+
+**Example**: See `UserE2EIT.java` for mocking Tasks service
+
+### Running Tests
+
+```bash
+# Single test class
 mvn test -Dtest=UserTests
 
-# Run integration tests only
+# Single method
+mvn test -Dtest=UserTests#ThenReturnsUser_GivenUserExists
+
+# Integration tests only
 mvn verify -DskipUnitTests
 
-# Run with coverage
-mvn clean verify jacoco:report
+# With coverage
+mvn clean verify
+
+# With mutation testing
+mvn org.pitest:pitest-maven:mutationCoverage
 ```
+
+### GitHub Actions CI
+
+**Workflow**: `.github/workflows/ci.yml`
+
+**Triggers**: Push to main, PRs to main
+
+**Command**: `mvn verify` (compiles, tests, coverage)
+
+**Cache**: Maven dependencies cached for faster builds

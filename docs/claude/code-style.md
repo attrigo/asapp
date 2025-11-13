@@ -1,46 +1,149 @@
-# Code Style & Standards
+# Code Style & Build
 
-## Formatting
-- Uses Spotless Maven plugin with Eclipse formatter (`asapp_formatter.xml`)
-- License header required (`header-license` file)
-- Import order: `java|javax, org, com, , com.bcn`
-- Line endings: UNIX (LF)
-- Run `mvn spotless:apply` before committing
+## Quick Reference
 
-## Annotation Ordering
+**Formatting**: Spotless with Eclipse formatter (`asapp_formatter.xml`)
+**Import Order**: `java|javax`, `org`, `com`, blank, `com.bcn`
+**Line Endings**: UNIX (LF only)
+**License**: Apache 2.0 header required
 
-Annotation order goes from most to least relevant, top-down, based on how directly they define or affect the purpose and behavior of the class, method, or field.
+**Build**:
+- `mvn clean install` - Build all modules
+- `mvn clean verify` - Build + tests + coverage + javadoc
+- `mvn spring-boot:build-image` - Build Docker images
+- `docker-compose up -d` - Start all services
 
-### For Non-Test Classes (Controllers, Services, Entities, etc.)
-1. **Component Role**: declares the core responsibility or purpose of the class (`@Controller`, `@Service`, `@Entity`)
-2. **Configuration / Routing / Scope**: configures routes, profiles, scopes, and conditional behaviors (`@RequestMapping`, `@Scope`, `@Profile`)
-3. **API Documentation**: defines API metadata for documentation tools (`@Tag`, `@Operation`, `@Schema`)
-4. **Security**: controls access, authorization, or roles (`@PreAuthorize`, `@Secured`)
-5. **Transaction / Caching / Scheduling**: manages database transactions, cache, or scheduled tasks (`@Transactional`, `@Cacheable`)
-6. **Persistence Mapping**: defines how the class maps to a database or storage system (`@Table`, `@Id`, `@Column`)
-7. **Serialization / Deserialization**: controls how data is serialized or deserialized (`@JsonProperty`, `@JsonIgnore`)
-8. **Validation**: applies constraints and validation rules (`@NotNull`, `@Size`, `@Valid`)
-9. **Object Mapping / Transformation**: maps or transforms objects across layers (`@Mapping`, `@InheritInverseConfiguration`)
-10. **Code Generation / Boilerplate Elimination**: generates constructors, builders, getters, setters (`@Data`, `@Builder`)
-11. **Custom / Domain-Specific**: annotations specific to your business logic or architecture (`@Auditable`, `@TenantAware`)
+**Git Hooks** (auto-installed on `mvn install`):
+- **pre-commit**: Checks code style + line endings
+- **commit-msg**: Validates conventional commit format
 
-### For Test Classes (Unit, Integration, Slice Tests, etc.)
-1. **Test Context Setup**: defines how the test runs and loads context/environment (`@SpringBootTest`, `@WebMvcTest`, `@ContextConfiguration`, `@Import`, `@AutoConfigure...`, `@ExtendWith`, `@TestPropertySource`)
-2. **Environment / Infrastructure Setup**: configures runtime environment like containers, mock servers, etc. (`@Testcontainers`, `@Container`)
-3. **API Documentation**: documents test behaviors or contracts for external tools (`@Schema`, `@ApiResponse`)
-4. **Lifecycle / Execution Order**: defines how tests are executed or ordered (`@TestInstance`, `@TestMethodOrder`)
-5. **Dependency Mocking / Injection**: sets up test doubles and injection (`@MockBean`, `@Mock`, `@InjectMocks`)
-6. **Transaction / Rollback Behavior**: manages transactional context in tests (`@Transactional`, `@Rollback`)
-7. **Test Behavior / Markers**: standard JUnit or test framework annotations (`@Test`, `@DisplayName`, `@Disabled`)
-8. **Custom Test Annotations**: project-specific markers for test type or category (`@IntegrationTest`, `@SmokeTest`)
+**Commit Format**: `<type>(<scope>): <description>`
+**Types**: feat, fix, chore, docs, test, refactor, ci, build, perf, revert, style
 
-## Commit Messages
-- Follow Conventional Commits standard
-- Git hooks automatically validate commit messages
-- Format: `<type>: <description>`
-- Types: feat, fix, chore, docs, test, refactor
+## Key Patterns
 
-## Git Hooks
-Installed automatically on `mvn install`:
-- **pre-commit**: Checks code style with Spotless
-- **commit-msg**: Validates commit message format
+### Annotation Ordering (Non-Test Classes)
+1. Component Role: `@Controller`, `@Service`, `@Entity`
+2. Configuration/Routing: `@RequestMapping`, `@Scope`, `@Profile`
+3. API Documentation: `@Tag`, `@Operation`, `@Schema`
+4. Security: `@PreAuthorize`, `@Secured`
+5. Transaction/Caching: `@Transactional`, `@Cacheable`
+6. Persistence: `@Table`, `@Id`, `@Column`
+7. Serialization: `@JsonProperty`, `@JsonIgnore`
+8. Validation: `@NotNull`, `@Size`, `@Valid`
+9. Mapping: `@Mapping`, `@InheritInverseConfiguration`
+10. Code Generation: `@Data`, `@Builder`
+
+### Annotation Ordering (Test Classes)
+1. Test Context: `@SpringBootTest`, `@WebMvcTest`, `@DataJdbcTest`, `@Import`
+2. Infrastructure: `@Testcontainers`, `@Container`
+3. Mocking: `@MockBean`, `@Mock`, `@InjectMocks`
+4. Test Markers: `@Test`, `@Nested`, `@ParameterizedTest`
+
+### Commit Message Examples
+```
+feat: add user authentication
+feat(api): add refresh token endpoint
+fix(users): resolve null pointer in update
+docs: update architecture documentation
+test(authentication): add JWT validation tests
+refactor: simplify token generation logic
+chore: update dependencies
+```
+
+### Build Commands
+```bash
+# Build and test
+mvn clean verify
+
+# Run specific service
+cd services/asapp-authentication-service && mvn spring-boot:run
+
+# Docker
+mvn spring-boot:build-image
+docker-compose up -d
+docker-compose logs -f asapp-authentication-service
+docker-compose down -v
+```
+
+## Details
+
+### Spotless Configuration
+
+**Plugin**: `spotless-maven-plugin`
+**Formatter**: `asapp_formatter.xml` (Eclipse formatter)
+**License Header**: `header-license` file
+
+**Commands**:
+```bash
+mvn spotless:check   # Check formatting
+mvn spotless:apply   # Fix formatting
+```
+
+**Pre-commit Hook**: Automatically runs `spotless:check` before commit
+
+### Git Hooks
+
+**pre-commit Hook** (`git/hooks/pre-commit`):
+- Runs `mvn spotless:check` for code formatting
+- Validates staged files use LF line endings (not CRLF)
+- Blocks commit if checks fail
+- Supported extensions: java, xml, yml, properties, md, sh, sql, json, etc.
+
+**commit-msg Hook** (`git/hooks/commit-msg`):
+- Validates commit message format
+- Regex: `^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-z \-]+\))?!?: .+$`
+- Blocks commit if format invalid
+- Reference: https://www.conventionalcommits.org/
+
+**Installation**: Automatic via `mvn install` or manually via `mvn git-build-hook:install`
+
+### Build Artifacts
+
+**Generated by `mvn verify`**:
+1. Main JAR: `<artifact>-<version>.jar`
+2. Javadoc JAR: `<artifact>-<version>-javadoc.jar` (API docs)
+3. Sources JAR: `<artifact>-<version>-sources.jar` (source code)
+
+**Skip javadoc/sources** (faster build):
+```bash
+mvn install -Dmaven.javadoc.skip=true -Dmaven.source.skip=true
+```
+
+### Database Commands (Liquibase)
+
+```bash
+cd services/asapp-authentication-service
+mvn liquibase:updateSQL          # Generate migration SQL
+mvn liquibase:clearCheckSums     # Clear checksums
+mvn liquibase:rollback -Dliquibase.rollbackCount=1  # Rollback
+```
+
+### Accessing Services
+
+**Applications**:
+- Authentication: `http://localhost:8080/asapp-authentication-service`
+- Users: `http://localhost:8082/asapp-users-service`
+- Tasks: `http://localhost:8081/asapp-tasks-service`
+
+**Swagger UI**: Append `/swagger-ui.html` to any service URL
+
+**Actuator** (management ports):
+- Authentication: `http://localhost:8090/asapp-authentication-service/actuator`
+- Tasks: `http://localhost:8091/asapp-tasks-service/actuator`
+- Users: `http://localhost:8092/asapp-users-service/actuator`
+
+**Monitoring**:
+- Prometheus: `http://localhost:9090`
+- Grafana: `http://localhost:3000` (admin/secret)
+
+### Technology Stack
+
+- Java 21, Spring Boot 3.4.3
+- Database: PostgreSQL + Liquibase
+- Security: Spring Security + JWT (JJWT)
+- Mapping: MapStruct 1.6.3
+- Testing: JUnit 5, AssertJ, TestContainers, MockServer
+- Quality: Spotless, JaCoCo, PITest
+- Docs: SpringDoc OpenAPI 2.8.5
+- Observability: Actuator, Prometheus, Grafana
