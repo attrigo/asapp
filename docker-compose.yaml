@@ -37,6 +37,14 @@ services:
       - POSTGRES_PASSWORD=secret
     volumes:
       - users-postgres-db-data:/data/db
+  asapp-redis:
+    image: redis:latest
+    container_name: asapp-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
 
   # Tools
   asapp-prometheus-authentication:
@@ -149,4 +157,5 @@ volumes:
   authentication-postgres-db-data:
   tasks-postgres-db-data:
   users-postgres-db-data:
+  redis-data:
 
