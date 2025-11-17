@@ -37,6 +37,27 @@ services:
       - POSTGRES_PASSWORD=secret
     volumes:
       - users-postgres-db-data:/data/db
+  asapp-redis:
+    image: redis:7-alpine
+    container_name: asapp-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    environment:
+      - REDIS_PASSWORD=redis-secret
+    command: >
+      redis-server
+      --requirepass redis-secret
+      --appendonly yes
+      --maxmemory 100mb
+      --maxmemory-policy volatile-lru
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
 
   # Tools
   asapp-prometheus-authentication:
@@ -102,8 +123,12 @@ services:
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
       - ASAPP_SECURITY_ACCESS_TOKEN_EXPIRATION_TIME=300000
       - ASAPP_SECURITY_REFRESH_TOKEN_EXPIRATION_TIME=3600000
+      - REDIS_HOST=asapp-redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=redis-secret
     depends_on:
       - asapp-authentication-postgres-db
+      - asapp-redis
   asapp-tasks-service:
     build: .
     image: 'asapp-tasks-service:0.2.0-SNAPSHOT'
@@ -121,8 +146,12 @@ services:
       - DB_USERNAME=user
       - DB_PASSWORD=secret
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
+      - REDIS_HOST=asapp-redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=redis-secret
     depends_on:
       - asapp-tasks-postgres-db
+      - asapp-redis
   asapp-users-service:
     build: .
     image: 'asapp-users-service:0.2.0-SNAPSHOT'
@@ -141,12 +170,17 @@ services:
       - DB_PASSWORD=secret
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
       - ASAPP_CLIENT_TASKS_BASE_URL=http://asapp-tasks-service:8081/asapp-tasks-service
+      - REDIS_HOST=asapp-redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=redis-secret
     depends_on:
       - asapp-users-postgres-db
+      - asapp-redis
 
 volumes:
   prometheus_auth:
   authentication-postgres-db-data:
   tasks-postgres-db-data:
   users-postgres-db-data:
+  redis-data:
 

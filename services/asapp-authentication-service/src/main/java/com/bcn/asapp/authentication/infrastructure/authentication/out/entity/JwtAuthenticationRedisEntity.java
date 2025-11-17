@@ -16,20 +16,13 @@
 
 package com.bcn.asapp.authentication.infrastructure.authentication.out.entity;
 
-import java.util.Map;
+import java.time.Instant;
 
-import jakarta.validation.constraints.NotNull;
+import org.springframework.data.redis.core.RedisHash;
+import org.springframework.data.redis.core.TimeToLive;
 
-/**
- * Entity representing JWT claims.
- * <p>
- * Embeddable component for storing JWT claims data within {@link JwtEntity}.
- *
- * @param claims the map of claim names to claim values; must not be {@code null}
- * @since 0.2.0
- * @author attrigo
- */
-//TODO: Rename to JwtClaimsJdbcEntity
-public record JwtClaimsEntity(
-        @NotNull Map<String, Object> claims
+@RedisHash("jwt_authentications")
+public record JwtAuthenticationRedisEntity(
+        String token,
+        @TimeToLive Instant expiresAt
 ) {}

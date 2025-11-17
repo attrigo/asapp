@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRefresher;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
+import com.bcn.asapp.authentication.application.authentication.out.JwtCacheRepository;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtAuthenticationException;
 import com.bcn.asapp.authentication.infrastructure.security.JwtIssuer;
@@ -43,15 +44,20 @@ public class DefaultJwtAuthenticationRefresher implements JwtAuthenticationRefre
 
     private final JwtAuthenticationRepository jwtAuthenticationRepository;
 
+    private final JwtCacheRepository jwtCacheRepository;
+
     /**
      * Constructs a new {@code AuthenticationRefresherAdapter} with required dependencies.
      *
      * @param jwtIssuer                   the JWT issuer for generating tokens
      * @param jwtAuthenticationRepository the JWT authentication repository
+     * @param jwtCacheRepository          the JWT cache repository for Redis storage
      */
-    public DefaultJwtAuthenticationRefresher(JwtIssuer jwtIssuer, JwtAuthenticationRepository jwtAuthenticationRepository) {
+    public DefaultJwtAuthenticationRefresher(JwtIssuer jwtIssuer, JwtAuthenticationRepository jwtAuthenticationRepository,
+            JwtCacheRepository jwtCacheRepository) {
         this.jwtIssuer = jwtIssuer;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
+        this.jwtCacheRepository = jwtCacheRepository;
     }
 
     /**
@@ -77,7 +83,18 @@ public class DefaultJwtAuthenticationRefresher implements JwtAuthenticationRefre
 
             jwtAuthentication.updateTokens(newAccessToken, newRefreshToken);
 
-            return jwtAuthenticationRepository.save(jwtAuthentication);
+            var savedAuthentication = jwtAuthenticationRepository.save(jwtAuthentication);
+
+            // Update cache: delete old tokens, store new ones (best-effort)
+            try {
+                jwtCacheRepository.deleteTokenPair(currentAccessToken, currentRefreshToken);
+                jwtCacheRepository.storeTokenPair(newAccessToken, newRefreshToken, jwtAuthentication.getUserId());
+                logger.debug("Token pair updated in cache for authentication {}", jwtAuthentication.getId());
+            } catch (Exception e) {
+                logger.warn("Failed to update tokens in cache for authentication {}: {}", jwtAuthentication.getId(), e.getMessage());
+            }
+
+            return savedAuthentication;
 
         } catch (Exception e) {
             var message = String.format("Authentication could not be refreshed due to: %s", e.getMessage());

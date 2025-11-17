@@ -16,7 +16,7 @@
             <column name="id" type="uuid" defaultValueComputed="uuid_generate_v4()" remarks="The JWT authentication's unique identifier">
                 <constraints primaryKey="true" primaryKeyName="pk_jwt_authentication"/>
             </column>
-            <column name="user_id" type="uuid" remarks="the JWT authentication's user unique identifier">
+            <column name="user_id" type="uuid" remarks="The JWT authentication's user unique identifier">
                 <constraints nullable="false"/>
             </column>
             <column name="access_token_token" type="varchar2(2000)" remarks="The access token encoded JWT token">

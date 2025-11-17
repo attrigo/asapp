@@ -40,6 +40,8 @@ public final class JwtAuthentication {
 
     private JwtPair jwtPair;
 
+    private Inactivated inactivated;
+
     /**
      * Constructs a new unauthenticated {@code JwtAuthentication} instance and validates its integrity.
      *
@@ -52,22 +54,25 @@ public final class JwtAuthentication {
         this.id = null;
         this.userId = userId;
         this.jwtPair = jwtPair;
+        this.inactivated = null;
     }
 
     /**
      * Constructs a new authenticated {@code JwtAuthentication} instance and validates its integrity.
      *
-     * @param id      the JWT authentication's unique identifier
-     * @param userId  the JWT authentication's user unique identifier
-     * @param jwtPair the JWT token pair
+     * @param id          the JWT authentication's unique identifier
+     * @param userId      the JWT authentication's user unique identifier
+     * @param jwtPair     the JWT token pair
+     * @param inactivated the timestamp when authentication becomes inactivated, or {@code null} if still active
      * @throws IllegalArgumentException if id or userId is {@code null}
      */
-    private JwtAuthentication(JwtAuthenticationId id, UserId userId, JwtPair jwtPair) {
+    private JwtAuthentication(JwtAuthenticationId id, UserId userId, JwtPair jwtPair, Inactivated inactivated) {
         validateIdIsNotNull(id);
         validateUserIdIsNotNull(userId);
         this.id = id;
         this.userId = userId;
         this.jwtPair = jwtPair;
+        this.inactivated = inactivated;
     }
 
     /**
@@ -75,7 +80,7 @@ public final class JwtAuthentication {
      * <p>
      * Typically used when creating a new authentication session before persistence.
      *
-     * @param userId       the user's unique identifier
+     * @param userId       the JWT authentication's user unique identifier
      * @param accessToken  the access token
      * @param refreshToken the refresh token
      * @return a new unauthenticated {@code JwtAuthentication} instance
@@ -95,12 +100,13 @@ public final class JwtAuthentication {
      * @param userId       the JWT authentication's user unique identifier
      * @param accessToken  the access token
      * @param refreshToken the refresh token
+     * @param inactivated  the timestamp when authentication becomes inactivated, or {@code null} if still active
      * @return a new authenticated {@code JwtAuthentication} instance
      * @throws IllegalArgumentException if id or userId is {@code null}
      */
-    public static JwtAuthentication authenticated(JwtAuthenticationId id, UserId userId, Jwt accessToken, Jwt refreshToken) {
+    public static JwtAuthentication authenticated(JwtAuthenticationId id, UserId userId, Jwt accessToken, Jwt refreshToken, Inactivated inactivated) {
         var jwtPair = new JwtPair(accessToken, refreshToken);
-        return new JwtAuthentication(id, userId, jwtPair);
+        return new JwtAuthentication(id, userId, jwtPair, inactivated);
     }
 
     /**
@@ -129,6 +135,50 @@ public final class JwtAuthentication {
      */
     public void updateTokens(Jwt accessToken, Jwt refreshToken) {
         this.jwtPair = JwtPair.of(accessToken, refreshToken);
+    }
+
+    /**
+     * Marks this authentication as inactive by setting the inactivated timestamp.
+     * <p>
+     * This method is idempotent - if the authentication is already marked as inactive, the inactivated timestamp is not modified (first detection wins).
+     * <p>
+     * Validates that the refresh token has actually expired before setting the timestamp.
+     *
+     * @param inactivated the inactivated timestamp when inactivation was detected
+     * @throws IllegalArgumentException if the refresh token has not expired yet
+     */
+    public void markAsInactive(Inactivated inactivated) {
+        if (this.inactivated != null) {
+            return;
+        }
+
+        var refreshTokenNotExpired = this.jwtPair.refreshToken()
+                                                 .expiration()
+                                                 .value()
+                                                 .isBefore(inactivated.value());
+        if (refreshTokenNotExpired) {
+            throw new IllegalArgumentException("Cannot mark as inactive: refresh token has not expired yet");
+        }
+
+        this.inactivated = inactivated;
+    }
+
+    /**
+     * Checks if this authentication is inactive.
+     *
+     * @return {@code true} if inactive (inactivated is not null), {@code false} otherwise
+     */
+    public boolean isInactive() {
+        return !isActive();
+    }
+
+    /**
+     * Checks if this authentication is active.
+     *
+     * @return {@code true} if active (inactivated is null), {@code false} otherwise
+     */
+    public boolean isActive() {
+        return this.inactivated == null;
     }
 
     /**
@@ -193,6 +243,15 @@ public final class JwtAuthentication {
      */
     public JwtPair getJwtPair() {
         return this.jwtPair;
+    }
+
+    /**
+     * Returns the inactivation timestamp.
+     *
+     * @return the {@link Inactivated}, or {@code null} if still active
+     */
+    public Inactivated getInactivated() {
+        return this.inactivated;
     }
 
     /**

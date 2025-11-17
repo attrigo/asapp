@@ -16,6 +16,7 @@
 
 package com.bcn.asapp.authentication.infrastructure.authentication.out;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -115,6 +116,27 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
     @Override
     public void deleteAllByUserId(UserId userId) {
         jwtAuthenticationRepository.deleteAllJwtAuthenticationByUserId(userId.value());
+    }
+
+    /**
+     * Marks expired authentications by setting expiredAt timestamp.
+     *
+     * @return the number of authentications marked as expired
+     */
+    @Override
+    public int markExpiredAuthentications() {
+        return jwtAuthenticationRepository.markExpiredAuthentications();
+    }
+
+    /**
+     * Deletes authentications that were marked as expired before the specified cutoff date.
+     *
+     * @param cutoffDate the cutoff timestamp
+     * @return the number of deleted authentications
+     */
+    @Override
+    public int deleteAuthenticationsExpiredBefore(Instant cutoffDate) {
+        return jwtAuthenticationRepository.deleteAuthenticationsExpiredBefore(cutoffDate);
     }
 
 }

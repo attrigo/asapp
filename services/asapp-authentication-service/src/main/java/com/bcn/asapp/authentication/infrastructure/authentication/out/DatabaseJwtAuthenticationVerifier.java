@@ -37,6 +37,7 @@ import com.bcn.asapp.authentication.infrastructure.security.UnexpectedJwtTypeExc
  * @since 0.2.0
  * @author attrigo
  */
+//TODO: Rename to DefaultJwtAuthenticationVerifier?
 @Component
 public class DatabaseJwtAuthenticationVerifier implements JwtAuthenticationVerifier {
 

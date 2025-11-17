@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRevoker;
+import com.bcn.asapp.authentication.application.authentication.out.JwtCacheRepository;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtAuthenticationException;
 
@@ -40,19 +41,23 @@ public class DefaultJwtAuthenticationRevoker implements JwtAuthenticationRevoker
 
     private final JwtAuthenticationRepository jwtAuthenticationRepository;
 
+    private final JwtCacheRepository jwtCacheRepository;
+
     /**
      * Constructs a new {@code AuthenticationRevokerAdapter} with required dependencies.
      *
      * @param jwtAuthenticationRepository the JWT authentication repository
+     * @param jwtCacheRepository          the JWT cache repository for Redis storage
      */
-    public DefaultJwtAuthenticationRevoker(JwtAuthenticationRepository jwtAuthenticationRepository) {
+    public DefaultJwtAuthenticationRevoker(JwtAuthenticationRepository jwtAuthenticationRepository, JwtCacheRepository jwtCacheRepository) {
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
+        this.jwtCacheRepository = jwtCacheRepository;
     }
 
     /**
      * Revokes a JWT authentication session.
      * <p>
-     * Removes the authentication and its associated tokens from the system, effectively invalidating the session.
+     * Removes the authentication and its associated tokens from both cache and database, effectively invalidating the session immediately.
      *
      * @param authentication the {@link JwtAuthentication} to revoke
      * @throws InvalidJwtAuthenticationException if revocation fails
@@ -62,6 +67,15 @@ public class DefaultJwtAuthenticationRevoker implements JwtAuthenticationRevoker
         logger.trace("Revoking authentication with id {}", authentication.getId());
 
         try {
+            // Delete from cache first for immediate effect (best-effort)
+            try {
+                jwtCacheRepository.deleteTokenPair(authentication.accessToken(), authentication.refreshToken());
+                logger.debug("Tokens deleted from cache for authentication {}", authentication.getId());
+            } catch (Exception e) {
+                logger.warn("Failed to delete tokens from cache for authentication {}: {}", authentication.getId(), e.getMessage());
+            }
+
+            // Delete from PostgreSQL
             jwtAuthenticationRepository.deleteById(authentication.getId());
 
         } catch (Exception e) {

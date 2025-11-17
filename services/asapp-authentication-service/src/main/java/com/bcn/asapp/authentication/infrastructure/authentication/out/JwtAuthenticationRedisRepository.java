@@ -14,22 +14,15 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.authentication.infrastructure.authentication.out.entity;
+package com.bcn.asapp.authentication.infrastructure.authentication.out;
 
-import java.util.Map;
+import org.springframework.data.repository.CrudRepository;
+import org.springframework.stereotype.Repository;
 
-import jakarta.validation.constraints.NotNull;
+import com.bcn.asapp.authentication.infrastructure.authentication.out.entity.JwtAuthenticationRedisEntity;
 
-/**
- * Entity representing JWT claims.
- * <p>
- * Embeddable component for storing JWT claims data within {@link JwtEntity}.
- *
- * @param claims the map of claim names to claim values; must not be {@code null}
- * @since 0.2.0
- * @author attrigo
- */
-//TODO: Rename to JwtClaimsJdbcEntity
-public record JwtClaimsEntity(
-        @NotNull Map<String, Object> claims
-) {}
+//TODO: Move to repository/persistence package?
+@Repository
+public interface JwtAuthenticationRedisRepository extends CrudRepository<JwtAuthenticationRedisEntity, String> {
+
+}

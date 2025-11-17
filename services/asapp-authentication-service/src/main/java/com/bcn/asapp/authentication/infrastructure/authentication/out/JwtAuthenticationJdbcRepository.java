@@ -16,6 +16,7 @@
 
 package com.bcn.asapp.authentication.infrastructure.authentication.out;
 
+import java.time.Instant;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -37,6 +38,7 @@ import com.bcn.asapp.authentication.infrastructure.authentication.out.entity.Jwt
  * @see ListCrudRepository
  * @author attrigo
  */
+//TODO: Move to repository/persistence package?
 @Repository
 public interface JwtAuthenticationJdbcRepository extends ListCrudRepository<JwtAuthenticationEntity, UUID> {
 
@@ -64,5 +66,28 @@ public interface JwtAuthenticationJdbcRepository extends ListCrudRepository<JwtA
     @Modifying
     @Query("DELETE FROM jwt_authentications a WHERE a.user_id = :userId")
     void deleteAllJwtAuthenticationByUserId(UUID userId);
+
+    /**
+     * Marks expired authentications by setting expired_at to current timestamp.
+     * <p>
+     * Updates authentications where refresh token has expired but expired_at is still null.
+     *
+     * @return the number of authentications marked as expired
+     */
+    @Modifying
+    @Query("UPDATE jwt_authentications SET expired_at = CURRENT_TIMESTAMP WHERE expired_at IS NULL AND refresh_token_expiration < CURRENT_TIMESTAMP")
+    int markExpiredAuthentications();
+
+    /**
+     * Deletes authentications that were marked as expired before the specified cutoff date.
+     * <p>
+     * Only deletes authentications where expired_at is not null and older than the cutoff.
+     *
+     * @param cutoffDate the cutoff timestamp
+     * @return the number of deleted authentications
+     */
+    @Modifying
+    @Query("DELETE FROM jwt_authentications WHERE expired_at IS NOT NULL AND expired_at < :cutoffDate")
+    int deleteAuthenticationsExpiredBefore(Instant cutoffDate);
 
 }

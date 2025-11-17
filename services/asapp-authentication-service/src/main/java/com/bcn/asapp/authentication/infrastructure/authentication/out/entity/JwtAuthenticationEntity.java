@@ -16,6 +16,7 @@
 
 package com.bcn.asapp.authentication.infrastructure.authentication.out.entity;
 
+import java.time.Instant;
 import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
@@ -35,13 +36,16 @@ import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
  * @param userId       the user's unique identifier; must not be {@code null}
  * @param accessToken  the embedded access token entity
  * @param refreshToken the embedded refresh token entity
+ * @param inactivated  the timestamp when authentication becomes inactive, or {@code null} if still active
  * @since 0.2.0
  * @author attrigo
  */
+//TODO: Rename to JwtAuthenticationJdbcEntity
 @Table("jwt_authentications")
 public record JwtAuthenticationEntity(
         @Id UUID id,
         @NotNull UUID userId,
         @Embedded.Nullable(prefix = "access_token_") JwtEntity accessToken,
-        @Embedded.Nullable(prefix = "refresh_token_") JwtEntity refreshToken
+        @Embedded.Nullable(prefix = "refresh_token_") JwtEntity refreshToken,
+        Instant inactivated
 ) {}

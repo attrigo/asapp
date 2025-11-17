@@ -19,13 +19,7 @@ package com.bcn.asapp.tasks.infrastructure.task.mapper;
 import org.mapstruct.ObjectFactory;
 import org.springframework.stereotype.Component;
 
-import com.bcn.asapp.tasks.domain.task.Description;
-import com.bcn.asapp.tasks.domain.task.EndDate;
-import com.bcn.asapp.tasks.domain.task.StartDate;
 import com.bcn.asapp.tasks.domain.task.Task;
-import com.bcn.asapp.tasks.domain.task.TaskId;
-import com.bcn.asapp.tasks.domain.task.Title;
-import com.bcn.asapp.tasks.domain.task.UserId;
 import com.bcn.asapp.tasks.infrastructure.task.out.entity.TaskEntity;
 
 /**
@@ -82,12 +76,12 @@ public class TaskObjectFactory {
      */
     @ObjectFactory
     public Task toTask(TaskEntity source) {
-        var taskId = TaskId.of(source.id());
-        var userId = UserId.of(source.userId());
-        var title = Title.of(source.title());
-        var description = Description.ofNullable(source.description());
-        var startDate = StartDate.ofNullable(source.startDate());
-        var endDate = EndDate.ofNullable(source.endDate());
+        var taskId = taskIdMapper.toTaskId(source.id());
+        var userId = userIdMapper.toUserId(source.userId());
+        var title = titleMapper.toTitle(source.title());
+        var description = descriptionMapper.toDescription(source.description());
+        var startDate = startDateMapper.toStartDate(source.startDate());
+        var endDate = endDateMapper.toEndDate(source.endDate());
 
         return Task.reconstitute(taskId, userId, title, description, startDate, endDate);
     }

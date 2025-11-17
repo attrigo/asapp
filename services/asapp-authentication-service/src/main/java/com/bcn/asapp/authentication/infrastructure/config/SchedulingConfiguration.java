@@ -14,22 +14,22 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.authentication.infrastructure.authentication.out.entity;
+package com.bcn.asapp.authentication.infrastructure.config;
 
-import java.util.Map;
-
-import jakarta.validation.constraints.NotNull;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
- * Entity representing JWT claims.
+ * Configuration class for enabling scheduled tasks.
  * <p>
- * Embeddable component for storing JWT claims data within {@link JwtEntity}.
+ * Enables Spring's scheduled task execution for components annotated with {@code @Scheduled}.
  *
- * @param claims the map of claim names to claim values; must not be {@code null}
- * @since 0.2.0
+ * @since 0.3.0
+ * @see org.springframework.scheduling.annotation.Scheduled
  * @author attrigo
  */
-//TODO: Rename to JwtClaimsJdbcEntity
-public record JwtClaimsEntity(
-        @NotNull Map<String, Object> claims
-) {}
+@Configuration
+@EnableScheduling
+public class SchedulingConfiguration {
+
+}

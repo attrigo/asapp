@@ -23,6 +23,7 @@ import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationGranter;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
+import com.bcn.asapp.authentication.application.authentication.out.JwtCacheRepository;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
 import com.bcn.asapp.authentication.infrastructure.security.JwtIssuer;
@@ -44,15 +45,20 @@ public class DefaultJwtAuthenticationGranter implements JwtAuthenticationGranter
 
     private final JwtAuthenticationRepository jwtAuthenticationRepository;
 
+    private final JwtCacheRepository jwtCacheRepository;
+
     /**
      * Constructs a new {@code AuthenticationGranterAdapter} with required dependencies.
      *
      * @param jwtIssuer                   the JWT issuer for generating tokens
      * @param jwtAuthenticationRepository the JWT authentication repository
+     * @param jwtCacheRepository          the JWT cache repository for Redis storage
      */
-    public DefaultJwtAuthenticationGranter(JwtIssuer jwtIssuer, JwtAuthenticationRepository jwtAuthenticationRepository) {
+    public DefaultJwtAuthenticationGranter(JwtIssuer jwtIssuer, JwtAuthenticationRepository jwtAuthenticationRepository,
+            JwtCacheRepository jwtCacheRepository) {
         this.jwtIssuer = jwtIssuer;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
+        this.jwtCacheRepository = jwtCacheRepository;
     }
 
     /**
@@ -75,7 +81,17 @@ public class DefaultJwtAuthenticationGranter implements JwtAuthenticationGranter
 
             var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, accessToken, refreshToken);
 
-            return jwtAuthenticationRepository.save(jwtAuthentication);
+            var savedAuthentication = jwtAuthenticationRepository.save(jwtAuthentication);
+
+            // Store tokens in Redis cache (best-effort, don't fail login on Redis errors)
+            try {
+                jwtCacheRepository.storeTokenPair(accessToken, refreshToken, userId);
+                logger.debug("Tokens stored in cache for user {}", userId.value());
+            } catch (Exception e) {
+                logger.warn("Failed to store tokens in cache for user {}: {}", userId.value(), e.getMessage());
+            }
+
+            return savedAuthentication;
 
         } catch (Exception e) {
             var message = String.format("Authentication could not be granted due to: %s", e.getMessage());

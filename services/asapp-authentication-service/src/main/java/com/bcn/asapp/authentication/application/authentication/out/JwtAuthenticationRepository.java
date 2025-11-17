@@ -16,6 +16,7 @@
 
 package com.bcn.asapp.authentication.application.authentication.out;
 
+import java.time.Instant;
 import java.util.Optional;
 
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
@@ -74,5 +75,24 @@ public interface JwtAuthenticationRepository {
      * @param userId the user's unique identifier
      */
     void deleteAllByUserId(UserId userId);
+
+    /**
+     * Marks authentications as expired by setting expiredAt timestamp.
+     * <p>
+     * Updates authentications where refresh token has expired but expiredAt is null.
+     *
+     * @return the number of authentications marked as expired
+     */
+    int markExpiredAuthentications();
+
+    /**
+     * Deletes authentications that were marked as expired before the specified cutoff date.
+     * <p>
+     * Only deletes authentications where expiredAt is not null and older than cutoff.
+     *
+     * @param cutoffDate the cutoff timestamp (e.g., now() - 30 days)
+     * @return the number of deleted authentications
+     */
+    int deleteAuthenticationsExpiredBefore(Instant cutoffDate);
 
 }

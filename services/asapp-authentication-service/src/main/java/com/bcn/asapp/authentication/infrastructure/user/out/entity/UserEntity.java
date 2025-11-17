@@ -36,6 +36,7 @@ import jakarta.validation.constraints.NotNull;
  * @since 0.2.0
  * @author attrigo
  */
+//TODO: Rename to UserJdbcEntity
 @Table("users")
 public record UserEntity(
         @Id UUID id,

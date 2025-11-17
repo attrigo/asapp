@@ -35,6 +35,7 @@ import jakarta.validation.constraints.NotNull;
  * @since 0.2.0
  * @author attrigo
  */
+//TODO: Rename to JwtJdbcEntity
 public record JwtEntity(
         @NotBlank String token,
         @NotNull String type,

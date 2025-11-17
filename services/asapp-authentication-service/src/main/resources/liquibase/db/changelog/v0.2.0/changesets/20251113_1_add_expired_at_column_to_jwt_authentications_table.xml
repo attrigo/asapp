@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+        http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="20251113_1-1" author="attrigo">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists tableName="jwt_authentications" columnName="inactivated"/>
+            </not>
+        </preConditions>
+
+        <addColumn tableName="jwt_authentications">
+            <column name="inactivated" type="timestamp" remarks="The timestamp when authentication becomes inactive, or null if still active">
+                <constraints nullable="true"/>
+            </column>
+        </addColumn>
+
+        <createIndex tableName="jwt_authentications" indexName="idx_jwt_auth_inactivated">
+            <column name="inactivated"/>
+        </createIndex>
+
+        <rollback>
+            <dropIndex tableName="jwt_authentications" indexName="idx_jwt_auth_inactivated"/>
+            <dropColumn tableName="jwt_authentications" columnName="inactivated"/>
+        </rollback>
+    </changeSet>
+
+</databaseChangeLog>

@@ -41,17 +41,23 @@ public class JwtAuthenticationObjectFactory {
 
     private final JwtMapper jwtMapper;
 
+    private final InactivatedMapper inactivatedMapper;
+
     /**
      * Constructs a new {@code JwtAuthenticationObjectFactory} with required mappers.
      *
-     * @param idMapper     the mapper for JWT authentication IDs
-     * @param userIdMapper the mapper for user IDs
-     * @param jwtMapper    the mapper for JWT tokens
+     * @param idMapper          the mapper for JWT authentication IDs
+     * @param userIdMapper      the mapper for user IDs
+     * @param jwtMapper         the mapper for JWT tokens
+     * @param inactivatedMapper the mapper for inactivated timestamps
      */
-    public JwtAuthenticationObjectFactory(JwtAuthenticationIdMapper idMapper, UserIdMapper userIdMapper, JwtMapper jwtMapper) {
+    public JwtAuthenticationObjectFactory(JwtAuthenticationIdMapper idMapper, UserIdMapper userIdMapper, JwtMapper jwtMapper,
+            InactivatedMapper inactivatedMapper) {
+
         this.idMapper = idMapper;
         this.userIdMapper = userIdMapper;
         this.jwtMapper = jwtMapper;
+        this.inactivatedMapper = inactivatedMapper;
     }
 
     /**
@@ -64,15 +70,13 @@ public class JwtAuthenticationObjectFactory {
      */
     @ObjectFactory
     public JwtAuthenticationEntity toJwtAuthenticationEntity(JwtAuthentication source) {
-        var id = source.getId() != null ? source.getId()
-                                                .value() : null;
-        var userId = source.getUserId() != null ? source.getUserId()
-                                                        .value() : null;
-
+        var id = idMapper.toUUID(source.getId());
+        var userId = userIdMapper.toUUID(source.getUserId());
         var accessToken = jwtMapper.toJwtEntity(source.accessToken());
         var refreshToken = jwtMapper.toJwtEntity(source.refreshToken());
+        var inactivated = inactivatedMapper.toInstant(source.getInactivated());
 
-        return new JwtAuthenticationEntity(id, userId, accessToken, refreshToken);
+        return new JwtAuthenticationEntity(id, userId, accessToken, refreshToken, inactivated);
     }
 
     /**
@@ -93,7 +97,8 @@ public class JwtAuthenticationObjectFactory {
             return JwtAuthentication.unAuthenticated(userId, accessToken, refreshToken);
         } else {
             var id = idMapper.toJwtAuthenticationId(source.id());
-            return JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
+            var inactivated = inactivatedMapper.toInactivated(source.inactivated());
+            return JwtAuthentication.authenticated(id, userId, accessToken, refreshToken, inactivated);
         }
     }
 

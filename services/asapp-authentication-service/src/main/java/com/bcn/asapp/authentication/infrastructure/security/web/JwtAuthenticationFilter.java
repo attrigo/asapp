@@ -45,7 +45,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
 import com.bcn.asapp.authentication.infrastructure.security.JwtAuthenticationToken;
-import com.bcn.asapp.authentication.infrastructure.security.JwtVerifier;
+import com.bcn.asapp.authentication.infrastructure.security.RedisJwtVerifier;
 
 /**
  * HTTP filter for JWT-based verification integrated with Spring Security.
@@ -68,18 +68,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
-    private final JwtVerifier jwtVerifier;
+    private final RedisJwtVerifier redisJwtVerifier;
 
     private final Set<RequestMatcher> excludedMatchers;
 
     /**
      * Constructs a new {@code JwtAuthenticationFilter} with required dependencies.
      *
-     * @param jwtVerifier the JWT verifier for validating tokens
+     * @param redisJwtVerifier the Redis JWT verifier for validating tokens
      */
-    public JwtAuthenticationFilter(JwtVerifier jwtVerifier) {
-        this.jwtVerifier = jwtVerifier;
-
+    public JwtAuthenticationFilter(RedisJwtVerifier redisJwtVerifier) {
+        this.redisJwtVerifier = redisJwtVerifier;
         this.excludedMatchers = buildExcludedMatchers();
     }
 
@@ -122,7 +121,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         var bearerToken = optionalBearerToken.get();
         try {
-            var decodedJwt = jwtVerifier.verifyAccessToken(bearerToken);
+            var decodedJwt = redisJwtVerifier.verifyAccessToken(bearerToken);
 
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
