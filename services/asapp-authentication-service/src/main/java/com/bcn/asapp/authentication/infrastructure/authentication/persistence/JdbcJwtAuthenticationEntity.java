@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.authentication.infrastructure.authentication.out.entity;
+package com.bcn.asapp.authentication.infrastructure.authentication.persistence;
 
 import java.util.UUID;
 
@@ -39,9 +39,9 @@ import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
  * @author attrigo
  */
 @Table("jwt_authentications")
-public record JwtAuthenticationEntity(
+public record JdbcJwtAuthenticationEntity(
         @Id UUID id,
         @NotNull UUID userId,
-        @Embedded.Nullable(prefix = "access_token_") JwtEntity accessToken,
-        @Embedded.Nullable(prefix = "refresh_token_") JwtEntity refreshToken
+        @Embedded.Nullable(prefix = "access_token_") JdbcJwtEntity accessToken,
+        @Embedded.Nullable(prefix = "refresh_token_") JdbcJwtEntity refreshToken
 ) {}

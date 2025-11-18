@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.authentication.infrastructure.user.out;
+package com.bcn.asapp.authentication.infrastructure.user.persistence;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -24,12 +24,10 @@ import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.bcn.asapp.authentication.infrastructure.user.out.entity.UserEntity;
-
 /**
  * Spring Data JDBC repository for user persistence operations.
  * <p>
- * Provides database access methods for {@link UserEntity} using Spring Data JDBC.
+ * Provides database access methods for {@link JdbcUserEntity} using Spring Data JDBC.
  * <p>
  * Extends {@link ListCrudRepository} to inherit standard CRUD operations.
  *
@@ -38,15 +36,15 @@ import com.bcn.asapp.authentication.infrastructure.user.out.entity.UserEntity;
  * @author attrigo
  */
 @Repository
-public interface UserJdbcRepository extends ListCrudRepository<UserEntity, UUID> {
+public interface JdbcUserRepository extends ListCrudRepository<JdbcUserEntity, UUID> {
 
     /**
      * Finds a user by username.
      *
      * @param username the username to search for
-     * @return an {@link Optional} containing the {@link UserEntity} if found, {@link Optional#empty} otherwise
+     * @return an {@link Optional} containing the {@link JdbcUserEntity} if found, {@link Optional#empty} otherwise
      */
-    Optional<UserEntity> findByUsername(String username);
+    Optional<JdbcUserEntity> findByUsername(String username);
 
     /**
      * Deletes a user by their unique identifier.

@@ -30,7 +30,7 @@ import org.springframework.data.jdbc.repository.config.AbstractJdbcConfiguration
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.bcn.asapp.authentication.infrastructure.authentication.out.entity.JwtClaimsEntity;
+import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtClaimsEntity;
 
 /**
  * Configuration class for custom JDBC type conversions.
@@ -69,13 +69,13 @@ public class JdbcConversionsConfiguration extends AbstractJdbcConfiguration {
     /**
      * Converter for reading JWT claims from PostgresSQL JSONB to domain entity.
      * <p>
-     * Converts PostgresSQL {@link PGobject} JSONB values to {@link JwtClaimsEntity} instances.
+     * Converts PostgresSQL {@link PGobject} JSONB values to {@link JdbcJwtClaimsEntity} instances.
      *
      * @author attrigo
      * @since 0.2.0
      */
     @ReadingConverter
-    static class ClaimsReadingConverter implements Converter<PGobject, JwtClaimsEntity> {
+    static class ClaimsReadingConverter implements Converter<PGobject, JdbcJwtClaimsEntity> {
 
         private final ObjectMapper objectMapper;
 
@@ -92,14 +92,14 @@ public class JdbcConversionsConfiguration extends AbstractJdbcConfiguration {
          * Converts a PostgresSQL JSONB object to a JWT claims entity.
          *
          * @param source the {@link PGobject} containing JSONB data
-         * @return the {@link JwtClaimsEntity} containing parsed claims
+         * @return the {@link JdbcJwtClaimsEntity} containing parsed claims
          * @throws IllegalArgumentException if JSON parsing fails
          */
         @Override
-        public JwtClaimsEntity convert(PGobject source) {
+        public JdbcJwtClaimsEntity convert(PGobject source) {
             try {
                 var claimsMap = objectMapper.readValue(source.getValue(), new TypeReference<HashMap<String, Object>>() {});
-                return new JwtClaimsEntity(claimsMap);
+                return new JdbcJwtClaimsEntity(claimsMap);
             } catch (Exception e) {
                 throw new IllegalArgumentException("Failed to convert JSON string to JWT claims", e);
             }
@@ -110,13 +110,13 @@ public class JdbcConversionsConfiguration extends AbstractJdbcConfiguration {
     /**
      * Converter for writing JWT claims from domain entity to PostgresSQL JSONB.
      * <p>
-     * Converts {@link JwtClaimsEntity} instances to PostgresSQL {@link PGobject} JSONB values.
+     * Converts {@link JdbcJwtClaimsEntity} instances to PostgresSQL {@link PGobject} JSONB values.
      *
      * @author attrigo
      * @since 0.2.0
      */
     @WritingConverter
-    static class ClaimsWritingConverter implements Converter<JwtClaimsEntity, PGobject> {
+    static class ClaimsWritingConverter implements Converter<JdbcJwtClaimsEntity, PGobject> {
 
         private final ObjectMapper objectMapper;
 
@@ -132,12 +132,12 @@ public class JdbcConversionsConfiguration extends AbstractJdbcConfiguration {
         /**
          * Converts a JWT claims entity to a PostgresSQL JSONB object.
          *
-         * @param source the {@link JwtClaimsEntity} to convert
+         * @param source the {@link JdbcJwtClaimsEntity} to convert
          * @return the {@link PGobject} containing JSONB data
          * @throws IllegalArgumentException if JSON serialization fails
          */
         @Override
-        public PGobject convert(JwtClaimsEntity source) {
+        public PGobject convert(JdbcJwtClaimsEntity source) {
             try {
                 String json = objectMapper.writeValueAsString(source.claims());
                 var jsonObject = new PGobject();

@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.authentication.infrastructure.authentication.out;
+package com.bcn.asapp.authentication.infrastructure.authentication.persistence;
 
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ROLE;
 import static com.bcn.asapp.authentication.testutil.JwtAssertions.assertThatJwt;
@@ -34,21 +34,20 @@ import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.context.annotation.Import;
 
-import com.bcn.asapp.authentication.infrastructure.authentication.out.entity.JwtAuthenticationEntity;
-import com.bcn.asapp.authentication.infrastructure.user.out.UserJdbcRepository;
-import com.bcn.asapp.authentication.infrastructure.user.out.entity.UserEntity;
+import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserEntity;
+import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserRepository;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 
 @DataJdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import({ TestContainerConfiguration.class, JacksonAutoConfiguration.class })
-class JwtAuthenticationJdbcRepositoryIT {
+class JdbcJwtAuthenticationRepositoryIT {
 
     @Autowired
-    private JwtAuthenticationJdbcRepository jwtAuthenticationRepository;
+    private JdbcJwtAuthenticationRepository jwtAuthenticationRepository;
 
     @Autowired
-    private UserJdbcRepository userRepository;
+    private JdbcUserRepository userRepository;
 
     @BeforeEach
     void beforeEach() {
@@ -169,7 +168,7 @@ class JwtAuthenticationJdbcRepositoryIT {
 
     }
 
-    private void assertJwtAuthentication(JwtAuthenticationEntity actualJwtAuthentication, UserEntity expectedUser) {
+    private void assertJwtAuthentication(JdbcJwtAuthenticationEntity actualJwtAuthentication, JdbcUserEntity expectedUser) {
         var expectedRoleName = expectedUser.role();
         var accessToken = actualJwtAuthentication.accessToken();
         var refreshToken = actualJwtAuthentication.refreshToken();

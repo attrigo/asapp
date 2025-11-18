@@ -46,10 +46,10 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 import com.bcn.asapp.authentication.domain.user.Role;
-import com.bcn.asapp.authentication.infrastructure.authentication.out.entity.JwtAuthenticationEntity;
-import com.bcn.asapp.authentication.infrastructure.authentication.out.entity.JwtClaimsEntity;
-import com.bcn.asapp.authentication.infrastructure.authentication.out.entity.JwtEntity;
-import com.bcn.asapp.authentication.infrastructure.user.out.entity.UserEntity;
+import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationEntity;
+import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtClaimsEntity;
+import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtEntity;
+import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserEntity;
 
 public class TestFactory {
 
@@ -63,7 +63,7 @@ public class TestFactory {
 
         TestUserFactory() {}
 
-        public static UserEntity defaultTestUser() {
+        public static JdbcUserEntity defaultTestUser() {
             return new Builder().build();
         }
 
@@ -112,9 +112,9 @@ public class TestFactory {
                 return this;
             }
 
-            public UserEntity build() {
+            public JdbcUserEntity build() {
                 var passwordEncoded = passwordEncoderPrefix + passwordEncoder.encode(password);
-                return new UserEntity(null, username, passwordEncoded, role);
+                return new JdbcUserEntity(null, username, passwordEncoded, role);
             }
 
         }
@@ -129,7 +129,7 @@ public class TestFactory {
 
         TestJwtAuthenticationFactory() {}
 
-        public static JwtAuthenticationEntity defaultTestJwtAuthentication() {
+        public static JdbcJwtAuthenticationEntity defaultTestJwtAuthentication() {
             return new Builder().build();
         }
 
@@ -141,9 +141,9 @@ public class TestFactory {
 
             private UUID userId;
 
-            private JwtEntity accessToken;
+            private JdbcJwtEntity accessToken;
 
-            private JwtEntity refreshToken;
+            private JdbcJwtEntity refreshToken;
 
             Builder() {
                 this.userId = UUID.randomUUID();
@@ -156,21 +156,21 @@ public class TestFactory {
                 return this;
             }
 
-            public Builder withAccessToken(JwtEntity accessToken) {
+            public Builder withAccessToken(JdbcJwtEntity accessToken) {
                 this.accessToken = accessToken;
                 return this;
             }
 
-            public Builder withRefreshToken(JwtEntity refreshToken) {
+            public Builder withRefreshToken(JdbcJwtEntity refreshToken) {
                 this.refreshToken = refreshToken;
                 return this;
             }
 
-            public JwtAuthenticationEntity build() {
-                return new JwtAuthenticationEntity(null, userId, accessToken, refreshToken);
+            public JdbcJwtAuthenticationEntity build() {
+                return new JdbcJwtAuthenticationEntity(null, userId, accessToken, refreshToken);
             }
 
-            private static JwtEntity createJwtEntity(String type) {
+            private static JdbcJwtEntity createJwtEntity(String type) {
                 var subject = TEST_JWT_AUTH_SUBJECT;
                 var issuedAt = generateRandomIssueAt();
                 var expiration = issuedAt.plus(EXPIRATION_TIME, SECONDS);
@@ -184,8 +184,8 @@ public class TestFactory {
                                                      .withExpiration(expiration)
                                                      .build();
 
-                var claims = new JwtClaimsEntity(claimsMap);
-                return new JwtEntity(token, type, subject, claims, issuedAt, expiration);
+                var claims = new JdbcJwtClaimsEntity(claimsMap);
+                return new JdbcJwtEntity(token, type, subject, claims, issuedAt, expiration);
             }
 
         }

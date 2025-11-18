@@ -20,11 +20,11 @@ import org.mapstruct.ObjectFactory;
 import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
-import com.bcn.asapp.authentication.infrastructure.authentication.out.entity.JwtAuthenticationEntity;
+import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationEntity;
 import com.bcn.asapp.authentication.infrastructure.user.mapper.UserIdMapper;
 
 /**
- * MapStruct object factory for mapping between {@link JwtAuthentication} domain entities and {@link JwtAuthenticationEntity} database entities.
+ * MapStruct object factory for mapping between {@link JwtAuthentication} domain entities and {@link JdbcJwtAuthenticationEntity} database entities.
  * <p>
  * Ensures that domain and database entities are created through their proper factory methods with complete validation, maintaining domain integrity during
  * mapping.
@@ -55,36 +55,36 @@ public class JwtAuthenticationObjectFactory {
     }
 
     /**
-     * Creates a database {@link JwtAuthenticationEntity} entity from a domain {@link JwtAuthentication}.
+     * Creates a database {@link JdbcJwtAuthenticationEntity} entity from a domain {@link JwtAuthentication}.
      * <p>
      * Maps domain value objects to their primitive representations for persistence.
      *
      * @param source the {@link JwtAuthentication} domain entity
-     * @return the {@link JwtAuthenticationEntity} database entity
+     * @return the {@link JdbcJwtAuthenticationEntity} database entity
      */
     @ObjectFactory
-    public JwtAuthenticationEntity toJwtAuthenticationEntity(JwtAuthentication source) {
+    public JdbcJwtAuthenticationEntity toJdbcJwtAuthenticationEntity(JwtAuthentication source) {
         var id = source.getId() != null ? source.getId()
                                                 .value() : null;
         var userId = source.getUserId() != null ? source.getUserId()
                                                         .value() : null;
 
-        var accessToken = jwtMapper.toJwtEntity(source.accessToken());
-        var refreshToken = jwtMapper.toJwtEntity(source.refreshToken());
+        var accessToken = jwtMapper.toJdbcJwtEntity(source.accessToken());
+        var refreshToken = jwtMapper.toJdbcJwtEntity(source.refreshToken());
 
-        return new JwtAuthenticationEntity(id, userId, accessToken, refreshToken);
+        return new JdbcJwtAuthenticationEntity(id, userId, accessToken, refreshToken);
     }
 
     /**
-     * Creates a domain {@link JwtAuthentication} from a database {@link JwtAuthenticationEntity} entity.
+     * Creates a domain {@link JwtAuthentication} from a database {@link JdbcJwtAuthenticationEntity} entity.
      * <p>
      * Maps entity fields to value objects and constructs either an authenticated or unauthenticated JWT authentication using the domain's factory methods.
      *
-     * @param source the {@link JwtAuthenticationEntity} database entity
+     * @param source the {@link JdbcJwtAuthenticationEntity} database entity
      * @return the {@link JwtAuthentication} domain entity
      */
     @ObjectFactory
-    public JwtAuthentication toJwtAuthentication(JwtAuthenticationEntity source) {
+    public JwtAuthentication toJwtAuthentication(JdbcJwtAuthenticationEntity source) {
         var userId = userIdMapper.toUserId(source.userId());
         var accessToken = jwtMapper.toJwt(source.accessToken());
         var refreshToken = jwtMapper.toJwt(source.refreshToken());

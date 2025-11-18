@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.authentication.infrastructure.authentication.out;
+package com.bcn.asapp.authentication.infrastructure.authentication.persistence;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -24,12 +24,10 @@ import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.bcn.asapp.authentication.infrastructure.authentication.out.entity.JwtAuthenticationEntity;
-
 /**
  * Spring Data JDBC repository for JWT authentication persistence operations.
  * <p>
- * Provides database access methods for {@link JwtAuthenticationEntity} using Spring Data JDBC.
+ * Provides database access methods for {@link JdbcJwtAuthenticationEntity} using Spring Data JDBC.
  * <p>
  * Extends {@link ListCrudRepository} to inherit standard CRUD operations.
  *
@@ -38,23 +36,23 @@ import com.bcn.asapp.authentication.infrastructure.authentication.out.entity.Jwt
  * @author attrigo
  */
 @Repository
-public interface JwtAuthenticationJdbcRepository extends ListCrudRepository<JwtAuthenticationEntity, UUID> {
+public interface JdbcJwtAuthenticationRepository extends ListCrudRepository<JdbcJwtAuthenticationEntity, UUID> {
 
     /**
      * Finds a JWT authentication by its access token.
      *
      * @param accessToken the access token string
-     * @return an {@link Optional} containing the {@link JwtAuthenticationEntity} if found, empty otherwise
+     * @return an {@link Optional} containing the {@link JdbcJwtAuthenticationEntity} if found, empty otherwise
      */
-    Optional<JwtAuthenticationEntity> findByAccessTokenToken(String accessToken);
+    Optional<JdbcJwtAuthenticationEntity> findByAccessTokenToken(String accessToken);
 
     /**
      * Finds a JWT authentication by its refresh token.
      *
      * @param refreshToken the refresh token string
-     * @return an {@link Optional} containing the {@link JwtAuthenticationEntity} if found, empty otherwise
+     * @return an {@link Optional} containing the {@link JdbcJwtAuthenticationEntity} if found, empty otherwise
      */
-    Optional<JwtAuthenticationEntity> findByRefreshTokenToken(String refreshToken);
+    Optional<JdbcJwtAuthenticationEntity> findByRefreshTokenToken(String refreshToken);
 
     /**
      * Deletes all JWT authentications associated with a user.
