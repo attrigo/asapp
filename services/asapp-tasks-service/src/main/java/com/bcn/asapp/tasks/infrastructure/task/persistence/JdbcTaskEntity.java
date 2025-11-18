@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.tasks.infrastructure.task.out.entity;
+package com.bcn.asapp.tasks.infrastructure.task.persistence;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -41,7 +41,7 @@ import jakarta.validation.constraints.NotNull;
  * @author attrigo
  */
 @Table("tasks")
-public record TaskEntity(
+public record JdbcTaskEntity(
         @Id UUID id,
         @Column("user_id") @NotNull UUID userId,
         @NotBlank String title,

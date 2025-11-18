@@ -31,7 +31,7 @@ import com.bcn.asapp.tasks.infrastructure.task.in.response.GetAllTasksResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetTaskByIdResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetTasksByUserIdResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.UpdateTaskResponse;
-import com.bcn.asapp.tasks.infrastructure.task.out.entity.TaskEntity;
+import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskEntity;
 
 /**
  * MapStruct mapper for mapping between task-related objects.
@@ -65,19 +65,19 @@ public interface TaskMapper {
     UpdateTaskCommand toUpdateTaskCommand(UUID taskId, UpdateTaskRequest request);
 
     /**
-     * Maps a domain {@link Task} to a database {@link TaskEntity} entity.
+     * Maps a domain {@link Task} to a database {@link JdbcTaskEntity} entity.
      *
      * @param task the {@link Task} domain entity
-     * @return the {@link TaskEntity} database entity
+     * @return the {@link JdbcTaskEntity} database entity
      */
-    TaskEntity toTaskEntity(Task task);
+    JdbcTaskEntity toJdbcTaskEntity(Task task);
 
     /**
-     * Maps a database {@link TaskEntity} entity to a domain {@link Task}.
+     * Maps a database {@link JdbcTaskEntity} entity to a domain {@link Task}.
      * <p>
      * Uses {@link TaskObjectFactory} to construct the domain entity with proper validation.
      *
-     * @param taskEntity the {@link TaskEntity} database entity
+     * @param jdbcTaskEntity the {@link JdbcTaskEntity} database entity
      * @return the {@link Task} domain entity
      */
     @Mapping(target = "id", ignore = true)
@@ -86,7 +86,7 @@ public interface TaskMapper {
     @Mapping(target = "description", ignore = true)
     @Mapping(target = "startDate", ignore = true)
     @Mapping(target = "endDate", ignore = true)
-    Task toTask(TaskEntity taskEntity);
+    Task toTask(JdbcTaskEntity jdbcTaskEntity);
 
     /**
      * Maps a domain {@link Task} to a {@link GetTaskByIdResponse}.
