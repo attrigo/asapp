@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.tasks.infrastructure.task.out;
+package com.bcn.asapp.tasks.infrastructure.task.persistence;
 
 import static com.bcn.asapp.tasks.testutil.TestFactory.TestTaskFactory.defaultTestTask;
 import static com.bcn.asapp.tasks.testutil.TestFactory.TestTaskFactory.testTaskBuilder;
@@ -35,10 +35,10 @@ import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
 @DataJdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(TestContainerConfiguration.class)
-class TaskJdbcRepositoryIT {
+class JdbcTaskRepositoryIT {
 
     @Autowired
-    private TaskJdbcRepository taskRepository;
+    private JdbcTaskRepository taskRepository;
 
     @BeforeEach
     void beforeEach() {

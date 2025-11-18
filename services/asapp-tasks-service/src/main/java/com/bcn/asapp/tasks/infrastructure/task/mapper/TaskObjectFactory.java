@@ -26,10 +26,10 @@ import com.bcn.asapp.tasks.domain.task.Task;
 import com.bcn.asapp.tasks.domain.task.TaskId;
 import com.bcn.asapp.tasks.domain.task.Title;
 import com.bcn.asapp.tasks.domain.task.UserId;
-import com.bcn.asapp.tasks.infrastructure.task.out.entity.TaskEntity;
+import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskEntity;
 
 /**
- * MapStruct object factory for mapping between {@link Task} domain entities and {@link TaskEntity} database entities.
+ * MapStruct object factory for mapping between {@link Task} domain entities and {@link JdbcTaskEntity} database entities.
  * <p>
  * Ensures that domain entities are created through their proper factory methods with complete validation, maintaining domain integrity during mapping.
  *
@@ -73,15 +73,15 @@ public class TaskObjectFactory {
     }
 
     /**
-     * Creates a domain {@link Task} from a database {@link TaskEntity} entity.
+     * Creates a domain {@link Task} from a database {@link JdbcTaskEntity} entity.
      * <p>
      * Maps entity fields to value objects and reconstitutes a task using the domain's factory method.
      *
-     * @param source the {@link TaskEntity} database entity
+     * @param source the {@link JdbcTaskEntity} database entity
      * @return the {@link Task} domain entity
      */
     @ObjectFactory
-    public Task toTask(TaskEntity source) {
+    public Task toTask(JdbcTaskEntity source) {
         var taskId = TaskId.of(source.id());
         var userId = UserId.of(source.userId());
         var title = Title.of(source.title());

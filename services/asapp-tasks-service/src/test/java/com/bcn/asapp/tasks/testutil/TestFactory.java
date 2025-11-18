@@ -39,7 +39,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
-import com.bcn.asapp.tasks.infrastructure.task.out.entity.TaskEntity;
+import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskEntity;
 
 public class TestFactory {
 
@@ -57,7 +57,7 @@ public class TestFactory {
 
         TestTaskFactory() {}
 
-        public static TaskEntity defaultTestTask() {
+        public static JdbcTaskEntity defaultTestTask() {
             return new Builder().build();
         }
 
@@ -111,8 +111,8 @@ public class TestFactory {
                 return this;
             }
 
-            public TaskEntity build() {
-                return new TaskEntity(null, userId, title, description, startDate, endDate);
+            public JdbcTaskEntity build() {
+                return new JdbcTaskEntity(null, userId, title, description, startDate, endDate);
             }
 
         }

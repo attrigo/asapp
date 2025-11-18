@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.tasks.infrastructure.task.out;
+package com.bcn.asapp.tasks.infrastructure.task.persistence;
 
 import java.util.Collection;
 import java.util.UUID;
@@ -24,12 +24,10 @@ import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.bcn.asapp.tasks.infrastructure.task.out.entity.TaskEntity;
-
 /**
  * Spring Data JDBC repository for task persistence operations.
  * <p>
- * Provides database access methods for {@link TaskEntity} using Spring Data JDBC.
+ * Provides database access methods for {@link JdbcTaskEntity} using Spring Data JDBC.
  * <p>
  * Extends {@link ListCrudRepository} to inherit standard CRUD operations.
  *
@@ -38,15 +36,15 @@ import com.bcn.asapp.tasks.infrastructure.task.out.entity.TaskEntity;
  * @author attrigo
  */
 @Repository
-public interface TaskJdbcRepository extends ListCrudRepository<TaskEntity, UUID> {
+public interface JdbcTaskRepository extends ListCrudRepository<JdbcTaskEntity, UUID> {
 
     /**
      * Finds all task entities by their user's unique identifier.
      *
      * @param userId the user's unique identifier
-     * @return a {@link Collection} of {@link TaskEntity} entities belonging to the user
+     * @return a {@link Collection} of {@link JdbcTaskEntity} entities belonging to the user
      */
-    Collection<TaskEntity> findByUserId(UUID userId);
+    Collection<JdbcTaskEntity> findByUserId(UUID userId);
 
     /**
      * Deletes a task by their unique identifier.

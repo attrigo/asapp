@@ -34,7 +34,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import com.bcn.asapp.tasks.AsappTasksServiceApplication;
-import com.bcn.asapp.tasks.infrastructure.task.out.TaskJdbcRepository;
+import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskRepository;
 import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
 
 @SpringBootTest(classes = AsappTasksServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -43,7 +43,7 @@ import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
 class SecurityConfigurationIT {
 
     @Autowired
-    private TaskJdbcRepository taskRepository;
+    private JdbcTaskRepository taskRepository;
 
     @Autowired
     private WebTestClient webTestClient;

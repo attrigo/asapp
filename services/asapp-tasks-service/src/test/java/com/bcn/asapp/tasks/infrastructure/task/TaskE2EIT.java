@@ -49,7 +49,7 @@ import com.bcn.asapp.tasks.infrastructure.task.in.response.CreateTaskResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetAllTasksResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetTaskByIdResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.UpdateTaskResponse;
-import com.bcn.asapp.tasks.infrastructure.task.out.TaskJdbcRepository;
+import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskRepository;
 import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
 
 @SpringBootTest(classes = AsappTasksServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -58,7 +58,7 @@ import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
 class TaskE2EIT {
 
     @Autowired
-    private TaskJdbcRepository taskRepository;
+    private JdbcTaskRepository taskRepository;
 
     @Autowired
     private WebTestClient webTestClient;
@@ -212,14 +212,14 @@ class TaskE2EIT {
                                         .getResponseBody();
             // Then
             // Assert API response
-            var taskResponse1 = new GetAllTasksResponse(taskCreated1.id(), taskCreated1.userId(), taskCreated1.title(), taskCreated1.description(),
+            var expectedResponse1 = new GetAllTasksResponse(taskCreated1.id(), taskCreated1.userId(), taskCreated1.title(), taskCreated1.description(),
                     taskCreated1.startDate(), taskCreated1.endDate());
-            var taskResponse2 = new GetAllTasksResponse(taskCreated2.id(), taskCreated2.userId(), taskCreated2.title(), taskCreated2.description(),
+            var expectedResponse2 = new GetAllTasksResponse(taskCreated2.id(), taskCreated2.userId(), taskCreated2.title(), taskCreated2.description(),
                     taskCreated2.startDate(), taskCreated2.endDate());
-            var taskResponse3 = new GetAllTasksResponse(taskCreated3.id(), taskCreated3.userId(), taskCreated3.title(), taskCreated3.description(),
+            var expectedResponse3 = new GetAllTasksResponse(taskCreated3.id(), taskCreated3.userId(), taskCreated3.title(), taskCreated3.description(),
                     taskCreated3.startDate(), taskCreated3.endDate());
             assertThat(response).hasSize(3)
-                                .containsExactlyInAnyOrder(taskResponse1, taskResponse2, taskResponse3);
+                                .containsExactlyInAnyOrder(expectedResponse1, expectedResponse2, expectedResponse3);
         }
 
     }
@@ -291,14 +291,14 @@ class TaskE2EIT {
                                         .getResponseBody();
             // Then
             // Assert API response
-            var taskResponse1 = new GetAllTasksResponse(taskCreated1.id(), taskCreated1.userId(), taskCreated1.title(), taskCreated1.description(),
+            var expectedResponse1 = new GetAllTasksResponse(taskCreated1.id(), taskCreated1.userId(), taskCreated1.title(), taskCreated1.description(),
                     taskCreated1.startDate(), taskCreated1.endDate());
-            var taskResponse2 = new GetAllTasksResponse(taskCreated2.id(), taskCreated2.userId(), taskCreated2.title(), taskCreated2.description(),
+            var expectedResponse2 = new GetAllTasksResponse(taskCreated2.id(), taskCreated2.userId(), taskCreated2.title(), taskCreated2.description(),
                     taskCreated2.startDate(), taskCreated2.endDate());
-            var taskResponse3 = new GetAllTasksResponse(taskCreated3.id(), taskCreated3.userId(), taskCreated3.title(), taskCreated3.description(),
+            var expectedResponse3 = new GetAllTasksResponse(taskCreated3.id(), taskCreated3.userId(), taskCreated3.title(), taskCreated3.description(),
                     taskCreated3.startDate(), taskCreated3.endDate());
             assertThat(response).hasSize(3)
-                                .containsExactlyInAnyOrder(taskResponse1, taskResponse2, taskResponse3);
+                                .containsExactlyInAnyOrder(expectedResponse1, expectedResponse2, expectedResponse3);
         }
 
     }
@@ -359,13 +359,13 @@ class TaskE2EIT {
             var optionalActualTask = taskRepository.findById(response.taskId());
             assertThat(optionalActualTask).isNotEmpty()
                                           .get()
-                                          .satisfies(taskEntity -> {
-                                              assertThat(taskEntity.id()).isEqualTo(response.taskId());
-                                              assertThat(taskEntity.userId()).isEqualTo(UUID.fromString(createTaskRequestBody.userId()));
-                                              assertThat(taskEntity.title()).isEqualTo(createTaskRequestBody.title());
-                                              assertThat(taskEntity.description()).isEqualTo(createTaskRequestBody.description());
-                                              assertThat(taskEntity.startDate()).isEqualTo(createTaskRequestBody.startDate());
-                                              assertThat(taskEntity.endDate()).isEqualTo(createTaskRequestBody.endDate());
+                                          .satisfies(actualTask -> {
+                                              assertThat(actualTask.id()).isEqualTo(response.taskId());
+                                              assertThat(actualTask.userId()).isEqualTo(UUID.fromString(createTaskRequestBody.userId()));
+                                              assertThat(actualTask.title()).isEqualTo(createTaskRequestBody.title());
+                                              assertThat(actualTask.description()).isEqualTo(createTaskRequestBody.description());
+                                              assertThat(actualTask.startDate()).isEqualTo(createTaskRequestBody.startDate());
+                                              assertThat(actualTask.endDate()).isEqualTo(createTaskRequestBody.endDate());
                                           });
         }
 
@@ -459,13 +459,13 @@ class TaskE2EIT {
             var optionalActualTask = taskRepository.findById(response.taskId());
             assertThat(optionalActualTask).isNotEmpty()
                                           .get()
-                                          .satisfies(taskEntity -> {
-                                              assertThat(taskEntity.id()).isEqualTo(response.taskId());
-                                              assertThat(taskEntity.userId()).isEqualTo(UUID.fromString(updateTaskRequest.userId()));
-                                              assertThat(taskEntity.title()).isEqualTo(updateTaskRequest.title());
-                                              assertThat(taskEntity.description()).isEqualTo(updateTaskRequest.description());
-                                              assertThat(taskEntity.startDate()).isEqualTo(updateTaskRequest.startDate());
-                                              assertThat(taskEntity.endDate()).isEqualTo(updateTaskRequest.endDate());
+                                          .satisfies(actualTask -> {
+                                              assertThat(actualTask.id()).isEqualTo(response.taskId());
+                                              assertThat(actualTask.userId()).isEqualTo(UUID.fromString(updateTaskRequest.userId()));
+                                              assertThat(actualTask.title()).isEqualTo(updateTaskRequest.title());
+                                              assertThat(actualTask.description()).isEqualTo(updateTaskRequest.description());
+                                              assertThat(actualTask.startDate()).isEqualTo(updateTaskRequest.startDate());
+                                              assertThat(actualTask.endDate()).isEqualTo(updateTaskRequest.endDate());
                                           });
         }
 

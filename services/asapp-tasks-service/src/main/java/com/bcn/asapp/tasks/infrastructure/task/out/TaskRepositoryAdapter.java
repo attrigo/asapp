@@ -26,6 +26,7 @@ import com.bcn.asapp.tasks.domain.task.Task;
 import com.bcn.asapp.tasks.domain.task.TaskId;
 import com.bcn.asapp.tasks.domain.task.UserId;
 import com.bcn.asapp.tasks.infrastructure.task.mapper.TaskMapper;
+import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskRepository;
 
 /**
  * Adapter implementation of {@link TaskRepository} for JDBC persistence.
@@ -39,7 +40,7 @@ import com.bcn.asapp.tasks.infrastructure.task.mapper.TaskMapper;
 @Component
 public class TaskRepositoryAdapter implements TaskRepository {
 
-    private final TaskJdbcRepository taskRepository;
+    private final JdbcTaskRepository taskRepository;
 
     private final TaskMapper taskMapper;
 
@@ -49,7 +50,7 @@ public class TaskRepositoryAdapter implements TaskRepository {
      * @param taskRepository the Spring Data JDBC repository
      * @param taskMapper     the mapper for converting between domain and database entities
      */
-    public TaskRepositoryAdapter(TaskJdbcRepository taskRepository, TaskMapper taskMapper) {
+    public TaskRepositoryAdapter(JdbcTaskRepository taskRepository, TaskMapper taskMapper) {
         this.taskRepository = taskRepository;
         this.taskMapper = taskMapper;
     }
@@ -105,11 +106,11 @@ public class TaskRepositoryAdapter implements TaskRepository {
      */
     @Override
     public Task save(Task task) {
-        var taskEntity = taskMapper.toTaskEntity(task);
+        var taskToSave = taskMapper.toJdbcTaskEntity(task);
 
-        var taskEntitySaved = taskRepository.save(taskEntity);
+        var taskSaved = taskRepository.save(taskToSave);
 
-        return taskMapper.toTask(taskEntitySaved);
+        return taskMapper.toTask(taskSaved);
     }
 
     /**
