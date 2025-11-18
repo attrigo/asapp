@@ -39,4 +39,14 @@ public interface JwtAuthenticationIdMapper {
      */
     JwtAuthenticationId toJwtAuthenticationId(UUID id);
 
+    /**
+     * Maps a {@link JwtAuthenticationId} value object to a {@link UUID}.
+     *
+     * @param id the {@link JwtAuthenticationId}
+     * @return the {@link UUID}, or {@code null} if id is {@code null}
+     */
+    default UUID toUUID(JwtAuthenticationId id) {
+        return id != null ? id.value() : null;
+    }
+
 }
