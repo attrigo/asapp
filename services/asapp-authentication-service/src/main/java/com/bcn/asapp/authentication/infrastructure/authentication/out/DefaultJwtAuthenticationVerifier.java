@@ -38,21 +38,21 @@ import com.bcn.asapp.authentication.infrastructure.security.UnexpectedJwtTypeExc
  * @author attrigo
  */
 @Component
-public class DatabaseJwtAuthenticationVerifier implements JwtAuthenticationVerifier {
+public class DefaultJwtAuthenticationVerifier implements JwtAuthenticationVerifier {
 
-    private static final Logger logger = LoggerFactory.getLogger(DatabaseJwtAuthenticationVerifier.class);
+    private static final Logger logger = LoggerFactory.getLogger(DefaultJwtAuthenticationVerifier.class);
 
     private final JwtDecoder jwtDecoder;
 
     private final JwtAuthenticationRepository jwtAuthenticationRepository;
 
     /**
-     * Constructs a new {@code DatabaseJwtAuthenticationVerifier} with required dependencies.
+     * Constructs a new {@code DefaultJwtAuthenticationVerifier} with required dependencies.
      *
      * @param jwtDecoder                  the JWT decoder for decoding and validating tokens
      * @param jwtAuthenticationRepository the JWT authentication repository
      */
-    public DatabaseJwtAuthenticationVerifier(JwtDecoder jwtDecoder, JwtAuthenticationRepository jwtAuthenticationRepository) {
+    public DefaultJwtAuthenticationVerifier(JwtDecoder jwtDecoder, JwtAuthenticationRepository jwtAuthenticationRepository) {
         this.jwtDecoder = jwtDecoder;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }
