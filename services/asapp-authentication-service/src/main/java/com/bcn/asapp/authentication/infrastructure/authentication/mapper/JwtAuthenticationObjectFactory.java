@@ -64,11 +64,8 @@ public class JwtAuthenticationObjectFactory {
      */
     @ObjectFactory
     public JdbcJwtAuthenticationEntity toJdbcJwtAuthenticationEntity(JwtAuthentication source) {
-        var id = source.getId() != null ? source.getId()
-                                                .value() : null;
-        var userId = source.getUserId() != null ? source.getUserId()
-                                                        .value() : null;
-
+        var id = idMapper.toUUID(source.getId());
+        var userId = userIdMapper.toUUID(source.getUserId());
         var accessToken = jwtMapper.toJdbcJwtEntity(source.accessToken());
         var refreshToken = jwtMapper.toJdbcJwtEntity(source.refreshToken());
 
