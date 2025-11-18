@@ -25,6 +25,7 @@ import com.bcn.asapp.users.application.user.out.UserRepository;
 import com.bcn.asapp.users.domain.user.User;
 import com.bcn.asapp.users.domain.user.UserId;
 import com.bcn.asapp.users.infrastructure.user.mapper.UserMapper;
+import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserRepository;
 
 /**
  * Adapter implementation of {@link UserRepository} for JDBC persistence.
@@ -38,7 +39,7 @@ import com.bcn.asapp.users.infrastructure.user.mapper.UserMapper;
 @Component
 public class UserRepositoryAdapter implements UserRepository {
 
-    private final UserJdbcRepository userRepository;
+    private final JdbcUserRepository userRepository;
 
     private final UserMapper userMapper;
 
@@ -48,7 +49,7 @@ public class UserRepositoryAdapter implements UserRepository {
      * @param userRepository the Spring Data JDBC repository
      * @param userMapper     the mapper for converting between domain and database entities
      */
-    public UserRepositoryAdapter(UserJdbcRepository userRepository, UserMapper userMapper) {
+    public UserRepositoryAdapter(JdbcUserRepository userRepository, UserMapper userMapper) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
     }
@@ -90,11 +91,11 @@ public class UserRepositoryAdapter implements UserRepository {
      */
     @Override
     public User save(User user) {
-        var userEntity = userMapper.toUserEntity(user);
+        var userToSave = userMapper.toJdbcUserEntity(user);
 
-        var userEntitySaved = userRepository.save(userEntity);
+        var userSaved = userRepository.save(userToSave);
 
-        return userMapper.toUser(userEntitySaved);
+        return userMapper.toUser(userSaved);
     }
 
     /**

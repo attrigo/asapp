@@ -34,7 +34,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import com.bcn.asapp.users.AsappUsersServiceApplication;
-import com.bcn.asapp.users.infrastructure.user.out.UserJdbcRepository;
+import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserRepository;
 import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 
 @SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -43,7 +43,7 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 class SecurityConfigurationIT {
 
     @Autowired
-    private UserJdbcRepository userRepository;
+    private JdbcUserRepository userRepository;
 
     @Autowired
     private WebTestClient webTestClient;

@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.users.infrastructure.user.out.entity;
+package com.bcn.asapp.users.infrastructure.user.persistence;
 
 import java.util.UUID;
 
@@ -38,7 +38,7 @@ import jakarta.validation.constraints.NotBlank;
  * @author attrigo
  */
 @Table("users")
-public record UserEntity(
+public record JdbcUserEntity(
         @Id UUID id,
         @Column("first_name") @NotBlank String firstName,
         @Column("last_name") @NotBlank String lastName,

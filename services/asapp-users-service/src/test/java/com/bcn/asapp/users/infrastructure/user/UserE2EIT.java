@@ -64,7 +64,7 @@ import com.bcn.asapp.users.infrastructure.user.in.response.CreateUserResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetAllUsersResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUserByIdResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
-import com.bcn.asapp.users.infrastructure.user.out.UserJdbcRepository;
+import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserRepository;
 import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 
 @SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -86,7 +86,7 @@ class UserE2EIT {
     }
 
     @Autowired
-    private UserJdbcRepository userRepository;
+    private JdbcUserRepository userRepository;
 
     @Autowired
     private WebTestClient webTestClient;
@@ -313,14 +313,14 @@ class UserE2EIT {
                                         .getResponseBody();
             // Then
             // Assert API response
-            var userResponse1 = new GetAllUsersResponse(userCreated1.id(), userCreated1.firstName(), userCreated1.lastName(), userCreated1.email(),
+            var expectedResponse1 = new GetAllUsersResponse(userCreated1.id(), userCreated1.firstName(), userCreated1.lastName(), userCreated1.email(),
                     userCreated1.phoneNumber());
-            var userResponse2 = new GetAllUsersResponse(userCreated2.id(), userCreated2.firstName(), userCreated2.lastName(), userCreated2.email(),
+            var expectedResponse2 = new GetAllUsersResponse(userCreated2.id(), userCreated2.firstName(), userCreated2.lastName(), userCreated2.email(),
                     userCreated2.phoneNumber());
-            var userResponse3 = new GetAllUsersResponse(userCreated3.id(), userCreated3.firstName(), userCreated3.lastName(), userCreated3.email(),
+            var expectedResponse3 = new GetAllUsersResponse(userCreated3.id(), userCreated3.firstName(), userCreated3.lastName(), userCreated3.email(),
                     userCreated3.phoneNumber());
             assertThat(response).hasSize(3)
-                                .containsExactlyInAnyOrder(userResponse1, userResponse2, userResponse3);
+                                .containsExactlyInAnyOrder(expectedResponse1, expectedResponse2, expectedResponse3);
         }
 
     }
@@ -376,12 +376,12 @@ class UserE2EIT {
             var optionalActualUser = userRepository.findById(response.userId());
             assertThat(optionalActualUser).isNotEmpty()
                                           .get()
-                                          .satisfies(userEntity -> {
-                                              assertThat(userEntity.id()).isEqualTo(response.userId());
-                                              assertThat(userEntity.firstName()).isEqualTo(createUserRequestBody.firstName());
-                                              assertThat(userEntity.lastName()).isEqualTo(createUserRequestBody.lastName());
-                                              assertThat(userEntity.email()).isEqualTo(createUserRequestBody.email());
-                                              assertThat(userEntity.phoneNumber()).isEqualTo(createUserRequestBody.phoneNumber());
+                                          .satisfies(actualUser -> {
+                                              assertThat(actualUser.id()).isEqualTo(response.userId());
+                                              assertThat(actualUser.firstName()).isEqualTo(createUserRequestBody.firstName());
+                                              assertThat(actualUser.lastName()).isEqualTo(createUserRequestBody.lastName());
+                                              assertThat(actualUser.email()).isEqualTo(createUserRequestBody.email());
+                                              assertThat(actualUser.phoneNumber()).isEqualTo(createUserRequestBody.phoneNumber());
                                           });
         }
 
@@ -466,12 +466,12 @@ class UserE2EIT {
             var optionalActualUser = userRepository.findById(response.userId());
             assertThat(optionalActualUser).isNotEmpty()
                                           .get()
-                                          .satisfies(userEntity -> {
-                                              assertThat(userEntity.id()).isEqualTo(response.userId());
-                                              assertThat(userEntity.firstName()).isEqualTo(updateUserRequest.firstName());
-                                              assertThat(userEntity.lastName()).isEqualTo(updateUserRequest.lastName());
-                                              assertThat(userEntity.email()).isEqualTo(updateUserRequest.email());
-                                              assertThat(userEntity.phoneNumber()).isEqualTo(updateUserRequest.phoneNumber());
+                                          .satisfies(actualUser -> {
+                                              assertThat(actualUser.id()).isEqualTo(response.userId());
+                                              assertThat(actualUser.firstName()).isEqualTo(updateUserRequest.firstName());
+                                              assertThat(actualUser.lastName()).isEqualTo(updateUserRequest.lastName());
+                                              assertThat(actualUser.email()).isEqualTo(updateUserRequest.email());
+                                              assertThat(actualUser.phoneNumber()).isEqualTo(updateUserRequest.phoneNumber());
                                           });
         }
 

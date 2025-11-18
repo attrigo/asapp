@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.users.infrastructure.user.out;
+package com.bcn.asapp.users.infrastructure.user.persistence;
 
 import java.util.UUID;
 
@@ -23,12 +23,10 @@ import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.ListCrudRepository;
 import org.springframework.stereotype.Repository;
 
-import com.bcn.asapp.users.infrastructure.user.out.entity.UserEntity;
-
 /**
  * Spring Data JDBC repository for user persistence operations.
  * <p>
- * Provides database access methods for {@link UserEntity} using Spring Data JDBC.
+ * Provides database access methods for {@link JdbcUserEntity} using Spring Data JDBC.
  * <p>
  * Extends {@link ListCrudRepository} to inherit standard CRUD operations.
  *
@@ -37,7 +35,7 @@ import com.bcn.asapp.users.infrastructure.user.out.entity.UserEntity;
  * @author attrigo
  */
 @Repository
-public interface UserJdbcRepository extends ListCrudRepository<UserEntity, UUID> {
+public interface JdbcUserRepository extends ListCrudRepository<JdbcUserEntity, UUID> {
 
     /**
      * Deletes a user by their unique identifier.
