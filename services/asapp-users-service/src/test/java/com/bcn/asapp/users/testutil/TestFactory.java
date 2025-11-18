@@ -38,7 +38,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
-import com.bcn.asapp.users.infrastructure.user.out.entity.UserEntity;
+import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserEntity;
 
 public class TestFactory {
 
@@ -54,7 +54,7 @@ public class TestFactory {
 
         TestUserFactory() {}
 
-        public static UserEntity defaultTestUser() {
+        public static JdbcUserEntity defaultTestUser() {
             return new Builder().build();
         }
 
@@ -99,8 +99,8 @@ public class TestFactory {
                 return this;
             }
 
-            public UserEntity build() {
-                return new UserEntity(null, firstName, lastName, email, phoneNumber);
+            public JdbcUserEntity build() {
+                return new JdbcUserEntity(null, firstName, lastName, email, phoneNumber);
             }
 
         }

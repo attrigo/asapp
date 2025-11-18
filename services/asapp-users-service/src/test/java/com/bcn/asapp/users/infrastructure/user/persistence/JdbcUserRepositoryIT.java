@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.users.infrastructure.user.out;
+package com.bcn.asapp.users.infrastructure.user.persistence;
 
 import static com.bcn.asapp.users.testutil.TestFactory.TestUserFactory.defaultTestUser;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,10 +34,10 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 @DataJdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(TestContainerConfiguration.class)
-class UserJdbcRepositoryIT {
+class JdbcUserRepositoryIT {
 
     @Autowired
-    private UserJdbcRepository userRepository;
+    private JdbcUserRepository userRepository;
 
     @BeforeEach
     void beforeEach() {

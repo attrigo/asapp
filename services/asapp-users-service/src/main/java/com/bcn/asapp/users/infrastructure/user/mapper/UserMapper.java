@@ -31,7 +31,7 @@ import com.bcn.asapp.users.infrastructure.user.in.response.CreateUserResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetAllUsersResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUserByIdResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
-import com.bcn.asapp.users.infrastructure.user.out.entity.UserEntity;
+import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserEntity;
 
 /**
  * MapStruct mapper for mapping between user-related objects.
@@ -65,19 +65,19 @@ public interface UserMapper {
     UpdateUserCommand toUpdateUserCommand(UUID userId, UpdateUserRequest request);
 
     /**
-     * Maps a domain {@link User} to a database {@link UserEntity} entity.
+     * Maps a domain {@link User} to a database {@link JdbcUserEntity} entity.
      *
      * @param user the {@link User} domain entity
-     * @return the {@link UserEntity} database entity
+     * @return the {@link JdbcUserEntity} database entity
      */
-    UserEntity toUserEntity(User user);
+    JdbcUserEntity toJdbcUserEntity(User user);
 
     /**
-     * Maps a database {@link UserEntity} entity to a domain {@link User}.
+     * Maps a database {@link JdbcUserEntity} entity to a domain {@link User}.
      * <p>
      * Uses {@link UserObjectFactory} to construct the domain entity with proper validation.
      *
-     * @param userEntity the {@link UserEntity} database entity
+     * @param jdbcUserEntity the {@link JdbcUserEntity} database entity
      * @return the {@link User} domain entity
      */
     @Mapping(target = "id", ignore = true)
@@ -85,7 +85,7 @@ public interface UserMapper {
     @Mapping(target = "lastName", ignore = true)
     @Mapping(target = "email", ignore = true)
     @Mapping(target = "phoneNumber", ignore = true)
-    User toUser(UserEntity userEntity);
+    User toUser(JdbcUserEntity jdbcUserEntity);
 
     /**
      * Maps a {@link UserWithTasksResult} to a {@link GetUserByIdResponse}.
