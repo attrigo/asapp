@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.authentication.infrastructure.user.out;
+package com.bcn.asapp.authentication.infrastructure.user.persistence;
 
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestUser;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,19 +30,19 @@ import org.springframework.boot.test.autoconfigure.data.jdbc.DataJdbcTest;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.context.annotation.Import;
 
-import com.bcn.asapp.authentication.infrastructure.authentication.out.JwtAuthenticationJdbcRepository;
+import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationRepository;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 
 @DataJdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import({ TestContainerConfiguration.class, JacksonAutoConfiguration.class })
-class UserJdbcRepositoryIT {
+class JdbcUserRepositoryIT {
 
     @Autowired
-    private JwtAuthenticationJdbcRepository jwtAuthenticationRepository;
+    private JdbcJwtAuthenticationRepository jwtAuthenticationRepository;
 
     @Autowired
-    private UserJdbcRepository userRepository;
+    private JdbcUserRepository userRepository;
 
     @BeforeEach
     void beforeEach() {

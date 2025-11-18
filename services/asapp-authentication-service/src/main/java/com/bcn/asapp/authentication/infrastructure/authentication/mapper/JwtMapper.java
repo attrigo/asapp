@@ -20,12 +20,12 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 import com.bcn.asapp.authentication.domain.authentication.Jwt;
-import com.bcn.asapp.authentication.infrastructure.authentication.out.entity.JwtEntity;
+import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtEntity;
 
 /**
  * MapStruct mapper for mapping between JWT-related objects.
  * <p>
- * Handles mappings between domain {@link Jwt} entities and database {@link JwtEntity} entities.
+ * Handles mappings between domain {@link Jwt} entities and database {@link JdbcJwtEntity} entities.
  * <p>
  * Uses component mappers for complex value object transformations.
  *
@@ -36,13 +36,13 @@ import com.bcn.asapp.authentication.infrastructure.authentication.out.entity.Jwt
 public interface JwtMapper {
 
     /**
-     * Maps a domain {@link Jwt} to a database {@link JwtEntity}.
+     * Maps a domain {@link Jwt} to a database {@link JdbcJwtEntity}.
      *
      * @param jwt the {@link Jwt} domain entity
-     * @return the {@link JwtEntity} database entity
+     * @return the {@link JdbcJwtEntity} database entity
      */
     @Mapping(target = "token", source = "encodedToken")
-    JwtEntity toJwtEntity(Jwt jwt);
+    JdbcJwtEntity toJdbcJwtEntity(Jwt jwt);
 
     /**
      * Extracts the encoded token value from a domain {@link Jwt}.
@@ -55,12 +55,12 @@ public interface JwtMapper {
     }
 
     /**
-     * Maps a database {@link JwtEntity} to a domain {@link Jwt}.
+     * Maps a database {@link JdbcJwtEntity} to a domain {@link Jwt}.
      *
-     * @param jwtEntity the {@link JwtEntity} database entity
+     * @param jdbcJwtEntity the {@link JdbcJwtEntity} database entity
      * @return the {@link Jwt} domain entity
      */
     @Mapping(target = "encodedToken", source = "token")
-    Jwt toJwt(JwtEntity jwtEntity);
+    Jwt toJwt(JdbcJwtEntity jdbcJwtEntity);
 
 }

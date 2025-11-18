@@ -44,14 +44,14 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import com.bcn.asapp.authentication.AsappAuthenticationServiceApplication;
-import com.bcn.asapp.authentication.infrastructure.authentication.out.JwtAuthenticationJdbcRepository;
+import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationRepository;
 import com.bcn.asapp.authentication.infrastructure.user.in.request.CreateUserRequest;
 import com.bcn.asapp.authentication.infrastructure.user.in.request.UpdateUserRequest;
 import com.bcn.asapp.authentication.infrastructure.user.in.response.CreateUserResponse;
 import com.bcn.asapp.authentication.infrastructure.user.in.response.GetAllUsersResponse;
 import com.bcn.asapp.authentication.infrastructure.user.in.response.GetUserByIdResponse;
 import com.bcn.asapp.authentication.infrastructure.user.in.response.UpdateUserResponse;
-import com.bcn.asapp.authentication.infrastructure.user.out.UserJdbcRepository;
+import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserRepository;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 
 @SpringBootTest(classes = AsappAuthenticationServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -60,10 +60,10 @@ import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 class UserE2EIT {
 
     @Autowired
-    private JwtAuthenticationJdbcRepository jwtAuthenticationRepository;
+    private JdbcJwtAuthenticationRepository jwtAuthenticationRepository;
 
     @Autowired
-    private UserJdbcRepository userRepository;
+    private JdbcUserRepository userRepository;
 
     @Autowired
     private WebTestClient webTestClient;
@@ -189,11 +189,11 @@ class UserE2EIT {
                                         .getResponseBody();
             // Then
             // Assert API response
-            var userResponse1 = new GetAllUsersResponse(userCreated1.id(), userCreated1.username(), "*****", userCreated1.role());
-            var userResponse2 = new GetAllUsersResponse(userCreated2.id(), userCreated2.username(), "*****", userCreated2.role());
-            var userResponse3 = new GetAllUsersResponse(userCreated3.id(), userCreated3.username(), "*****", userCreated3.role());
+            var expectedResponse1 = new GetAllUsersResponse(userCreated1.id(), userCreated1.username(), "*****", userCreated1.role());
+            var expectedResponse2 = new GetAllUsersResponse(userCreated2.id(), userCreated2.username(), "*****", userCreated2.role());
+            var expectedResponse3 = new GetAllUsersResponse(userCreated3.id(), userCreated3.username(), "*****", userCreated3.role());
             assertThat(response).hasSize(3)
-                                .containsExactlyInAnyOrder(userResponse1, userResponse2, userResponse3);
+                                .containsExactlyInAnyOrder(expectedResponse1, expectedResponse2, expectedResponse3);
         }
 
     }
@@ -230,11 +230,11 @@ class UserE2EIT {
             var optionalActualUser = userRepository.findById(response.userId());
             assertThat(optionalActualUser).isNotEmpty()
                                           .get()
-                                          .satisfies(userEntity -> {
-                                              assertThat(userEntity.id()).isEqualTo(response.userId());
-                                              assertThat(userEntity.username()).isEqualTo(createUserRequestBody.username());
-                                              assertThat(userEntity.password()).isNotNull();
-                                              assertThat(userEntity.role()).isEqualTo(createUserRequestBody.role());
+                                          .satisfies(actualUser -> {
+                                              assertThat(actualUser.id()).isEqualTo(response.userId());
+                                              assertThat(actualUser.username()).isEqualTo(createUserRequestBody.username());
+                                              assertThat(actualUser.password()).isNotNull();
+                                              assertThat(actualUser.role()).isEqualTo(createUserRequestBody.role());
                                           });
         }
 
@@ -316,12 +316,12 @@ class UserE2EIT {
             var optionalActualUser = userRepository.findById(response.userId());
             assertThat(optionalActualUser).isNotEmpty()
                                           .get()
-                                          .satisfies(userEntity -> {
-                                              assertThat(userEntity.id()).isEqualTo(response.userId());
-                                              assertThat(userEntity.username()).isEqualTo(updateUserRequest.username());
-                                              assertThat(userEntity.password()).isNotNull()
+                                          .satisfies(actualUser -> {
+                                              assertThat(actualUser.id()).isEqualTo(response.userId());
+                                              assertThat(actualUser.username()).isEqualTo(updateUserRequest.username());
+                                              assertThat(actualUser.password()).isNotNull()
                                                                                .isNotEqualTo(userCreated.password());
-                                              assertThat(userEntity.role()).isEqualTo(updateUserRequest.role());
+                                              assertThat(actualUser.role()).isEqualTo(updateUserRequest.role());
                                           });
         }
 

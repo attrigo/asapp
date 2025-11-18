@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.authentication.infrastructure.authentication.out.entity;
+package com.bcn.asapp.authentication.infrastructure.authentication.persistence;
 
 import java.util.Map;
 
@@ -23,12 +23,12 @@ import jakarta.validation.constraints.NotNull;
 /**
  * Entity representing JWT claims.
  * <p>
- * Embeddable component for storing JWT claims data within {@link JwtEntity}.
+ * Embeddable component for storing JWT claims data within {@link JdbcJwtEntity}.
  *
  * @param claims the map of claim names to claim values; must not be {@code null}
  * @since 0.2.0
  * @author attrigo
  */
-public record JwtClaimsEntity(
+public record JdbcJwtClaimsEntity(
         @NotNull Map<String, Object> claims
 ) {}

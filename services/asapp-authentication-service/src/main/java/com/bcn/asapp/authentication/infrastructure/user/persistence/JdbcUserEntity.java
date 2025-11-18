@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.authentication.infrastructure.user.out.entity;
+package com.bcn.asapp.authentication.infrastructure.user.persistence;
 
 import java.util.UUID;
 
@@ -37,7 +37,7 @@ import jakarta.validation.constraints.NotNull;
  * @author attrigo
  */
 @Table("users")
-public record UserEntity(
+public record JdbcUserEntity(
         @Id UUID id,
         @NotBlank String username,
         @NotBlank String password,

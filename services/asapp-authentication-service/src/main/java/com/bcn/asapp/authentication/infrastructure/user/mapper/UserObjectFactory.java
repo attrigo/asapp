@@ -20,10 +20,10 @@ import org.mapstruct.ObjectFactory;
 import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.authentication.domain.user.User;
-import com.bcn.asapp.authentication.infrastructure.user.out.entity.UserEntity;
+import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserEntity;
 
 /**
- * MapStruct object factory for mapping between {@link User} domain entities and {@link UserEntity} database entities.
+ * MapStruct object factory for mapping between {@link User} domain entities and {@link JdbcUserEntity} database entities.
  * <p>
  * Ensures that domain entities are created through their proper factory methods with complete validation, maintaining domain integrity during mapping.
  *
@@ -53,15 +53,15 @@ public class UserObjectFactory {
     }
 
     /**
-     * Creates a domain {@link User} from a database {@link UserEntity} entity.
+     * Creates a domain {@link User} from a database {@link JdbcUserEntity} entity.
      * <p>
      * Maps entity fields to value objects and constructs an active user using the domain's factory method.
      *
-     * @param source the {@link UserEntity} database entity
+     * @param source the {@link JdbcUserEntity} database entity
      * @return the {@link User} domain entity
      */
     @ObjectFactory
-    public User toUser(UserEntity source) {
+    public User toUser(JdbcUserEntity source) {
         var userId = userIdMapper.toUserId(source.id());
         var username = usernameMapper.toUsername(source.username());
         var role = roleMapper.toRole(source.role());

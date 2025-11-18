@@ -26,6 +26,7 @@ import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthenticationId;
 import com.bcn.asapp.authentication.domain.user.UserId;
 import com.bcn.asapp.authentication.infrastructure.authentication.mapper.JwtAuthenticationMapper;
+import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationRepository;
 
 /**
  * Adapter implementation of {@link JwtAuthenticationRepository} for JDBC persistence.
@@ -39,7 +40,7 @@ import com.bcn.asapp.authentication.infrastructure.authentication.mapper.JwtAuth
 @Component
 public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepository {
 
-    private final JwtAuthenticationJdbcRepository jwtAuthenticationRepository;
+    private final JdbcJwtAuthenticationRepository jwtAuthenticationRepository;
 
     private final JwtAuthenticationMapper jwtAuthenticationMapper;
 
@@ -49,7 +50,7 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
      * @param jwtAuthenticationRepository the Spring Data JDBC repository
      * @param jwtAuthenticationMapper     the mapper for converting between domain and database entities
      */
-    public JwtAuthenticationRepositoryAdapter(JwtAuthenticationJdbcRepository jwtAuthenticationRepository, JwtAuthenticationMapper jwtAuthenticationMapper) {
+    public JwtAuthenticationRepositoryAdapter(JdbcJwtAuthenticationRepository jwtAuthenticationRepository, JwtAuthenticationMapper jwtAuthenticationMapper) {
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
         this.jwtAuthenticationMapper = jwtAuthenticationMapper;
     }
@@ -90,7 +91,7 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
      */
     @Override
     public JwtAuthentication save(JwtAuthentication jwtAuthentication) {
-        var jwtAuthenticationToSave = jwtAuthenticationMapper.toJwtAuthenticationEntity(jwtAuthentication);
+        var jwtAuthenticationToSave = jwtAuthenticationMapper.toJdbcJwtAuthenticationEntity(jwtAuthentication);
 
         var jwtAuthenticationSaved = jwtAuthenticationRepository.save(jwtAuthenticationToSave);
 

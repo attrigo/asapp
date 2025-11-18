@@ -39,8 +39,8 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import com.bcn.asapp.authentication.AsappAuthenticationServiceApplication;
 import com.bcn.asapp.authentication.infrastructure.authentication.in.request.AuthenticateRequest;
 import com.bcn.asapp.authentication.infrastructure.authentication.in.response.AuthenticateResponse;
-import com.bcn.asapp.authentication.infrastructure.authentication.out.JwtAuthenticationJdbcRepository;
-import com.bcn.asapp.authentication.infrastructure.user.out.UserJdbcRepository;
+import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationRepository;
+import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserRepository;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 
 @SpringBootTest(classes = AsappAuthenticationServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -49,17 +49,17 @@ import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 class PasswordEncoderIT {
 
     @Autowired
-    private UserJdbcRepository userRepository;
+    private JdbcUserRepository userRepository;
 
     @Autowired
-    private JwtAuthenticationJdbcRepository jwtAuthenticationJdbcRepository;
+    private JdbcJwtAuthenticationRepository jwtAuthenticationRepository;
 
     @Autowired
     private WebTestClient webTestClient;
 
     @BeforeEach
     void beforeEach() {
-        jwtAuthenticationJdbcRepository.deleteAll();
+        jwtAuthenticationRepository.deleteAll();
         userRepository.deleteAll();
     }
 

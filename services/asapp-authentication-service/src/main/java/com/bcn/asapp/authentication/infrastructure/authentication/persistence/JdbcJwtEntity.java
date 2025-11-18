@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.authentication.infrastructure.authentication.out.entity;
+package com.bcn.asapp.authentication.infrastructure.authentication.persistence;
 
 import java.time.Instant;
 
@@ -24,7 +24,7 @@ import jakarta.validation.constraints.NotNull;
 /**
  * Entity representing a JWT token.
  * <p>
- * Embeddable component for storing JWT token data within {@link JwtAuthenticationEntity}.
+ * Embeddable component for storing JWT token data within {@link JdbcJwtAuthenticationEntity}.
  *
  * @param token      the encoded JWT token string; must not be blank
  * @param type       the token type identifier; must not be {@code null}
@@ -35,11 +35,11 @@ import jakarta.validation.constraints.NotNull;
  * @since 0.2.0
  * @author attrigo
  */
-public record JwtEntity(
+public record JdbcJwtEntity(
         @NotBlank String token,
         @NotNull String type,
         @NotBlank String subject,
-        @NotNull JwtClaimsEntity claims,
+        @NotNull JdbcJwtClaimsEntity claims,
         @NotNull Instant issued,
         @NotNull Instant expiration
 ) {}

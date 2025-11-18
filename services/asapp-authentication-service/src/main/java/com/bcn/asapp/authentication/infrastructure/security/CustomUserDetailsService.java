@@ -24,7 +24,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
-import com.bcn.asapp.authentication.infrastructure.user.out.UserJdbcRepository;
+import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserRepository;
 
 /**
  * Custom implementation of Spring's {@link UserDetailsService} for loading user details from the database.
@@ -40,14 +40,14 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomUserDetailsService.class);
 
-    private final UserJdbcRepository userRepository;
+    private final JdbcUserRepository userRepository;
 
     /**
      * Constructs a new {@code CustomUserDetailsService} with required dependencies.
      *
      * @param userRepository the user JDBC repository
      */
-    public CustomUserDetailsService(UserJdbcRepository userRepository) {
+    public CustomUserDetailsService(JdbcUserRepository userRepository) {
         this.userRepository = userRepository;
     }
 

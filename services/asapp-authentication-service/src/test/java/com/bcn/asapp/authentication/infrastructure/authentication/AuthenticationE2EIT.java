@@ -54,11 +54,11 @@ import com.bcn.asapp.authentication.infrastructure.authentication.in.request.Ref
 import com.bcn.asapp.authentication.infrastructure.authentication.in.request.RevokeAuthenticationRequest;
 import com.bcn.asapp.authentication.infrastructure.authentication.in.response.AuthenticateResponse;
 import com.bcn.asapp.authentication.infrastructure.authentication.in.response.RefreshAuthenticationResponse;
-import com.bcn.asapp.authentication.infrastructure.authentication.out.JwtAuthenticationJdbcRepository;
-import com.bcn.asapp.authentication.infrastructure.authentication.out.entity.JwtAuthenticationEntity;
-import com.bcn.asapp.authentication.infrastructure.authentication.out.entity.JwtEntity;
-import com.bcn.asapp.authentication.infrastructure.user.out.UserJdbcRepository;
-import com.bcn.asapp.authentication.infrastructure.user.out.entity.UserEntity;
+import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationEntity;
+import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationRepository;
+import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtEntity;
+import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserEntity;
+import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserRepository;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 
 @SpringBootTest(classes = AsappAuthenticationServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -67,10 +67,10 @@ import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 class AuthenticationE2EIT {
 
     @Autowired
-    private JwtAuthenticationJdbcRepository jwtAuthenticationRepository;
+    private JdbcJwtAuthenticationRepository jwtAuthenticationRepository;
 
     @Autowired
-    private UserJdbcRepository userRepository;
+    private JdbcUserRepository userRepository;
 
     @Autowired
     private WebTestClient webTestClient;
@@ -635,7 +635,7 @@ class AuthenticationE2EIT {
 
     }
 
-    private void assertAPIResponse(String actualAccessToken, String actualRefreshToken, UserEntity expectedUser) {
+    private void assertAPIResponse(String actualAccessToken, String actualRefreshToken, JdbcUserEntity expectedUser) {
         var expectedRoleName = expectedUser.role();
 
         SoftAssertions.assertSoftly(softAssertions -> {
@@ -654,7 +654,7 @@ class AuthenticationE2EIT {
         });
     }
 
-    private void assertAuthenticationHasBeenCreated(String expectedAccessToken, String expectedRefreshToken, UserEntity expectedUser) {
+    private void assertAuthenticationHasBeenCreated(String expectedAccessToken, String expectedRefreshToken, JdbcUserEntity expectedUser) {
         var expectedRoleName = expectedUser.role();
 
         var actualAuthentication = jwtAuthenticationRepository.findByAccessTokenToken(expectedAccessToken);
@@ -664,24 +664,24 @@ class AuthenticationE2EIT {
             assertThat(actualAuthentication).isNotEmpty();
 
             assertThat(actualAuthentication).get()
-                                            .extracting(JwtAuthenticationEntity::accessToken)
-                                            .satisfies(jwtEntity -> assertThat(jwtEntity.token()).isEqualTo(expectedAccessToken),
-                                                    jwtEntity -> assertThat(jwtEntity.type()).isEqualTo(ACCESS_TOKEN.type()),
-                                                    jwtEntity -> assertThat(jwtEntity.subject()).isEqualTo(expectedUser.username()),
-                                                    jwtEntity -> assertThat(jwtEntity.claims().claims().get(TOKEN_USE)).isEqualTo(ACCESS_TOKEN_USE),
-                                                    jwtEntity -> assertThat(jwtEntity.claims().claims().get(ROLE)).isEqualTo(expectedRoleName),
-                                                    jwtEntity -> assertThat(jwtEntity.issued()).isNotNull(),
-                                                    jwtEntity -> assertThat(jwtEntity.expiration()).isNotNull());
+                                            .extracting(JdbcJwtAuthenticationEntity::accessToken)
+                                            .satisfies(actualAccessToken -> assertThat(actualAccessToken.token()).isEqualTo(expectedAccessToken),
+                                                    actualAccessToken -> assertThat(actualAccessToken.type()).isEqualTo(ACCESS_TOKEN.type()),
+                                                    actualAccessToken -> assertThat(actualAccessToken.subject()).isEqualTo(expectedUser.username()),
+                                                    actualAccessToken -> assertThat(actualAccessToken.claims().claims().get(TOKEN_USE)).isEqualTo(ACCESS_TOKEN_USE),
+                                                    actualAccessToken -> assertThat(actualAccessToken.claims().claims().get(ROLE)).isEqualTo(expectedRoleName),
+                                                    actualAccessToken -> assertThat(actualAccessToken.issued()).isNotNull(),
+                                                    actualAccessToken -> assertThat(actualAccessToken.expiration()).isNotNull());
 
             assertThat(actualAuthentication).get()
-                                            .extracting(JwtAuthenticationEntity::refreshToken)
-                                            .satisfies(jwtEntity -> assertThat(jwtEntity.token()).isEqualTo(expectedRefreshToken),
-                                                    jwtEntity -> assertThat(jwtEntity.type()).isEqualTo(REFRESH_TOKEN.type()),
-                                                    jwtEntity -> assertThat(jwtEntity.subject()).isEqualTo(expectedUser.username()),
-                                                    jwtEntity -> assertThat(jwtEntity.claims().claims().get(TOKEN_USE)).isEqualTo(REFRESH_TOKEN_USE),
-                                                    jwtEntity -> assertThat(jwtEntity.claims().claims().get(ROLE)).isEqualTo(expectedRoleName),
-                                                    jwtEntity -> assertThat(jwtEntity.issued()).isNotNull(),
-                                                    jwtEntity -> assertThat(jwtEntity.expiration()).isNotNull());
+                                            .extracting(JdbcJwtAuthenticationEntity::refreshToken)
+                                            .satisfies(actualRefreshToken -> assertThat(actualRefreshToken.token()).isEqualTo(expectedRefreshToken),
+                                                    actualRefreshToken -> assertThat(actualRefreshToken.type()).isEqualTo(REFRESH_TOKEN.type()),
+                                                    actualRefreshToken -> assertThat(actualRefreshToken.subject()).isEqualTo(expectedUser.username()),
+                                                    actualRefreshToken -> assertThat(actualRefreshToken.claims().claims().get(TOKEN_USE)).isEqualTo(REFRESH_TOKEN_USE),
+                                                    actualRefreshToken -> assertThat(actualRefreshToken.claims().claims().get(ROLE)).isEqualTo(expectedRoleName),
+                                                    actualRefreshToken -> assertThat(actualRefreshToken.issued()).isNotNull(),
+                                                    actualRefreshToken -> assertThat(actualRefreshToken.expiration()).isNotNull());
         });
         // @formatter:on
     }
@@ -705,8 +705,8 @@ class AuthenticationE2EIT {
     private void assertAuthenticationHasNotBeenRefreshed(String expectedRefreshToken) {
         var actualAuthentication = jwtAuthenticationRepository.findByRefreshTokenToken(expectedRefreshToken);
         assertThat(actualAuthentication).get()
-                                        .extracting(JwtAuthenticationEntity::refreshToken)
-                                        .extracting(JwtEntity::token)
+                                        .extracting(JdbcJwtAuthenticationEntity::refreshToken)
+                                        .extracting(JdbcJwtEntity::token)
                                         .isEqualTo(expectedRefreshToken);
     }
 
@@ -718,8 +718,8 @@ class AuthenticationE2EIT {
     private void assertAuthenticationHasNotBeenRevoked(String expectedAccessToken) {
         var actualAuthentication = jwtAuthenticationRepository.findByAccessTokenToken(expectedAccessToken);
         assertThat(actualAuthentication).get()
-                                        .extracting(JwtAuthenticationEntity::accessToken)
-                                        .extracting(JwtEntity::token)
+                                        .extracting(JdbcJwtAuthenticationEntity::accessToken)
+                                        .extracting(JdbcJwtEntity::token)
                                         .isEqualTo(expectedAccessToken);
     }
 

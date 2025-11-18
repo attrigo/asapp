@@ -24,7 +24,7 @@ import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.infrastructure.authentication.in.request.AuthenticateRequest;
 import com.bcn.asapp.authentication.infrastructure.authentication.in.response.AuthenticateResponse;
 import com.bcn.asapp.authentication.infrastructure.authentication.in.response.RefreshAuthenticationResponse;
-import com.bcn.asapp.authentication.infrastructure.authentication.out.entity.JwtAuthenticationEntity;
+import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationEntity;
 import com.bcn.asapp.authentication.infrastructure.user.mapper.UserIdMapper;
 
 /**
@@ -49,22 +49,22 @@ public interface JwtAuthenticationMapper {
     AuthenticateCommand toAuthenticateCommand(AuthenticateRequest request);
 
     /**
-     * Maps a domain {@link JwtAuthentication} to a database {@link JwtAuthenticationEntity}.
+     * Maps a domain {@link JwtAuthentication} to a database {@link JdbcJwtAuthenticationEntity}.
      *
      * @param jwtAuthentication the {@link JwtAuthentication} domain entity
-     * @return the {@link JwtAuthenticationEntity} database entity
+     * @return the {@link JdbcJwtAuthenticationEntity} database entity
      */
-    JwtAuthenticationEntity toJwtAuthenticationEntity(JwtAuthentication jwtAuthentication);
+    JdbcJwtAuthenticationEntity toJdbcJwtAuthenticationEntity(JwtAuthentication jwtAuthentication);
 
     /**
-     * Maps a database {@link JwtAuthenticationEntity} to a domain {@link JwtAuthentication}.
+     * Maps a database {@link JdbcJwtAuthenticationEntity} to a domain {@link JwtAuthentication}.
      * <p>
      * Uses {@link JwtAuthenticationObjectFactory} to construct the domain entity with proper validation.
      *
-     * @param jwtAuthenticationEntity the {@link JwtAuthenticationEntity} database entity
+     * @param jdbcJwtAuthenticationEntity the {@link JdbcJwtAuthenticationEntity} database entity
      * @return the {@link JwtAuthentication} domain entity
      */
-    JwtAuthentication toJwtAuthentication(JwtAuthenticationEntity jwtAuthenticationEntity);
+    JwtAuthentication toJwtAuthentication(JdbcJwtAuthenticationEntity jdbcJwtAuthenticationEntity);
 
     /**
      * Maps a domain {@link JwtAuthentication} to an {@link AuthenticateResponse}.

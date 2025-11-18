@@ -38,14 +38,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import com.bcn.asapp.authentication.domain.user.Role;
-import com.bcn.asapp.authentication.infrastructure.user.out.UserJdbcRepository;
-import com.bcn.asapp.authentication.infrastructure.user.out.entity.UserEntity;
+import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserEntity;
+import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserRepository;
 
 @ExtendWith(MockitoExtension.class)
 class CustomUserDetailsServiceTests {
 
     @Mock
-    private UserJdbcRepository userRepositoryMock;
+    private JdbcUserRepository userRepositoryMock;
 
     @InjectMocks
     private CustomUserDetailsService customUserDetailsService;
@@ -77,7 +77,7 @@ class CustomUserDetailsServiceTests {
             // Given
             var userId = UUID.fromString("36f65be6-b9b7-43ef-9f89-b49a724aea0a");
             var password = "{bcrypt}password";
-            var user = new UserEntity(userId, usernameValue, password, role.name());
+            var user = new JdbcUserEntity(userId, usernameValue, password, role.name());
             given(userRepositoryMock.findByUsername(usernameValue)).willReturn(Optional.of(user));
 
             // When
