@@ -43,6 +43,7 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
+    command: ["redis-server", "--requirepass", "secret"]
     volumes:
       - redis-data:/data
 
@@ -107,6 +108,9 @@ services:
       - DB_NAME=authenticationdb
       - DB_USERNAME=user
       - DB_PASSWORD=secret
+      - REDIS_HOST=asapp-redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=secret
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
       - ASAPP_SECURITY_ACCESS_TOKEN_EXPIRATION_TIME=300000
       - ASAPP_SECURITY_REFRESH_TOKEN_EXPIRATION_TIME=3600000
