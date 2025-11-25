@@ -75,7 +75,7 @@ public final class JwtAuthentication {
      * <p>
      * Typically used when creating a new authentication session before persistence.
      *
-     * @param userId       the user's unique identifier
+     * @param userId       the JWT authentication's user unique identifier
      * @param accessToken  the access token
      * @param refreshToken the refresh token
      * @return a new unauthenticated {@code JwtAuthentication} instance
