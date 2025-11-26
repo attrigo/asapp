@@ -40,6 +40,25 @@
 3. Mocking: `@MockBean`, `@Mock`, `@InjectMocks`
 4. Test Markers: `@Test`, `@Nested`, `@ParameterizedTest`
 
+### Javadoc Guidelines
+
+**Required Tags**:
+- **`@since`**: MUST include on all classes, pointing to the POM version of the appropriate module (e.g., `@since 0.2.0`)
+- **`@see`**: Use ONLY for references to framework classes (Spring, MapStruct, etc.), NEVER for internal project classes
+
+**What to document**:
+- All public classes and interfaces
+- All public methods with complex logic
+- Method parameters using `@param`
+- Return values using `@return`
+- Exceptions using `@throws`
+
+**Best Practices**:
+- Start descriptions with a verb (e.g., "Stores JWT tokens...")
+- Use `{@link}` for internal references in descriptions only
+- Keep `@see` references for framework classes
+- Update `@since` when adding new classes to match current module version
+
 ### Commit Message Examples
 ```
 feat: add user authentication
