@@ -14,16 +14,16 @@ ASAPP is a Spring Boot 3.4.3 microservices application for task management, buil
 Essential guides for understanding and working with ASAPP:
 
 ### Architecture
-@docs/claude/architecture.md
+@docs/guidelines/architecture.md
 
 ### Testing
-@docs/claude/testing.md
+@docs/guidelines/testing.md
 
 ### API Conventions
-@docs/claude/api-conventions.md
+@docs/guidelines/api-conventions.md
 
 ### Code Style & Build
-@docs/claude/code-style.md
+@docs/guidelines/code-style.md
 
 ### Development Workflows
-@docs/claude/development-patterns.md
+@docs/guidelines/development-patterns.md

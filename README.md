@@ -548,11 +548,11 @@ git push --atomic origin main ${RELEASE_VERSION}
 
 Comprehensive guides for working with ASAPP:
 
-- [Architecture & Domain Design](docs/claude/architecture.md) - Hexagonal layers, DDD patterns
-- [Testing Strategy](docs/claude/testing.md) - Test types, coverage, tools
-- [API Conventions](docs/claude/api-conventions.md) - REST patterns, DTOs, OpenAPI
-- [Code Style & Build](docs/claude/code-style.md) - Formatting, git hooks, commands
-- [Development Workflows](docs/claude/development-patterns.md) - Adding features, releases
+- [Architecture & Domain Design](docs/guidelines/architecture.md) - Hexagonal layers, DDD patterns
+- [Testing Strategy](docs/guidelines/testing.md) - Test types, coverage, tools
+- [API Conventions](docs/guidelines/api-conventions.md) - REST patterns, DTOs, OpenAPI
+- [Code Style & Build](docs/guidelines/code-style.md) - Formatting, git hooks, commands
+- [Development Workflows](docs/guidelines/development-patterns.md) - Adding features, releases
 
 ### For AI Assistants
 
