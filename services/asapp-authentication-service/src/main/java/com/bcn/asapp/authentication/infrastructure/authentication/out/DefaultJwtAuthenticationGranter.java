@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationGranter;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
-import com.bcn.asapp.authentication.application.authentication.out.JwtCacheRepository;
+import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
 import com.bcn.asapp.authentication.infrastructure.security.JwtIssuer;
@@ -31,14 +31,14 @@ import com.bcn.asapp.authentication.infrastructure.security.JwtIssuer;
 /**
  * Default implementation of {@link JwtAuthenticationGranter} for issuing JWT tokens.
  * <p>
- * Bridges the application layer with the infrastructure layer, issuing JWT tokens, storing them in the cache layer for fast validation, and persisting them in
- * the repository for long-term storage.
+ * Bridges the application layer with the infrastructure layer by generating JWT tokens, storing them temporarily for fast validation, and persisting the
+ * authentication session for durability.
  * <p>
  * <strong>Token Lifecycle:</strong>
  * <ol>
  * <li>Generates access and refresh tokens via {@link JwtIssuer}</li>
- * <li>Stores tokens in cache ({@link JwtCacheRepository}) for fast lookup</li>
- * <li>Persists tokens in database ({@link JwtAuthenticationRepository}) for durability</li>
+ * <li>Stores tokens ({@link JwtStore}) for fast lookup during validation</li>
+ * <li>Persists authentication session ({@link JwtAuthenticationRepository}) for durability</li>
  * </ol>
  *
  * @since 0.2.0
@@ -51,7 +51,7 @@ public class DefaultJwtAuthenticationGranter implements JwtAuthenticationGranter
 
     private final JwtIssuer jwtIssuer;
 
-    private final JwtCacheRepository jwtCacheRepository;
+    private final JwtStore jwtStore;
 
     private final JwtAuthenticationRepository jwtAuthenticationRepository;
 
@@ -59,33 +59,25 @@ public class DefaultJwtAuthenticationGranter implements JwtAuthenticationGranter
      * Constructs a new {@code DefaultJwtAuthenticationGranter} with required dependencies.
      *
      * @param jwtIssuer                   the JWT issuer for generating tokens
-     * @param jwtCacheRepository          the JWT cache repository for fast token lookups
+     * @param jwtStore                    the JWT store for token lookup
      * @param jwtAuthenticationRepository the JWT authentication repository for persistent storage
      */
-    public DefaultJwtAuthenticationGranter(JwtIssuer jwtIssuer, JwtCacheRepository jwtCacheRepository,
-            JwtAuthenticationRepository jwtAuthenticationRepository) {
+    public DefaultJwtAuthenticationGranter(JwtIssuer jwtIssuer, JwtStore jwtStore, JwtAuthenticationRepository jwtAuthenticationRepository) {
 
         this.jwtIssuer = jwtIssuer;
-        this.jwtCacheRepository = jwtCacheRepository;
+        this.jwtStore = jwtStore;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }
 
     /**
      * Grants a JWT authentication for an authenticated user.
      * <p>
-     * Generates access and refresh tokens based on the user's authentication information, stores them in the cache layer for fast validation, and persists the
-     * authentication session in the database for durability.
-     * <p>
-     * <strong>Process:</strong>
-     * <ol>
-     * <li>Issues access and refresh tokens using {@link JwtIssuer}</li>
-     * <li>Caches the token pair in Redis for O(1) validation lookups</li>
-     * <li>Persists the authentication in the database</li>
-     * </ol>
+     * Generates access and refresh tokens based on the user's authentication information, stores them temporarily for fast validation, and persists the
+     * authentication session for durability.
      *
      * @param userAuthentication the {@link UserAuthentication} containing authenticated user data
      * @return the {@link JwtAuthentication} containing generated access and refresh tokens with persistent ID
-     * @throws BadCredentialsException if token generation, caching, or persistence fails
+     * @throws BadCredentialsException if token generation, storage, or persistence fails
      */
     @Override
     public JwtAuthentication grantAuthentication(UserAuthentication userAuthentication) {
@@ -98,7 +90,7 @@ public class DefaultJwtAuthenticationGranter implements JwtAuthenticationGranter
 
             var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, accessToken, refreshToken);
 
-            jwtCacheRepository.storeJwtPair(jwtAuthentication);
+            jwtStore.store(jwtAuthentication);
 
             return jwtAuthenticationRepository.save(jwtAuthentication);
 

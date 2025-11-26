@@ -21,29 +21,30 @@ import java.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.connection.RedisKeyCommands;
 import org.springframework.data.redis.connection.RedisStringCommands;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import com.bcn.asapp.authentication.application.authentication.out.JwtCacheRepository;
+import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.domain.authentication.Expiration;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 
 /**
- * Redis-based adapter implementation of {@link JwtCacheRepository}.
+ * Redis-based adapter implementation of {@link JwtStore}.
  * <p>
- * Provides JWT token caching capabilities using Redis as the backing store. It stores both access and refresh tokens with automatic expiration based on the
- * tokens' TTL (time-to-live) values.
+ * Stores JWT token pairs in Redis with automatic expiration based on token TTL (time-to-live). Tokens are stored as Redis keys with empty values, as only their
+ * presence is validated during token lookup operations.
  *
  * @since 0.2.0
  * @see RedisTemplate
  * @author attrigo
  */
 @Component
-public class RedisJwtCacheRepository implements JwtCacheRepository {
+public class RedisJwtStore implements JwtStore {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisJwtCacheRepository.class);
+    private static final Logger logger = LoggerFactory.getLogger(RedisJwtStore.class);
 
     /**
      * Redis key prefix for access tokens.
@@ -62,26 +63,19 @@ public class RedisJwtCacheRepository implements JwtCacheRepository {
     private final RedisTemplate<String, String> redisTemplate;
 
     /**
-     * Constructs a new Redis JWT cache repository adapter.
+     * Constructs a new {@code RedisJwtStore} with required dependencies.
      *
      * @param redisTemplate the Spring Data Redis template for executing Redis operations
      */
-    public RedisJwtCacheRepository(RedisTemplate<String, String> redisTemplate) {
+    public RedisJwtStore(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
     /**
      * Stores a JWT authentication token pair in Redis.
      * <p>
-     * Both access and refresh tokens are stored atomically using Redis pipelining. Each token is stored with its corresponding expiration time calculated from
-     * the token's expiration timestamp. The tokens are stored with empty values as only their presence in the cache needs to be validated.
-     * <p>
-     * <ul>
-     * <li>Uses Redis SET with EXPIRE for automatic token expiration</li>
-     * <li>Employs pipelining for atomic storage of token pairs</li>
-     * <li>Stores tokens with prefixed keys for namespace isolation</li>
-     * <li>Tokens are stored with empty values as only presence validation is required</li>
-     * </ul>
+     * Both access and refresh tokens are stored atomically using Redis pipelining with automatic expiration calculated from the token's expiration timestamp.
+     * Tokens are stored with empty values as only their presence needs to be validated.
      * <p>
      * <strong>Redis Operations:</strong>
      * <ul>
@@ -89,14 +83,14 @@ public class RedisJwtCacheRepository implements JwtCacheRepository {
      * <li>SETEX {@code jwt:refresh:<token>} with TTL from refresh token expiration</li>
      * </ul>
      *
-     * @param jwtAuthentication the {@link JwtAuthentication} containing the token pair to cache
+     * @param jwtAuthentication the {@link JwtAuthentication} containing the token pair to store
      * @throws RuntimeException if the Redis operation fails
      */
     @Override
-    public void storeJwtPair(JwtAuthentication jwtAuthentication) {
+    public void store(JwtAuthentication jwtAuthentication) {
         var userId = jwtAuthentication.getUserId();
 
-        logger.trace("Storing token pair for user {}", userId.value());
+        logger.trace("Storing JWT pair for user {}", userId.value());
 
         redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
             RedisStringCommands redisStringCommands = connection.stringCommands();
@@ -115,7 +109,43 @@ public class RedisJwtCacheRepository implements JwtCacheRepository {
             return null;
         });
 
-        logger.trace("Token pair stored successfully for user {}", userId.value());
+        logger.trace("JWT pair stored successfully for user {}", userId.value());
+    }
+
+    /**
+     * Deletes a JWT authentication token pair from Redis.
+     * <p>
+     * Both access and refresh tokens are removed atomically using Redis pipelining, effectively invalidating them immediately.
+     * <p>
+     * <strong>Redis Operations:</strong>
+     * <ul>
+     * <li>DEL {@code jwt:access:<token>}</li>
+     * <li>DEL {@code jwt:refresh:<token>}</li>
+     * </ul>
+     *
+     * @param jwtAuthentication the {@link JwtAuthentication} containing the token pair to delete
+     * @throws RuntimeException if the Redis operation fails
+     */
+    @Override
+    public void delete(JwtAuthentication jwtAuthentication) {
+        logger.trace("Deleting JWT pair");
+
+        redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+            RedisKeyCommands redisKeyCommands = connection.keyCommands();
+
+            var accessToken = jwtAuthentication.accessToken();
+            var refreshToken = jwtAuthentication.refreshToken();
+
+            var accessKey = ACCESS_TOKEN_PREFIX + accessToken.encodedTokenValue();
+            redisKeyCommands.del(accessKey.getBytes());
+
+            var refreshKey = REFRESH_TOKEN_PREFIX + refreshToken.encodedTokenValue();
+            redisKeyCommands.del(refreshKey.getBytes());
+
+            return null;
+        });
+
+        logger.trace("JWT pair deleted successfully");
     }
 
     /**

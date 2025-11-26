@@ -72,6 +72,7 @@ public class AuthenticationRestController implements AuthenticationRestAPI {
      * @param request the {@link AuthenticateRequest} containing user credentials
      * @return the {@link AuthenticateResponse} containing access and refresh tokens
      */
+    // TODO: Update Javadocs and OpenAPI docs, is it really the JwtAuthentication overridden if it exists?
     @Override
     public AuthenticateResponse authenticate(AuthenticateRequest request) {
         var authenticateCommand = jwtAuthenticationMapper.toAuthenticateCommand(request);
