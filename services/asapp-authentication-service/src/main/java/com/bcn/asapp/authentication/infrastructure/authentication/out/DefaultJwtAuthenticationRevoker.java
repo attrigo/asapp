@@ -22,13 +22,15 @@ import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRevoker;
+import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtAuthenticationException;
 
 /**
- * Default implementation of {@link JwtAuthenticationRevoker} for removing JWT authentications.
+ * Default implementation of {@link JwtAuthenticationRevoker} for revoking JWT authentications.
  * <p>
- * Bridges the application layer with the infrastructure layer, removing JWT tokens from the repository.
+ * Bridges the application layer with the infrastructure layer by removing tokens from both temporary and persistent storage to invalidate authentication
+ * sessions.
  *
  * @since 0.2.0
  * @author attrigo
@@ -38,21 +40,25 @@ public class DefaultJwtAuthenticationRevoker implements JwtAuthenticationRevoker
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultJwtAuthenticationRevoker.class);
 
+    private final JwtStore jwtStore;
+
     private final JwtAuthenticationRepository jwtAuthenticationRepository;
 
     /**
-     * Constructs a new {@code AuthenticationRevokerAdapter} with required dependencies.
+     * Constructs a new {@code DefaultJwtAuthenticationRevoker} with required dependencies.
      *
-     * @param jwtAuthenticationRepository the JWT authentication repository
+     * @param jwtStore                    the JWT store for token lookup
+     * @param jwtAuthenticationRepository the JWT authentication repository for persistent storage
      */
-    public DefaultJwtAuthenticationRevoker(JwtAuthenticationRepository jwtAuthenticationRepository) {
+    public DefaultJwtAuthenticationRevoker(JwtStore jwtStore, JwtAuthenticationRepository jwtAuthenticationRepository) {
+        this.jwtStore = jwtStore;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }
 
     /**
      * Revokes a JWT authentication session.
      * <p>
-     * Removes the authentication and its associated tokens from the system, effectively invalidating the session.
+     * Removes the authentication and its associated tokens from both temporary and persistent storage, effectively invalidating the session immediately.
      *
      * @param authentication the {@link JwtAuthentication} to revoke
      * @throws InvalidJwtAuthenticationException if revocation fails
@@ -62,6 +68,8 @@ public class DefaultJwtAuthenticationRevoker implements JwtAuthenticationRevoker
         logger.trace("Revoking authentication with id {}", authentication.getId());
 
         try {
+            jwtStore.delete(authentication);
+
             jwtAuthenticationRepository.deleteById(authentication.getId());
 
         } catch (Exception e) {
