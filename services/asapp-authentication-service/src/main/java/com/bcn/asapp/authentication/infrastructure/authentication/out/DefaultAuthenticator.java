@@ -52,7 +52,7 @@ public class DefaultAuthenticator implements Authenticator {
     private final AuthenticationManager authenticationManager;
 
     /**
-     * Constructs a new {@code AuthenticatorAdapter} with required dependencies.
+     * Constructs a new {@code DefaultAuthenticator} with required dependencies.
      *
      * @param authenticationManager the Spring Security authentication manager
      */

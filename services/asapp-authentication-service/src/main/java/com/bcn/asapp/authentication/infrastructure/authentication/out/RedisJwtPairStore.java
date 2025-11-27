@@ -27,12 +27,12 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
+import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
 import com.bcn.asapp.authentication.domain.authentication.Expiration;
-import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
+import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 
 /**
- * Redis-based adapter implementation of {@link JwtStore}.
+ * Redis-based adapter implementation of {@link JwtPairStore}.
  * <p>
  * Stores JWT token pairs in Redis with automatic expiration based on token TTL (time-to-live). Tokens are stored as Redis keys with empty values, as only their
  * presence is validated during token lookup operations.
@@ -42,9 +42,9 @@ import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
  * @author attrigo
  */
 @Component
-public class RedisJwtStore implements JwtStore {
+public class RedisJwtPairStore implements JwtPairStore {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisJwtStore.class);
+    private static final Logger logger = LoggerFactory.getLogger(RedisJwtPairStore.class);
 
     /**
      * Redis key prefix for access tokens.
@@ -63,16 +63,16 @@ public class RedisJwtStore implements JwtStore {
     private final RedisTemplate<String, String> redisTemplate;
 
     /**
-     * Constructs a new {@code RedisJwtStore} with required dependencies.
+     * Constructs a new {@code RedisJwtPairStore} with required dependencies.
      *
      * @param redisTemplate the Spring Data Redis template for executing Redis operations
      */
-    public RedisJwtStore(RedisTemplate<String, String> redisTemplate) {
+    public RedisJwtPairStore(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
     /**
-     * Stores a JWT authentication token pair in Redis.
+     * Stores a JWT token pair in Redis.
      * <p>
      * Both access and refresh tokens are stored atomically using Redis pipelining with automatic expiration calculated from the token's expiration timestamp.
      * Tokens are stored with empty values as only their presence needs to be validated.
@@ -83,20 +83,18 @@ public class RedisJwtStore implements JwtStore {
      * <li>SETEX {@code jwt:refresh:<token>} with TTL from refresh token expiration</li>
      * </ul>
      *
-     * @param jwtAuthentication the {@link JwtAuthentication} containing the token pair to store
+     * @param jwtPair the {@link JwtPair} containing the token pair to store
      * @throws RuntimeException if the Redis operation fails
      */
     @Override
-    public void store(JwtAuthentication jwtAuthentication) {
-        var userId = jwtAuthentication.getUserId();
-
-        logger.trace("Storing JWT pair for user {}", userId.value());
+    public void store(JwtPair jwtPair) {
+        logger.trace("Storing JWT pair");
 
         redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
             RedisStringCommands redisStringCommands = connection.stringCommands();
 
-            var accessToken = jwtAuthentication.accessToken();
-            var refreshToken = jwtAuthentication.refreshToken();
+            var accessToken = jwtPair.accessToken();
+            var refreshToken = jwtPair.refreshToken();
 
             var accessKey = ACCESS_TOKEN_PREFIX + accessToken.encodedTokenValue();
             var accessTtl = calculateTtl(accessToken.expiration());
@@ -109,11 +107,11 @@ public class RedisJwtStore implements JwtStore {
             return null;
         });
 
-        logger.trace("JWT pair stored successfully for user {}", userId.value());
+        logger.trace("JWT pair stored successfully");
     }
 
     /**
-     * Deletes a JWT authentication token pair from Redis.
+     * Deletes a JWT token pair from Redis.
      * <p>
      * Both access and refresh tokens are removed atomically using Redis pipelining, effectively invalidating them immediately.
      * <p>
@@ -123,18 +121,18 @@ public class RedisJwtStore implements JwtStore {
      * <li>DEL {@code jwt:refresh:<token>}</li>
      * </ul>
      *
-     * @param jwtAuthentication the {@link JwtAuthentication} containing the token pair to delete
+     * @param jwtPair the {@link JwtPair} containing the token pair to delete
      * @throws RuntimeException if the Redis operation fails
      */
     @Override
-    public void delete(JwtAuthentication jwtAuthentication) {
+    public void delete(JwtPair jwtPair) {
         logger.trace("Deleting JWT pair");
 
         redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
             RedisKeyCommands redisKeyCommands = connection.keyCommands();
 
-            var accessToken = jwtAuthentication.accessToken();
-            var refreshToken = jwtAuthentication.refreshToken();
+            var accessToken = jwtPair.accessToken();
+            var refreshToken = jwtPair.refreshToken();
 
             var accessKey = ACCESS_TOKEN_PREFIX + accessToken.encodedTokenValue();
             redisKeyCommands.del(accessKey.getBytes());

@@ -16,34 +16,32 @@
 
 package com.bcn.asapp.authentication.application.authentication.out;
 
-import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
+import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 
 /**
- * Port for storing JWT tokens for fast token lookup.
+ * Port for storing JWT token pairs for fast lookup.
  * <p>
  * Defines the contract for temporarily storing JWT token pairs to enable fast token validation and revocation.
  *
  * @since 0.2.0
  * @author attrigo
  */
-public interface JwtStore {
+public interface JwtPairStore {
 
     /**
-     * Stores a JWT authentication token pair.
-     * <p>
-     * Both access and refresh tokens from the authentication are stored for fast lookup during validation and revocation operations.
+     * Stores a JWT token pair in the fast-access store.
      *
-     * @param jwtAuthentication the {@link JwtAuthentication} containing the token pair to store
+     * @param jwtPair the {@link JwtPair} containing the token pair to store
      */
-    void store(JwtAuthentication jwtAuthentication);
+    void store(JwtPair jwtPair);
 
     /**
-     * Deletes a JWT authentication token pair.
+     * Deletes a JWT token pair from the fast-access store.
      * <p>
-     * Removes both access and refresh tokens associated with the authentication to invalidate them immediately.
+     * Removes both access and refresh tokens to invalidate them immediately.
      *
-     * @param jwtAuthentication the {@link JwtAuthentication} containing the token pair to delete
+     * @param jwtPair the {@link JwtPair} containing the token pair to delete
      */
-    void delete(JwtAuthentication jwtAuthentication);
+    void delete(JwtPair jwtPair);
 
 }
