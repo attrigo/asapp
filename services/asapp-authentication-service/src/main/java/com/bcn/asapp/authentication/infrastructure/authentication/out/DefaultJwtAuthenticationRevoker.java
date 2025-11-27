@@ -70,6 +70,7 @@ public class DefaultJwtAuthenticationRevoker implements JwtAuthenticationRevoker
         try {
             jwtPairStore.delete(authentication.getJwtPair());
 
+            // TODO: What if db operation fails after redis delete? We have a consistency issue between Redis and DB
             jwtAuthenticationRepository.deleteById(authentication.getId());
 
         } catch (Exception e) {

@@ -89,9 +89,12 @@ public class DefaultJwtAuthenticationGranter implements JwtAuthenticationGranter
 
             var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, accessToken, refreshToken);
 
+            var savedAuthentication = jwtAuthenticationRepository.save(jwtAuthentication);
+
+            // TODO: What if store/delete fails? We have a consistency issue between Redis and DB
             jwtPairStore.store(jwtAuthentication.getJwtPair());
 
-            return jwtAuthenticationRepository.save(jwtAuthentication);
+            return savedAuthentication;
 
         } catch (Exception e) {
             var message = String.format("Authentication could not be granted due to: %s", e.getMessage());
