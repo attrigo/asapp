@@ -25,9 +25,11 @@ import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.willDoNothing;
 import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 import java.time.Instant;
@@ -43,6 +45,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
+import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.Expiration;
 import com.bcn.asapp.authentication.domain.authentication.Issued;
@@ -50,12 +53,16 @@ import com.bcn.asapp.authentication.domain.authentication.Jwt;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthenticationId;
 import com.bcn.asapp.authentication.domain.authentication.JwtClaims;
+import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 import com.bcn.asapp.authentication.domain.authentication.Subject;
 import com.bcn.asapp.authentication.domain.user.UserId;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtAuthenticationException;
 
 @ExtendWith(MockitoExtension.class)
 class DefaultJwtAuthenticationRevokerTests {
+
+    @Mock
+    private JwtPairStore jwtPairStore;
 
     @Mock
     private JwtAuthenticationRepository jwtAuthenticationRepository;
@@ -97,7 +104,29 @@ class DefaultJwtAuthenticationRevokerTests {
             assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
                               .hasMessageContaining("Authentication could not be revoked due to");
 
+            then(jwtPairStore).should(times(1))
+                              .delete(jwtAuthentication.getJwtPair());
             then(jwtAuthenticationRepository).should(times(1))
+                                             .deleteById(jwtAuthenticationId);
+
+        }
+
+        @Test
+        void ThenThrowsInvalidJwtAuthenticationException_GivenStoreDeleteFails() {
+            // Given
+            willThrow(new RuntimeException("Redis connection failed")).given(jwtPairStore)
+                                                                      .delete(any(JwtPair.class));
+
+            // When
+            var thrown = catchThrowable(() -> defaultAuthenticationRevoker.revokeAuthentication(jwtAuthentication));
+
+            // Then
+            assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
+                              .hasMessageContaining("Authentication could not be revoked due to");
+
+            then(jwtPairStore).should(times(1))
+                              .delete(jwtAuthentication.getJwtPair());
+            then(jwtAuthenticationRepository).should(never())
                                              .deleteById(jwtAuthenticationId);
 
         }
@@ -112,6 +141,8 @@ class DefaultJwtAuthenticationRevokerTests {
             defaultAuthenticationRevoker.revokeAuthentication(jwtAuthentication);
 
             // Then
+            then(jwtPairStore).should(times(1))
+                              .delete(jwtAuthentication.getJwtPair());
             then(jwtAuthenticationRepository).should(times(1))
                                              .deleteById(jwtAuthenticationId);
         }
