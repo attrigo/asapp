@@ -72,7 +72,7 @@ public class RedisJwtPairStore implements JwtPairStore {
     }
 
     /**
-     * Stores a JWT token pair in Redis.
+     * Saves a JWT token pair in Redis.
      * <p>
      * Both access and refresh tokens are stored atomically using Redis pipelining with automatic expiration calculated from the token's expiration timestamp.
      * Tokens are stored with empty values as only their presence needs to be validated.
@@ -83,12 +83,12 @@ public class RedisJwtPairStore implements JwtPairStore {
      * <li>SETEX {@code jwt:refresh:<token>} with TTL from refresh token expiration</li>
      * </ul>
      *
-     * @param jwtPair the {@link JwtPair} containing the token pair to store
+     * @param jwtPair the {@link JwtPair} containing the token pair to save
      * @throws RuntimeException if the Redis operation fails
      */
     @Override
-    public void store(JwtPair jwtPair) {
-        logger.trace("Storing JWT pair");
+    public void save(JwtPair jwtPair) {
+        logger.trace("Saving JWT pair");
 
         redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
             RedisStringCommands redisStringCommands = connection.stringCommands();
