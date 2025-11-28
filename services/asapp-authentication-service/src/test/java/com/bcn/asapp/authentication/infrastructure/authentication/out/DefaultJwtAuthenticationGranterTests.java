@@ -46,6 +46,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
 
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
+import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.Expiration;
 import com.bcn.asapp.authentication.domain.authentication.Issued;
@@ -53,6 +54,7 @@ import com.bcn.asapp.authentication.domain.authentication.Jwt;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthenticationId;
 import com.bcn.asapp.authentication.domain.authentication.JwtClaims;
+import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 import com.bcn.asapp.authentication.domain.authentication.Subject;
 import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
 import com.bcn.asapp.authentication.domain.user.UserId;
@@ -64,6 +66,9 @@ class DefaultJwtAuthenticationGranterTests {
 
     @Mock
     private JwtIssuer jwtIssuer;
+
+    @Mock
+    private JwtPairStore jwtPairStore;
 
     @Mock
     private JwtAuthenticationRepository jwtAuthenticationRepository;
@@ -122,6 +127,8 @@ class DefaultJwtAuthenticationGranterTests {
                            .issueRefreshToken(any());
             then(jwtAuthenticationRepository).should(never())
                                              .save(any(JwtAuthentication.class));
+            then(jwtPairStore).should(never())
+                              .store(any(JwtPair.class));
         }
 
         @Test
@@ -145,6 +152,8 @@ class DefaultJwtAuthenticationGranterTests {
                            .issueRefreshToken(userAuthentication);
             then(jwtAuthenticationRepository).should(never())
                                              .save(any(JwtAuthentication.class));
+            then(jwtPairStore).should(never())
+                              .store(any(JwtPair.class));
         }
 
         @Test
@@ -170,6 +179,37 @@ class DefaultJwtAuthenticationGranterTests {
                            .issueRefreshToken(userAuthentication);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(any(JwtAuthentication.class));
+            then(jwtPairStore).should(never())
+                              .store(any(JwtPair.class));
+        }
+
+        @Test
+        void ThenThrowsBadCredentialsException_GivenStoreSaveFails() {
+            // Given
+            given(jwtIssuer.issueAccessToken(userAuthentication)).willReturn(accessToken);
+
+            given(jwtIssuer.issueRefreshToken(userAuthentication)).willReturn(refreshToken);
+
+            given(jwtAuthenticationRepository.save(any(JwtAuthentication.class))).willReturn(jwtAuthentication);
+
+            willThrow(new RuntimeException("Redis connection failed")).given(jwtPairStore)
+                                                                      .store(any(JwtPair.class));
+
+            // When
+            var thrown = catchThrowable(() -> defaultAuthenticationGranter.grantAuthentication(userAuthentication));
+
+            // Then
+            assertThat(thrown).isInstanceOf(BadCredentialsException.class)
+                              .hasMessageContaining("Authentication could not be granted due to");
+
+            then(jwtIssuer).should(times(1))
+                           .issueAccessToken(userAuthentication);
+            then(jwtIssuer).should(times(1))
+                           .issueRefreshToken(userAuthentication);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .save(any(JwtAuthentication.class));
+            then(jwtPairStore).should(times(1))
+                              .store(any(JwtPair.class));
         }
 
         @Test
@@ -193,6 +233,8 @@ class DefaultJwtAuthenticationGranterTests {
                            .issueRefreshToken(userAuthentication);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(any(JwtAuthentication.class));
+            then(jwtPairStore).should(times(1))
+                              .store(any(JwtPair.class));
         }
 
     }

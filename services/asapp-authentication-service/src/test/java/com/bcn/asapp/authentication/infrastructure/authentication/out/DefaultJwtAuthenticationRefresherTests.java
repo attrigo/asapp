@@ -45,6 +45,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
+import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.Expiration;
 import com.bcn.asapp.authentication.domain.authentication.Issued;
@@ -52,6 +53,7 @@ import com.bcn.asapp.authentication.domain.authentication.Jwt;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthenticationId;
 import com.bcn.asapp.authentication.domain.authentication.JwtClaims;
+import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 import com.bcn.asapp.authentication.domain.authentication.Subject;
 import com.bcn.asapp.authentication.domain.user.Role;
 import com.bcn.asapp.authentication.domain.user.UserId;
@@ -66,6 +68,9 @@ class DefaultJwtAuthenticationRefresherTests {
 
     @Mock
     private JwtAuthenticationRepository jwtAuthenticationRepository;
+
+    @Mock
+    private JwtPairStore jwtPairStore;
 
     @InjectMocks
     private DefaultJwtAuthenticationRefresher defaultJwtAuthenticationRefresher;
@@ -116,7 +121,11 @@ class DefaultJwtAuthenticationRefresherTests {
             then(jwtIssuer).should(never())
                            .issueRefreshToken(any(), any());
             then(jwtAuthenticationRepository).should(never())
-                                             .save(any());
+                                             .save(any(JwtAuthentication.class));
+            then(jwtPairStore).should(never())
+                              .delete(any(JwtPair.class));
+            then(jwtPairStore).should(never())
+                              .store(any(JwtPair.class));
         }
 
         @Test
@@ -139,7 +148,11 @@ class DefaultJwtAuthenticationRefresherTests {
             then(jwtIssuer).should(times(1))
                            .issueRefreshToken(subject, role);
             then(jwtAuthenticationRepository).should(never())
-                                             .save(any());
+                                             .save(any(JwtAuthentication.class));
+            then(jwtPairStore).should(never())
+                              .delete(any(JwtPair.class));
+            then(jwtPairStore).should(never())
+                              .store(any(JwtPair.class));
         }
 
         @Test
@@ -165,11 +178,83 @@ class DefaultJwtAuthenticationRefresherTests {
                            .issueRefreshToken(subject, role);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(jwtAuthentication);
+            then(jwtPairStore).should(never())
+                              .delete(any(JwtPair.class));
+            then(jwtPairStore).should(never())
+                              .store(any(JwtPair.class));
+        }
+
+        @Test
+        void ThenThrowsInvalidJwtAuthenticationException_GivenStoreDeleteFails() {
+            // Given
+            var oldJwtPair = jwtAuthentication.getJwtPair();
+
+            given(jwtIssuer.issueAccessToken(subject, role)).willReturn(accessToken);
+
+            given(jwtIssuer.issueRefreshToken(subject, role)).willReturn(refreshToken);
+
+            given(jwtAuthenticationRepository.save(jwtAuthentication)).willReturn(jwtAuthentication);
+
+            willThrow(new RuntimeException("Redis connection failed")).given(jwtPairStore)
+                                                                      .delete(any(JwtPair.class));
+
+            // When
+            var thrown = catchThrowable(() -> defaultJwtAuthenticationRefresher.refreshAuthentication(jwtAuthentication));
+
+            // Then
+            assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
+                              .hasMessageContaining("Authentication could not be refreshed due to");
+
+            then(jwtIssuer).should(times(1))
+                           .issueAccessToken(subject, role);
+            then(jwtIssuer).should(times(1))
+                           .issueRefreshToken(subject, role);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .save(jwtAuthentication);
+            then(jwtPairStore).should(times(1))
+                              .delete(oldJwtPair);
+            then(jwtPairStore).should(never())
+                              .store(any(JwtPair.class));
+        }
+
+        @Test
+        void ThenThrowsInvalidJwtAuthenticationException_GivenStoreSaveFails() {
+            // Given
+            var oldJwtPair = jwtAuthentication.getJwtPair();
+
+            given(jwtIssuer.issueAccessToken(subject, role)).willReturn(accessToken);
+
+            given(jwtIssuer.issueRefreshToken(subject, role)).willReturn(refreshToken);
+
+            given(jwtAuthenticationRepository.save(jwtAuthentication)).willReturn(jwtAuthentication);
+
+            willThrow(new RuntimeException("Redis connection failed")).given(jwtPairStore)
+                                                                      .store(any(JwtPair.class));
+
+            // When
+            var thrown = catchThrowable(() -> defaultJwtAuthenticationRefresher.refreshAuthentication(jwtAuthentication));
+
+            // Then
+            assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
+                              .hasMessageContaining("Authentication could not be refreshed due to");
+
+            then(jwtIssuer).should(times(1))
+                           .issueAccessToken(subject, role);
+            then(jwtIssuer).should(times(1))
+                           .issueRefreshToken(subject, role);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .save(jwtAuthentication);
+            then(jwtPairStore).should(times(1))
+                              .delete(oldJwtPair);
+            then(jwtPairStore).should(times(1))
+                              .store(any(JwtPair.class));
         }
 
         @Test
         void ThenRefreshesAuthentication_GivenJwtAuthenticationIsValid() {
             // Given
+            var oldJwtPair = jwtAuthentication.getJwtPair();
+
             given(jwtIssuer.issueAccessToken(subject, role)).willReturn(accessToken);
 
             given(jwtIssuer.issueRefreshToken(subject, role)).willReturn(refreshToken);
@@ -190,6 +275,10 @@ class DefaultJwtAuthenticationRefresherTests {
                            .issueRefreshToken(subject, role);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(jwtAuthentication);
+            then(jwtPairStore).should(times(1))
+                              .delete(oldJwtPair);
+            then(jwtPairStore).should(times(1))
+                              .store(actual.getJwtPair());
         }
 
     }
