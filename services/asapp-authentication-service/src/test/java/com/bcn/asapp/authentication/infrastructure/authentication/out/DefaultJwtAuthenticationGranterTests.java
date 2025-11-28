@@ -128,7 +128,7 @@ class DefaultJwtAuthenticationGranterTests {
             then(jwtAuthenticationRepository).should(never())
                                              .save(any(JwtAuthentication.class));
             then(jwtPairStore).should(never())
-                              .store(any(JwtPair.class));
+                              .save(any(JwtPair.class));
         }
 
         @Test
@@ -153,7 +153,7 @@ class DefaultJwtAuthenticationGranterTests {
             then(jwtAuthenticationRepository).should(never())
                                              .save(any(JwtAuthentication.class));
             then(jwtPairStore).should(never())
-                              .store(any(JwtPair.class));
+                              .save(any(JwtPair.class));
         }
 
         @Test
@@ -180,7 +180,7 @@ class DefaultJwtAuthenticationGranterTests {
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(any(JwtAuthentication.class));
             then(jwtPairStore).should(never())
-                              .store(any(JwtPair.class));
+                              .save(any(JwtPair.class));
         }
 
         @Test
@@ -193,7 +193,7 @@ class DefaultJwtAuthenticationGranterTests {
             given(jwtAuthenticationRepository.save(any(JwtAuthentication.class))).willReturn(jwtAuthentication);
 
             willThrow(new RuntimeException("Redis connection failed")).given(jwtPairStore)
-                                                                      .store(any(JwtPair.class));
+                                                                      .save(any(JwtPair.class));
 
             // When
             var thrown = catchThrowable(() -> defaultAuthenticationGranter.grantAuthentication(userAuthentication));
@@ -209,7 +209,7 @@ class DefaultJwtAuthenticationGranterTests {
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(any(JwtAuthentication.class));
             then(jwtPairStore).should(times(1))
-                              .store(any(JwtPair.class));
+                              .save(any(JwtPair.class));
         }
 
         @Test
@@ -234,7 +234,7 @@ class DefaultJwtAuthenticationGranterTests {
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(any(JwtAuthentication.class));
             then(jwtPairStore).should(times(1))
-                              .store(any(JwtPair.class));
+                              .save(any(JwtPair.class));
         }
 
     }

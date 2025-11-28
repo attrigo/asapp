@@ -125,7 +125,7 @@ class DefaultJwtAuthenticationRefresherTests {
             then(jwtPairStore).should(never())
                               .delete(any(JwtPair.class));
             then(jwtPairStore).should(never())
-                              .store(any(JwtPair.class));
+                              .save(any(JwtPair.class));
         }
 
         @Test
@@ -152,7 +152,7 @@ class DefaultJwtAuthenticationRefresherTests {
             then(jwtPairStore).should(never())
                               .delete(any(JwtPair.class));
             then(jwtPairStore).should(never())
-                              .store(any(JwtPair.class));
+                              .save(any(JwtPair.class));
         }
 
         @Test
@@ -181,7 +181,7 @@ class DefaultJwtAuthenticationRefresherTests {
             then(jwtPairStore).should(never())
                               .delete(any(JwtPair.class));
             then(jwtPairStore).should(never())
-                              .store(any(JwtPair.class));
+                              .save(any(JwtPair.class));
         }
 
         @Test
@@ -214,7 +214,7 @@ class DefaultJwtAuthenticationRefresherTests {
             then(jwtPairStore).should(times(1))
                               .delete(oldJwtPair);
             then(jwtPairStore).should(never())
-                              .store(any(JwtPair.class));
+                              .save(any(JwtPair.class));
         }
 
         @Test
@@ -229,7 +229,7 @@ class DefaultJwtAuthenticationRefresherTests {
             given(jwtAuthenticationRepository.save(jwtAuthentication)).willReturn(jwtAuthentication);
 
             willThrow(new RuntimeException("Redis connection failed")).given(jwtPairStore)
-                                                                      .store(any(JwtPair.class));
+                                                                      .save(any(JwtPair.class));
 
             // When
             var thrown = catchThrowable(() -> defaultJwtAuthenticationRefresher.refreshAuthentication(jwtAuthentication));
@@ -247,7 +247,7 @@ class DefaultJwtAuthenticationRefresherTests {
             then(jwtPairStore).should(times(1))
                               .delete(oldJwtPair);
             then(jwtPairStore).should(times(1))
-                              .store(any(JwtPair.class));
+                              .save(any(JwtPair.class));
         }
 
         @Test
@@ -278,7 +278,7 @@ class DefaultJwtAuthenticationRefresherTests {
             then(jwtPairStore).should(times(1))
                               .delete(oldJwtPair);
             then(jwtPairStore).should(times(1))
-                              .store(actual.getJwtPair());
+                              .save(actual.getJwtPair());
         }
 
     }

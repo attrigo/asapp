@@ -29,11 +29,11 @@ import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 public interface JwtPairStore {
 
     /**
-     * Stores a JWT token pair in the fast-access store.
+     * Saves a JWT token pair in the fast-access store.
      *
-     * @param jwtPair the {@link JwtPair} containing the token pair to store
+     * @param jwtPair the {@link JwtPair} containing the token pair to save
      */
-    void store(JwtPair jwtPair);
+    void save(JwtPair jwtPair);
 
     /**
      * Deletes a JWT token pair from the fast-access store.

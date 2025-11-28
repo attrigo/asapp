@@ -76,6 +76,7 @@ public class DefaultJwtAuthenticationRevoker implements JwtAuthenticationRevoker
         } catch (Exception e) {
             var message = String.format("Authentication could not be revoked due to: %s", e.getMessage());
             logger.warn(message, e);
+            // TODO: Throw another exception when the errors happens in repository or store operations?
             throw new InvalidJwtAuthenticationException(message, e);
         }
     }

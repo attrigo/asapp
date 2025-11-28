@@ -90,13 +90,14 @@ public class DefaultJwtAuthenticationRefresher implements JwtAuthenticationRefre
 
             // TODO: What if store/delete fails? We have a consistency issue between Redis and DB
             jwtPairStore.delete(oldJwtPair);
-            jwtPairStore.store(savedAuthentication.getJwtPair());
+            jwtPairStore.save(savedAuthentication.getJwtPair());
 
             return savedAuthentication;
 
         } catch (Exception e) {
             var message = String.format("Authentication could not be refreshed due to: %s", e.getMessage());
             logger.warn(message, e);
+            // TODO: Throw another exception when the errors happens in repository or store operations?
             throw new InvalidJwtAuthenticationException(message, e);
         }
     }
