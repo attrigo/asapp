@@ -20,12 +20,12 @@ import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.A
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.REFRESH_TOKEN_USE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ROLE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
+import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
 import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.ACCESS_TOKEN_TYPE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.REFRESH_TOKEN_TYPE;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.EXPIRATION_TIME;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.testEncodedTokenBuilder;
-import static java.time.temporal.ChronoUnit.SECONDS;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -45,13 +45,29 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
+import com.bcn.asapp.authentication.domain.authentication.Expiration;
+import com.bcn.asapp.authentication.domain.authentication.Issued;
+import com.bcn.asapp.authentication.domain.authentication.Jwt;
+import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
+import com.bcn.asapp.authentication.domain.authentication.JwtAuthenticationId;
+import com.bcn.asapp.authentication.domain.authentication.JwtClaims;
+import com.bcn.asapp.authentication.domain.authentication.Subject;
+import com.bcn.asapp.authentication.domain.user.EncodedPassword;
 import com.bcn.asapp.authentication.domain.user.Role;
+import com.bcn.asapp.authentication.domain.user.User;
+import com.bcn.asapp.authentication.domain.user.UserId;
+import com.bcn.asapp.authentication.domain.user.Username;
 import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationEntity;
 import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtClaimsEntity;
 import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtEntity;
 import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserEntity;
 
 public class TestFactory {
+
+    private static final Long TEST_EXPIRATION_TIME_MILLIS = 300000L;
+
+    private static final Long TEST_TOKEN_EXPIRED_OFFSET_MILLIS = 60000L;
 
     public static final class TestUserFactory {
 
@@ -63,8 +79,12 @@ public class TestFactory {
 
         TestUserFactory() {}
 
-        public static JdbcUserEntity defaultTestUser() {
-            return new Builder().build();
+        public static User defaultTestDomainUser() {
+            return testUserBuilder().buildDomainEntity();
+        }
+
+        public static JdbcUserEntity defaultTestJdbcUser() {
+            return testUserBuilder().buildJdbcEntity();
         }
 
         public static Builder testUserBuilder() {
@@ -72,6 +92,8 @@ public class TestFactory {
         }
 
         public static class Builder {
+
+            private UUID userId;
 
             private String username;
 
@@ -84,11 +106,17 @@ public class TestFactory {
             private PasswordEncoder passwordEncoder;
 
             Builder() {
+                this.userId = UUID.randomUUID();
                 this.username = TEST_USER_USERNAME;
                 this.password = TEST_USER_RAW_PASSWORD;
                 this.role = TEST_USER_ROLE.name();
                 this.passwordEncoderPrefix = "{bcrypt}";
                 this.passwordEncoder = new BCryptPasswordEncoder();
+            }
+
+            public Builder withUserId(UUID userId) {
+                this.userId = userId;
+                return this;
             }
 
             public Builder withUsername(String username) {
@@ -112,9 +140,22 @@ public class TestFactory {
                 return this;
             }
 
-            public JdbcUserEntity build() {
-                var passwordEncoded = passwordEncoderPrefix + passwordEncoder.encode(password);
-                return new JdbcUserEntity(null, username, passwordEncoded, role);
+            public User buildDomainEntity() {
+                var usernameVO = Username.of(username);
+                var roleVO = Role.valueOf(role);
+
+                if (userId == null) {
+                    var encodedPasswordVO = EncodedPassword.of(passwordEncoderPrefix + passwordEncoder.encode(password));
+                    return User.inactiveUser(usernameVO, encodedPasswordVO, roleVO);
+                } else {
+                    var userIdVO = UserId.of(userId);
+                    return User.activeUser(userIdVO, usernameVO, roleVO);
+                }
+            }
+
+            public JdbcUserEntity buildJdbcEntity() {
+                var encodedPasswordEntity = passwordEncoderPrefix + passwordEncoder.encode(password);
+                return new JdbcUserEntity(null, username, encodedPasswordEntity, role);
             }
 
         }
@@ -123,14 +164,22 @@ public class TestFactory {
 
     public static final class TestJwtAuthenticationFactory {
 
-        static final String TEST_JWT_AUTH_SUBJECT = "user@asapp.com";
+        private static final String TEST_JWT_AUTH_SUBJECT = "user@asapp.com";
 
-        static final String TEST_JWT_AUTH_ROLE = USER.name();
+        private static final String TEST_JWT_AUTH_ROLE = USER.name();
+
+        private static final Map<String, Object> TEST_JWT_AUTH_AT_CLAIMS = Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, TEST_JWT_AUTH_ROLE);
+
+        private static final Map<String, Object> TEST_JWT_AUTH_RT_CLAIMS = Map.of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, TEST_JWT_AUTH_ROLE);
 
         TestJwtAuthenticationFactory() {}
 
-        public static JdbcJwtAuthenticationEntity defaultTestJwtAuthentication() {
-            return new Builder().build();
+        public static JwtAuthentication defaultTestDomainJwtAuthentication() {
+            return testJwtAuthenticationBuilder().buildDomainEntity();
+        }
+
+        public static JdbcJwtAuthenticationEntity defaultTestJdbcJwtAuthentication() {
+            return testJwtAuthenticationBuilder().buildJdbcEntity();
         }
 
         public static Builder testJwtAuthenticationBuilder() {
@@ -139,16 +188,43 @@ public class TestFactory {
 
         public static class Builder {
 
+            private UUID authenticationId;
+
             private UUID userId;
 
-            private JdbcJwtEntity accessToken;
+            private String atEncodedToken;
 
-            private JdbcJwtEntity refreshToken;
+            private String atSubject;
+
+            private Map<String, Object> atClaims;
+
+            private Instant atIssued;
+
+            private Instant atExpiration;
+
+            private String rtEncodedToken;
+
+            private String rtSubject;
+
+            private Map<String, Object> rtClaims;
+
+            private Instant rtIssued;
+
+            private Instant rtExpiration;
 
             Builder() {
+                this.authenticationId = UUID.randomUUID();
                 this.userId = UUID.randomUUID();
-                this.accessToken = createJwtEntity(ACCESS_TOKEN_TYPE);
-                this.refreshToken = createJwtEntity(REFRESH_TOKEN_TYPE);
+
+                this.atSubject = TEST_JWT_AUTH_SUBJECT;
+                this.atClaims = TEST_JWT_AUTH_AT_CLAIMS;
+                this.atIssued = generateRandomIssueAt();
+                this.atExpiration = atIssued.plusMillis(TEST_EXPIRATION_TIME_MILLIS);
+
+                this.rtSubject = TEST_JWT_AUTH_SUBJECT;
+                this.rtClaims = TEST_JWT_AUTH_RT_CLAIMS;
+                this.rtIssued = generateRandomIssueAt();
+                this.rtExpiration = rtIssued.plusMillis(TEST_EXPIRATION_TIME_MILLIS);
             }
 
             public Builder withUserId(UUID userId) {
@@ -156,36 +232,135 @@ public class TestFactory {
                 return this;
             }
 
-            public Builder withAccessToken(JdbcJwtEntity accessToken) {
-                this.accessToken = accessToken;
+            public Builder withAuthenticationId(UUID authenticationId) {
+                this.authenticationId = authenticationId;
                 return this;
             }
 
-            public Builder withRefreshToken(JdbcJwtEntity refreshToken) {
-                this.refreshToken = refreshToken;
+            // Access Token modifiers
+            public Builder withAccessTokenEncodedToken(String encodedToken) {
+                this.atEncodedToken = encodedToken;
                 return this;
             }
 
-            public JdbcJwtAuthenticationEntity build() {
-                return new JdbcJwtAuthenticationEntity(null, userId, accessToken, refreshToken);
+            public Builder withAccessTokenSubject(String subject) {
+                this.atSubject = subject;
+                return this;
             }
 
-            private static JdbcJwtEntity createJwtEntity(String type) {
-                var subject = TEST_JWT_AUTH_SUBJECT;
-                var issuedAt = generateRandomIssueAt();
-                var expiration = issuedAt.plus(EXPIRATION_TIME, SECONDS);
-                var tokenUseClaim = ACCESS_TOKEN_TYPE.equals(type) ? ACCESS_TOKEN_USE : REFRESH_TOKEN_USE;
-                Map<String, Object> claimsMap = Map.of(TOKEN_USE, tokenUseClaim, ROLE, TEST_JWT_AUTH_ROLE);
+            public Builder withAccessTokenClaims(Map<String, Object> claims) {
+                this.atClaims = claims;
+                return this;
+            }
 
-                var token = testEncodedTokenBuilder().withType(type)
-                                                     .withSubject(subject)
-                                                     .withClaims(claimsMap)
-                                                     .withIssuedAt(issuedAt)
-                                                     .withExpiration(expiration)
-                                                     .build();
+            public Builder withAccessTokenIssued(Instant issued) {
+                this.atIssued = issued;
+                return this;
+            }
 
-                var claims = new JdbcJwtClaimsEntity(claimsMap);
-                return new JdbcJwtEntity(token, type, subject, claims, issuedAt, expiration);
+            public Builder withAccessTokenExpiration(Instant expiration) {
+                this.atExpiration = expiration;
+                return this;
+            }
+
+            public Builder withAccessTokenExpired() {
+                var now = Instant.now();
+                var issued = now.minusMillis(TEST_EXPIRATION_TIME_MILLIS + TEST_TOKEN_EXPIRED_OFFSET_MILLIS);
+                var expiration = now.minusMillis(TEST_TOKEN_EXPIRED_OFFSET_MILLIS);
+                return withAccessTokenIssued(issued).withAccessTokenExpiration(expiration);
+            }
+
+            // Refresh Token modifiers
+            public Builder withRefreshTokenEncodedToken(String encodedToken) {
+                this.rtEncodedToken = encodedToken;
+                return this;
+            }
+
+            public Builder withRefreshTokenSubject(String subject) {
+                this.rtSubject = subject;
+                return this;
+            }
+
+            public Builder withRefreshTokenClaims(Map<String, Object> claims) {
+                this.rtClaims = claims;
+                return this;
+            }
+
+            public Builder withRefreshTokenIssued(Instant issued) {
+                this.rtIssued = issued;
+                return this;
+            }
+
+            public Builder withRefreshTokenExpiration(Instant expiration) {
+                this.rtExpiration = expiration;
+                return this;
+            }
+
+            public Builder withRefreshTokenExpired() {
+                var now = Instant.now();
+                var issued = now.minusMillis(TEST_EXPIRATION_TIME_MILLIS + TEST_TOKEN_EXPIRED_OFFSET_MILLIS);
+                var expiration = now.minusMillis(TEST_TOKEN_EXPIRED_OFFSET_MILLIS);
+                return withRefreshTokenIssued(issued).withRefreshTokenExpiration(expiration);
+            }
+
+            // Builders
+            public JwtAuthentication buildDomainEntity() {
+                atEncodedToken = testEncodedTokenBuilder().withType(ACCESS_TOKEN.type())
+                                                          .withSubject(atSubject)
+                                                          .withClaims(atClaims)
+                                                          .withIssuedAt(atIssued)
+                                                          .withExpiration(atExpiration)
+                                                          .build();
+                var atEncodedTokenVO = EncodedToken.of(atEncodedToken);
+                var atSubjectVO = Subject.of(atSubject);
+                var atClaimsVO = JwtClaims.of(atClaims);
+                var atIssuedVO = Issued.of(atIssued);
+                var atExpirationVO = new Expiration(atExpiration);
+                var accessTokenVO = Jwt.of(atEncodedTokenVO, ACCESS_TOKEN, atSubjectVO, atClaimsVO, atIssuedVO, atExpirationVO);
+
+                rtEncodedToken = testEncodedTokenBuilder().withType(REFRESH_TOKEN.type())
+                                                          .withSubject(rtSubject)
+                                                          .withClaims(rtClaims)
+                                                          .withIssuedAt(rtIssued)
+                                                          .withExpiration(rtExpiration)
+                                                          .build();
+                var rtEncodedTokenVO = EncodedToken.of(rtEncodedToken);
+                var rtSubjectVO = Subject.of(rtSubject);
+                var rtClaimsVO = JwtClaims.of(rtClaims);
+                var rtIssuedVO = Issued.of(rtIssued);
+                var rtExpirationVO = new Expiration(rtExpiration);
+                var refreshTokenVO = Jwt.of(rtEncodedTokenVO, REFRESH_TOKEN, rtSubjectVO, rtClaimsVO, rtIssuedVO, rtExpirationVO);
+
+                var userIdVO = UserId.of(userId);
+
+                if (authenticationId == null) {
+                    return JwtAuthentication.unAuthenticated(userIdVO, accessTokenVO, refreshTokenVO);
+                } else {
+                    var authenticationIdVO = JwtAuthenticationId.of(authenticationId);
+                    return JwtAuthentication.authenticated(authenticationIdVO, userIdVO, accessTokenVO, refreshTokenVO);
+                }
+            }
+
+            public JdbcJwtAuthenticationEntity buildJdbcEntity() {
+                atEncodedToken = testEncodedTokenBuilder().withType(ACCESS_TOKEN_TYPE)
+                                                          .withSubject(atSubject)
+                                                          .withClaims(atClaims)
+                                                          .withIssuedAt(atIssued)
+                                                          .withExpiration(atExpiration)
+                                                          .build();
+                var atClaimsEntity = new JdbcJwtClaimsEntity(atClaims);
+                var accessTokenEntity = new JdbcJwtEntity(atEncodedToken, ACCESS_TOKEN_TYPE, atSubject, atClaimsEntity, atIssued, atExpiration);
+
+                rtEncodedToken = testEncodedTokenBuilder().withType(REFRESH_TOKEN_TYPE)
+                                                          .withSubject(rtSubject)
+                                                          .withClaims(rtClaims)
+                                                          .withIssuedAt(rtIssued)
+                                                          .withExpiration(rtExpiration)
+                                                          .build();
+                var rtClaimsEntity = new JdbcJwtClaimsEntity(rtClaims);
+                var refreshTokenEntity = new JdbcJwtEntity(rtEncodedToken, REFRESH_TOKEN_TYPE, rtSubject, rtClaimsEntity, rtIssued, rtExpiration);
+
+                return new JdbcJwtAuthenticationEntity(null, userId, accessTokenEntity, refreshTokenEntity);
             }
 
         }
@@ -194,17 +369,15 @@ public class TestFactory {
 
     public static final class TestEncodedTokenFactory {
 
-        static final String JWT_SECRET;
+        private static final String JWT_SECRET;
 
-        static final Long EXPIRATION_TIME = 300000L;
+        private static final String TEST_ENCODED_TOKEN_SUBJECT = "user@asapp.com";
 
-        static final String TEST_ENCODED_TOKEN_SUBJECT = "user@asapp.com";
+        private static final String TEST_ENCODED_TOKEN_ROLE_CLAIM = USER.name();
 
-        static final String TEST_ENCODED_TOKEN_ROLE_CLAIM = USER.name();
+        private static final Map<String, Object> TEST_ENCODED_TOKEN_AT_CLAIMS = Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, TEST_ENCODED_TOKEN_ROLE_CLAIM);
 
-        static final Map<String, Object> TEST_ENCODED_TOKEN_AT_CLAIMS = Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, TEST_ENCODED_TOKEN_ROLE_CLAIM);
-
-        static final Map<String, Object> TEST_ENCODED_TOKEN_RT_CLAIMS = Map.of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, TEST_ENCODED_TOKEN_ROLE_CLAIM);
+        private static final Map<String, Object> TEST_ENCODED_TOKEN_RT_CLAIMS = Map.of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, TEST_ENCODED_TOKEN_ROLE_CLAIM);
 
         static {
             try (InputStream input = TestEncodedTokenFactory.class.getClassLoader()
@@ -256,7 +429,7 @@ public class TestFactory {
             Builder() {
                 subject = TEST_ENCODED_TOKEN_SUBJECT;
                 issuedAt = generateRandomIssueAt();
-                expiration = issuedAt.plusMillis(EXPIRATION_TIME);
+                expiration = issuedAt.plusMillis(TEST_EXPIRATION_TIME_MILLIS);
                 secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(JWT_SECRET));
             }
 
@@ -279,7 +452,7 @@ public class TestFactory {
             }
 
             public Builder withClaims(Map<String, Object> claims) {
-                this.claims = Map.copyOf(claims);
+                this.claims = claims;
                 return this;
             }
 
@@ -304,8 +477,10 @@ public class TestFactory {
             }
 
             public Builder expired() {
-                Instant now = Instant.now();
-                return withIssuedAt(now.minusMillis(EXPIRATION_TIME + 60000)).withExpiration(now.minusMillis(60000));
+                var now = Instant.now();
+                var issuedAt = now.minusMillis(TEST_EXPIRATION_TIME_MILLIS + TEST_TOKEN_EXPIRED_OFFSET_MILLIS);
+                var expiration = now.minusMillis(TEST_TOKEN_EXPIRED_OFFSET_MILLIS);
+                return withIssuedAt(issuedAt).withExpiration(expiration);
             }
 
             public Builder notSigned() {
@@ -338,13 +513,13 @@ public class TestFactory {
      * @return the random issueAt value.
      */
     private static Instant generateRandomIssueAt() {
-        Instant now = Instant.now();
-        Instant fourMinsAgo = Instant.now()
-                                     .minusMillis(EXPIRATION_TIME - 30000);
-        long startMillis = fourMinsAgo.toEpochMilli();
-        long endMillis = now.toEpochMilli();
-        long randomMillis = ThreadLocalRandom.current()
-                                             .nextLong(startMillis, endMillis + 1);
+        var now = Instant.now();
+        var fourMinsAgo = Instant.now()
+                                 .minusMillis(TEST_EXPIRATION_TIME_MILLIS - 30000);
+        var startMillis = fourMinsAgo.toEpochMilli();
+        var endMillis = now.toEpochMilli();
+        var randomMillis = ThreadLocalRandom.current()
+                                            .nextLong(startMillis, endMillis + 1);
         return Instant.ofEpochMilli(randomMillis);
     }
 
