@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.authentication.infrastructure.config;
 
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestUser;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestJdbcUser;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.testUserBuilder;
 import static com.bcn.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_TOKEN_FULL_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,7 +69,7 @@ class PasswordEncoderIT {
         @Test
         void AuthenticatesUserAndReturnsStatusOkAndBodyWithGeneratedAuthentication_StoredUserPasswordHasBcryptEncode() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -94,7 +94,7 @@ class PasswordEncoderIT {
             // Given
             var argon2Encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
             var user = testUserBuilder().withPasswordEncoder("{argon2@SpringSecurity_v5_8}", argon2Encoder)
-                                        .build();
+                                        .buildJdbcEntity();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -119,7 +119,7 @@ class PasswordEncoderIT {
             // Given
             var pbkdf2Encoder = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
             var user = testUserBuilder().withPasswordEncoder("{pbkdf2@SpringSecurity_v5_8}", pbkdf2Encoder)
-                                        .build();
+                                        .buildJdbcEntity();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -144,7 +144,7 @@ class PasswordEncoderIT {
             // Given
             var scryptEncoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8();
             var user = testUserBuilder().withPasswordEncoder("{scrypt@SpringSecurity_v5_8}", scryptEncoder)
-                                        .build();
+                                        .buildJdbcEntity();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -169,7 +169,7 @@ class PasswordEncoderIT {
             // Given
             var noOpEncoder = NoOpPasswordEncoder.getInstance();
             var user = testUserBuilder().withPasswordEncoder("{noop}", noOpEncoder)
-                                        .build();
+                                        .buildJdbcEntity();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 

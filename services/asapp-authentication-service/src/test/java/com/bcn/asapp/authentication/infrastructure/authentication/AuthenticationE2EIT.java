@@ -28,7 +28,7 @@ import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedToken
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.testEncodedTokenBuilder;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestJwtAuthenticationFactory.testJwtAuthenticationBuilder;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestUser;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestJdbcUser;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.testUserBuilder;
 import static com.bcn.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_REFRESH_TOKEN_FULL_PATH;
 import static com.bcn.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_REVOKE_FULL_PATH;
@@ -87,7 +87,7 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotAuthenticateAndReturnsStatusUnauthorizedAndEmptyBody_UsernameNotExists() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -112,7 +112,7 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotAuthenticateReturnsStatusUnauthorizedAndEmptyBody_PasswordNotMatch() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -137,7 +137,7 @@ class AuthenticationE2EIT {
         @Test
         void AuthenticatesUserAndReturnsStatusOkAndBodyWithGeneratedAuthentication_UserNotAuthenticated() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -168,7 +168,7 @@ class AuthenticationE2EIT {
         void AuthenticatesUserAndReturnsStatusOkAndBodyWithGeneratedAuthentication_AdminUserNotAuthenticated() {
             // Given
             var user = testUserBuilder().withRole(ADMIN.name())
-                                        .build();
+                                        .buildJdbcEntity();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -198,12 +198,12 @@ class AuthenticationE2EIT {
         @Test
         void AuthenticatesUserAndReturnsStatusOkAndBodyWithNewGeneratedAuthentication_UserAuthenticated() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                  .build();
+                                                                  .buildJdbcEntity();
             var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
             assertThat(jwtAuthenticationCreated).isNotNull();
 
@@ -303,7 +303,7 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_RefreshTokenSubjectNotExists() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -331,7 +331,7 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_RefreshTokenNotExists() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -357,12 +357,12 @@ class AuthenticationE2EIT {
         @Test
         void RefreshesAuthenticationAndReturnsStatusOkAndBodyWithRefreshedAuthentication_RefreshTokenBelongsToUserAuthenticated() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                  .build();
+                                                                  .buildJdbcEntity();
             var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
             assertThat(jwtAuthenticationCreated).isNotNull();
 
@@ -396,14 +396,14 @@ class AuthenticationE2EIT {
         @Test
         void RefreshesAuthenticationAndReturnsStatusOkAndBodyWithRefreshedAuthentication_RefreshTokenBelongsToUserHasSeveralAuthentications() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             var jwtAuthentication1 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                   .build();
+                                                                   .buildJdbcEntity();
             var jwtAuthentication2 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                   .build();
+                                                                   .buildJdbcEntity();
             var jwtAuthenticationCreated1 = jwtAuthenticationRepository.save(jwtAuthentication1);
             var jwtAuthenticationCreated2 = jwtAuthenticationRepository.save(jwtAuthentication2);
             assertThat(jwtAuthenticationCreated1).isNotNull();
@@ -510,7 +510,7 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_AccessTokenSubjectNotExists() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -538,7 +538,7 @@ class AuthenticationE2EIT {
         @Test
         void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_AccessTokenNotExists() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -564,12 +564,12 @@ class AuthenticationE2EIT {
         @Test
         void RevokesAuthenticationAndReturnsStatusOkAndEmptyBody_AccessTokenBelongsToUserAuthenticated() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                  .build();
+                                                                  .buildJdbcEntity();
             var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
             assertThat(jwtAuthenticationCreated).isNotNull();
 
@@ -597,14 +597,14 @@ class AuthenticationE2EIT {
         @Test
         void RevokesAuthenticationAndReturnsStatusOkAndEmptyBody_AccessTokenBelongsToUserHasSeveralAuthentications() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             var jwtAuthentication1 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                   .build();
+                                                                   .buildJdbcEntity();
             var jwtAuthentication2 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                   .build();
+                                                                   .buildJdbcEntity();
             var jwtAuthenticationCreated1 = jwtAuthenticationRepository.save(jwtAuthentication1);
             var jwtAuthenticationCreated2 = jwtAuthenticationRepository.save(jwtAuthentication2);
             assertThat(jwtAuthenticationCreated1).isNotNull();

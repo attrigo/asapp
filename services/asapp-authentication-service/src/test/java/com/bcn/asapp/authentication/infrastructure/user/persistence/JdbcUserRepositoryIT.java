@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.authentication.infrastructure.user.persistence;
 
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestUser;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestJdbcUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;
@@ -65,7 +65,7 @@ class JdbcUserRepositoryIT {
         @Test
         void FindsUserAndReturnsTasksFound_UserExists() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -98,7 +98,7 @@ class JdbcUserRepositoryIT {
         @Test
         void DeletesUserAndReturnsAmountOfUsersDeleted_UserExists() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 

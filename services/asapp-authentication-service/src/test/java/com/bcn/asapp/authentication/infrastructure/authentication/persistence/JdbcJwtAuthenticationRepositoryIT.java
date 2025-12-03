@@ -21,7 +21,7 @@ import static com.bcn.asapp.authentication.testutil.JwtAssertions.assertThatJwt;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestJwtAuthenticationFactory.testJwtAuthenticationBuilder;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestUser;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestJdbcUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.assertj.core.api.SoftAssertions;
@@ -72,12 +72,12 @@ class JdbcJwtAuthenticationRepositoryIT {
         @Test
         void FindsJwtAuthenticationAndReturnsJwtAuthentication_JwtAuthenticationExists() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                  .build();
+                                                                  .buildJdbcEntity();
             var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
             assertThat(jwtAuthenticationCreated).isNotNull();
 
@@ -111,12 +111,12 @@ class JdbcJwtAuthenticationRepositoryIT {
         @Test
         void FindsJwtAuthenticationAndReturnsJwtAuthentication_JwtAuthenticationExists() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                  .build();
+                                                                  .buildJdbcEntity();
             var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
             assertThat(jwtAuthenticationCreated).isNotNull();
 
@@ -139,14 +139,14 @@ class JdbcJwtAuthenticationRepositoryIT {
         @Test
         void DeletesUserAuthentications_UserHasAuthentications() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
             var jwtAuthentication1 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                   .build();
+                                                                   .buildJdbcEntity();
             var jwtAuthentication2 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                   .build();
+                                                                   .buildJdbcEntity();
             var jwtAuthenticationCreated1 = jwtAuthenticationRepository.save(jwtAuthentication1);
             var jwtAuthenticationCreated2 = jwtAuthenticationRepository.save(jwtAuthentication2);
             assertThat(jwtAuthenticationCreated1).isNotNull();
