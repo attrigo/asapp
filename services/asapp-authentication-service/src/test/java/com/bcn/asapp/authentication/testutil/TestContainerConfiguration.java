@@ -30,6 +30,12 @@ import com.redis.testcontainers.RedisContainer;
 @Testcontainers
 public class TestContainerConfiguration {
 
+    static {
+        // Force Docker API version 1.44 for compatibility with Docker Engine 29.x
+        // See: https://github.com/testcontainers/testcontainers-java/issues/11232
+        System.setProperty("api.version", "1.44");
+    }
+
     @Container
     public static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"));
 
