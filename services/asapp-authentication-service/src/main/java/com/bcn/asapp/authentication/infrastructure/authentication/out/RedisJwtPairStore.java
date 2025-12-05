@@ -28,6 +28,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
+import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.Expiration;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 
@@ -69,6 +70,56 @@ public class RedisJwtPairStore implements JwtPairStore {
      */
     public RedisJwtPairStore(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
+    }
+
+    /**
+     * Checks if an access token exists in Redis.
+     * <p>
+     * Verifies token presence without retrieving its value, providing fast O(1) lookup to determine if an access token is still valid and has not been revoked.
+     * <p>
+     * <strong>Redis Operations:</strong>
+     * <ul>
+     * <li>EXISTS {@code jwt:access_token:<token>}</li>
+     * </ul>
+     *
+     * @param accessToken the {@link EncodedToken} representing the access token to check
+     * @return {@code true} if the access token exists in Redis, {@code false} otherwise
+     */
+    @Override
+    public Boolean accessTokenExists(EncodedToken accessToken) {
+        logger.trace("Checking if access token exists");
+
+        var key = ACCESS_TOKEN_PREFIX + accessToken.value();
+        var exists = redisTemplate.hasKey(key);
+
+        logger.trace("Access token exists: {}", exists);
+
+        return exists;
+    }
+
+    /**
+     * Checks if a refresh token exists in Redis.
+     * <p>
+     * Verifies token presence without retrieving its value, providing fast O(1) lookup to determine if a refresh token is still valid and has not been revoked.
+     * <p>
+     * <strong>Redis Operations:</strong>
+     * <ul>
+     * <li>EXISTS {@code jwt:refresh_token:<token>}</li>
+     * </ul>
+     *
+     * @param refreshToken the {@link EncodedToken} representing the refresh token to check
+     * @return {@code true} if the refresh token exists in Redis, {@code false} otherwise
+     */
+    @Override
+    public Boolean refreshTokenExists(EncodedToken refreshToken) {
+        logger.trace("Checking if refresh token exists");
+
+        var key = REFRESH_TOKEN_PREFIX + refreshToken.value();
+        var exists = redisTemplate.hasKey(key);
+
+        logger.trace("Refresh token exists: {}", exists);
+
+        return exists;
     }
 
     /**

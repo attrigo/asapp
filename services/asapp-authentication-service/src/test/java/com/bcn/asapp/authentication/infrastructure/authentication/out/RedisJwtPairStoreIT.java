@@ -60,6 +60,76 @@ class RedisJwtPairStoreIT {
     }
 
     @Nested
+    class AccessTokenExists {
+
+        @Test
+        void ReturnsFalse_AccessTokenNotExists() {
+            // Given
+            var accessToken = defaultTestDomainJwtAuthentication().getJwtPair()
+                                                                  .accessToken()
+                                                                  .encodedToken();
+
+            // When
+            var exists = redisJwtPairStore.accessTokenExists(accessToken);
+
+            // Then
+            assertThat(exists).isFalse();
+        }
+
+        @Test
+        void ReturnsTrue_AccessTokenExists() {
+            // Given
+            var jwtPair = defaultTestDomainJwtAuthentication().getJwtPair();
+            var accessToken = jwtPair.accessToken()
+                                     .encodedToken();
+
+            redisJwtPairStore.save(jwtPair);
+
+            // When
+            var exists = redisJwtPairStore.accessTokenExists(accessToken);
+
+            // Then
+            assertThat(exists).isTrue();
+        }
+
+    }
+
+    @Nested
+    class RefreshTokenExists {
+
+        @Test
+        void ReturnsFalse_RefreshTokenNotExists() {
+            // Given
+            var refreshToken = defaultTestDomainJwtAuthentication().getJwtPair()
+                                                                   .refreshToken()
+                                                                   .encodedToken();
+
+            // When
+            var exists = redisJwtPairStore.refreshTokenExists(refreshToken);
+
+            // Then
+            assertThat(exists).isFalse();
+        }
+
+        @Test
+        void ReturnsTrue_RefreshTokenExists() {
+            // Given
+            var jwtPair = defaultTestDomainJwtAuthentication().getJwtPair();
+            var refreshToken = jwtPair.refreshToken()
+                                      .encodedToken();
+
+            redisJwtPairStore.save(jwtPair);
+
+            // When
+            var exists = redisJwtPairStore.refreshTokenExists(refreshToken);
+
+            // Then
+            assertThat(exists).isTrue();
+        }
+
+    }
+
+    @Nested
     class Save {
 
         @Test
@@ -172,6 +242,52 @@ class RedisJwtPairStoreIT {
             });
         }
 
+        @Test
+        void AutoDeletesAccessToken_AccessTokenHasExpired() throws InterruptedException {
+            // Given
+            var now = java.time.Instant.now();
+            var expiringSoon = now.plusSeconds(1L);
+            var jwtPair = testJwtAuthenticationBuilder().withAccessTokenExpiration(expiringSoon)
+                                                        .withRefreshTokenExpiration(expiringSoon)
+                                                        .buildDomainEntity()
+                                                        .getJwtPair();
+            var accessTokenKey = buildAccessTokenKey(jwtPair);
+
+            // When
+            redisJwtPairStore.save(jwtPair);
+            assertThat(redisTemplate.hasKey(accessTokenKey)).isTrue();
+
+            Thread.sleep(1500L); // Wait for TTL to expire
+
+            // Then
+            var keyExists = redisTemplate.hasKey(accessTokenKey);
+
+            assertThat(keyExists).isFalse();
+        }
+
+        @Test
+        void AutoDeletesRefreshToken_RefreshTokenHasExpires() throws InterruptedException {
+            // Given
+            var now = java.time.Instant.now();
+            var expiringSoon = now.plusSeconds(1L);
+            var jwtPair = testJwtAuthenticationBuilder().withAccessTokenExpiration(expiringSoon)
+                                                        .withRefreshTokenExpiration(expiringSoon)
+                                                        .buildDomainEntity()
+                                                        .getJwtPair();
+            var refreshTokenKey = buildRefreshTokenKey(jwtPair);
+
+            // When
+            redisJwtPairStore.save(jwtPair);
+            assertThat(redisTemplate.hasKey(refreshTokenKey)).isTrue();
+
+            Thread.sleep(1500L); // Wait for TTL to expire
+
+            // Then
+            var keyExists = redisTemplate.hasKey(refreshTokenKey);
+
+            assertThat(keyExists).isFalse();
+        }
+
     }
 
     @Nested
@@ -202,7 +318,7 @@ class RedisJwtPairStoreIT {
         }
 
         @Test
-        void DoesNotThrowException_DeletingNonExistentJwtPair() {
+        void DoesNotThrowException_JwtPairNotExists() {
             // Given
             var jwtPair = defaultTestDomainJwtAuthentication().getJwtPair();
             var accessTokenKey = buildAccessTokenKey(jwtPair);

@@ -48,6 +48,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
+import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.Expiration;
 import com.bcn.asapp.authentication.domain.authentication.Issued;
@@ -68,6 +69,9 @@ class DefaultJwtAuthenticationVerifierTests {
 
     @Mock
     private JwtDecoder jwtDecoder;
+
+    @Mock
+    private JwtPairStore jwtPairStore;
 
     @Mock
     private JwtAuthenticationRepository jwtAuthenticationRepository;
@@ -145,9 +149,36 @@ class DefaultJwtAuthenticationVerifierTests {
         }
 
         @Test
+        void ThenThrowsInvalidJwtException_GivenAccessTokenNotFoundInRedis() {
+            // Given
+            given(jwtDecoder.decode(encodedAccessToken.value())).willReturn(decodedAccessJwt);
+
+            given(jwtPairStore.accessTokenExists(encodedAccessToken)).willReturn(false);
+
+            // When
+            var thrown = catchThrowable(() -> defaultJwtAuthenticationVerifier.verifyAccessToken(encodedAccessToken));
+
+            // Then
+            assertThat(thrown).isInstanceOf(InvalidJwtException.class)
+                              .hasMessageContaining("Access token is not valid")
+                              .hasCauseInstanceOf(JwtAuthenticationNotFoundException.class)
+                              .cause()
+                              .hasMessageContaining("not found in active sessions");
+
+            then(jwtDecoder).should(times(1))
+                            .decode(encodedAccessToken.value());
+            then(jwtPairStore).should(times(1))
+                              .accessTokenExists(encodedAccessToken);
+            then(jwtAuthenticationRepository).should(never())
+                                             .findByAccessToken(any(EncodedToken.class));
+        }
+
+        @Test
         void ThenThrowsInvalidJwtException_GivenAuthenticationNotFoundInDatabase() {
             // Given
             given(jwtDecoder.decode(encodedAccessToken.value())).willReturn(decodedAccessJwt);
+
+            given(jwtPairStore.accessTokenExists(encodedAccessToken)).willReturn(true);
 
             given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(Optional.empty());
 
@@ -161,6 +192,8 @@ class DefaultJwtAuthenticationVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedAccessToken.value());
+            then(jwtPairStore).should(times(1))
+                              .accessTokenExists(encodedAccessToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .findByAccessToken(encodedAccessToken);
         }
@@ -169,6 +202,8 @@ class DefaultJwtAuthenticationVerifierTests {
         void ThenVerifiesAccessToken_GivenAccessTokenIsValid() {
             // Given
             given(jwtDecoder.decode(encodedAccessToken.value())).willReturn(decodedAccessJwt);
+
+            given(jwtPairStore.accessTokenExists(encodedAccessToken)).willReturn(true);
 
             given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(Optional.of(jwtAuthentication));
 
@@ -180,6 +215,8 @@ class DefaultJwtAuthenticationVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedAccessToken.value());
+            then(jwtPairStore).should(times(1))
+                              .accessTokenExists(encodedAccessToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .findByAccessToken(encodedAccessToken);
         }
@@ -228,9 +265,36 @@ class DefaultJwtAuthenticationVerifierTests {
         }
 
         @Test
+        void ThenThrowsInvalidJwtException_GivenRefreshTokenNotFoundInRedis() {
+            // Given
+            given(jwtDecoder.decode(encodedRefreshToken.value())).willReturn(decodedRefreshJwt);
+
+            given(jwtPairStore.refreshTokenExists(encodedRefreshToken)).willReturn(false);
+
+            // When
+            var thrown = catchThrowable(() -> defaultJwtAuthenticationVerifier.verifyRefreshToken(encodedRefreshToken));
+
+            // Then
+            assertThat(thrown).isInstanceOf(InvalidJwtException.class)
+                              .hasMessageContaining("Refresh token is not valid")
+                              .hasCauseInstanceOf(JwtAuthenticationNotFoundException.class)
+                              .cause()
+                              .hasMessageContaining("not found in active sessions");
+
+            then(jwtDecoder).should(times(1))
+                            .decode(encodedRefreshToken.value());
+            then(jwtPairStore).should(times(1))
+                              .refreshTokenExists(encodedRefreshToken);
+            then(jwtAuthenticationRepository).should(never())
+                                             .findByRefreshToken(any(EncodedToken.class));
+        }
+
+        @Test
         void ThenThrowsInvalidJwtException_GivenAuthenticationNotFoundInDatabase() {
             // Given
             given(jwtDecoder.decode(encodedRefreshToken.value())).willReturn(decodedRefreshJwt);
+
+            given(jwtPairStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
 
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.empty());
 
@@ -244,6 +308,8 @@ class DefaultJwtAuthenticationVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedRefreshToken.value());
+            then(jwtPairStore).should(times(1))
+                              .refreshTokenExists(encodedRefreshToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .findByRefreshToken(encodedRefreshToken);
         }
@@ -252,6 +318,8 @@ class DefaultJwtAuthenticationVerifierTests {
         void ThenVerifiesRefreshToken_GivenRefreshTokenIsValid() {
             // Given
             given(jwtDecoder.decode(encodedRefreshToken.value())).willReturn(decodedRefreshJwt);
+
+            given(jwtPairStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
 
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(jwtAuthentication));
 
@@ -263,6 +331,8 @@ class DefaultJwtAuthenticationVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedRefreshToken.value());
+            then(jwtPairStore).should(times(1))
+                              .refreshTokenExists(encodedRefreshToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .findByRefreshToken(encodedRefreshToken);
         }

@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationVerifier;
+import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
@@ -30,9 +31,10 @@ import com.bcn.asapp.authentication.infrastructure.security.JwtDecoder;
 import com.bcn.asapp.authentication.infrastructure.security.UnexpectedJwtTypeException;
 
 /**
- * Database-backed implementation of {@link JwtAuthenticationVerifier} for validating JWT tokens.
+ * Default implementation of {@link JwtAuthenticationVerifier} for validating JWT tokens.
  * <p>
- * Bridges the application layer with the infrastructure layer, verifying JWT tokens by validating their signature and checking their existence in the database.
+ * Bridges the application layer with the infrastructure layer, verifying JWT tokens by validating their signature, checking their existence in the fast-access
+ * store (source of truth for active sessions), and retrieving the full authentication from the database.
  *
  * @since 0.2.0
  * @author attrigo
@@ -44,29 +46,34 @@ public class DefaultJwtAuthenticationVerifier implements JwtAuthenticationVerifi
 
     private final JwtDecoder jwtDecoder;
 
+    private final JwtPairStore jwtPairStore;
+
     private final JwtAuthenticationRepository jwtAuthenticationRepository;
 
     /**
      * Constructs a new {@code DefaultJwtAuthenticationVerifier} with required dependencies.
      *
      * @param jwtDecoder                  the JWT decoder for decoding and validating tokens
+     * @param jwtPairStore                the JWT pair store for checking token existence in active sessions
      * @param jwtAuthenticationRepository the JWT authentication repository
      */
-    public DefaultJwtAuthenticationVerifier(JwtDecoder jwtDecoder, JwtAuthenticationRepository jwtAuthenticationRepository) {
+    public DefaultJwtAuthenticationVerifier(JwtDecoder jwtDecoder, JwtPairStore jwtPairStore, JwtAuthenticationRepository jwtAuthenticationRepository) {
         this.jwtDecoder = jwtDecoder;
+        this.jwtPairStore = jwtPairStore;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }
 
     /**
      * Verifies an access token and retrieves its associated authentication.
      * <p>
-     * Validates the token's signature, expiration, and type, then returns the corresponding authentication from the database.
+     * Validates the token's signature, expiration, and type, checks its existence in the fast-access store, then returns the corresponding authentication from
+     * the database.
      *
      * @param accessToken the encoded access token to verify
      * @return the {@link JwtAuthentication} associated with the access token
      * @throws InvalidJwtException                if the token is invalid or verification fails
      * @throws UnexpectedJwtTypeException         if the token is not an access token
-     * @throws JwtAuthenticationNotFoundException if no authentication is found for the token
+     * @throws JwtAuthenticationNotFoundException if the token is not found in active sessions or database
      */
     @Override
     public JwtAuthentication verifyAccessToken(EncodedToken accessToken) {
@@ -74,14 +81,22 @@ public class DefaultJwtAuthenticationVerifier implements JwtAuthenticationVerifi
 
         try {
             var decodedJwt = jwtDecoder.decode(accessToken.value());
-
             if (!decodedJwt.isAccessToken()) {
                 throw new UnexpectedJwtTypeException(String.format("JWT %s is not an access token", decodedJwt.encodedToken()));
             }
 
-            return jwtAuthenticationRepository.findByAccessToken(EncodedToken.of(decodedJwt.encodedToken()))
+            var encodedToken = EncodedToken.of(decodedJwt.encodedToken());
+
+            var isTokenActive = jwtPairStore.accessTokenExists(encodedToken);
+            if (!isTokenActive) {
+                // TODO: Use more specific Exception?
+                throw new JwtAuthenticationNotFoundException(
+                        String.format("Access token not found in active sessions (revoked or expired): %s", encodedToken.token()));
+            }
+
+            return jwtAuthenticationRepository.findByAccessToken(encodedToken)
                                               .orElseThrow(() -> new JwtAuthenticationNotFoundException(
-                                                      String.format("Jwt authentication not found by access token %s", decodedJwt.encodedToken())));
+                                                      String.format("Jwt authentication not found by access token %s", encodedToken.token())));
 
         } catch (Exception e) {
             var message = String.format("Access token is not valid: %s", accessToken);
@@ -93,13 +108,14 @@ public class DefaultJwtAuthenticationVerifier implements JwtAuthenticationVerifi
     /**
      * Verifies a refresh token and retrieves its associated authentication.
      * <p>
-     * Validates the token's signature, expiration, and type, then returns the corresponding authentication from the database.
+     * Validates the token's signature, expiration, and type, checks its existence in the fast-access store, then returns the corresponding authentication from
+     * the database.
      *
      * @param refreshToken the encoded refresh token to verify
      * @return the {@link JwtAuthentication} associated with the refresh token
      * @throws InvalidJwtException                if the token is invalid or verification fails
      * @throws UnexpectedJwtTypeException         if the token is not a refresh token
-     * @throws JwtAuthenticationNotFoundException if no authentication is found for the token
+     * @throws JwtAuthenticationNotFoundException if the token is not found in active sessions or database
      */
     @Override
     public JwtAuthentication verifyRefreshToken(EncodedToken refreshToken) {
@@ -107,14 +123,22 @@ public class DefaultJwtAuthenticationVerifier implements JwtAuthenticationVerifi
 
         try {
             var decodedJwt = jwtDecoder.decode(refreshToken.value());
-
             if (!decodedJwt.isRefreshToken()) {
                 throw new UnexpectedJwtTypeException(String.format("JWT %s is not a refresh token", decodedJwt.encodedToken()));
             }
 
-            return jwtAuthenticationRepository.findByRefreshToken(EncodedToken.of(decodedJwt.encodedToken()))
+            var encodedToken = EncodedToken.of(decodedJwt.encodedToken());
+
+            var isTokenActive = jwtPairStore.refreshTokenExists(encodedToken);
+            if (!isTokenActive) {
+                // TODO: Use more specific Exception?
+                throw new JwtAuthenticationNotFoundException(
+                        String.format("Refresh token not found in active sessions (revoked or expired): %s", encodedToken.token()));
+            }
+
+            return jwtAuthenticationRepository.findByRefreshToken(encodedToken)
                                               .orElseThrow(() -> new JwtAuthenticationNotFoundException(
-                                                      String.format("Jwt authentication not found by refresh token %s", decodedJwt.encodedToken())));
+                                                      String.format("Jwt authentication not found by refresh token %s", encodedToken.token())));
 
         } catch (Exception e) {
             var message = String.format("Refresh token is not valid: %s", refreshToken);
