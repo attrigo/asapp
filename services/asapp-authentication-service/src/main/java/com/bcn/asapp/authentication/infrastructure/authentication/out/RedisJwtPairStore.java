@@ -51,14 +51,14 @@ public class RedisJwtPairStore implements JwtPairStore {
      * <p>
      * Used to namespace access tokens in Redis to avoid key collisions and enable efficient key scanning if needed.
      */
-    private static final String ACCESS_TOKEN_PREFIX = "jwt:access:";
+    public static final String ACCESS_TOKEN_PREFIX = "jwt:access_token:";
 
     /**
      * Redis key prefix for refresh tokens.
      * <p>
      * Used to namespace refresh tokens in Redis to avoid key collisions and enable efficient key scanning if needed.
      */
-    private static final String REFRESH_TOKEN_PREFIX = "jwt:refresh:";
+    public static final String REFRESH_TOKEN_PREFIX = "jwt:refresh_token:";
 
     private final RedisTemplate<String, String> redisTemplate;
 
@@ -79,8 +79,8 @@ public class RedisJwtPairStore implements JwtPairStore {
      * <p>
      * <strong>Redis Operations:</strong>
      * <ul>
-     * <li>SETEX {@code jwt:access:<token>} with TTL from access token expiration</li>
-     * <li>SETEX {@code jwt:refresh:<token>} with TTL from refresh token expiration</li>
+     * <li>SETEX {@code jwt:access_token:<token>} with TTL from access token expiration</li>
+     * <li>SETEX {@code jwt:refresh_token:<token>} with TTL from refresh token expiration</li>
      * </ul>
      *
      * @param jwtPair the {@link JwtPair} containing the token pair to save
@@ -117,8 +117,8 @@ public class RedisJwtPairStore implements JwtPairStore {
      * <p>
      * <strong>Redis Operations:</strong>
      * <ul>
-     * <li>DEL {@code jwt:access:<token>}</li>
-     * <li>DEL {@code jwt:refresh:<token>}</li>
+     * <li>DEL {@code jwt:access_token:<token>}</li>
+     * <li>DEL {@code jwt:refresh_token:<token>}</li>
      * </ul>
      *
      * @param jwtPair the {@link JwtPair} containing the token pair to delete
