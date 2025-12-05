@@ -16,17 +16,20 @@
 
 package com.bcn.asapp.authentication.infrastructure.config;
 
+import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtPairStore.ACCESS_TOKEN_PREFIX;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.testEncodedTokenBuilder;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
@@ -201,13 +204,41 @@ class SecurityConfigurationIT {
                          .isEmpty();
         }
 
+        @Test
+        void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsValidBearerTokenNotExistsInRedis() {
+            // When & Then
+            var bearerToken = "Bearer " + testEncodedTokenBuilder().accessToken()
+                                                                   .build();
+
+            webTestClient.get()
+                         .uri("/actuator")
+                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                         .exchange()
+                         .expectStatus()
+                         .isUnauthorized()
+                         .expectBody()
+                         .isEmpty();
+        }
+
     }
 
     @Nested
     class ActuatorAuthentication {
 
-        private final String bearerToken = "Bearer " + testEncodedTokenBuilder().accessToken()
-                                                                                .build();
+        @Autowired
+        private RedisTemplate<String, String> redisTemplate;
+
+        private final String accessToken = testEncodedTokenBuilder().accessToken()
+                                                                    .build();
+
+        private final String bearerToken = "Bearer " + accessToken;
+
+        @BeforeEach
+        void setUp() {
+            redisTemplate.delete(ACCESS_TOKEN_PREFIX + accessToken);
+            redisTemplate.opsForValue()
+                         .set(ACCESS_TOKEN_PREFIX + accessToken, "");
+        }
 
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_AccessActuatorEndpoint_AuthorizationHeaderIsNotPresent() {

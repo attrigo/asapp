@@ -20,12 +20,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
+import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
+import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
+
 /**
  * Component for verifying JWT tokens.
  * <p>
- * Verifies JWT tokens by validating their signature and expiration.
+ * Verifies JWT tokens by validating their signature, expiration, and revocation status.
  * <p>
- * Used by the authentication filter for lightweight token validation.
+ * Performs two-step validation: cryptographic verification via {@link JwtDecoder} and revocation check via {@link JwtPairStore}.
+ * <p>
+ * Used by the authentication filter for token validation.
  *
  * @since 0.2.0
  * @author attrigo
@@ -37,23 +42,27 @@ public class JwtVerifier {
 
     private final JwtDecoder jwtDecoder;
 
+    private final JwtPairStore jwtPairStore;
+
     /**
      * Constructs a new {@code JwtVerifier} with required dependencies.
      *
-     * @param jwtDecoder the JWT decoder for decoding and validating tokens
+     * @param jwtDecoder   the JWT decoder for decoding and validating tokens
+     * @param jwtPairStore the JWT pair store for checking token revocation status
      */
-    public JwtVerifier(JwtDecoder jwtDecoder) {
+    public JwtVerifier(JwtDecoder jwtDecoder, JwtPairStore jwtPairStore) {
         this.jwtDecoder = jwtDecoder;
+        this.jwtPairStore = jwtPairStore;
     }
 
     /**
      * Verifies an access token.
      * <p>
-     * Validates the token's signature, expiration, and type, then returns the validated decoded JWT.
+     * Validates the token's signature, expiration, revocation status, and type, then returns the validated decoded JWT.
      *
      * @param accessToken the encoded access token to verify
      * @return the {@link DecodedJwt} containing the decoded JWT data
-     * @throws InvalidJwtException        if the token is invalid or verification fails
+     * @throws InvalidJwtException        if the token is invalid, revoked, or verification fails
      * @throws UnexpectedJwtTypeException if the token is not an access token
      */
     public DecodedJwt verifyAccessToken(String accessToken) {
@@ -61,9 +70,16 @@ public class JwtVerifier {
 
         try {
             var decodedJwt = jwtDecoder.decode(accessToken);
-
             if (!decodedJwt.isAccessToken()) {
                 throw new UnexpectedJwtTypeException(String.format("JWT %s is not an access token", decodedJwt.encodedToken()));
+            }
+
+            var encodedToken = EncodedToken.of(accessToken);
+
+            var isTokenActive = jwtPairStore.accessTokenExists(encodedToken);
+            if (!isTokenActive) {
+                // TODO: Use more specific Exception?
+                throw new InvalidJwtException(String.format("Access token has been revoked or expired: %s", accessToken));
             }
 
             return decodedJwt;
