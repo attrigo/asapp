@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -66,6 +67,9 @@ class UserE2EIT {
     private JdbcUserRepository userRepository;
 
     @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
+    @Autowired
     private WebTestClient webTestClient;
 
     private final String bearerToken = "Bearer " + testEncodedTokenBuilder().accessToken()
@@ -75,6 +79,12 @@ class UserE2EIT {
     void beforeEach() {
         jwtAuthenticationRepository.deleteAll();
         userRepository.deleteAll();
+
+        assertThat(redisTemplate.getConnectionFactory()).isNotNull();
+        redisTemplate.getConnectionFactory()
+                     .getConnection()
+                     .serverCommands()
+                     .flushDb();
     }
 
     @Nested
