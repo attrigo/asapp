@@ -16,6 +16,7 @@
 
 package com.bcn.asapp.authentication.infrastructure.authentication.out;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -77,6 +78,20 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
     public Optional<JwtAuthentication> findByRefreshToken(EncodedToken refreshToken) {
         return jwtAuthenticationRepository.findByRefreshTokenToken(refreshToken.value())
                                           .map(jwtAuthenticationMapper::toJwtAuthentication);
+    }
+
+    /**
+     * Finds all JWT authentications associated with a user.
+     *
+     * @param userId the user's unique identifier
+     * @return a {@link List} of {@link JwtAuthentication} for the user, empty list if none found
+     */
+    @Override
+    public List<JwtAuthentication> findAllByUserId(UserId userId) {
+        return jwtAuthenticationRepository.findAllByUserId(userId.value())
+                                          .stream()
+                                          .map(jwtAuthenticationMapper::toJwtAuthentication)
+                                          .toList();
     }
 
     /**

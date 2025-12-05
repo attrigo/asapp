@@ -20,6 +20,7 @@ import java.util.UUID;
 
 import com.bcn.asapp.authentication.application.ApplicationService;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
+import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
 import com.bcn.asapp.authentication.application.user.in.DeleteUserUseCase;
 import com.bcn.asapp.authentication.application.user.out.UserRepository;
 import com.bcn.asapp.authentication.domain.user.UserId;
@@ -33,6 +34,8 @@ import com.bcn.asapp.authentication.domain.user.UserId;
 @ApplicationService
 public class DeleteUserService implements DeleteUserUseCase {
 
+    private final JwtPairStore jwtPairStore;
+
     private final UserRepository userRepository;
 
     private final JwtAuthenticationRepository jwtAuthenticationRepository;
@@ -40,10 +43,12 @@ public class DeleteUserService implements DeleteUserUseCase {
     /**
      * Constructs a new {@code DeleteUserService} with required dependencies.
      *
+     * @param jwtPairStore                the JWT pair store for Redis operations
      * @param userRepository              the user repository
      * @param jwtAuthenticationRepository the JWT authentication repository
      */
-    public DeleteUserService(UserRepository userRepository, JwtAuthenticationRepository jwtAuthenticationRepository) {
+    public DeleteUserService(JwtPairStore jwtPairStore, UserRepository userRepository, JwtAuthenticationRepository jwtAuthenticationRepository) {
+        this.jwtPairStore = jwtPairStore;
         this.userRepository = userRepository;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }
@@ -51,7 +56,13 @@ public class DeleteUserService implements DeleteUserUseCase {
     /**
      * Deletes an existing user by their unique identifier.
      * <p>
-     * First removes all JWT authentications associated with the user, then deletes the user from the repository.
+     * Orchestrates the complete user deletion process:
+     * <ol>
+     * <li>Finds all JWT authentications for the user</li>
+     * <li>Deletes each JWT pair from Redis (revokes tokens)</li>
+     * <li>Deletes all JWT authentications from the database</li>
+     * <li>Deletes the user from the repository</li>
+     * </ol>
      *
      * @param id the user's unique identifier
      * @return {@code true} if the user was deleted, {@code false} if not found
@@ -60,6 +71,9 @@ public class DeleteUserService implements DeleteUserUseCase {
     @Override
     public Boolean deleteUserById(UUID id) {
         var userId = UserId.of(id);
+
+        var jwtAuthentications = jwtAuthenticationRepository.findAllByUserId(userId);
+        jwtAuthentications.forEach(jwtAuthentication -> jwtPairStore.delete(jwtAuthentication.getJwtPair()));
 
         jwtAuthenticationRepository.deleteAllByUserId(userId);
 

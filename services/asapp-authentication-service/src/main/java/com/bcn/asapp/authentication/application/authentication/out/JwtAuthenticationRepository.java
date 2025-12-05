@@ -16,6 +16,7 @@
 
 package com.bcn.asapp.authentication.application.authentication.out;
 
+import java.util.List;
 import java.util.Optional;
 
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
@@ -48,6 +49,14 @@ public interface JwtAuthenticationRepository {
      * @return an {@link Optional} containing the {@link JwtAuthentication} if found, {@link Optional#empty} otherwise
      */
     Optional<JwtAuthentication> findByRefreshToken(EncodedToken refreshToken);
+
+    /**
+     * Finds all JWT authentications associated with a user.
+     *
+     * @param userId the user's unique identifier
+     * @return a {@link List} of {@link JwtAuthentication} for the user, empty list if none found
+     */
+    List<JwtAuthentication> findAllByUserId(UserId userId);
 
     /**
      * Saves a JWT authentication to the repository.

@@ -134,6 +134,57 @@ class JdbcJwtAuthenticationRepositoryIT {
     }
 
     @Nested
+    class FindAllByUserId {
+
+        @Test
+        void DoesNotFindJwtAuthenticationsAndReturnsEmptyList_UserHasNoAuthentications() {
+            // Given
+            var user = defaultTestJdbcUser();
+            var userCreated = userRepository.save(user);
+            assertThat(userCreated).isNotNull();
+
+            // When
+            var userId = userCreated.id();
+
+            var actualJwtAuthentications = jwtAuthenticationRepository.findAllByUserId(userId);
+
+            // Then
+            assertThat(actualJwtAuthentications).isEmpty();
+        }
+
+        @Test
+        void FindsAllJwtAuthenticationsAndReturnsList_UserHasMultipleAuthentications() {
+            // Given
+            var user = defaultTestJdbcUser();
+            var userCreated = userRepository.save(user);
+            assertThat(userCreated).isNotNull();
+
+            var jwtAuthentication1 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
+                                                                   .buildJdbcEntity();
+            var jwtAuthentication2 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
+                                                                   .buildJdbcEntity();
+            var jwtAuthentication3 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
+                                                                   .buildJdbcEntity();
+            var jwtAuthenticationCreated1 = jwtAuthenticationRepository.save(jwtAuthentication1);
+            var jwtAuthenticationCreated2 = jwtAuthenticationRepository.save(jwtAuthentication2);
+            var jwtAuthenticationCreated3 = jwtAuthenticationRepository.save(jwtAuthentication3);
+            assertThat(jwtAuthenticationCreated1).isNotNull();
+            assertThat(jwtAuthenticationCreated2).isNotNull();
+            assertThat(jwtAuthenticationCreated3).isNotNull();
+
+            // When
+            var userId = userCreated.id();
+
+            var actualJwtAuthentications = jwtAuthenticationRepository.findAllByUserId(userId);
+
+            // Then
+            assertThat(actualJwtAuthentications).hasSize(3)
+                                                .containsExactlyInAnyOrder(jwtAuthenticationCreated1, jwtAuthenticationCreated2, jwtAuthenticationCreated3);
+        }
+
+    }
+
+    @Nested
     class DeleteAllByUserId {
 
         @Test

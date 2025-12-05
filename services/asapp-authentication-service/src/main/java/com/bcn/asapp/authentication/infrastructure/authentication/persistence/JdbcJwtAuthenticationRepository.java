@@ -16,6 +16,7 @@
 
 package com.bcn.asapp.authentication.infrastructure.authentication.persistence;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -53,6 +54,14 @@ public interface JdbcJwtAuthenticationRepository extends ListCrudRepository<Jdbc
      * @return an {@link Optional} containing the {@link JdbcJwtAuthenticationEntity} if found, empty otherwise
      */
     Optional<JdbcJwtAuthenticationEntity> findByRefreshTokenToken(String refreshToken);
+
+    /**
+     * Finds all JWT authentications associated with a user.
+     *
+     * @param userId the user's unique identifier
+     * @return a {@link List} of {@link JdbcJwtAuthenticationEntity} for the user, empty list if none found
+     */
+    List<JdbcJwtAuthenticationEntity> findAllByUserId(UUID userId);
 
     /**
      * Deletes all JWT authentications associated with a user.
