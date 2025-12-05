@@ -23,6 +23,8 @@ import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.T
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
 import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
+import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtPairStore.ACCESS_TOKEN_PREFIX;
+import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtPairStore.REFRESH_TOKEN_PREFIX;
 import static com.bcn.asapp.authentication.testutil.JwtAssertions.assertThatJwt;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
@@ -44,6 +46,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -56,7 +59,6 @@ import com.bcn.asapp.authentication.infrastructure.authentication.in.response.Au
 import com.bcn.asapp.authentication.infrastructure.authentication.in.response.RefreshAuthenticationResponse;
 import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationEntity;
 import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationRepository;
-import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtEntity;
 import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserEntity;
 import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserRepository;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
@@ -73,12 +75,21 @@ class AuthenticationE2EIT {
     private JdbcUserRepository userRepository;
 
     @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
+    @Autowired
     private WebTestClient webTestClient;
 
     @BeforeEach
     void beforeEach() {
         jwtAuthenticationRepository.deleteAll();
         userRepository.deleteAll();
+
+        assertThat(redisTemplate.getConnectionFactory()).isNotNull();
+        redisTemplate.getConnectionFactory()
+                     .getConnection()
+                     .serverCommands()
+                     .flushDb();
     }
 
     @Nested
@@ -161,7 +172,7 @@ class AuthenticationE2EIT {
             // Then
             assertThat(response).isNotNull();
             assertAPIResponse(response.accessToken(), response.refreshToken(), userCreated);
-            assertAuthenticationHasBeenCreated(response.accessToken(), response.refreshToken(), userCreated);
+            assertAuthenticationExists(response.accessToken(), response.refreshToken(), userCreated);
         }
 
         @Test
@@ -192,20 +203,19 @@ class AuthenticationE2EIT {
             // Then
             assertThat(response).isNotNull();
             assertAPIResponse(response.accessToken(), response.refreshToken(), userCreated);
-            assertAuthenticationHasBeenCreated(response.accessToken(), response.refreshToken(), userCreated);
+            assertAuthenticationExists(response.accessToken(), response.refreshToken(), userCreated);
         }
 
         @Test
-        void AuthenticatesUserAndReturnsStatusOkAndBodyWithNewGeneratedAuthentication_UserAuthenticated() {
+        void AuthenticatesUserAndReturnsStatusOkAndBodyWithNewGeneratedAuthentication_UserAlreadyAuthenticated() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
-            var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                  .buildJdbcEntity();
-            var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
-            assertThat(jwtAuthenticationCreated).isNotNull();
+            var previousJwtAuthentication = createJwtAuthentication(userCreated);
+            var previousAccessToken = previousJwtAuthentication.accessToken();
+            var previousRefreshToken = previousJwtAuthentication.refreshToken();
 
             // When
             var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), "TEST@09_password?!");
@@ -227,8 +237,8 @@ class AuthenticationE2EIT {
             // Then
             assertThat(response).isNotNull();
             assertAPIResponse(response.accessToken(), response.refreshToken(), userCreated);
-            assertAuthenticationHasBeenCreated(response.accessToken(), response.refreshToken(), userCreated);
-            assertThereAreSeveralAuthentications();
+            assertAuthenticationExists(response.accessToken(), response.refreshToken(), userCreated);
+            assertAuthenticationExists(previousAccessToken.token(), previousRefreshToken.token(), userCreated);
         }
 
     }
@@ -355,62 +365,18 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void RefreshesAuthenticationAndReturnsStatusOkAndBodyWithRefreshedAuthentication_RefreshTokenBelongsToUserAuthenticated() {
+        void RefreshesAuthenticationAndReturnsStatusOkAndBodyWithRefreshedAuthentication_RefreshTokenBelongsToUserAlreadyAuthenticated() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
-            var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                  .buildJdbcEntity();
-            var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
-            assertThat(jwtAuthenticationCreated).isNotNull();
+            var previousJwtAuthentication = createJwtAuthentication(userCreated);
+            var previousAccessToken = previousJwtAuthentication.accessToken();
+            var previousRefreshToken = previousJwtAuthentication.refreshToken();
 
             // When
-            var refreshToken = jwtAuthenticationCreated.refreshToken()
-                                                       .token();
-            var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken);
-
-            var response = webTestClient.post()
-                                        .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                                        .bodyValue(refreshAuthenticationRequestBody)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isOk()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBody(RefreshAuthenticationResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
-
-            // Then
-            assertThat(response).isNotNull();
-            assertAPIResponse(response.accessToken(), response.refreshToken(), userCreated);
-            assertAuthenticationHasBeenCreated(response.accessToken(), response.refreshToken(), userCreated);
-            assertAuthenticationHasBeenRefreshed(response.refreshToken(), jwtAuthenticationCreated.refreshToken()
-                                                                                                  .token());
-        }
-
-        @Test
-        void RefreshesAuthenticationAndReturnsStatusOkAndBodyWithRefreshedAuthentication_RefreshTokenBelongsToUserHasSeveralAuthentications() {
-            // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
-
-            var jwtAuthentication1 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                   .buildJdbcEntity();
-            var jwtAuthentication2 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                   .buildJdbcEntity();
-            var jwtAuthenticationCreated1 = jwtAuthenticationRepository.save(jwtAuthentication1);
-            var jwtAuthenticationCreated2 = jwtAuthenticationRepository.save(jwtAuthentication2);
-            assertThat(jwtAuthenticationCreated1).isNotNull();
-            assertThat(jwtAuthenticationCreated2).isNotNull();
-
-            // When
-            var refreshToken = jwtAuthenticationCreated1.refreshToken()
+            var refreshToken = previousJwtAuthentication.refreshToken()
                                                         .token();
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken);
 
@@ -431,11 +397,49 @@ class AuthenticationE2EIT {
             // Then
             assertThat(response).isNotNull();
             assertAPIResponse(response.accessToken(), response.refreshToken(), userCreated);
-            assertAuthenticationHasBeenCreated(response.accessToken(), response.refreshToken(), userCreated);
-            assertAuthenticationHasBeenRefreshed(response.refreshToken(), jwtAuthenticationCreated1.refreshToken()
-                                                                                                   .token());
-            assertAuthenticationHasNotBeenRefreshed(jwtAuthenticationCreated2.refreshToken()
-                                                                             .token());
+            assertAuthenticationExists(response.accessToken(), response.refreshToken(), userCreated);
+            assertAuthenticationNotExist(previousAccessToken.token(), previousRefreshToken.token());
+        }
+
+        @Test
+        void RefreshesAuthenticationAndReturnsStatusOkAndBodyWithRefreshedAuthentication_RefreshTokenBelongsToUserHasSeveralAuthentications() {
+            // Given
+            var user = defaultTestJdbcUser();
+            var userCreated = userRepository.save(user);
+            assertThat(userCreated).isNotNull();
+
+            var previousJwtAuthentication1 = createJwtAuthentication(userCreated);
+            var previousJwtAuthentication2 = createJwtAuthentication(userCreated);
+            var previousAccessToken1 = previousJwtAuthentication1.accessToken();
+            var previousRefreshToken1 = previousJwtAuthentication1.refreshToken();
+            var previousAccessToken2 = previousJwtAuthentication2.accessToken();
+            var previousRefreshToken2 = previousJwtAuthentication2.refreshToken();
+
+            // When
+            var refreshToken = previousJwtAuthentication1.refreshToken()
+                                                         .token();
+            var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken);
+
+            var response = webTestClient.post()
+                                        .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
+                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                        .bodyValue(refreshAuthenticationRequestBody)
+                                        .exchange()
+                                        .expectStatus()
+                                        .isOk()
+                                        .expectHeader()
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .expectBody(RefreshAuthenticationResponse.class)
+                                        .returnResult()
+                                        .getResponseBody();
+
+            // Then
+            assertThat(response).isNotNull();
+            assertAPIResponse(response.accessToken(), response.refreshToken(), userCreated);
+            assertAuthenticationExists(response.accessToken(), response.refreshToken(), userCreated);
+            assertAuthenticationNotExist(previousAccessToken1.token(), previousRefreshToken1.token());
+            assertAuthenticationExists(previousAccessToken2.token(), previousRefreshToken2.token(), userCreated);
         }
 
     }
@@ -562,56 +566,18 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void RevokesAuthenticationAndReturnsStatusOkAndEmptyBody_AccessTokenBelongsToUserAuthenticated() {
+        void RevokesAuthenticationAndReturnsStatusOkAndEmptyBody_AccessTokenBelongsToUserAlreadyAuthenticated() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
-            var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                  .buildJdbcEntity();
-            var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
-            assertThat(jwtAuthenticationCreated).isNotNull();
+            var previousJwtAuthentication = createJwtAuthentication(userCreated);
+            var previousAccessToken = previousJwtAuthentication.accessToken();
+            var previousRefreshToken = previousJwtAuthentication.refreshToken();
 
             // When
-            var accessToken = jwtAuthenticationCreated.accessToken()
-                                                      .token();
-            var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken);
-
-            webTestClient.post()
-                         .uri(AUTH_REVOKE_FULL_PATH)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                         .bodyValue(revokeAuthenticationRequestBody)
-                         .exchange()
-                         .expectStatus()
-                         .isOk()
-                         .expectBody()
-                         .isEmpty();
-
-            // Then
-            assertAuthenticationHasBeenRevoked(jwtAuthenticationCreated.accessToken()
-                                                                       .token());
-        }
-
-        @Test
-        void RevokesAuthenticationAndReturnsStatusOkAndEmptyBody_AccessTokenBelongsToUserHasSeveralAuthentications() {
-            // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
-
-            var jwtAuthentication1 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                   .buildJdbcEntity();
-            var jwtAuthentication2 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                   .buildJdbcEntity();
-            var jwtAuthenticationCreated1 = jwtAuthenticationRepository.save(jwtAuthentication1);
-            var jwtAuthenticationCreated2 = jwtAuthenticationRepository.save(jwtAuthentication2);
-            assertThat(jwtAuthenticationCreated1).isNotNull();
-            assertThat(jwtAuthenticationCreated2).isNotNull();
-
-            // When
-            var accessToken = jwtAuthenticationCreated1.accessToken()
+            var accessToken = previousJwtAuthentication.accessToken()
                                                        .token();
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken);
 
@@ -627,12 +593,63 @@ class AuthenticationE2EIT {
                          .isEmpty();
 
             // Then
-            assertAuthenticationHasBeenRevoked(jwtAuthenticationCreated1.accessToken()
-                                                                        .token());
-            assertAuthenticationHasNotBeenRevoked(jwtAuthenticationCreated2.accessToken()
-                                                                           .token());
+
+            assertAuthenticationNotExist(previousAccessToken.token(), previousRefreshToken.token());
         }
 
+        @Test
+        void RevokesAuthenticationAndReturnsStatusOkAndEmptyBody_AccessTokenBelongsToUserHasSeveralAuthentications() {
+            // Given
+            var user = defaultTestJdbcUser();
+            var userCreated = userRepository.save(user);
+            assertThat(userCreated).isNotNull();
+
+            var previousJwtAuthentication1 = createJwtAuthentication(userCreated);
+            var previousJwtAuthentication2 = createJwtAuthentication(userCreated);
+            var previousAccessToken1 = previousJwtAuthentication1.accessToken();
+            var previousRefreshToken1 = previousJwtAuthentication1.refreshToken();
+            var previousAccessToken2 = previousJwtAuthentication2.accessToken();
+            var previousRefreshToken2 = previousJwtAuthentication2.refreshToken();
+
+            // When
+            var accessToken = previousJwtAuthentication1.accessToken()
+                                                        .token();
+            var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken);
+
+            webTestClient.post()
+                         .uri(AUTH_REVOKE_FULL_PATH)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                         .bodyValue(revokeAuthenticationRequestBody)
+                         .exchange()
+                         .expectStatus()
+                         .isOk()
+                         .expectBody()
+                         .isEmpty();
+
+            // Then
+
+            assertAuthenticationNotExist(previousAccessToken1.token(), previousRefreshToken1.token());
+            assertAuthenticationExists(previousAccessToken2.token(), previousRefreshToken2.token(), userCreated);
+        }
+
+    }
+
+    private JdbcJwtAuthenticationEntity createJwtAuthentication(JdbcUserEntity user) {
+        var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(user.id())
+                                                              .buildJdbcEntity();
+        var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
+        assertThat(jwtAuthenticationCreated).isNotNull();
+
+        var accessToken = jwtAuthenticationCreated.accessToken();
+        var refreshToken = jwtAuthenticationCreated.refreshToken();
+
+        redisTemplate.opsForValue()
+                     .set(ACCESS_TOKEN_PREFIX + accessToken.token(), "");
+        redisTemplate.opsForValue()
+                     .set(REFRESH_TOKEN_PREFIX + refreshToken.token(), "");
+
+        return jwtAuthenticationCreated;
     }
 
     private void assertAPIResponse(String actualAccessToken, String actualRefreshToken, JdbcUserEntity expectedUser) {
@@ -654,78 +671,88 @@ class AuthenticationE2EIT {
         });
     }
 
-    private void assertAuthenticationHasBeenCreated(String expectedAccessToken, String expectedRefreshToken, JdbcUserEntity expectedUser) {
-        var expectedRoleName = expectedUser.role();
+    private void assertAuthenticationExists(String expectedAccessToken, String expectedRefreshToken, JdbcUserEntity expectedUser) {
+        var expectedUsername = expectedUser.username();
+        var expectedRole = expectedUser.role();
 
+        // Database
         var actualAuthentication = jwtAuthenticationRepository.findByAccessTokenToken(expectedAccessToken);
+
+        // Redis
+        var expectedAccessTokenRedisKey = ACCESS_TOKEN_PREFIX + expectedAccessToken;
+        var expectedRefreshTokenRedisKey = REFRESH_TOKEN_PREFIX + expectedRefreshToken;
+        var actualAccessTokenKeyExists = redisTemplate.hasKey(expectedAccessTokenRedisKey);
+        var actualRefreshTokenKeyExists = redisTemplate.hasKey(expectedRefreshTokenRedisKey);
+        var actualAccessTokenInRedis = redisTemplate.opsForValue()
+                                                    .get(expectedAccessTokenRedisKey);
+        var actualRefreshTokenInRedis = redisTemplate.opsForValue()
+                                                     .get(expectedRefreshTokenRedisKey);
 
         // @formatter:off
         SoftAssertions.assertSoftly(softAssertions -> {
+            // Database
             assertThat(actualAuthentication).isNotEmpty();
-
             assertThat(actualAuthentication).get()
                                             .extracting(JdbcJwtAuthenticationEntity::accessToken)
                                             .satisfies(actualAccessToken -> assertThat(actualAccessToken.token()).isEqualTo(expectedAccessToken),
                                                     actualAccessToken -> assertThat(actualAccessToken.type()).isEqualTo(ACCESS_TOKEN.type()),
-                                                    actualAccessToken -> assertThat(actualAccessToken.subject()).isEqualTo(expectedUser.username()),
+                                                    actualAccessToken -> assertThat(actualAccessToken.subject()).isEqualTo(expectedUsername),
                                                     actualAccessToken -> assertThat(actualAccessToken.claims().claims().get(TOKEN_USE)).isEqualTo(ACCESS_TOKEN_USE),
-                                                    actualAccessToken -> assertThat(actualAccessToken.claims().claims().get(ROLE)).isEqualTo(expectedRoleName),
+                                                    actualAccessToken -> assertThat(actualAccessToken.claims().claims().get(ROLE)).isEqualTo(expectedRole),
                                                     actualAccessToken -> assertThat(actualAccessToken.issued()).isNotNull(),
                                                     actualAccessToken -> assertThat(actualAccessToken.expiration()).isNotNull());
-
             assertThat(actualAuthentication).get()
                                             .extracting(JdbcJwtAuthenticationEntity::refreshToken)
                                             .satisfies(actualRefreshToken -> assertThat(actualRefreshToken.token()).isEqualTo(expectedRefreshToken),
                                                     actualRefreshToken -> assertThat(actualRefreshToken.type()).isEqualTo(REFRESH_TOKEN.type()),
-                                                    actualRefreshToken -> assertThat(actualRefreshToken.subject()).isEqualTo(expectedUser.username()),
+                                                    actualRefreshToken -> assertThat(actualRefreshToken.subject()).isEqualTo(expectedUsername),
                                                     actualRefreshToken -> assertThat(actualRefreshToken.claims().claims().get(TOKEN_USE)).isEqualTo(REFRESH_TOKEN_USE),
-                                                    actualRefreshToken -> assertThat(actualRefreshToken.claims().claims().get(ROLE)).isEqualTo(expectedRoleName),
+                                                    actualRefreshToken -> assertThat(actualRefreshToken.claims().claims().get(ROLE)).isEqualTo(expectedRole),
                                                     actualRefreshToken -> assertThat(actualRefreshToken.issued()).isNotNull(),
                                                     actualRefreshToken -> assertThat(actualRefreshToken.expiration()).isNotNull());
+
+            // Redis
+            assertThat(actualAccessTokenKeyExists).isTrue();
+            assertThat(actualRefreshTokenKeyExists).isTrue();
+            assertThat(actualAccessTokenInRedis).isEmpty();
+            assertThat(actualRefreshTokenInRedis).isEmpty();
         });
         // @formatter:on
     }
 
-    private void assertThereAreSeveralAuthentications() {
-        var actualAuthentication = jwtAuthenticationRepository.findAll();
+    private void assertAuthenticationNotExist(String expectedAccessToken, String expectedRefreshToken) {
+        // Database
+        var actualAuthenticationFromAccessToken = jwtAuthenticationRepository.findByAccessTokenToken(expectedAccessToken);
+        var actualAuthenticationFromRefreshToken = jwtAuthenticationRepository.findByRefreshTokenToken(expectedRefreshToken);
+
+        // Redis
+        var actualAccessTokenKey = ACCESS_TOKEN_PREFIX + expectedAccessToken;
+        var actualRefreshTokenKey = REFRESH_TOKEN_PREFIX + expectedRefreshToken;
+        var actualAccessTokenKeyExists = redisTemplate.hasKey(actualAccessTokenKey);
+        var actualRefreshTokenKeyExists = redisTemplate.hasKey(actualRefreshTokenKey);
 
         SoftAssertions.assertSoftly(softAssertions -> {
-            assertThat(actualAuthentication).isNotEmpty();
-            assertThat(actualAuthentication).hasSizeGreaterThan(1);
+            // Database
+            assertThat(actualAuthenticationFromAccessToken).isEmpty();
+            assertThat(actualAuthenticationFromRefreshToken).isEmpty();
+
+            // Redis
+            assertThat(actualAccessTokenKeyExists).isFalse();
+            assertThat(actualRefreshTokenKeyExists).isFalse();
         });
     }
 
-    private void assertAuthenticationHasBeenRefreshed(String actualRefreshToken, String expectedRefreshToken) {
-        assertThat(actualRefreshToken).asString()
-                                      .isNotEqualTo(expectedRefreshToken);
-        var previousAuthentication = jwtAuthenticationRepository.findByRefreshTokenToken(expectedRefreshToken);
-        assertThat(previousAuthentication).isEmpty();
-    }
-
-    private void assertAuthenticationHasNotBeenRefreshed(String expectedRefreshToken) {
-        var actualAuthentication = jwtAuthenticationRepository.findByRefreshTokenToken(expectedRefreshToken);
-        assertThat(actualAuthentication).get()
-                                        .extracting(JdbcJwtAuthenticationEntity::refreshToken)
-                                        .extracting(JdbcJwtEntity::token)
-                                        .isEqualTo(expectedRefreshToken);
-    }
-
-    private void assertAuthenticationHasBeenRevoked(String expectedAccessToken) {
-        var actualAccessToken = jwtAuthenticationRepository.findByAccessTokenToken(expectedAccessToken);
-        assertThat(actualAccessToken).isEmpty();
-    }
-
-    private void assertAuthenticationHasNotBeenRevoked(String expectedAccessToken) {
-        var actualAuthentication = jwtAuthenticationRepository.findByAccessTokenToken(expectedAccessToken);
-        assertThat(actualAuthentication).get()
-                                        .extracting(JdbcJwtAuthenticationEntity::accessToken)
-                                        .extracting(JdbcJwtEntity::token)
-                                        .isEqualTo(expectedAccessToken);
-    }
-
     private void assertNoAuthenticationsExists() {
-        var actualAuthentication = jwtAuthenticationRepository.findAll();
-        assertThat(actualAuthentication).isEmpty();
+        // Database
+        var actualAuthenticationsInDB = jwtAuthenticationRepository.findAll();
+
+        // Redis
+        var actualAuthenticationsInRedis = redisTemplate.keys("jwt:*");
+
+        SoftAssertions.assertSoftly(softAssertions -> {
+            assertThat(actualAuthenticationsInDB).isEmpty();
+            assertThat(actualAuthenticationsInRedis).isEmpty();
+        });
     }
 
 }
