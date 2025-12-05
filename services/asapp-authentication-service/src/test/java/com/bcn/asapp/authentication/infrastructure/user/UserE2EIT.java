@@ -18,6 +18,8 @@ package com.bcn.asapp.authentication.infrastructure.user;
 
 import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
+import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtPairStore.ACCESS_TOKEN_PREFIX;
+import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtPairStore.REFRESH_TOKEN_PREFIX;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.testEncodedTokenBuilder;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestJwtAuthenticationFactory.testJwtAuthenticationBuilder;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestJdbcUser;
@@ -32,6 +34,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 
 import java.util.UUID;
 
+import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -45,6 +48,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import com.bcn.asapp.authentication.AsappAuthenticationServiceApplication;
+import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationEntity;
 import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationRepository;
 import com.bcn.asapp.authentication.infrastructure.user.in.request.CreateUserRequest;
 import com.bcn.asapp.authentication.infrastructure.user.in.request.UpdateUserRequest;
@@ -52,6 +56,7 @@ import com.bcn.asapp.authentication.infrastructure.user.in.response.CreateUserRe
 import com.bcn.asapp.authentication.infrastructure.user.in.response.GetAllUsersResponse;
 import com.bcn.asapp.authentication.infrastructure.user.in.response.GetUserByIdResponse;
 import com.bcn.asapp.authentication.infrastructure.user.in.response.UpdateUserResponse;
+import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserEntity;
 import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserRepository;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 
@@ -393,8 +398,8 @@ class UserE2EIT {
 
             // Then
             // Assert the user has been deleted
-            var optionalActualUser = userRepository.findById(userCreated.id());
-            assertThat(optionalActualUser).isEmpty();
+            var actualUser = userRepository.findById(userCreated.id());
+            assertThat(actualUser).isEmpty();
         }
 
         @Test
@@ -404,14 +409,8 @@ class UserE2EIT {
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
-            var jwtAuthentication1 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                   .buildJdbcEntity();
-            var jwtAuthentication2 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                   .buildJdbcEntity();
-            var jwtAuthenticationCreated1 = jwtAuthenticationRepository.save(jwtAuthentication1);
-            var jwtAuthenticationCreated2 = jwtAuthenticationRepository.save(jwtAuthentication2);
-            assertThat(jwtAuthenticationCreated1).isNotNull();
-            assertThat(jwtAuthenticationCreated2).isNotNull();
+            var jwtAuthentication1 = createJwtAuthentication(userCreated);
+            var jwtAuthentication2 = createJwtAuthentication(userCreated);
 
             // When
             var userIdPath = userCreated.id();
@@ -428,16 +427,57 @@ class UserE2EIT {
 
             // Then
             // Assert the authentications have been revoked
-            var optionalActualAuthentication = jwtAuthenticationRepository.findById(jwtAuthenticationCreated1.id());
-            assertThat(optionalActualAuthentication).isEmpty();
-            optionalActualAuthentication = jwtAuthenticationRepository.findById(jwtAuthenticationCreated2.id());
-            assertThat(optionalActualAuthentication).isEmpty();
+            assertAuthenticationNotExist(jwtAuthentication1);
+            assertAuthenticationNotExist(jwtAuthentication2);
 
             // Assert the user has been deleted
-            var optionalActualUser = userRepository.findById(userCreated.id());
-            assertThat(optionalActualUser).isEmpty();
+            var actualUser = userRepository.findById(userCreated.id());
+            assertThat(actualUser).isEmpty();
         }
 
+    }
+
+    private JdbcJwtAuthenticationEntity createJwtAuthentication(JdbcUserEntity user) {
+        var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(user.id())
+                                                              .buildJdbcEntity();
+        var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
+        assertThat(jwtAuthenticationCreated).isNotNull();
+
+        var accessToken = jwtAuthenticationCreated.accessToken();
+        var refreshToken = jwtAuthenticationCreated.refreshToken();
+
+        redisTemplate.opsForValue()
+                     .set(ACCESS_TOKEN_PREFIX + accessToken.token(), "");
+        redisTemplate.opsForValue()
+                     .set(REFRESH_TOKEN_PREFIX + refreshToken.token(), "");
+
+        return jwtAuthenticationCreated;
+    }
+
+    private void assertAuthenticationNotExist(JdbcJwtAuthenticationEntity expectedJwtAuthentication) {
+        var jwtAuthenticationId = expectedJwtAuthentication.id();
+        var accessToken = expectedJwtAuthentication.accessToken()
+                                                   .token();
+        var refreshToken = expectedJwtAuthentication.refreshToken()
+                                                    .token();
+
+        // Database
+        var actualAuthentication = jwtAuthenticationRepository.findById(jwtAuthenticationId);
+
+        // Redis
+        var actualAccessTokenKey = ACCESS_TOKEN_PREFIX + accessToken;
+        var actualRefreshTokenKey = REFRESH_TOKEN_PREFIX + refreshToken;
+        var actualAccessTokenKeyExists = redisTemplate.hasKey(actualAccessTokenKey);
+        var actualRefreshTokenKeyExists = redisTemplate.hasKey(actualRefreshTokenKey);
+
+        SoftAssertions.assertSoftly(softAssertions -> {
+            // Database
+            assertThat(actualAuthentication).isEmpty();
+
+            // Redis
+            assertThat(actualAccessTokenKeyExists).isFalse();
+            assertThat(actualRefreshTokenKeyExists).isFalse();
+        });
     }
 
 }
