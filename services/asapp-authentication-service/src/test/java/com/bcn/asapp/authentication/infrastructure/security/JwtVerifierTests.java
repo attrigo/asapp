@@ -40,11 +40,17 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
+import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
+
 @ExtendWith(MockitoExtension.class)
 class JwtVerifierTests {
 
     @Mock
     private JwtDecoder jwtDecoder;
+
+    @Mock
+    private JwtPairStore jwtPairStore;
 
     @InjectMocks
     private JwtVerifier jwtVerifier;
@@ -91,12 +97,37 @@ class JwtVerifierTests {
         }
 
         @Test
-        void ThenVerifiesAccessToken_GivenAccessTokenIsValid() {
+        void ThenThrowsInvalidJwtException_GivenAccessTokenNotExistsInRedis() {
             // Given
             var accessToken = defaultTestEncodedAccessToken();
+            var encodedToken = EncodedToken.of(accessToken);
             var accessTokenClaims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
             var decodedAccessToken = new DecodedJwt(accessToken, ACCESS_TOKEN_TYPE, "user@asapp.com", accessTokenClaims);
             given(jwtDecoder.decode(accessToken)).willReturn(decodedAccessToken);
+            given(jwtPairStore.accessTokenExists(encodedToken)).willReturn(false);
+
+            // When
+            var thrown = catchThrowable(() -> jwtVerifier.verifyAccessToken(accessToken));
+
+            // Then
+            assertThat(thrown).isInstanceOf(InvalidJwtException.class)
+                              .hasMessageContaining("Access token is not valid");
+
+            then(jwtDecoder).should(times(1))
+                            .decode(accessToken);
+            then(jwtPairStore).should(times(1))
+                              .accessTokenExists(encodedToken);
+        }
+
+        @Test
+        void ThenVerifiesAccessToken_GivenAccessTokenIsValid() {
+            // Given
+            var accessToken = defaultTestEncodedAccessToken();
+            var encodedToken = EncodedToken.of(accessToken);
+            var accessTokenClaims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
+            var decodedAccessToken = new DecodedJwt(accessToken, ACCESS_TOKEN_TYPE, "user@asapp.com", accessTokenClaims);
+            given(jwtDecoder.decode(accessToken)).willReturn(decodedAccessToken);
+            given(jwtPairStore.accessTokenExists(encodedToken)).willReturn(true);
 
             // When
             var actual = jwtVerifier.verifyAccessToken(accessToken);
@@ -107,6 +138,8 @@ class JwtVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(accessToken);
+            then(jwtPairStore).should(times(1))
+                              .accessTokenExists(encodedToken);
         }
 
     }

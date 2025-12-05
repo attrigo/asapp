@@ -77,19 +77,19 @@ class UserE2EIT {
     @Autowired
     private WebTestClient webTestClient;
 
-    private final String bearerToken = "Bearer " + testEncodedTokenBuilder().accessToken()
-                                                                            .build();
+    private final String accessToken = testEncodedTokenBuilder().accessToken()
+                                                                .build();
+
+    private final String bearerToken = "Bearer " + accessToken;
 
     @BeforeEach
     void beforeEach() {
         jwtAuthenticationRepository.deleteAll();
         userRepository.deleteAll();
 
-        assertThat(redisTemplate.getConnectionFactory()).isNotNull();
-        redisTemplate.getConnectionFactory()
-                     .getConnection()
-                     .serverCommands()
-                     .flushDb();
+        redisTemplate.delete(ACCESS_TOKEN_PREFIX + accessToken);
+        redisTemplate.opsForValue()
+                     .set(ACCESS_TOKEN_PREFIX + accessToken, "");
     }
 
     @Nested
