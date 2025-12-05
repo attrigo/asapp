@@ -24,6 +24,8 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import com.redis.testcontainers.RedisContainer;
+
 @TestConfiguration(proxyBeanMethods = false)
 @Testcontainers
 public class TestContainerConfiguration {
@@ -31,10 +33,19 @@ public class TestContainerConfiguration {
     @Container
     public static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"));
 
+    @Container
+    public static RedisContainer redisContainer = new RedisContainer(DockerImageName.parse("redis:latest"));
+
     @Bean
     @ServiceConnection
     public PostgreSQLContainer<?> postgresContainer() {
         return postgreSQLContainer;
+    }
+
+    @Bean
+    @ServiceConnection
+    public RedisContainer redisContainer() {
+        return redisContainer;
     }
 
 }

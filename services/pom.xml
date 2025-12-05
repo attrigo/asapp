@@ -26,6 +26,7 @@
         <mockserver-client-java.version>5.15.0</mockserver-client-java.version>
         <pitest-maven.version>1.20.4</pitest-maven.version>
         <springdoc-openapi-starter.version>2.8.5</springdoc-openapi-starter.version>
+        <testcontainers-redis.version>2.2.4</testcontainers-redis.version>
 
         <!-- Plugins Versions -->
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
@@ -94,6 +95,12 @@
                 <scope>test</scope>
             </dependency>
             <!-- * Other Dependencies -->
+            <dependency>
+                <groupId>com.redis</groupId>
+                <artifactId>testcontainers-redis</artifactId>
+                <version>${testcontainers-redis.version}</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>net.javacrumbs.json-unit</groupId>
                 <artifactId>json-unit-assertj</artifactId>
