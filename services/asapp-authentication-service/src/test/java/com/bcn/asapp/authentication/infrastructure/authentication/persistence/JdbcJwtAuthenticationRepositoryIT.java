@@ -24,6 +24,8 @@ import static com.bcn.asapp.authentication.testutil.TestFactory.TestJwtAuthentic
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestJdbcUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.time.Instant;
+
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -72,24 +74,19 @@ class JdbcJwtAuthenticationRepositoryIT {
         @Test
         void FindsJwtAuthenticationAndReturnsJwtAuthentication_JwtAuthenticationExists() {
             // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
+            var user = createDefaultUser();
 
-            var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                  .buildJdbcEntity();
-            var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
-            assertThat(jwtAuthenticationCreated).isNotNull();
+            var previousJwtAuthentication = createDefaultJwtAuthentication(user);
 
             // When
-            var accessToken = jwtAuthenticationCreated.accessToken()
-                                                      .token();
+            var accessToken = previousJwtAuthentication.accessToken()
+                                                       .token();
 
             var actualJwtAuthentication = jwtAuthenticationRepository.findByAccessTokenToken(accessToken);
 
             // Then
             assertThat(actualJwtAuthentication).isNotEmpty();
-            assertJwtAuthentication(actualJwtAuthentication.get(), userCreated);
+            assertJwtAuthentication(actualJwtAuthentication.get(), user);
         }
 
     }
@@ -111,24 +108,19 @@ class JdbcJwtAuthenticationRepositoryIT {
         @Test
         void FindsJwtAuthenticationAndReturnsJwtAuthentication_JwtAuthenticationExists() {
             // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
+            var user = createDefaultUser();
 
-            var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                  .buildJdbcEntity();
-            var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
-            assertThat(jwtAuthenticationCreated).isNotNull();
+            var previousJwtAuthentication = createDefaultJwtAuthentication(user);
 
             // When
-            var refreshToken = jwtAuthenticationCreated.refreshToken()
-                                                       .token();
+            var refreshToken = previousJwtAuthentication.refreshToken()
+                                                        .token();
 
             var actualJwtAuthentication = jwtAuthenticationRepository.findByRefreshTokenToken(refreshToken);
 
             // Then
             assertThat(actualJwtAuthentication).isNotEmpty();
-            assertJwtAuthentication(actualJwtAuthentication.get(), userCreated);
+            assertJwtAuthentication(actualJwtAuthentication.get(), user);
         }
 
     }
@@ -137,14 +129,12 @@ class JdbcJwtAuthenticationRepositoryIT {
     class FindAllByUserId {
 
         @Test
-        void DoesNotFindJwtAuthenticationsAndReturnsEmptyList_UserHasNoAuthentications() {
+        void DoesNotFindJwtAuthenticationsAndReturnsEmptyList_UserHasNoJwtAuthentications() {
             // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
+            var user = createDefaultUser();
 
             // When
-            var userId = userCreated.id();
+            var userId = user.id();
 
             var actualJwtAuthentications = jwtAuthenticationRepository.findAllByUserId(userId);
 
@@ -153,33 +143,22 @@ class JdbcJwtAuthenticationRepositoryIT {
         }
 
         @Test
-        void FindsAllJwtAuthenticationsAndReturnsList_UserHasMultipleAuthentications() {
+        void FindsAllJwtAuthenticationsAndReturnsList_UserHasMultipleJwtAuthentications() {
             // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
+            var user = createDefaultUser();
 
-            var jwtAuthentication1 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                   .buildJdbcEntity();
-            var jwtAuthentication2 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                   .buildJdbcEntity();
-            var jwtAuthentication3 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                   .buildJdbcEntity();
-            var jwtAuthenticationCreated1 = jwtAuthenticationRepository.save(jwtAuthentication1);
-            var jwtAuthenticationCreated2 = jwtAuthenticationRepository.save(jwtAuthentication2);
-            var jwtAuthenticationCreated3 = jwtAuthenticationRepository.save(jwtAuthentication3);
-            assertThat(jwtAuthenticationCreated1).isNotNull();
-            assertThat(jwtAuthenticationCreated2).isNotNull();
-            assertThat(jwtAuthenticationCreated3).isNotNull();
+            var previousJwtAuthentication1 = createDefaultJwtAuthentication(user);
+            var previousJwtAuthentication2 = createDefaultJwtAuthentication(user);
+            var previousJwtAuthentication3 = createDefaultJwtAuthentication(user);
 
             // When
-            var userId = userCreated.id();
+            var userId = user.id();
 
             var actualJwtAuthentications = jwtAuthenticationRepository.findAllByUserId(userId);
 
             // Then
             assertThat(actualJwtAuthentications).hasSize(3)
-                                                .containsExactlyInAnyOrder(jwtAuthenticationCreated1, jwtAuthenticationCreated2, jwtAuthenticationCreated3);
+                                                .containsExactlyInAnyOrder(previousJwtAuthentication1, previousJwtAuthentication2, previousJwtAuthentication3);
         }
 
     }
@@ -188,35 +167,143 @@ class JdbcJwtAuthenticationRepositoryIT {
     class DeleteAllByUserId {
 
         @Test
-        void DeletesUserAuthentications_UserHasAuthentications() {
+        void DeletesUserJwtAuthentications_UserHasJwtAuthentications() {
             // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
+            var user = createDefaultUser();
 
-            var jwtAuthentication1 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                   .buildJdbcEntity();
-            var jwtAuthentication2 = testJwtAuthenticationBuilder().withUserId(userCreated.id())
-                                                                   .buildJdbcEntity();
-            var jwtAuthenticationCreated1 = jwtAuthenticationRepository.save(jwtAuthentication1);
-            var jwtAuthenticationCreated2 = jwtAuthenticationRepository.save(jwtAuthentication2);
-            assertThat(jwtAuthenticationCreated1).isNotNull();
-            assertThat(jwtAuthenticationCreated2).isNotNull();
+            var previousJwtAuthentication1 = createDefaultJwtAuthentication(user);
+            var previousJwtAuthentication2 = createDefaultJwtAuthentication(user);
 
             // When
-            var userId = userCreated.id();
+            var userId = user.id();
 
             jwtAuthenticationRepository.deleteAllJwtAuthenticationByUserId(userId);
 
             // Then
-            var expectedJwtAuthentication1 = jwtAuthenticationRepository.findByAccessTokenToken(jwtAuthenticationCreated1.accessToken()
-                                                                                                                         .token());
-            assertThat(expectedJwtAuthentication1).isEmpty();
-            var expectedJwtAuthentication2 = jwtAuthenticationRepository.findByAccessTokenToken(jwtAuthenticationCreated2.accessToken()
-                                                                                                                         .token());
-            assertThat(expectedJwtAuthentication2).isEmpty();
+            var actualPreviousJwtAuthentication1 = jwtAuthenticationRepository.findByAccessTokenToken(previousJwtAuthentication1.accessToken()
+                                                                                                                                .token());
+            var actualPreviousJwtAuthentication2 = jwtAuthenticationRepository.findByAccessTokenToken(previousJwtAuthentication2.accessToken()
+                                                                                                                                .token());
+            SoftAssertions.assertSoftly(softAssertions -> {
+                assertThat(actualPreviousJwtAuthentication1).isEmpty();
+                assertThat(actualPreviousJwtAuthentication2).isEmpty();
+            });
         }
 
+    }
+
+    @Nested
+    class DeleteAllByRefreshTokenExpiredBefore {
+
+        @Test
+        void DoesNotDeleteJwtAuthenticationsAndReturnsZero_ThereAreNotJwtAuthentications() {
+            // When
+            var expiredBefore = Instant.now();
+
+            var actualDeleteCount = jwtAuthenticationRepository.deleteAllByRefreshTokenExpiredBefore(expiredBefore);
+
+            // Then
+            assertThat(actualDeleteCount).isEqualTo(0);
+        }
+
+        @Test
+        void DoesNotDeleteActiveJwtAuthenticationsAndReturnsZero_ThereAreActiveJwtAuthentications() {
+            // Given
+            var user = createDefaultUser();
+
+            var activeJwtAuthentication = createDefaultJwtAuthentication(user);
+
+            // When
+            var expiredBefore = Instant.now();
+
+            var actualDeleteCount = jwtAuthenticationRepository.deleteAllByRefreshTokenExpiredBefore(expiredBefore);
+
+            // Then
+            var actualActiveJwtAuthentication = jwtAuthenticationRepository.findByAccessTokenToken(activeJwtAuthentication.accessToken()
+                                                                                                                          .token());
+            SoftAssertions.assertSoftly(softAssertions -> {
+                assertThat(actualDeleteCount).isEqualTo(0);
+                assertThat(actualActiveJwtAuthentication).isNotEmpty();
+            });
+        }
+
+        @Test
+        void DeleteExpiredJwtAuthenticationsAndReturnsDeletedCount_ThereAreExpiredAndActiveJwtAuthentications() {
+            // Given
+            var user = createDefaultUser();
+
+            var expiredJwtAuthentication = createExpiredJwtAuthentication(user);
+            var validJwtAuthentication = createDefaultJwtAuthentication(user);
+
+            // When
+            var expiredBefore = Instant.now();
+
+            var actualDeleteCount = jwtAuthenticationRepository.deleteAllByRefreshTokenExpiredBefore(expiredBefore);
+
+            // Then
+            var actualExpiredJwtAuthentication = jwtAuthenticationRepository.findByAccessTokenToken(expiredJwtAuthentication.accessToken()
+                                                                                                                            .token());
+            var actualValidJwtAuthentication = jwtAuthenticationRepository.findByAccessTokenToken(validJwtAuthentication.accessToken()
+                                                                                                                        .token());
+            SoftAssertions.assertSoftly(softAssertions -> {
+                assertThat(actualDeleteCount).isEqualTo(1);
+                assertThat(actualExpiredJwtAuthentication).isEmpty();
+                assertThat(actualValidJwtAuthentication).isNotEmpty();
+            });
+        }
+
+        @Test
+        void DeletesExpiredAuthentications_RefreshTokenExpired() {
+            // Given
+            var user = createDefaultUser();
+
+            var expiredJwtAuthentication1 = createExpiredJwtAuthentication(user);
+            var expiredJwtAuthentication2 = createExpiredJwtAuthentication(user);
+
+            // When
+            var expiredBefore = Instant.now();
+
+            var actualDeleteCount = jwtAuthenticationRepository.deleteAllByRefreshTokenExpiredBefore(expiredBefore);
+
+            // Then
+            var actualExpiredJwtAuthentication1 = jwtAuthenticationRepository.findByAccessTokenToken(expiredJwtAuthentication1.accessToken()
+                                                                                                                              .token());
+            var actualExpiredJwtAuthentication2 = jwtAuthenticationRepository.findByAccessTokenToken(expiredJwtAuthentication2.accessToken()
+                                                                                                                              .token());
+            SoftAssertions.assertSoftly(softAssertions -> {
+                assertThat(actualDeleteCount).isEqualTo(2);
+                assertThat(actualExpiredJwtAuthentication1).isEmpty();
+                assertThat(actualExpiredJwtAuthentication2).isEmpty();
+            });
+        }
+
+    }
+
+    private JdbcUserEntity createDefaultUser() {
+        var user = defaultTestJdbcUser();
+        var userCreated = userRepository.save(user);
+        assertThat(userCreated).isNotNull();
+
+        return userCreated;
+    }
+
+    private JdbcJwtAuthenticationEntity createDefaultJwtAuthentication(JdbcUserEntity user) {
+        var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(user.id())
+                                                              .buildJdbcEntity();
+        var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
+        assertThat(jwtAuthenticationCreated).isNotNull();
+
+        return jwtAuthenticationCreated;
+    }
+
+    private JdbcJwtAuthenticationEntity createExpiredJwtAuthentication(JdbcUserEntity user) {
+        var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(user.id())
+                                                              .withRefreshTokenExpired()
+                                                              .buildJdbcEntity();
+        var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
+        assertThat(jwtAuthenticationCreated).isNotNull();
+
+        return jwtAuthenticationCreated;
     }
 
     private void assertJwtAuthentication(JdbcJwtAuthenticationEntity actualJwtAuthentication, JdbcUserEntity expectedUser) {

@@ -16,6 +16,7 @@
 
 package com.bcn.asapp.authentication.infrastructure.authentication.persistence;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -71,5 +72,15 @@ public interface JdbcJwtAuthenticationRepository extends ListCrudRepository<Jdbc
     @Modifying
     @Query("DELETE FROM jwt_authentications a WHERE a.user_id = :userId")
     void deleteAllJwtAuthenticationByUserId(UUID userId);
+
+    /**
+     * Deletes all JWT authentications with refresh tokens expired before the given instant.
+     *
+     * @param expiredBefore the instant before which refresh tokens are considered expired
+     * @return the number of deleted rows
+     */
+    @Modifying
+    @Query("DELETE FROM jwt_authentications WHERE refresh_token_expiration < :expiredBefore")
+    Integer deleteAllByRefreshTokenExpiredBefore(Instant expiredBefore);
 
 }
