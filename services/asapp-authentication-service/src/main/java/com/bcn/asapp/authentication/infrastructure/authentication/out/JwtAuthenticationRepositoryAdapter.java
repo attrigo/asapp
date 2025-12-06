@@ -16,6 +16,7 @@
 
 package com.bcn.asapp.authentication.infrastructure.authentication.out;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -131,6 +132,17 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
     @Override
     public void deleteAllByUserId(UserId userId) {
         jwtAuthenticationRepository.deleteAllJwtAuthenticationByUserId(userId.value());
+    }
+
+    /**
+     * Deletes all JWT authentications with refresh tokens expired before the given instant.
+     *
+     * @param expiredBefore the instant before which refresh tokens are considered expired
+     * @return the number of deleted authentications
+     */
+    @Override
+    public Integer deleteAllByRefreshTokenExpiredBefore(Instant expiredBefore) {
+        return jwtAuthenticationRepository.deleteAllByRefreshTokenExpiredBefore(expiredBefore);
     }
 
 }

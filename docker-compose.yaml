@@ -114,6 +114,8 @@ services:
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
       - ASAPP_SECURITY_ACCESS_TOKEN_EXPIRATION_TIME=300000
       - ASAPP_SECURITY_REFRESH_TOKEN_EXPIRATION_TIME=3600000
+      - ASAPP_SECURITY_JWT_CLEANUP_ENABLED=true
+      - ASAPP_SECURITY_JWT_CLEANUP_CRON_EXPRESSION="0 0 2 * * ?"  # Daily at 2:00 AM
     depends_on:
       - asapp-authentication-postgres-db
   asapp-tasks-service:
