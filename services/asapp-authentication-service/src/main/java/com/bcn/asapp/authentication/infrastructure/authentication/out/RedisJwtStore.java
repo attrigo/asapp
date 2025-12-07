@@ -27,15 +27,15 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
+import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.Expiration;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 
 /**
- * Redis-based adapter implementation of {@link JwtPairStore}.
+ * Redis-based adapter implementation of {@link JwtStore}.
  * <p>
- * Stores JWT token pairs in Redis with automatic expiration based on token TTL (time-to-live). Tokens are stored as Redis keys with empty values, as only their
+ * Stores JWT tokens in Redis with automatic expiration based on token TTL (time-to-live). Tokens are stored as Redis keys with empty values, as only their
  * presence is validated during token lookup operations.
  *
  * @since 0.2.0
@@ -43,9 +43,9 @@ import com.bcn.asapp.authentication.domain.authentication.JwtPair;
  * @author attrigo
  */
 @Component
-public class RedisJwtPairStore implements JwtPairStore {
+public class RedisJwtStore implements JwtStore {
 
-    private static final Logger logger = LoggerFactory.getLogger(RedisJwtPairStore.class);
+    private static final Logger logger = LoggerFactory.getLogger(RedisJwtStore.class);
 
     /**
      * Redis key prefix for access tokens.
@@ -64,11 +64,11 @@ public class RedisJwtPairStore implements JwtPairStore {
     private final RedisTemplate<String, String> redisTemplate;
 
     /**
-     * Constructs a new {@code RedisJwtPairStore} with required dependencies.
+     * Constructs a new {@code RedisJwtStore} with required dependencies.
      *
      * @param redisTemplate the Spring Data Redis template for executing Redis operations
      */
-    public RedisJwtPairStore(RedisTemplate<String, String> redisTemplate) {
+    public RedisJwtStore(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 

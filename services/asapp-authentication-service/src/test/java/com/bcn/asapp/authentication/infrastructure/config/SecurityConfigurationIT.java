@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.authentication.infrastructure.config;
 
-import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtPairStore.ACCESS_TOKEN_PREFIX;
+import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtStore.ACCESS_TOKEN_PREFIX;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.testEncodedTokenBuilder;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;

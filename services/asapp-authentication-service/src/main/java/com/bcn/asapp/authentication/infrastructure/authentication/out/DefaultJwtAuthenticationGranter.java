@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationGranter;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
-import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
+import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
 import com.bcn.asapp.authentication.infrastructure.security.JwtIssuer;
@@ -37,7 +37,7 @@ import com.bcn.asapp.authentication.infrastructure.security.JwtIssuer;
  * <strong>Token Lifecycle:</strong>
  * <ol>
  * <li>Generates access and refresh tokens via {@link JwtIssuer}</li>
- * <li>Stores token pairs ({@link JwtPairStore}) for fast lookup during validation</li>
+ * <li>Stores tokens ({@link JwtStore}) for fast lookup during validation</li>
  * <li>Persists authentication session ({@link JwtAuthenticationRepository}) for durability</li>
  * </ol>
  *
@@ -51,7 +51,7 @@ public class DefaultJwtAuthenticationGranter implements JwtAuthenticationGranter
 
     private final JwtIssuer jwtIssuer;
 
-    private final JwtPairStore jwtPairStore;
+    private final JwtStore jwtStore;
 
     private final JwtAuthenticationRepository jwtAuthenticationRepository;
 
@@ -59,12 +59,12 @@ public class DefaultJwtAuthenticationGranter implements JwtAuthenticationGranter
      * Constructs a new {@code DefaultJwtAuthenticationGranter} with required dependencies.
      *
      * @param jwtIssuer                   the JWT issuer for generating tokens
-     * @param jwtPairStore                the JWT pair store for token lookup
+     * @param jwtStore                    the JWT store for token lookup
      * @param jwtAuthenticationRepository the JWT authentication repository for persistent storage
      */
-    public DefaultJwtAuthenticationGranter(JwtIssuer jwtIssuer, JwtPairStore jwtPairStore, JwtAuthenticationRepository jwtAuthenticationRepository) {
+    public DefaultJwtAuthenticationGranter(JwtIssuer jwtIssuer, JwtStore jwtStore, JwtAuthenticationRepository jwtAuthenticationRepository) {
         this.jwtIssuer = jwtIssuer;
-        this.jwtPairStore = jwtPairStore;
+        this.jwtStore = jwtStore;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }
 
@@ -92,7 +92,7 @@ public class DefaultJwtAuthenticationGranter implements JwtAuthenticationGranter
             var savedAuthentication = jwtAuthenticationRepository.save(jwtAuthentication);
 
             // TODO: What if store/delete fails? We have a consistency issue between Redis and DB
-            jwtPairStore.save(jwtAuthentication.getJwtPair());
+            jwtStore.save(jwtAuthentication.getJwtPair());
 
             return savedAuthentication;
 

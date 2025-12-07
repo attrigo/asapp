@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRefresher;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
-import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
+import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtAuthenticationException;
 import com.bcn.asapp.authentication.infrastructure.security.JwtIssuer;
@@ -42,7 +42,7 @@ public class DefaultJwtAuthenticationRefresher implements JwtAuthenticationRefre
 
     private final JwtIssuer jwtIssuer;
 
-    private final JwtPairStore jwtPairStore;
+    private final JwtStore jwtStore;
 
     private final JwtAuthenticationRepository jwtAuthenticationRepository;
 
@@ -50,12 +50,12 @@ public class DefaultJwtAuthenticationRefresher implements JwtAuthenticationRefre
      * Constructs a new {@code DefaultJwtAuthenticationRefresher} with required dependencies.
      *
      * @param jwtIssuer                   the JWT issuer for generating tokens
-     * @param jwtPairStore                the JWT pair store for token lookup
+     * @param jwtStore                    the JWT store for token lookup
      * @param jwtAuthenticationRepository the JWT authentication repository
      */
-    public DefaultJwtAuthenticationRefresher(JwtIssuer jwtIssuer, JwtPairStore jwtPairStore, JwtAuthenticationRepository jwtAuthenticationRepository) {
+    public DefaultJwtAuthenticationRefresher(JwtIssuer jwtIssuer, JwtStore jwtStore, JwtAuthenticationRepository jwtAuthenticationRepository) {
         this.jwtIssuer = jwtIssuer;
-        this.jwtPairStore = jwtPairStore;
+        this.jwtStore = jwtStore;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }
 
@@ -89,8 +89,8 @@ public class DefaultJwtAuthenticationRefresher implements JwtAuthenticationRefre
             var savedAuthentication = jwtAuthenticationRepository.save(jwtAuthentication);
 
             // TODO: What if store/delete fails? We have a consistency issue between Redis and DB
-            jwtPairStore.delete(oldJwtPair);
-            jwtPairStore.save(savedAuthentication.getJwtPair());
+            jwtStore.delete(oldJwtPair);
+            jwtStore.save(savedAuthentication.getJwtPair());
 
             return savedAuthentication;
 

@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRevoker;
-import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
+import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtAuthenticationException;
 
@@ -40,18 +40,18 @@ public class DefaultJwtAuthenticationRevoker implements JwtAuthenticationRevoker
 
     private static final Logger logger = LoggerFactory.getLogger(DefaultJwtAuthenticationRevoker.class);
 
-    private final JwtPairStore jwtPairStore;
+    private final JwtStore jwtStore;
 
     private final JwtAuthenticationRepository jwtAuthenticationRepository;
 
     /**
      * Constructs a new {@code DefaultJwtAuthenticationRevoker} with required dependencies.
      *
-     * @param jwtPairStore                the JWT pair store for token lookup
+     * @param jwtStore                    the JWT store for token lookup
      * @param jwtAuthenticationRepository the JWT authentication repository for persistent storage
      */
-    public DefaultJwtAuthenticationRevoker(JwtPairStore jwtPairStore, JwtAuthenticationRepository jwtAuthenticationRepository) {
-        this.jwtPairStore = jwtPairStore;
+    public DefaultJwtAuthenticationRevoker(JwtStore jwtStore, JwtAuthenticationRepository jwtAuthenticationRepository) {
+        this.jwtStore = jwtStore;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }
 
@@ -68,7 +68,7 @@ public class DefaultJwtAuthenticationRevoker implements JwtAuthenticationRevoker
         logger.trace("Revoking authentication with id {}", authentication.getId());
 
         try {
-            jwtPairStore.delete(authentication.getJwtPair());
+            jwtStore.delete(authentication.getJwtPair());
 
             // TODO: What if db operation fails after redis delete? We have a consistency issue between Redis and DB
             jwtAuthenticationRepository.deleteById(authentication.getId());

@@ -46,7 +46,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
 
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
-import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
+import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.Expiration;
 import com.bcn.asapp.authentication.domain.authentication.Issued;
@@ -68,7 +68,7 @@ class DefaultJwtAuthenticationGranterTests {
     private JwtIssuer jwtIssuer;
 
     @Mock
-    private JwtPairStore jwtPairStore;
+    private JwtStore jwtStore;
 
     @Mock
     private JwtAuthenticationRepository jwtAuthenticationRepository;
@@ -127,8 +127,8 @@ class DefaultJwtAuthenticationGranterTests {
                            .issueRefreshToken(any());
             then(jwtAuthenticationRepository).should(never())
                                              .save(any(JwtAuthentication.class));
-            then(jwtPairStore).should(never())
-                              .save(any(JwtPair.class));
+            then(jwtStore).should(never())
+                          .save(any(JwtPair.class));
         }
 
         @Test
@@ -152,8 +152,8 @@ class DefaultJwtAuthenticationGranterTests {
                            .issueRefreshToken(userAuthentication);
             then(jwtAuthenticationRepository).should(never())
                                              .save(any(JwtAuthentication.class));
-            then(jwtPairStore).should(never())
-                              .save(any(JwtPair.class));
+            then(jwtStore).should(never())
+                          .save(any(JwtPair.class));
         }
 
         @Test
@@ -179,8 +179,8 @@ class DefaultJwtAuthenticationGranterTests {
                            .issueRefreshToken(userAuthentication);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(any(JwtAuthentication.class));
-            then(jwtPairStore).should(never())
-                              .save(any(JwtPair.class));
+            then(jwtStore).should(never())
+                          .save(any(JwtPair.class));
         }
 
         @Test
@@ -192,7 +192,7 @@ class DefaultJwtAuthenticationGranterTests {
 
             given(jwtAuthenticationRepository.save(any(JwtAuthentication.class))).willReturn(jwtAuthentication);
 
-            willThrow(new RuntimeException("Redis connection failed")).given(jwtPairStore)
+            willThrow(new RuntimeException("Redis connection failed")).given(jwtStore)
                                                                       .save(any(JwtPair.class));
 
             // When
@@ -208,8 +208,8 @@ class DefaultJwtAuthenticationGranterTests {
                            .issueRefreshToken(userAuthentication);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(any(JwtAuthentication.class));
-            then(jwtPairStore).should(times(1))
-                              .save(any(JwtPair.class));
+            then(jwtStore).should(times(1))
+                          .save(any(JwtPair.class));
         }
 
         @Test
@@ -233,8 +233,8 @@ class DefaultJwtAuthenticationGranterTests {
                            .issueRefreshToken(userAuthentication);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(any(JwtAuthentication.class));
-            then(jwtPairStore).should(times(1))
-                              .save(any(JwtPair.class));
+            then(jwtStore).should(times(1))
+                          .save(any(JwtPair.class));
         }
 
     }

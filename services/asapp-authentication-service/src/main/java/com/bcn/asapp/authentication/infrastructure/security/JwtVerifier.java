@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
+import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 
 /**
@@ -28,7 +28,7 @@ import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
  * <p>
  * Verifies JWT tokens by validating their signature, expiration, and revocation status.
  * <p>
- * Performs two-step validation: cryptographic verification via {@link JwtDecoder} and revocation check via {@link JwtPairStore}.
+ * Performs two-step validation: cryptographic verification via {@link JwtDecoder} and revocation check via {@link JwtStore}.
  * <p>
  * Used by the authentication filter for token validation.
  *
@@ -42,17 +42,17 @@ public class JwtVerifier {
 
     private final JwtDecoder jwtDecoder;
 
-    private final JwtPairStore jwtPairStore;
+    private final JwtStore jwtStore;
 
     /**
      * Constructs a new {@code JwtVerifier} with required dependencies.
      *
-     * @param jwtDecoder   the JWT decoder for decoding and validating tokens
-     * @param jwtPairStore the JWT pair store for checking token revocation status
+     * @param jwtDecoder the JWT decoder for decoding and validating tokens
+     * @param jwtStore   the JWT store for checking token revocation status
      */
-    public JwtVerifier(JwtDecoder jwtDecoder, JwtPairStore jwtPairStore) {
+    public JwtVerifier(JwtDecoder jwtDecoder, JwtStore jwtStore) {
         this.jwtDecoder = jwtDecoder;
-        this.jwtPairStore = jwtPairStore;
+        this.jwtStore = jwtStore;
     }
 
     /**
@@ -76,7 +76,7 @@ public class JwtVerifier {
 
             var encodedToken = EncodedToken.of(accessToken);
 
-            var isTokenActive = jwtPairStore.accessTokenExists(encodedToken);
+            var isTokenActive = jwtStore.accessTokenExists(encodedToken);
             if (!isTokenActive) {
                 // TODO: Use more specific Exception?
                 throw new InvalidJwtException(String.format("Access token has been revoked or expired: %s", accessToken));
