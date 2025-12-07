@@ -16,6 +16,7 @@
 
 package com.bcn.asapp.tasks.infrastructure.task;
 
+import static com.bcn.asapp.tasks.infrastructure.security.JwtValidator.ACCESS_TOKEN_PREFIX;
 import static com.bcn.asapp.tasks.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
 import static com.bcn.asapp.tasks.testutil.TestFactory.TestTaskFactory.defaultTestTask;
 import static com.bcn.asapp.tasks.testutil.TestFactory.TestTaskFactory.testTaskBuilder;
@@ -38,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -63,13 +65,20 @@ class TaskE2EIT {
     @Autowired
     private WebTestClient webTestClient;
 
-    private String bearerToken;
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
+    private final String accessToken = defaultTestEncodedAccessToken();
+
+    private final String bearerToken = "Bearer " + accessToken;
 
     @BeforeEach
     void beforeEach() {
         taskRepository.deleteAll();
 
-        bearerToken = "Bearer " + defaultTestEncodedAccessToken();
+        redisTemplate.delete(ACCESS_TOKEN_PREFIX + accessToken);
+        redisTemplate.opsForValue()
+                     .set(ACCESS_TOKEN_PREFIX + accessToken, "");
     }
 
     @Nested

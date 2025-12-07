@@ -16,10 +16,10 @@
 
 package com.bcn.asapp.tasks.infrastructure.config;
 
+import static com.bcn.asapp.tasks.infrastructure.security.JwtValidator.ACCESS_TOKEN_PREFIX;
 import static com.bcn.asapp.tasks.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
 import static com.bcn.asapp.tasks.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
 import static com.bcn.asapp.tasks.testutil.TestFactory.TestEncodedTokenFactory.testEncodedTokenBuilder;
-import static com.bcn.asapp.tasks.testutil.TestFactory.TestTaskFactory.defaultTestTask;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -30,20 +30,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.reactive.server.WebTestClient;
 
 import com.bcn.asapp.tasks.AsappTasksServiceApplication;
-import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskRepository;
 import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
 
 @SpringBootTest(classes = AsappTasksServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient(timeout = "30000")
 @Import(TestContainerConfiguration.class)
 class SecurityConfigurationIT {
-
-    @Autowired
-    private JdbcTaskRepository taskRepository;
 
     @Autowired
     private WebTestClient webTestClient;
@@ -208,22 +205,38 @@ class SecurityConfigurationIT {
                          .isEmpty();
         }
 
+        @Test
+        void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsValidBearerTokenNotExistsInRedis() {
+            // When & Then
+            var bearerToken = "Bearer " + defaultTestEncodedAccessToken();
+
+            webTestClient.get()
+                         .uri("/actuator")
+                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                         .exchange()
+                         .expectStatus()
+                         .isUnauthorized()
+                         .expectBody()
+                         .isEmpty();
+        }
+
     }
 
     @Nested
     class ActuatorAuthentication {
 
-        private String bearerToken;
+        @Autowired
+        private RedisTemplate<String, String> redisTemplate;
+
+        private final String accessToken = defaultTestEncodedAccessToken();
+
+        private final String bearerToken = "Bearer " + accessToken;
 
         @BeforeEach
         void beforeEach() {
-            taskRepository.deleteAll();
-
-            var task = defaultTestTask();
-            var taskCreated = taskRepository.save(task);
-            assertThat(taskCreated).isNotNull();
-
-            bearerToken = "Bearer " + defaultTestEncodedAccessToken();
+            redisTemplate.delete(ACCESS_TOKEN_PREFIX + accessToken);
+            redisTemplate.opsForValue()
+                         .set(ACCESS_TOKEN_PREFIX + accessToken, "");
         }
 
         @Test
