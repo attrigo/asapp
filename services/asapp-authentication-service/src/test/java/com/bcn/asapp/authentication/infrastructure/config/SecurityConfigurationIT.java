@@ -17,6 +17,7 @@
 package com.bcn.asapp.authentication.infrastructure.config;
 
 import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtStore.ACCESS_TOKEN_PREFIX;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.testEncodedTokenBuilder;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
@@ -207,8 +208,7 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsValidBearerTokenNotExistsInRedis() {
             // When & Then
-            var bearerToken = "Bearer " + testEncodedTokenBuilder().accessToken()
-                                                                   .build();
+            var bearerToken = "Bearer " + defaultTestEncodedAccessToken();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -228,8 +228,7 @@ class SecurityConfigurationIT {
         @Autowired
         private RedisTemplate<String, String> redisTemplate;
 
-        private final String accessToken = testEncodedTokenBuilder().accessToken()
-                                                                    .build();
+        private final String accessToken = defaultTestEncodedAccessToken();
 
         private final String bearerToken = "Bearer " + accessToken;
 

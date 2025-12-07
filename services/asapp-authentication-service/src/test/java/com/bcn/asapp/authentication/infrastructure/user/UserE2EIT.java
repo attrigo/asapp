@@ -20,7 +20,7 @@ import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
 import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtStore.ACCESS_TOKEN_PREFIX;
 import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtStore.REFRESH_TOKEN_PREFIX;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.testEncodedTokenBuilder;
+import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestJwtAuthenticationFactory.testJwtAuthenticationBuilder;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestJdbcUser;
 import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.testUserBuilder;
@@ -77,8 +77,7 @@ class UserE2EIT {
     @Autowired
     private WebTestClient webTestClient;
 
-    private final String accessToken = testEncodedTokenBuilder().accessToken()
-                                                                .build();
+    private final String accessToken = defaultTestEncodedAccessToken();
 
     private final String bearerToken = "Bearer " + accessToken;
 
