@@ -234,7 +234,7 @@ class SecurityConfigurationIT {
         private final String bearerToken = "Bearer " + accessToken;
 
         @BeforeEach
-        void setUp() {
+        void beforeEach() {
             redisTemplate.delete(ACCESS_TOKEN_PREFIX + accessToken);
             redisTemplate.opsForValue()
                          .set(ACCESS_TOKEN_PREFIX + accessToken, "");

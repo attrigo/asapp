@@ -48,7 +48,7 @@ class ExpiredJwtCleanupSchedulerIT {
     private JdbcUserRepository userRepository;
 
     @BeforeEach
-    void setUp() {
+    void beforeEach() {
         jwtAuthenticationRepository.deleteAll();
         userRepository.deleteAll();
     }
