@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationVerifier;
-import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
+import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
@@ -46,7 +46,7 @@ public class DefaultJwtAuthenticationVerifier implements JwtAuthenticationVerifi
 
     private final JwtDecoder jwtDecoder;
 
-    private final JwtPairStore jwtPairStore;
+    private final JwtStore jwtStore;
 
     private final JwtAuthenticationRepository jwtAuthenticationRepository;
 
@@ -54,12 +54,12 @@ public class DefaultJwtAuthenticationVerifier implements JwtAuthenticationVerifi
      * Constructs a new {@code DefaultJwtAuthenticationVerifier} with required dependencies.
      *
      * @param jwtDecoder                  the JWT decoder for decoding and validating tokens
-     * @param jwtPairStore                the JWT pair store for checking token existence in active sessions
+     * @param jwtStore                    the JWT store for checking token existence in active sessions
      * @param jwtAuthenticationRepository the JWT authentication repository
      */
-    public DefaultJwtAuthenticationVerifier(JwtDecoder jwtDecoder, JwtPairStore jwtPairStore, JwtAuthenticationRepository jwtAuthenticationRepository) {
+    public DefaultJwtAuthenticationVerifier(JwtDecoder jwtDecoder, JwtStore jwtStore, JwtAuthenticationRepository jwtAuthenticationRepository) {
         this.jwtDecoder = jwtDecoder;
-        this.jwtPairStore = jwtPairStore;
+        this.jwtStore = jwtStore;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }
 
@@ -87,7 +87,7 @@ public class DefaultJwtAuthenticationVerifier implements JwtAuthenticationVerifi
 
             var encodedToken = EncodedToken.of(decodedJwt.encodedToken());
 
-            var isTokenActive = jwtPairStore.accessTokenExists(encodedToken);
+            var isTokenActive = jwtStore.accessTokenExists(encodedToken);
             if (!isTokenActive) {
                 // TODO: Use more specific Exception?
                 throw new JwtAuthenticationNotFoundException(
@@ -129,7 +129,7 @@ public class DefaultJwtAuthenticationVerifier implements JwtAuthenticationVerifi
 
             var encodedToken = EncodedToken.of(decodedJwt.encodedToken());
 
-            var isTokenActive = jwtPairStore.refreshTokenExists(encodedToken);
+            var isTokenActive = jwtStore.refreshTokenExists(encodedToken);
             if (!isTokenActive) {
                 // TODO: Use more specific Exception?
                 throw new JwtAuthenticationNotFoundException(

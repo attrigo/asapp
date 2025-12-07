@@ -20,7 +20,7 @@ import java.util.UUID;
 
 import com.bcn.asapp.authentication.application.ApplicationService;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
-import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
+import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.application.user.in.DeleteUserUseCase;
 import com.bcn.asapp.authentication.application.user.out.UserRepository;
 import com.bcn.asapp.authentication.domain.user.UserId;
@@ -34,7 +34,7 @@ import com.bcn.asapp.authentication.domain.user.UserId;
 @ApplicationService
 public class DeleteUserService implements DeleteUserUseCase {
 
-    private final JwtPairStore jwtPairStore;
+    private final JwtStore jwtStore;
 
     private final UserRepository userRepository;
 
@@ -43,12 +43,12 @@ public class DeleteUserService implements DeleteUserUseCase {
     /**
      * Constructs a new {@code DeleteUserService} with required dependencies.
      *
-     * @param jwtPairStore                the JWT pair store for Redis operations
+     * @param jwtStore                    the JWT store for Redis operations
      * @param userRepository              the user repository
      * @param jwtAuthenticationRepository the JWT authentication repository
      */
-    public DeleteUserService(JwtPairStore jwtPairStore, UserRepository userRepository, JwtAuthenticationRepository jwtAuthenticationRepository) {
-        this.jwtPairStore = jwtPairStore;
+    public DeleteUserService(JwtStore jwtStore, UserRepository userRepository, JwtAuthenticationRepository jwtAuthenticationRepository) {
+        this.jwtStore = jwtStore;
         this.userRepository = userRepository;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }
@@ -73,7 +73,7 @@ public class DeleteUserService implements DeleteUserUseCase {
         var userId = UserId.of(id);
 
         var jwtAuthentications = jwtAuthenticationRepository.findAllByUserId(userId);
-        jwtAuthentications.forEach(jwtAuthentication -> jwtPairStore.delete(jwtAuthentication.getJwtPair()));
+        jwtAuthentications.forEach(jwtAuthentication -> jwtStore.delete(jwtAuthentication.getJwtPair()));
 
         jwtAuthenticationRepository.deleteAllByUserId(userId);
 

@@ -20,14 +20,14 @@ import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 
 /**
- * Port for storing JWT token pairs for fast lookup.
+ * Port for storing JWT tokens for fast lookup.
  * <p>
- * Defines the contract for temporarily storing JWT token pairs to enable fast token validation and revocation.
+ * Defines the contract for temporarily storing JWT tokens to enable fast token validation and revocation.
  *
  * @since 0.2.0
  * @author attrigo
  */
-public interface JwtPairStore {
+public interface JwtStore {
 
     /**
      * Checks if an access token exists in the fast-access store.

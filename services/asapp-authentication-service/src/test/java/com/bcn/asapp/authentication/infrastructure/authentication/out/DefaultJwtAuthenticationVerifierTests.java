@@ -48,7 +48,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
-import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
+import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.Expiration;
 import com.bcn.asapp.authentication.domain.authentication.Issued;
@@ -71,7 +71,7 @@ class DefaultJwtAuthenticationVerifierTests {
     private JwtDecoder jwtDecoder;
 
     @Mock
-    private JwtPairStore jwtPairStore;
+    private JwtStore jwtStore;
 
     @Mock
     private JwtAuthenticationRepository jwtAuthenticationRepository;
@@ -153,7 +153,7 @@ class DefaultJwtAuthenticationVerifierTests {
             // Given
             given(jwtDecoder.decode(encodedAccessToken.value())).willReturn(decodedAccessJwt);
 
-            given(jwtPairStore.accessTokenExists(encodedAccessToken)).willReturn(false);
+            given(jwtStore.accessTokenExists(encodedAccessToken)).willReturn(false);
 
             // When
             var thrown = catchThrowable(() -> defaultJwtAuthenticationVerifier.verifyAccessToken(encodedAccessToken));
@@ -167,8 +167,8 @@ class DefaultJwtAuthenticationVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedAccessToken.value());
-            then(jwtPairStore).should(times(1))
-                              .accessTokenExists(encodedAccessToken);
+            then(jwtStore).should(times(1))
+                          .accessTokenExists(encodedAccessToken);
             then(jwtAuthenticationRepository).should(never())
                                              .findByAccessToken(any(EncodedToken.class));
         }
@@ -178,7 +178,7 @@ class DefaultJwtAuthenticationVerifierTests {
             // Given
             given(jwtDecoder.decode(encodedAccessToken.value())).willReturn(decodedAccessJwt);
 
-            given(jwtPairStore.accessTokenExists(encodedAccessToken)).willReturn(true);
+            given(jwtStore.accessTokenExists(encodedAccessToken)).willReturn(true);
 
             given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(Optional.empty());
 
@@ -192,8 +192,8 @@ class DefaultJwtAuthenticationVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedAccessToken.value());
-            then(jwtPairStore).should(times(1))
-                              .accessTokenExists(encodedAccessToken);
+            then(jwtStore).should(times(1))
+                          .accessTokenExists(encodedAccessToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .findByAccessToken(encodedAccessToken);
         }
@@ -203,7 +203,7 @@ class DefaultJwtAuthenticationVerifierTests {
             // Given
             given(jwtDecoder.decode(encodedAccessToken.value())).willReturn(decodedAccessJwt);
 
-            given(jwtPairStore.accessTokenExists(encodedAccessToken)).willReturn(true);
+            given(jwtStore.accessTokenExists(encodedAccessToken)).willReturn(true);
 
             given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(Optional.of(jwtAuthentication));
 
@@ -215,8 +215,8 @@ class DefaultJwtAuthenticationVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedAccessToken.value());
-            then(jwtPairStore).should(times(1))
-                              .accessTokenExists(encodedAccessToken);
+            then(jwtStore).should(times(1))
+                          .accessTokenExists(encodedAccessToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .findByAccessToken(encodedAccessToken);
         }
@@ -269,7 +269,7 @@ class DefaultJwtAuthenticationVerifierTests {
             // Given
             given(jwtDecoder.decode(encodedRefreshToken.value())).willReturn(decodedRefreshJwt);
 
-            given(jwtPairStore.refreshTokenExists(encodedRefreshToken)).willReturn(false);
+            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(false);
 
             // When
             var thrown = catchThrowable(() -> defaultJwtAuthenticationVerifier.verifyRefreshToken(encodedRefreshToken));
@@ -283,8 +283,8 @@ class DefaultJwtAuthenticationVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedRefreshToken.value());
-            then(jwtPairStore).should(times(1))
-                              .refreshTokenExists(encodedRefreshToken);
+            then(jwtStore).should(times(1))
+                          .refreshTokenExists(encodedRefreshToken);
             then(jwtAuthenticationRepository).should(never())
                                              .findByRefreshToken(any(EncodedToken.class));
         }
@@ -294,7 +294,7 @@ class DefaultJwtAuthenticationVerifierTests {
             // Given
             given(jwtDecoder.decode(encodedRefreshToken.value())).willReturn(decodedRefreshJwt);
 
-            given(jwtPairStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
 
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.empty());
 
@@ -308,8 +308,8 @@ class DefaultJwtAuthenticationVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedRefreshToken.value());
-            then(jwtPairStore).should(times(1))
-                              .refreshTokenExists(encodedRefreshToken);
+            then(jwtStore).should(times(1))
+                          .refreshTokenExists(encodedRefreshToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .findByRefreshToken(encodedRefreshToken);
         }
@@ -319,7 +319,7 @@ class DefaultJwtAuthenticationVerifierTests {
             // Given
             given(jwtDecoder.decode(encodedRefreshToken.value())).willReturn(decodedRefreshJwt);
 
-            given(jwtPairStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
 
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(jwtAuthentication));
 
@@ -331,8 +331,8 @@ class DefaultJwtAuthenticationVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedRefreshToken.value());
-            then(jwtPairStore).should(times(1))
-                              .refreshTokenExists(encodedRefreshToken);
+            then(jwtStore).should(times(1))
+                          .refreshTokenExists(encodedRefreshToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .findByRefreshToken(encodedRefreshToken);
         }

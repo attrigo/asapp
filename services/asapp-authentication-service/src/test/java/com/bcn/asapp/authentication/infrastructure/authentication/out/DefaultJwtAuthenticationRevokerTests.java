@@ -45,7 +45,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
-import com.bcn.asapp.authentication.application.authentication.out.JwtPairStore;
+import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.Expiration;
 import com.bcn.asapp.authentication.domain.authentication.Issued;
@@ -62,7 +62,7 @@ import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtAuthentica
 class DefaultJwtAuthenticationRevokerTests {
 
     @Mock
-    private JwtPairStore jwtPairStore;
+    private JwtStore jwtStore;
 
     @Mock
     private JwtAuthenticationRepository jwtAuthenticationRepository;
@@ -104,8 +104,8 @@ class DefaultJwtAuthenticationRevokerTests {
             assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
                               .hasMessageContaining("Authentication could not be revoked due to");
 
-            then(jwtPairStore).should(times(1))
-                              .delete(jwtAuthentication.getJwtPair());
+            then(jwtStore).should(times(1))
+                          .delete(jwtAuthentication.getJwtPair());
             then(jwtAuthenticationRepository).should(times(1))
                                              .deleteById(jwtAuthenticationId);
 
@@ -114,7 +114,7 @@ class DefaultJwtAuthenticationRevokerTests {
         @Test
         void ThenThrowsInvalidJwtAuthenticationException_GivenStoreDeleteFails() {
             // Given
-            willThrow(new RuntimeException("Redis connection failed")).given(jwtPairStore)
+            willThrow(new RuntimeException("Redis connection failed")).given(jwtStore)
                                                                       .delete(any(JwtPair.class));
 
             // When
@@ -124,8 +124,8 @@ class DefaultJwtAuthenticationRevokerTests {
             assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
                               .hasMessageContaining("Authentication could not be revoked due to");
 
-            then(jwtPairStore).should(times(1))
-                              .delete(jwtAuthentication.getJwtPair());
+            then(jwtStore).should(times(1))
+                          .delete(jwtAuthentication.getJwtPair());
             then(jwtAuthenticationRepository).should(never())
                                              .deleteById(jwtAuthenticationId);
 
@@ -141,8 +141,8 @@ class DefaultJwtAuthenticationRevokerTests {
             defaultAuthenticationRevoker.revokeAuthentication(jwtAuthentication);
 
             // Then
-            then(jwtPairStore).should(times(1))
-                              .delete(jwtAuthentication.getJwtPair());
+            then(jwtStore).should(times(1))
+                          .delete(jwtAuthentication.getJwtPair());
             then(jwtAuthenticationRepository).should(times(1))
                                              .deleteById(jwtAuthenticationId);
         }
