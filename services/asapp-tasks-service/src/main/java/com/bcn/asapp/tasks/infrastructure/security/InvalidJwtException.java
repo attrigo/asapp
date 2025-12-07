@@ -27,6 +27,15 @@ package com.bcn.asapp.tasks.infrastructure.security;
 public class InvalidJwtException extends RuntimeException {
 
     /**
+     * Constructs a new {@code InvalidJwtException} with the specified detail message.
+     *
+     * @param message the detail message providing additional information about the exception
+     */
+    public InvalidJwtException(String message) {
+        super(message);
+    }
+
+    /**
      * Constructs a new {@code InvalidJwtException} with the specified detail message and cause.
      *
      * @param message the detail message providing additional information about the exception

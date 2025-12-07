@@ -46,6 +46,9 @@ class JwtVerifierTests {
     @Mock
     private JwtDecoder jwtDecoder;
 
+    @Mock
+    private JwtValidator jwtValidator;
+
     @InjectMocks
     private JwtVerifier jwtVerifier;
 
@@ -91,12 +94,35 @@ class JwtVerifierTests {
         }
 
         @Test
+        void ThenThrowsInvalidJwtException_GivenAccessTokenNotExistsInRedis() {
+            // Given
+            var accessToken = defaultTestEncodedAccessToken();
+            var accessTokenClaims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
+            var decodedAccessToken = new DecodedJwt(accessToken, ACCESS_TOKEN_TYPE, "user@asapp.com", accessTokenClaims);
+            given(jwtDecoder.decode(accessToken)).willReturn(decodedAccessToken);
+            given(jwtValidator.accessTokenExists(accessToken)).willReturn(false);
+
+            // When
+            var thrown = catchThrowable(() -> jwtVerifier.verifyAccessToken(accessToken));
+
+            // Then
+            assertThat(thrown).isInstanceOf(InvalidJwtException.class)
+                              .hasMessageContaining("Access token is not valid");
+
+            then(jwtDecoder).should(times(1))
+                            .decode(accessToken);
+            then(jwtValidator).should(times(1))
+                              .accessTokenExists(accessToken);
+        }
+
+        @Test
         void ThenVerifiesAccessToken_GivenAccessTokenIsValid() {
             // Given
             var accessToken = defaultTestEncodedAccessToken();
             var accessTokenClaims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
             var decodedAccessToken = new DecodedJwt(accessToken, ACCESS_TOKEN_TYPE, "user@asapp.com", accessTokenClaims);
             given(jwtDecoder.decode(accessToken)).willReturn(decodedAccessToken);
+            given(jwtValidator.accessTokenExists(accessToken)).willReturn(true);
 
             // When
             var actual = jwtVerifier.verifyAccessToken(accessToken);
@@ -107,6 +133,8 @@ class JwtVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(accessToken);
+            then(jwtValidator).should(times(1))
+                              .accessTokenExists(accessToken);
         }
 
     }
