@@ -37,10 +37,10 @@ public class TestContainerConfiguration {
     }
 
     @Container
-    public static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"));
+    public static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>(DockerImageName.parse("postgres:latest"));
 
     @Container
-    public static RedisContainer redisContainer = new RedisContainer(DockerImageName.parse("redis:latest"));
+    public static final RedisContainer redisContainer = new RedisContainer(DockerImageName.parse("redis:latest"));
 
     @Bean
     @ServiceConnection
