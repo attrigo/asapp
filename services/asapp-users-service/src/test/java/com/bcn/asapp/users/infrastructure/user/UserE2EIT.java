@@ -22,6 +22,7 @@ import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_DELETE_BY_ID_FULL_PAT
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_ALL_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_UPDATE_BY_ID_FULL_PATH;
+import static com.bcn.asapp.users.infrastructure.security.JwtValidator.ACCESS_TOKEN_PREFIX;
 import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
 import static com.bcn.asapp.users.testutil.TestFactory.TestUserFactory.defaultTestUser;
 import static com.bcn.asapp.users.testutil.TestFactory.TestUserFactory.testUserBuilder;
@@ -46,6 +47,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -91,14 +93,21 @@ class UserE2EIT {
     @Autowired
     private WebTestClient webTestClient;
 
-    private String bearerToken;
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
+
+    private final String accessToken = defaultTestEncodedAccessToken();
+
+    private final String bearerToken = "Bearer " + accessToken;
 
     @BeforeEach
     void beforeEach() {
         userRepository.deleteAll();
         mockServerClient.reset();
 
-        bearerToken = "Bearer " + defaultTestEncodedAccessToken();
+        redisTemplate.delete(ACCESS_TOKEN_PREFIX + accessToken);
+        redisTemplate.opsForValue()
+                     .set(ACCESS_TOKEN_PREFIX + accessToken, "");
     }
 
     @Nested
