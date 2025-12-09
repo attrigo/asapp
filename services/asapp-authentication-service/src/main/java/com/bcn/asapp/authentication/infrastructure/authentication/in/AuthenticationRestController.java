@@ -67,12 +67,12 @@ public class AuthenticationRestController implements AuthenticationRestAPI {
     /**
      * Authenticates a user with the given credentials and provides a new JWT authentication.
      * <p>
-     * If the user is already authenticated, new JWT authentication (access and refresh tokens) are generated to override the existing ones.
+     * Each authentication creates a new session with fresh tokens. Previous authentications for the user remain valid until they expire or are explicitly
+     * revoked, allowing multiple concurrent sessions.
      *
      * @param request the {@link AuthenticateRequest} containing user credentials
      * @return the {@link AuthenticateResponse} containing access and refresh tokens
      */
-    // TODO: Update Javadocs and OpenAPI docs, is it really the JwtAuthentication overridden if it exists?
     @Override
     public AuthenticateResponse authenticate(AuthenticateRequest request) {
         var authenticateCommand = jwtAuthenticationMapper.toAuthenticateCommand(request);
@@ -84,6 +84,8 @@ public class AuthenticationRestController implements AuthenticationRestAPI {
 
     /**
      * Refreshes a JWT authentication using a refresh token.
+     * <p>
+     * Updates the existing session with new tokens, invalidating the old ones.
      *
      * @param request the {@link RefreshAuthenticationRequest} containing the refresh token
      * @return the {@link RefreshAuthenticationResponse} containing new access and refresh tokens
