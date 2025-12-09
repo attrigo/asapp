@@ -10,7 +10,7 @@
 - **Infrastructure**: External concerns (REST, database, security, config)
 
 **Three Services** (Bounded Contexts):
-- `asapp-authentication-service` (port 8080) - Credentials & JWT lifecycle
+- `asapp-authentication-service` (port 8080) - Credentials, JWT lifecycle & Redis-based revocation
 - `asapp-users-service` (port 8082) - User profiles
 - `asapp-tasks-service` (port 8081) - Task management
 
@@ -118,7 +118,7 @@ public class AuthenticateService implements AuthenticateUseCase {
 **3. Infrastructure Layer** (`infrastructure/`):
 - **REST** (`in/`): Controllers, Request/Response DTOs, API interfaces
 - **Persistence** (`out/`): Repository adapters, JPA entities, JDBC repositories
-- **Security** (`security/`): JwtDecoder, JwtVerifier, JwtIssuer, JwtAuthenticationFilter
+- **Security** (`security/`): JwtDecoder, JwtVerifier, JwtIssuer, JwtAuthenticationFilter, Redis token store adapter, TTL management
 - **Config** (`config/`): Component scanning, security filter chain, JDBC config
 
 ### DDD Aggregates and Invariants
@@ -131,7 +131,7 @@ public class AuthenticateService implements AuthenticateUseCase {
 
 **JwtAuthentication Aggregate**:
 - **Purpose**: Token lifecycle management
-- **Invariants**: Both tokens required, type matches token_use claim, issued < expiration
+- **Invariants**: Both tokens required, type matches token_use claim, issued < expiration, tokens must exist in Redis for validation (source of truth for active sessions)
 - **States**: Unauthenticated (no ID) vs Authenticated (with ID)
 - **Factories**: `unAuthenticated()`, `authenticated()`
 
@@ -239,7 +239,9 @@ if (inactive) { validatePassword(); } else { validateId(); }
 
 **JWT Validation**:
 - `JwtAuthenticationFilter` intercepts requests
-- Validates signature with HMAC-SHA secret
+- `JwtDecoder` validates signature, expiration, and structure
+- Verifies token type is "access"
+- **Redis check**: `jwtStore.accessTokenExists()` - fails if token revoked
 - Extracts claims (username, role, token_use)
 - Sets `SecurityContext`
 
@@ -279,6 +281,23 @@ Claims: { "sub": "user", "role": "USER", "token_use": "access", "iat": ..., "exp
 
 **Whitelisted Endpoints** (no auth):
 - `/api/auth/token`, `/api/auth/refresh`, health/actuator, Swagger UI
+
+### Redis Token Store
+
+**Purpose**: Fast token validation and revocation checks
+
+**Key Pattern**:
+- Access tokens: `jwt:access_token:<token_value>`
+- Refresh tokens: `jwt:refresh_token:<token_value>`
+- Values: Empty strings (existence check only)
+
+**TTL Management**:
+- Auto-calculated from token expiration timestamp
+- Access: 5 minutes, Refresh: 1 hour
+- Minimum TTL: 1 second
+- Auto-cleanup on expiration
+
+**Consistency Model**: Best-effort (Redis and PostgreSQL operations not atomic)
 
 ### Observability
 

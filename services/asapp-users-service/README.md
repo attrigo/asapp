@@ -103,8 +103,9 @@ The service implements **DDD patterns**:
 
 **JWT Validation**:
 - Validates tokens issued by Authentication service
+- Token validation includes signature verification and Redis-based revocation checks
 - Extracts claims (username, role) for authorization
-- Rejects invalid or expired tokens
+- Revoked tokens (removed from Redis) return 401 Unauthorized
 
 **Protected Endpoints**: All `/api/users/*` endpoints require Bearer token (except POST for creation)
 

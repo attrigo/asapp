@@ -18,7 +18,7 @@
 **Key Tools**:
 - **JaCoCo**: Coverage reports (`mvn verify` → `target/site/jacoco-aggregate/index.html`)
 - **PITest**: Mutation testing (`mvn org.pitest:pitest-maven:mutationCoverage`)
-- **TestContainers**: PostgreSQL containers (⚠️ use `static` for singletons!)
+- **TestContainers**: PostgreSQL + Redis containers (⚠️ use `static` for singletons!)
 - **MockServer**: Mock external services in E2E tests
 
 **CI/CD**: GitHub Actions runs `mvn verify` on push/PR to main
@@ -31,7 +31,7 @@
 class CreateInactiveUser {  // PascalCase: method/behavior under test
 
     @Test
-    void ThenReturnsUser_GivenValidParameters() {  // Then<Expected>_Given<Condition>
+    void ReturnsInactiveUser_ValidParameters() {  // <Behavior>_<Condition>
         // Given
         var username = Username.of("user@asapp.com");
 
@@ -114,10 +114,15 @@ var username = Username.of("user@asapp.com");
 **@Nested Classes**:
 - Group tests by method or behavior
 - Use PascalCase names
-- Examples: `CreateInactiveUser`, `Authenticate`, `GetRoleClaim`
+- Examples: `CreateInactiveUser`, `Authenticate`, `DeleteAllByRefreshTokenExpiredBefore`
 
-**Method Names**: `Then<Expected>_Given<Condition>`
-- Examples: `ThenThrowsException_GivenNull()`, `ThenReturnsTrue_GivenValid()`
+**Method Names**: `<Behavior>_<Condition>`
+- Format: Start with action/result, followed by context after underscore
+- Examples:
+  - `ThrowsException_NullParameter()` - Exception scenario
+  - `ReturnsTrue_ValidInput()` - Success scenario
+  - `DeletesExpiredAuthentications_RefreshTokenExpired()` - Action with context
+  - `DoesNotDeleteAuthentications_NoExpiredTokens()` - Negative scenario
 
 **Body Structure**: Always use Given-When-Then with comments
 
@@ -152,6 +157,33 @@ public PostgreSQLContainer<?> container = ...;  // Starts per test class!
 ```
 
 **Impact**: Static = ~5s once vs Non-static = ~5s × number of test classes
+
+**Redis Container** (same singleton pattern):
+
+```java
+✅ CORRECT (Spring Boot 3.1+):
+@Container
+@ServiceConnection  // Auto-configures Redis connection properties
+public static GenericContainer<?> redis =
+    new GenericContainer<>("redis:7-alpine")
+        .withExposedPorts(6379);  // Starts once
+
+// No DynamicPropertySource needed - Spring Boot handles it automatically!
+```
+
+**Legacy approach** (pre-3.1):
+```java
+@Container
+public static GenericContainer<?> redis =
+    new GenericContainer<>("redis:7-alpine")
+        .withExposedPorts(6379);
+
+@DynamicPropertySource  // Manual configuration (not needed in 3.1+)
+static void redisProperties(DynamicPropertyRegistry registry) {
+    registry.add("spring.data.redis.host", redis::getHost);
+    registry.add("spring.data.redis.port", redis::getFirstMappedPort);
+}
+```
 
 ### Code Coverage (JaCoCo)
 

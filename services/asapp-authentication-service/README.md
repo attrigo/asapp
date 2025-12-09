@@ -14,6 +14,7 @@ The Authentication Service is a core microservice in the ASAPP ecosystem, respon
 - 🔐 User credential management (username, password, role)
 - 🎫 JWT token generation (access + refresh tokens)
 - 🔄 Token refresh and revocation
+- ⚡ Redis-based token storage and revocation checks
 - 👤 User CRUD operations (for authentication purposes)
 - 🛡️ Security enforcement for downstream services
 
@@ -21,7 +22,7 @@ The Authentication Service is a core microservice in the ASAPP ecosystem, respon
 
 ### Authentication Operations
 
-- **Authenticate** - Issue JWT tokens for valid credentials
+- **Authenticate** - Issue JWT tokens and store in Redis for validation
   - `POST /api/auth/token`
   - Returns access token (5 min expiry) + refresh token (1 hour expiry)
 
@@ -29,9 +30,9 @@ The Authentication Service is a core microservice in the ASAPP ecosystem, respon
   - `POST /api/auth/refresh`
   - Extends session without re-entering credentials
 
-- **Revoke Authentication** - Invalidate active tokens
+- **Revoke Authentication** - Invalidate active tokens (removes from Redis and database)
   - `POST /api/auth/revoke`
-  - Logs user out by removing token from database
+  - Immediately revokes tokens by removing from Redis and database
 
 ### User Management Operations
 
@@ -85,6 +86,7 @@ The service follows **Hexagonal Architecture** (Ports & Adapters) with clear sep
 - REST controllers and DTOs
 - Repository adapters (Spring Data JDBC)
 - Security components (JWT handling, filters)
+- Redis adapter (token store with TTL management)
 
 ### Domain-Driven Design
 
@@ -120,11 +122,32 @@ The service implements **DDD patterns**:
 - **Access Token** (`at+jwt`) - 5-minute expiry, used for API access
 - **Refresh Token** (`rt+jwt`) - 1-hour expiry, used to obtain new access tokens
 
+**Token Validation Flow**:
+1. Signature validation (HMAC-SHA with secret key)
+2. Expiration check (iat/exp claims validation)
+3. Redis existence check (revocation verification)
+4. Claims extraction (username, role, token_use)
+
 **Security Components**:
 - `JwtIssuer` - Creates signed tokens with HMAC-SHA
 - `JwtDecoder` - Validates signatures and extracts claims
 - `JwtVerifier` - Ensures correct token type
 - `JwtAuthenticationFilter` - Intercepts and validates requests
+
+### Data Stores
+
+**PostgreSQL** (`authenticationdb`):
+- Durable storage for user credentials and authentication records
+- Schema managed via Liquibase migrations
+
+**Redis** (`:6379`):
+- Fast token existence checks (O(1) lookups)
+- TTL-based auto-expiration matching token lifetime
+- Key patterns:
+  - `jwt:access_token:<token>` - Access token validation
+  - `jwt:refresh_token:<token>` - Refresh token validation
+- Values: Empty strings (existence only)
+- Consistency: Best-effort (Redis and DB operations not atomic)
 
 ## Quick Start
 
@@ -134,12 +157,13 @@ The service implements **DDD patterns**:
 - Maven 3.9+
 - Docker & Docker Compose
 - PostgreSQL (via Docker)
+- Redis (via Docker)
 
 ### Run Locally (Development Mode)
 
 ```bash
-# 1. Start PostgreSQL database
-docker-compose up -d asapp-authentication-postgres-db
+# 1. Start PostgreSQL and Redis
+docker-compose up -d asapp-authentication-postgres-db asapp-redis
 
 # 2. Run the service
 mvn spring-boot:run
@@ -215,6 +239,11 @@ spring.datasource.password=secret
 asapp.security.jwt-secret=<base64-encoded-secret>
 asapp.security.access-token-expiration-time=300000    # 5 minutes
 asapp.security.refresh-token-expiration-time=3600000  # 1 hour
+
+# Redis
+spring.data.redis.host=localhost
+spring.data.redis.port=6379
+spring.data.redis.password=secret
 
 # Actuator (management port)
 management.server.port=8090
@@ -329,6 +358,7 @@ open target/pit-reports/<timestamp>/index.html
 - **Java**: 21
 - **Spring Boot**: 3.4.3
 - **Database**: PostgreSQL
+- **Cache/Store**: Redis
 - **Migrations**: Liquibase
 - **Security**: Spring Security + JJWT (JWT library)
 - **Mapping**: MapStruct 1.6.3
@@ -360,9 +390,13 @@ src/main/java/com/bcn/asapp/authentication/
 
 ## Database Schema
 
-**Tables**:
+**PostgreSQL Tables**:
 - `users` - User credentials (id, username, password, role)
 - `jwt_authentications` - Active token sessions (id, user_id, access_token, refresh_token)
+
+**Redis Keys**:
+- `jwt:access_token:<token>` - Access token existence (TTL: 5 min)
+- `jwt:refresh_token:<token>` - Refresh token existence (TTL: 1 hour)
 
 **Migrations**: Managed by Liquibase in `src/main/resources/liquibase/db/changelog/`
 
@@ -370,13 +404,13 @@ src/main/java/com/bcn/asapp/authentication/
 
 **Test Types**:
 - Unit Tests (`*Tests.java`) - Domain and application logic
-- Integration Tests (`*IT.java`) - With TestContainers PostgreSQL
+- Integration Tests (`*IT.java`) - With TestContainers PostgreSQL and Redis
 - Controller Tests (`*ControllerIT.java`) - WebMvcTest slice
 - E2E Tests (`*E2EIT.java`) - Full application context
 
 **Coverage**: JaCoCo reports (unit, integration, aggregate)
 **Mutation Testing**: PITest for domain layer
-**Test Containers**: PostgreSQL for integration tests
+**Test Containers**: PostgreSQL and Redis for integration tests
 
 ## Monitoring
 
@@ -397,6 +431,7 @@ src/main/java/com/bcn/asapp/authentication/
 - **Docker**: 20.10+
 - **Docker Compose**: 2.0+
 - **PostgreSQL**: 15+ (via Docker)
+- **Redis**: 7+ (via Docker)
 
 ## Contributing
 
