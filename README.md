@@ -26,11 +26,11 @@ ASAPP (Application for Task Management) is a production-ready microservices appl
 
 ASAPP consists of three independent microservices:
 
-| Service | Port | Purpose | Database |
-|---------|------|---------|----------|
-| **Authentication** | 8080 | User credentials & JWT tokens | authenticationdb |
-| **Users** | 8082 | User profile management | usersdb |
-| **Tasks** | 8081 | Task CRUD operations | tasksdb |
+| Service | Port | Purpose | Database | Cache/Store |
+|---------|------|---------|----------|-------------|
+| **Authentication** | 8080 | User credentials & JWT tokens | authenticationdb | Redis (token store) |
+| **Users** | 8082 | User profile management | usersdb | - |
+| **Tasks** | 8081 | Task CRUD operations | tasksdb | - |
 
 ### System Architecture
 
@@ -43,10 +43,12 @@ ASAPP consists of three independent microservices:
     ┌────────────────────┐
     │  Authentication    │ :8080
     │     Service        │──────► authenticationdb
-    └────────────────────┘
-             │
-             │ JWT Token
-             ▼
+    └─────────┬──────────┘
+              │
+              ├──────► Redis :6379 (Token Store)
+              │
+              │ JWT Token
+              ▼
     ┌────────────────────┐         ┌────────────────────┐
     │      Users         │ :8082   │      Tasks         │ :8081
     │     Service        │◄───────►│     Service        │
@@ -426,9 +428,10 @@ Each service provides interactive Swagger UI:
 
 1. Client authenticates with credentials → `POST /api/auth/token`
 2. Receives access token (5 min) + refresh token (1 hour)
-3. Client includes `Authorization: Bearer <access_token>` in requests
-4. Services validate JWT signature and extract claims
-5. When access token expires, use refresh token → `POST /api/auth/refresh`
+3. Tokens stored in Redis with TTL for revocation checks
+4. Client includes `Authorization: Bearer <access_token>` in requests
+5. Services validate JWT signature and check Redis for revocation
+6. When access token expires, use refresh token → `POST /api/auth/refresh`
 
 ### Token Structure
 

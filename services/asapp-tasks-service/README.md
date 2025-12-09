@@ -101,6 +101,14 @@ The service implements **DDD patterns**:
 - References users via userId (no direct dependency on Users service)
 - Provides task queries for Users service integration
 
+### Security Model
+
+**JWT Validation**:
+- Validates tokens issued by Authentication service
+- Token validation includes signature verification and Redis-based revocation checks
+- Extracts claims (username, role) for authorization
+- Revoked tokens (removed from Redis) return 401 Unauthorized
+
 ## Quick Start
 
 ### Prerequisites

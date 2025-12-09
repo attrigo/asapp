@@ -26,6 +26,7 @@
 8. ✅ Create MapStruct mapper in `infrastructure/<domain>/mapper/`
 9. ✅ Write unit tests for domain logic
 10. ✅ Write integration tests for controller and repository
+11. ✅ Add Redis operations if use case involves token lifecycle (store, validate, revoke)
 
 ### Adding a Database Table Checklist
 
@@ -41,6 +42,7 @@
 ### Extracting Current User from JWT
 ```java
 // In controller or service
+// Note: Token has already passed Redis validation in JwtAuthenticationFilter
 JwtAuthenticationToken auth = (JwtAuthenticationToken) SecurityContextHolder
     .getContext().getAuthentication();
 

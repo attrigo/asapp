@@ -156,6 +156,10 @@ mvn liquibase:rollback -Dliquibase.rollbackCount=1  # Rollback
 - Prometheus: `http://localhost:9090`
 - Grafana: `http://localhost:3000` (admin/secret)
 
+**Redis**:
+- Redis CLI: `docker exec -it asapp-redis redis-cli` (password: secret)
+- Check tokens: `KEYS jwt:*`
+
 ### Technology Stack
 
 - Java 21, Spring Boot 3.4.3
