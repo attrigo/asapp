@@ -52,6 +52,7 @@ import com.bcn.asapp.authentication.domain.authentication.Jwt;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthenticationId;
 import com.bcn.asapp.authentication.domain.authentication.JwtClaims;
+import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 import com.bcn.asapp.authentication.domain.authentication.Subject;
 import com.bcn.asapp.authentication.domain.user.EncodedPassword;
 import com.bcn.asapp.authentication.domain.user.Role;
@@ -332,12 +333,13 @@ public class TestFactory {
                 var refreshTokenVO = Jwt.of(rtEncodedTokenVO, REFRESH_TOKEN, rtSubjectVO, rtClaimsVO, rtIssuedVO, rtExpirationVO);
 
                 var userIdVO = UserId.of(userId);
+                var jwtPair = JwtPair.of(accessTokenVO, refreshTokenVO);
 
                 if (authenticationId == null) {
-                    return JwtAuthentication.unAuthenticated(userIdVO, accessTokenVO, refreshTokenVO);
+                    return JwtAuthentication.unAuthenticated(userIdVO, jwtPair);
                 } else {
                     var authenticationIdVO = JwtAuthenticationId.of(authenticationId);
-                    return JwtAuthentication.authenticated(authenticationIdVO, userIdVO, accessTokenVO, refreshTokenVO);
+                    return JwtAuthentication.authenticated(authenticationIdVO, userIdVO, jwtPair);
                 }
             }
 

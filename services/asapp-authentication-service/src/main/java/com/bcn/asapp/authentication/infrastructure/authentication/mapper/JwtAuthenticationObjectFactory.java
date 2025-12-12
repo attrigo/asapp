@@ -20,6 +20,7 @@ import org.mapstruct.ObjectFactory;
 import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
+import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationEntity;
 import com.bcn.asapp.authentication.infrastructure.user.mapper.UserIdMapper;
 
@@ -85,12 +86,13 @@ public class JwtAuthenticationObjectFactory {
         var userId = userIdMapper.toUserId(source.userId());
         var accessToken = jwtMapper.toJwt(source.accessToken());
         var refreshToken = jwtMapper.toJwt(source.refreshToken());
+        var jwtPair = JwtPair.of(accessToken, refreshToken);
 
         if (source.id() == null) {
-            return JwtAuthentication.unAuthenticated(userId, accessToken, refreshToken);
+            return JwtAuthentication.unAuthenticated(userId, jwtPair);
         } else {
             var id = idMapper.toJwtAuthenticationId(source.id());
-            return JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
+            return JwtAuthentication.authenticated(id, userId, jwtPair);
         }
     }
 

@@ -182,8 +182,8 @@ class RevokeAuthenticationServiceTests {
             var accessToken = createJwt(JwtType.ACCESS_TOKEN, accessTokenValue);
             var refreshToken = createJwt(JwtType.REFRESH_TOKEN, "test.refresh.token");
             var authenticationId = JwtAuthenticationId.of(UUID.randomUUID());
-            var authentication = JwtAuthentication.authenticated(authenticationId, UserId.of(userId), accessToken, refreshToken);
-            var jwtPair = authentication.getJwtPair();
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var authentication = JwtAuthentication.authenticated(authenticationId, UserId.of(userId), jwtPair);
 
             given(tokenDecoder.decode(encodedAccessToken)).willReturn(decodedToken);
             given(jwtStore.accessTokenExists(encodedAccessToken)).willReturn(true);
@@ -219,8 +219,8 @@ class RevokeAuthenticationServiceTests {
             var accessToken = createJwt(JwtType.ACCESS_TOKEN, accessTokenValue);
             var refreshToken = createJwt(JwtType.REFRESH_TOKEN, "test.refresh.token");
             var authenticationId = JwtAuthenticationId.of(UUID.randomUUID());
-            var authentication = JwtAuthentication.authenticated(authenticationId, UserId.of(userId), accessToken, refreshToken);
-            var jwtPair = authentication.getJwtPair();
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var authentication = JwtAuthentication.authenticated(authenticationId, UserId.of(userId), jwtPair);
 
             given(tokenDecoder.decode(encodedAccessToken)).willReturn(decodedToken);
             given(jwtStore.accessTokenExists(encodedAccessToken)).willReturn(true);
@@ -256,8 +256,8 @@ class RevokeAuthenticationServiceTests {
             var accessToken = createJwt(JwtType.ACCESS_TOKEN, accessTokenValue);
             var refreshToken = createJwt(JwtType.REFRESH_TOKEN, "test.refresh.token");
             var authenticationId = JwtAuthenticationId.of(UUID.randomUUID());
-            var authentication = JwtAuthentication.authenticated(authenticationId, UserId.of(userId), accessToken, refreshToken);
-            var jwtPair = authentication.getJwtPair();
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var authentication = JwtAuthentication.authenticated(authenticationId, UserId.of(userId), jwtPair);
 
             given(tokenDecoder.decode(encodedAccessToken)).willReturn(decodedToken);
             given(jwtStore.accessTokenExists(encodedAccessToken)).willReturn(true);

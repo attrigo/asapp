@@ -227,8 +227,8 @@ class AuthenticateServiceTests {
             var userAuth = UserAuthentication.authenticated(UserId.of(userId), username, role);
             var accessToken = createJwt(JwtType.ACCESS_TOKEN);
             var refreshToken = createJwt(JwtType.REFRESH_TOKEN);
-            var savedAuthentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), accessToken, refreshToken);
-            var jwtPair = savedAuthentication.getJwtPair();
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var savedAuthentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), jwtPair);
 
             given(credentialsAuthenticator.authenticate(username, password)).willReturn(userAuth);
             given(tokenIssuer.issueAccessToken(userAuth)).willReturn(accessToken);
@@ -266,8 +266,8 @@ class AuthenticateServiceTests {
             var userAuth = UserAuthentication.authenticated(UserId.of(userId), username, role);
             var accessToken = createJwt(JwtType.ACCESS_TOKEN);
             var refreshToken = createJwt(JwtType.REFRESH_TOKEN);
-            var savedAuthentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), accessToken, refreshToken);
-            var jwtPair = savedAuthentication.getJwtPair();
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var savedAuthentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), jwtPair);
 
             given(credentialsAuthenticator.authenticate(username, password)).willReturn(userAuth);
             given(tokenIssuer.issueAccessToken(userAuth)).willReturn(accessToken);
