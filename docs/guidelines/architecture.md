@@ -299,6 +299,59 @@ Claims: { "sub": "user", "role": "USER", "token_use": "access", "iat": ..., "exp
 
 **Consistency Model**: Best-effort (Redis and PostgreSQL operations not atomic)
 
+### Hexagonal Architecture: Adapters & Ports
+
+**Core Principle**: Adapters translate, Services orchestrate
+
+**Adapters** (infrastructure):
+- Translate between external systems and domain
+- Simple delegation with translation (type/protocol/semantic)
+- No business decisions or workflow coordination
+- Examples: `SpringCredentialsAuthenticator`, `RedisJwtStore`, `JwtAuthenticationRepositoryAdapter`
+
+**Services** (application):
+- Coordinate multiple ports
+- Contain workflow logic and orchestration
+- Manage transactions (`@Transactional`)
+- Handle consistency concerns
+- Examples: `AuthenticateService`, `RefreshAuthenticationService`
+
+**Types of Adapter Translation**:
+
+| Type | Description | Example |
+|------|-------------|---------|
+| **Type** | Domain ↔ Infrastructure types | `JwtAuthenticationRepositoryAdapter`: `JwtAuthentication` ↔ `JwtAuthenticationEntity` |
+| **Protocol** | Domain operation → Infrastructure commands | `RedisJwtStore`: "save pair" → `SETEX key1` + `SETEX key2` |
+| **Semantic** | Domain concept → Infrastructure behavior | `SpringCredentialsAuthenticator`: "authenticate" → Spring Security flow |
+
+**When You Need Adapters**:
+- ✅ Third-party code you can't modify (Spring, JDBC, Redis)
+- ✅ Protocol translation required (domain → Redis commands, HTTP, SQL)
+- ✅ Type translation required (domain objects ↔ DB entities)
+
+**When You DON'T Need Adapters** (Proxy Anti-Pattern):
+- ❌ You own the adaptee class
+- ❌ Already works with domain objects
+- ❌ No translation needed (type/protocol/semantic)
+- **Solution**: Make adaptee implement port directly (e.g., `JwtIssuer implements TokenIssuer`)
+
+**Port Abstraction**:
+- Ports = Atomic technical capabilities (NOT workflows)
+- Good: `TokenIssuer`, `CredentialsAuthenticator`, `TokenDecoder`
+- Bad: `JwtAuthenticationGranter` (sounds like use case)
+
+**Cross-Cutting Components**:
+- Infrastructure components can implement ports from any package
+- Example: `JwtIssuer` (in `infrastructure/security/`) implements `TokenIssuer` (application port)
+- Reason: Security is cross-cutting (used by filters, multiple aggregates)
+- No requirement to colocate port implementations with aggregates
+
+**Application Layer**:
+- Framework-agnostic naming (no Spring, JWT, Redis references)
+- Rich orchestration logic (not thin delegation)
+- Transaction boundaries (`@Transactional`)
+- Logger traces for debugging (`logger.trace("Step X: ...")`)
+
 ### Observability
 
 **Access URLs**:
