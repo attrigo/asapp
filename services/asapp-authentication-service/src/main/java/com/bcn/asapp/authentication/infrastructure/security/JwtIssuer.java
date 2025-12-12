@@ -47,9 +47,9 @@ import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
 import com.bcn.asapp.authentication.domain.user.Role;
 
 /**
- * Infrastructure component for issuing signed JWT tokens.
+ * Infrastructure component for issuing signed JWTs.
  * <p>
- * Implements {@link TokenIssuer} port, providing the infrastructure capability to generate JWT tokens using the JJWT library.
+ * Implements {@link TokenIssuer} port, providing the infrastructure capability to generate JWTs using the JJWT library.
  * <p>
  * It can generate two types of tokens:
  * <ul>
@@ -98,7 +98,7 @@ public class JwtIssuer implements TokenIssuer {
     }
 
     /**
-     * Issues a JWT token pair (access and refresh tokens) for an authenticated user.
+     * Issues a JWT pair (access and refresh tokens) for an authenticated user.
      *
      * @param userAuthentication the {@link UserAuthentication} containing user data
      * @return the generated {@link JwtPair} containing both access and refresh tokens
@@ -115,7 +115,7 @@ public class JwtIssuer implements TokenIssuer {
     }
 
     /**
-     * Issues a JWT token pair (access and refresh tokens) for a subject and role.
+     * Issues a JWT pair (access and refresh tokens) for a subject and role.
      *
      * @param subject the {@link Subject} identifier
      * @param role    the {@link Role}
@@ -132,7 +132,7 @@ public class JwtIssuer implements TokenIssuer {
     }
 
     /**
-     * Issues a JWT token with the specified parameters.
+     * Issues a JWT with the specified parameters.
      *
      * @param type                 the {@link JwtType}
      * @param subject              the {@link Subject} identifier
@@ -153,14 +153,14 @@ public class JwtIssuer implements TokenIssuer {
     }
 
     /**
-     * Creates and signs a JWT token string.
+     * Creates and signs a JWT string.
      *
      * @param tokenType  the {@link JwtType}
      * @param subject    the {@link Subject} identifier
      * @param claims     the {@link JwtClaims}
      * @param issuedAt   the {@link Issued} timestamp
      * @param expiration the {@link Expiration} timestamp
-     * @return the signed JWT token string
+     * @return the signed JWT string
      */
     private String issueToken(JwtType tokenType, Subject subject, JwtClaims claims, Issued issuedAt, Expiration expiration) {
         logger.trace("Issuing {} token for subject {} with claims {}, issued at {} that will expire at {}", tokenType, subject, claims, issuedAt, expiration);

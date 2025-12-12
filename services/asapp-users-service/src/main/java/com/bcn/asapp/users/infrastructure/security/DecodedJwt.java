@@ -26,11 +26,11 @@ import java.util.Map;
 import org.springframework.util.Assert;
 
 /**
- * Represents a decoded JWT token with its type, subject, and claims.
+ * Represents a decoded JWT with its type, subject, and claims.
  * <p>
  * Encapsulates only the required JWT parts to perform the decoding and validation of an JWT.
  *
- * @param encodedToken the serialized JWT token
+ * @param encodedToken the serialized JWT
  * @param type         the token type
  * @param subject      the subject
  * @param claims       the JWT claims
@@ -49,7 +49,7 @@ public record DecodedJwt(
      * <p>
      * Validates that all required fields are present.
      *
-     * @param encodedToken the serialized JWT token
+     * @param encodedToken the serialized JWT
      * @param type         the token type
      * @param subject      the subject
      * @param claims       the JWT claims

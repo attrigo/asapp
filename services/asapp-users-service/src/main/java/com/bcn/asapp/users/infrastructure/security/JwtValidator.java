@@ -22,9 +22,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 /**
- * Component for validating JWT tokens.
+ * Component for validating JWTs.
  * <p>
- * Checks for JWT token existence in Redis to validate tokens have not been revoked.
+ * Checks for JWT existence in Redis to validate tokens have not been revoked.
  *
  * @since 0.2.0
  * @see RedisTemplate

@@ -20,7 +20,7 @@ import java.time.Instant;
 import java.util.Date;
 
 /**
- * Represents the expiration timestamp of a JWT token.
+ * Represents the expiration timestamp of a JWT.
  * <p>
  * This value object encapsulates the expiration timestamp as {@link Instant}.
  * <p>

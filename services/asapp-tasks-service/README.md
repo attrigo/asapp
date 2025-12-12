@@ -151,7 +151,7 @@ docker-compose down -v
 ### Example API Usage
 
 ```bash
-# 1. Get JWT token from Authentication service
+# 1. Get JWT from Authentication service
 TOKEN=$(curl -X POST http://localhost:8080/asapp-authentication-service/api/auth/token \
   -H "Content-Type: application/json" \
   -d '{"username":"user@asapp.com","password":"SecurePass123!"}' \

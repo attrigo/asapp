@@ -97,7 +97,7 @@ public interface AuthenticationRestAPI {
      */
     @PostMapping(value = AUTH_REFRESH_TOKEN_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Refreshes a JWT authentication using a refresh token", description = "Updates the existing session with new JWT tokens (both access and refresh), invalidating the old ones. Used to extend the session without requiring the user to re-authenticate.")
+    @Operation(summary = "Refreshes a JWT authentication using a refresh token", description = "Updates the existing session with new JWTs (both access and refresh), invalidating the old ones. Used to extend the session without requiring the user to re-authenticate.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Refresh authentication request containing the refresh token to be used for generating new tokens", required = true, content = @Content(schema = @Schema(implementation = RefreshAuthenticationRequest.class)))
     @ApiResponse(responseCode = "200", description = "The JWT authentication tokens have been refreshed successfully", content = {
             @Content(schema = @Schema(implementation = RefreshAuthenticationResponse.class)) })

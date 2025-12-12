@@ -17,7 +17,7 @@
 package com.bcn.asapp.tasks.infrastructure.security;
 
 /**
- * JWT Token type header values used in ASAPP authentication tokens.
+ * JWT type header values used in ASAPP authentication tokens.
  * <p>
  * Defines the token type values that appear in the JWT header "typ" field.
  * <p>

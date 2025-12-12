@@ -117,7 +117,7 @@ class JwtTests {
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessageContaining("Invalid JWT token use claim")
+                              .hasMessageContaining("Invalid JWT use claim")
                               .hasMessageContaining("access")
                               .hasMessageContaining("refresh")
                               .hasMessageContaining("invalid_token_claim");
@@ -260,7 +260,7 @@ class JwtTests {
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessageContaining("Invalid JWT token use claim")
+                              .hasMessageContaining("Invalid JWT use claim")
                               .hasMessageContaining("access")
                               .hasMessageContaining("refresh")
                               .hasMessageContaining("invalid_token_claim");

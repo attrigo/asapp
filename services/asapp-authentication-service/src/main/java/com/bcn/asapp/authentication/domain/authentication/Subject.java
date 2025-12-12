@@ -17,7 +17,7 @@
 package com.bcn.asapp.authentication.domain.authentication;
 
 /**
- * Represents the subject claim of a JWT token.
+ * Represents the subject claim of a JWT.
  * <p>
  * This value object encapsulates a subject value as {@link String}.
  * <p>

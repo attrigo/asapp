@@ -8,11 +8,11 @@
 
 ## Overview
 
-The Authentication Service is a core microservice in the ASAPP ecosystem, responsible for managing user credentials and JWT token lifecycle. It provides secure authentication, token refresh, and revocation capabilities for all ASAPP services.
+The Authentication Service is a core microservice in the ASAPP ecosystem, responsible for managing user credentials and JWT lifecycle. It provides secure authentication, token refresh, and revocation capabilities for all ASAPP services.
 
 **Key Responsibilities**:
 - 🔐 User credential management (username, password, role)
-- 🎫 JWT token generation (access + refresh tokens)
+- 🎫 JWT generation (access + refresh tokens)
 - 🔄 Token refresh and revocation
 - ⚡ Redis-based token storage and revocation checks
 - 👤 User CRUD operations (for authentication purposes)
@@ -22,7 +22,7 @@ The Authentication Service is a core microservice in the ASAPP ecosystem, respon
 
 ### Authentication Operations
 
-- **Authenticate** - Issue JWT tokens and store in Redis for validation
+- **Authenticate** - Issue JWT and store in Redis for validation
   - `POST /api/auth/token`
   - Returns access token (5 min expiry) + refresh token (1 hour expiry)
 
@@ -106,7 +106,7 @@ The service implements **DDD patterns**:
 
 ### Security Model
 
-**JWT Token Structure**:
+**JWT Structure**:
 ```json
 {
   "typ": "at+jwt",

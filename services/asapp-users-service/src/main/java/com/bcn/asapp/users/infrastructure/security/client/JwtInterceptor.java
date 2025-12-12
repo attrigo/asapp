@@ -49,7 +49,7 @@ public class JwtInterceptor implements ClientHttpRequestInterceptor {
      * <li>Retrieves the authentication from the {@link SecurityContextHolder}</li>
      * <li>Validates that authentication is present</li>
      * <li>Validates that authentication is a {@link JwtAuthenticationToken}</li>
-     * <li>Extracts and validates the JWT token</li>
+     * <li>Extracts and validates the JWT</li>
      * <li>Adds the token as a Bearer token in the Authorization header</li>
      * <li>Proceeds with the request execution</li>
      * </ol>
@@ -77,12 +77,12 @@ public class JwtInterceptor implements ClientHttpRequestInterceptor {
     }
 
     /**
-     * Extracts the JWT token from the current authentication context.
+     * Extracts the JWT from the current authentication context.
      * <p>
      * Retrieves the authentication from the {@link SecurityContextHolder}, validates it is a {@link JwtAuthenticationToken}, and extracts the encoded JWT
      * token.
      *
-     * @return the encoded JWT token
+     * @return the encoded JWT
      * @throws IllegalStateException if no authentication is found in the security context or if the authentication is not a {@link JwtAuthenticationToken}
      */
     private String extractTokenFromAuthentication() {

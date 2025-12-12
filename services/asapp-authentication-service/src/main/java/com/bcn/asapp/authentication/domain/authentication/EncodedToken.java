@@ -17,13 +17,13 @@
 package com.bcn.asapp.authentication.domain.authentication;
 
 /**
- * Represents an encoded JWT token string.
+ * Represents an encoded JWT string.
  * <p>
- * This value object encapsulates an encoded JWT token value as {@link String}.
+ * This value object encapsulates an encoded JWT value as {@link String}.
  * <p>
  * It enforces structural integrity by ensuring the token is not blank.
  *
- * @param token the encoded JWT token value
+ * @param token the encoded JWT value
  * @since 0.2.0
  * @author attrigo
  */
@@ -55,7 +55,7 @@ public record EncodedToken(
     /**
      * Returns the encoded token value.
      *
-     * @return the encoded JWT token {@link String}
+     * @return the encoded JWT {@link String}
      */
     public String value() {
         return this.token;

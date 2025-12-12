@@ -47,7 +47,7 @@ public class JwtAuthenticationObjectFactory {
      *
      * @param idMapper     the mapper for JWT authentication IDs
      * @param userIdMapper the mapper for user IDs
-     * @param jwtMapper    the mapper for JWT tokens
+     * @param jwtMapper    the mapper for JWTs
      */
     public JwtAuthenticationObjectFactory(JwtAuthenticationIdMapper idMapper, UserIdMapper userIdMapper, JwtMapper jwtMapper) {
         this.idMapper = idMapper;

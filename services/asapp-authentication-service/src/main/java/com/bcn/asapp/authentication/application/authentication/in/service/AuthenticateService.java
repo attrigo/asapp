@@ -70,7 +70,7 @@ public class AuthenticateService implements AuthenticateUseCase {
      * Constructs a new {@code AuthenticateService} with required dependencies.
      *
      * @param credentialsAuthenticator    the credentials authenticator for validating user credentials
-     * @param tokenIssuer                 the token issuer for generating JWT tokens
+     * @param tokenIssuer                 the token issuer for generating JWTs
      * @param jwtAuthenticationRepository the repository for persisting JWT authentications
      * @param jwtStore                    the store for fast token lookup and validation
      */
@@ -110,8 +110,8 @@ public class AuthenticateService implements AuthenticateUseCase {
         var userAuthentication = credentialsAuthenticator.authenticate(username, password);
 
         try {
-            logger.trace("Step 2: Generating JWT token pair for userId={}", userAuthentication.userId()
-                                                                                              .value());
+            logger.trace("Step 2: Generating JWT pair for userId={}", userAuthentication.userId()
+                                                                                        .value());
             var jwtPair = tokenIssuer.issueTokenPair(userAuthentication);
 
             logger.trace("Step 3: Creating JWT authentication domain aggregate for userId={}", userAuthentication.userId()

@@ -17,7 +17,7 @@
 package com.bcn.asapp.authentication.infrastructure.security;
 
 /**
- * Exception thrown when a JWT token is invalid.
+ * Exception thrown when a JWT is invalid.
  * <p>
  * Indicates issues such as malformed tokens, invalid signatures, or expired tokens.
  *

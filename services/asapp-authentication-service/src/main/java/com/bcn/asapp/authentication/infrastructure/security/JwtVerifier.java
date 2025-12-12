@@ -24,9 +24,9 @@ import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 
 /**
- * Component for verifying JWT tokens.
+ * Component for verifying JWTs.
  * <p>
- * Verifies JWT tokens by validating their signature, expiration, and revocation status.
+ * Verifies JWTs by validating their signature, expiration, and revocation status.
  * <p>
  * Performs two-step validation: cryptographic verification via {@link JwtDecoder} and revocation check via {@link JwtStore}.
  * <p>
