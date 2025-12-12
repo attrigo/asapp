@@ -34,6 +34,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+import com.bcn.asapp.authentication.application.authentication.out.TokenIssuer;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.Expiration;
 import com.bcn.asapp.authentication.domain.authentication.Issued;
@@ -45,7 +46,9 @@ import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
 import com.bcn.asapp.authentication.domain.user.Role;
 
 /**
- * Component for issuing signed JWT tokens.
+ * Infrastructure component for issuing signed JWT tokens.
+ * <p>
+ * Implements {@link TokenIssuer} port, providing the infrastructure capability to generate JWT tokens using the JJWT library.
  * <p>
  * It can generate two types of tokens:
  * <ul>
@@ -67,7 +70,7 @@ import com.bcn.asapp.authentication.domain.user.Role;
  * @author attrigo
  */
 @Component
-public class JwtIssuer {
+public class JwtIssuer implements TokenIssuer {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtIssuer.class);
 

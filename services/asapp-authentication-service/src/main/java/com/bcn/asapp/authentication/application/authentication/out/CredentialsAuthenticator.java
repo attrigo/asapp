@@ -16,10 +16,14 @@
 
 package com.bcn.asapp.authentication.application.authentication.out;
 
+import org.springframework.security.authentication.BadCredentialsException;
+
 import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
+import com.bcn.asapp.authentication.domain.user.RawPassword;
+import com.bcn.asapp.authentication.domain.user.Username;
 
 /**
- * Port for authenticating users based on credentials.
+ * Port for authenticating user credentials.
  * <p>
  * Defines the contract for validating user credentials and producing authenticated user.
  *
@@ -27,16 +31,18 @@ import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
  * @author attrigo
  */
 @FunctionalInterface
-public interface Authenticator {
+public interface CredentialsAuthenticator {
 
     /**
-     * Authenticates a user based on the provided authentication request.
+     * Authenticates a user based on provided credentials.
      * <p>
-     * Validates the user's credentials and returns an authenticated user with identity and role information.
+     * Validates the user's credentials and returns an authenticated user.
      *
-     * @param authenticationRequest the {@link UserAuthentication} containing unauthenticated credentials
+     * @param username the {@link Username} to authenticate
+     * @param password the {@link RawPassword} to validate
      * @return the {@link UserAuthentication} containing authenticated user data with ID and role
+     * @throws BadCredentialsException if authentication fails
      */
-    UserAuthentication authenticate(UserAuthentication authenticationRequest);
+    UserAuthentication authenticate(Username username, RawPassword password);
 
 }

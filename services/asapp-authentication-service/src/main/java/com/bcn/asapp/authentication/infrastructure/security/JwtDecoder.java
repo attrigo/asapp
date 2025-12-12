@@ -29,12 +29,18 @@ import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+import com.bcn.asapp.authentication.application.authentication.out.TokenDecoder;
+import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
+
 /**
- * Component for decoding and validating JWT tokens.
+ * Infrastructure component for decoding and validating JWT tokens.
+ * <p>
+ * Implements {@link TokenDecoder} port, providing the infrastructure capability to parse and validate JWT tokens using the JJWT library.
  * <p>
  * Parses JWT tokens, verifies their signatures using HMAC-SHA, and constructs {@link DecodedJwt} objects.
  *
@@ -43,7 +49,7 @@ import io.jsonwebtoken.security.Keys;
  * @author attrigo
  */
 @Component
-public class JwtDecoder {
+public class JwtDecoder implements TokenDecoder {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtDecoder.class);
 
@@ -59,13 +65,27 @@ public class JwtDecoder {
     }
 
     /**
-     * Decodes and validates an encoded JWT token.
+     * Decodes and validates an encoded token.
      * <p>
      * Parses the token, verifies its signature, and constructs a {@link DecodedJwt}.
      *
-     * @param token the encoded token to decode
+     * @param encodedToken the {@link EncodedToken} to decode
      * @return the decoded and validated {@link DecodedJwt}
-     * @throws io.jsonwebtoken.JwtException if the token is invalid, malformed, or expired
+     * @throws JwtException if the token is invalid, malformed, or expired
+     */
+    @Override
+    public DecodedJwt decode(EncodedToken encodedToken) {
+        return decode(encodedToken.value());
+    }
+
+    /**
+     * Decodes and validates an encoded JWT token string.
+     * <p>
+     * Parses the token, verifies its signature, and constructs a {@link DecodedJwt}.
+     *
+     * @param token the encoded token string to decode
+     * @return the decoded and validated {@link DecodedJwt}
+     * @throws JwtException if the token is invalid, malformed, or expired
      */
     public DecodedJwt decode(String token) {
         logger.trace("Decoding token {}", token);
@@ -80,7 +100,7 @@ public class JwtDecoder {
      *
      * @param token the token to parse
      * @return the parsed {@link Jws} containing claims
-     * @throws io.jsonwebtoken.JwtException if parsing or verification fails
+     * @throws JwtException if parsing or verification fails
      */
     private Jws<Claims> parseToken(String token) {
         logger.trace("Parsing token {}", token);
