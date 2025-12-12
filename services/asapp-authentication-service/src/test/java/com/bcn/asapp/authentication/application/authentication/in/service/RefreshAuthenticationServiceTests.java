@@ -1,0 +1,470 @@
+/**
+* Copyright 2023 the original author or authors.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+package com.bcn.asapp.authentication.application.authentication.in.service;
+
+import static com.bcn.asapp.authentication.domain.user.Role.USER;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.willThrow;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+
+import java.time.Instant;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
+import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
+import com.bcn.asapp.authentication.application.authentication.out.TokenDecoder;
+import com.bcn.asapp.authentication.application.authentication.out.TokenIssuer;
+import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
+import com.bcn.asapp.authentication.domain.authentication.Expiration;
+import com.bcn.asapp.authentication.domain.authentication.Issued;
+import com.bcn.asapp.authentication.domain.authentication.Jwt;
+import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
+import com.bcn.asapp.authentication.domain.authentication.JwtAuthenticationId;
+import com.bcn.asapp.authentication.domain.authentication.JwtClaims;
+import com.bcn.asapp.authentication.domain.authentication.JwtPair;
+import com.bcn.asapp.authentication.domain.authentication.JwtType;
+import com.bcn.asapp.authentication.domain.authentication.Subject;
+import com.bcn.asapp.authentication.domain.user.Role;
+import com.bcn.asapp.authentication.domain.user.UserId;
+import com.bcn.asapp.authentication.infrastructure.security.DecodedJwt;
+import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtAuthenticationException;
+import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
+import com.bcn.asapp.authentication.infrastructure.security.JwtAuthenticationNotFoundException;
+import com.bcn.asapp.authentication.infrastructure.security.UnexpectedJwtTypeException;
+
+@ExtendWith(MockitoExtension.class)
+class RefreshAuthenticationServiceTests {
+
+    @Mock
+    private TokenDecoder tokenDecoder;
+
+    @Mock
+    private TokenIssuer tokenIssuer;
+
+    @Mock
+    private JwtAuthenticationRepository jwtAuthenticationRepository;
+
+    @Mock
+    private JwtStore jwtStore;
+
+    @InjectMocks
+    private RefreshAuthenticationService refreshAuthenticationService;
+
+    private final String refreshTokenValue = "test.refresh.token";
+
+    private final String usernameValue = "user@asapp.com";
+
+    private final UUID userId = UUID.fromString("61c5064b-1906-4d11-a8ab-5bfd309e2631");
+
+    private final Role role = USER;
+
+    @Nested
+    class RefreshAuthentication {
+
+        @Test
+        void ThrowsInvalidJwtException_TokenDecodeFails() {
+            // Given
+            var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
+            given(tokenDecoder.decode(encodedRefreshToken)).willThrow(new InvalidJwtException("Invalid token"));
+
+            // When
+            var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
+
+            // Then
+            assertThat(thrown).isInstanceOf(InvalidJwtException.class)
+                              .hasMessageContaining("Invalid token");
+
+            then(tokenDecoder).should(times(1))
+                              .decode(encodedRefreshToken);
+            then(jwtStore).should(never())
+                          .refreshTokenExists(any(EncodedToken.class));
+        }
+
+        @Test
+        void ThrowsUnexpectedJwtTypeException_TokenIsNotRefreshType() {
+            // Given
+            var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
+            var decodedToken = new DecodedJwt(refreshTokenValue, "at+jwt", usernameValue, Map.of("token_use", "access", "role", role.name()));
+            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
+
+            // When
+            var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
+
+            // Then
+            assertThat(thrown).isInstanceOf(UnexpectedJwtTypeException.class)
+                              .hasMessageContaining("is not a refresh token");
+
+            then(tokenDecoder).should(times(1))
+                              .decode(encodedRefreshToken);
+            then(jwtStore).should(never())
+                          .refreshTokenExists(any(EncodedToken.class));
+        }
+
+        @Test
+        void ThrowsJwtAuthenticationNotFoundException_TokenNotFoundInRedis() {
+            // Given
+            var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
+            var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
+            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
+            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(false);
+
+            // When
+            var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
+
+            // Then
+            assertThat(thrown).isInstanceOf(JwtAuthenticationNotFoundException.class)
+                              .hasMessageContaining("Refresh token not found in active sessions");
+
+            then(tokenDecoder).should(times(1))
+                              .decode(encodedRefreshToken);
+            then(jwtStore).should(times(1))
+                          .refreshTokenExists(encodedRefreshToken);
+            then(jwtAuthenticationRepository).should(never())
+                                             .findByRefreshToken(any(EncodedToken.class));
+        }
+
+        @Test
+        void ThrowsJwtAuthenticationNotFoundException_TokenNotFoundInDatabase() {
+            // Given
+            var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
+            var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
+            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
+            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.empty());
+
+            // When
+            var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
+
+            // Then
+            assertThat(thrown).isInstanceOf(JwtAuthenticationNotFoundException.class)
+                              .hasMessageContaining("JWT authentication not found by refresh token");
+
+            then(tokenDecoder).should(times(1))
+                              .decode(encodedRefreshToken);
+            then(jwtStore).should(times(1))
+                          .refreshTokenExists(encodedRefreshToken);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .findByRefreshToken(encodedRefreshToken);
+            then(tokenIssuer).should(never())
+                             .issueAccessToken(any(Subject.class), any(Role.class));
+        }
+
+        @Test
+        void ThrowsInvalidJwtAuthenticationException_AccessTokenIssuanceFails() {
+            // Given
+            var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
+            var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
+            var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
+            var oldRefreshToken = createJwt(JwtType.REFRESH_TOKEN, refreshTokenValue);
+            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldAccessToken, oldRefreshToken);
+            var subject = Subject.of(usernameValue);
+
+            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
+            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
+            willThrow(new RuntimeException("Token issuance failed")).given(tokenIssuer)
+                                                                    .issueAccessToken(subject, role);
+
+            // When
+            var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
+
+            // Then
+            assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
+                              .hasMessageContaining("Authentication could not be refreshed due to")
+                              .hasCauseInstanceOf(RuntimeException.class);
+
+            then(tokenDecoder).should(times(1))
+                              .decode(encodedRefreshToken);
+            then(jwtStore).should(times(1))
+                          .refreshTokenExists(encodedRefreshToken);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .findByRefreshToken(encodedRefreshToken);
+            then(tokenIssuer).should(times(1))
+                             .issueAccessToken(subject, role);
+            then(tokenIssuer).should(never())
+                             .issueRefreshToken(any(Subject.class), any(Role.class));
+            then(jwtAuthenticationRepository).should(never())
+                                             .save(any(JwtAuthentication.class));
+            then(jwtStore).should(never())
+                          .delete(any(JwtPair.class));
+            then(jwtStore).should(never())
+                          .save(any(JwtPair.class));
+        }
+
+        @Test
+        void ThrowsInvalidJwtAuthenticationException_RefreshTokenIssuanceFails() {
+            // Given
+            var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
+            var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
+            var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
+            var oldRefreshToken = createJwt(JwtType.REFRESH_TOKEN, refreshTokenValue);
+            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldAccessToken, oldRefreshToken);
+            var subject = Subject.of(usernameValue);
+            var newAccessToken = createJwt(JwtType.ACCESS_TOKEN, "new.access.token");
+
+            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
+            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
+            given(tokenIssuer.issueAccessToken(subject, role)).willReturn(newAccessToken);
+            willThrow(new RuntimeException("Token issuance failed")).given(tokenIssuer)
+                                                                    .issueRefreshToken(subject, role);
+
+            // When
+            var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
+
+            // Then
+            assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
+                              .hasMessageContaining("Authentication could not be refreshed due to")
+                              .hasCauseInstanceOf(RuntimeException.class);
+
+            then(tokenDecoder).should(times(1))
+                              .decode(encodedRefreshToken);
+            then(jwtStore).should(times(1))
+                          .refreshTokenExists(encodedRefreshToken);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .findByRefreshToken(encodedRefreshToken);
+            then(tokenIssuer).should(times(1))
+                             .issueAccessToken(subject, role);
+            then(tokenIssuer).should(times(1))
+                             .issueRefreshToken(subject, role);
+            then(jwtAuthenticationRepository).should(never())
+                                             .save(any(JwtAuthentication.class));
+            then(jwtStore).should(never())
+                          .delete(any(JwtPair.class));
+            then(jwtStore).should(never())
+                          .save(any(JwtPair.class));
+        }
+
+        @Test
+        void ThrowsInvalidJwtAuthenticationException_RepositorySaveFails() {
+            // Given
+            var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
+            var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
+            var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
+            var oldRefreshToken = createJwt(JwtType.REFRESH_TOKEN, refreshTokenValue);
+            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldAccessToken, oldRefreshToken);
+            var subject = Subject.of(usernameValue);
+            var newAccessToken = createJwt(JwtType.ACCESS_TOKEN, "new.access.token");
+            var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
+
+            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
+            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
+            given(tokenIssuer.issueAccessToken(subject, role)).willReturn(newAccessToken);
+            given(tokenIssuer.issueRefreshToken(subject, role)).willReturn(newRefreshToken);
+            willThrow(new RuntimeException("Repository save failed")).given(jwtAuthenticationRepository)
+                                                                     .save(authentication);
+
+            // When
+            var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
+
+            // Then
+            assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
+                              .hasMessageContaining("Authentication could not be refreshed due to")
+                              .hasCauseInstanceOf(RuntimeException.class);
+
+            then(tokenDecoder).should(times(1))
+                              .decode(encodedRefreshToken);
+            then(jwtStore).should(times(1))
+                          .refreshTokenExists(encodedRefreshToken);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .findByRefreshToken(encodedRefreshToken);
+            then(tokenIssuer).should(times(1))
+                             .issueAccessToken(subject, role);
+            then(tokenIssuer).should(times(1))
+                             .issueRefreshToken(subject, role);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .save(authentication);
+            then(jwtStore).should(never())
+                          .delete(any(JwtPair.class));
+            then(jwtStore).should(never())
+                          .save(any(JwtPair.class));
+        }
+
+        @Test
+        void ThrowsInvalidJwtAuthenticationException_StoreDeleteFails() {
+            // Given
+            var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
+            var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
+            var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
+            var oldRefreshToken = createJwt(JwtType.REFRESH_TOKEN, refreshTokenValue);
+            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldAccessToken, oldRefreshToken);
+            var oldJwtPair = authentication.getJwtPair();
+            var subject = Subject.of(usernameValue);
+            var newAccessToken = createJwt(JwtType.ACCESS_TOKEN, "new.access.token");
+            var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
+
+            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
+            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
+            given(tokenIssuer.issueAccessToken(subject, role)).willReturn(newAccessToken);
+            given(tokenIssuer.issueRefreshToken(subject, role)).willReturn(newRefreshToken);
+            given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
+            willThrow(new RuntimeException("Redis connection failed")).given(jwtStore)
+                                                                      .delete(oldJwtPair);
+
+            // When
+            var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
+
+            // Then
+            assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
+                              .hasMessageContaining("Authentication could not be refreshed due to")
+                              .hasCauseInstanceOf(RuntimeException.class);
+
+            then(tokenDecoder).should(times(1))
+                              .decode(encodedRefreshToken);
+            then(jwtStore).should(times(1))
+                          .refreshTokenExists(encodedRefreshToken);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .findByRefreshToken(encodedRefreshToken);
+            then(tokenIssuer).should(times(1))
+                             .issueAccessToken(subject, role);
+            then(tokenIssuer).should(times(1))
+                             .issueRefreshToken(subject, role);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .save(authentication);
+            then(jwtStore).should(times(1))
+                          .delete(oldJwtPair);
+            then(jwtStore).should(never())
+                          .save(any(JwtPair.class));
+        }
+
+        @Test
+        void ThrowsInvalidJwtAuthenticationException_StoreSaveFails() {
+            // Given
+            var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
+            var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
+            var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
+            var oldRefreshToken = createJwt(JwtType.REFRESH_TOKEN, refreshTokenValue);
+            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldAccessToken, oldRefreshToken);
+            var oldJwtPair = authentication.getJwtPair();
+            var subject = Subject.of(usernameValue);
+            var newAccessToken = createJwt(JwtType.ACCESS_TOKEN, "new.access.token");
+            var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
+
+            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
+            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
+            given(tokenIssuer.issueAccessToken(subject, role)).willReturn(newAccessToken);
+            given(tokenIssuer.issueRefreshToken(subject, role)).willReturn(newRefreshToken);
+            given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
+            willThrow(new RuntimeException("Redis connection failed")).given(jwtStore)
+                                                                      .save(any(JwtPair.class));
+
+            // When
+            var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
+
+            // Then
+            assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
+                              .hasMessageContaining("Authentication could not be refreshed due to")
+                              .hasCauseInstanceOf(RuntimeException.class);
+
+            then(tokenDecoder).should(times(1))
+                              .decode(encodedRefreshToken);
+            then(jwtStore).should(times(1))
+                          .refreshTokenExists(encodedRefreshToken);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .findByRefreshToken(encodedRefreshToken);
+            then(tokenIssuer).should(times(1))
+                             .issueAccessToken(subject, role);
+            then(tokenIssuer).should(times(1))
+                             .issueRefreshToken(subject, role);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .save(authentication);
+            then(jwtStore).should(times(1))
+                          .delete(oldJwtPair);
+            then(jwtStore).should(times(1))
+                          .save(any(JwtPair.class));
+        }
+
+        @Test
+        void ReturnsRefreshedAuthentication_ValidRefreshToken() {
+            // Given
+            var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
+            var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
+            var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
+            var oldRefreshToken = createJwt(JwtType.REFRESH_TOKEN, refreshTokenValue);
+            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldAccessToken, oldRefreshToken);
+            var oldJwtPair = authentication.getJwtPair();
+            var subject = Subject.of(usernameValue);
+            var newAccessToken = createJwt(JwtType.ACCESS_TOKEN, "new.access.token");
+            var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
+
+            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
+            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
+            given(tokenIssuer.issueAccessToken(subject, role)).willReturn(newAccessToken);
+            given(tokenIssuer.issueRefreshToken(subject, role)).willReturn(newRefreshToken);
+            given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
+
+            // When
+            var result = refreshAuthenticationService.refreshAuthentication(refreshTokenValue);
+
+            // Then
+            assertThat(result).isNotNull();
+            assertThat(result.getId()).isEqualTo(authentication.getId());
+            assertThat(result.getUserId()).isEqualTo(authentication.getUserId());
+            assertThat(result.getJwtPair()
+                             .accessToken()).isEqualTo(newAccessToken);
+            assertThat(result.getJwtPair()
+                             .refreshToken()).isEqualTo(newRefreshToken);
+
+            then(tokenDecoder).should(times(1))
+                              .decode(encodedRefreshToken);
+            then(jwtStore).should(times(1))
+                          .refreshTokenExists(encodedRefreshToken);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .findByRefreshToken(encodedRefreshToken);
+            then(tokenIssuer).should(times(1))
+                             .issueAccessToken(subject, role);
+            then(tokenIssuer).should(times(1))
+                             .issueRefreshToken(subject, role);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .save(authentication);
+            then(jwtStore).should(times(1))
+                          .delete(oldJwtPair);
+            then(jwtStore).should(times(1))
+                          .save(any(JwtPair.class));
+        }
+
+    }
+
+    private Jwt createJwt(JwtType type, String tokenValue) {
+        var encodedToken = EncodedToken.of(tokenValue);
+        var subject = Subject.of(usernameValue);
+        var claims = JwtClaims.of("role", role.name(), "token_use", type == JwtType.ACCESS_TOKEN ? "access" : "refresh");
+        var issued = Issued.of(Instant.now());
+        var expiration = Expiration.of(issued, 300000L);
+
+        return Jwt.of(encodedToken, type, subject, claims, issued, expiration);
+    }
+
+}

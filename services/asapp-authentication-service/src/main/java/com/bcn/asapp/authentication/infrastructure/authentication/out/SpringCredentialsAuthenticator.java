@@ -25,8 +25,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
-import com.bcn.asapp.authentication.application.authentication.out.Authenticator;
+import com.bcn.asapp.authentication.application.authentication.out.CredentialsAuthenticator;
 import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
+import com.bcn.asapp.authentication.domain.user.RawPassword;
 import com.bcn.asapp.authentication.domain.user.Role;
 import com.bcn.asapp.authentication.domain.user.UserId;
 import com.bcn.asapp.authentication.domain.user.Username;
@@ -35,48 +36,48 @@ import com.bcn.asapp.authentication.infrastructure.security.InvalidPrincipalExce
 import com.bcn.asapp.authentication.infrastructure.security.RoleNotFoundException;
 
 /**
- * Default implementation of {@link Authenticator} for authenticating users.
+ * Adapter implementation of {@link CredentialsAuthenticator} using Spring Security.
  * <p>
- * Bridges the application layer with Spring Security's {@link AuthenticationManager}, validating user credentials and extracting authenticated user
- * information.
+ * Bridges the application layer with Spring Security's authentication mechanism, validating user credentials and extracting authenticated user information.
+ * <p>
+ * This adapter translates between the domain model ({@link UserAuthentication}) and Spring Security's authentication framework ({@link AuthenticationManager}).
  *
  * @since 0.2.0
  * @see AuthenticationManager
  * @author attrigo
  */
 @Component
-public class DefaultAuthenticator implements Authenticator {
+public class SpringCredentialsAuthenticator implements CredentialsAuthenticator {
 
-    private static final Logger logger = LoggerFactory.getLogger(DefaultAuthenticator.class);
+    private static final Logger logger = LoggerFactory.getLogger(SpringCredentialsAuthenticator.class);
 
     private final AuthenticationManager authenticationManager;
 
     /**
-     * Constructs a new {@code DefaultAuthenticator} with required dependencies.
+     * Constructs a new {@code SpringCredentialsAuthenticator} with required dependencies.
      *
      * @param authenticationManager the Spring Security authentication manager
      */
-    public DefaultAuthenticator(org.springframework.security.authentication.AuthenticationManager authenticationManager) {
+    public SpringCredentialsAuthenticator(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
 
     /**
-     * Authenticates a user based on the provided authentication request.
+     * Authenticates a user based on provided credentials.
      * <p>
      * Validates the user's credentials using Spring Security, then extracts and returns an authenticated user with identity and role information.
      *
-     * @param authenticationRequest the {@link UserAuthentication} containing unauthenticated credentials
+     * @param username the {@link Username} to authenticate
+     * @param password the {@link RawPassword} to validate
      * @return the {@link UserAuthentication} containing authenticated user data with ID and role
      * @throws BadCredentialsException if authentication fails
      */
     @Override
-    public UserAuthentication authenticate(UserAuthentication authenticationRequest) {
-        logger.trace("Authenticating user {}", authenticationRequest.username());
+    public UserAuthentication authenticate(Username username, RawPassword password) {
+        logger.trace("Authenticating user {}", username);
 
         try {
-            var usernameRequest = authenticationRequest.username();
-            var passwordRequest = authenticationRequest.password();
-            var authenticationTokenRequest = UsernamePasswordAuthenticationToken.unauthenticated(usernameRequest.username(), passwordRequest.password());
+            var authenticationTokenRequest = UsernamePasswordAuthenticationToken.unauthenticated(username.value(), password.value());
 
             var authenticationToken = authenticationManager.authenticate(authenticationTokenRequest);
 

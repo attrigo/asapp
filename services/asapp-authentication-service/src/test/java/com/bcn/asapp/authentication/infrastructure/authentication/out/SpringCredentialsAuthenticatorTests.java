@@ -38,7 +38,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 
-import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
 import com.bcn.asapp.authentication.domain.user.RawPassword;
 import com.bcn.asapp.authentication.domain.user.Role;
 import com.bcn.asapp.authentication.domain.user.UserId;
@@ -48,13 +47,13 @@ import com.bcn.asapp.authentication.infrastructure.security.InvalidPrincipalExce
 import com.bcn.asapp.authentication.infrastructure.security.RoleNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
-class DefaultAuthenticatorTests {
+class SpringCredentialsAuthenticatorTests {
 
     @Mock
     private AuthenticationManager authenticationManager;
 
     @InjectMocks
-    private DefaultAuthenticator defaultAuthenticator;
+    private SpringCredentialsAuthenticator springCredentialsAuthenticator;
 
     private final UUID userId = UUID.fromString("61c5064b-1906-4d11-a8ab-5bfd309e2631");
 
@@ -68,34 +67,31 @@ class DefaultAuthenticatorTests {
     class Authenticate {
 
         @Test
-        void ThenThrowsBadCredentialsException_GivenAuthenticationFails() {
+        void ThrowsBadCredentialsException_AuthenticationFails() {
             // Given
             willThrow(new BadCredentialsException("Invalid credentials")).given(authenticationManager)
                                                                          .authenticate(any(UsernamePasswordAuthenticationToken.class));
 
-            var authenticationRequest = UserAuthentication.unAuthenticated(username, password);
-
             // When
-            var thrown = catchThrowable(() -> defaultAuthenticator.authenticate(authenticationRequest));
+            var thrown = catchThrowable(() -> springCredentialsAuthenticator.authenticate(username, password));
 
             // Then
             assertThat(thrown).isInstanceOf(BadCredentialsException.class)
-                              .hasMessageContaining("Authentication failed due to");
+                              .hasMessageContaining("Authentication failed due to")
+                              .hasCauseInstanceOf(BadCredentialsException.class);
 
             then(authenticationManager).should(times(1))
                                        .authenticate(any(UsernamePasswordAuthenticationToken.class));
         }
 
         @Test
-        void ThenThrowsBadCredentialsException_GivenPrincipalIsNotCustomUserDetails() {
+        void ThrowsBadCredentialsException_PrincipalIsNotCustomUserDetails() {
             // Given
             var authenticationToken = new UsernamePasswordAuthenticationToken("invalid_principal", null, AuthorityUtils.createAuthorityList(role.name()));
             given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(authenticationToken);
 
-            var authenticationRequest = UserAuthentication.unAuthenticated(username, password);
-
             // When
-            var thrown = catchThrowable(() -> defaultAuthenticator.authenticate(authenticationRequest));
+            var thrown = catchThrowable(() -> springCredentialsAuthenticator.authenticate(username, password));
 
             // Then
             assertThat(thrown).isInstanceOf(BadCredentialsException.class)
@@ -107,16 +103,14 @@ class DefaultAuthenticatorTests {
         }
 
         @Test
-        void ThenThrowsBadCredentialsException_GivenAuthoritiesAreEmpty() {
+        void ThrowsBadCredentialsException_AuthoritiesAreEmpty() {
             // Given
             var userDetails = new CustomUserDetails(userId, username.value(), password.value(), AuthorityUtils.NO_AUTHORITIES);
             var authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, AuthorityUtils.NO_AUTHORITIES);
             given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(authenticationToken);
 
-            var authenticationRequest = UserAuthentication.unAuthenticated(username, password);
-
             // When
-            var thrown = catchThrowable(() -> defaultAuthenticator.authenticate(authenticationRequest));
+            var thrown = catchThrowable(() -> springCredentialsAuthenticator.authenticate(username, password));
 
             // Then
             assertThat(thrown).isInstanceOf(BadCredentialsException.class)
@@ -128,16 +122,14 @@ class DefaultAuthenticatorTests {
         }
 
         @Test
-        void ThenAuthenticatesUser_GivenAuthenticationRequestIsValid() {
+        void ReturnsAuthenticatedUser_ValidCredentials() {
             // Given
             var userDetails = new CustomUserDetails(userId, username.value(), password.value(), AuthorityUtils.createAuthorityList(role.name()));
             var authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, AuthorityUtils.createAuthorityList(role.name()));
             given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(authenticationToken);
 
-            var authenticationRequest = UserAuthentication.unAuthenticated(username, password);
-
             // When
-            var actual = defaultAuthenticator.authenticate(authenticationRequest);
+            var actual = springCredentialsAuthenticator.authenticate(username, password);
 
             // Then
             assertThat(actual).isNotNull();
