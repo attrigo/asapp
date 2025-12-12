@@ -184,7 +184,8 @@ class RefreshAuthenticationServiceTests {
             var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
             var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
             var oldRefreshToken = createJwt(JwtType.REFRESH_TOKEN, refreshTokenValue);
-            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldAccessToken, oldRefreshToken);
+            var oldJwtPair = JwtPair.of(oldAccessToken, oldRefreshToken);
+            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldJwtPair);
             var subject = Subject.of(usernameValue);
 
             given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
@@ -226,7 +227,8 @@ class RefreshAuthenticationServiceTests {
             var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
             var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
             var oldRefreshToken = createJwt(JwtType.REFRESH_TOKEN, refreshTokenValue);
-            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldAccessToken, oldRefreshToken);
+            var oldJwtPair = JwtPair.of(oldAccessToken, oldRefreshToken);
+            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldJwtPair);
             var subject = Subject.of(usernameValue);
             var newAccessToken = createJwt(JwtType.ACCESS_TOKEN, "new.access.token");
 
@@ -270,7 +272,8 @@ class RefreshAuthenticationServiceTests {
             var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
             var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
             var oldRefreshToken = createJwt(JwtType.REFRESH_TOKEN, refreshTokenValue);
-            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldAccessToken, oldRefreshToken);
+            var oldJwtPair = JwtPair.of(oldAccessToken, oldRefreshToken);
+            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldJwtPair);
             var subject = Subject.of(usernameValue);
             var newAccessToken = createJwt(JwtType.ACCESS_TOKEN, "new.access.token");
             var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
@@ -316,8 +319,8 @@ class RefreshAuthenticationServiceTests {
             var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
             var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
             var oldRefreshToken = createJwt(JwtType.REFRESH_TOKEN, refreshTokenValue);
-            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldAccessToken, oldRefreshToken);
-            var oldJwtPair = authentication.getJwtPair();
+            var oldJwtPair = JwtPair.of(oldAccessToken, oldRefreshToken);
+            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldJwtPair);
             var subject = Subject.of(usernameValue);
             var newAccessToken = createJwt(JwtType.ACCESS_TOKEN, "new.access.token");
             var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
@@ -364,8 +367,8 @@ class RefreshAuthenticationServiceTests {
             var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
             var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
             var oldRefreshToken = createJwt(JwtType.REFRESH_TOKEN, refreshTokenValue);
-            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldAccessToken, oldRefreshToken);
-            var oldJwtPair = authentication.getJwtPair();
+            var oldJwtPair = JwtPair.of(oldAccessToken, oldRefreshToken);
+            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldJwtPair);
             var subject = Subject.of(usernameValue);
             var newAccessToken = createJwt(JwtType.ACCESS_TOKEN, "new.access.token");
             var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
@@ -412,8 +415,8 @@ class RefreshAuthenticationServiceTests {
             var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
             var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
             var oldRefreshToken = createJwt(JwtType.REFRESH_TOKEN, refreshTokenValue);
-            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldAccessToken, oldRefreshToken);
-            var oldJwtPair = authentication.getJwtPair();
+            var oldJwtPair = JwtPair.of(oldAccessToken, oldRefreshToken);
+            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldJwtPair);
             var subject = Subject.of(usernameValue);
             var newAccessToken = createJwt(JwtType.ACCESS_TOKEN, "new.access.token");
             var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");

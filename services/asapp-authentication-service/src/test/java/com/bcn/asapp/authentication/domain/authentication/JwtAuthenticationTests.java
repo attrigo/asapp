@@ -67,8 +67,11 @@ class JwtAuthenticationTests {
 
         @Test
         void ThenThrowsIllegalArgumentException_GivenUserIdIsNull() {
+            // Given
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+
             // When
-            var thrown = catchThrowable(() -> JwtAuthentication.unAuthenticated(null, accessToken, refreshToken));
+            var thrown = catchThrowable(() -> JwtAuthentication.unAuthenticated(null, jwtPair));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -76,29 +79,22 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenAccessTokenIsNull() {
+        void ThenThrowsIllegalArgumentException_GivenJwtPairIsNull() {
             // When
-            var thrown = catchThrowable(() -> JwtAuthentication.unAuthenticated(userId, null, refreshToken));
+            var thrown = catchThrowable(() -> JwtAuthentication.unAuthenticated(userId, null));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Access token must not be null");
-        }
-
-        @Test
-        void ThenThrowsIllegalArgumentException_GivenRefreshTokenIsNull() {
-            // When
-            var thrown = catchThrowable(() -> JwtAuthentication.unAuthenticated(userId, accessToken, null));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Refresh token must not be null");
+                              .hasMessage("JWT pair must not be null");
         }
 
         @Test
         void ThenReturnsInactiveUser_GivenParametersAreValid() {
+            // Given
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+
             // When
-            var actual = JwtAuthentication.unAuthenticated(userId, accessToken, refreshToken);
+            var actual = JwtAuthentication.unAuthenticated(userId, jwtPair);
 
             // Then
             assertThat(actual.getId()).isNull();
@@ -114,8 +110,11 @@ class JwtAuthenticationTests {
 
         @Test
         void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+            // Given
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+
             // When
-            var thrown = catchThrowable(() -> JwtAuthentication.authenticated(null, userId, accessToken, refreshToken));
+            var thrown = catchThrowable(() -> JwtAuthentication.authenticated(null, userId, jwtPair));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -124,8 +123,11 @@ class JwtAuthenticationTests {
 
         @Test
         void ThenThrowsIllegalArgumentException_GivenUserIdIsNull() {
+            // Given
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+
             // When
-            var thrown = catchThrowable(() -> JwtAuthentication.authenticated(id, null, accessToken, refreshToken));
+            var thrown = catchThrowable(() -> JwtAuthentication.authenticated(id, null, jwtPair));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
@@ -133,29 +135,22 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenAccessTokenIsNull() {
+        void ThenThrowsIllegalArgumentException_GivenJwtPairIsNull() {
             // When
-            var thrown = catchThrowable(() -> JwtAuthentication.authenticated(id, userId, null, refreshToken));
+            var thrown = catchThrowable(() -> JwtAuthentication.authenticated(id, userId, null));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Access token must not be null");
-        }
-
-        @Test
-        void ThenThrowsIllegalArgumentException_GivenRefreshTokenIsNull() {
-            // When
-            var thrown = catchThrowable(() -> JwtAuthentication.authenticated(id, userId, accessToken, null));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Refresh token must not be null");
+                              .hasMessage("JWT pair must not be null");
         }
 
         @Test
         void ThenReturnsInactiveUser_GivenParametersAreValid() {
+            // Given
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+
             // When
-            var actual = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
+            var actual = JwtAuthentication.authenticated(id, userId, jwtPair);
 
             // Then
             assertThat(actual.getId()).isEqualTo(id);
@@ -172,7 +167,8 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsAccessToken_GivenJwtUnAuthenticated() {
             // Given
-            var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, jwtPair);
 
             // When
             var actual = jwtAuthentication.accessToken();
@@ -184,7 +180,8 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsAccessToken_GivenJwtAuthenticated() {
             // Given
-            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);
 
             // When
             var actual = jwtAuthentication.accessToken();
@@ -201,7 +198,8 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsAccessToken_GivenJwtUnAuthenticated() {
             // Given
-            var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, jwtPair);
 
             // When
             var actual = jwtAuthentication.refreshToken();
@@ -213,7 +211,8 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsAccessToken_GivenJwtAuthenticated() {
             // Given
-            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);
 
             // When
             var actual = jwtAuthentication.refreshToken();
@@ -225,38 +224,27 @@ class JwtAuthenticationTests {
     }
 
     @Nested
-    class UpdateTokens {
+    class RefreshTokens {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenAccessTokenIsNullOnJwtUnAuthenticated() {
+        void ThenThrowsIllegalArgumentException_GivenJwtPairIsNullOnJwtUnAuthenticated() {
             // Given
-            var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, jwtPair);
 
             // When
-            var thrown = catchThrowable(() -> jwtAuthentication.updateTokens(null, refreshToken));
+            var thrown = catchThrowable(() -> jwtAuthentication.refreshTokens(null));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Access token must not be null");
+                              .hasMessage("JWT pair must not be null");
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenRefreshTokenIsNullOnJwtUnAuthenticated() {
+        void ThenRefreshesTokens_GivenJwtPairIsValidOnJwtUnAuthenticated() {
             // Given
-            var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, accessToken, refreshToken);
-
-            // When
-            var thrown = catchThrowable(() -> jwtAuthentication.updateTokens(accessToken, null));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Refresh token must not be null");
-        }
-
-        @Test
-        void ThenUpdatesTokens_GivenAccessTokenAndRefreshTokenAreValidOnJwtUnAuthenticated() {
-            // Given
-            var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, jwtPair);
 
             var newEncodedToken = EncodedToken.of("eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQGFzYXBwLmNvbSJ9.dGVzdFNpZ25hdHVyZQ");
             var newSubject = Subject.of("new_user@asapp.com");
@@ -266,9 +254,10 @@ class JwtAuthenticationTests {
             var newEexpiration = Expiration.of(newIssued, 30000L);
             var newAccessToken = Jwt.of(newEncodedToken, ACCESS_TOKEN, newSubject, newAccessTokenClaims, newIssued, newEexpiration);
             var newRefreshToken = Jwt.of(newEncodedToken, REFRESH_TOKEN, newSubject, newRefreshTokenClaims, newIssued, newEexpiration);
+            var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
 
             // When
-            jwtAuthentication.updateTokens(newAccessToken, newRefreshToken);
+            jwtAuthentication.refreshTokens(newJwtPair);
 
             // Then
             assertThat(jwtAuthentication.accessToken()).isEqualTo(newAccessToken);
@@ -276,35 +265,24 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenAccessTokenIsNullOnJwtAuthenticated() {
+        void ThenThrowsIllegalArgumentException_GivenJwtPairIsNullOnJwtAuthenticated() {
             // Given
-            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);
 
             // When
-            var thrown = catchThrowable(() -> jwtAuthentication.updateTokens(null, refreshToken));
+            var thrown = catchThrowable(() -> jwtAuthentication.refreshTokens(null));
 
             // Then
             assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Access token must not be null");
+                              .hasMessage("JWT pair must not be null");
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenRefreshTokenIsNullOnJwtAuthenticated() {
+        void ThenRefreshesTokens_GivenJwtPairIsValidOnJwtAuthenticated() {
             // Given
-            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
-
-            // When
-            var thrown = catchThrowable(() -> jwtAuthentication.updateTokens(accessToken, null));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Refresh token must not be null");
-        }
-
-        @Test
-        void ThenUpdatesTokens_GivenAccessTokenAndRefreshTokenAreValidOnJwtAuthenticated() {
-            // Given
-            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);
 
             var newEncodedToken = EncodedToken.of("eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQGFzYXBwLmNvbSJ9.dGVzdFNpZ25hdHVyZQ");
             var newSubject = Subject.of("new_user@asapp.com");
@@ -314,9 +292,10 @@ class JwtAuthenticationTests {
             var newExpiration = Expiration.of(newIssued, 30000L);
             var newAccessToken = Jwt.of(newEncodedToken, ACCESS_TOKEN, newSubject, newAccessTokenClaims, newIssued, newExpiration);
             var newRefreshToken = Jwt.of(newEncodedToken, REFRESH_TOKEN, newSubject, newRefreshTokenClaims, newIssued, newExpiration);
+            var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
 
             // When
-            jwtAuthentication.updateTokens(newAccessToken, newRefreshToken);
+            jwtAuthentication.refreshTokens(newJwtPair);
 
             // Then
             assertThat(jwtAuthentication.accessToken()).isEqualTo(newAccessToken);
@@ -331,7 +310,8 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsFalse_GivenOtherJwtAuthenticationIsNull() {
             // Given
-            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);
 
             // When
             var actual = jwtAuthentication.equals(null);
@@ -343,7 +323,8 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsFalse_GivenOtherClassIsNotJwtAuthentication() {
             // Given
-            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);
             var other = "not a jwt authentication";
 
             // When
@@ -356,7 +337,8 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsTrue_GivenOtherJwtAuthenticationIsSameObject() {
             // Given
-            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);
 
             // When
             var actual = jwtAuthentication.equals(jwtAuthentication);
@@ -368,8 +350,9 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsFalse_GivenJwtUnAuthenticatedAndJwtAuthenticated() {
             // Given
-            var jwtAuthentication1 = JwtAuthentication.unAuthenticated(userId, accessToken, refreshToken);
-            var jwtAuthentication2 = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication1 = JwtAuthentication.unAuthenticated(userId, jwtPair);
+            var jwtAuthentication2 = JwtAuthentication.authenticated(id, userId, jwtPair);
 
             // When
             var actual1 = jwtAuthentication1.equals(jwtAuthentication2);
@@ -383,9 +366,10 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsTrue_GivenThreeJwtAuthenticationWithSameId() {
             // Given
-            var jwtAuthentication1 = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
-            var jwtAuthentication2 = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
-            var jwtAuthentication3 = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication1 = JwtAuthentication.authenticated(id, userId, jwtPair);
+            var jwtAuthentication2 = JwtAuthentication.authenticated(id, userId, jwtPair);
+            var jwtAuthentication3 = JwtAuthentication.authenticated(id, userId, jwtPair);
 
             // When
             var actual1 = jwtAuthentication1.equals(jwtAuthentication2);
@@ -401,12 +385,13 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsFalse_GivenThreeJwtAuthenticationWithDifferentId() {
             // Given
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthenticationId1 = JwtAuthenticationId.of(UUID.fromString("4e5f6789-0123-4456-c789-0abcdef12345"));
             var jwtAuthenticationId2 = JwtAuthenticationId.of(UUID.fromString("5f678901-2345-4678-d90a-bcdef1234567"));
             var jwtAuthenticationId3 = JwtAuthenticationId.of(UUID.fromString("67890123-4567-4890-a123-bcdef1234567"));
-            var jwtAuthentication1 = JwtAuthentication.authenticated(jwtAuthenticationId1, userId, accessToken, refreshToken);
-            var jwtAuthentication2 = JwtAuthentication.authenticated(jwtAuthenticationId2, userId, accessToken, refreshToken);
-            var jwtAuthentication3 = JwtAuthentication.authenticated(jwtAuthenticationId3, userId, accessToken, refreshToken);
+            var jwtAuthentication1 = JwtAuthentication.authenticated(jwtAuthenticationId1, userId, jwtPair);
+            var jwtAuthentication2 = JwtAuthentication.authenticated(jwtAuthenticationId2, userId, jwtPair);
+            var jwtAuthentication3 = JwtAuthentication.authenticated(jwtAuthenticationId3, userId, jwtPair);
 
             // When
             var actual1 = jwtAuthentication1.equals(jwtAuthentication2);
@@ -427,8 +412,9 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsDifferentHashCode_GivenTwoJwtUnAuthenticated() {
             // Given
-            var jwtAuthentication1 = JwtAuthentication.unAuthenticated(userId, accessToken, refreshToken);
-            var jwtAuthentication2 = JwtAuthentication.unAuthenticated(userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication1 = JwtAuthentication.unAuthenticated(userId, jwtPair);
+            var jwtAuthentication2 = JwtAuthentication.unAuthenticated(userId, jwtPair);
 
             // When
             var actual1 = jwtAuthentication1.hashCode();
@@ -441,8 +427,9 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsDifferentHashCode_GivenJwtUnAuthenticatedAndJwtAuthenticated() {
             // Given
-            var jwtAuthentication1 = JwtAuthentication.unAuthenticated(userId, accessToken, refreshToken);
-            var jwtAuthentication2 = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication1 = JwtAuthentication.unAuthenticated(userId, jwtPair);
+            var jwtAuthentication2 = JwtAuthentication.authenticated(id, userId, jwtPair);
 
             // When
             var actual1 = jwtAuthentication1.hashCode();
@@ -455,8 +442,9 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsSameHashCode_GivenTwoJwtAuthenticatedWithSameId() {
             // Given
-            var jwtAuthentication1 = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
-            var jwtAuthentication2 = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication1 = JwtAuthentication.authenticated(id, userId, jwtPair);
+            var jwtAuthentication2 = JwtAuthentication.authenticated(id, userId, jwtPair);
 
             // When
             var actual1 = jwtAuthentication1.hashCode();
@@ -469,10 +457,11 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsDifferentHashCode_GivenTwoJwtAuthenticatedWithDifferentId() {
             // Given
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthenticationId1 = JwtAuthenticationId.of(UUID.fromString("78901234-5678-4abc-b234-def123456789"));
             var jwtAuthenticationId2 = JwtAuthenticationId.of(UUID.fromString("89012345-6789-4bcd-c345-ef1234567890"));
-            var jwtAuthentication1 = JwtAuthentication.authenticated(jwtAuthenticationId1, userId, accessToken, refreshToken);
-            var jwtAuthentication2 = JwtAuthentication.authenticated(jwtAuthenticationId2, userId, accessToken, refreshToken);
+            var jwtAuthentication1 = JwtAuthentication.authenticated(jwtAuthenticationId1, userId, jwtPair);
+            var jwtAuthentication2 = JwtAuthentication.authenticated(jwtAuthenticationId2, userId, jwtPair);
 
             // When
             var actual1 = jwtAuthentication1.hashCode();
@@ -490,7 +479,8 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsNull_GivenJwtUnAuthenticated() {
             // Given
-            var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, jwtPair);
 
             // When
             var actual = jwtAuthentication.getId();
@@ -502,7 +492,8 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsId_GivenJwtAuthenticated() {
             // Given
-            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);
 
             // When
             var actual = jwtAuthentication.getId();
@@ -519,7 +510,8 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsUserId_GivenJwtUnAuthenticated() {
             // Given
-            var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, jwtPair);
 
             // When
             var actual = jwtAuthentication.getUserId();
@@ -531,7 +523,8 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsUserId_GivenJwtAuthenticated() {
             // Given
-            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);
 
             // When
             var actual = jwtAuthentication.getUserId();
@@ -548,7 +541,8 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsJwtPair_GivenJwtUnAuthenticated() {
             // Given
-            var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, jwtPair);
 
             // When
             var actual = jwtAuthentication.getJwtPair();
@@ -561,7 +555,8 @@ class JwtAuthenticationTests {
         @Test
         void ThenReturnsJwtPair_GivenJwtAuthenticated() {
             // Given
-            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, accessToken, refreshToken);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);
 
             // When
             var actual = jwtAuthentication.getJwtPair();

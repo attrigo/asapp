@@ -45,10 +45,11 @@ public final class JwtAuthentication {
      *
      * @param userId  the JWT authentication's user unique identifier
      * @param jwtPair the JWT token pair
-     * @throws IllegalArgumentException if userId is {@code null}
+     * @throws IllegalArgumentException if userId or jwtPair is {@code null}
      */
     private JwtAuthentication(UserId userId, JwtPair jwtPair) {
         validateUserIdIsNotNull(userId);
+        validateJwtPairIsNotNull(jwtPair);
         this.id = null;
         this.userId = userId;
         this.jwtPair = jwtPair;
@@ -60,11 +61,12 @@ public final class JwtAuthentication {
      * @param id      the JWT authentication's unique identifier
      * @param userId  the JWT authentication's user unique identifier
      * @param jwtPair the JWT token pair
-     * @throws IllegalArgumentException if id or userId is {@code null}
+     * @throws IllegalArgumentException if id, userId, or jwtPair is {@code null}
      */
     private JwtAuthentication(JwtAuthenticationId id, UserId userId, JwtPair jwtPair) {
         validateIdIsNotNull(id);
         validateUserIdIsNotNull(userId);
+        validateJwtPairIsNotNull(jwtPair);
         this.id = id;
         this.userId = userId;
         this.jwtPair = jwtPair;
@@ -75,14 +77,12 @@ public final class JwtAuthentication {
      * <p>
      * Typically used when creating a new authentication session before persistence.
      *
-     * @param userId       the JWT authentication's user unique identifier
-     * @param accessToken  the access token
-     * @param refreshToken the refresh token
+     * @param userId  the JWT authentication's user unique identifier
+     * @param jwtPair the JWT token pair containing both access and refresh tokens
      * @return a new unauthenticated {@code JwtAuthentication} instance
-     * @throws IllegalArgumentException if userId is {@code null}
+     * @throws IllegalArgumentException if userId or jwtPair is {@code null}
      */
-    public static JwtAuthentication unAuthenticated(UserId userId, Jwt accessToken, Jwt refreshToken) {
-        var jwtPair = new JwtPair(accessToken, refreshToken);
+    public static JwtAuthentication unAuthenticated(UserId userId, JwtPair jwtPair) {
         return new JwtAuthentication(userId, jwtPair);
     }
 
@@ -91,15 +91,13 @@ public final class JwtAuthentication {
      * <p>
      * Typically used when reconstituting an authentication session from the database.
      *
-     * @param id           the JWT authentication's unique identifier
-     * @param userId       the JWT authentication's user unique identifier
-     * @param accessToken  the access token
-     * @param refreshToken the refresh token
+     * @param id      the JWT authentication's unique identifier
+     * @param userId  the JWT authentication's user unique identifier
+     * @param jwtPair the JWT token pair containing both access and refresh tokens
      * @return a new authenticated {@code JwtAuthentication} instance
-     * @throws IllegalArgumentException if id or userId is {@code null}
+     * @throws IllegalArgumentException if id, userId, or jwtPair is {@code null}
      */
-    public static JwtAuthentication authenticated(JwtAuthenticationId id, UserId userId, Jwt accessToken, Jwt refreshToken) {
-        var jwtPair = new JwtPair(accessToken, refreshToken);
+    public static JwtAuthentication authenticated(JwtAuthenticationId id, UserId userId, JwtPair jwtPair) {
         return new JwtAuthentication(id, userId, jwtPair);
     }
 
@@ -122,13 +120,14 @@ public final class JwtAuthentication {
     }
 
     /**
-     * Updates the JWT token pair with new tokens.
+     * Refreshes the JWT token pair with a new pair.
      *
-     * @param accessToken  the new access token
-     * @param refreshToken the new refresh token
+     * @param jwtPair the new JWT token pair containing both access and refresh tokens
+     * @throws IllegalArgumentException if jwtPair is {@code null} or contains invalid tokens
      */
-    public void updateTokens(Jwt accessToken, Jwt refreshToken) {
-        this.jwtPair = JwtPair.of(accessToken, refreshToken);
+    public void refreshTokens(JwtPair jwtPair) {
+        validateJwtPairIsNotNull(jwtPair);
+        this.jwtPair = jwtPair;
     }
 
     /**
@@ -216,6 +215,18 @@ public final class JwtAuthentication {
     private static void validateUserIdIsNotNull(UserId userId) {
         if (userId == null) {
             throw new IllegalArgumentException("User ID must not be null");
+        }
+    }
+
+    /**
+     * Validates that the JWT pair is not {@code null}.
+     *
+     * @param jwtPair the JWT pair to validate
+     * @throws IllegalArgumentException if the JWT pair is {@code null}
+     */
+    private static void validateJwtPairIsNotNull(JwtPair jwtPair) {
+        if (jwtPair == null) {
+            throw new IllegalArgumentException("JWT pair must not be null");
         }
     }
 
