@@ -28,7 +28,6 @@ import com.bcn.asapp.authentication.application.authentication.out.TokenDecoder;
 import com.bcn.asapp.authentication.application.authentication.out.TokenIssuer;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
-import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 import com.bcn.asapp.authentication.domain.authentication.Subject;
 import com.bcn.asapp.authentication.domain.user.Role;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtAuthenticationException;
@@ -144,12 +143,10 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
         var oldJwtPair = authentication.getJwtPair();
 
         try {
-            logger.trace("Step 5: Generating new tokens for subject={}, role={}", decodedToken.subject(), decodedToken.roleClaim());
+            logger.trace("Step 5: Generating new JWT token pair for subject={}, role={}", decodedToken.subject(), decodedToken.roleClaim());
             var subject = Subject.of(decodedToken.subject());
             var role = Role.valueOf(decodedToken.roleClaim());
-            var newAccessToken = tokenIssuer.issueAccessToken(subject, role);
-            var newRefreshToken = tokenIssuer.issueRefreshToken(subject, role);
-            var jwtPair = JwtPair.of(newAccessToken, newRefreshToken);
+            var jwtPair = tokenIssuer.issueTokenPair(subject, role);
 
             logger.trace("Step 6: Updating domain aggregate authenticationId={} with new tokens", authenticationId);
             authentication.refreshTokens(jwtPair);
