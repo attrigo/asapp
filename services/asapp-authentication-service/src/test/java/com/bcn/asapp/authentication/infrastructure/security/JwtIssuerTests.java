@@ -61,117 +61,89 @@ class JwtIssuerTests {
     }
 
     @Nested
-    class IssueAccessTokenFromUserAuthentication {
+    class IssueTokenPairFromUserAuthentication {
 
         @ParameterizedTest
         @EnumSource(value = Role.class)
-        void ThenReturnsAccessToken_GivenUserAuthentication(Role role) {
+        void ThenReturnsJwtPair_GivenUserAuthentication(Role role) {
             // Given
             var userAuthentication = UserAuthentication.authenticated(UserId.of(userIdValue), Username.of(usernameValue), role);
 
             // When
-            var actual = jwtIssuer.issueAccessToken(userAuthentication);
+            var actual = jwtIssuer.issueTokenPair(userAuthentication);
 
             // Then
             assertThat(actual).isNotNull();
-            assertThat(actual.encodedToken()).isNotNull();
-            assertThat(actual.type()).isEqualTo(ACCESS_TOKEN);
-            assertThat(actual.subject()).extracting(Subject::value)
+            assertThat(actual.accessToken()).isNotNull();
+            assertThat(actual.refreshToken()).isNotNull();
+
+            // Verify access token
+            assertThat(actual.accessToken()
+                             .type()).isEqualTo(ACCESS_TOKEN);
+            assertThat(actual.accessToken()
+                             .subject()).extracting(Subject::value)
                                         .isEqualTo(usernameValue);
-            assertThat(actual.claims()).extracting(JwtClaims::value)
+            assertThat(actual.accessToken()
+                             .claims()).extracting(JwtClaims::value)
                                        .isEqualTo(Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, role.name()));
-            assertThat(actual.issued()
-                             .value()).isBefore(actual.expiration()
-                                                      .value());
-            assertThat(actual.isAccessToken()).isTrue();
-            assertThat(actual.isRefreshToken()).isFalse();
+            assertThat(actual.accessToken()
+                             .isAccessToken()).isTrue();
+
+            // Verify refresh token
+            assertThat(actual.refreshToken()
+                             .type()).isEqualTo(REFRESH_TOKEN);
+            assertThat(actual.refreshToken()
+                             .subject()).extracting(Subject::value)
+                                        .isEqualTo(usernameValue);
+            assertThat(actual.refreshToken()
+                             .claims()).extracting(JwtClaims::value)
+                                       .isEqualTo(Map.of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, role.name()));
+            assertThat(actual.refreshToken()
+                             .isRefreshToken()).isTrue();
         }
 
     }
 
     @Nested
-    class IssueAccessTokenFromSubjectAndRole {
+    class IssueTokenPairFromSubjectAndRole {
 
         @ParameterizedTest
         @EnumSource(value = Role.class)
-        void ThenReturnsAccessToken_GivenSubjectAndRole(Role role) {
+        void ThenReturnsJwtPair_GivenSubjectAndRole(Role role) {
             // Given
             var subject = Subject.of(usernameValue);
 
             // When
-            var actual = jwtIssuer.issueAccessToken(subject, role);
+            var actual = jwtIssuer.issueTokenPair(subject, role);
 
             // Then
             assertThat(actual).isNotNull();
-            assertThat(actual.encodedToken()).isNotNull();
-            assertThat(actual.type()).isEqualTo(ACCESS_TOKEN);
-            assertThat(actual.subject()).extracting(Subject::value)
+            assertThat(actual.accessToken()).isNotNull();
+            assertThat(actual.refreshToken()).isNotNull();
+
+            // Verify access token
+            assertThat(actual.accessToken()
+                             .type()).isEqualTo(ACCESS_TOKEN);
+            assertThat(actual.accessToken()
+                             .subject()).extracting(Subject::value)
                                         .isEqualTo(usernameValue);
-            assertThat(actual.claims()).extracting(JwtClaims::value)
+            assertThat(actual.accessToken()
+                             .claims()).extracting(JwtClaims::value)
                                        .isEqualTo(Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, role.name()));
-            assertThat(actual.issued()
-                             .value()).isBefore(actual.expiration()
-                                                      .value());
-            assertThat(actual.isAccessToken()).isTrue();
-            assertThat(actual.isRefreshToken()).isFalse();
-        }
+            assertThat(actual.accessToken()
+                             .isAccessToken()).isTrue();
 
-    }
-
-    @Nested
-    class IssueRefreshTokenFromUserAuthentication {
-
-        @ParameterizedTest
-        @EnumSource(value = Role.class)
-        void ThenReturnsRefreshToken_GivenUserAuthentication(Role role) {
-            // Given
-            var userAuthentication = UserAuthentication.authenticated(UserId.of(userIdValue), Username.of(usernameValue), role);
-
-            // When
-            var actual = jwtIssuer.issueRefreshToken(userAuthentication);
-
-            // Then
-            assertThat(actual).isNotNull();
-            assertThat(actual.encodedToken()).isNotNull();
-            assertThat(actual.type()).isEqualTo(REFRESH_TOKEN);
-            assertThat(actual.subject()).extracting(Subject::value)
+            // Verify refresh token
+            assertThat(actual.refreshToken()
+                             .type()).isEqualTo(REFRESH_TOKEN);
+            assertThat(actual.refreshToken()
+                             .subject()).extracting(Subject::value)
                                         .isEqualTo(usernameValue);
-            assertThat(actual.claims()).extracting(JwtClaims::value)
+            assertThat(actual.refreshToken()
+                             .claims()).extracting(JwtClaims::value)
                                        .isEqualTo(Map.of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, role.name()));
-            assertThat(actual.issued()
-                             .value()).isBefore(actual.expiration()
-                                                      .value());
-            assertThat(actual.isAccessToken()).isFalse();
-            assertThat(actual.isRefreshToken()).isTrue();
-        }
-
-    }
-
-    @Nested
-    class IssueRefreshTokenFromSubjectAndRole {
-
-        @ParameterizedTest
-        @EnumSource(value = Role.class)
-        void ThenReturnsRefreshToken_GivenSubjectAndRole(Role role) {
-            // Given
-            var subject = Subject.of(usernameValue);
-
-            // When
-            var actual = jwtIssuer.issueRefreshToken(subject, role);
-
-            // Then
-            assertThat(actual).isNotNull();
-            assertThat(actual.encodedToken()).isNotNull();
-            assertThat(actual.type()).isEqualTo(REFRESH_TOKEN);
-            assertThat(actual.subject()).extracting(Subject::value)
-                                        .isEqualTo(usernameValue);
-            assertThat(actual.claims()).extracting(JwtClaims::value)
-                                       .isEqualTo(Map.of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, role.name()));
-            assertThat(actual.issued()
-                             .value()).isBefore(actual.expiration()
-                                                      .value());
-            assertThat(actual.isAccessToken()).isFalse();
-            assertThat(actual.isRefreshToken()).isTrue();
+            assertThat(actual.refreshToken()
+                             .isRefreshToken()).isTrue();
         }
 
     }

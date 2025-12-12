@@ -40,6 +40,7 @@ import com.bcn.asapp.authentication.domain.authentication.Expiration;
 import com.bcn.asapp.authentication.domain.authentication.Issued;
 import com.bcn.asapp.authentication.domain.authentication.Jwt;
 import com.bcn.asapp.authentication.domain.authentication.JwtClaims;
+import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 import com.bcn.asapp.authentication.domain.authentication.JwtType;
 import com.bcn.asapp.authentication.domain.authentication.Subject;
 import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
@@ -97,55 +98,37 @@ public class JwtIssuer implements TokenIssuer {
     }
 
     /**
-     * Issues an access token for an authenticated user.
+     * Issues a JWT token pair (access and refresh tokens) for an authenticated user.
      *
      * @param userAuthentication the {@link UserAuthentication} containing user data
-     * @return the generated {@link Jwt} access token
+     * @return the generated {@link JwtPair} containing both access and refresh tokens
      */
-    public Jwt issueAccessToken(UserAuthentication userAuthentication) {
+    @Override
+    public JwtPair issueTokenPair(UserAuthentication userAuthentication) {
+        logger.trace("Issuing token pair for user {}", userAuthentication.username());
+
         var subject = Subject.of(userAuthentication.username()
                                                    .value());
+        var role = userAuthentication.role();
 
-        return issueAccessToken(subject, userAuthentication.role());
+        return issueTokenPair(subject, role);
     }
 
     /**
-     * Issues an access token for a subject and role.
+     * Issues a JWT token pair (access and refresh tokens) for a subject and role.
      *
      * @param subject the {@link Subject} identifier
      * @param role    the {@link Role}
-     * @return the generated {@link Jwt} access token
+     * @return the generated {@link JwtPair} containing both access and refresh tokens
      */
-    public Jwt issueAccessToken(Subject subject, Role role) {
-        logger.trace("Issuing access token for subject {} and role {}", subject, role);
+    @Override
+    public JwtPair issueTokenPair(Subject subject, Role role) {
+        logger.trace("Issuing token pair for subject {} and role {}", subject, role);
 
-        return issueToken(ACCESS_TOKEN, subject, role, accessTokenExpirationTime, ACCESS_TOKEN_USE);
-    }
+        var accessToken = issueToken(ACCESS_TOKEN, subject, role, accessTokenExpirationTime, ACCESS_TOKEN_USE);
+        var refreshToken = issueToken(REFRESH_TOKEN, subject, role, refreshTokenExpirationTime, REFRESH_TOKEN_USE);
 
-    /**
-     * Issues a refresh token for an authenticated user.
-     *
-     * @param userAuthentication the {@link UserAuthentication} containing user data
-     * @return the generated {@link Jwt} refresh token
-     */
-    public Jwt issueRefreshToken(UserAuthentication userAuthentication) {
-        var subject = Subject.of(userAuthentication.username()
-                                                   .value());
-
-        return issueRefreshToken(subject, userAuthentication.role());
-    }
-
-    /**
-     * Issues a refresh token for a subject and role.
-     *
-     * @param subject the {@link Subject} identifier
-     * @param role    the {@link Role}
-     * @return the generated {@link Jwt} refresh token
-     */
-    public Jwt issueRefreshToken(Subject subject, Role role) {
-        logger.trace("Issuing refresh token for subject {} and role {}", subject, role);
-
-        return issueToken(REFRESH_TOKEN, subject, role, refreshTokenExpirationTime, REFRESH_TOKEN_USE);
+        return JwtPair.of(accessToken, refreshToken);
     }
 
     /**

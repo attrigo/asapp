@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.authentication.application.authentication.out;
 
-import com.bcn.asapp.authentication.domain.authentication.Jwt;
+import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 import com.bcn.asapp.authentication.domain.authentication.Subject;
 import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
 import com.bcn.asapp.authentication.domain.user.Role;
@@ -24,7 +24,7 @@ import com.bcn.asapp.authentication.domain.user.Role;
 /**
  * Port for issuing authentication tokens.
  * <p>
- * Defines the contract for generating access and refresh tokens based on user authentication information.
+ * Defines the contract for generating JWT token pairs (access and refresh tokens) based on user authentication information.
  *
  * @since 0.2.0
  * @author attrigo
@@ -32,41 +32,24 @@ import com.bcn.asapp.authentication.domain.user.Role;
 public interface TokenIssuer {
 
     /**
-     * Issues an access token for an authenticated user.
+     * Issues a JWT token pair (access and refresh tokens) for an authenticated user.
+     * <p>
+     * This is the primary method for issuing tokens during authentication.
      *
      * @param userAuthentication the {@link UserAuthentication} containing authenticated user data
-     * @return the generated {@link Jwt} access token
+     * @return the generated {@link JwtPair} containing both access and refresh tokens
      */
-    Jwt issueAccessToken(UserAuthentication userAuthentication);
+    JwtPair issueTokenPair(UserAuthentication userAuthentication);
 
     /**
-     * Issues an access token for a subject and role.
+     * Issues a JWT token pair (access and refresh tokens) for a subject and role.
      * <p>
      * This method is typically used when refreshing tokens, where user authentication data is extracted from an existing token.
      *
      * @param subject the {@link Subject} identifier
-     * @param role    the {@link Role} for the token
-     * @return the generated {@link Jwt} access token
+     * @param role    the {@link Role} for the tokens
+     * @return the generated {@link JwtPair} containing both access and refresh tokens
      */
-    Jwt issueAccessToken(Subject subject, Role role);
-
-    /**
-     * Issues a refresh token for an authenticated user.
-     *
-     * @param userAuthentication the {@link UserAuthentication} containing authenticated user data
-     * @return the generated {@link Jwt} refresh token
-     */
-    Jwt issueRefreshToken(UserAuthentication userAuthentication);
-
-    /**
-     * Issues a refresh token for a subject and role.
-     * <p>
-     * This method is typically used when refreshing tokens, where user authentication data is extracted from an existing token.
-     *
-     * @param subject the {@link Subject} identifier
-     * @param role    the {@link Role} for the token
-     * @return the generated {@link Jwt} refresh token
-     */
-    Jwt issueRefreshToken(Subject subject, Role role);
+    JwtPair issueTokenPair(Subject subject, Role role);
 
 }

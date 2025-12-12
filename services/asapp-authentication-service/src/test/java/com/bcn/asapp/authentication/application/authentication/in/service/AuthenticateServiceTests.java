@@ -107,9 +107,7 @@ class AuthenticateServiceTests {
             then(credentialsAuthenticator).should(times(1))
                                           .authenticate(username, password);
             then(tokenIssuer).should(never())
-                             .issueAccessToken(any(UserAuthentication.class));
-            then(tokenIssuer).should(never())
-                             .issueRefreshToken(any(UserAuthentication.class));
+                             .issueTokenPair(any(UserAuthentication.class));
             then(jwtAuthenticationRepository).should(never())
                                              .save(any(JwtAuthentication.class));
             then(jwtStore).should(never())
@@ -117,7 +115,7 @@ class AuthenticateServiceTests {
         }
 
         @Test
-        void ThrowsBadCredentialsException_AccessTokenIssuanceFails() {
+        void ThrowsBadCredentialsException_TokenPairIssuanceFails() {
             // Given
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);
@@ -126,7 +124,7 @@ class AuthenticateServiceTests {
 
             given(credentialsAuthenticator.authenticate(username, password)).willReturn(userAuth);
             willThrow(new RuntimeException("Token issuance failed")).given(tokenIssuer)
-                                                                    .issueAccessToken(userAuth);
+                                                                    .issueTokenPair(userAuth);
 
             // When
             var thrown = catchThrowable(() -> authenticateService.authenticate(command));
@@ -139,43 +137,7 @@ class AuthenticateServiceTests {
             then(credentialsAuthenticator).should(times(1))
                                           .authenticate(username, password);
             then(tokenIssuer).should(times(1))
-                             .issueAccessToken(userAuth);
-            then(tokenIssuer).should(never())
-                             .issueRefreshToken(any(UserAuthentication.class));
-            then(jwtAuthenticationRepository).should(never())
-                                             .save(any(JwtAuthentication.class));
-            then(jwtStore).should(never())
-                          .save(any(JwtPair.class));
-        }
-
-        @Test
-        void ThrowsBadCredentialsException_RefreshTokenIssuanceFails() {
-            // Given
-            var command = new AuthenticateCommand(usernameValue, passwordValue);
-            var username = Username.of(usernameValue);
-            var password = RawPassword.of(passwordValue);
-            var userAuth = UserAuthentication.authenticated(UserId.of(userId), username, role);
-            var accessToken = createJwt(JwtType.ACCESS_TOKEN);
-
-            given(credentialsAuthenticator.authenticate(username, password)).willReturn(userAuth);
-            given(tokenIssuer.issueAccessToken(userAuth)).willReturn(accessToken);
-            willThrow(new RuntimeException("Token issuance failed")).given(tokenIssuer)
-                                                                    .issueRefreshToken(userAuth);
-
-            // When
-            var thrown = catchThrowable(() -> authenticateService.authenticate(command));
-
-            // Then
-            assertThat(thrown).isInstanceOf(BadCredentialsException.class)
-                              .hasMessageContaining("Authentication could not be granted due to")
-                              .hasCauseInstanceOf(RuntimeException.class);
-
-            then(credentialsAuthenticator).should(times(1))
-                                          .authenticate(username, password);
-            then(tokenIssuer).should(times(1))
-                             .issueAccessToken(userAuth);
-            then(tokenIssuer).should(times(1))
-                             .issueRefreshToken(userAuth);
+                             .issueTokenPair(userAuth);
             then(jwtAuthenticationRepository).should(never())
                                              .save(any(JwtAuthentication.class));
             then(jwtStore).should(never())
@@ -191,10 +153,10 @@ class AuthenticateServiceTests {
             var userAuth = UserAuthentication.authenticated(UserId.of(userId), username, role);
             var accessToken = createJwt(JwtType.ACCESS_TOKEN);
             var refreshToken = createJwt(JwtType.REFRESH_TOKEN);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
 
             given(credentialsAuthenticator.authenticate(username, password)).willReturn(userAuth);
-            given(tokenIssuer.issueAccessToken(userAuth)).willReturn(accessToken);
-            given(tokenIssuer.issueRefreshToken(userAuth)).willReturn(refreshToken);
+            given(tokenIssuer.issueTokenPair(userAuth)).willReturn(jwtPair);
             willThrow(new RuntimeException("Repository save failed")).given(jwtAuthenticationRepository)
                                                                      .save(any(JwtAuthentication.class));
 
@@ -209,9 +171,7 @@ class AuthenticateServiceTests {
             then(credentialsAuthenticator).should(times(1))
                                           .authenticate(username, password);
             then(tokenIssuer).should(times(1))
-                             .issueAccessToken(userAuth);
-            then(tokenIssuer).should(times(1))
-                             .issueRefreshToken(userAuth);
+                             .issueTokenPair(userAuth);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(any(JwtAuthentication.class));
             then(jwtStore).should(never())
@@ -231,8 +191,7 @@ class AuthenticateServiceTests {
             var savedAuthentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), jwtPair);
 
             given(credentialsAuthenticator.authenticate(username, password)).willReturn(userAuth);
-            given(tokenIssuer.issueAccessToken(userAuth)).willReturn(accessToken);
-            given(tokenIssuer.issueRefreshToken(userAuth)).willReturn(refreshToken);
+            given(tokenIssuer.issueTokenPair(userAuth)).willReturn(jwtPair);
             given(jwtAuthenticationRepository.save(any(JwtAuthentication.class))).willReturn(savedAuthentication);
             willThrow(new RuntimeException("Redis connection failed")).given(jwtStore)
                                                                       .save(jwtPair);
@@ -248,9 +207,7 @@ class AuthenticateServiceTests {
             then(credentialsAuthenticator).should(times(1))
                                           .authenticate(username, password);
             then(tokenIssuer).should(times(1))
-                             .issueAccessToken(userAuth);
-            then(tokenIssuer).should(times(1))
-                             .issueRefreshToken(userAuth);
+                             .issueTokenPair(userAuth);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(any(JwtAuthentication.class));
             then(jwtStore).should(times(1))
@@ -270,8 +227,7 @@ class AuthenticateServiceTests {
             var savedAuthentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), jwtPair);
 
             given(credentialsAuthenticator.authenticate(username, password)).willReturn(userAuth);
-            given(tokenIssuer.issueAccessToken(userAuth)).willReturn(accessToken);
-            given(tokenIssuer.issueRefreshToken(userAuth)).willReturn(refreshToken);
+            given(tokenIssuer.issueTokenPair(userAuth)).willReturn(jwtPair);
             given(jwtAuthenticationRepository.save(any(JwtAuthentication.class))).willReturn(savedAuthentication);
 
             // When
@@ -286,9 +242,7 @@ class AuthenticateServiceTests {
             then(credentialsAuthenticator).should(times(1))
                                           .authenticate(username, password);
             then(tokenIssuer).should(times(1))
-                             .issueAccessToken(userAuth);
-            then(tokenIssuer).should(times(1))
-                             .issueRefreshToken(userAuth);
+                             .issueTokenPair(userAuth);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(any(JwtAuthentication.class));
             then(jwtStore).should(times(1))

@@ -29,7 +29,6 @@ import com.bcn.asapp.authentication.application.authentication.out.JwtAuthentica
 import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.application.authentication.out.TokenIssuer;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
-import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 import com.bcn.asapp.authentication.domain.user.RawPassword;
 import com.bcn.asapp.authentication.domain.user.Username;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
@@ -111,11 +110,9 @@ public class AuthenticateService implements AuthenticateUseCase {
         var userAuthentication = credentialsAuthenticator.authenticate(username, password);
 
         try {
-            logger.trace("Step 2: Generating access and refresh tokens for userId={}", userAuthentication.userId()
-                                                                                                         .value());
-            var accessToken = tokenIssuer.issueAccessToken(userAuthentication);
-            var refreshToken = tokenIssuer.issueRefreshToken(userAuthentication);
-            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            logger.trace("Step 2: Generating JWT token pair for userId={}", userAuthentication.userId()
+                                                                                              .value());
+            var jwtPair = tokenIssuer.issueTokenPair(userAuthentication);
 
             logger.trace("Step 3: Creating JWT authentication domain aggregate for userId={}", userAuthentication.userId()
                                                                                                                  .value());
