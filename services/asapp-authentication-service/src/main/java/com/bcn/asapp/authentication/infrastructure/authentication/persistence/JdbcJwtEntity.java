@@ -22,11 +22,11 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 /**
- * Entity representing a JWT token.
+ * Entity representing a JWT.
  * <p>
- * Embeddable component for storing JWT token data within {@link JdbcJwtAuthenticationEntity}.
+ * Embeddable component for storing JWT data within {@link JdbcJwtAuthenticationEntity}.
  *
- * @param token      the encoded JWT token string; must not be blank
+ * @param token      the encoded JWT string; must not be blank
  * @param type       the token type identifier; must not be {@code null}
  * @param subject    the subject identifier; must not be blank
  * @param claims     the JWT claims entity; must not be {@code null}

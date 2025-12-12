@@ -28,7 +28,7 @@ import com.bcn.asapp.authentication.domain.user.Role;
  * <p>
  * It enforces structural integrity by ensuring type consistency and temporal ordering.
  *
- * @param encodedToken the serialized JWT token
+ * @param encodedToken the serialized JWT
  * @param type         the token type (access or refresh)
  * @param subject      the subject identifier
  * @param claims       the JWT claims
@@ -71,7 +71,7 @@ public record Jwt(
      * <p>
      * Validates that all required fields are present, type consistency between JWT type and token_use claim, and temporal ordering of timestamps.
      *
-     * @param encodedToken the serialized JWT token
+     * @param encodedToken the serialized JWT
      * @param type         the token type
      * @param subject      the subject identifier
      * @param claims       the JWT claims
@@ -91,7 +91,7 @@ public record Jwt(
     /**
      * Factory method to create a new {@code Jwt} instance.
      *
-     * @param encodedToken the serialized JWT token
+     * @param encodedToken the serialized JWT
      * @param type         the token type
      * @param subject      the subject identifier
      * @param claims       the JWT claims
@@ -125,7 +125,7 @@ public record Jwt(
     /**
      * Returns the encoded token string value.
      *
-     * @return the encoded JWT token {@link String}
+     * @return the encoded JWT {@link String}
      */
     public String encodedTokenValue() {
         return this.encodedToken.value();
@@ -204,8 +204,8 @@ public record Jwt(
                                   .orElseThrow(() -> new IllegalArgumentException("Claims must contain the mandatory token use claim"));
 
         if (!ACCESS_TOKEN_USE_CLAIM_VALUE.equals(tokenUseClaim) && !REFRESH_TOKEN_USE_CLAIM_VALUE.equals(tokenUseClaim)) {
-            var message = String.format("Invalid JWT token use claim, expected %s or %s but was %s", ACCESS_TOKEN_USE_CLAIM_VALUE,
-                    REFRESH_TOKEN_USE_CLAIM_VALUE, tokenUseClaim);
+            var message = String.format("Invalid JWT use claim, expected %s or %s but was %s", ACCESS_TOKEN_USE_CLAIM_VALUE, REFRESH_TOKEN_USE_CLAIM_VALUE,
+                    tokenUseClaim);
             throw new IllegalArgumentException(message);
         }
 

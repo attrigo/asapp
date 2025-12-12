@@ -17,7 +17,7 @@
 package com.bcn.asapp.tasks.infrastructure.security;
 
 /**
- * Exception thrown when a JWT token has an unexpected type.
+ * Exception thrown when a JWT has an unexpected type.
  * <p>
  * Indicates that the token type does not match the expected type (e.g., receiving a refresh token when an access token was expected).
  *

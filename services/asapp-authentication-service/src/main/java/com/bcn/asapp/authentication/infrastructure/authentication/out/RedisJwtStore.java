@@ -35,8 +35,8 @@ import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 /**
  * Redis-based adapter implementation of {@link JwtStore}.
  * <p>
- * Stores JWT tokens in Redis with automatic expiration based on token TTL (time-to-live). Tokens are stored as Redis keys with empty values, as only their
- * presence is validated during token lookup operations.
+ * Stores JWTs in Redis with automatic expiration based on token TTL (time-to-live). Tokens are stored as Redis keys with empty values, as only their presence
+ * is validated during token lookup operations.
  *
  * @since 0.2.0
  * @see RedisTemplate
@@ -123,7 +123,7 @@ public class RedisJwtStore implements JwtStore {
     }
 
     /**
-     * Saves a JWT token pair in Redis.
+     * Saves a JWT pair in Redis.
      * <p>
      * Both access and refresh tokens are stored atomically using Redis pipelining with automatic expiration calculated from the token's expiration timestamp.
      * Tokens are stored with empty values as only their presence needs to be validated.
@@ -162,7 +162,7 @@ public class RedisJwtStore implements JwtStore {
     }
 
     /**
-     * Deletes a JWT token pair from Redis.
+     * Deletes a JWT pair from Redis.
      * <p>
      * Both access and refresh tokens are removed atomically using Redis pipelining, effectively invalidating them immediately.
      * <p>

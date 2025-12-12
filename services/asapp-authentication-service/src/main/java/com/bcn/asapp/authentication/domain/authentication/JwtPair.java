@@ -17,7 +17,7 @@
 package com.bcn.asapp.authentication.domain.authentication;
 
 /**
- * Represents a pair of JWT tokens (access and refresh).
+ * Represents a pair of JWTs (access and refresh).
  * <p>
  * This value object encapsulates both access and refresh tokens together.
  * <p>

@@ -20,7 +20,7 @@ import java.time.Instant;
 import java.util.Date;
 
 /**
- * Represents the issued-at timestamp of a JWT token.
+ * Represents the issued-at timestamp of a JWT.
  * <p>
  * This value object encapsulates the issued timestamp as {@link Instant}.
  * <p>

@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Response for a successful authentication.
  * <p>
- * Contains the generated JWT tokens.
+ * Contains the generated JWTs.
  *
  * @param accessToken  the generated access token string
  * @param refreshToken the generated refresh token string

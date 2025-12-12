@@ -34,9 +34,9 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 /**
- * Component for decoding and validating JWT tokens.
+ * Component for decoding and validating JWTs.
  * <p>
- * Parses JWT tokens, verifies their signatures using HMAC-SHA, and constructs {@link DecodedJwt} objects.
+ * Parses JWTs, verifies their signatures using HMAC-SHA, and constructs {@link DecodedJwt} objects.
  *
  * @since 0.2.0
  * @see Jwts
@@ -59,7 +59,7 @@ public class JwtDecoder {
     }
 
     /**
-     * Decodes and validates an encoded JWT token.
+     * Decodes and validates an encoded JWT.
      * <p>
      * Parses the token, verifies its signature, and constructs a {@link DecodedJwt}.
      *

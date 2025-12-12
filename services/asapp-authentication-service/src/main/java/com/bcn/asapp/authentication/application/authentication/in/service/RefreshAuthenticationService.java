@@ -81,7 +81,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      * Constructs a new {@code RefreshAuthenticationService} with required dependencies.
      *
      * @param tokenDecoder                the token decoder for decoding and validating tokens
-     * @param tokenIssuer                 the token issuer for generating new JWT tokens
+     * @param tokenIssuer                 the token issuer for generating new JWTs
      * @param jwtAuthenticationRepository the repository for persisting JWT authentications
      * @param jwtStore                    the store for fast token lookup and validation
      */
@@ -143,7 +143,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
         var oldJwtPair = authentication.getJwtPair();
 
         try {
-            logger.trace("Step 5: Generating new JWT token pair for subject={}, role={}", decodedToken.subject(), decodedToken.roleClaim());
+            logger.trace("Step 5: Generating new JWT pair for subject={}, role={}", decodedToken.subject(), decodedToken.roleClaim());
             var subject = Subject.of(decodedToken.subject());
             var role = Role.valueOf(decodedToken.roleClaim());
             var jwtPair = tokenIssuer.issueTokenPair(subject, role);

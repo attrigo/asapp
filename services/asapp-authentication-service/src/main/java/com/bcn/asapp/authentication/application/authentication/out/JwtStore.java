@@ -20,9 +20,9 @@ import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 
 /**
- * Port for storing JWT tokens for fast lookup.
+ * Port for storing JWTs for fast lookup.
  * <p>
- * Defines the contract for temporarily storing JWT tokens to enable fast token validation and revocation.
+ * Defines the contract for temporarily storing JWTs to enable fast token validation and revocation.
  *
  * @since 0.2.0
  * @author attrigo
@@ -50,14 +50,14 @@ public interface JwtStore {
     Boolean refreshTokenExists(EncodedToken refreshToken);
 
     /**
-     * Saves a JWT token pair in the fast-access store.
+     * Saves a JWT pair in the fast-access store.
      *
      * @param jwtPair the {@link JwtPair} containing the token pair to save
      */
     void save(JwtPair jwtPair);
 
     /**
-     * Deletes a JWT token pair from the fast-access store.
+     * Deletes a JWT pair from the fast-access store.
      * <p>
      * Removes both access and refresh tokens to invalidate them immediately.
      *

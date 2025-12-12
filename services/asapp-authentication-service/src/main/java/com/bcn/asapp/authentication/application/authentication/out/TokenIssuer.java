@@ -24,7 +24,7 @@ import com.bcn.asapp.authentication.domain.user.Role;
 /**
  * Port for issuing authentication tokens.
  * <p>
- * Defines the contract for generating JWT token pairs (access and refresh tokens) based on user authentication information.
+ * Defines the contract for generating JWT pairs (access and refresh tokens) based on user authentication information.
  *
  * @since 0.2.0
  * @author attrigo
@@ -32,7 +32,7 @@ import com.bcn.asapp.authentication.domain.user.Role;
 public interface TokenIssuer {
 
     /**
-     * Issues a JWT token pair (access and refresh tokens) for an authenticated user.
+     * Issues a JWT pair (access and refresh tokens) for an authenticated user.
      * <p>
      * This is the primary method for issuing tokens during authentication.
      *
@@ -42,7 +42,7 @@ public interface TokenIssuer {
     JwtPair issueTokenPair(UserAuthentication userAuthentication);
 
     /**
-     * Issues a JWT token pair (access and refresh tokens) for a subject and role.
+     * Issues a JWT pair (access and refresh tokens) for a subject and role.
      * <p>
      * This method is typically used when refreshing tokens, where user authentication data is extracted from an existing token.
      *

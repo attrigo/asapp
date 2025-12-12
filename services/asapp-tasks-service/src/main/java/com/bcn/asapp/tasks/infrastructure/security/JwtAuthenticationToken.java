@@ -29,7 +29,7 @@ import jakarta.annotation.Nullable;
 /**
  * Spring Security authentication token for JWT-based authentication.
  * <p>
- * Represents an authenticated user with a validated JWT token.
+ * Represents an authenticated user with a validated JWT.
  * <p>
  * Extends {@link AbstractAuthenticationToken} to integrate with Spring Security's authentication framework.
  *
@@ -50,7 +50,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
      * Constructs a new authenticated {@code JwtAuthenticationToken}.
      *
      * @param principal   the principal (subject) extracted from the JWT
-     * @param token       the encoded JWT token
+     * @param token       the encoded JWT
      * @param authorities the granted authorities extracted from the JWT
      */
     private JwtAuthenticationToken(String principal, String token, Collection<? extends GrantedAuthority> authorities) {
@@ -85,7 +85,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
     /**
      * Returns the credentials.
      * <p>
-     * Always returns {@code null} as JWT tokens do not expose credentials after authentication.
+     * Always returns {@code null} as JWTs do not expose credentials after authentication.
      *
      * @return {@code null}
      */
@@ -106,9 +106,9 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
     }
 
     /**
-     * Returns the encoded JWT token value as {@link String}.
+     * Returns the encoded JWT value as {@link String}.
      *
-     * @return the encoded JWT token
+     * @return the encoded JWT
      */
     public String getJwt() {
         return this.token;

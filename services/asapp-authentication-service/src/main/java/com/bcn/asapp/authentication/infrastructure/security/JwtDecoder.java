@@ -38,11 +38,11 @@ import com.bcn.asapp.authentication.application.authentication.out.TokenDecoder;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 
 /**
- * Infrastructure component for decoding and validating JWT tokens.
+ * Infrastructure component for decoding and validating JWTs.
  * <p>
- * Implements {@link TokenDecoder} port, providing the infrastructure capability to parse and validate JWT tokens using the JJWT library.
+ * Implements {@link TokenDecoder} port, providing the infrastructure capability to parse and validate JWTs using the JJWT library.
  * <p>
- * Parses JWT tokens, verifies their signatures using HMAC-SHA, and constructs {@link DecodedJwt} objects.
+ * Parses JWTs, verifies their signatures using HMAC-SHA, and constructs {@link DecodedJwt} objects.
  *
  * @since 0.2.0
  * @see Jwts
@@ -79,7 +79,7 @@ public class JwtDecoder implements TokenDecoder {
     }
 
     /**
-     * Decodes and validates an encoded JWT token string.
+     * Decodes and validates an encoded JWT string.
      * <p>
      * Parses the token, verifies its signature, and constructs a {@link DecodedJwt}.
      *
