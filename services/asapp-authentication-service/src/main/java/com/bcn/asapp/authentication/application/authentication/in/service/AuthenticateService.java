@@ -29,9 +29,10 @@ import com.bcn.asapp.authentication.application.authentication.out.JwtAuthentica
 import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.application.authentication.out.TokenIssuer;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
+import com.bcn.asapp.authentication.domain.authentication.JwtPair;
+import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
 import com.bcn.asapp.authentication.domain.user.RawPassword;
 import com.bcn.asapp.authentication.domain.user.Username;
-import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
 
 /**
  * Application service responsible for orchestrating user authentication.
@@ -41,17 +42,16 @@ import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
  * <strong>Orchestration Flow:</strong>
  * <ol>
  * <li>Validates user credentials via {@link CredentialsAuthenticator}</li>
- * <li>Generates access token via {@link TokenIssuer}</li>
- * <li>Generates refresh token via {@link TokenIssuer}</li>
+ * <li>Generates JWT pair via {@link TokenIssuer}</li>
  * <li>Creates {@link JwtAuthentication} domain aggregate</li>
  * <li>Persists authentication to database via {@link JwtAuthenticationRepository}</li>
  * <li>Stores tokens in fast-access store via {@link JwtStore}</li>
  * </ol>
  * <p>
- * The entire authentication workflow executes within a single transaction to ensure consistency between database and token store operations.
+ * If Redis storage fails after database commit, the database record is deleted to maintain consistency between storage systems.
  *
- * @author attrigo
  * @since 0.2.0
+ * @author attrigo
  */
 @ApplicationService
 public class AuthenticateService implements AuthenticateUseCase {
@@ -88,42 +88,26 @@ public class AuthenticateService implements AuthenticateUseCase {
      * <p>
      * Orchestrates the complete authentication workflow: credential validation, token generation, and persistence.
      * <p>
-     * The operation is transactional to ensure consistency between the database and token store.
+     * Fist saves Database, then stores Redis. If Redis fails, database is rolled back via compensating transaction to maintain consistency.
      *
      * @param authenticateCommand the {@link AuthenticateCommand} containing user credentials
      * @return the {@link JwtAuthentication} containing access and refresh tokens with persistent ID
      * @throws IllegalArgumentException if the username or password is invalid
-     * @throws BadCredentialsException  if authentication fails
-     * @throws InvalidJwtException      if token generation fails
+     * @throws BadCredentialsException  if authentication fails or token storage fails
      */
     @Override
     @Transactional
     // TODO: Handle specific exceptions for better error reporting
-    // TODO: Improve transaction management (what if token store operation fails?)
-    // TODO: Refactor to simplify method and improve readability
     public JwtAuthentication authenticate(AuthenticateCommand authenticateCommand) {
         logger.debug("Authenticating user {}", authenticateCommand.username());
 
-        logger.trace("Step 1: Validating user credentials for username={}", authenticateCommand.username());
-        var username = Username.of(authenticateCommand.username());
-        var password = RawPassword.of(authenticateCommand.password());
-        var userAuthentication = credentialsAuthenticator.authenticate(username, password);
+        var userAuthentication = authenticateCredentials(authenticateCommand);
+        var jwtPair = generateTokenPair(userAuthentication);
+        var jwtAuthentication = createJwtAuthentication(userAuthentication, jwtPair);
+        var savedAuthentication = persistAuthentication(jwtAuthentication);
 
         try {
-            logger.trace("Step 2: Generating JWT pair for userId={}", userAuthentication.userId()
-                                                                                        .value());
-            var jwtPair = tokenIssuer.issueTokenPair(userAuthentication);
-
-            logger.trace("Step 3: Creating JWT authentication domain aggregate for userId={}", userAuthentication.userId()
-                                                                                                                 .value());
-            var jwtAuthentication = JwtAuthentication.unAuthenticated(userAuthentication.userId(), jwtPair);
-
-            logger.trace("Step 4: Persisting authentication to database");
-            var savedAuthentication = jwtAuthenticationRepository.save(jwtAuthentication);
-
-            logger.trace("Step 5: Storing tokens in fast-access store for authenticationId={}", savedAuthentication.getId()
-                                                                                                                   .value());
-            jwtStore.save(savedAuthentication.getJwtPair());
+            activateTokens(savedAuthentication.getJwtPair());
 
             logger.debug("Authentication completed successfully for user {}", userAuthentication.username()
                                                                                                 .value());
@@ -131,9 +115,104 @@ public class AuthenticateService implements AuthenticateUseCase {
             return savedAuthentication;
 
         } catch (Exception e) {
-            var message = String.format("Authentication could not be granted due to: %s", e.getMessage());
-            logger.warn(message, e);
-            throw new BadCredentialsException(message, e);
+            rollbackAuthentication(savedAuthentication);
+            throw new BadCredentialsException("Authentication failed: tokens could not be stored", e);
+        }
+    }
+
+    /**
+     * Authenticates user credentials and returns the authenticated user information.
+     *
+     * @param command the authentication command containing username and password
+     * @return the authenticated user information
+     */
+    private UserAuthentication authenticateCredentials(AuthenticateCommand command) {
+        logger.trace("Step 1: Validating user credentials for username={}", command.username());
+        var username = Username.of(command.username());
+        var password = RawPassword.of(command.password());
+        return credentialsAuthenticator.authenticate(username, password);
+    }
+
+    /**
+     * Generates a JWT pair (access and refresh tokens) for the authenticated user.
+     *
+     * @param userAuthentication the authenticated user information
+     * @return the generated JWT pair
+     * @throws BadCredentialsException if token generation fails
+     */
+    private JwtPair generateTokenPair(UserAuthentication userAuthentication) {
+        logger.trace("Step 2: Generating JWT pair for userId={}", userAuthentication.userId()
+                                                                                    .value());
+        try {
+            return tokenIssuer.issueTokenPair(userAuthentication);
+
+        } catch (Exception e) {
+            logger.error("Failed to generate token pair for user {}", userAuthentication.username()
+                                                                                        .value(),
+                    e);
+            throw new BadCredentialsException("Authentication failed: could not generate tokens", e);
+        }
+    }
+
+    /**
+     * Creates a JWT authentication domain aggregate from user authentication and token pair.
+     *
+     * @param userAuthentication the authenticated user information
+     * @param jwtPair            the JWT pair
+     * @return the JWT authentication aggregate
+     */
+    private JwtAuthentication createJwtAuthentication(UserAuthentication userAuthentication, JwtPair jwtPair) {
+        logger.trace("Step 3: Creating JWT authentication for userId={}", userAuthentication.userId()
+                                                                                            .value());
+        return JwtAuthentication.unAuthenticated(userAuthentication.userId(), jwtPair);
+    }
+
+    /**
+     * Persists the JWT authentication to the database.
+     *
+     * @param jwtAuthentication the JWT authentication to persist
+     * @return the persisted JWT authentication with assigned ID
+     * @throws BadCredentialsException if database persistence fails
+     */
+    private JwtAuthentication persistAuthentication(JwtAuthentication jwtAuthentication) {
+        logger.trace("Step 4: Persisting authentication to database");
+        try {
+            return jwtAuthenticationRepository.save(jwtAuthentication);
+
+        } catch (Exception e) {
+            logger.error("Failed to persist authentication to database", e);
+            throw new BadCredentialsException("Authentication failed: could not persist to database", e);
+        }
+    }
+
+    /**
+     * Stores the JWT pair in Redis for fast token validation.
+     *
+     * @param jwtPair the JWT pair to store
+     */
+    private void activateTokens(JwtPair jwtPair) {
+        logger.trace("Step 5: Storing tokens in fast-access store for Redis");
+        jwtStore.save(jwtPair);
+    }
+
+    /**
+     * Compensates for Redis storage failure by deleting the authentication from database.
+     *
+     * @param jwtAuthentication the authentication that was saved to database
+     */
+    private void rollbackAuthentication(JwtAuthentication jwtAuthentication) {
+        logger.warn("Redis storage failed, rolling back database for authenticationId={}", jwtAuthentication.getId()
+                                                                                                            .value());
+
+        try {
+            jwtAuthenticationRepository.deleteById(jwtAuthentication.getId());
+
+            logger.info("Compensating transaction completed: authentication deleted from database");
+
+        } catch (Exception e) {
+            logger.error("CRITICAL: Compensating transaction failed - orphaned record in database with authenticationId={}", jwtAuthentication.getId()
+                                                                                                                                              .value(),
+                    e);
         }
     }
 

@@ -88,7 +88,7 @@ class AuthenticateServiceTests {
     class Authenticate {
 
         @Test
-        void ThrowsBadCredentialsException_CredentialsAuthenticationFails() {
+        void ThrowsBadCredentialsException_AuthenticateCredentialsFails() {
             // Given
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);
@@ -115,7 +115,7 @@ class AuthenticateServiceTests {
         }
 
         @Test
-        void ThrowsBadCredentialsException_TokenPairIssuanceFails() {
+        void ThrowsBadCredentialsException_GenerateTokenPairFails() {
             // Given
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);
@@ -131,7 +131,7 @@ class AuthenticateServiceTests {
 
             // Then
             assertThat(thrown).isInstanceOf(BadCredentialsException.class)
-                              .hasMessageContaining("Authentication could not be granted due to")
+                              .hasMessageContaining("Authentication failed: could not generate tokens")
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(credentialsAuthenticator).should(times(1))
@@ -145,7 +145,7 @@ class AuthenticateServiceTests {
         }
 
         @Test
-        void ThrowsBadCredentialsException_RepositorySaveFails() {
+        void ThrowsBadCredentialsException_PersistAuthenticationFails() {
             // Given
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);
@@ -165,7 +165,7 @@ class AuthenticateServiceTests {
 
             // Then
             assertThat(thrown).isInstanceOf(BadCredentialsException.class)
-                              .hasMessageContaining("Authentication could not be granted due to")
+                              .hasMessageContaining("Authentication failed: could not persist to database")
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(credentialsAuthenticator).should(times(1))
@@ -179,7 +179,7 @@ class AuthenticateServiceTests {
         }
 
         @Test
-        void ThrowsBadCredentialsException_StoreSaveFails() {
+        void ThrowsBadCredentialsException_ActivateTokensFailsAndRollbackAuthenticationSucceed() {
             // Given
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);
@@ -201,7 +201,7 @@ class AuthenticateServiceTests {
 
             // Then
             assertThat(thrown).isInstanceOf(BadCredentialsException.class)
-                              .hasMessageContaining("Authentication could not be granted due to")
+                              .hasMessageContaining("Authentication failed: tokens could not be stored")
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(credentialsAuthenticator).should(times(1))
@@ -212,6 +212,8 @@ class AuthenticateServiceTests {
                                              .save(any(JwtAuthentication.class));
             then(jwtStore).should(times(1))
                           .save(jwtPair);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .deleteById(savedAuthentication.getId());
         }
 
         @Test

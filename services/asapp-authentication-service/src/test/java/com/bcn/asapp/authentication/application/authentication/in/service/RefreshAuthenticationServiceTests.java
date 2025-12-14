@@ -90,7 +90,7 @@ class RefreshAuthenticationServiceTests {
     class RefreshAuthentication {
 
         @Test
-        void ThrowsInvalidJwtException_TokenDecodeFails() {
+        void ThrowsInvalidJwtException_DecodeTokenFails() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
             given(tokenDecoder.decode(encodedRefreshToken)).willThrow(new InvalidJwtException("Invalid token"));
@@ -129,7 +129,7 @@ class RefreshAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsJwtAuthenticationNotFoundException_TokenNotFoundInRedis() {
+        void ThrowsJwtAuthenticationNotFoundException_TokenNotFoundInStore() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
             var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
@@ -178,7 +178,7 @@ class RefreshAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsInvalidJwtAuthenticationException_TokenPairIssuanceFails() {
+        void ThrowsInvalidJwtAuthenticationException_GenerateTokenPairFails() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
             var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
@@ -199,7 +199,7 @@ class RefreshAuthenticationServiceTests {
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
-                              .hasMessageContaining("Authentication could not be refreshed due to")
+                              .hasMessageContaining("Refresh failed: could not generate tokens")
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(tokenDecoder).should(times(1))
@@ -219,7 +219,7 @@ class RefreshAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsInvalidJwtAuthenticationException_RepositorySaveFails() {
+        void ThrowsInvalidJwtAuthenticationException_PersistsAuthenticationFails() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
             var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
@@ -244,7 +244,7 @@ class RefreshAuthenticationServiceTests {
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
-                              .hasMessageContaining("Authentication could not be refreshed due to")
+                              .hasMessageContaining("Refresh failed: could not persist to database")
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(tokenDecoder).should(times(1))
@@ -264,7 +264,7 @@ class RefreshAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsInvalidJwtAuthenticationException_StoreDeleteFails() {
+        void ThrowsInvalidJwtAuthenticationException_StoreDeleteFailsAndReactivatePreviousTokensSucceed() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
             var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
@@ -290,7 +290,7 @@ class RefreshAuthenticationServiceTests {
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
-                              .hasMessageContaining("Authentication could not be refreshed due to")
+                              .hasMessageContaining("Refresh failed: tokens could not be updated in Redis")
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(tokenDecoder).should(times(1))
@@ -305,12 +305,12 @@ class RefreshAuthenticationServiceTests {
                                              .save(authentication);
             then(jwtStore).should(times(1))
                           .delete(oldJwtPair);
-            then(jwtStore).should(never())
-                          .save(any(JwtPair.class));
+            then(jwtStore).should(times(1))
+                          .save(oldJwtPair);
         }
 
         @Test
-        void ThrowsInvalidJwtAuthenticationException_StoreSaveFails() {
+        void ThrowsInvalidJwtAuthenticationException_StoreSaveFailsAndReactivatePreviousTokensSucceed() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
             var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
@@ -336,7 +336,7 @@ class RefreshAuthenticationServiceTests {
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
-                              .hasMessageContaining("Authentication could not be refreshed due to")
+                              .hasMessageContaining("Refresh failed: tokens could not be updated in Redis")
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(tokenDecoder).should(times(1))
@@ -351,7 +351,7 @@ class RefreshAuthenticationServiceTests {
                                              .save(authentication);
             then(jwtStore).should(times(1))
                           .delete(oldJwtPair);
-            then(jwtStore).should(times(1))
+            then(jwtStore).should(times(2))
                           .save(any(JwtPair.class));
         }
 

@@ -31,8 +31,8 @@ import com.bcn.asapp.authentication.application.authentication.out.JwtAuthentica
  * <p>
  * Runs daily to mark expired authentications and delete old ones beyond retention period.
  *
- * @author attrigo
  * @since 0.2.0
+ * @author attrigo
  */
 @Component
 @ConditionalOnProperty(name = "asapp.security.jwt.cleanup.enabled", havingValue = "true", matchIfMissing = true)
