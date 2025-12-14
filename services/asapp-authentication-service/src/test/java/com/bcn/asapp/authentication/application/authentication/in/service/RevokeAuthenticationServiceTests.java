@@ -87,7 +87,7 @@ class RevokeAuthenticationServiceTests {
     class RevokeAuthentication {
 
         @Test
-        void ThrowsInvalidJwtException_TokenDecodeFails() {
+        void ThrowsInvalidJwtException_DecodeTokenFails() {
             // Given
             var encodedAccessToken = EncodedToken.of(accessTokenValue);
             given(tokenDecoder.decode(encodedAccessToken)).willThrow(new InvalidJwtException("Invalid token"));
@@ -126,7 +126,7 @@ class RevokeAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsJwtAuthenticationNotFoundException_TokenNotFoundInRedis() {
+        void ThrowsJwtAuthenticationNotFoundException_TokenNotFoundInStore() {
             // Given
             var encodedAccessToken = EncodedToken.of(accessTokenValue);
             var decodedToken = new DecodedJwt(accessTokenValue, "at+jwt", usernameValue, Map.of("token_use", "access", "role", role.name()));
@@ -175,7 +175,7 @@ class RevokeAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsInvalidJwtAuthenticationException_StoreDeleteFails() {
+        void ThrowsInvalidJwtAuthenticationException_DeactivateTokensFails() {
             // Given
             var encodedAccessToken = EncodedToken.of(accessTokenValue);
             var decodedToken = new DecodedJwt(accessTokenValue, "at+jwt", usernameValue, Map.of("token_use", "access", "role", role.name()));
@@ -196,7 +196,7 @@ class RevokeAuthenticationServiceTests {
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
-                              .hasMessageContaining("Authentication could not be revoked due to")
+                              .hasMessageContaining("Revocation failed: could not deactivate tokens")
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(tokenDecoder).should(times(1))
@@ -209,10 +209,12 @@ class RevokeAuthenticationServiceTests {
                           .delete(jwtPair);
             then(jwtAuthenticationRepository).should(never())
                                              .deleteById(any(JwtAuthenticationId.class));
+            then(jwtStore).should(times(1))
+                          .delete(jwtPair);
         }
 
         @Test
-        void ThrowsInvalidJwtAuthenticationException_RepositoryDeleteFails() {
+        void ThrowsInvalidJwtAuthenticationException_DeleteAuthenticationReactivateTokensSucceed() {
             // Given
             var encodedAccessToken = EncodedToken.of(accessTokenValue);
             var decodedToken = new DecodedJwt(accessTokenValue, "at+jwt", usernameValue, Map.of("token_use", "access", "role", role.name()));
@@ -233,7 +235,7 @@ class RevokeAuthenticationServiceTests {
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
-                              .hasMessageContaining("Authentication could not be revoked due to")
+                              .hasMessageContaining("Revocation failed: could not delete from database")
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(tokenDecoder).should(times(1))
@@ -246,6 +248,8 @@ class RevokeAuthenticationServiceTests {
                           .delete(jwtPair);
             then(jwtAuthenticationRepository).should(times(1))
                                              .deleteById(authenticationId);
+            then(jwtStore).should(times(1))
+                          .save(jwtPair);
         }
 
         @Test
