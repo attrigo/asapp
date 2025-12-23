@@ -267,7 +267,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_JwtIsAccessToken() {
+        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_JwtIsAccessToken() {
             // When
             var accessToken = defaultTestEncodedAccessToken();
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(accessToken);
@@ -280,8 +280,21 @@ class AuthenticationE2EIT {
                          .exchange()
                          .expectStatus()
                          .isUnauthorized()
+                         .expectHeader()
+                         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                          .expectBody()
-                         .isEmpty();
+                         .jsonPath("$.type")
+                         .isEqualTo("about:blank")
+                         .jsonPath("$.title")
+                         .isEqualTo("Authentication Failed")
+                         .jsonPath("$.status")
+                         .isEqualTo(401)
+                         .jsonPath("$.detail")
+                         .isEqualTo("Invalid token")
+                         .jsonPath("$.error")
+                         .isEqualTo("invalid_grant")
+                         .jsonPath("$.instance")
+                         .isEqualTo("/asapp-authentication-service/api/auth/refresh");
 
             // Then
             assertNoAuthenticationsExists();
@@ -311,7 +324,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_RefreshTokenSubjectNotExists() {
+        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_RefreshTokenSubjectNotExists() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -331,15 +344,28 @@ class AuthenticationE2EIT {
                          .exchange()
                          .expectStatus()
                          .isUnauthorized()
+                         .expectHeader()
+                         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                          .expectBody()
-                         .isEmpty();
+                         .jsonPath("$.type")
+                         .isEqualTo("about:blank")
+                         .jsonPath("$.title")
+                         .isEqualTo("Authentication Failed")
+                         .jsonPath("$.status")
+                         .isEqualTo(401)
+                         .jsonPath("$.detail")
+                         .isEqualTo("Invalid credentials")
+                         .jsonPath("$.error")
+                         .isEqualTo("invalid_grant")
+                         .jsonPath("$.instance")
+                         .isEqualTo("/asapp-authentication-service/api/auth/refresh");
 
             // Then
             assertNoAuthenticationsExists();
         }
 
         @Test
-        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_RefreshTokenNotExists() {
+        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_RefreshTokenNotExists() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -357,8 +383,21 @@ class AuthenticationE2EIT {
                          .exchange()
                          .expectStatus()
                          .isUnauthorized()
+                         .expectHeader()
+                         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                          .expectBody()
-                         .isEmpty();
+                         .jsonPath("$.type")
+                         .isEqualTo("about:blank")
+                         .jsonPath("$.title")
+                         .isEqualTo("Authentication Failed")
+                         .jsonPath("$.status")
+                         .isEqualTo(401)
+                         .jsonPath("$.detail")
+                         .isEqualTo("Invalid credentials")
+                         .jsonPath("$.error")
+                         .isEqualTo("invalid_grant")
+                         .jsonPath("$.instance")
+                         .isEqualTo("/asapp-authentication-service/api/auth/refresh");
 
             // Then
             assertNoAuthenticationsExists();
@@ -468,7 +507,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_JwtIsRefreshToken() {
+        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_JwtIsRefreshToken() {
             // When
             var refreshToken = defaultTestEncodedRefreshToken();
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(refreshToken);
@@ -481,8 +520,21 @@ class AuthenticationE2EIT {
                          .exchange()
                          .expectStatus()
                          .isUnauthorized()
+                         .expectHeader()
+                         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                          .expectBody()
-                         .isEmpty();
+                         .jsonPath("$.type")
+                         .isEqualTo("about:blank")
+                         .jsonPath("$.title")
+                         .isEqualTo("Authentication Failed")
+                         .jsonPath("$.status")
+                         .isEqualTo(401)
+                         .jsonPath("$.detail")
+                         .isEqualTo("Invalid token")
+                         .jsonPath("$.error")
+                         .isEqualTo("invalid_grant")
+                         .jsonPath("$.instance")
+                         .isEqualTo("/asapp-authentication-service/api/auth/revoke");
 
             // Then
             assertNoAuthenticationsExists();
@@ -512,7 +564,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_AccessTokenSubjectNotExists() {
+        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_AccessTokenSubjectNotExists() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -532,15 +584,28 @@ class AuthenticationE2EIT {
                          .exchange()
                          .expectStatus()
                          .isUnauthorized()
+                         .expectHeader()
+                         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                          .expectBody()
-                         .isEmpty();
+                         .jsonPath("$.type")
+                         .isEqualTo("about:blank")
+                         .jsonPath("$.title")
+                         .isEqualTo("Authentication Failed")
+                         .jsonPath("$.status")
+                         .isEqualTo(401)
+                         .jsonPath("$.detail")
+                         .isEqualTo("Invalid credentials")
+                         .jsonPath("$.error")
+                         .isEqualTo("invalid_grant")
+                         .jsonPath("$.instance")
+                         .isEqualTo("/asapp-authentication-service/api/auth/revoke");
 
             // Then
             assertNoAuthenticationsExists();
         }
 
         @Test
-        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_AccessTokenNotExists() {
+        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_AccessTokenNotExists() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -558,8 +623,21 @@ class AuthenticationE2EIT {
                          .exchange()
                          .expectStatus()
                          .isUnauthorized()
+                         .expectHeader()
+                         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                          .expectBody()
-                         .isEmpty();
+                         .jsonPath("$.type")
+                         .isEqualTo("about:blank")
+                         .jsonPath("$.title")
+                         .isEqualTo("Authentication Failed")
+                         .jsonPath("$.status")
+                         .isEqualTo(401)
+                         .jsonPath("$.detail")
+                         .isEqualTo("Invalid credentials")
+                         .jsonPath("$.error")
+                         .isEqualTo("invalid_grant")
+                         .jsonPath("$.instance")
+                         .isEqualTo("/asapp-authentication-service/api/auth/revoke");
 
             // Then
             assertNoAuthenticationsExists();

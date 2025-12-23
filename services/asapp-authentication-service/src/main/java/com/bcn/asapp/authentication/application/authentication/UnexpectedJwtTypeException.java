@@ -14,26 +14,25 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.authentication.infrastructure.security;
+package com.bcn.asapp.authentication.application.authentication;
 
 /**
- * Exception thrown when a JWT authentication operation fails.
+ * Exception thrown when a JWT has an unexpected type.
  * <p>
- * Indicates issues during authentication refresh or revocation processes.
+ * Indicates that the token type does not match the expected type (e.g., receiving a refresh token when an access token was expected).
  *
  * @since 0.2.0
  * @author attrigo
  */
-public class InvalidJwtAuthenticationException extends RuntimeException {
+public class UnexpectedJwtTypeException extends AuthenticationException {
 
     /**
-     * Constructs a new {@code InvalidJwtAuthenticationException} with the specified message and cause.
+     * Constructs a new {@code UnexpectedJwtTypeException} with the specified message.
      *
      * @param message the detail message
-     * @param cause   the cause of the exception
      */
-    public InvalidJwtAuthenticationException(String message, Throwable cause) {
-        super(message, cause);
+    public UnexpectedJwtTypeException(String message) {
+        super(message);
     }
 
 }

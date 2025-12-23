@@ -18,10 +18,13 @@ package com.bcn.asapp.authentication.application.authentication.in.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bcn.asapp.authentication.application.ApplicationService;
+import com.bcn.asapp.authentication.application.CompensatingTransactionException;
+import com.bcn.asapp.authentication.application.authentication.AuthenticationPersistenceException;
+import com.bcn.asapp.authentication.application.authentication.TokenGenerationException;
+import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
 import com.bcn.asapp.authentication.application.authentication.in.AuthenticateUseCase;
 import com.bcn.asapp.authentication.application.authentication.in.command.AuthenticateCommand;
 import com.bcn.asapp.authentication.application.authentication.out.CredentialsAuthenticator;
@@ -44,11 +47,11 @@ import com.bcn.asapp.authentication.domain.user.Username;
  * <li>Validates user credentials via {@link CredentialsAuthenticator}</li>
  * <li>Generates JWT pair via {@link TokenIssuer}</li>
  * <li>Creates {@link JwtAuthentication} domain aggregate</li>
- * <li>Persists authentication to database via {@link JwtAuthenticationRepository}</li>
+ * <li>Persists authentication to repository via {@link JwtAuthenticationRepository}</li>
  * <li>Stores tokens in fast-access store via {@link JwtStore}</li>
  * </ol>
  * <p>
- * If Redis storage fails after database commit, the database record is deleted to maintain consistency between storage systems.
+ * If fast-access store fails after repository commit, the persisted authentication is deleted to maintain consistency between storage systems.
  *
  * @since 0.2.0
  * @author attrigo
@@ -88,24 +91,28 @@ public class AuthenticateService implements AuthenticateUseCase {
      * <p>
      * Orchestrates the complete authentication workflow: credential validation, token generation, and persistence.
      * <p>
-     * Fist saves Database, then stores Redis. If Redis fails, database is rolled back via compensating transaction to maintain consistency.
+     * First saves to repository, then stores in fast-access store. If fast-access store fails, repository is rolled back via compensating transaction to
+     * maintain consistency.
      *
      * @param authenticateCommand the {@link AuthenticateCommand} containing user credentials
      * @return the {@link JwtAuthentication} containing access and refresh tokens with persistent ID
-     * @throws IllegalArgumentException if the username or password is invalid
-     * @throws BadCredentialsException  if authentication fails or token storage fails
+     * @throws IllegalArgumentException           if the username or password is invalid
+     * @throws TokenGenerationException           if token generation fails
+     * @throws AuthenticationPersistenceException if authentication persistence fails
+     * @throws TokenStoreException                if token store operation fails (after compensation)
+     * @throws CompensatingTransactionException   if compensating transaction fails
      */
     @Override
     @Transactional
-    // TODO: Handle specific exceptions for better error reporting
     public JwtAuthentication authenticate(AuthenticateCommand authenticateCommand) {
         logger.debug("Authenticating user {}", authenticateCommand.username());
 
         var userAuthentication = authenticateCredentials(authenticateCommand);
+
         var jwtPair = generateTokenPair(userAuthentication);
         var jwtAuthentication = createJwtAuthentication(userAuthentication, jwtPair);
-        var savedAuthentication = persistAuthentication(jwtAuthentication);
 
+        var savedAuthentication = persistAuthentication(jwtAuthentication);
         try {
             activateTokens(savedAuthentication.getJwtPair());
 
@@ -114,9 +121,9 @@ public class AuthenticateService implements AuthenticateUseCase {
 
             return savedAuthentication;
 
-        } catch (Exception e) {
-            rollbackAuthentication(savedAuthentication);
-            throw new BadCredentialsException("Authentication failed: tokens could not be stored", e);
+        } catch (TokenStoreException e) {
+            compensateDatabasePersistence(savedAuthentication);
+            throw e;
         }
     }
 
@@ -138,7 +145,7 @@ public class AuthenticateService implements AuthenticateUseCase {
      *
      * @param userAuthentication the authenticated user information
      * @return the generated JWT pair
-     * @throws BadCredentialsException if token generation fails
+     * @throws TokenGenerationException if token generation fails
      */
     private JwtPair generateTokenPair(UserAuthentication userAuthentication) {
         logger.trace("Step 2: Generating JWT pair for userId={}", userAuthentication.userId()
@@ -147,10 +154,7 @@ public class AuthenticateService implements AuthenticateUseCase {
             return tokenIssuer.issueTokenPair(userAuthentication);
 
         } catch (Exception e) {
-            logger.error("Failed to generate token pair for user {}", userAuthentication.username()
-                                                                                        .value(),
-                    e);
-            throw new BadCredentialsException("Authentication failed: could not generate tokens", e);
+            throw new TokenGenerationException("Could not generate tokens for user", e);
         }
     }
 
@@ -168,51 +172,55 @@ public class AuthenticateService implements AuthenticateUseCase {
     }
 
     /**
-     * Persists the JWT authentication to the database.
+     * Persists the JWT authentication to the repository.
      *
      * @param jwtAuthentication the JWT authentication to persist
      * @return the persisted JWT authentication with assigned ID
-     * @throws BadCredentialsException if database persistence fails
+     * @throws AuthenticationPersistenceException if authentication persistence fails
      */
     private JwtAuthentication persistAuthentication(JwtAuthentication jwtAuthentication) {
-        logger.trace("Step 4: Persisting authentication to database");
+        logger.trace("Step 4: Persisting authentication to repository");
         try {
             return jwtAuthenticationRepository.save(jwtAuthentication);
 
         } catch (Exception e) {
-            logger.error("Failed to persist authentication to database", e);
-            throw new BadCredentialsException("Authentication failed: could not persist to database", e);
+            throw new AuthenticationPersistenceException("Could not persist authentication to repository", e);
         }
     }
 
     /**
-     * Stores the JWT pair in Redis for fast token validation.
+     * Stores the JWT pair in fast-access store for fast token validation.
      *
      * @param jwtPair the JWT pair to store
+     * @throws TokenStoreException if token store operation fails
      */
     private void activateTokens(JwtPair jwtPair) {
-        logger.trace("Step 5: Storing tokens in fast-access store for Redis");
-        jwtStore.save(jwtPair);
+        logger.trace("Step 5: Storing tokens in fast-access store");
+        try {
+            jwtStore.save(jwtPair);
+
+        } catch (Exception e) {
+            throw new TokenStoreException("Could not store tokens in fast-access store", e);
+        }
     }
 
     /**
-     * Compensates for Redis storage failure by deleting the authentication from database.
+     * Compensates for fast-access store failure by deleting the authentication from repository.
      *
-     * @param jwtAuthentication the authentication that was saved to database
+     * @param jwtAuthentication the authentication that was saved to repository
+     * @throws CompensatingTransactionException if compensation fails
      */
-    private void rollbackAuthentication(JwtAuthentication jwtAuthentication) {
-        logger.warn("Redis storage failed, rolling back database for authenticationId={}", jwtAuthentication.getId()
-                                                                                                            .value());
+    private void compensateDatabasePersistence(JwtAuthentication jwtAuthentication) {
+        logger.warn("Rolling back authenticationId={} from repository", jwtAuthentication.getId()
+                                                                                         .value());
 
         try {
             jwtAuthenticationRepository.deleteById(jwtAuthentication.getId());
 
-            logger.info("Compensating transaction completed: authentication deleted from database");
+            logger.debug("Compensating transaction completed: authentication deleted from repository");
 
         } catch (Exception e) {
-            logger.error("CRITICAL: Compensating transaction failed - orphaned record in database with authenticationId={}", jwtAuthentication.getId()
-                                                                                                                                              .value(),
-                    e);
+            throw new CompensatingTransactionException("Failed to compensate repository persistence after token activation failure", e);
         }
     }
 

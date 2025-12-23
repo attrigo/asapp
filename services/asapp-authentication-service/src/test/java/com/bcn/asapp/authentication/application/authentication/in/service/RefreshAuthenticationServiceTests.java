@@ -38,6 +38,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.bcn.asapp.authentication.application.CompensatingTransactionException;
+import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
+import com.bcn.asapp.authentication.application.authentication.AuthenticationPersistenceException;
+import com.bcn.asapp.authentication.application.authentication.TokenGenerationException;
+import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
+import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.application.authentication.out.TokenDecoder;
@@ -55,10 +61,7 @@ import com.bcn.asapp.authentication.domain.authentication.Subject;
 import com.bcn.asapp.authentication.domain.user.Role;
 import com.bcn.asapp.authentication.domain.user.UserId;
 import com.bcn.asapp.authentication.infrastructure.security.DecodedJwt;
-import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtAuthenticationException;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
-import com.bcn.asapp.authentication.infrastructure.security.JwtAuthenticationNotFoundException;
-import com.bcn.asapp.authentication.infrastructure.security.UnexpectedJwtTypeException;
 
 @ExtendWith(MockitoExtension.class)
 class RefreshAuthenticationServiceTests {
@@ -129,7 +132,7 @@ class RefreshAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsJwtAuthenticationNotFoundException_TokenNotFoundInStore() {
+        void ThrowsAuthenticationNotFoundException_TokenNotFoundInStore() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
             var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
@@ -140,7 +143,7 @@ class RefreshAuthenticationServiceTests {
             var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
 
             // Then
-            assertThat(thrown).isInstanceOf(JwtAuthenticationNotFoundException.class)
+            assertThat(thrown).isInstanceOf(AuthenticationNotFoundException.class)
                               .hasMessageContaining("Refresh token not found in active sessions");
 
             then(tokenDecoder).should(times(1))
@@ -152,7 +155,7 @@ class RefreshAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsJwtAuthenticationNotFoundException_TokenNotFoundInDatabase() {
+        void ThrowsAuthenticationNotFoundException_TokenNotFoundInDatabase() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
             var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
@@ -164,8 +167,8 @@ class RefreshAuthenticationServiceTests {
             var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
 
             // Then
-            assertThat(thrown).isInstanceOf(JwtAuthenticationNotFoundException.class)
-                              .hasMessageContaining("JWT authentication not found by refresh token");
+            assertThat(thrown).isInstanceOf(AuthenticationNotFoundException.class)
+                              .hasMessageContaining("Authentication not found by refresh token");
 
             then(tokenDecoder).should(times(1))
                               .decode(encodedRefreshToken);
@@ -178,7 +181,7 @@ class RefreshAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsInvalidJwtAuthenticationException_GenerateTokenPairFails() {
+        void ThrowsTokenGenerationException_GenerateTokenPairFails() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
             var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
@@ -198,8 +201,8 @@ class RefreshAuthenticationServiceTests {
             var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
 
             // Then
-            assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
-                              .hasMessageContaining("Refresh failed: could not generate tokens")
+            assertThat(thrown).isInstanceOf(TokenGenerationException.class)
+                              .hasMessageContaining("Could not generate new tokens")
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(tokenDecoder).should(times(1))
@@ -219,7 +222,7 @@ class RefreshAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsInvalidJwtAuthenticationException_PersistsAuthenticationFails() {
+        void ThrowsAuthenticationPersistenceException_PersistsAuthenticationFails() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
             var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
@@ -243,8 +246,8 @@ class RefreshAuthenticationServiceTests {
             var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
 
             // Then
-            assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
-                              .hasMessageContaining("Refresh failed: could not persist to database")
+            assertThat(thrown).isInstanceOf(AuthenticationPersistenceException.class)
+                              .hasMessageContaining("Could not persist updated authentication to repository")
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(tokenDecoder).should(times(1))
@@ -264,7 +267,7 @@ class RefreshAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsInvalidJwtAuthenticationException_StoreDeleteFailsAndReactivatePreviousTokensSucceed() {
+        void ThrowsTokenStoreException_TokenRotationFailsAndCompensationSucceeds() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
             var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
@@ -282,15 +285,15 @@ class RefreshAuthenticationServiceTests {
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
             given(tokenIssuer.issueTokenPair(subject, role)).willReturn(newJwtPair);
             given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
-            willThrow(new RuntimeException("Redis connection failed")).given(jwtStore)
-                                                                      .delete(oldJwtPair);
+            willThrow(new RuntimeException("Token store connection failed")).given(jwtStore)
+                                                                            .delete(oldJwtPair);
 
             // When
             var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
 
             // Then
-            assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
-                              .hasMessageContaining("Refresh failed: tokens could not be updated in Redis")
+            assertThat(thrown).isInstanceOf(TokenStoreException.class)
+                              .hasMessageContaining("Could not rotate tokens in fast-access store")
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(tokenDecoder).should(times(1))
@@ -310,7 +313,7 @@ class RefreshAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsInvalidJwtAuthenticationException_StoreSaveFailsAndReactivatePreviousTokensSucceed() {
+        void ThrowsTokenStoreException_TokenSaveFailsAndCompensationSucceeds() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
             var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
@@ -328,15 +331,110 @@ class RefreshAuthenticationServiceTests {
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
             given(tokenIssuer.issueTokenPair(subject, role)).willReturn(newJwtPair);
             given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
-            willThrow(new RuntimeException("Redis connection failed")).given(jwtStore)
-                                                                      .save(any(JwtPair.class));
+            willThrow(new RuntimeException("Token store connection failed")).willDoNothing()
+                                                                            .given(jwtStore)
+                                                                            .save(any(JwtPair.class));
 
             // When
             var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
 
             // Then
-            assertThat(thrown).isInstanceOf(InvalidJwtAuthenticationException.class)
-                              .hasMessageContaining("Refresh failed: tokens could not be updated in Redis")
+            assertThat(thrown).isInstanceOf(TokenStoreException.class)
+                              .hasMessageContaining("Could not rotate tokens in fast-access store")
+                              .hasCauseInstanceOf(RuntimeException.class);
+
+            then(tokenDecoder).should(times(1))
+                              .decode(encodedRefreshToken);
+            then(jwtStore).should(times(1))
+                          .refreshTokenExists(encodedRefreshToken);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .findByRefreshToken(encodedRefreshToken);
+            then(tokenIssuer).should(times(1))
+                             .issueTokenPair(subject, role);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .save(authentication);
+            then(jwtStore).should(times(1))
+                          .delete(oldJwtPair);
+            then(jwtStore).should(times(2))
+                          .save(any(JwtPair.class));
+        }
+
+        @Test
+        void ThrowsCompensatingTransactionException_TokenRotationFailsAndCompensationFails() {
+            // Given
+            var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
+            var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
+            var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
+            var oldRefreshToken = createJwt(JwtType.REFRESH_TOKEN, refreshTokenValue);
+            var oldJwtPair = JwtPair.of(oldAccessToken, oldRefreshToken);
+            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldJwtPair);
+            var subject = Subject.of(usernameValue);
+            var newAccessToken = createJwt(JwtType.ACCESS_TOKEN, "new.access.token");
+            var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
+            var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
+
+            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
+            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
+            given(tokenIssuer.issueTokenPair(subject, role)).willReturn(newJwtPair);
+            given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
+            willThrow(new RuntimeException("Token store connection failed")).given(jwtStore)
+                                                                            .delete(oldJwtPair);
+            willThrow(new RuntimeException("Compensation failed")).given(jwtStore)
+                                                                  .save(oldJwtPair);
+
+            // When
+            var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
+
+            // Then
+            assertThat(thrown).isInstanceOf(CompensatingTransactionException.class)
+                              .hasMessageContaining("Failed to compensate token rotation after token activation failure")
+                              .hasCauseInstanceOf(RuntimeException.class);
+
+            then(tokenDecoder).should(times(1))
+                              .decode(encodedRefreshToken);
+            then(jwtStore).should(times(1))
+                          .refreshTokenExists(encodedRefreshToken);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .findByRefreshToken(encodedRefreshToken);
+            then(tokenIssuer).should(times(1))
+                             .issueTokenPair(subject, role);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .save(authentication);
+            then(jwtStore).should(times(1))
+                          .delete(oldJwtPair);
+            then(jwtStore).should(times(1))
+                          .save(oldJwtPair);
+        }
+
+        @Test
+        void ThrowsCompensatingTransactionException_TokenSaveFailsAndCompensationFails() {
+            // Given
+            var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
+            var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
+            var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
+            var oldRefreshToken = createJwt(JwtType.REFRESH_TOKEN, refreshTokenValue);
+            var oldJwtPair = JwtPair.of(oldAccessToken, oldRefreshToken);
+            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldJwtPair);
+            var subject = Subject.of(usernameValue);
+            var newAccessToken = createJwt(JwtType.ACCESS_TOKEN, "new.access.token");
+            var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
+            var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
+
+            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
+            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
+            given(tokenIssuer.issueTokenPair(subject, role)).willReturn(newJwtPair);
+            given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
+            willThrow(new RuntimeException("Token store connection failed")).given(jwtStore)
+                                                                            .save(any(JwtPair.class));
+
+            // When
+            var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
+
+            // Then
+            assertThat(thrown).isInstanceOf(CompensatingTransactionException.class)
+                              .hasMessageContaining("Failed to compensate token rotation after token activation failure")
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(tokenDecoder).should(times(1))

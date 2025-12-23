@@ -21,6 +21,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bcn.asapp.authentication.application.ApplicationService;
+import com.bcn.asapp.authentication.application.CompensatingTransactionException;
+import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
+import com.bcn.asapp.authentication.application.authentication.AuthenticationPersistenceException;
+import com.bcn.asapp.authentication.application.authentication.TokenGenerationException;
+import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
+import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.bcn.asapp.authentication.application.authentication.in.RefreshAuthenticationUseCase;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
@@ -32,10 +38,7 @@ import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 import com.bcn.asapp.authentication.domain.authentication.Subject;
 import com.bcn.asapp.authentication.domain.user.Role;
 import com.bcn.asapp.authentication.infrastructure.security.DecodedJwt;
-import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtAuthenticationException;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
-import com.bcn.asapp.authentication.infrastructure.security.JwtAuthenticationNotFoundException;
-import com.bcn.asapp.authentication.infrastructure.security.UnexpectedJwtTypeException;
 
 /**
  * Application service responsible for orchestrating authentication refresh.
@@ -48,14 +51,14 @@ import com.bcn.asapp.authentication.infrastructure.security.UnexpectedJwtTypeExc
  * <li>Decodes and validates refresh token via {@link TokenDecoder}</li>
  * <li>Verifies token type is refresh token</li>
  * <li>Checks token exists in fast-access store via {@link JwtStore}</li>
- * <li>Fetches authentication from database via {@link JwtAuthenticationRepository}</li>
+ * <li>Fetches authentication from repository via {@link JwtAuthenticationRepository}</li>
  * <li>Generates new JWT pair via {@link TokenIssuer}</li>
  * <li>Updates domain aggregate with new tokens</li>
- * <li>Persists updated authentication to database</li>
- * <li>Deletes old tokens from Redis and stores new tokens</li>
+ * <li>Persists updated authentication to repository</li>
+ * <li>Deletes old tokens from fast-access store and stores new tokens</li>
  * </ol>
  * <p>
- * If Redis operations fail after database commit, the old authentication state is restored to maintain consistency.
+ * If fast-access store operations fail after repository commit, the old authentication state is restored to maintain consistency.
  *
  * @since 0.2.0
  * @author attrigo
@@ -95,19 +98,21 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      * <p>
      * Orchestrates the complete token refresh workflow: validation, verification, new token generation, and persistence with cleanup.
      * <p>
-     * First updates database, then updates Redis. If Redis fails, old state is restored via compensating transaction.
+     * First updates repository, then updates fast-access store. If fast-access store fails, old state is restored via compensating transaction.
      *
      * @param refreshToken the refresh token string
      * @return the {@link JwtAuthentication} containing new access and refresh tokens
      * @throws IllegalArgumentException           if the refresh token is invalid or blank
      * @throws InvalidJwtException                if the token is invalid, malformed, or expired
      * @throws UnexpectedJwtTypeException         if the provided token is not a refresh token
-     * @throws JwtAuthenticationNotFoundException if the token is not found in active sessions or database
-     * @throws InvalidJwtAuthenticationException  if refresh fails due to storage errors
+     * @throws AuthenticationNotFoundException    if the token is not found in active sessions or repository
+     * @throws TokenGenerationException           if token generation fails
+     * @throws AuthenticationPersistenceException if authentication persistence fails
+     * @throws TokenStoreException                if token store operation fails (after compensation)
+     * @throws CompensatingTransactionException   if compensating transaction fails
      */
     @Override
     @Transactional
-    // TODO: Handle specific exceptions for better error reporting
     public JwtAuthentication refreshAuthentication(String refreshToken) {
         logger.debug("Refreshing authentication with refresh token");
 
@@ -123,7 +128,6 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
         updateAuthenticationWithNewTokens(authentication, newJwtPair);
 
         var updatedAuthentication = persistAuthenticationUpdate(authentication);
-
         try {
             rotateTokens(oldJwtPair, updatedAuthentication.getJwtPair());
 
@@ -131,9 +135,9 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
 
             return updatedAuthentication;
 
-        } catch (Exception e) {
-            reactivatePreviousTokens(oldJwtPair);
-            throw new InvalidJwtAuthenticationException("Refresh failed: tokens could not be updated in Redis", e);
+        } catch (TokenStoreException e) {
+            compensateTokenRotation(oldJwtPair);
+            throw e;
         }
     }
 
@@ -162,32 +166,31 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
     }
 
     /**
-     * Checks if the token exists in the fast-access store (Redis).
+     * Checks if the token exists in the fast-access store.
      *
      * @param encodedToken the encoded token to check
-     * @throws JwtAuthenticationNotFoundException if the token is not found in active sessions
+     * @throws AuthenticationNotFoundException if the token is not found in active sessions
      */
     private void checkTokenInActiveStore(EncodedToken encodedToken) {
         logger.trace("Step 3: Checking token exists in fast-access store");
         var isTokenActive = jwtStore.refreshTokenExists(encodedToken);
         if (!isTokenActive) {
-            throw new JwtAuthenticationNotFoundException(
-                    String.format("Refresh token not found in active sessions (revoked or expired): %s", encodedToken.token()));
+            throw new AuthenticationNotFoundException(String.format("Refresh token not found in active sessions: %s", encodedToken.token()));
         }
     }
 
     /**
-     * Fetches the authentication record from the database using the refresh token.
+     * Fetches the authentication record from the repository using the refresh token.
      *
      * @param encodedToken the refresh token to search for
-     * @return the JWT authentication from database
-     * @throws JwtAuthenticationNotFoundException if authentication is not found
+     * @return the JWT authentication from repository
+     * @throws AuthenticationNotFoundException if authentication is not found
      */
     private JwtAuthentication retrieveAuthentication(EncodedToken encodedToken) {
-        logger.trace("Step 4: Fetching authentication from database for refresh token");
+        logger.trace("Step 4: Fetching authentication from repository for refresh token");
         return jwtAuthenticationRepository.findByRefreshToken(encodedToken)
-                                          .orElseThrow(() -> new JwtAuthenticationNotFoundException(
-                                                  String.format("JWT authentication not found by refresh token %s", encodedToken.token())));
+                                          .orElseThrow(() -> new AuthenticationNotFoundException(
+                                                  String.format("Authentication not found by refresh token %s", encodedToken.token())));
     }
 
     /**
@@ -195,7 +198,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      *
      * @param decodedToken the decoded token containing subject and role claims
      * @return the newly generated JWT pair
-     * @throws InvalidJwtAuthenticationException if token generation fails
+     * @throws TokenGenerationException if token generation fails
      */
     private JwtPair generateNewTokenPair(DecodedJwt decodedToken) {
         logger.trace("Step 5: Generating new JWT pair for subject={}, role={}", decodedToken.subject(), decodedToken.roleClaim());
@@ -205,8 +208,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
             return tokenIssuer.issueTokenPair(subject, role);
 
         } catch (Exception e) {
-            logger.error("Failed to generate token pair for refresh token", e);
-            throw new InvalidJwtAuthenticationException("Refresh failed: could not generate tokens", e);
+            throw new TokenGenerationException("Could not generate new tokens", e);
         }
     }
 
@@ -222,20 +224,19 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
     }
 
     /**
-     * Persists the updated authentication to the database.
+     * Persists the updated authentication to the repository.
      *
      * @param jwtAuthentication the authentication to persist
      * @return the persisted authentication
-     * @throws InvalidJwtAuthenticationException if database persistence fails
+     * @throws AuthenticationPersistenceException if authentication persistence fails
      */
     private JwtAuthentication persistAuthenticationUpdate(JwtAuthentication jwtAuthentication) {
-        logger.trace("Step 7: Persisting updated authentication to database");
+        logger.trace("Step 7: Persisting updated authentication to repository");
         try {
             return jwtAuthenticationRepository.save(jwtAuthentication);
 
         } catch (Exception e) {
-            logger.error("Failed to persist updated authentication to database for refresh token", e);
-            throw new InvalidJwtAuthenticationException("Refresh failed: could not persist to database", e);
+            throw new AuthenticationPersistenceException("Could not persist updated authentication to repository", e);
         }
     }
 
@@ -244,30 +245,37 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      *
      * @param oldJwtPair the old JWT pair to remove
      * @param newJwtPair the new JWT pair to activate
+     * @throws TokenStoreException if token rotation fails
      */
     private void rotateTokens(JwtPair oldJwtPair, JwtPair newJwtPair) {
-        logger.trace("Step 8: Deleting old token pair from fast-access store");
-        jwtStore.delete(oldJwtPair);
+        try {
+            logger.trace("Step 8: Deleting old token pair from fast-access store");
+            jwtStore.delete(oldJwtPair);
 
-        logger.trace("Step 9: Storing new token pair in fast-access store");
-        jwtStore.save(newJwtPair);
+            logger.trace("Step 9: Storing new token pair in fast-access store");
+            jwtStore.save(newJwtPair);
+
+        } catch (Exception e) {
+            throw new TokenStoreException("Could not rotate tokens in fast-access store", e);
+        }
     }
 
     /**
      * Reactivates previous tokens after a failed rotation.
      *
      * @param jwtPair the previous JWT pair to reactivate
+     * @throws CompensatingTransactionException if compensation fails
      */
-    private void reactivatePreviousTokens(JwtPair jwtPair) {
-        logger.warn("Redis update failed, attempting to restore old tokens in Redis");
+    private void compensateTokenRotation(JwtPair jwtPair) {
+        logger.warn("Restoring old tokens in fas-access store");
 
         try {
             jwtStore.save(jwtPair);
 
-            logger.info("Compensating transaction completed: old tokens restored in Redis");
+            logger.debug("Compensating transaction completed: old tokens restored in fast-access store");
 
         } catch (Exception e) {
-            logger.error("CRITICAL: Compensating transaction failed - tokens may be inconsistent in Redis", e);
+            throw new CompensatingTransactionException("Failed to compensate token rotation after token activation failure", e);
         }
     }
 

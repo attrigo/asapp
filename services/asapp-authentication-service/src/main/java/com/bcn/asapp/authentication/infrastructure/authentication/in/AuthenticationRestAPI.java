@@ -61,9 +61,11 @@ public interface AuthenticationRestAPI {
      * <p>
      * Response codes:
      * <ul>
-     * <li>20O-OK: The user has been authenticated successfully.</li>
-     * <li>400-BAD_REQUEST: The request body is malformed or contains invalid data</li>
+     * <li>200-OK: The user has been authenticated successfully.</li>
+     * <li>400-BAD_REQUEST: The request body is malformed or contains invalid data.</li>
      * <li>401-UNAUTHORIZED: The user could not be authenticated due to invalid credentials.</li>
+     * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during token generation.</li>
+     * <li>503-SERVICE_UNAVAILABLE: The token store service is temporarily unavailable.</li>
      * </ul>
      *
      * @param request the {@link AuthenticateRequest} containing user credentials
@@ -77,7 +79,12 @@ public interface AuthenticationRestAPI {
             @Content(schema = @Schema(implementation = AuthenticateResponse.class)) })
     @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "401", description = "The user could not be authenticated due to invalid credentials", content = { @Content })
+    @ApiResponse(responseCode = "401", description = "The user could not be authenticated due to invalid credentials", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "500", description = "An internal error occurred during token generation", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "503", description = "The token store service is temporarily unavailable", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     AuthenticateResponse authenticate(@RequestBody @Valid AuthenticateRequest request);
 
     /**
@@ -87,9 +94,11 @@ public interface AuthenticationRestAPI {
      * <p>
      * Response codes:
      * <ul>
-     * <li>20O-OK: The JWT authentication has been refreshed successfully.</li>
-     * <li>400-BAD_REQUEST: The request body is malformed or contains invalid data</li>
-     * <li>401-UNAUTHORIZED: The refresh token is invalid, expired, does not belong to an authenticated user, or the refresh process fails.</li>
+     * <li>200-OK: The JWT authentication has been refreshed successfully.</li>
+     * <li>400-BAD_REQUEST: The request body is malformed or contains invalid data.</li>
+     * <li>401-UNAUTHORIZED: The refresh token is invalid, expired, or does not belong to an authenticated user.</li>
+     * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during token generation or persistence.</li>
+     * <li>503-SERVICE_UNAVAILABLE: The token store service is temporarily unavailable.</li>
      * </ul>
      *
      * @param request the {@link RefreshAuthenticationRequest} containing the refresh token
@@ -103,8 +112,12 @@ public interface AuthenticationRestAPI {
             @Content(schema = @Schema(implementation = RefreshAuthenticationResponse.class)) })
     @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "401", description = "The refresh token is invalid, expired, does not belong to an authenticated user, or the refresh process fails", content = {
-            @Content })
+    @ApiResponse(responseCode = "401", description = "The refresh token is invalid, expired, or does not belong to an authenticated user", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "500", description = "An internal error occurred during token generation or persistence", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "503", description = "The token store service is temporarily unavailable", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     RefreshAuthenticationResponse refreshAuthentication(@RequestBody @Valid RefreshAuthenticationRequest request);
 
     /**
@@ -116,7 +129,9 @@ public interface AuthenticationRestAPI {
      * <ul>
      * <li>200-OK: The JWT authentication has been revoked successfully.</li>
      * <li>400-BAD_REQUEST: The request body is malformed or contains invalid data.</li>
-     * <li>401-UNAUTHORIZED: The access token is invalid, expired, does not belong to an authenticated user, or the revoke process fails.</li>
+     * <li>401-UNAUTHORIZED: The access token is invalid, expired, or does not belong to an authenticated user.</li>
+     * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during the revocation process.</li>
+     * <li>503-SERVICE_UNAVAILABLE: The token store service is temporarily unavailable.</li>
      * </ul>
      *
      * @param request the {@link RevokeAuthenticationRequest} containing the access token
@@ -128,8 +143,12 @@ public interface AuthenticationRestAPI {
     @ApiResponse(responseCode = "200", description = "The JWT authentication has been revoked successfully", content = { @Content })
     @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "401", description = "The access token is invalid, expired, does not belong to an authenticated user, or the revoke process fails", content = {
-            @Content })
+    @ApiResponse(responseCode = "401", description = "The access token is invalid, expired, or does not belong to an authenticated user", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "500", description = "An internal error occurred during the revocation process", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "503", description = "The token store service is temporarily unavailable", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     void revokeAuthentication(@RequestBody @Valid RevokeAuthenticationRequest request);
 
 }

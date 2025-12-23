@@ -16,7 +16,14 @@
 
 package com.bcn.asapp.authentication.application.authentication.in;
 
+import com.bcn.asapp.authentication.application.CompensatingTransactionException;
+import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
+import com.bcn.asapp.authentication.application.authentication.AuthenticationPersistenceException;
+import com.bcn.asapp.authentication.application.authentication.TokenGenerationException;
+import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
+import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
+import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
 
 /**
  * Use case for refreshing authentications in the system.
@@ -33,7 +40,14 @@ public interface RefreshAuthenticationUseCase {
      *
      * @param refreshToken the refresh token string
      * @return the {@link JwtAuthentication} containing new access and refresh tokens
-     * @throws IllegalArgumentException if the refresh token is invalid or blank
+     * @throws IllegalArgumentException           if the refresh token is invalid or blank
+     * @throws InvalidJwtException                if the token is invalid, malformed, or expired
+     * @throws UnexpectedJwtTypeException         if the provided token is not a refresh token
+     * @throws AuthenticationNotFoundException    if the token is not found in active sessions or repository
+     * @throws TokenGenerationException           if token generation fails
+     * @throws AuthenticationPersistenceException if authentication persistence fails
+     * @throws TokenStoreException                if token store operation fails (after compensation)
+     * @throws CompensatingTransactionException   if compensating transaction fails
      */
     JwtAuthentication refreshAuthentication(String refreshToken);
 
