@@ -21,6 +21,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bcn.asapp.authentication.application.ApplicationService;
+import com.bcn.asapp.authentication.application.CompensatingTransactionException;
+import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
+import com.bcn.asapp.authentication.application.authentication.AuthenticationPersistenceException;
+import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
+import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.bcn.asapp.authentication.application.authentication.in.RevokeAuthenticationUseCase;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
@@ -29,10 +34,7 @@ import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 import com.bcn.asapp.authentication.infrastructure.security.DecodedJwt;
-import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtAuthenticationException;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
-import com.bcn.asapp.authentication.infrastructure.security.JwtAuthenticationNotFoundException;
-import com.bcn.asapp.authentication.infrastructure.security.UnexpectedJwtTypeException;
 
 /**
  * Application service responsible for orchestrating authentication revocation.
@@ -44,12 +46,12 @@ import com.bcn.asapp.authentication.infrastructure.security.UnexpectedJwtTypeExc
  * <li>Decodes and validates access token via {@link TokenDecoder}</li>
  * <li>Verifies token type is access token</li>
  * <li>Checks token exists in fast-access store via {@link JwtStore}</li>
- * <li>Fetches authentication from database via {@link JwtAuthenticationRepository}</li>
+ * <li>Fetches authentication from repository via {@link JwtAuthenticationRepository}</li>
  * <li>Deletes token pair from fast-access store</li>
- * <li>Deletes authentication from database</li>
+ * <li>Deletes authentication from repository</li>
  * </ol>
  * <p>
- * If database deletion fails after Redis deletion, tokens are restored to Redis to maintain consistency.
+ * If repository deletion fails after fast-access store deletion, tokens are restored to fast-access store to maintain consistency.
  *
  * @since 0.2.0
  * @author attrigo
@@ -83,18 +85,20 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
      * <p>
      * Orchestrates the complete revocation workflow: validation, verification, and removal from both storage systems.
      * <p>
-     * Deletes from Redis first, then database. If database deletion fails, tokens are restored to Redis via compensating transaction.
+     * Deletes from fast-access store first, then repository. If repository deletion fails, tokens are restored to fast-access store via compensating
+     * transaction.
      *
      * @param accessToken the access token string
      * @throws IllegalArgumentException           if the access token is invalid or blank
      * @throws InvalidJwtException                if the token is invalid, malformed, or expired
      * @throws UnexpectedJwtTypeException         if the provided token is not an access token
-     * @throws JwtAuthenticationNotFoundException if the token is not found in active sessions or database
-     * @throws InvalidJwtAuthenticationException  if revocation fails due to storage errors
+     * @throws AuthenticationNotFoundException    if the token is not found in active sessions or repository
+     * @throws TokenStoreException                if token store operation fails
+     * @throws AuthenticationPersistenceException if authentication deletion fails
+     * @throws CompensatingTransactionException   if compensating transaction fails
      */
     @Override
     @Transactional
-    // TODO: Handle specific exceptions for better error reporting
     public void revokeAuthentication(String accessToken) {
         logger.debug("Revoking authentication with access token");
 
@@ -108,16 +112,15 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
         var jwtPairToDelete = authentication.getJwtPair();
 
         deactivateTokens(jwtPairToDelete);
-
         try {
             deleteAuthentication(authentication);
 
             logger.debug("Authentication revoked successfully with ID {}", authentication.getId()
                                                                                          .value());
 
-        } catch (Exception e) {
-            reactivateTokens(jwtPairToDelete);
-            throw new InvalidJwtAuthenticationException("Revocation failed: could not delete from database", e);
+        } catch (AuthenticationPersistenceException e) {
+            compensateTokenDeactivation(jwtPairToDelete);
+            throw e;
         }
     }
 
@@ -146,39 +149,38 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
     }
 
     /**
-     * Checks if the token exists in the fast-access store (Redis).
+     * Checks if the token exists in the fast-access store.
      *
      * @param encodedToken the encoded token to check
-     * @throws JwtAuthenticationNotFoundException if the token is not found in active sessions
+     * @throws AuthenticationNotFoundException if the token is not found in active sessions
      */
     private void checkTokenInActiveStore(EncodedToken encodedToken) {
         logger.trace("Step 3: Checking token exists in fast-access store");
         var isTokenActive = jwtStore.accessTokenExists(encodedToken);
         if (!isTokenActive) {
-            throw new JwtAuthenticationNotFoundException(
-                    String.format("Access token not found in active sessions (revoked or expired): %s", encodedToken.token()));
+            throw new AuthenticationNotFoundException(String.format("Access token not found in active sessions: %s", encodedToken.token()));
         }
     }
 
     /**
-     * Fetches the authentication record from the database using the access token.
+     * Fetches the authentication record from the repository using the access token.
      *
      * @param encodedToken the access token to search for
-     * @return the JWT authentication from database
-     * @throws JwtAuthenticationNotFoundException if authentication is not found
+     * @return the JWT authentication from repository
+     * @throws AuthenticationNotFoundException if authentication is not found
      */
     private JwtAuthentication retrieveAuthentication(EncodedToken encodedToken) {
-        logger.trace("Step 4: Fetching authentication from database for subject={}", encodedToken.token());
+        logger.trace("Step 4: Fetching authentication from repository for subject={}", encodedToken.token());
         return jwtAuthenticationRepository.findByAccessToken(encodedToken)
-                                          .orElseThrow(() -> new JwtAuthenticationNotFoundException(
-                                                  String.format("JWT authentication not found by access token %s", encodedToken.token())));
+                                          .orElseThrow(() -> new AuthenticationNotFoundException(
+                                                  String.format("Authentication not found by access token %s", encodedToken.token())));
     }
 
     /**
      * Deactivates the token pair by removing it from the fast-access store.
      *
      * @param jwtPair the JWT pair to deactivate
-     * @throws InvalidJwtAuthenticationException if token deactivation fails
+     * @throws TokenStoreException if token store operation fails
      */
     private void deactivateTokens(JwtPair jwtPair) {
         logger.trace("Step 5: Deleting token pair from fast-access store");
@@ -186,37 +188,43 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
             jwtStore.delete(jwtPair);
 
         } catch (Exception e) {
-            logger.error("Failed to deactivate tokens from fast-access store", e);
-            throw new InvalidJwtAuthenticationException("Revocation failed: could not deactivate tokens", e);
+            throw new TokenStoreException("Could not delete tokens from fast-access store", e);
         }
     }
 
     /**
-     * Deletes the authentication from the database.
+     * Deletes the authentication from the repository.
      *
      * @param jwtAuthentication the authentication to delete
+     * @throws AuthenticationPersistenceException if authentication deletion fails
      */
     private void deleteAuthentication(JwtAuthentication jwtAuthentication) {
-        logger.trace("Step 6: Deleting authentication authenticationId={} from database", jwtAuthentication.getId()
-                                                                                                           .value());
-        jwtAuthenticationRepository.deleteById(jwtAuthentication.getId());
+        logger.trace("Step 6: Deleting authentication authenticationId={} from repository", jwtAuthentication.getId()
+                                                                                                             .value());
+        try {
+            jwtAuthenticationRepository.deleteById(jwtAuthentication.getId());
+
+        } catch (Exception e) {
+            throw new AuthenticationPersistenceException("Could not delete authentication from repository", e);
+        }
     }
 
     /**
-     * Compensates for database deletion failure by restoring tokens to Redis.
+     * Compensates for repository deletion failure by restoring tokens to fast-access store.
      *
      * @param jwtPair the JWT pair to restore
+     * @throws CompensatingTransactionException if compensation fails
      */
-    private void reactivateTokens(JwtPair jwtPair) {
-        logger.warn("Database deletion failed, restoring tokens to Redis");
+    private void compensateTokenDeactivation(JwtPair jwtPair) {
+        logger.warn("Restoring tokens to fast-access store");
 
         try {
             jwtStore.save(jwtPair);
 
-            logger.info("Compensating transaction completed: tokens restored to Redis");
+            logger.debug("Compensating transaction completed: tokens restored to fast-access store");
 
         } catch (Exception e) {
-            logger.error("CRITICAL: Compensating transaction failed - tokens deleted from Redis but authentication still in database", e);
+            throw new CompensatingTransactionException("Failed to compensate token deactivation after repository deletion failure", e);
         }
     }
 

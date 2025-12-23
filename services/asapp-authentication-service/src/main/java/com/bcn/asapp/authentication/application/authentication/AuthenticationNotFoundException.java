@@ -14,24 +14,24 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.authentication.infrastructure.security;
+package com.bcn.asapp.authentication.application.authentication;
 
 /**
- * Exception thrown when a JWT has an unexpected type.
+ * Exception thrown when an authentication cannot be found.
  * <p>
- * Indicates that the token type does not match the expected type (e.g., receiving a refresh token when an access token was expected).
+ * Indicates that no authentication session exists for the provided token.
  *
  * @since 0.2.0
  * @author attrigo
  */
-public class UnexpectedJwtTypeException extends RuntimeException {
+public class AuthenticationNotFoundException extends AuthenticationException {
 
     /**
-     * Constructs a new {@code UnexpectedJwtTypeException} with the specified message.
+     * Constructs a new {@code AuthenticationNotFoundException} with the specified message.
      *
      * @param message the detail message
      */
-    public UnexpectedJwtTypeException(String message) {
+    public AuthenticationNotFoundException(String message) {
         super(message);
     }
 
