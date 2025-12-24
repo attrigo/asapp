@@ -89,7 +89,7 @@ public final class JwtAuthentication {
     /**
      * Factory method to create an authenticated JWT authentication with a persistent ID.
      * <p>
-     * Typically used when reconstituting an authentication session from the database.
+     * Typically used when reconstituting an authentication session from the repository.
      *
      * @param id      the JWT authentication's unique identifier
      * @param userId  the JWT authentication's user unique identifier
