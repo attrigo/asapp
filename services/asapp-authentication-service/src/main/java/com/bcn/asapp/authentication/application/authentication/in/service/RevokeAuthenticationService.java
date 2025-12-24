@@ -29,23 +29,20 @@ import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtType
 import com.bcn.asapp.authentication.application.authentication.in.RevokeAuthenticationUseCase;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
-import com.bcn.asapp.authentication.application.authentication.out.TokenDecoder;
+import com.bcn.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
-import com.bcn.asapp.authentication.infrastructure.security.DecodedJwt;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
 
 /**
  * Application service responsible for orchestrating authentication revocation.
  * <p>
- * Coordinates the complete revocation workflow including token validation, verification, and removal from both fast-access store and persistent storage.
+ * Coordinates the complete revocation workflow including token verification and removal from both fast-access store and persistent storage.
  * <p>
  * <strong>Orchestration Flow:</strong>
  * <ol>
- * <li>Decodes and validates access token via {@link TokenDecoder}</li>
- * <li>Verifies token type is access token</li>
- * <li>Checks token exists in fast-access store via {@link JwtStore}</li>
+ * <li>Verifies access token via {@link TokenVerifier}</li>
  * <li>Fetches authentication from repository via {@link JwtAuthenticationRepository}</li>
  * <li>Deletes token pair from fast-access store</li>
  * <li>Deletes authentication from repository</li>
@@ -61,7 +58,7 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
 
     private static final Logger logger = LoggerFactory.getLogger(RevokeAuthenticationService.class);
 
-    private final TokenDecoder tokenDecoder;
+    private final TokenVerifier tokenVerifier;
 
     private final JwtAuthenticationRepository jwtAuthenticationRepository;
 
@@ -70,12 +67,12 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
     /**
      * Constructs a new {@code RevokeAuthenticationService} with required dependencies.
      *
-     * @param tokenDecoder                the token decoder for decoding and validating tokens
+     * @param tokenVerifier               the token verifier for verifying access tokens
      * @param jwtAuthenticationRepository the repository for persisting JWT authentications
      * @param jwtStore                    the store for fast token lookup and validation
      */
-    public RevokeAuthenticationService(TokenDecoder tokenDecoder, JwtAuthenticationRepository jwtAuthenticationRepository, JwtStore jwtStore) {
-        this.tokenDecoder = tokenDecoder;
+    public RevokeAuthenticationService(TokenVerifier tokenVerifier, JwtAuthenticationRepository jwtAuthenticationRepository, JwtStore jwtStore) {
+        this.tokenVerifier = tokenVerifier;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
         this.jwtStore = jwtStore;
     }
@@ -83,7 +80,7 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
     /**
      * Revokes an authentication using a valid access token.
      * <p>
-     * Orchestrates the complete revocation workflow: validation, verification, and removal from both storage systems.
+     * Orchestrates the complete revocation workflow: verification and removal from both storage systems.
      * <p>
      * Deletes from fast-access store first, then repository. If repository deletion fails, tokens are restored to fast-access store via compensating
      * transaction.
@@ -104,9 +101,7 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
 
         var encodedAccessToken = EncodedToken.of(accessToken);
 
-        var decodedToken = decodeToken(encodedAccessToken);
-        verifyTokenType(decodedToken);
-        checkTokenInActiveStore(encodedAccessToken);
+        tokenVerifier.verifyAccessToken(encodedAccessToken);
 
         var authentication = retrieveAuthentication(encodedAccessToken);
         var jwtPairToDelete = authentication.getJwtPair();
@@ -121,44 +116,6 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
         } catch (AuthenticationPersistenceException e) {
             compensateTokenDeactivation(jwtPairToDelete);
             throw e;
-        }
-    }
-
-    /**
-     * Decodes and validates the access token.
-     *
-     * @param encodedToken the encoded access token
-     * @return the decoded JWT with claims
-     */
-    private DecodedJwt decodeToken(EncodedToken encodedToken) {
-        logger.trace("Step 1: Decoding and validating access token");
-        return tokenDecoder.decode(encodedToken);
-    }
-
-    /**
-     * Verifies that the decoded token is an access token.
-     *
-     * @param decodedToken the decoded JWT to verify
-     * @throws UnexpectedJwtTypeException if the token is not an access token
-     */
-    private void verifyTokenType(DecodedJwt decodedToken) {
-        logger.trace("Step 2: Verifying token type is access token");
-        if (!decodedToken.isAccessToken()) {
-            throw new UnexpectedJwtTypeException(String.format("Token %s is not an access token", decodedToken.encodedToken()));
-        }
-    }
-
-    /**
-     * Checks if the token exists in the fast-access store.
-     *
-     * @param encodedToken the encoded token to check
-     * @throws AuthenticationNotFoundException if the token is not found in active sessions
-     */
-    private void checkTokenInActiveStore(EncodedToken encodedToken) {
-        logger.trace("Step 3: Checking token exists in fast-access store");
-        var isTokenActive = jwtStore.accessTokenExists(encodedToken);
-        if (!isTokenActive) {
-            throw new AuthenticationNotFoundException(String.format("Access token not found in active sessions: %s", encodedToken.token()));
         }
     }
 

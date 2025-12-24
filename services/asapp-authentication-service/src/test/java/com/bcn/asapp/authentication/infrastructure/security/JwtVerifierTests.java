@@ -69,7 +69,7 @@ class JwtVerifierTests {
                                                              .decode(accessToken);
 
             // When
-            var thrown = catchThrowable(() -> jwtVerifier.verifyAccessToken(accessTokenString));
+            var thrown = catchThrowable(() -> jwtVerifier.verifyAccessToken(accessToken));
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtException.class)
@@ -90,7 +90,7 @@ class JwtVerifierTests {
             given(jwtDecoder.decode(refreshToken)).willReturn(decodedRefreshToken);
 
             // When
-            var thrown = catchThrowable(() -> jwtVerifier.verifyAccessToken(refreshTokenString));
+            var thrown = catchThrowable(() -> jwtVerifier.verifyAccessToken(refreshToken));
 
             // Then
             assertThat(thrown).isInstanceOf(UnexpectedJwtTypeException.class)
@@ -111,7 +111,7 @@ class JwtVerifierTests {
             given(jwtStore.accessTokenExists(accessToken)).willReturn(false);
 
             // When
-            var thrown = catchThrowable(() -> jwtVerifier.verifyAccessToken(accessTokenString));
+            var thrown = catchThrowable(() -> jwtVerifier.verifyAccessToken(accessToken));
 
             // Then
             assertThat(thrown).isInstanceOf(AuthenticationNotFoundException.class)
@@ -134,7 +134,7 @@ class JwtVerifierTests {
             given(jwtStore.accessTokenExists(accessToken)).willReturn(true);
 
             // When
-            var actual = jwtVerifier.verifyAccessToken(accessTokenString);
+            var actual = jwtVerifier.verifyAccessToken(accessToken);
 
             // Then
             assertThat(actual).isEqualTo(decodedAccessToken);
@@ -144,6 +144,97 @@ class JwtVerifierTests {
                             .decode(accessToken);
             then(jwtStore).should(times(1))
                           .accessTokenExists(accessToken);
+        }
+
+    }
+
+    @Nested
+    class VerifyRefreshToken {
+
+        @Test
+        void ThrowsInvalidJwtException_DecoderFails() {
+            // Given
+            var refreshTokenString = defaultTestEncodedRefreshToken();
+            var refreshToken = EncodedToken.of(refreshTokenString);
+            willThrow(new RuntimeException("Decoder failed")).given(jwtDecoder)
+                                                             .decode(refreshToken);
+
+            // When
+            var thrown = catchThrowable(() -> jwtVerifier.verifyRefreshToken(refreshToken));
+
+            // Then
+            assertThat(thrown).isInstanceOf(InvalidJwtException.class)
+                              .hasMessageContaining("Refresh token is not valid")
+                              .hasCauseInstanceOf(RuntimeException.class);
+
+            then(jwtDecoder).should(times(1))
+                            .decode(refreshToken);
+        }
+
+        @Test
+        void ThrowsUnexpectedJwtTypeException_TokenIsNotRefreshToken() {
+            // Given
+            var accessTokenString = defaultTestEncodedAccessToken();
+            var accessToken = EncodedToken.of(accessTokenString);
+            var accessTokenClaims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
+            var decodedAccessToken = new DecodedJwt(accessTokenString, ACCESS_TOKEN_TYPE, "user@asapp.com", accessTokenClaims);
+            given(jwtDecoder.decode(accessToken)).willReturn(decodedAccessToken);
+
+            // When
+            var thrown = catchThrowable(() -> jwtVerifier.verifyRefreshToken(accessToken));
+
+            // Then
+            assertThat(thrown).isInstanceOf(UnexpectedJwtTypeException.class)
+                              .hasMessageContaining("is not a refresh token");
+
+            then(jwtDecoder).should(times(1))
+                            .decode(accessToken);
+        }
+
+        @Test
+        void ThrowsAuthenticationNotFoundException_RefreshTokenNotInStore() {
+            // Given
+            var refreshTokenString = defaultTestEncodedRefreshToken();
+            var refreshToken = EncodedToken.of(refreshTokenString);
+            var refreshTokenClaims = Map.<String, Object>of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, "USER");
+            var decodedRefreshToken = new DecodedJwt(refreshTokenString, REFRESH_TOKEN_TYPE, "user@asapp.com", refreshTokenClaims);
+            given(jwtDecoder.decode(refreshToken)).willReturn(decodedRefreshToken);
+            given(jwtStore.refreshTokenExists(refreshToken)).willReturn(false);
+
+            // When
+            var thrown = catchThrowable(() -> jwtVerifier.verifyRefreshToken(refreshToken));
+
+            // Then
+            assertThat(thrown).isInstanceOf(AuthenticationNotFoundException.class)
+                              .hasMessageContaining("Authentication session not found");
+
+            then(jwtDecoder).should(times(1))
+                            .decode(refreshToken);
+            then(jwtStore).should(times(1))
+                          .refreshTokenExists(refreshToken);
+        }
+
+        @Test
+        void ReturnsDecodedJwt_ValidRefreshToken() {
+            // Given
+            var refreshTokenString = defaultTestEncodedRefreshToken();
+            var refreshToken = EncodedToken.of(refreshTokenString);
+            var refreshTokenClaims = Map.<String, Object>of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, "USER");
+            var decodedRefreshToken = new DecodedJwt(refreshTokenString, REFRESH_TOKEN_TYPE, "user@asapp.com", refreshTokenClaims);
+            given(jwtDecoder.decode(refreshToken)).willReturn(decodedRefreshToken);
+            given(jwtStore.refreshTokenExists(refreshToken)).willReturn(true);
+
+            // When
+            var actual = jwtVerifier.verifyRefreshToken(refreshToken);
+
+            // Then
+            assertThat(actual).isEqualTo(decodedRefreshToken);
+            assertThat(actual.isRefreshToken()).isTrue();
+
+            then(jwtDecoder).should(times(1))
+                            .decode(refreshToken);
+            then(jwtStore).should(times(1))
+                          .refreshTokenExists(refreshToken);
         }
 
     }
