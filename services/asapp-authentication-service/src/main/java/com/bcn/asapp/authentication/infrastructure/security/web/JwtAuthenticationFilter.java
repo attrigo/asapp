@@ -43,6 +43,8 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
+import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
 import com.bcn.asapp.authentication.infrastructure.security.JwtAuthenticationToken;
 import com.bcn.asapp.authentication.infrastructure.security.JwtVerifier;
@@ -130,10 +132,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             newContext.setAuthentication(jwtAuthenticationToken);
             SecurityContextHolder.setContext(newContext);
 
+        } catch (AuthenticationNotFoundException e) {
+            logger.warn("Authentication session not found for token: {}", bearerToken);
+        } catch (UnexpectedJwtTypeException e) {
+            logger.warn("Invalid token type for bearer token: {}", bearerToken);
         } catch (InvalidJwtException e) {
             logger.warn("Invalid bearer token: {}", bearerToken, e);
         } catch (Exception e) {
-            logger.warn("Error authenticating the bearer token {}", bearerToken, e);
+            logger.warn("Error authenticating the bearer token: {}", bearerToken, e);
         }
 
         filterChain.doFilter(request, response);
