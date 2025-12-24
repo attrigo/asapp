@@ -23,22 +23,21 @@ import org.springframework.stereotype.Component;
 import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
+import com.bcn.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 
 /**
- * Component for verifying JWTs.
+ * Infrastructure component for verifying JWTs.
  * <p>
- * Verifies JWTs by validating their signature, expiration, and revocation status.
+ * Implements {@link TokenVerifier} port, providing the infrastructure capability to verify JWTs using {@link JwtDecoder} and {@link JwtStore}.
  * <p>
  * Performs three-step validation: cryptographic verification via {@link JwtDecoder}, token type check, and session validation via {@link JwtStore}.
- * <p>
- * Used by the authentication filter for token validation.
  *
  * @since 0.2.0
  * @author attrigo
  */
 @Component
-public class JwtVerifier {
+public class JwtVerifier implements TokenVerifier {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtVerifier.class);
 
@@ -69,30 +68,69 @@ public class JwtVerifier {
      * <li>Checks the authentication session exists in the active token store</li>
      * </ol>
      *
-     * @param accessToken the encoded access token to verify
+     * @param encodedToken the {@link EncodedToken} to verify
      * @return the {@link DecodedJwt} containing the decoded JWT data
      * @throws InvalidJwtException             if the token is invalid or verification fails
      * @throws AuthenticationNotFoundException if the authentication session is not found
      * @throws UnexpectedJwtTypeException      if the token is not an access token
      */
-    public DecodedJwt verifyAccessToken(String accessToken) {
-        logger.debug("Verifying access token {}", accessToken);
+    @Override
+    public DecodedJwt verifyAccessToken(EncodedToken encodedToken) {
+        logger.debug("Verifying access token {}", encodedToken.token());
 
         try {
-            var encodedToken = EncodedToken.of(accessToken);
-
             var decodedJwt = decodeToken(encodedToken);
             verifyAccessTokenType(decodedJwt);
             checkAccessTokenInActiveStore(encodedToken);
 
-            logger.debug("Access token {} verified successfully", accessToken);
+            logger.debug("Access token {} verified successfully", encodedToken.token());
 
             return decodedJwt;
 
         } catch (AuthenticationNotFoundException | UnexpectedJwtTypeException e) {
             throw e;
         } catch (Exception e) {
-            var message = String.format("Access token is not valid: %s", accessToken);
+            var message = String.format("Access token is not valid: %s", encodedToken.token());
+            logger.warn(message, e);
+            throw new InvalidJwtException(message, e);
+        }
+    }
+
+    /**
+     * Verifies a refresh token.
+     * <p>
+     * Validates the token's signature, expiration, revocation status, and type, then returns the validated decoded JWT.
+     * <p>
+     * Performs three verification steps:
+     * <ol>
+     * <li>Decodes the token and validates its cryptographic signature and expiration</li>
+     * <li>Verifies the token type is a refresh token (not access token)</li>
+     * <li>Checks the authentication session exists in the active token store</li>
+     * </ol>
+     *
+     * @param encodedToken the {@link EncodedToken} to verify
+     * @return the {@link DecodedJwt} containing the decoded JWT data
+     * @throws InvalidJwtException             if the token is invalid or verification fails
+     * @throws AuthenticationNotFoundException if the authentication session is not found
+     * @throws UnexpectedJwtTypeException      if the token is not a refresh token
+     */
+    @Override
+    public DecodedJwt verifyRefreshToken(EncodedToken encodedToken) {
+        logger.debug("Verifying refresh token {}", encodedToken.token());
+
+        try {
+            var decodedJwt = decodeToken(encodedToken);
+            verifyRefreshTokenType(decodedJwt);
+            checkRefreshTokenInActiveStore(encodedToken);
+
+            logger.debug("Refresh token {} verified successfully", encodedToken.token());
+
+            return decodedJwt;
+
+        } catch (AuthenticationNotFoundException | UnexpectedJwtTypeException e) {
+            throw e;
+        } catch (Exception e) {
+            var message = String.format("Refresh token is not valid: %s", encodedToken.token());
             logger.warn(message, e);
             throw new InvalidJwtException(message, e);
         }
@@ -140,6 +178,37 @@ public class JwtVerifier {
         var isTokenActive = jwtStore.accessTokenExists(encodedToken);
         if (!isTokenActive) {
             throw new AuthenticationNotFoundException(String.format("Authentication session not found for access token: %s", encodedToken.token()));
+        }
+    }
+
+    /**
+     * Verifies the token type is a refresh token.
+     * <p>
+     * Verification step 2: Checks the token_use claim to ensure this is a refresh token and not an access token.
+     *
+     * @param decodedJwt the decoded JWT to verify
+     * @throws UnexpectedJwtTypeException if the token is not a refresh token
+     */
+    private void verifyRefreshTokenType(DecodedJwt decodedJwt) {
+        logger.trace("Step 2: Verifying token type is refresh token");
+        if (!decodedJwt.isRefreshToken()) {
+            throw new UnexpectedJwtTypeException(String.format("JWT %s is not a refresh token", decodedJwt.encodedToken()));
+        }
+    }
+
+    /**
+     * Checks the refresh token exists in the active token store.
+     * <p>
+     * Verification step 3: Queries the fast-access store (Redis) to verify the token has not been revoked and the authentication session is still active.
+     *
+     * @param encodedToken the encoded token to check
+     * @throws AuthenticationNotFoundException if the authentication session is not found (token revoked or expired)
+     */
+    private void checkRefreshTokenInActiveStore(EncodedToken encodedToken) {
+        logger.trace("Step 3: Checking refresh token exists in fast-access store");
+        var isTokenActive = jwtStore.refreshTokenExists(encodedToken);
+        if (!isTokenActive) {
+            throw new AuthenticationNotFoundException(String.format("Authentication session not found for refresh token: %s", encodedToken.token()));
         }
     }
 

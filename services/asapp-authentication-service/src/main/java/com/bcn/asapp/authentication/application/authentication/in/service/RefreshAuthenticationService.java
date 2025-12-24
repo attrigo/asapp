@@ -30,8 +30,8 @@ import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtType
 import com.bcn.asapp.authentication.application.authentication.in.RefreshAuthenticationUseCase;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
-import com.bcn.asapp.authentication.application.authentication.out.TokenDecoder;
 import com.bcn.asapp.authentication.application.authentication.out.TokenIssuer;
+import com.bcn.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
@@ -43,14 +43,12 @@ import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
 /**
  * Application service responsible for orchestrating authentication refresh.
  * <p>
- * Coordinates the complete token refresh workflow including token validation, verification, generation of new tokens, cleanup of old tokens, and persistence
- * across multiple storage systems.
+ * Coordinates the complete token refresh workflow including token verification, generation of new tokens, cleanup of old tokens, and persistence across
+ * multiple storage systems.
  * <p>
  * <strong>Orchestration Flow:</strong>
  * <ol>
- * <li>Decodes and validates refresh token via {@link TokenDecoder}</li>
- * <li>Verifies token type is refresh token</li>
- * <li>Checks token exists in fast-access store via {@link JwtStore}</li>
+ * <li>Verifies refresh token via {@link TokenVerifier}</li>
  * <li>Fetches authentication from repository via {@link JwtAuthenticationRepository}</li>
  * <li>Generates new JWT pair via {@link TokenIssuer}</li>
  * <li>Updates domain aggregate with new tokens</li>
@@ -68,7 +66,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
 
     private static final Logger logger = LoggerFactory.getLogger(RefreshAuthenticationService.class);
 
-    private final TokenDecoder tokenDecoder;
+    private final TokenVerifier tokenVerifier;
 
     private final TokenIssuer tokenIssuer;
 
@@ -79,15 +77,15 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
     /**
      * Constructs a new {@code RefreshAuthenticationService} with required dependencies.
      *
-     * @param tokenDecoder                the token decoder for decoding and validating tokens
+     * @param tokenVerifier               the token verifier for verifying refresh tokens
      * @param tokenIssuer                 the token issuer for generating new JWTs
      * @param jwtAuthenticationRepository the repository for persisting JWT authentications
      * @param jwtStore                    the store for fast token lookup and validation
      */
-    public RefreshAuthenticationService(TokenDecoder tokenDecoder, TokenIssuer tokenIssuer, JwtAuthenticationRepository jwtAuthenticationRepository,
+    public RefreshAuthenticationService(TokenVerifier tokenVerifier, TokenIssuer tokenIssuer, JwtAuthenticationRepository jwtAuthenticationRepository,
             JwtStore jwtStore) {
 
-        this.tokenDecoder = tokenDecoder;
+        this.tokenVerifier = tokenVerifier;
         this.tokenIssuer = tokenIssuer;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
         this.jwtStore = jwtStore;
@@ -96,7 +94,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
     /**
      * Refreshes an authentication using a valid refresh token.
      * <p>
-     * Orchestrates the complete token refresh workflow: validation, verification, new token generation, and persistence with cleanup.
+     * Orchestrates the complete token refresh workflow: verification, new token generation, and persistence with cleanup.
      * <p>
      * First updates repository, then updates fast-access store. If fast-access store fails, old state is restored via compensating transaction.
      *
@@ -117,9 +115,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
         logger.debug("Refreshing authentication with refresh token");
 
         var encodedRefreshToken = EncodedToken.of(refreshToken);
-        var decodedToken = decodeToken(encodedRefreshToken);
-        verifyTokenType(decodedToken);
-        checkTokenInActiveStore(encodedRefreshToken);
+        var decodedToken = tokenVerifier.verifyRefreshToken(encodedRefreshToken);
 
         var authentication = retrieveAuthentication(encodedRefreshToken);
         var oldJwtPair = authentication.getJwtPair();
@@ -138,44 +134,6 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
         } catch (TokenStoreException e) {
             compensateTokenRotation(oldJwtPair);
             throw e;
-        }
-    }
-
-    /**
-     * Decodes and validates the refresh token.
-     *
-     * @param encodedToken the encoded refresh token
-     * @return the decoded JWT with claims
-     */
-    private DecodedJwt decodeToken(EncodedToken encodedToken) {
-        logger.trace("Step 1: Decoding and validating refresh token");
-        return tokenDecoder.decode(encodedToken);
-    }
-
-    /**
-     * Verifies that the decoded token is a refresh token.
-     *
-     * @param decodedToken the decoded JWT to verify
-     * @throws UnexpectedJwtTypeException if the token is not a refresh token
-     */
-    private void verifyTokenType(DecodedJwt decodedToken) {
-        logger.trace("Step 2: Verifying token type is refresh token");
-        if (!decodedToken.isRefreshToken()) {
-            throw new UnexpectedJwtTypeException(String.format("Token %s is not a refresh token", decodedToken.encodedToken()));
-        }
-    }
-
-    /**
-     * Checks if the token exists in the fast-access store.
-     *
-     * @param encodedToken the encoded token to check
-     * @throws AuthenticationNotFoundException if the token is not found in active sessions
-     */
-    private void checkTokenInActiveStore(EncodedToken encodedToken) {
-        logger.trace("Step 3: Checking token exists in fast-access store");
-        var isTokenActive = jwtStore.refreshTokenExists(encodedToken);
-        if (!isTokenActive) {
-            throw new AuthenticationNotFoundException(String.format("Refresh token not found in active sessions: %s", encodedToken.token()));
         }
     }
 

@@ -45,6 +45,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
+import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
 import com.bcn.asapp.authentication.infrastructure.security.JwtAuthenticationToken;
 import com.bcn.asapp.authentication.infrastructure.security.JwtVerifier;
@@ -123,8 +124,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         var bearerToken = optionalBearerToken.get();
+        var encodedToken = EncodedToken.of(bearerToken);
         try {
-            var decodedJwt = jwtVerifier.verifyAccessToken(bearerToken);
+            var decodedJwt = jwtVerifier.verifyAccessToken(encodedToken);
 
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 

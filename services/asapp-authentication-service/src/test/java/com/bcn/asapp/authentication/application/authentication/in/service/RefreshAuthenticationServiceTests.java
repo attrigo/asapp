@@ -46,8 +46,8 @@ import com.bcn.asapp.authentication.application.authentication.TokenStoreExcepti
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
-import com.bcn.asapp.authentication.application.authentication.out.TokenDecoder;
 import com.bcn.asapp.authentication.application.authentication.out.TokenIssuer;
+import com.bcn.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.Expiration;
 import com.bcn.asapp.authentication.domain.authentication.Issued;
@@ -67,7 +67,7 @@ import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
 class RefreshAuthenticationServiceTests {
 
     @Mock
-    private TokenDecoder tokenDecoder;
+    private TokenVerifier tokenVerifier;
 
     @Mock
     private TokenIssuer tokenIssuer;
@@ -93,10 +93,10 @@ class RefreshAuthenticationServiceTests {
     class RefreshAuthentication {
 
         @Test
-        void ThrowsInvalidJwtException_DecodeTokenFails() {
+        void ThrowsInvalidJwtException_TokenVerificationFails() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
-            given(tokenDecoder.decode(encodedRefreshToken)).willThrow(new InvalidJwtException("Invalid token"));
+            given(tokenVerifier.verifyRefreshToken(encodedRefreshToken)).willThrow(new InvalidJwtException("Invalid token"));
 
             // When
             var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
@@ -105,18 +105,17 @@ class RefreshAuthenticationServiceTests {
             assertThat(thrown).isInstanceOf(InvalidJwtException.class)
                               .hasMessageContaining("Invalid token");
 
-            then(tokenDecoder).should(times(1))
-                              .decode(encodedRefreshToken);
-            then(jwtStore).should(never())
-                          .refreshTokenExists(any(EncodedToken.class));
+            then(tokenVerifier).should(times(1))
+                               .verifyRefreshToken(encodedRefreshToken);
+            then(jwtAuthenticationRepository).should(never())
+                                             .findByRefreshToken(any(EncodedToken.class));
         }
 
         @Test
         void ThrowsUnexpectedJwtTypeException_TokenIsNotRefreshType() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
-            var decodedToken = new DecodedJwt(refreshTokenValue, "at+jwt", usernameValue, Map.of("token_use", "access", "role", role.name()));
-            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
+            given(tokenVerifier.verifyRefreshToken(encodedRefreshToken)).willThrow(new UnexpectedJwtTypeException("Token is not a refresh token"));
 
             // When
             var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
@@ -125,19 +124,18 @@ class RefreshAuthenticationServiceTests {
             assertThat(thrown).isInstanceOf(UnexpectedJwtTypeException.class)
                               .hasMessageContaining("is not a refresh token");
 
-            then(tokenDecoder).should(times(1))
-                              .decode(encodedRefreshToken);
-            then(jwtStore).should(never())
-                          .refreshTokenExists(any(EncodedToken.class));
+            then(tokenVerifier).should(times(1))
+                               .verifyRefreshToken(encodedRefreshToken);
+            then(jwtAuthenticationRepository).should(never())
+                                             .findByRefreshToken(any(EncodedToken.class));
         }
 
         @Test
         void ThrowsAuthenticationNotFoundException_TokenNotFoundInStore() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
-            var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
-            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
-            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(false);
+            given(tokenVerifier.verifyRefreshToken(encodedRefreshToken)).willThrow(
+                    new AuthenticationNotFoundException("Refresh token not found in active sessions"));
 
             // When
             var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
@@ -146,10 +144,8 @@ class RefreshAuthenticationServiceTests {
             assertThat(thrown).isInstanceOf(AuthenticationNotFoundException.class)
                               .hasMessageContaining("Refresh token not found in active sessions");
 
-            then(tokenDecoder).should(times(1))
-                              .decode(encodedRefreshToken);
-            then(jwtStore).should(times(1))
-                          .refreshTokenExists(encodedRefreshToken);
+            then(tokenVerifier).should(times(1))
+                               .verifyRefreshToken(encodedRefreshToken);
             then(jwtAuthenticationRepository).should(never())
                                              .findByRefreshToken(any(EncodedToken.class));
         }
@@ -159,8 +155,7 @@ class RefreshAuthenticationServiceTests {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
             var decodedToken = new DecodedJwt(refreshTokenValue, "rt+jwt", usernameValue, Map.of("token_use", "refresh", "role", role.name()));
-            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
-            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(tokenVerifier.verifyRefreshToken(encodedRefreshToken)).willReturn(decodedToken);
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.empty());
 
             // When
@@ -170,10 +165,8 @@ class RefreshAuthenticationServiceTests {
             assertThat(thrown).isInstanceOf(AuthenticationNotFoundException.class)
                               .hasMessageContaining("Authentication not found by refresh token");
 
-            then(tokenDecoder).should(times(1))
-                              .decode(encodedRefreshToken);
-            then(jwtStore).should(times(1))
-                          .refreshTokenExists(encodedRefreshToken);
+            then(tokenVerifier).should(times(1))
+                               .verifyRefreshToken(encodedRefreshToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .findByRefreshToken(encodedRefreshToken);
             then(tokenIssuer).should(never())
@@ -191,8 +184,7 @@ class RefreshAuthenticationServiceTests {
             var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldJwtPair);
             var subject = Subject.of(usernameValue);
 
-            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
-            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(tokenVerifier.verifyRefreshToken(encodedRefreshToken)).willReturn(decodedToken);
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
             willThrow(new RuntimeException("Token issuance failed")).given(tokenIssuer)
                                                                     .issueTokenPair(subject, role);
@@ -205,10 +197,8 @@ class RefreshAuthenticationServiceTests {
                               .hasMessageContaining("Could not generate new tokens")
                               .hasCauseInstanceOf(RuntimeException.class);
 
-            then(tokenDecoder).should(times(1))
-                              .decode(encodedRefreshToken);
-            then(jwtStore).should(times(1))
-                          .refreshTokenExists(encodedRefreshToken);
+            then(tokenVerifier).should(times(1))
+                               .verifyRefreshToken(encodedRefreshToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .findByRefreshToken(encodedRefreshToken);
             then(tokenIssuer).should(times(1))
@@ -235,8 +225,7 @@ class RefreshAuthenticationServiceTests {
             var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
             var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
 
-            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
-            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(tokenVerifier.verifyRefreshToken(encodedRefreshToken)).willReturn(decodedToken);
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
             given(tokenIssuer.issueTokenPair(subject, role)).willReturn(newJwtPair);
             willThrow(new RuntimeException("Repository save failed")).given(jwtAuthenticationRepository)
@@ -250,10 +239,8 @@ class RefreshAuthenticationServiceTests {
                               .hasMessageContaining("Could not persist updated authentication to repository")
                               .hasCauseInstanceOf(RuntimeException.class);
 
-            then(tokenDecoder).should(times(1))
-                              .decode(encodedRefreshToken);
-            then(jwtStore).should(times(1))
-                          .refreshTokenExists(encodedRefreshToken);
+            then(tokenVerifier).should(times(1))
+                               .verifyRefreshToken(encodedRefreshToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .findByRefreshToken(encodedRefreshToken);
             then(tokenIssuer).should(times(1))
@@ -280,8 +267,7 @@ class RefreshAuthenticationServiceTests {
             var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
             var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
 
-            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
-            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(tokenVerifier.verifyRefreshToken(encodedRefreshToken)).willReturn(decodedToken);
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
             given(tokenIssuer.issueTokenPair(subject, role)).willReturn(newJwtPair);
             given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
@@ -296,10 +282,8 @@ class RefreshAuthenticationServiceTests {
                               .hasMessageContaining("Could not rotate tokens in fast-access store")
                               .hasCauseInstanceOf(RuntimeException.class);
 
-            then(tokenDecoder).should(times(1))
-                              .decode(encodedRefreshToken);
-            then(jwtStore).should(times(1))
-                          .refreshTokenExists(encodedRefreshToken);
+            then(tokenVerifier).should(times(1))
+                               .verifyRefreshToken(encodedRefreshToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .findByRefreshToken(encodedRefreshToken);
             then(tokenIssuer).should(times(1))
@@ -326,8 +310,7 @@ class RefreshAuthenticationServiceTests {
             var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
             var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
 
-            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
-            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(tokenVerifier.verifyRefreshToken(encodedRefreshToken)).willReturn(decodedToken);
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
             given(tokenIssuer.issueTokenPair(subject, role)).willReturn(newJwtPair);
             given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
@@ -343,10 +326,8 @@ class RefreshAuthenticationServiceTests {
                               .hasMessageContaining("Could not rotate tokens in fast-access store")
                               .hasCauseInstanceOf(RuntimeException.class);
 
-            then(tokenDecoder).should(times(1))
-                              .decode(encodedRefreshToken);
-            then(jwtStore).should(times(1))
-                          .refreshTokenExists(encodedRefreshToken);
+            then(tokenVerifier).should(times(1))
+                               .verifyRefreshToken(encodedRefreshToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .findByRefreshToken(encodedRefreshToken);
             then(tokenIssuer).should(times(1))
@@ -373,8 +354,7 @@ class RefreshAuthenticationServiceTests {
             var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
             var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
 
-            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
-            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(tokenVerifier.verifyRefreshToken(encodedRefreshToken)).willReturn(decodedToken);
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
             given(tokenIssuer.issueTokenPair(subject, role)).willReturn(newJwtPair);
             given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
@@ -391,10 +371,8 @@ class RefreshAuthenticationServiceTests {
                               .hasMessageContaining("Failed to compensate token rotation after token activation failure")
                               .hasCauseInstanceOf(RuntimeException.class);
 
-            then(tokenDecoder).should(times(1))
-                              .decode(encodedRefreshToken);
-            then(jwtStore).should(times(1))
-                          .refreshTokenExists(encodedRefreshToken);
+            then(tokenVerifier).should(times(1))
+                               .verifyRefreshToken(encodedRefreshToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .findByRefreshToken(encodedRefreshToken);
             then(tokenIssuer).should(times(1))
@@ -421,8 +399,7 @@ class RefreshAuthenticationServiceTests {
             var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
             var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
 
-            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
-            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(tokenVerifier.verifyRefreshToken(encodedRefreshToken)).willReturn(decodedToken);
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
             given(tokenIssuer.issueTokenPair(subject, role)).willReturn(newJwtPair);
             given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
@@ -437,10 +414,8 @@ class RefreshAuthenticationServiceTests {
                               .hasMessageContaining("Failed to compensate token rotation after token activation failure")
                               .hasCauseInstanceOf(RuntimeException.class);
 
-            then(tokenDecoder).should(times(1))
-                              .decode(encodedRefreshToken);
-            then(jwtStore).should(times(1))
-                          .refreshTokenExists(encodedRefreshToken);
+            then(tokenVerifier).should(times(1))
+                               .verifyRefreshToken(encodedRefreshToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .findByRefreshToken(encodedRefreshToken);
             then(tokenIssuer).should(times(1))
@@ -467,8 +442,7 @@ class RefreshAuthenticationServiceTests {
             var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
             var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
 
-            given(tokenDecoder.decode(encodedRefreshToken)).willReturn(decodedToken);
-            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(tokenVerifier.verifyRefreshToken(encodedRefreshToken)).willReturn(decodedToken);
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
             given(tokenIssuer.issueTokenPair(subject, role)).willReturn(newJwtPair);
             given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
@@ -485,10 +459,8 @@ class RefreshAuthenticationServiceTests {
             assertThat(result.getJwtPair()
                              .refreshToken()).isEqualTo(newRefreshToken);
 
-            then(tokenDecoder).should(times(1))
-                              .decode(encodedRefreshToken);
-            then(jwtStore).should(times(1))
-                          .refreshTokenExists(encodedRefreshToken);
+            then(tokenVerifier).should(times(1))
+                               .verifyRefreshToken(encodedRefreshToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .findByRefreshToken(encodedRefreshToken);
             then(tokenIssuer).should(times(1))
