@@ -34,13 +34,12 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
-import com.bcn.asapp.authentication.application.authentication.out.TokenDecoder;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 
 /**
  * Infrastructure component for decoding and validating JWTs.
  * <p>
- * Implements {@link TokenDecoder} port, providing the infrastructure capability to parse and validate JWTs using the JJWT library.
+ * Provides the infrastructure capability to parse and validate JWTs using the JJWT library.
  * <p>
  * Parses JWTs, verifies their signatures using HMAC-SHA, and constructs {@link DecodedJwt} objects.
  *
@@ -49,7 +48,7 @@ import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
  * @author attrigo
  */
 @Component
-public class JwtDecoder implements TokenDecoder {
+public class JwtDecoder {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtDecoder.class);
 
@@ -73,7 +72,6 @@ public class JwtDecoder implements TokenDecoder {
      * @return the decoded and validated {@link DecodedJwt}
      * @throws JwtException if the token is invalid, malformed, or expired
      */
-    @Override
     public DecodedJwt decode(EncodedToken encodedToken) {
         return decode(encodedToken.value());
     }
