@@ -33,11 +33,9 @@ import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.application.authentication.out.TokenIssuer;
 import com.bcn.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
+import com.bcn.asapp.authentication.domain.authentication.Jwt;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
-import com.bcn.asapp.authentication.domain.authentication.Subject;
-import com.bcn.asapp.authentication.domain.user.Role;
-import com.bcn.asapp.authentication.infrastructure.security.DecodedJwt;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
 
 /**
@@ -115,12 +113,12 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
         logger.debug("Refreshing authentication with refresh token");
 
         var encodedRefreshToken = EncodedToken.of(refreshToken);
-        var decodedToken = tokenVerifier.verifyRefreshToken(encodedRefreshToken);
+        tokenVerifier.verifyRefreshToken(encodedRefreshToken);
 
         var authentication = retrieveAuthentication(encodedRefreshToken);
         var oldJwtPair = authentication.getJwtPair();
 
-        var newJwtPair = generateNewTokenPair(decodedToken);
+        var newJwtPair = generateNewTokenPair(authentication.refreshToken());
         updateAuthenticationWithNewTokens(authentication, newJwtPair);
 
         var updatedAuthentication = persistAuthenticationUpdate(authentication);
@@ -152,18 +150,16 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
     }
 
     /**
-     * Generates a new JWT pair based on the decoded token claims.
+     * Generates a new JWT pair based on the JWT token claims.
      *
-     * @param decodedToken the decoded token containing subject and role claims
+     * @param jwt the JWT containing subject and role claims
      * @return the newly generated JWT pair
      * @throws TokenGenerationException if token generation fails
      */
-    private JwtPair generateNewTokenPair(DecodedJwt decodedToken) {
-        logger.trace("Step 5: Generating new JWT pair for subject={}, role={}", decodedToken.subject(), decodedToken.roleClaim());
+    private JwtPair generateNewTokenPair(Jwt jwt) {
+        logger.trace("Step 5: Generating new JWT pair for subject={}, role={}", jwt.subject(), jwt.roleClaim());
         try {
-            var subject = Subject.of(decodedToken.subject());
-            var role = Role.valueOf(decodedToken.roleClaim());
-            return tokenIssuer.issueTokenPair(subject, role);
+            return tokenIssuer.issueTokenPair(jwt.subject(), jwt.roleClaim());
 
         } catch (Exception e) {
             throw new TokenGenerationException("Could not generate new tokens", e);
