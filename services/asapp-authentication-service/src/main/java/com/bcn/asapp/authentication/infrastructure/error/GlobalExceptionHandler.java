@@ -205,8 +205,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * Handles compensating transaction failures across the application.
      * <p>
      * Returns HTTP 500 Internal Server Error with a generic message. This is a critical error that requires manual intervention as it indicates the system
-     * could not automatically recover from a failure, potentially leaving data in an inconsistent state. <p< Actual error details are logged server-side for
-     * debugging.
+     * could not automatically recover from a failure, potentially leaving data in an inconsistent state.
+     * <p>
+     * Actual error details are logged server-side for debugging.
      *
      * @param ex the {@link CompensatingTransactionException}
      * @return a {@link ResponseEntity} with status 500 and generic error message
