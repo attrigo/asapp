@@ -19,11 +19,11 @@ package com.bcn.asapp.authentication.application.authentication;
 /**
  * Exception thrown when JWT store operations fail during authentication operations.
  * <p>
- * Indicates that the token store port (Redis fast-access store) could not complete a store operation such as save, delete, or query.
+ * Indicates that the token store port (fast-access store) could not complete a store operation such as save, delete, or query.
  * <p>
  * This exception covers both token activation (saving tokens) and token deactivation (deleting tokens) failures.
  * <p>
- * This typically occurs due to Redis connectivity issues, timeout failures, or cache eviction problems.
+ * This typically occurs due to fast-access store connectivity issues, timeout failures, or cache eviction problems.
  *
  * @since 0.2.0
  * @author attrigo

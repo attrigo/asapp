@@ -43,7 +43,7 @@ public class DeleteUserService implements DeleteUserUseCase {
     /**
      * Constructs a new {@code DeleteUserService} with required dependencies.
      *
-     * @param jwtStore                    the JWT store for Redis operations
+     * @param jwtStore                    the JWT store for fast-access store operations
      * @param userRepository              the user repository
      * @param jwtAuthenticationRepository the JWT authentication repository
      */
@@ -59,8 +59,8 @@ public class DeleteUserService implements DeleteUserUseCase {
      * Orchestrates the complete user deletion process:
      * <ol>
      * <li>Finds all JWT authentications for the user</li>
-     * <li>Deletes each JWT pair from Redis (revokes tokens)</li>
-     * <li>Deletes all JWT authentications from the database</li>
+     * <li>Deletes each JWT pair from fast-access store (revokes tokens)</li>
+     * <li>Deletes all JWT authentications from the repository</li>
      * <li>Deletes the user from the repository</li>
      * </ol>
      *

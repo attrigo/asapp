@@ -122,7 +122,7 @@ public class AuthenticateService implements AuthenticateUseCase {
             return savedAuthentication;
 
         } catch (TokenStoreException e) {
-            compensateDatabasePersistence(savedAuthentication);
+            compensateRepositoryPersistence(savedAuthentication);
             throw e;
         }
     }
@@ -210,7 +210,7 @@ public class AuthenticateService implements AuthenticateUseCase {
      * @param jwtAuthentication the authentication that was saved to repository
      * @throws CompensatingTransactionException if compensation fails
      */
-    private void compensateDatabasePersistence(JwtAuthentication jwtAuthentication) {
+    private void compensateRepositoryPersistence(JwtAuthentication jwtAuthentication) {
         logger.warn("Rolling back authenticationId={} from repository", jwtAuthentication.getId()
                                                                                          .value());
 

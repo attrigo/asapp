@@ -94,7 +94,7 @@ public final class User {
     /**
      * Factory method to create an active user with a persistent ID.
      * <p>
-     * Typically used when reconstituting a user from the database.
+     * Typically used when reconstituting a user from the repository.
      *
      * @param id       the user's unique identifier
      * @param username the user's username

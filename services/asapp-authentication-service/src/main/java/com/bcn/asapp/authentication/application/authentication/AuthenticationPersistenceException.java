@@ -23,7 +23,7 @@ import com.bcn.asapp.authentication.application.PersistenceException;
  * <p>
  * Indicates that the {@code JwtAuthenticationRepository} port could not complete a persistence operation for authentication aggregates.
  * <p>
- * This typically occurs due to database connectivity issues, constraint violations, or transaction failures.
+ * This typically occurs due to repository connectivity issues, constraint violations, or transaction failures.
  * <p>
  * This exception extends {@link PersistenceException} to provide authentication service context while allowing generic exception handling.
  *
