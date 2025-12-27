@@ -36,8 +36,8 @@ import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 /**
  * Redis-based adapter implementation of {@link JwtStore}.
  * <p>
- * Stores JWTs in Redis with automatic expiration based on token TTL (time-to-live). Tokens are stored as Redis keys with empty values, as only their presence
- * is validated during token lookup operations.
+ * Bridges the application layer with the infrastructure layer by storing JWTs in Redis with automatic expiration based on token TTL (time-to-live). Tokens are
+ * stored as Redis keys with empty values, as only their presence is validated during token lookup operations.
  *
  * @since 0.2.0
  * @see RedisTemplate

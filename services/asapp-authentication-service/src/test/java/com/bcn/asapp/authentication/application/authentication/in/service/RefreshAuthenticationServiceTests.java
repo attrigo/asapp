@@ -57,7 +57,6 @@ import com.bcn.asapp.authentication.domain.authentication.JwtType;
 import com.bcn.asapp.authentication.domain.authentication.Subject;
 import com.bcn.asapp.authentication.domain.user.Role;
 import com.bcn.asapp.authentication.domain.user.UserId;
-import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
 
 @ExtendWith(MockitoExtension.class)
 class RefreshAuthenticationServiceTests {
@@ -89,29 +88,11 @@ class RefreshAuthenticationServiceTests {
     class RefreshAuthentication {
 
         @Test
-        void ThrowsInvalidJwtException_TokenVerificationFails() {
-            // Given
-            var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
-            given(tokenVerifier.verifyRefreshToken(encodedRefreshToken)).willThrow(new InvalidJwtException("Invalid token"));
-
-            // When
-            var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
-
-            // Then
-            assertThat(thrown).isInstanceOf(InvalidJwtException.class)
-                              .hasMessageContaining("Invalid token");
-
-            then(tokenVerifier).should(times(1))
-                               .verifyRefreshToken(encodedRefreshToken);
-            then(jwtAuthenticationRepository).should(never())
-                                             .findByRefreshToken(any(EncodedToken.class));
-        }
-
-        @Test
         void ThrowsUnexpectedJwtTypeException_TokenIsNotRefreshType() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
-            given(tokenVerifier.verifyRefreshToken(encodedRefreshToken)).willThrow(new UnexpectedJwtTypeException("Token is not a refresh token"));
+            willThrow(new UnexpectedJwtTypeException("Token is not a refresh token")).given(tokenVerifier)
+                                                                                     .verifyRefreshToken(encodedRefreshToken);
 
             // When
             var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
@@ -130,8 +111,8 @@ class RefreshAuthenticationServiceTests {
         void ThrowsAuthenticationNotFoundException_TokenNotFoundInStore() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
-            given(tokenVerifier.verifyRefreshToken(encodedRefreshToken)).willThrow(
-                    new AuthenticationNotFoundException("Refresh token not found in active sessions"));
+            willThrow(new AuthenticationNotFoundException("Refresh token not found in active sessions")).given(tokenVerifier)
+                                                                                                        .verifyRefreshToken(encodedRefreshToken);
 
             // When
             var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
