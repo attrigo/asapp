@@ -30,6 +30,7 @@ import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthenticationId;
 import com.bcn.asapp.authentication.domain.user.UserId;
 import com.bcn.asapp.authentication.infrastructure.authentication.mapper.JwtAuthenticationMapper;
+import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationEntity;
 import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationRepository;
 
 /**
@@ -37,6 +38,10 @@ import com.bcn.asapp.authentication.infrastructure.authentication.persistence.Jd
  * <p>
  * Bridges the application layer with the infrastructure layer by translating domain operations to JDBC repository calls and mapping between domain entities and
  * database entities.
+ * <p>
+ * This adapter performs type translation by converting domain aggregates ({@link JwtAuthentication}) to database entities ({@link JdbcJwtAuthenticationEntity})
+ * for persistence operations, and vice versa for retrieval operations, using {@link JwtAuthenticationMapper} to maintain separation between domain and
+ * infrastructure concerns.
  *
  * @since 0.2.0
  * @author attrigo

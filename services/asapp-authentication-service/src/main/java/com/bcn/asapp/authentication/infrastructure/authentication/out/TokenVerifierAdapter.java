@@ -22,6 +22,7 @@ import com.bcn.asapp.authentication.application.authentication.AuthenticationNot
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.bcn.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
+import com.bcn.asapp.authentication.infrastructure.security.DecodedJwt;
 import com.bcn.asapp.authentication.infrastructure.security.JwtVerifier;
 
 /**
@@ -29,6 +30,10 @@ import com.bcn.asapp.authentication.infrastructure.security.JwtVerifier;
  * <p>
  * Bridges the application layer with the infrastructure layer by delegating token verification to {@link JwtVerifier} while discarding the decoded JWT data
  * returned by the infrastructure component.
+ * <p>
+ * This adapter performs type translation by converting the infrastructure layer's rich return type ({@link DecodedJwt}) to the application layer's simpler
+ * contract ({@code void}), as the application only requires validation semantics (success via return, failure via exception) rather than the decoded token
+ * data.
  *
  * @since 0.2.0
  * @author attrigo

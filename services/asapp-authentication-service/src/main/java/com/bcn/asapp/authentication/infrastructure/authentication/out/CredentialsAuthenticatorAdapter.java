@@ -40,25 +40,27 @@ import com.bcn.asapp.authentication.infrastructure.security.RoleNotFoundExceptio
  * <p>
  * Bridges the application layer with Spring Security's authentication mechanism, validating user credentials and extracting authenticated user information.
  * <p>
- * This adapter translates between the domain model ({@link UserAuthentication}) and Spring Security's authentication framework ({@link AuthenticationManager}).
+ * This adapter performs type translation by converting Spring Security types ({@link Authentication}, {@link GrantedAuthority}) to domain value objects
+ * ({@link UserAuthentication}, {@link UserId}, {@link Role}) for authentication operations, using {@link AuthenticationManager} to delegate credential
+ * validation while adapting the authentication result to the domain model.
  *
  * @since 0.2.0
  * @see AuthenticationManager
  * @author attrigo
  */
 @Component
-public class SpringCredentialsAuthenticator implements CredentialsAuthenticator {
+public class CredentialsAuthenticatorAdapter implements CredentialsAuthenticator {
 
-    private static final Logger logger = LoggerFactory.getLogger(SpringCredentialsAuthenticator.class);
+    private static final Logger logger = LoggerFactory.getLogger(CredentialsAuthenticatorAdapter.class);
 
     private final AuthenticationManager authenticationManager;
 
     /**
-     * Constructs a new {@code SpringCredentialsAuthenticator} with required dependencies.
+     * Constructs a new {@code CredentialsAuthenticatorAdapter} with required dependencies.
      *
      * @param authenticationManager the Spring Security authentication manager
      */
-    public SpringCredentialsAuthenticator(AuthenticationManager authenticationManager) {
+    public CredentialsAuthenticatorAdapter(AuthenticationManager authenticationManager) {
         this.authenticationManager = authenticationManager;
     }
 
