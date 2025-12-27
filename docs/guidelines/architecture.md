@@ -99,6 +99,105 @@ public class AuthenticateService implements AuthenticateUseCase {
 }
 ```
 
+### Exception Handling
+```
+application/
+├── CompensatingTransactionException.java    # Generic (saga pattern)
+├── PersistenceException.java                # Generic (database operations)
+└── authentication/
+    ├── AuthenticationException.java                # Authentication-specific
+    ├── AuthenticationNotFoundException.java        # Authentication-specific (business exception)
+    ├── AuthenticationPersistenceException.java     # Authentication-specific (extends PersistenceException)
+    ├── TokenStoreException.java                    # Authentication-specific (compensation pattern)
+    └── UnexpectedJwtTypeException.java             # Authentication-specific (business exception)
+```
+
+**Principle**: Exception classes are placed directly in functional packages following Spring Framework convention. No separate `exception/` subdirectories.
+
+**Exception Types**:
+- **Generic Exceptions** (`application/`): Cross-domain exceptions like `PersistenceException`, `CompensatingTransactionException` (saga pattern)
+- **Business Exceptions** (`application/<aggregate>/`): Domain-specific exceptions for business rule violations (`AuthenticationNotFoundException`, `UnexpectedJwtTypeException`)
+- **Compensation Exceptions** (`application/<aggregate>/`): Exceptions caught by application layer for compensation logic (`TokenStoreException`)
+
+**Key Insight**: Only create application-layer exceptions when:
+1. **Business Logic**: Application needs to make business decisions based on the exception
+2. **Compensation Pattern**: Application needs to catch and compensate for failures (saga pattern)
+
+**Exception Translation Rule**:
+```
+IF application layer catches/handles the exception for business decisions
+THEN convert to application/domain exception in adapter
+
+ELSE
+    let infrastructure exception propagate to infrastructure boundary
+    (Spring Security filters, GlobalExceptionHandler, etc.)
+```
+
+**Hexagonal Architecture Dependency Rule**:
+```
+✅ CORRECT: Application layer declares only application/domain exceptions
+   - Use case interfaces: @throws PersistenceException, AuthenticationNotFoundException
+
+❌ VIOLATION: Application layer references infrastructure exceptions
+   - Use case interfaces: @throws InvalidJwtException (from infrastructure.security)
+   - Breaks dependency rule: Infrastructure → Application → Domain
+```
+
+**Pattern**:
+```java
+// Domain-specific exception extending generic parent
+public class AuthenticationPersistenceException extends PersistenceException {
+    public AuthenticationPersistenceException(String message, Throwable cause) {
+        super(message, cause);
+    }
+}
+
+// Application service catches generic parent (polymorphism)
+try {
+    deleteAuthentication(authentication);
+    logger.debug("Authentication revoked successfully...");
+} catch (PersistenceException e) {  // Catches both generic and domain-specific!
+    compensateTokenDeactivation(jwtPair);  // Business decision!
+    throw e;
+}
+
+// Adapter translates infrastructure → domain-specific application exception
+@Component
+public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepository {
+    @Override
+    public void deleteById(JwtAuthenticationId jwtAuthenticationId) {
+        try {
+            jwtAuthenticationRepository.deleteById(jwtAuthenticationId.value());
+        } catch (DataAccessException e) {
+            throw new AuthenticationPersistenceException("Could not delete authentication from repository", e);
+        }
+    }
+}
+```
+
+**Benefits**:
+- Minimal exception translation - only when needed for business logic
+- Infrastructure exceptions propagate to `GlobalExceptionHandler` for generic handling
+- Clear separation: business exceptions vs technical exceptions
+- Less boilerplate code in application services
+- Follows Spring Framework conventions
+
+**Decision Matrix**:
+
+| Does Application Catch? | For Business Logic? | Translation Needed? | Where? | Example |
+|------------------------|---------------------|---------------------|---------|---------|
+| ✅ Yes | ✅ Yes (compensation) | ✅ Yes | Adapter | `TokenStoreException` for Redis failures during token activation |
+| ❌ No | N/A | ❌ No | None | JWT generation (`JwtException` → `GlobalExceptionHandler`) |
+| ❌ No | N/A | ❌ No | None | DB operations (`DataAccessException` → `GlobalExceptionHandler`) |
+
+**Real Implementation Examples**:
+- **AuthenticateService:113-116** - Catches `TokenStoreException` for compensation after persistence
+- **RefreshAuthenticationService:125-135** - Catches `TokenStoreException` for token rotation compensation
+- **RevokeAuthenticationService:108-116** - Catches `PersistenceException` (parent class) for token restoration compensation
+- **RedisJwtStore:144-167** - Translates Redis exceptions to `TokenStoreException`
+- **JwtAuthenticationRepositoryAdapter:126-132** - Translates `DataAccessException` to `AuthenticationPersistenceException` for deleteById
+- **GlobalExceptionHandler:220-274** - Handles infrastructure exceptions (`JwtException`, `DataAccessException`, `RedisConnectionFailureException`)
+
 ## Details
 
 ### Hexagonal Architecture Layers
