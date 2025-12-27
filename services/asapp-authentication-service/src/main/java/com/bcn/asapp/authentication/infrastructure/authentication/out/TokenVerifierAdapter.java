@@ -14,49 +14,61 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.authentication.application.authentication.out;
+package com.bcn.asapp.authentication.infrastructure.authentication.out;
+
+import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
+import com.bcn.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
+import com.bcn.asapp.authentication.infrastructure.security.JwtVerifier;
 
 /**
- * Port for verifying authentication tokens.
+ * Adapter implementation of {@link TokenVerifier} for delegation-based token verification.
  * <p>
- * Defines the contract for performing three-step token verification: cryptographic validation, token type verification, and session validation.
- * <p>
- * Verification is performed in three steps:
- * <ol>
- * <li>Decodes and validates the token's signature and expiration</li>
- * <li>Verifies the token type matches the expected type (access or refresh token)</li>
- * <li>Checks the token exists in the active session store</li>
- * </ol>
+ * Bridges the application layer with the infrastructure layer by delegating token verification to {@link JwtVerifier} while discarding the decoded JWT data
+ * returned by the infrastructure component.
  *
  * @since 0.2.0
  * @author attrigo
  */
-public interface TokenVerifier {
+@Component
+public class TokenVerifierAdapter implements TokenVerifier {
+
+    private final JwtVerifier jwtVerifier;
 
     /**
-     * Verifies an access token.
-     * <p>
-     * Performs comprehensive verification including signature validation, expiration check, token type verification, and session validation.
+     * Constructs a new {@code TokenVerifierAdapter} with required dependencies.
+     *
+     * @param jwtVerifier the JWT verifier for performing token verification
+     */
+    public TokenVerifierAdapter(JwtVerifier jwtVerifier) {
+        this.jwtVerifier = jwtVerifier;
+    }
+
+    /**
+     * Verifies an access token by delegating to {@link JwtVerifier}.
      *
      * @param encodedToken the {@link EncodedToken} to verify
      * @throws UnexpectedJwtTypeException      if the token is not an access token
      * @throws AuthenticationNotFoundException if the authentication session is not found
      */
-    void verifyAccessToken(EncodedToken encodedToken);
+    @Override
+    public void verifyAccessToken(EncodedToken encodedToken) {
+        jwtVerifier.verifyAccessToken(encodedToken);
+    }
 
     /**
-     * Verifies a refresh token.
-     * <p>
-     * Performs comprehensive verification including signature validation, expiration check, token type verification, and session validation.
+     * Verifies a refresh token by delegating to {@link JwtVerifier}.
      *
      * @param encodedToken the {@link EncodedToken} to verify
      * @throws UnexpectedJwtTypeException      if the token is not a refresh token
      * @throws AuthenticationNotFoundException if the authentication session is not found
      */
-    void verifyRefreshToken(EncodedToken encodedToken);
+    @Override
+    public void verifyRefreshToken(EncodedToken encodedToken) {
+        jwtVerifier.verifyRefreshToken(encodedToken);
+    }
 
 }

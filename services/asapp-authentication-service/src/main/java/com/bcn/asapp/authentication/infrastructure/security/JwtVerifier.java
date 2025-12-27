@@ -23,13 +23,12 @@ import org.springframework.stereotype.Component;
 import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
-import com.bcn.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 
 /**
  * Infrastructure component for verifying JWTs.
  * <p>
- * Implements {@link TokenVerifier} port, providing the infrastructure capability to verify JWTs using {@link JwtDecoder} and {@link JwtStore}.
+ * * Provides the infrastructure capability to verify JWTs using {@link JwtDecoder} and {@link JwtStore}.
  * <p>
  * Performs three-step validation: cryptographic verification via {@link JwtDecoder}, token type check, and session validation via {@link JwtStore}.
  *
@@ -37,7 +36,7 @@ import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
  * @author attrigo
  */
 @Component
-public class JwtVerifier implements TokenVerifier {
+public class JwtVerifier {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtVerifier.class);
 
@@ -74,7 +73,6 @@ public class JwtVerifier implements TokenVerifier {
      * @throws AuthenticationNotFoundException if the authentication session is not found
      * @throws UnexpectedJwtTypeException      if the token is not an access token
      */
-    @Override
     public DecodedJwt verifyAccessToken(EncodedToken encodedToken) {
         logger.debug("Verifying access token {}", encodedToken.token());
 
@@ -114,7 +112,6 @@ public class JwtVerifier implements TokenVerifier {
      * @throws AuthenticationNotFoundException if the authentication session is not found
      * @throws UnexpectedJwtTypeException      if the token is not a refresh token
      */
-    @Override
     public DecodedJwt verifyRefreshToken(EncodedToken encodedToken) {
         logger.debug("Verifying refresh token {}", encodedToken.token());
 
