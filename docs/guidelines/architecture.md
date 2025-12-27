@@ -182,6 +182,15 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
 - Less boilerplate code in application services
 - Follows Spring Framework conventions
 
+**Security Exceptions**:
+Spring Security exceptions (e.g., `BadCredentialsException`, `AuthenticationException`) should **NOT** be wrapped in custom application exceptions. Instead, rely on Spring Security's built-in exception handling mechanism:
+- Spring Security filters catch `AuthenticationException` and subclasses automatically
+- `ExceptionTranslationFilter` handles authentication failures before reaching `@RestControllerAdvice`
+- Security best practices (preventing user enumeration) are implemented at framework level
+- Attempting to wrap these exceptions breaks Spring Security's exception handling chain
+
+**Rationale**: Spring Security's authentication filter chain executes before `DispatcherServlet`, so custom exceptions won't be caught by `@RestControllerAdvice`. Use Spring Security's exception types directly to maintain security features and proper error handling.
+
 **Decision Matrix**:
 
 | Does Application Catch? | For Business Logic? | Translation Needed? | Where? | Example |
@@ -189,6 +198,7 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
 | ✅ Yes | ✅ Yes (compensation) | ✅ Yes | Adapter | `TokenStoreException` for Redis failures during token activation |
 | ❌ No | N/A | ❌ No | None | JWT generation (`JwtException` → `GlobalExceptionHandler`) |
 | ❌ No | N/A | ❌ No | None | DB operations (`DataAccessException` → `GlobalExceptionHandler`) |
+| ❌ No | N/A | ❌ No | None | Authentication failures (`BadCredentialsException` → Spring Security filters) |
 
 **Real Implementation Examples**:
 - **AuthenticateService:113-116** - Catches `TokenStoreException` for compensation after persistence
