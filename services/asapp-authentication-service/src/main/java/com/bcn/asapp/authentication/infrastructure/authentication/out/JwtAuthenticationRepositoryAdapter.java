@@ -20,8 +20,10 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
+import com.bcn.asapp.authentication.application.authentication.AuthenticationPersistenceException;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
@@ -118,10 +120,15 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
      * Deletes a JWT authentication by its unique identifier.
      *
      * @param jwtAuthenticationId the JWT authentication's unique identifier
+     * @throws AuthenticationPersistenceException if the database operation fails
      */
     @Override
     public void deleteById(JwtAuthenticationId jwtAuthenticationId) {
-        jwtAuthenticationRepository.deleteById(jwtAuthenticationId.value());
+        try {
+            jwtAuthenticationRepository.deleteById(jwtAuthenticationId.value());
+        } catch (DataAccessException e) {
+            throw new AuthenticationPersistenceException("Could not delete authentication from repository", e);
+        }
     }
 
     /**

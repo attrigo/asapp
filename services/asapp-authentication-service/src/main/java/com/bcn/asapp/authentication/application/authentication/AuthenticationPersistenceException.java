@@ -21,11 +21,10 @@ import com.bcn.asapp.authentication.application.PersistenceException;
 /**
  * Exception thrown when authentication persistence operations fail.
  * <p>
- * Indicates that the {@code JwtAuthenticationRepository} port could not complete a persistence operation for authentication aggregates.
+ * This domain-specific exception extends the generic {@link PersistenceException} to provide authentication context while maintaining the ability to catch all
+ * persistence failures generically.
  * <p>
- * This typically occurs due to repository connectivity issues, constraint violations, or transaction failures.
- * <p>
- * This exception extends {@link PersistenceException} to provide authentication service context while allowing generic exception handling.
+ * Thrown by infrastructure adapters when database operations fail and the application layer needs to handle them for compensation logic (saga pattern).
  *
  * @since 0.2.0
  * @author attrigo
@@ -35,8 +34,8 @@ public class AuthenticationPersistenceException extends PersistenceException {
     /**
      * Constructs a new {@code AuthenticationPersistenceException} with the specified detail message and cause.
      *
-     * @param message the detail message providing additional information about the exception
-     * @param cause   the underlying cause of the exception
+     * @param message the detail message explaining the persistence failure
+     * @param cause   the underlying cause of the persistence failure
      */
     public AuthenticationPersistenceException(String message, Throwable cause) {
         super(message, cause);

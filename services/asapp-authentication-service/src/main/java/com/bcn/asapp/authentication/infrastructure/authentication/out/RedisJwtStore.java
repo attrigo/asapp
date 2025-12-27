@@ -27,6 +27,7 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
+import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
 import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.Expiration;
@@ -135,30 +136,35 @@ public class RedisJwtStore implements JwtStore {
      * </ul>
      *
      * @param jwtPair the {@link JwtPair} containing the token pair to save
-     * @throws RuntimeException if the Redis operation fails
+     * @throws TokenStoreException if the Redis operation fails
      */
     @Override
     public void save(JwtPair jwtPair) {
         logger.trace("Saving JWT pair");
 
-        redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
-            RedisStringCommands redisStringCommands = connection.stringCommands();
+        try {
+            redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+                RedisStringCommands redisStringCommands = connection.stringCommands();
 
-            var accessToken = jwtPair.accessToken();
-            var refreshToken = jwtPair.refreshToken();
+                var accessToken = jwtPair.accessToken();
+                var refreshToken = jwtPair.refreshToken();
 
-            var accessKey = ACCESS_TOKEN_PREFIX + accessToken.encodedTokenValue();
-            var accessTtl = calculateTtl(accessToken.expiration());
-            redisStringCommands.setEx(accessKey.getBytes(), accessTtl, "".getBytes());
+                var accessKey = ACCESS_TOKEN_PREFIX + accessToken.encodedTokenValue();
+                var accessTtl = calculateTtl(accessToken.expiration());
+                redisStringCommands.setEx(accessKey.getBytes(), accessTtl, "".getBytes());
 
-            var refreshKey = REFRESH_TOKEN_PREFIX + refreshToken.encodedTokenValue();
-            var refreshTtl = calculateTtl(refreshToken.expiration());
-            redisStringCommands.setEx(refreshKey.getBytes(), refreshTtl, "".getBytes());
+                var refreshKey = REFRESH_TOKEN_PREFIX + refreshToken.encodedTokenValue();
+                var refreshTtl = calculateTtl(refreshToken.expiration());
+                redisStringCommands.setEx(refreshKey.getBytes(), refreshTtl, "".getBytes());
 
-            return null;
-        });
+                return null;
+            });
 
-        logger.trace("JWT pair stored successfully");
+            logger.trace("JWT pair stored successfully");
+
+        } catch (Exception e) {
+            throw new TokenStoreException("Could not store tokens in fast-access store", e);
+        }
     }
 
     /**
@@ -173,28 +179,33 @@ public class RedisJwtStore implements JwtStore {
      * </ul>
      *
      * @param jwtPair the {@link JwtPair} containing the token pair to delete
-     * @throws RuntimeException if the Redis operation fails
+     * @throws TokenStoreException if the Redis operation fails
      */
     @Override
     public void delete(JwtPair jwtPair) {
         logger.trace("Deleting JWT pair");
 
-        redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
-            RedisKeyCommands redisKeyCommands = connection.keyCommands();
+        try {
+            redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
+                RedisKeyCommands redisKeyCommands = connection.keyCommands();
 
-            var accessToken = jwtPair.accessToken();
-            var refreshToken = jwtPair.refreshToken();
+                var accessToken = jwtPair.accessToken();
+                var refreshToken = jwtPair.refreshToken();
 
-            var accessKey = ACCESS_TOKEN_PREFIX + accessToken.encodedTokenValue();
-            redisKeyCommands.del(accessKey.getBytes());
+                var accessKey = ACCESS_TOKEN_PREFIX + accessToken.encodedTokenValue();
+                redisKeyCommands.del(accessKey.getBytes());
 
-            var refreshKey = REFRESH_TOKEN_PREFIX + refreshToken.encodedTokenValue();
-            redisKeyCommands.del(refreshKey.getBytes());
+                var refreshKey = REFRESH_TOKEN_PREFIX + refreshToken.encodedTokenValue();
+                redisKeyCommands.del(refreshKey.getBytes());
 
-            return null;
-        });
+                return null;
+            });
 
-        logger.trace("JWT pair deleted successfully");
+            logger.trace("JWT pair deleted successfully");
+
+        } catch (Exception e) {
+            throw new TokenStoreException("Could not delete tokens from fast-access store", e);
+        }
     }
 
     /**

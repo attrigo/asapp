@@ -247,7 +247,7 @@ class AuthenticationE2EIT {
     class RefreshAuthentication {
 
         @Test
-        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_InvalidRefreshToken() {
+        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_InvalidRefreshToken() {
             // When
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest("invalid_refresh_token");
 
@@ -259,8 +259,21 @@ class AuthenticationE2EIT {
                          .exchange()
                          .expectStatus()
                          .isUnauthorized()
+                         .expectHeader()
+                         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                          .expectBody()
-                         .isEmpty();
+                         .jsonPath("$.type")
+                         .isEqualTo("about:blank")
+                         .jsonPath("$.title")
+                         .isEqualTo("Authentication Failed")
+                         .jsonPath("$.status")
+                         .isEqualTo(401)
+                         .jsonPath("$.detail")
+                         .isEqualTo("Invalid credentials")
+                         .jsonPath("$.error")
+                         .isEqualTo("invalid_grant")
+                         .jsonPath("$.instance")
+                         .isEqualTo("/asapp-authentication-service/api/auth/refresh");
 
             // Then
             assertNoAuthenticationsExists();
@@ -301,7 +314,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_RefreshTokenHasExpired() {
+        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_RefreshTokenHasExpired() {
             // When
             var refreshToken = testEncodedTokenBuilder().refreshToken()
                                                         .expired()
@@ -316,8 +329,21 @@ class AuthenticationE2EIT {
                          .exchange()
                          .expectStatus()
                          .isUnauthorized()
+                         .expectHeader()
+                         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                          .expectBody()
-                         .isEmpty();
+                         .jsonPath("$.type")
+                         .isEqualTo("about:blank")
+                         .jsonPath("$.title")
+                         .isEqualTo("Authentication Failed")
+                         .jsonPath("$.status")
+                         .isEqualTo(401)
+                         .jsonPath("$.detail")
+                         .isEqualTo("Invalid credentials")
+                         .jsonPath("$.error")
+                         .isEqualTo("invalid_grant")
+                         .jsonPath("$.instance")
+                         .isEqualTo("/asapp-authentication-service/api/auth/refresh");
 
             // Then
             assertNoAuthenticationsExists();
@@ -487,7 +513,7 @@ class AuthenticationE2EIT {
     class RevokeAuthentication {
 
         @Test
-        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_InvalidAccessToken() {
+        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_InvalidAccessToken() {
             // When
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest("invalid_access_token");
 
@@ -499,8 +525,21 @@ class AuthenticationE2EIT {
                          .exchange()
                          .expectStatus()
                          .isUnauthorized()
+                         .expectHeader()
+                         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                          .expectBody()
-                         .isEmpty();
+                         .jsonPath("$.type")
+                         .isEqualTo("about:blank")
+                         .jsonPath("$.title")
+                         .isEqualTo("Authentication Failed")
+                         .jsonPath("$.status")
+                         .isEqualTo(401)
+                         .jsonPath("$.detail")
+                         .isEqualTo("Invalid credentials")
+                         .jsonPath("$.error")
+                         .isEqualTo("invalid_grant")
+                         .jsonPath("$.instance")
+                         .isEqualTo("/asapp-authentication-service/api/auth/revoke");
 
             // Then
             assertNoAuthenticationsExists();
@@ -541,7 +580,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedAndEmptyBody_AccessTokenHasExpired() {
+        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_AccessTokenHasExpired() {
             // When
             var accessToken = testEncodedTokenBuilder().accessToken()
                                                        .expired()
@@ -556,8 +595,21 @@ class AuthenticationE2EIT {
                          .exchange()
                          .expectStatus()
                          .isUnauthorized()
+                         .expectHeader()
+                         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                          .expectBody()
-                         .isEmpty();
+                         .jsonPath("$.type")
+                         .isEqualTo("about:blank")
+                         .jsonPath("$.title")
+                         .isEqualTo("Authentication Failed")
+                         .jsonPath("$.status")
+                         .isEqualTo(401)
+                         .jsonPath("$.detail")
+                         .isEqualTo("Invalid credentials")
+                         .jsonPath("$.error")
+                         .isEqualTo("invalid_grant")
+                         .jsonPath("$.instance")
+                         .isEqualTo("/asapp-authentication-service/api/auth/revoke");
 
             // Then
             assertNoAuthenticationsExists();

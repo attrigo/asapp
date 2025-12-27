@@ -22,9 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bcn.asapp.authentication.application.ApplicationService;
 import com.bcn.asapp.authentication.application.CompensatingTransactionException;
+import com.bcn.asapp.authentication.application.PersistenceException;
 import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
-import com.bcn.asapp.authentication.application.authentication.AuthenticationPersistenceException;
-import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.bcn.asapp.authentication.application.authentication.in.RevokeAuthenticationUseCase;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
@@ -33,7 +32,6 @@ import com.bcn.asapp.authentication.application.authentication.out.TokenVerifier
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
-import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
 
 /**
  * Application service responsible for orchestrating authentication revocation.
@@ -86,13 +84,11 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
      * transaction.
      *
      * @param accessToken the access token string
-     * @throws IllegalArgumentException           if the access token is invalid or blank
-     * @throws InvalidJwtException                if the token is invalid, malformed, or expired
-     * @throws UnexpectedJwtTypeException         if the provided token is not an access token
-     * @throws AuthenticationNotFoundException    if the token is not found in active sessions or repository
-     * @throws TokenStoreException                if token store operation fails
-     * @throws AuthenticationPersistenceException if authentication deletion fails
-     * @throws CompensatingTransactionException   if compensating transaction fails
+     * @throws IllegalArgumentException         if the access token is invalid or blank
+     * @throws UnexpectedJwtTypeException       if the provided token is not an access token
+     * @throws AuthenticationNotFoundException  if the token is not found in active sessions or repository
+     * @throws PersistenceException             if authentication deletion fails (after compensation)
+     * @throws CompensatingTransactionException if compensating transaction fails
      */
     @Override
     @Transactional
@@ -113,7 +109,7 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
             logger.debug("Authentication revoked successfully with ID {}", authentication.getId()
                                                                                          .value());
 
-        } catch (AuthenticationPersistenceException e) {
+        } catch (PersistenceException e) {
             compensateTokenDeactivation(jwtPairToDelete);
             throw e;
         }
@@ -137,33 +133,21 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
      * Deactivates the token pair by removing it from the fast-access store.
      *
      * @param jwtPair the JWT pair to deactivate
-     * @throws TokenStoreException if token store operation fails
      */
     private void deactivateTokens(JwtPair jwtPair) {
         logger.trace("Step 5: Deleting token pair from fast-access store");
-        try {
-            jwtStore.delete(jwtPair);
-
-        } catch (Exception e) {
-            throw new TokenStoreException("Could not delete tokens from fast-access store", e);
-        }
+        jwtStore.delete(jwtPair);
     }
 
     /**
      * Deletes the authentication from the repository.
      *
      * @param jwtAuthentication the authentication to delete
-     * @throws AuthenticationPersistenceException if authentication deletion fails
      */
     private void deleteAuthentication(JwtAuthentication jwtAuthentication) {
         logger.trace("Step 6: Deleting authentication authenticationId={} from repository", jwtAuthentication.getId()
                                                                                                              .value());
-        try {
-            jwtAuthenticationRepository.deleteById(jwtAuthentication.getId());
-
-        } catch (Exception e) {
-            throw new AuthenticationPersistenceException("Could not delete authentication from repository", e);
-        }
+        jwtAuthenticationRepository.deleteById(jwtAuthentication.getId());
     }
 
     /**

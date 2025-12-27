@@ -182,8 +182,9 @@ class RevokeAuthenticationServiceTests {
 
             given(tokenVerifier.verifyAccessToken(encodedAccessToken)).willReturn(decodedToken);
             given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(Optional.of(authentication));
-            willThrow(new RuntimeException("Token store connection failed")).given(jwtStore)
-                                                                            .delete(jwtPair);
+            willThrow(new TokenStoreException("Could not delete tokens from fast-access store",
+                    new RuntimeException("Token store connection failed"))).given(jwtStore)
+                                                                           .delete(jwtPair);
 
             // When
             var thrown = catchThrowable(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue));
@@ -216,16 +217,16 @@ class RevokeAuthenticationServiceTests {
 
             given(tokenVerifier.verifyAccessToken(encodedAccessToken)).willReturn(decodedToken);
             given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(Optional.of(authentication));
-            willThrow(new RuntimeException("Repository delete failed")).given(jwtAuthenticationRepository)
-                                                                       .deleteById(authenticationId);
+            willThrow(new AuthenticationPersistenceException("Could not delete authentication from repository",
+                    new RuntimeException("Repository delete failed"))).given(jwtAuthenticationRepository)
+                                                                      .deleteById(authenticationId);
 
             // When
             var thrown = catchThrowable(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue));
 
             // Then
             assertThat(thrown).isInstanceOf(AuthenticationPersistenceException.class)
-                              .hasMessageContaining("Could not delete authentication from repository")
-                              .hasCauseInstanceOf(RuntimeException.class);
+                              .hasMessageContaining("Could not delete authentication from repository");
 
             then(tokenVerifier).should(times(1))
                                .verifyAccessToken(encodedAccessToken);
@@ -252,8 +253,9 @@ class RevokeAuthenticationServiceTests {
 
             given(tokenVerifier.verifyAccessToken(encodedAccessToken)).willReturn(decodedToken);
             given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(Optional.of(authentication));
-            willThrow(new RuntimeException("Repository delete failed")).given(jwtAuthenticationRepository)
-                                                                       .deleteById(authenticationId);
+            willThrow(new AuthenticationPersistenceException("Could not delete authentication from repository",
+                    new RuntimeException("Repository delete failed"))).given(jwtAuthenticationRepository)
+                                                                      .deleteById(authenticationId);
             willThrow(new RuntimeException("Compensation failed")).given(jwtStore)
                                                                   .save(jwtPair);
 

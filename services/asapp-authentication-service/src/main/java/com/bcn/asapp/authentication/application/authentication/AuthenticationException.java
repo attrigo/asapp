@@ -38,14 +38,4 @@ public class AuthenticationException extends RuntimeException {
         super(message);
     }
 
-    /**
-     * Constructs a new {@code AuthenticationException} with the specified detail message and cause.
-     *
-     * @param message the detail message providing additional information about the exception
-     * @param cause   the underlying cause of the exception
-     */
-    public AuthenticationException(String message, Throwable cause) {
-        super(message, cause);
-    }
-
 }
