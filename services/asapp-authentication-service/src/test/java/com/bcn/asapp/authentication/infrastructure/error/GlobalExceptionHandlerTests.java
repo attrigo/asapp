@@ -100,7 +100,7 @@ class GlobalExceptionHandlerTests {
         @Test
         void Returns401WithGenericMessage_InvalidJwt() {
             // Given
-            var exception = new InvalidJwtException("JWT signature validation failed");
+            var exception = new InvalidJwtException("JWT signature validation failed", new RuntimeException("Signature error"));
 
             // When
             var response = globalExceptionHandler.handleInvalidJwtException(exception);
