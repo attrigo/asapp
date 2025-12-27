@@ -21,6 +21,8 @@ import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -34,12 +36,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import io.jsonwebtoken.JwtException;
+
 import com.bcn.asapp.authentication.application.CompensatingTransactionException;
-import com.bcn.asapp.authentication.application.PersistenceException;
 import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
-import com.bcn.asapp.authentication.application.authentication.TokenGenerationException;
 import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
+import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
 
 /**
  * Global exception handler for REST API endpoints.
@@ -62,6 +65,10 @@ import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtType
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    // ============================================================================
+    // 400 BAD REQUEST - Validation Errors
+    // ============================================================================
 
     /**
      * Handles method argument validation failures.
@@ -91,12 +98,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, problemDetail, headers, status, request);
     }
 
+    // ============================================================================
+    // 401 UNAUTHORIZED - Authentication Failures
+    // ============================================================================
+
     /**
      * Handles authentication not found exceptions.
      * <p>
-     * Returns HTTP 401 Unauthorized with a generic message to prevent user enumeration attacks.
+     * Thrown when authentication sessions are not found (token revoked, session expired).
      * <p>
-     * Actual error details are logged server-side for debugging.
+     * Returns HTTP 401 Unauthorized with a generic message to prevent user enumeration attacks.
      *
      * @param ex the {@link AuthenticationNotFoundException}
      * @return a {@link ResponseEntity} with status 401 and generic error message
@@ -116,9 +127,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles unexpected JWT type exceptions.
      * <p>
-     * Returns HTTP 401 Unauthorized with a generic message to avoid revealing token validation logic.
+     * Thrown when token type doesn't match expected type (e.g., access token provided when refresh token expected).
      * <p>
-     * Actual error details are logged server-side for debugging.
+     * Returns HTTP 401 Unauthorized with a generic message to avoid revealing token validation logic.
      *
      * @param ex the {@link UnexpectedJwtTypeException}
      * @return a {@link ResponseEntity} with status 401 and generic error message
@@ -136,18 +147,67 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handles JWT generation failures in authentication operations.
+     * Handles invalid JWT exceptions.
      * <p>
-     * Returns HTTP 500 Internal Server Error with a generic message to avoid exposing cryptographic implementation details.
+     * Thrown when tokens are invalid, malformed, expired, or fail cryptographic verification.
      * <p>
-     * Actual error details are logged server-side for debugging.
+     * Returns HTTP 401 Unauthorized with a generic message to prevent revealing token validation details.
      *
-     * @param ex the {@link TokenGenerationException}
+     * @param ex the {@link InvalidJwtException}
+     * @return a {@link ResponseEntity} with status 401 and generic error message
+     */
+    @ExceptionHandler(InvalidJwtException.class)
+    protected ResponseEntity<ProblemDetail> handleInvalidJwtException(InvalidJwtException ex) {
+        logger.warn("Invalid JWT: {}", ex.getMessage());
+
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+        problemDetail.setTitle("Authentication Failed");
+        problemDetail.setProperty("error", "invalid_grant");
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                             .body(problemDetail);
+    }
+
+    // ============================================================================
+    // 500 INTERNAL SERVER ERROR - Server/Infrastructure Failures
+    // ============================================================================
+
+    /**
+     * Handles compensating transaction failures across the application.
+     * <p>
+     * This is a critical error indicating the system could not automatically recover from a failure, potentially leaving data in an inconsistent state.
+     * <p>
+     * Returns HTTP 500 Internal Server Error with a generic message and critical flag for monitoring alerts.
+     *
+     * @param ex the {@link CompensatingTransactionException}
      * @return a {@link ResponseEntity} with status 500 and generic error message
      */
-    @ExceptionHandler(TokenGenerationException.class)
-    protected ResponseEntity<ProblemDetail> handleTokenGenerationException(TokenGenerationException ex) {
-        logger.error("Token generation failed: {}", ex.getMessage(), ex);
+    @ExceptionHandler(CompensatingTransactionException.class)
+    protected ResponseEntity<ProblemDetail> handleCompensatingTransactionException(CompensatingTransactionException ex) {
+        logger.error("CRITICAL: Compensating transaction failed: {}", ex.getMessage(), ex);
+
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An internal error occurred");
+        problemDetail.setTitle("Internal Server Error");
+        problemDetail.setProperty("error", "server_error");
+        problemDetail.setProperty("critical", true);
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body(problemDetail);
+    }
+
+    /**
+     * Handles JJWT library failures during token operations.
+     * <p>
+     * Thrown when JWT token generation or cryptographic operations fail.
+     * <p>
+     * Returns HTTP 500 Internal Server Error with a generic message to avoid exposing cryptographic implementation details.
+     *
+     * @param ex the {@link JwtException}
+     * @return a {@link ResponseEntity} with status 500 and generic error message
+     */
+    @ExceptionHandler(JwtException.class)
+    protected ResponseEntity<ProblemDetail> handleJwtException(JwtException ex) {
+        logger.error("JWT operation failed: {}", ex.getMessage(), ex);
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An internal error occurred");
         problemDetail.setTitle("Internal Server Error");
@@ -158,11 +218,37 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
+     * Handles Spring Data JDBC failures during database operations.
+     * <p>
+     * Thrown when database operations fail (connection issues, constraint violations, etc.).
+     * <p>
+     * Returns HTTP 500 Internal Server Error with a generic message to avoid exposing database implementation details.
+     *
+     * @param ex the {@link DataAccessException}
+     * @return a {@link ResponseEntity} with status 500 and generic error message
+     */
+    @ExceptionHandler(DataAccessException.class)
+    protected ResponseEntity<ProblemDetail> handleDataAccessException(DataAccessException ex) {
+        logger.error("Database operation failed: {}", ex.getMessage(), ex);
+
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An internal error occurred");
+        problemDetail.setTitle("Internal Server Error");
+        problemDetail.setProperty("error", "server_error");
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                             .body(problemDetail);
+    }
+
+    // ============================================================================
+    // 503 SERVICE UNAVAILABLE - External Service Failures
+    // ============================================================================
+
+    /**
      * Handles JWT store operation failures in authentication operations.
      * <p>
-     * Returns HTTP 503 Service Unavailable with a generic message to avoid exposing Redis infrastructure details.
+     * Thrown when Redis token store operations fail (save, delete, check existence).
      * <p>
-     * Actual error details are logged server-side for debugging.
+     * Returns HTTP 503 Service Unavailable with a generic message to avoid exposing Redis infrastructure details.
      *
      * @param ex the {@link TokenStoreException}
      * @return a {@link ResponseEntity} with status 503 and generic error message
@@ -180,50 +266,30 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handles repository persistence failures across the application.
+     * Handles Redis connection and operation failures.
      * <p>
-     * Returns HTTP 500 Internal Server Error with a generic message to avoid exposing database implementation details.
+     * Thrown when Redis connection or low-level operations fail.
      * <p>
-     * Actual error details are logged server-side for debugging.
+     * Returns HTTP 503 Service Unavailable with a generic message to avoid exposing Redis infrastructure details.
      *
-     * @param ex the {@link PersistenceException} (or any subclass)
-     * @return a {@link ResponseEntity} with status 500 and generic error message
+     * @param ex the {@link RedisConnectionFailureException}
+     * @return a {@link ResponseEntity} with status 503 and generic error message
      */
-    @ExceptionHandler(PersistenceException.class)
-    protected ResponseEntity<ProblemDetail> handlePersistenceException(PersistenceException ex) {
-        logger.error("Persistence operation failed: {}", ex.getMessage(), ex);
+    @ExceptionHandler(RedisConnectionFailureException.class)
+    protected ResponseEntity<ProblemDetail> handleRedisException(RedisConnectionFailureException ex) {
+        logger.error("Redis operation failed: {}", ex.getMessage(), ex);
 
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An internal error occurred");
-        problemDetail.setTitle("Internal Server Error");
-        problemDetail.setProperty("error", "server_error");
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, "Service temporarily unavailable");
+        problemDetail.setTitle("Service Unavailable");
+        problemDetail.setProperty("error", "temporarily_unavailable");
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                              .body(problemDetail);
     }
 
-    /**
-     * Handles compensating transaction failures across the application.
-     * <p>
-     * Returns HTTP 500 Internal Server Error with a generic message. This is a critical error that requires manual intervention as it indicates the system
-     * could not automatically recover from a failure, potentially leaving data in an inconsistent state.
-     * <p>
-     * Actual error details are logged server-side for debugging.
-     *
-     * @param ex the {@link CompensatingTransactionException}
-     * @return a {@link ResponseEntity} with status 500 and generic error message
-     */
-    @ExceptionHandler(CompensatingTransactionException.class)
-    protected ResponseEntity<ProblemDetail> handleCompensatingTransactionException(CompensatingTransactionException ex) {
-        logger.error("CRITICAL: Compensating transaction failed: {}", ex.getMessage(), ex);
-
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An internal error occurred");
-        problemDetail.setTitle("Internal Server Error");
-        problemDetail.setProperty("error", "server_error");
-        problemDetail.setProperty("critical", true);
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                             .body(problemDetail);
-    }
+    // ============================================================================
+    // HELPER METHODS
+    // ============================================================================
 
     /**
      * Builds a list of invalid parameter details from field errors.

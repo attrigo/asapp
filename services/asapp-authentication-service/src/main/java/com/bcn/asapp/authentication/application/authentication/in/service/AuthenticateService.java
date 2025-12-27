@@ -22,8 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.bcn.asapp.authentication.application.ApplicationService;
 import com.bcn.asapp.authentication.application.CompensatingTransactionException;
-import com.bcn.asapp.authentication.application.authentication.AuthenticationPersistenceException;
-import com.bcn.asapp.authentication.application.authentication.TokenGenerationException;
 import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
 import com.bcn.asapp.authentication.application.authentication.in.AuthenticateUseCase;
 import com.bcn.asapp.authentication.application.authentication.in.command.AuthenticateCommand;
@@ -96,11 +94,8 @@ public class AuthenticateService implements AuthenticateUseCase {
      *
      * @param authenticateCommand the {@link AuthenticateCommand} containing user credentials
      * @return the {@link JwtAuthentication} containing access and refresh tokens with persistent ID
-     * @throws IllegalArgumentException           if the username or password is invalid
-     * @throws TokenGenerationException           if token generation fails
-     * @throws AuthenticationPersistenceException if authentication persistence fails
-     * @throws TokenStoreException                if token store operation fails (after compensation)
-     * @throws CompensatingTransactionException   if compensating transaction fails
+     * @throws IllegalArgumentException         if the username or password is invalid
+     * @throws CompensatingTransactionException if compensating transaction fails
      */
     @Override
     @Transactional
@@ -145,17 +140,11 @@ public class AuthenticateService implements AuthenticateUseCase {
      *
      * @param userAuthentication the authenticated user information
      * @return the generated JWT pair
-     * @throws TokenGenerationException if token generation fails
      */
     private JwtPair generateTokenPair(UserAuthentication userAuthentication) {
         logger.trace("Step 2: Generating JWT pair for userId={}", userAuthentication.userId()
                                                                                     .value());
-        try {
-            return tokenIssuer.issueTokenPair(userAuthentication);
-
-        } catch (Exception e) {
-            throw new TokenGenerationException("Could not generate tokens for user", e);
-        }
+        return tokenIssuer.issueTokenPair(userAuthentication);
     }
 
     /**
@@ -176,32 +165,20 @@ public class AuthenticateService implements AuthenticateUseCase {
      *
      * @param jwtAuthentication the JWT authentication to persist
      * @return the persisted JWT authentication with assigned ID
-     * @throws AuthenticationPersistenceException if authentication persistence fails
      */
     private JwtAuthentication persistAuthentication(JwtAuthentication jwtAuthentication) {
         logger.trace("Step 4: Persisting authentication to repository");
-        try {
-            return jwtAuthenticationRepository.save(jwtAuthentication);
-
-        } catch (Exception e) {
-            throw new AuthenticationPersistenceException("Could not persist authentication to repository", e);
-        }
+        return jwtAuthenticationRepository.save(jwtAuthentication);
     }
 
     /**
      * Stores the JWT pair in fast-access store for fast token validation.
      *
      * @param jwtPair the JWT pair to store
-     * @throws TokenStoreException if token store operation fails
      */
     private void activateTokens(JwtPair jwtPair) {
         logger.trace("Step 5: Storing tokens in fast-access store");
-        try {
-            jwtStore.save(jwtPair);
-
-        } catch (Exception e) {
-            throw new TokenStoreException("Could not store tokens in fast-access store", e);
-        }
+        jwtStore.save(jwtPair);
     }
 
     /**

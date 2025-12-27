@@ -38,8 +38,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.authentication.BadCredentialsException;
 
 import com.bcn.asapp.authentication.application.CompensatingTransactionException;
-import com.bcn.asapp.authentication.application.authentication.AuthenticationPersistenceException;
-import com.bcn.asapp.authentication.application.authentication.TokenGenerationException;
 import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
 import com.bcn.asapp.authentication.application.authentication.in.command.AuthenticateCommand;
 import com.bcn.asapp.authentication.application.authentication.out.CredentialsAuthenticator;
@@ -119,7 +117,7 @@ class AuthenticateServiceTests {
         }
 
         @Test
-        void ThrowsTokenGenerationException_GenerateTokenPairFails() {
+        void ThrowsRuntimeException_GenerateTokenPairFails() {
             // Given
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);
@@ -134,9 +132,8 @@ class AuthenticateServiceTests {
             var thrown = catchThrowable(() -> authenticateService.authenticate(command));
 
             // Then
-            assertThat(thrown).isInstanceOf(TokenGenerationException.class)
-                              .hasMessageContaining("Could not generate tokens for user")
-                              .hasCauseInstanceOf(RuntimeException.class);
+            assertThat(thrown).isInstanceOf(RuntimeException.class)
+                              .hasMessageContaining("Token issuance failed");
 
             then(credentialsAuthenticator).should(times(1))
                                           .authenticate(username, password);
@@ -149,7 +146,7 @@ class AuthenticateServiceTests {
         }
 
         @Test
-        void ThrowsAuthenticationPersistenceException_PersistAuthenticationFails() {
+        void ThrowsRuntimeException_PersistAuthenticationFails() {
             // Given
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);
@@ -168,9 +165,8 @@ class AuthenticateServiceTests {
             var thrown = catchThrowable(() -> authenticateService.authenticate(command));
 
             // Then
-            assertThat(thrown).isInstanceOf(AuthenticationPersistenceException.class)
-                              .hasMessageContaining("Could not persist authentication to repository")
-                              .hasCauseInstanceOf(RuntimeException.class);
+            assertThat(thrown).isInstanceOf(RuntimeException.class)
+                              .hasMessageContaining("Repository save failed");
 
             then(credentialsAuthenticator).should(times(1))
                                           .authenticate(username, password);
@@ -197,8 +193,9 @@ class AuthenticateServiceTests {
             given(credentialsAuthenticator.authenticate(username, password)).willReturn(userAuth);
             given(tokenIssuer.issueTokenPair(userAuth)).willReturn(jwtPair);
             given(jwtAuthenticationRepository.save(any(JwtAuthentication.class))).willReturn(savedAuthentication);
-            willThrow(new RuntimeException("Token store connection failed")).given(jwtStore)
-                                                                            .save(jwtPair);
+            willThrow(new TokenStoreException("Could not store tokens in fast-access store",
+                    new RuntimeException("Token store connection failed"))).given(jwtStore)
+                                                                           .save(jwtPair);
 
             // When
             var thrown = catchThrowable(() -> authenticateService.authenticate(command));
@@ -235,8 +232,9 @@ class AuthenticateServiceTests {
             given(credentialsAuthenticator.authenticate(username, password)).willReturn(userAuth);
             given(tokenIssuer.issueTokenPair(userAuth)).willReturn(jwtPair);
             given(jwtAuthenticationRepository.save(any(JwtAuthentication.class))).willReturn(savedAuthentication);
-            willThrow(new RuntimeException("Token store connection failed")).given(jwtStore)
-                                                                            .save(jwtPair);
+            willThrow(new TokenStoreException("Could not store tokens in fast-access store",
+                    new RuntimeException("Token store connection failed"))).given(jwtStore)
+                                                                           .save(jwtPair);
             willThrow(new RuntimeException("Compensation failed")).given(jwtAuthenticationRepository)
                                                                   .deleteById(savedAuthentication.getId());
 

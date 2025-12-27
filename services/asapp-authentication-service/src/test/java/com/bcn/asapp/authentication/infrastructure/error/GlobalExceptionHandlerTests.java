@@ -21,15 +21,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.HttpStatus;
 
+import io.jsonwebtoken.JwtException;
+
 import com.bcn.asapp.authentication.application.CompensatingTransactionException;
-import com.bcn.asapp.authentication.application.PersistenceException;
 import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
-import com.bcn.asapp.authentication.application.authentication.AuthenticationPersistenceException;
-import com.bcn.asapp.authentication.application.authentication.TokenGenerationException;
 import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
+import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
 
 class GlobalExceptionHandlerTests {
 
@@ -93,15 +95,96 @@ class GlobalExceptionHandlerTests {
     }
 
     @Nested
-    class HandleTokenGenerationException {
+    class HandleInvalidJwtException {
 
         @Test
-        void Returns500WithGenericMessage_TokenGenerationFails() {
+        void Returns401WithGenericMessage_InvalidJwt() {
             // Given
-            var exception = new TokenGenerationException("Could not generate new tokens", new RuntimeException("Crypto error"));
+            var exception = new InvalidJwtException("JWT signature validation failed");
 
             // When
-            var response = globalExceptionHandler.handleTokenGenerationException(exception);
+            var response = globalExceptionHandler.handleInvalidJwtException(exception);
+
+            // Then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody()
+                               .getTitle()).isEqualTo("Authentication Failed");
+            assertThat(response.getBody()
+                               .getStatus()).isEqualTo(401);
+            assertThat(response.getBody()
+                               .getDetail()).isEqualTo("Invalid credentials");
+            assertThat(response.getBody()
+                               .getProperties()).containsEntry("error", "invalid_grant");
+        }
+
+    }
+
+    @Nested
+    class HandleCompensatingTransactionException {
+
+        @Test
+        void Returns500WithCriticalFlag_CompensatingTransactionFails() {
+            // Given
+            var exception = new CompensatingTransactionException("Failed to compensate token rotation after token activation failure",
+                    new RuntimeException("Could not restore old tokens"));
+
+            // When
+            var response = globalExceptionHandler.handleCompensatingTransactionException(exception);
+
+            // Then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody()
+                               .getTitle()).isEqualTo("Internal Server Error");
+            assertThat(response.getBody()
+                               .getStatus()).isEqualTo(500);
+            assertThat(response.getBody()
+                               .getDetail()).isEqualTo("An internal error occurred");
+            assertThat(response.getBody()
+                               .getProperties()).containsEntry("error", "server_error");
+            assertThat(response.getBody()
+                               .getProperties()).containsEntry("critical", true);
+        }
+
+    }
+
+    @Nested
+    class HandleJwtException {
+
+        @Test
+        void Returns500WithGenericMessage_JwtOperationFails() {
+            // Given
+            var exception = new JwtException("JWT signing failed");
+
+            // When
+            var response = globalExceptionHandler.handleJwtException(exception);
+
+            // Then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody()
+                               .getTitle()).isEqualTo("Internal Server Error");
+            assertThat(response.getBody()
+                               .getStatus()).isEqualTo(500);
+            assertThat(response.getBody()
+                               .getDetail()).isEqualTo("An internal error occurred");
+            assertThat(response.getBody()
+                               .getProperties()).containsEntry("error", "server_error");
+        }
+
+    }
+
+    @Nested
+    class HandleDataAccessException {
+
+        @Test
+        void Returns500WithGenericMessage_DatabaseOperationFails() {
+            // Given
+            var exception = new DataAccessException("Database connection failed") {};
+
+            // When
+            var response = globalExceptionHandler.handleDataAccessException(exception);
 
             // Then
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -145,83 +228,27 @@ class GlobalExceptionHandlerTests {
     }
 
     @Nested
-    class HandleAuthenticationPersistenceException {
+    class HandleRedisException {
 
         @Test
-        void Returns500WithGenericMessage_PersistenceFails() {
+        void Returns503WithGenericMessage_RedisConnectionFails() {
             // Given
-            var exception = new AuthenticationPersistenceException("Could not persist updated authentication to repository",
-                    new RuntimeException("Database constraint violation"));
+            var exception = new RedisConnectionFailureException("Cannot connect to Redis server", new RuntimeException("Connection refused"));
 
             // When
-            var response = globalExceptionHandler.handlePersistenceException(exception);
+            var response = globalExceptionHandler.handleRedisException(exception);
 
             // Then
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
             assertThat(response.getBody()).isNotNull();
             assertThat(response.getBody()
-                               .getTitle()).isEqualTo("Internal Server Error");
+                               .getTitle()).isEqualTo("Service Unavailable");
             assertThat(response.getBody()
-                               .getStatus()).isEqualTo(500);
+                               .getStatus()).isEqualTo(503);
             assertThat(response.getBody()
-                               .getDetail()).isEqualTo("An internal error occurred");
+                               .getDetail()).isEqualTo("Service temporarily unavailable");
             assertThat(response.getBody()
-                               .getProperties()).containsEntry("error", "server_error");
-        }
-
-    }
-
-    @Nested
-    class HandlePersistenceException {
-
-        @Test
-        void Returns500WithGenericMessage_GenericPersistenceFails() {
-            // Given
-            var exception = new PersistenceException("Generic persistence operation failed", new RuntimeException("Database connection error"));
-
-            // When
-            var response = globalExceptionHandler.handlePersistenceException(exception);
-
-            // Then
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-            assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody()
-                               .getTitle()).isEqualTo("Internal Server Error");
-            assertThat(response.getBody()
-                               .getStatus()).isEqualTo(500);
-            assertThat(response.getBody()
-                               .getDetail()).isEqualTo("An internal error occurred");
-            assertThat(response.getBody()
-                               .getProperties()).containsEntry("error", "server_error");
-        }
-
-    }
-
-    @Nested
-    class HandleCompensatingTransactionException {
-
-        @Test
-        void Returns500WithCriticalFlag_CompensatingTransactionFails() {
-            // Given
-            var exception = new CompensatingTransactionException("Failed to compensate token rotation after token activation failure",
-                    new RuntimeException("Could not restore old tokens"));
-
-            // When
-            var response = globalExceptionHandler.handleCompensatingTransactionException(exception);
-
-            // Then
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-            assertThat(response.getBody()).isNotNull();
-            assertThat(response.getBody()
-                               .getTitle()).isEqualTo("Internal Server Error");
-            assertThat(response.getBody()
-                               .getStatus()).isEqualTo(500);
-            assertThat(response.getBody()
-                               .getDetail()).isEqualTo("An internal error occurred");
-            assertThat(response.getBody()
-                               .getProperties()).containsEntry("error", "server_error");
-            assertThat(response.getBody()
-                               .getProperties()).containsEntry("critical", true);
+                               .getProperties()).containsEntry("error", "temporarily_unavailable");
         }
 
     }
