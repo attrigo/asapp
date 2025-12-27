@@ -31,6 +31,7 @@ import com.bcn.asapp.authentication.domain.user.Username;
  * @author attrigo
  */
 @FunctionalInterface
+// TODO: Remove/replace BadCredentialsException which is violating the hexagonal architecture principles
 public interface CredentialsAuthenticator {
 
     /**

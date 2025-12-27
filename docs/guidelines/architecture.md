@@ -416,7 +416,7 @@ Claims: { "sub": "user", "role": "USER", "token_use": "access", "iat": ..., "exp
 - Translate between external systems and domain
 - Simple delegation with translation (type/protocol/semantic)
 - No business decisions or workflow coordination
-- Examples: `SpringCredentialsAuthenticator`, `RedisJwtStore`, `JwtAuthenticationRepositoryAdapter`
+- Examples: `CredentialsAuthenticatorAdapter`, `RedisJwtStore`, `JwtAuthenticationRepositoryAdapter`
 
 **Services** (application):
 - Coordinate multiple ports
@@ -431,7 +431,7 @@ Claims: { "sub": "user", "role": "USER", "token_use": "access", "iat": ..., "exp
 |------|-------------|---------|
 | **Type** | Domain ↔ Infrastructure types | `JwtAuthenticationRepositoryAdapter`: `JwtAuthentication` ↔ `JwtAuthenticationEntity` |
 | **Protocol** | Domain operation → Infrastructure commands | `RedisJwtStore`: "save pair" → `SETEX key1` + `SETEX key2` |
-| **Semantic** | Domain concept → Infrastructure behavior | `SpringCredentialsAuthenticator`: "authenticate" → Spring Security flow |
+| **Type** | Domain concept → Infrastructure behavior | `CredentialsAuthenticatorAdapter`: Spring Security types ↔ Domain types |
 
 **When You Need Adapters**:
 - ✅ Third-party code you can't modify (Spring, JDBC, Redis)

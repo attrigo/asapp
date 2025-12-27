@@ -47,13 +47,13 @@ import com.bcn.asapp.authentication.infrastructure.security.InvalidPrincipalExce
 import com.bcn.asapp.authentication.infrastructure.security.RoleNotFoundException;
 
 @ExtendWith(MockitoExtension.class)
-class SpringCredentialsAuthenticatorTests {
+class CredentialsAuthenticatorAdapterTests {
 
     @Mock
     private AuthenticationManager authenticationManager;
 
     @InjectMocks
-    private SpringCredentialsAuthenticator springCredentialsAuthenticator;
+    private CredentialsAuthenticatorAdapter credentialsAuthenticatorAdapter;
 
     private final UUID userId = UUID.fromString("61c5064b-1906-4d11-a8ab-5bfd309e2631");
 
@@ -73,7 +73,7 @@ class SpringCredentialsAuthenticatorTests {
                                                                          .authenticate(any(UsernamePasswordAuthenticationToken.class));
 
             // When
-            var thrown = catchThrowable(() -> springCredentialsAuthenticator.authenticate(username, password));
+            var thrown = catchThrowable(() -> credentialsAuthenticatorAdapter.authenticate(username, password));
 
             // Then
             assertThat(thrown).isInstanceOf(BadCredentialsException.class)
@@ -91,7 +91,7 @@ class SpringCredentialsAuthenticatorTests {
             given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(authenticationToken);
 
             // When
-            var thrown = catchThrowable(() -> springCredentialsAuthenticator.authenticate(username, password));
+            var thrown = catchThrowable(() -> credentialsAuthenticatorAdapter.authenticate(username, password));
 
             // Then
             assertThat(thrown).isInstanceOf(BadCredentialsException.class)
@@ -110,7 +110,7 @@ class SpringCredentialsAuthenticatorTests {
             given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(authenticationToken);
 
             // When
-            var thrown = catchThrowable(() -> springCredentialsAuthenticator.authenticate(username, password));
+            var thrown = catchThrowable(() -> credentialsAuthenticatorAdapter.authenticate(username, password));
 
             // Then
             assertThat(thrown).isInstanceOf(BadCredentialsException.class)
@@ -129,7 +129,7 @@ class SpringCredentialsAuthenticatorTests {
             given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(authenticationToken);
 
             // When
-            var actual = springCredentialsAuthenticator.authenticate(username, password);
+            var actual = credentialsAuthenticatorAdapter.authenticate(username, password);
 
             // Then
             assertThat(actual).isNotNull();
