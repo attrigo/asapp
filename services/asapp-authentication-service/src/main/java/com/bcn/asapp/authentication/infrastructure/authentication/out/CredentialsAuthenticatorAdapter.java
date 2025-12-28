@@ -79,21 +79,44 @@ public class CredentialsAuthenticatorAdapter implements CredentialsAuthenticator
         logger.trace("Authenticating user {}", username);
 
         try {
-            var authenticationTokenRequest = UsernamePasswordAuthenticationToken.unauthenticated(username.value(), password.value());
+            var authenticationToken = authenticateUsernamePassword(username, password);
 
-            var authenticationToken = authenticationManager.authenticate(authenticationTokenRequest);
-
-            var authenticatedUserId = extractUserIdFromAuthentication(authenticationToken);
-            var authenticatedUsername = Username.of(authenticationToken.getName());
-            var authenticatedRole = extractRoleFromAuthentication(authenticationToken);
-
-            return UserAuthentication.authenticated(authenticatedUserId, authenticatedUsername, authenticatedRole);
+            return buildUserAuthentication(authenticationToken);
 
         } catch (Exception e) {
             var message = String.format("Authentication failed due to: %s", e.getMessage());
             logger.warn(message, e);
             throw new BadCredentialsException(message, e);
         }
+    }
+
+    /**
+     * Authenticates the username and password using Spring Security's authentication manager.
+     *
+     * @param username the {@link Username} to authenticate
+     * @param password the {@link RawPassword} to validate
+     * @return the Spring Security {@link Authentication} token if authentication succeeds
+     * @throws BadCredentialsException if the credentials are invalid
+     */
+    private Authentication authenticateUsernamePassword(Username username, RawPassword password) {
+        var authenticationTokenRequest = UsernamePasswordAuthenticationToken.unauthenticated(username.value(), password.value());
+        return authenticationManager.authenticate(authenticationTokenRequest);
+    }
+
+    /**
+     * Builds a domain {@link UserAuthentication} object from a Spring Security authentication token.
+     * <p>
+     * Extracts the user ID, username, and role from the authentication token and constructs an authenticated domain object.
+     *
+     * @param authenticationToken the Spring Security authentication token
+     * @return the {@link UserAuthentication} containing user identity and role information
+     */
+    private UserAuthentication buildUserAuthentication(Authentication authenticationToken) {
+        var userId = extractUserIdFromAuthentication(authenticationToken);
+        var username = Username.of(authenticationToken.getName());
+        var role = extractRoleFromAuthentication(authenticationToken);
+
+        return UserAuthentication.authenticated(userId, username, role);
     }
 
     /**
