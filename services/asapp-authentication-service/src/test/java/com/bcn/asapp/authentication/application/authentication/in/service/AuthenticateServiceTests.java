@@ -35,7 +35,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.authentication.BadCredentialsException;
 
 import com.bcn.asapp.authentication.application.CompensatingTransactionException;
 import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
@@ -90,21 +89,21 @@ class AuthenticateServiceTests {
     class Authenticate {
 
         @Test
-        void ThrowsBadCredentialsException_AuthenticateCredentialsFails() {
+        void ThrowsRuntimeException_AuthenticateCredentialsFails() {
             // Given
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);
             var password = RawPassword.of(passwordValue);
 
-            willThrow(new BadCredentialsException("Invalid credentials")).given(credentialsAuthenticator)
-                                                                         .authenticate(username, password);
+            willThrow(new RuntimeException("Authentication failed")).given(credentialsAuthenticator)
+                                                                    .authenticate(username, password);
 
             // When
             var thrown = catchThrowable(() -> authenticateService.authenticate(command));
 
             // Then
-            assertThat(thrown).isInstanceOf(BadCredentialsException.class)
-                              .hasMessageContaining("Invalid credentials");
+            assertThat(thrown).isInstanceOf(RuntimeException.class)
+                              .hasMessageContaining("Authentication failed");
 
             then(credentialsAuthenticator).should(times(1))
                                           .authenticate(username, password);
