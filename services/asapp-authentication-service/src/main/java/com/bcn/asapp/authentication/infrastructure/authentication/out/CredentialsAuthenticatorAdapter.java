@@ -76,7 +76,7 @@ public class CredentialsAuthenticatorAdapter implements CredentialsAuthenticator
      */
     @Override
     public UserAuthentication authenticate(Username username, RawPassword password) {
-        logger.debug("[CREDENTIALS_AUTH] Authenticating credentials - username={}", username);
+        logger.debug("[CREDENTIALS_AUTH] Authenticating credentials with username={}", username);
 
         try {
             var authenticationToken = authenticateUsernamePassword(username, password);

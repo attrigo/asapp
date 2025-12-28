@@ -161,7 +161,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      * @return the newly generated JWT pair
      */
     private JwtPair generateNewTokenPair(Jwt jwt) {
-        logger.trace("[REFRESH] Step 3/7: Generating new JWT pair for subject={}, role={}", jwt.subject(), jwt.roleClaim());
+        logger.trace("[REFRESH] Step 3/7: Generating new JWT pair");
         return tokenIssuer.issueTokenPair(jwt.subject(), jwt.roleClaim());
     }
 
@@ -208,12 +208,12 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      * @throws CompensatingTransactionException if compensation fails
      */
     private void compensateTokenRotation(JwtPair jwtPair) {
-        logger.warn("Restoring old tokens in fas-access store");
+        logger.warn("[REFRESH] Token rotation failed, restoring old tokens in fast-access store");
 
         try {
             jwtStore.save(jwtPair);
 
-            logger.debug("Compensating transaction completed: old tokens restored in fast-access store");
+            logger.debug("[REFRESH] Compensation complete, old tokens restored in fast-access store");
 
         } catch (Exception e) {
             throw new CompensatingTransactionException("Failed to compensate token rotation after token activation failure", e);

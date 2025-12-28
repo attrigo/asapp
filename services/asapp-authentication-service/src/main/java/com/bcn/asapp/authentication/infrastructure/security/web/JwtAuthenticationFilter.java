@@ -140,7 +140,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             newContext.setAuthentication(jwtAuthenticationToken);
             SecurityContextHolder.setContext(newContext);
 
-            logger.debug("[JWT_VALIDATION] Authentication successful - subject={}", jwtAuthenticationToken.getName());
+            logger.debug("[JWT_VALIDATION] Authentication successful for subject={}", jwtAuthenticationToken.getName());
 
         } catch (AuthenticationNotFoundException e) {
             logger.warn("[JWT_VALIDATION] Authentication failed - reason=Session not found");

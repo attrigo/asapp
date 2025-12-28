@@ -105,8 +105,8 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
         try {
             deleteAuthentication(authentication);
 
-            logger.debug("[REVOKE] Authentication revoked successfully - authenticationId={}", authentication.getId()
-                                                                                                             .value());
+            logger.debug("[REVOKE] Authentication revoked successfully for authenticationId={}", authentication.getId()
+                                                                                                               .value());
 
         } catch (PersistenceException e) {
             compensateTokenDeactivation(jwtPairToDelete);
@@ -155,8 +155,7 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
      * @param jwtAuthentication the authentication to delete
      */
     private void deleteAuthentication(JwtAuthentication jwtAuthentication) {
-        logger.trace("[REVOKE] Step 4/4: Deleting authentication from repository - authenticationId={}", jwtAuthentication.getId()
-                                                                                                                          .value());
+        logger.trace("[REVOKE] Step 4/4: Deleting authentication from repository");
         jwtAuthenticationRepository.deleteById(jwtAuthentication.getId());
     }
 
@@ -167,12 +166,12 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
      * @throws CompensatingTransactionException if compensation fails
      */
     private void compensateTokenDeactivation(JwtPair jwtPair) {
-        logger.warn("Restoring tokens to fast-access store");
+        logger.warn("[REVOKE] Repository deletion failed, restoring tokens to fast-access store");
 
         try {
             jwtStore.save(jwtPair);
 
-            logger.debug("Compensating transaction completed: tokens restored to fast-access store");
+            logger.debug("[REVOKE] Compensation complete, tokens restored to fast-access store");
 
         } catch (Exception e) {
             throw new CompensatingTransactionException("Failed to compensate token deactivation after repository deletion failure", e);
