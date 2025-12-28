@@ -16,8 +16,6 @@
 
 package com.bcn.asapp.authentication.application.authentication.out;
 
-import org.springframework.security.authentication.BadCredentialsException;
-
 import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
 import com.bcn.asapp.authentication.domain.user.RawPassword;
 import com.bcn.asapp.authentication.domain.user.Username;
@@ -26,23 +24,26 @@ import com.bcn.asapp.authentication.domain.user.Username;
  * Port for authenticating user credentials.
  * <p>
  * Defines the contract for validating user credentials and producing authenticated user.
+ * <p>
+ * Authentication failures are handled by the infrastructure layer. The adapter implementation must throw infrastructure-specific exceptions that must be caught
+ * and processed by the security mechanism before reaching the application layer.
  *
  * @since 0.2.0
  * @author attrigo
  */
 @FunctionalInterface
-// TODO: Remove/replace BadCredentialsException which is violating the hexagonal architecture principles
 public interface CredentialsAuthenticator {
 
     /**
      * Authenticates a user based on provided credentials.
      * <p>
      * Validates the user's credentials and returns an authenticated user.
+     * <p>
+     * Authentication failures are signaled through infrastructure exceptions handled at the boundary layer.
      *
      * @param username the {@link Username} to authenticate
      * @param password the {@link RawPassword} to validate
      * @return the {@link UserAuthentication} containing authenticated user data with ID and role
-     * @throws BadCredentialsException if authentication fails
      */
     UserAuthentication authenticate(Username username, RawPassword password);
 
