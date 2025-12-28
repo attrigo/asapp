@@ -74,14 +74,12 @@ public class JwtVerifier {
      * @throws UnexpectedJwtTypeException      if the token is not an access token
      */
     public DecodedJwt verifyAccessToken(EncodedToken encodedToken) {
-        logger.debug("Verifying access token {}", encodedToken.token());
+        logger.debug("[JWT_VERIFIER] Verifying access token");
 
         try {
             var decodedJwt = decodeToken(encodedToken);
             verifyAccessTokenType(decodedJwt);
             checkAccessTokenInActiveStore(encodedToken);
-
-            logger.debug("Access token {} verified successfully", encodedToken.token());
 
             return decodedJwt;
 
@@ -113,14 +111,12 @@ public class JwtVerifier {
      * @throws UnexpectedJwtTypeException      if the token is not a refresh token
      */
     public DecodedJwt verifyRefreshToken(EncodedToken encodedToken) {
-        logger.debug("Verifying refresh token {}", encodedToken.token());
+        logger.debug("[JWT_VERIFIER] Verifying refresh token");
 
         try {
             var decodedJwt = decodeToken(encodedToken);
             verifyRefreshTokenType(decodedJwt);
             checkRefreshTokenInActiveStore(encodedToken);
-
-            logger.debug("Refresh token {} verified successfully", encodedToken.token());
 
             return decodedJwt;
 
@@ -143,7 +139,7 @@ public class JwtVerifier {
      * @throws InvalidJwtException if the token signature is invalid or the token is expired
      */
     private DecodedJwt decodeToken(EncodedToken encodedToken) {
-        logger.trace("Step 1: Decoding and validating the token");
+        logger.trace("[JWT_VERIFIER] Step 1/3: Decoding and validating token");
         return jwtDecoder.decode(encodedToken);
     }
 
@@ -156,7 +152,7 @@ public class JwtVerifier {
      * @throws UnexpectedJwtTypeException if the token is not an access token
      */
     private void verifyAccessTokenType(DecodedJwt decodedJwt) {
-        logger.trace("Step 2: Verifying token type is access token");
+        logger.trace("[JWT_VERIFIER] Step 2/3: Verifying token type is ACCESS");
         if (!decodedJwt.isAccessToken()) {
             throw new UnexpectedJwtTypeException(String.format("JWT %s is not an access token", decodedJwt.encodedToken()));
         }
@@ -171,7 +167,7 @@ public class JwtVerifier {
      * @throws AuthenticationNotFoundException if the authentication session is not found (token revoked or expired)
      */
     private void checkAccessTokenInActiveStore(EncodedToken encodedToken) {
-        logger.trace("Step 3: Checking access token exists in fast-access store");
+        logger.trace("[JWT_VERIFIER] Step 3/3: Checking access token exists in store");
         var isTokenActive = jwtStore.accessTokenExists(encodedToken);
         if (!isTokenActive) {
             throw new AuthenticationNotFoundException(String.format("Authentication session not found for access token: %s", encodedToken.token()));
@@ -187,7 +183,7 @@ public class JwtVerifier {
      * @throws UnexpectedJwtTypeException if the token is not a refresh token
      */
     private void verifyRefreshTokenType(DecodedJwt decodedJwt) {
-        logger.trace("Step 2: Verifying token type is refresh token");
+        logger.trace("[JWT_VERIFIER] Step 2/3: Verifying token type is REFRESH");
         if (!decodedJwt.isRefreshToken()) {
             throw new UnexpectedJwtTypeException(String.format("JWT %s is not a refresh token", decodedJwt.encodedToken()));
         }
@@ -202,7 +198,7 @@ public class JwtVerifier {
      * @throws AuthenticationNotFoundException if the authentication session is not found (token revoked or expired)
      */
     private void checkRefreshTokenInActiveStore(EncodedToken encodedToken) {
-        logger.trace("Step 3: Checking refresh token exists in fast-access store");
+        logger.trace("[JWT_VERIFIER] Step 3/3: Checking refresh token exists in store");
         var isTokenActive = jwtStore.refreshTokenExists(encodedToken);
         if (!isTokenActive) {
             throw new AuthenticationNotFoundException(String.format("Authentication session not found for refresh token: %s", encodedToken.token()));

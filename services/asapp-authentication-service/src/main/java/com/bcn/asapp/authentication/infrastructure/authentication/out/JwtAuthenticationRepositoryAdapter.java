@@ -20,6 +20,8 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
@@ -49,6 +51,8 @@ import com.bcn.asapp.authentication.infrastructure.authentication.persistence.Jd
 @Component
 public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepository {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationRepositoryAdapter.class);
+
     private final JdbcJwtAuthenticationRepository jwtAuthenticationRepository;
 
     private final JwtAuthenticationMapper jwtAuthenticationMapper;
@@ -72,6 +76,7 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
      */
     @Override
     public Optional<JwtAuthentication> findByAccessToken(EncodedToken accessToken) {
+        logger.trace("[JWT_AUTH_REPOSITORY] Finding authentication by access token");
         return jwtAuthenticationRepository.findByAccessTokenToken(accessToken.value())
                                           .map(jwtAuthenticationMapper::toJwtAuthentication);
     }
@@ -84,6 +89,7 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
      */
     @Override
     public Optional<JwtAuthentication> findByRefreshToken(EncodedToken refreshToken) {
+        logger.trace("[JWT_AUTH_REPOSITORY] Finding authentication by refresh token");
         return jwtAuthenticationRepository.findByRefreshTokenToken(refreshToken.value())
                                           .map(jwtAuthenticationMapper::toJwtAuthentication);
     }
@@ -96,6 +102,7 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
      */
     @Override
     public List<JwtAuthentication> findAllByUserId(UserId userId) {
+        logger.trace("[JWT_AUTH_REPOSITORY] Finding all authentications by user ID");
         return jwtAuthenticationRepository.findAllByUserId(userId.value())
                                           .stream()
                                           .map(jwtAuthenticationMapper::toJwtAuthentication)
@@ -114,6 +121,7 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
      */
     @Override
     public JwtAuthentication save(JwtAuthentication jwtAuthentication) {
+        logger.trace("[JWT_AUTH_REPOSITORY] Saving authentication");
         var jwtAuthenticationToSave = jwtAuthenticationMapper.toJdbcJwtAuthenticationEntity(jwtAuthentication);
 
         var jwtAuthenticationSaved = jwtAuthenticationRepository.save(jwtAuthenticationToSave);
@@ -129,6 +137,7 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
      */
     @Override
     public void deleteById(JwtAuthenticationId jwtAuthenticationId) {
+        logger.trace("[JWT_AUTH_REPOSITORY] Deleting authentication by ID");
         try {
             jwtAuthenticationRepository.deleteById(jwtAuthenticationId.value());
         } catch (DataAccessException e) {
@@ -143,6 +152,7 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
      */
     @Override
     public void deleteAllByUserId(UserId userId) {
+        logger.trace("[JWT_AUTH_REPOSITORY] Deleting all authentications by user ID");
         jwtAuthenticationRepository.deleteAllJwtAuthenticationByUserId(userId.value());
     }
 
@@ -154,6 +164,7 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
      */
     @Override
     public Integer deleteAllByRefreshTokenExpiredBefore(Instant expiredBefore) {
+        logger.trace("[JWT_AUTH_REPOSITORY] Deleting all authentications with expired refresh tokens");
         return jwtAuthenticationRepository.deleteAllByRefreshTokenExpiredBefore(expiredBefore);
     }
 

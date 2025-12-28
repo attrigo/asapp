@@ -76,16 +76,15 @@ public class CredentialsAuthenticatorAdapter implements CredentialsAuthenticator
      */
     @Override
     public UserAuthentication authenticate(Username username, RawPassword password) {
-        logger.trace("Authenticating user {}", username);
+        logger.debug("[CREDENTIALS_AUTH] Authenticating credentials - username={}", username);
 
         try {
             var authenticationToken = authenticateUsernamePassword(username, password);
 
             return buildUserAuthentication(authenticationToken);
-
         } catch (Exception e) {
             var message = String.format("Authentication failed due to: %s", e.getMessage());
-            logger.warn(message, e);
+            logger.warn("[CREDENTIALS_AUTH] {}", message, e);
             throw new BadCredentialsException(message, e);
         }
     }
@@ -99,6 +98,7 @@ public class CredentialsAuthenticatorAdapter implements CredentialsAuthenticator
      * @throws BadCredentialsException if the credentials are invalid
      */
     private Authentication authenticateUsernamePassword(Username username, RawPassword password) {
+        logger.trace("[CREDENTIALS_AUTH] Step 1/2: Validating credentials with authentication manager");
         var authenticationTokenRequest = UsernamePasswordAuthenticationToken.unauthenticated(username.value(), password.value());
         return authenticationManager.authenticate(authenticationTokenRequest);
     }
@@ -112,10 +112,10 @@ public class CredentialsAuthenticatorAdapter implements CredentialsAuthenticator
      * @return the {@link UserAuthentication} containing user identity and role information
      */
     private UserAuthentication buildUserAuthentication(Authentication authenticationToken) {
+        logger.trace("[CREDENTIALS_AUTH] Step 2/2: Building domain authentication object");
         var userId = extractUserIdFromAuthentication(authenticationToken);
         var username = Username.of(authenticationToken.getName());
         var role = extractRoleFromAuthentication(authenticationToken);
-
         return UserAuthentication.authenticated(userId, username, role);
     }
 

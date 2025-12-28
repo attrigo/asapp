@@ -104,7 +104,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
     @Override
     @Transactional
     public JwtAuthentication refreshAuthentication(String refreshToken) {
-        logger.debug("Refreshing authentication with refresh token");
+        logger.debug("[REFRESH] Refreshing authentication");
 
         var encodedRefreshToken = EncodedToken.of(refreshToken);
         verifyRefreshToken(encodedRefreshToken);
@@ -119,7 +119,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
         try {
             rotateTokens(oldJwtPair, updatedAuthentication.getJwtPair());
 
-            logger.debug("Authentication refreshed successfully with new tokens");
+            logger.debug("[REFRESH] Authentication refreshed successfully");
 
             return updatedAuthentication;
 
@@ -136,7 +136,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      * @throws UnexpectedJwtTypeException if the provided token is not a refresh token
      */
     private void verifyRefreshToken(EncodedToken encodedToken) {
-        logger.trace("Step 1: Verifying refresh token");
+        logger.trace("[REFRESH] Step 1/7: Verifying refresh token");
         tokenVerifier.verifyRefreshToken(encodedToken);
     }
 
@@ -148,7 +148,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      * @throws AuthenticationNotFoundException if authentication is not found
      */
     private JwtAuthentication retrieveAuthentication(EncodedToken encodedToken) {
-        logger.trace("Step 2: Fetching authentication from repository for refresh token");
+        logger.trace("[REFRESH] Step 2/7: Fetching authentication from repository");
         return jwtAuthenticationRepository.findByRefreshToken(encodedToken)
                                           .orElseThrow(() -> new AuthenticationNotFoundException(
                                                   String.format("Authentication not found by refresh token %s", encodedToken.token())));
@@ -161,7 +161,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      * @return the newly generated JWT pair
      */
     private JwtPair generateNewTokenPair(Jwt jwt) {
-        logger.trace("Step 3: Generating new JWT pair for subject={}, role={}", jwt.subject(), jwt.roleClaim());
+        logger.trace("[REFRESH] Step 3/7: Generating new JWT pair for subject={}, role={}", jwt.subject(), jwt.roleClaim());
         return tokenIssuer.issueTokenPair(jwt.subject(), jwt.roleClaim());
     }
 
@@ -172,7 +172,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      * @param jwtPair           the new JWT pair
      */
     private void updateAuthenticationWithNewTokens(JwtAuthentication jwtAuthentication, JwtPair jwtPair) {
-        logger.trace("Step 4: Updating authentication with new tokens");
+        logger.trace("[REFRESH] Step 4/7: Updating authentication with new tokens");
         jwtAuthentication.refreshTokens(jwtPair);
     }
 
@@ -183,7 +183,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      * @return the persisted authentication
      */
     private JwtAuthentication persistAuthenticationUpdate(JwtAuthentication jwtAuthentication) {
-        logger.trace("Step 5: Persisting updated authentication to repository");
+        logger.trace("[REFRESH] Step 5/7: Persisting updated authentication to repository");
         return jwtAuthenticationRepository.save(jwtAuthentication);
     }
 
@@ -194,10 +194,10 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      * @param newJwtPair the new JWT pair to activate
      */
     private void rotateTokens(JwtPair oldJwtPair, JwtPair newJwtPair) {
-        logger.trace("Step 6: Deleting old token pair from fast-access store");
+        logger.trace("[REFRESH] Step 6/7: Deleting old token pair from fast-access store");
         jwtStore.delete(oldJwtPair);
 
-        logger.trace("Step 7: Storing new token pair in fast-access store");
+        logger.trace("[REFRESH] Step 7/7: Storing new token pair in fast-access store");
         jwtStore.save(newJwtPair);
     }
 
