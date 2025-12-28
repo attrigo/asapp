@@ -102,7 +102,7 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
      */
     @Override
     public List<JwtAuthentication> findAllByUserId(UserId userId) {
-        logger.trace("[JWT_AUTH_REPOSITORY] Finding all authentications by user ID");
+        logger.trace("[JWT_AUTH_REPOSITORY] Finding all authentications by userId={}", userId.value());
         return jwtAuthenticationRepository.findAllByUserId(userId.value())
                                           .stream()
                                           .map(jwtAuthenticationMapper::toJwtAuthentication)
@@ -137,7 +137,7 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
      */
     @Override
     public void deleteById(JwtAuthenticationId jwtAuthenticationId) {
-        logger.trace("[JWT_AUTH_REPOSITORY] Deleting authentication by ID");
+        logger.trace("[JWT_AUTH_REPOSITORY] Deleting authentication by authenticationId={}", jwtAuthenticationId.value());
         try {
             jwtAuthenticationRepository.deleteById(jwtAuthenticationId.value());
         } catch (DataAccessException e) {

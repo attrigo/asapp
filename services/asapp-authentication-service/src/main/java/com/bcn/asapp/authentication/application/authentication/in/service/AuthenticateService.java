@@ -100,7 +100,7 @@ public class AuthenticateService implements AuthenticateUseCase {
     @Override
     @Transactional
     public JwtAuthentication authenticate(AuthenticateCommand authenticateCommand) {
-        logger.debug("[AUTHENTICATE] Authenticating user - username={}", authenticateCommand.username());
+        logger.debug("[AUTHENTICATE] Authenticating user with username={}", authenticateCommand.username());
 
         var userAuthentication = authenticateCredentials(authenticateCommand);
 
@@ -111,8 +111,8 @@ public class AuthenticateService implements AuthenticateUseCase {
         try {
             activateTokens(savedAuthentication.getJwtPair());
 
-            logger.debug("[AUTHENTICATE] Authentication successful - subject={}", userAuthentication.username()
-                                                                                                    .value());
+            logger.debug("[AUTHENTICATE] Authentication successful for subject={}", userAuthentication.username()
+                                                                                                      .value());
 
             return savedAuthentication;
 
@@ -185,13 +185,13 @@ public class AuthenticateService implements AuthenticateUseCase {
      * @throws CompensatingTransactionException if compensation fails
      */
     private void compensateRepositoryPersistence(JwtAuthentication jwtAuthentication) {
-        logger.warn("Rolling back authenticationId={} from repository", jwtAuthentication.getId()
-                                                                                         .value());
+        logger.warn("[AUTHENTICATE] Token activation failed, rolling back authenticationId={} from repository", jwtAuthentication.getId()
+                                                                                                                                 .value());
 
         try {
             jwtAuthenticationRepository.deleteById(jwtAuthentication.getId());
 
-            logger.debug("Compensating transaction completed: authentication deleted from repository");
+            logger.debug("[AUTHENTICATE] Compensation complete, authentication deleted from repository");
 
         } catch (Exception e) {
             throw new CompensatingTransactionException("Failed to compensate repository persistence after token activation failure", e);

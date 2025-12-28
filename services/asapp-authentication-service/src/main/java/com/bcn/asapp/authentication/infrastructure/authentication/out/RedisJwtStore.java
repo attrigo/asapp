@@ -88,7 +88,7 @@ public class RedisJwtStore implements JwtStore {
      */
     @Override
     public Boolean accessTokenExists(EncodedToken accessToken) {
-        logger.trace("[REDIS_JWT_STORE] Checking if access token exists");
+        logger.trace("[REDIS_JWT_STORE] Checking access token existence");
         var key = ACCESS_TOKEN_PREFIX + accessToken.value();
         return redisTemplate.hasKey(key);
     }
@@ -108,7 +108,7 @@ public class RedisJwtStore implements JwtStore {
      */
     @Override
     public Boolean refreshTokenExists(EncodedToken refreshToken) {
-        logger.trace("[REDIS_JWT_STORE] Checking if refresh token exists");
+        logger.trace("[REDIS_JWT_STORE] Checking refresh token existence");
         var key = REFRESH_TOKEN_PREFIX + refreshToken.value();
         return redisTemplate.hasKey(key);
     }

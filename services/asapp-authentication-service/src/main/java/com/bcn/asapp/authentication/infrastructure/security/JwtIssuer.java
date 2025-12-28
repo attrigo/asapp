@@ -105,7 +105,7 @@ public class JwtIssuer implements TokenIssuer {
      */
     @Override
     public JwtPair issueTokenPair(UserAuthentication userAuthentication) {
-        logger.trace("[JWT_ISSUER] Issuing token pair - username={}", userAuthentication.username());
+        logger.trace("[JWT_ISSUER] Issuing token pair for username={}", userAuthentication.username());
 
         var subject = Subject.of(userAuthentication.username()
                                                    .value());
@@ -123,7 +123,7 @@ public class JwtIssuer implements TokenIssuer {
      */
     @Override
     public JwtPair issueTokenPair(Subject subject, Role role) {
-        logger.trace("[JWT_ISSUER] Issuing token pair - subject={}, role={}", subject, role);
+        logger.trace("[JWT_ISSUER] Issuing token pair for subject={} and role={}", subject, role);
         var accessToken = issueToken(ACCESS_TOKEN, subject, role, accessTokenExpirationTime, ACCESS_TOKEN_USE);
         var refreshToken = issueToken(REFRESH_TOKEN, subject, role, refreshTokenExpirationTime, REFRESH_TOKEN_USE);
         return JwtPair.of(accessToken, refreshToken);
@@ -161,7 +161,7 @@ public class JwtIssuer implements TokenIssuer {
      * @return the signed JWT string
      */
     private String issueToken(JwtType tokenType, Subject subject, JwtClaims claims, Issued issuedAt, Expiration expiration) {
-        logger.trace("[JWT_ISSUER] Building and signing {} token - expiration={}", tokenType, expiration.value());
+        logger.trace("[JWT_ISSUER] Building and signing {} token with expiration={}", tokenType, expiration.value());
         return Jwts.builder()
                    .header()
                    .type(tokenType.type())
