@@ -100,7 +100,7 @@ public class AuthenticateService implements AuthenticateUseCase {
     @Override
     @Transactional
     public JwtAuthentication authenticate(AuthenticateCommand authenticateCommand) {
-        logger.debug("Authenticating user {}", authenticateCommand.username());
+        logger.debug("[AUTHENTICATE] Authenticating user - username={}", authenticateCommand.username());
 
         var userAuthentication = authenticateCredentials(authenticateCommand);
 
@@ -111,8 +111,8 @@ public class AuthenticateService implements AuthenticateUseCase {
         try {
             activateTokens(savedAuthentication.getJwtPair());
 
-            logger.debug("Authentication completed successfully for user {}", userAuthentication.username()
-                                                                                                .value());
+            logger.debug("[AUTHENTICATE] Authentication successful - subject={}", userAuthentication.username()
+                                                                                                    .value());
 
             return savedAuthentication;
 
@@ -129,7 +129,7 @@ public class AuthenticateService implements AuthenticateUseCase {
      * @return the authenticated user information
      */
     private UserAuthentication authenticateCredentials(AuthenticateCommand command) {
-        logger.trace("Step 1: Validating user credentials for username={}", command.username());
+        logger.trace("[AUTHENTICATE] Step 1/4: Authenticating credentials");
         var username = Username.of(command.username());
         var password = RawPassword.of(command.password());
         return credentialsAuthenticator.authenticate(username, password);
@@ -142,8 +142,7 @@ public class AuthenticateService implements AuthenticateUseCase {
      * @return the generated JWT pair
      */
     private JwtPair generateTokenPair(UserAuthentication userAuthentication) {
-        logger.trace("Step 2: Generating JWT pair for userId={}", userAuthentication.userId()
-                                                                                    .value());
+        logger.trace("[AUTHENTICATE] Step 2/4: Generating JWT pair");
         return tokenIssuer.issueTokenPair(userAuthentication);
     }
 
@@ -155,8 +154,6 @@ public class AuthenticateService implements AuthenticateUseCase {
      * @return the JWT authentication aggregate
      */
     private JwtAuthentication createJwtAuthentication(UserAuthentication userAuthentication, JwtPair jwtPair) {
-        logger.trace("Step 3: Creating JWT authentication for userId={}", userAuthentication.userId()
-                                                                                            .value());
         return JwtAuthentication.unAuthenticated(userAuthentication.userId(), jwtPair);
     }
 
@@ -167,7 +164,7 @@ public class AuthenticateService implements AuthenticateUseCase {
      * @return the persisted JWT authentication with assigned ID
      */
     private JwtAuthentication persistAuthentication(JwtAuthentication jwtAuthentication) {
-        logger.trace("Step 4: Persisting authentication to repository");
+        logger.trace("[AUTHENTICATE] Step 3/4: Persisting authentication to repository");
         return jwtAuthenticationRepository.save(jwtAuthentication);
     }
 
@@ -177,7 +174,7 @@ public class AuthenticateService implements AuthenticateUseCase {
      * @param jwtPair the JWT pair to store
      */
     private void activateTokens(JwtPair jwtPair) {
-        logger.trace("Step 5: Storing tokens in fast-access store");
+        logger.trace("[AUTHENTICATE] Step 4/4: Storing token pair in fast-access store");
         jwtStore.save(jwtPair);
     }
 

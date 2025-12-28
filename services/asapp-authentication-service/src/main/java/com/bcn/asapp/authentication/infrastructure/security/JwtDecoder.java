@@ -86,8 +86,7 @@ public class JwtDecoder {
      * @throws JwtException if the token is invalid, malformed, or expired
      */
     public DecodedJwt decode(String token) {
-        logger.trace("Decoding token {}", token);
-
+        logger.trace("[JWT_DECODER] Decoding token");
         var jwsClaims = parseToken(token);
 
         return buildDecodedJwt(token, jwsClaims);
@@ -101,8 +100,7 @@ public class JwtDecoder {
      * @throws JwtException if parsing or verification fails
      */
     private Jws<Claims> parseToken(String token) {
-        logger.trace("Parsing token {}", token);
-
+        logger.trace("[JWT_DECODER] Step 1/3: Parsing JWT string and verifying signature");
         return Jwts.parser()
                    .verifyWith(secretKey)
                    .build()
@@ -118,11 +116,11 @@ public class JwtDecoder {
      * @return the constructed {@link DecodedJwt} object
      */
     private DecodedJwt buildDecodedJwt(String token, Jws<Claims> jwsClaims) {
-        logger.trace("Building decoded JWT with encoded token {} and claims {}", token, jwsClaims);
-
+        logger.trace("[JWT_DECODER] Step 2/3: Extracting header and payload");
         var tokenHeader = jwsClaims.getHeader();
         var tokenPayload = jwsClaims.getPayload();
 
+        logger.trace("[JWT_DECODER] Step 3/3: Creating DecodedToken");
         var type = tokenHeader.getType();
         var subject = tokenPayload.getSubject();
         var tokenUseClaim = tokenPayload.get(TOKEN_USE, String.class);

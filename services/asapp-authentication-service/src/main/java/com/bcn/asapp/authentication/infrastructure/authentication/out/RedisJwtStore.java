@@ -88,14 +88,9 @@ public class RedisJwtStore implements JwtStore {
      */
     @Override
     public Boolean accessTokenExists(EncodedToken accessToken) {
-        logger.trace("Checking if access token exists");
-
+        logger.trace("[REDIS_JWT_STORE] Checking if access token exists");
         var key = ACCESS_TOKEN_PREFIX + accessToken.value();
-        var exists = redisTemplate.hasKey(key);
-
-        logger.trace("Access token exists: {}", exists);
-
-        return exists;
+        return redisTemplate.hasKey(key);
     }
 
     /**
@@ -113,14 +108,9 @@ public class RedisJwtStore implements JwtStore {
      */
     @Override
     public Boolean refreshTokenExists(EncodedToken refreshToken) {
-        logger.trace("Checking if refresh token exists");
-
+        logger.trace("[REDIS_JWT_STORE] Checking if refresh token exists");
         var key = REFRESH_TOKEN_PREFIX + refreshToken.value();
-        var exists = redisTemplate.hasKey(key);
-
-        logger.trace("Refresh token exists: {}", exists);
-
-        return exists;
+        return redisTemplate.hasKey(key);
     }
 
     /**
@@ -140,8 +130,7 @@ public class RedisJwtStore implements JwtStore {
      */
     @Override
     public void save(JwtPair jwtPair) {
-        logger.trace("Saving JWT pair");
-
+        logger.trace("[REDIS_JWT_STORE] Saving JWT pair");
         try {
             redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
                 RedisStringCommands redisStringCommands = connection.stringCommands();
@@ -159,8 +148,6 @@ public class RedisJwtStore implements JwtStore {
 
                 return null;
             });
-
-            logger.trace("JWT pair stored successfully");
 
         } catch (Exception e) {
             throw new TokenStoreException("Could not store tokens in fast-access store", e);
@@ -183,8 +170,7 @@ public class RedisJwtStore implements JwtStore {
      */
     @Override
     public void delete(JwtPair jwtPair) {
-        logger.trace("Deleting JWT pair");
-
+        logger.trace("[REDIS_JWT_STORE] Deleting JWT pair");
         try {
             redisTemplate.executePipelined((RedisCallback<Object>) connection -> {
                 RedisKeyCommands redisKeyCommands = connection.keyCommands();
@@ -200,8 +186,6 @@ public class RedisJwtStore implements JwtStore {
 
                 return null;
             });
-
-            logger.trace("JWT pair deleted successfully");
 
         } catch (Exception e) {
             throw new TokenStoreException("Could not delete tokens from fast-access store", e);
