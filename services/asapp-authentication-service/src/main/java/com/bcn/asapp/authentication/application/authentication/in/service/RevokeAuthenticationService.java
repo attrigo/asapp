@@ -96,8 +96,7 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
         logger.debug("Revoking authentication with access token");
 
         var encodedAccessToken = EncodedToken.of(accessToken);
-
-        tokenVerifier.verifyAccessToken(encodedAccessToken);
+        verifyAccessToken(encodedAccessToken);
 
         var authentication = retrieveAuthentication(encodedAccessToken);
         var jwtPairToDelete = authentication.getJwtPair();
@@ -116,6 +115,17 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
     }
 
     /**
+     * Verifies the access token.
+     *
+     * @param encodedToken the encoded access token to verify
+     * @throws UnexpectedJwtTypeException if the provided token is not an access token
+     */
+    private void verifyAccessToken(EncodedToken encodedToken) {
+        logger.trace("Step 1: Verifying access token");
+        tokenVerifier.verifyAccessToken(encodedToken);
+    }
+
+    /**
      * Fetches the authentication record from the repository using the access token.
      *
      * @param encodedToken the access token to search for
@@ -123,7 +133,7 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
      * @throws AuthenticationNotFoundException if authentication is not found
      */
     private JwtAuthentication retrieveAuthentication(EncodedToken encodedToken) {
-        logger.trace("Step 4: Fetching authentication from repository for subject={}", encodedToken.token());
+        logger.trace("Step 2: Fetching authentication from repository for subject={}", encodedToken.token());
         return jwtAuthenticationRepository.findByAccessToken(encodedToken)
                                           .orElseThrow(() -> new AuthenticationNotFoundException(
                                                   String.format("Authentication not found by access token %s", encodedToken.token())));
@@ -135,7 +145,7 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
      * @param jwtPair the JWT pair to deactivate
      */
     private void deactivateTokens(JwtPair jwtPair) {
-        logger.trace("Step 5: Deleting token pair from fast-access store");
+        logger.trace("Step 3: Deleting token pair from fast-access store");
         jwtStore.delete(jwtPair);
     }
 
@@ -145,7 +155,7 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
      * @param jwtAuthentication the authentication to delete
      */
     private void deleteAuthentication(JwtAuthentication jwtAuthentication) {
-        logger.trace("Step 6: Deleting authentication authenticationId={} from repository", jwtAuthentication.getId()
+        logger.trace("Step 4: Deleting authentication authenticationId={} from repository", jwtAuthentication.getId()
                                                                                                              .value());
         jwtAuthenticationRepository.deleteById(jwtAuthentication.getId());
     }
