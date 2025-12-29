@@ -16,10 +16,10 @@
 
 package com.bcn.asapp.authentication.domain.authentication;
 
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.ACCESS_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.REFRESH_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.ROLE_CLAIM_NAME;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ACCESS_TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.REFRESH_TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ROLE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
 import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
@@ -51,8 +51,8 @@ class JwtAuthenticationTests {
     void beforeEach() {
         var token = EncodedToken.of("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyIn0.aGFzaFZhbHVl");
         var subject = Subject.of("user@asapp.com");
-        var accessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, USER.name()));
-        var refreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, USER.name()));
+        var accessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, USER.name()));
+        var refreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, USER.name()));
         var issued = Issued.of(Instant.parse("2025-01-01T10:00:00Z"));
         var expiration = Expiration.of(issued, 30000L);
 
@@ -248,8 +248,8 @@ class JwtAuthenticationTests {
 
             var newEncodedToken = EncodedToken.of("eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQGFzYXBwLmNvbSJ9.dGVzdFNpZ25hdHVyZQ");
             var newSubject = Subject.of("new_user@asapp.com");
-            var newAccessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, ADMIN.name()));
-            var newRefreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, ADMIN.name()));
+            var newAccessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, ADMIN.name()));
+            var newRefreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, ADMIN.name()));
             var newIssued = Issued.of(Instant.parse("2025-02-02T12:00:00Z"));
             var newEexpiration = Expiration.of(newIssued, 30000L);
             var newAccessToken = Jwt.of(newEncodedToken, ACCESS_TOKEN, newSubject, newAccessTokenClaims, newIssued, newEexpiration);
@@ -286,8 +286,8 @@ class JwtAuthenticationTests {
 
             var newEncodedToken = EncodedToken.of("eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ1c2VyQGFzYXBwLmNvbSJ9.dGVzdFNpZ25hdHVyZQ");
             var newSubject = Subject.of("new_user@asapp.com");
-            var newAccessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, ADMIN.name()));
-            var newRefreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, ADMIN.name()));
+            var newAccessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, ADMIN.name()));
+            var newRefreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, ADMIN.name()));
             var newIssued = Issued.of(Instant.parse("2025-02-02T12:00:00Z"));
             var newExpiration = Expiration.of(newIssued, 30000L);
             var newAccessToken = Jwt.of(newEncodedToken, ACCESS_TOKEN, newSubject, newAccessTokenClaims, newIssued, newExpiration);

@@ -16,6 +16,10 @@
 
 package com.bcn.asapp.authentication.domain.authentication;
 
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ACCESS_TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.REFRESH_TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ROLE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
 
@@ -45,26 +49,6 @@ public record Jwt(
         Issued issued,
         Expiration expiration
 ) {
-
-    /**
-     * Claim name for the role.
-     */
-    public static final String ROLE_CLAIM_NAME = "role";
-
-    /**
-     * Claim name indicating token usage.
-     */
-    public static final String TOKEN_USE_CLAIM_NAME = "token_use";
-
-    /**
-     * Claim value indicating access token usage.
-     */
-    public static final String ACCESS_TOKEN_USE_CLAIM_VALUE = "access";
-
-    /**
-     * Claim value indicating refresh token usage.
-     */
-    public static final String REFRESH_TOKEN_USE_CLAIM_VALUE = "refresh";
 
     /**
      * Constructs a new {@code Jwt} instance and validates its integrity.
@@ -137,7 +121,7 @@ public record Jwt(
      * @return the {@link Role} from claims, or {@code null} if not present
      */
     public Role roleClaim() {
-        return this.claims.claim(ROLE_CLAIM_NAME, String.class)
+        return this.claims.claim(ROLE, String.class)
                           .map(Role::valueOf)
                           .orElse(null);
     }
@@ -200,17 +184,15 @@ public record Jwt(
      * @throws IllegalArgumentException if type and token_use claim are inconsistent
      */
     private static void validateTypeConsistency(JwtType type, JwtClaims claims) {
-        var tokenUseClaim = claims.claim(TOKEN_USE_CLAIM_NAME, String.class)
+        var tokenUseClaim = claims.claim(TOKEN_USE, String.class)
                                   .orElseThrow(() -> new IllegalArgumentException("Claims must contain the mandatory token use claim"));
 
-        if (!ACCESS_TOKEN_USE_CLAIM_VALUE.equals(tokenUseClaim) && !REFRESH_TOKEN_USE_CLAIM_VALUE.equals(tokenUseClaim)) {
-            var message = String.format("Invalid JWT use claim, expected %s or %s but was %s", ACCESS_TOKEN_USE_CLAIM_VALUE, REFRESH_TOKEN_USE_CLAIM_VALUE,
-                    tokenUseClaim);
+        if (!ACCESS_TOKEN_USE.equals(tokenUseClaim) && !REFRESH_TOKEN_USE.equals(tokenUseClaim)) {
+            var message = String.format("Invalid JWT use claim, expected %s or %s but was %s", ACCESS_TOKEN_USE, REFRESH_TOKEN_USE, tokenUseClaim);
             throw new IllegalArgumentException(message);
         }
 
-        if (type == ACCESS_TOKEN && !ACCESS_TOKEN_USE_CLAIM_VALUE.equals(tokenUseClaim)
-                || type == REFRESH_TOKEN && !REFRESH_TOKEN_USE_CLAIM_VALUE.equals(tokenUseClaim)) {
+        if (type == ACCESS_TOKEN && !ACCESS_TOKEN_USE.equals(tokenUseClaim) || type == REFRESH_TOKEN && !REFRESH_TOKEN_USE.equals(tokenUseClaim)) {
             var message = String.format("Token type %s and token_use claim %s do not match", type, tokenUseClaim);
             throw new IllegalArgumentException(message);
         }

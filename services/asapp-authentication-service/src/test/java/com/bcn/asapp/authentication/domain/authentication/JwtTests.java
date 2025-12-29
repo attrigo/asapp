@@ -16,10 +16,10 @@
 
 package com.bcn.asapp.authentication.domain.authentication;
 
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.ACCESS_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.REFRESH_TOKEN_USE_CLAIM_VALUE;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.ROLE_CLAIM_NAME;
-import static com.bcn.asapp.authentication.domain.authentication.Jwt.TOKEN_USE_CLAIM_NAME;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ACCESS_TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.REFRESH_TOKEN_USE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ROLE;
+import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
@@ -43,9 +43,9 @@ class JwtTests {
 
     private final Subject subject = Subject.of("user@asapp.com");
 
-    private final JwtClaims accessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, USER.name()));
+    private final JwtClaims accessTokenClaims = JwtClaims.of(Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, USER.name()));
 
-    private final JwtClaims refreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, REFRESH_TOKEN_USE_CLAIM_VALUE, ROLE_CLAIM_NAME, USER.name()));
+    private final JwtClaims refreshTokenClaims = JwtClaims.of(Map.of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, USER.name()));
 
     private final Issued issued = Issued.of(Instant.parse("2025-01-01T10:00:00Z"));
 
@@ -97,7 +97,7 @@ class JwtTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenClaimsMissingTokenUseClaim() {
             // Given
-            var invalidClaims = JwtClaims.of(Map.of(ROLE_CLAIM_NAME, USER.name()));
+            var invalidClaims = JwtClaims.of(Map.of(ROLE, USER.name()));
 
             // When
             var thrown = catchThrowable(() -> new Jwt(encodedToken, accessTokenType, subject, invalidClaims, issued, expiration));
@@ -110,7 +110,7 @@ class JwtTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenClaimsHasInvalidTokenUseClaim() {
             // Given
-            var invalidClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, "invalid_token_claim", ROLE_CLAIM_NAME, USER.name()));
+            var invalidClaims = JwtClaims.of(Map.of(TOKEN_USE, "invalid_token_claim", ROLE, USER.name()));
 
             // When
             var thrown = catchThrowable(() -> new Jwt(encodedToken, accessTokenType, subject, invalidClaims, issued, expiration));
@@ -240,7 +240,7 @@ class JwtTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenClaimsMissingTokenUseClaim() {
             // Given
-            var invalidClaims = JwtClaims.of(Map.of(ROLE_CLAIM_NAME, USER.name()));
+            var invalidClaims = JwtClaims.of(Map.of(ROLE, USER.name()));
 
             // When
             var thrown = catchThrowable(() -> Jwt.of(encodedToken, accessTokenType, subject, invalidClaims, issued, expiration));
@@ -253,7 +253,7 @@ class JwtTests {
         @Test
         void ThenThrowsIllegalArgumentException_GivenClaimsHasInvalidTokenUseClaim() {
             // Given
-            var invalidClaims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, "invalid_token_claim", ROLE_CLAIM_NAME, USER.name()));
+            var invalidClaims = JwtClaims.of(Map.of(TOKEN_USE, "invalid_token_claim", ROLE, USER.name()));
 
             // When
             var thrown = catchThrowable(() -> Jwt.of(encodedToken, accessTokenType, subject, invalidClaims, issued, expiration));
@@ -430,7 +430,7 @@ class JwtTests {
         @Test
         void ThenReturnsNull_GivenRoleClaimNotExist() {
             // Given
-            var claims = JwtClaims.of(Map.of(TOKEN_USE_CLAIM_NAME, ACCESS_TOKEN_USE_CLAIM_VALUE));
+            var claims = JwtClaims.of(Map.of(TOKEN_USE, ACCESS_TOKEN_USE));
             var jwt = Jwt.of(encodedToken, accessTokenType, subject, claims, issued, expiration);
 
             // When
