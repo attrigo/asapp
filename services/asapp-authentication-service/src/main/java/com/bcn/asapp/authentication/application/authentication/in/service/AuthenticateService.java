@@ -132,6 +132,7 @@ public class AuthenticateService implements AuthenticateUseCase {
         logger.trace("[AUTHENTICATE] Step 1/4: Authenticating credentials");
         var username = Username.of(command.username());
         var password = RawPassword.of(command.password());
+
         return credentialsAuthenticator.authenticate(username, password);
     }
 

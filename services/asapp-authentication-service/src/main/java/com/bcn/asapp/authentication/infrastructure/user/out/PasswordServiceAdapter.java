@@ -57,6 +57,7 @@ public class PasswordServiceAdapter implements PasswordService {
     @Override
     public EncodedPassword encode(RawPassword rawPassword) {
         var encodedPassword = passwordEncoder.encode(rawPassword.value());
+
         return EncodedPassword.of(encodedPassword);
     }
 

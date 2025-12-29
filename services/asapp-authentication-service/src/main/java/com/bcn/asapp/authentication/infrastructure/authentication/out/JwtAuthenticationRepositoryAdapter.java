@@ -140,6 +140,7 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
         logger.trace("[JWT_AUTH_REPOSITORY] Deleting authentication by authenticationId={}", jwtAuthenticationId.value());
         try {
             jwtAuthenticationRepository.deleteById(jwtAuthenticationId.value());
+
         } catch (DataAccessException e) {
             throw new AuthenticationPersistenceException("Could not delete authentication from repository", e);
         }
@@ -156,6 +157,7 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
         logger.trace("[JWT_AUTH_REPOSITORY] Deleting all authentications by userId={}", userId.value());
         try {
             jwtAuthenticationRepository.deleteAllByUserId(userId.value());
+
         } catch (DataAccessException e) {
             throw new AuthenticationPersistenceException("Could not delete authentications for user from repository", e);
         }
