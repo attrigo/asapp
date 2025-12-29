@@ -27,7 +27,9 @@ import com.bcn.asapp.authentication.domain.user.User;
 import com.bcn.asapp.authentication.domain.user.UserId;
 
 /**
- * Application service responsible for orchestrate user retrieval operations.
+ * Application service responsible for orchestrating user retrieval operations.
+ * <p>
+ * Coordinates user query operations including single user retrieval and bulk user listing.
  *
  * @since 0.2.0
  * @author attrigo
