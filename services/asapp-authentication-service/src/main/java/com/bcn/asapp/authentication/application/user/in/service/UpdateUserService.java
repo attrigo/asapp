@@ -22,6 +22,7 @@ import com.bcn.asapp.authentication.application.ApplicationService;
 import com.bcn.asapp.authentication.application.user.in.UpdateUserUseCase;
 import com.bcn.asapp.authentication.application.user.in.command.UpdateUserCommand;
 import com.bcn.asapp.authentication.application.user.out.UserRepository;
+import com.bcn.asapp.authentication.domain.user.EncodedPassword;
 import com.bcn.asapp.authentication.domain.user.PasswordService;
 import com.bcn.asapp.authentication.domain.user.RawPassword;
 import com.bcn.asapp.authentication.domain.user.Role;
@@ -30,7 +31,17 @@ import com.bcn.asapp.authentication.domain.user.UserId;
 import com.bcn.asapp.authentication.domain.user.Username;
 
 /**
- * Application service responsible for orchestrate user updates operations.
+ * Application service responsible for orchestrating user update operations.
+ * <p>
+ * Coordinates the complete user update workflow including retrieval, password encoding, user update, and persistence.
+ * <p>
+ * <strong>Orchestration Flow:</strong>
+ * <ol>
+ * <li>Retrieves the user from the repository by ID</li>
+ * <li>Encodes raw password using {@link PasswordService}</li>
+ * <li>Updates the user with new credentials</li>
+ * <li>Persists the updated user to the repository</li>
+ * </ol>
  *
  * @since 0.2.0
  * @author attrigo
@@ -56,8 +67,7 @@ public class UpdateUserService implements UpdateUserUseCase {
     /**
      * Updates an existing user based on the provided command.
      * <p>
-     * Retrieves the user by ID, validates and transforms command data into domain objects, encodes the new password, updates the user, and persists the
-     * changes.
+     * Orchestrates the complete user update workflow: retrieval, password encoding, user update, and persistence.
      *
      * @param command the {@link UpdateUserCommand} containing user update data
      * @return an {@link Optional} containing the updated {@link User} if found, {@link Optional#empty} otherwise
@@ -67,23 +77,64 @@ public class UpdateUserService implements UpdateUserUseCase {
     public Optional<User> updateUserById(UpdateUserCommand command) {
         var userId = UserId.of(command.userId());
 
-        var optionalUser = userRepository.findById(userId);
+        var optionalUser = retrieveUser(userId);
         if (optionalUser.isEmpty()) {
             return Optional.empty();
         }
-        var currentUser = optionalUser.get();
 
+        var currentUser = optionalUser.get();
         var newUsername = Username.of(command.username());
         var newRawPassword = RawPassword.of(command.password());
         var newRole = Role.valueOf(command.role());
 
-        var encodedPassword = passwordService.encode(newRawPassword);
+        var encodedPassword = encodePassword(newRawPassword);
 
-        currentUser.update(newUsername, encodedPassword, newRole);
+        updateUserData(currentUser, newUsername, encodedPassword, newRole);
 
-        var userUpdated = userRepository.save(currentUser);
+        var updatedUser = persistUser(currentUser);
+        return Optional.of(updatedUser);
+    }
 
-        return Optional.of(userUpdated);
+    /**
+     * Retrieves user from repository by ID.
+     *
+     * @param userId the user's unique identifier
+     * @return Optional containing the user if found
+     */
+    private Optional<User> retrieveUser(UserId userId) {
+        return userRepository.findById(userId);
+    }
+
+    /**
+     * Encodes raw password using password service.
+     *
+     * @param rawPassword the raw password
+     * @return encoded password
+     */
+    private EncodedPassword encodePassword(RawPassword rawPassword) {
+        return passwordService.encode(rawPassword);
+    }
+
+    /**
+     * Updates user with new data.
+     *
+     * @param user            the user to update
+     * @param username        the new username
+     * @param encodedPassword the new encoded password
+     * @param role            the new role
+     */
+    private void updateUserData(User user, Username username, EncodedPassword encodedPassword, Role role) {
+        user.update(username, encodedPassword, role);
+    }
+
+    /**
+     * Persists user to repository.
+     *
+     * @param user the user to persist
+     * @return the persisted user
+     */
+    private User persistUser(User user) {
+        return userRepository.save(user);
     }
 
 }

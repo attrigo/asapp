@@ -20,6 +20,7 @@ import com.bcn.asapp.authentication.application.ApplicationService;
 import com.bcn.asapp.authentication.application.user.in.CreateUserUseCase;
 import com.bcn.asapp.authentication.application.user.in.command.CreateUserCommand;
 import com.bcn.asapp.authentication.application.user.out.UserRepository;
+import com.bcn.asapp.authentication.domain.user.EncodedPassword;
 import com.bcn.asapp.authentication.domain.user.PasswordService;
 import com.bcn.asapp.authentication.domain.user.RawPassword;
 import com.bcn.asapp.authentication.domain.user.Role;
@@ -27,7 +28,16 @@ import com.bcn.asapp.authentication.domain.user.User;
 import com.bcn.asapp.authentication.domain.user.Username;
 
 /**
- * Application service responsible for orchestrate user creation operations.
+ * Application service responsible for orchestrating user creation operations.
+ * <p>
+ * Coordinates the complete user creation workflow including command transformation, password encoding, user instantiation, and persistence.
+ * <p>
+ * <strong>Orchestration Flow:</strong>
+ * <ol>
+ * <li>Encodes raw password using {@link PasswordService}</li>
+ * <li>Creates an inactive user with provided credentials</li>
+ * <li>Persists the user to the repository</li>
+ * </ol>
  *
  * @since 0.2.0
  * @author attrigo
@@ -53,7 +63,7 @@ public class CreateUserService implements CreateUserUseCase {
     /**
      * Creates a new user based on the provided command.
      * <p>
-     * Validates and transforms command data into domain objects, encodes the password, creates an inactive user, and persists it to the repository.
+     * Orchestrates the complete user creation workflow: password encoding, user creation, and persistence.
      *
      * @param command the {@link CreateUserCommand} containing user registration data
      * @return the created {@link User} with a persistent ID
@@ -62,14 +72,45 @@ public class CreateUserService implements CreateUserUseCase {
     @Override
     public User createUser(CreateUserCommand command) {
         var username = Username.of(command.username());
-        var password = RawPassword.of(command.password());
+        var rawPassword = RawPassword.of(command.password());
         var role = Role.valueOf(command.role());
 
-        var encodedPassword = passwordEncoder.encode(password);
+        var encodedPassword = encodePassword(rawPassword);
+        var newUser = createInactiveUser(username, encodedPassword, role);
 
-        var newUser = User.inactiveUser(username, encodedPassword, role);
+        return persistUser(newUser);
+    }
 
-        return userRepository.save(newUser);
+    /**
+     * Encodes raw password using password service.
+     *
+     * @param rawPassword the raw password
+     * @return encoded password
+     */
+    private EncodedPassword encodePassword(RawPassword rawPassword) {
+        return passwordEncoder.encode(rawPassword);
+    }
+
+    /**
+     * Creates an inactive user with provided credentials.
+     *
+     * @param username        the username
+     * @param encodedPassword the encoded password
+     * @param role            the user role
+     * @return the inactive user
+     */
+    private User createInactiveUser(Username username, EncodedPassword encodedPassword, Role role) {
+        return User.inactiveUser(username, encodedPassword, role);
+    }
+
+    /**
+     * Persists user to repository.
+     *
+     * @param user the user to persist
+     * @return the persisted user
+     */
+    private User persistUser(User user) {
+        return userRepository.save(user);
     }
 
 }
