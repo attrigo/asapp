@@ -111,6 +111,7 @@ public class UserRepositoryAdapter implements UserRepository {
     public Boolean deleteById(UserId userId) {
         try {
             return userRepository.deleteUserById(userId.value()) > 0;
+
         } catch (DataAccessException e) {
             throw new UserPersistenceException("Could not delete user from repository", e);
         }

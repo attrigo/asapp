@@ -126,6 +126,7 @@ public class JwtIssuer implements TokenIssuer {
         logger.trace("[JWT_ISSUER] Issuing token pair for subject={} and role={}", subject, role);
         var accessToken = issueToken(ACCESS_TOKEN, subject, role, accessTokenExpirationTime, ACCESS_TOKEN_USE);
         var refreshToken = issueToken(REFRESH_TOKEN, subject, role, refreshTokenExpirationTime, REFRESH_TOKEN_USE);
+
         return JwtPair.of(accessToken, refreshToken);
     }
 

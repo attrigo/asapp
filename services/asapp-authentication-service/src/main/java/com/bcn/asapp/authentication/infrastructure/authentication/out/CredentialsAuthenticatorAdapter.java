@@ -101,6 +101,7 @@ public class CredentialsAuthenticatorAdapter implements CredentialsAuthenticator
         logger.trace("[CREDENTIALS_AUTH] Step 1/2: Validating credentials with authentication manager");
         var authenticationTokenRequest = UsernamePasswordAuthenticationToken.unauthenticated(username.value(), password.value());
         return authenticationManager.authenticate(authenticationTokenRequest);
+
     }
 
     /**
@@ -116,6 +117,7 @@ public class CredentialsAuthenticatorAdapter implements CredentialsAuthenticator
         var userId = extractUserIdFromAuthentication(authenticationToken);
         var username = Username.of(authenticationToken.getName());
         var role = extractRoleFromAuthentication(authenticationToken);
+
         return UserAuthentication.authenticated(userId, username, role);
     }
 

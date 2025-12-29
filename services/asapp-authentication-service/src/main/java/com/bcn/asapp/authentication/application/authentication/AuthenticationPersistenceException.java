@@ -21,10 +21,10 @@ import com.bcn.asapp.authentication.application.PersistenceException;
 /**
  * Exception thrown when authentication persistence operations fail.
  * <p>
+ * Indicates that a repository port could not complete a persistence operation related to authentication (e.g., saving or retrieving authentication tokens).
+ * <p>
  * This domain-specific exception extends the generic {@link PersistenceException} to provide authentication context while maintaining the ability to catch all
  * persistence failures generically.
- * <p>
- * Thrown by infrastructure adapters when database operations fail and the application layer needs to handle them for compensation logic (saga pattern).
  *
  * @since 0.2.0
  * @author attrigo

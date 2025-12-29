@@ -62,11 +62,10 @@ public class CustomUserDetailsService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        logger.trace("Loading user with username {}", username);
+        logger.debug("Loading user with username {}", username);
 
         var user = userRepository.findByUsername(username)
                                  .orElseThrow(() -> new UsernameNotFoundException("User not exists by username: " + username));
-
         var authorities = AuthorityUtils.createAuthorityList(user.role());
 
         return new CustomUserDetails(user.id(), user.username(), user.password(), authorities);

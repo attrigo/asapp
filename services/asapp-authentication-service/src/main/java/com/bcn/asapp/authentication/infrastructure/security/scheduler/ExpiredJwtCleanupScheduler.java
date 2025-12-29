@@ -64,6 +64,7 @@ public class ExpiredJwtCleanupScheduler {
 
         var expiredBefore = Instant.now();
         var deletedCount = jwtAuthenticationRepository.deleteAllByRefreshTokenExpiredBefore(expiredBefore);
+
         logger.info("Deleted {} expired authentications", deletedCount);
 
         logger.info("JWT authentication cleanup job completed");
