@@ -155,7 +155,7 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
     public void deleteAllByUserId(UserId userId) {
         logger.trace("[JWT_AUTH_REPOSITORY] Deleting all authentications by userId={}", userId.value());
         try {
-            jwtAuthenticationRepository.deleteAllJwtAuthenticationByUserId(userId.value());
+            jwtAuthenticationRepository.deleteAllByUserId(userId.value());
         } catch (DataAccessException e) {
             throw new AuthenticationPersistenceException("Could not delete authentications for user from repository", e);
         }

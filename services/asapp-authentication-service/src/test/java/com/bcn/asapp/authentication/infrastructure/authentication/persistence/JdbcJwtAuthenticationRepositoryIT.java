@@ -177,7 +177,7 @@ class JdbcJwtAuthenticationRepositoryIT {
             // When
             var userId = user.id();
 
-            jwtAuthenticationRepository.deleteAllJwtAuthenticationByUserId(userId);
+            jwtAuthenticationRepository.deleteAllByUserId(userId);
 
             // Then
             var actualPreviousJwtAuthentication1 = jwtAuthenticationRepository.findByAccessTokenToken(previousJwtAuthentication1.accessToken()

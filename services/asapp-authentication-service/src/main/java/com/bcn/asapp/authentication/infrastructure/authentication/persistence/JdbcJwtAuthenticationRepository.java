@@ -71,7 +71,7 @@ public interface JdbcJwtAuthenticationRepository extends ListCrudRepository<Jdbc
      */
     @Modifying
     @Query("DELETE FROM jwt_authentications a WHERE a.user_id = :userId")
-    void deleteAllJwtAuthenticationByUserId(UUID userId);
+    void deleteAllByUserId(UUID userId);
 
     /**
      * Deletes all JWT authentications with refresh tokens expired before the given instant.
