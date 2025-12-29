@@ -19,8 +19,10 @@ package com.bcn.asapp.authentication.infrastructure.user.out;
 import java.util.Collection;
 import java.util.Optional;
 
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
+import com.bcn.asapp.authentication.application.user.UserPersistenceException;
 import com.bcn.asapp.authentication.application.user.out.UserRepository;
 import com.bcn.asapp.authentication.domain.user.User;
 import com.bcn.asapp.authentication.domain.user.UserId;
@@ -103,10 +105,15 @@ public class UserRepositoryAdapter implements UserRepository {
      *
      * @param userId the user's unique identifier
      * @return {@code true} if the user was deleted, {@code false} if not found
+     * @throws UserPersistenceException if the database operation fails
      */
     @Override
     public Boolean deleteById(UserId userId) {
-        return userRepository.deleteUserById(userId.value()) > 0;
+        try {
+            return userRepository.deleteUserById(userId.value()) > 0;
+        } catch (DataAccessException e) {
+            throw new UserPersistenceException("Could not delete user from repository", e);
+        }
     }
 
 }

@@ -18,6 +18,9 @@ package com.bcn.asapp.authentication.application.user.in;
 
 import java.util.UUID;
 
+import com.bcn.asapp.authentication.application.CompensatingTransactionException;
+import com.bcn.asapp.authentication.application.PersistenceException;
+
 /**
  * Use case for deleting an existing user from the system.
  * <p>
@@ -33,7 +36,9 @@ public interface DeleteUserUseCase {
      *
      * @param id the user's unique identifier
      * @return {@code true} if the user was deleted, {@code false} if not found
-     * @throws IllegalArgumentException if the id is invalid
+     * @throws IllegalArgumentException         if the id is invalid
+     * @throws PersistenceException             if user or authentication deletion fails (after compensation)
+     * @throws CompensatingTransactionException if compensating transaction fails
      */
     Boolean deleteUserById(UUID id);
 

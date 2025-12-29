@@ -80,8 +80,8 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
      * <p>
      * Orchestrates the complete revocation workflow: verification and removal from both storage systems.
      * <p>
-     * Deletes from fast-access store first, then repository. If repository deletion fails, tokens are restored to fast-access store via compensating
-     * transaction.
+     * First deletes from fast-access store, then deletes from repository. If repository deletion fails, tokens are restored to fast-access store via
+     * compensating transaction.
      *
      * @param accessToken the access token string
      * @throws IllegalArgumentException         if the access token is invalid or blank

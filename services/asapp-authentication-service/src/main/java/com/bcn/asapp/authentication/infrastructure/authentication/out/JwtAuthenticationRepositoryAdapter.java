@@ -149,11 +149,16 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
      * Deletes all JWT authentications associated with a user.
      *
      * @param userId the user's unique identifier
+     * @throws AuthenticationPersistenceException if the database operation fails
      */
     @Override
     public void deleteAllByUserId(UserId userId) {
-        logger.trace("[JWT_AUTH_REPOSITORY] Deleting all authentications by user ID");
-        jwtAuthenticationRepository.deleteAllJwtAuthenticationByUserId(userId.value());
+        logger.trace("[JWT_AUTH_REPOSITORY] Deleting all authentications by userId={}", userId.value());
+        try {
+            jwtAuthenticationRepository.deleteAllJwtAuthenticationByUserId(userId.value());
+        } catch (DataAccessException e) {
+            throw new AuthenticationPersistenceException("Could not delete authentications for user from repository", e);
+        }
     }
 
     /**
