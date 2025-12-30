@@ -118,7 +118,8 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
      * Verifies the access token.
      *
      * @param encodedToken the encoded access token to verify
-     * @throws UnexpectedJwtTypeException if the provided token is not an access token
+     * @throws UnexpectedJwtTypeException      if the provided token is not an access token
+     * @throws AuthenticationNotFoundException if the authentication session is not found in fast-access store
      */
     private void verifyAccessToken(EncodedToken encodedToken) {
         logger.trace("[REVOKE] Step 1/4: Verifying access token");
@@ -130,7 +131,7 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
      *
      * @param encodedToken the access token to search for
      * @return the JWT authentication from repository
-     * @throws AuthenticationNotFoundException if authentication is not found
+     * @throws AuthenticationNotFoundException if authentication is not found in repository
      */
     private JwtAuthentication retrieveAuthentication(EncodedToken encodedToken) {
         logger.trace("[REVOKE] Step 2/4: Fetching authentication from repository");

@@ -133,7 +133,8 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      * Verifies the refresh token.
      *
      * @param encodedToken the encoded refresh token to verify
-     * @throws UnexpectedJwtTypeException if the provided token is not a refresh token
+     * @throws UnexpectedJwtTypeException      if the provided token is not a refresh token
+     * @throws AuthenticationNotFoundException if the authentication session is not found in fast-access store
      */
     private void verifyRefreshToken(EncodedToken encodedToken) {
         logger.trace("[REFRESH] Step 1/7: Verifying refresh token");
@@ -145,7 +146,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      *
      * @param encodedToken the refresh token to search for
      * @return the JWT authentication from repository
-     * @throws AuthenticationNotFoundException if authentication is not found
+     * @throws AuthenticationNotFoundException if authentication is not found in repository
      */
     private JwtAuthentication retrieveAuthentication(EncodedToken encodedToken) {
         logger.trace("[REFRESH] Step 2/7: Fetching authentication from repository");
