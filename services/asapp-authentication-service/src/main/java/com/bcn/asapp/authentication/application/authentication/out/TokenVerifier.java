@@ -17,6 +17,7 @@
 package com.bcn.asapp.authentication.application.authentication.out;
 
 import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
+import com.bcn.asapp.authentication.application.authentication.InvalidJwtException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 
@@ -43,6 +44,7 @@ public interface TokenVerifier {
      * Performs comprehensive verification including signature validation, expiration check, token type verification, and session validation.
      *
      * @param encodedToken the {@link EncodedToken} to verify
+     * @throws InvalidJwtException             if the token is invalid, malformed, expired, or signature verification fails
      * @throws UnexpectedJwtTypeException      if the token is not an access token
      * @throws AuthenticationNotFoundException if the authentication session is not found
      */
@@ -54,6 +56,7 @@ public interface TokenVerifier {
      * Performs comprehensive verification including signature validation, expiration check, token type verification, and session validation.
      *
      * @param encodedToken the {@link EncodedToken} to verify
+     * @throws InvalidJwtException             if the token is invalid, malformed, expired, or signature verification fails
      * @throws UnexpectedJwtTypeException      if the token is not a refresh token
      * @throws AuthenticationNotFoundException if the authentication session is not found
      */

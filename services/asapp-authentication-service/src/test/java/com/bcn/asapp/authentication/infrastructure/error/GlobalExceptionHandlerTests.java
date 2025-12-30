@@ -29,9 +29,9 @@ import io.jsonwebtoken.JwtException;
 
 import com.bcn.asapp.authentication.application.CompensatingTransactionException;
 import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
+import com.bcn.asapp.authentication.application.authentication.InvalidJwtException;
 import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
-import com.bcn.asapp.authentication.infrastructure.security.InvalidJwtException;
 
 class GlobalExceptionHandlerTests {
 
