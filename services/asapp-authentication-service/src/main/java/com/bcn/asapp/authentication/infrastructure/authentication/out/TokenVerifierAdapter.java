@@ -19,6 +19,7 @@ package com.bcn.asapp.authentication.infrastructure.authentication.out;
 import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
+import com.bcn.asapp.authentication.application.authentication.InvalidJwtException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.bcn.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
@@ -56,6 +57,7 @@ public class TokenVerifierAdapter implements TokenVerifier {
      * Verifies an access token by delegating to {@link JwtVerifier}.
      *
      * @param encodedToken the {@link EncodedToken} to verify
+     * @throws InvalidJwtException             if the token is invalid, malformed, expired, or signature verification fails
      * @throws UnexpectedJwtTypeException      if the token is not an access token
      * @throws AuthenticationNotFoundException if the authentication session is not found
      */
@@ -68,6 +70,7 @@ public class TokenVerifierAdapter implements TokenVerifier {
      * Verifies a refresh token by delegating to {@link JwtVerifier}.
      *
      * @param encodedToken the {@link EncodedToken} to verify
+     * @throws InvalidJwtException             if the token is invalid, malformed, expired, or signature verification fails
      * @throws UnexpectedJwtTypeException      if the token is not a refresh token
      * @throws AuthenticationNotFoundException if the authentication session is not found
      */

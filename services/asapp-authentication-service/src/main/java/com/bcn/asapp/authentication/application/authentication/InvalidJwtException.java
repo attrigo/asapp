@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.authentication.infrastructure.security;
+package com.bcn.asapp.authentication.application.authentication;
 
 /**
  * Exception thrown when a JWT is invalid.
