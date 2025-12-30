@@ -116,7 +116,7 @@ class JwtVerifierTests {
 
             // Then
             assertThat(thrown).isInstanceOf(AuthenticationNotFoundException.class)
-                              .hasMessageContaining("Authentication session not found");
+                              .hasMessageContaining("Authentication session not found in store for access token");
 
             then(jwtDecoder).should(times(1))
                             .decode(accessToken);
@@ -207,7 +207,7 @@ class JwtVerifierTests {
 
             // Then
             assertThat(thrown).isInstanceOf(AuthenticationNotFoundException.class)
-                              .hasMessageContaining("Authentication session not found");
+                              .hasMessageContaining("Authentication session not found in store for refresh token");
 
             then(jwtDecoder).should(times(1))
                             .decode(refreshToken);
