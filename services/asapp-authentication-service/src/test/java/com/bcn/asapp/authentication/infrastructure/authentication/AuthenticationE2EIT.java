@@ -96,7 +96,7 @@ class AuthenticationE2EIT {
     class Authenticate {
 
         @Test
-        void DoesNotAuthenticateAndReturnsStatusUnauthorizedAndEmptyBody_UsernameNotExists() {
+        void DoesNotAuthenticateAndReturnsStatusUnauthorizedAndBodyWithGenericMessage_UsernameNotEmailFormat() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -114,7 +114,19 @@ class AuthenticationE2EIT {
                          .expectStatus()
                          .isUnauthorized()
                          .expectBody()
-                         .isEmpty();
+
+                         .jsonPath("$.type")
+                         .isEqualTo("about:blank")
+                         .jsonPath("$.title")
+                         .isEqualTo("Authentication Failed")
+                         .jsonPath("$.status")
+                         .isEqualTo(401)
+                         .jsonPath("$.detail")
+                         .isEqualTo("Invalid credentials")
+                         .jsonPath("$.error")
+                         .isEqualTo("invalid_grant")
+                         .jsonPath("$.instance")
+                         .isEqualTo("/asapp-authentication-service/api/auth/token");
 
             // Then
             assertNoAuthenticationsExists();

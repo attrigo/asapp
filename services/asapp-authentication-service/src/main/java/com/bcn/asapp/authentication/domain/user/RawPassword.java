@@ -45,7 +45,7 @@ public record RawPassword(
      * Constructs a new {@code RawPassword} instance and validates its integrity.
      *
      * @param password the raw password value to validate and store
-     * @throws IllegalArgumentException if the password is {@code null}, blank, or outside the valid length range
+     * @throws InvalidPasswordException if the password is {@code null}, blank, or outside the valid length range
      */
     public RawPassword {
         validatePasswordIsNotBlank(password);
@@ -57,7 +57,7 @@ public record RawPassword(
      *
      * @param password the raw password value
      * @return a new {@code RawPassword} instance
-     * @throws IllegalArgumentException if the password is {@code null}, blank, or outside the valid length range
+     * @throws InvalidPasswordException if the password is {@code null}, blank, or outside the valid length range
      */
     public static RawPassword of(String password) {
         return new RawPassword(password);
@@ -76,11 +76,11 @@ public record RawPassword(
      * Validates that the password is not {@code null} or blank.
      *
      * @param password the password to validate
-     * @throws IllegalArgumentException if the password is {@code null} or blank
+     * @throws InvalidPasswordException if the password is {@code null} or blank
      */
     private static void validatePasswordIsNotBlank(String password) {
         if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("Raw password must not be null or empty");
+            throw new InvalidPasswordException("Raw password must not be null or empty");
         }
     }
 
@@ -88,11 +88,11 @@ public record RawPassword(
      * Validates that the password length is within acceptable bounds.
      *
      * @param password the password to validate
-     * @throws IllegalArgumentException if the password length is outside the valid range
+     * @throws InvalidPasswordException if the password length is outside the valid range
      */
     private static void validatePasswordLength(String password) {
         if (password.length() < MINIMUM_PASSWORD_LENGTH || password.length() > MAXIMUM_PASSWORD_LENGTH) {
-            throw new IllegalArgumentException("Raw password must be between 8 and 64 characters");
+            throw new InvalidPasswordException("Raw password must be between 8 and 64 characters");
         }
     }
 

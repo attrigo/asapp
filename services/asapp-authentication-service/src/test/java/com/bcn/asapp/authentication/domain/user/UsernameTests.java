@@ -36,23 +36,23 @@ class UsernameTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenUsernameIsNullOrEmpty(String username) {
+        void ThenThrowsInvalidUsernameException_GivenUsernameIsNullOrEmpty(String username) {
             // When
             var thrown = catchThrowable(() -> new Username(username));
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
+            assertThat(thrown).isInstanceOf(InvalidUsernameException.class)
                               .hasMessage("Username must not be null or empty");
         }
 
         @ParameterizedTest
         @MethodSource("com.bcn.asapp.authentication.domain.user.UsernameTests#provideInvalidUsernames")
-        void ThenThrowsIllegalArgumentException_GivenUsernameIsNotEmail(String username) {
+        void ThenThrowsInvalidUsernameException_GivenUsernameIsNotEmail(String username) {
             // When
             var thrown = catchThrowable(() -> new Username(username));
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
+            assertThat(thrown).isInstanceOf(InvalidUsernameException.class)
                               .hasMessage("Username must be a valid email address");
         }
 
@@ -73,23 +73,23 @@ class UsernameTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenUsernameIsNullOrEmpty(String username) {
+        void ThenThrowsInvalidUsernameException_GivenUsernameIsNullOrEmpty(String username) {
             // When
             var thrown = catchThrowable(() -> Username.of(username));
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
+            assertThat(thrown).isInstanceOf(InvalidUsernameException.class)
                               .hasMessage("Username must not be null or empty");
         }
 
         @ParameterizedTest
         @MethodSource("com.bcn.asapp.authentication.domain.user.UsernameTests#provideInvalidUsernames")
-        void ThenThrowsIllegalArgumentException_GivenUsernameIsNotEmail(String username) {
+        void ThenThrowsInvalidUsernameException_GivenUsernameIsNotEmail(String username) {
             // When
             var thrown = catchThrowable(() -> Username.of(username));
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
+            assertThat(thrown).isInstanceOf(InvalidUsernameException.class)
                               .hasMessage("Username must be a valid email address");
         }
 

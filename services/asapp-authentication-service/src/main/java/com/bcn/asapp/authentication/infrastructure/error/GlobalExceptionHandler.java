@@ -43,6 +43,8 @@ import com.bcn.asapp.authentication.application.authentication.AuthenticationNot
 import com.bcn.asapp.authentication.application.authentication.InvalidJwtException;
 import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
+import com.bcn.asapp.authentication.domain.user.InvalidPasswordException;
+import com.bcn.asapp.authentication.domain.user.InvalidUsernameException;
 
 /**
  * Global exception handler for REST API endpoints.
@@ -98,9 +100,49 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return handleExceptionInternal(ex, problemDetail, headers, status, request);
     }
 
+    /**
+     * Handles illegal argument exceptions thrown by domain value objects.
+     * <p>
+     * Returns a 400 Bad Request response with details about the invalid argument.
+     *
+     * @param ex the {@link IllegalArgumentException}
+     * @return a {@link ResponseEntity} containing the error details
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    protected ResponseEntity<ProblemDetail> handleIllegalArgumentException(IllegalArgumentException ex) {
+        logger.warn("Invalid argument: {}", ex.getMessage());
+
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        problemDetail.setTitle("Invalid Argument");
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                             .body(problemDetail);
+    }
+
     // ============================================================================
     // 401 UNAUTHORIZED - Authentication Failures
     // ============================================================================
+
+    /**
+     * Handles invalid credential format exceptions during authentication.
+     * <p>
+     * Returns HTTP 401 Unauthorized with a generic message to prevent user enumeration attacks. Since these exceptions are only thrown in authentication
+     * contexts, they should always be treated as authentication failures rather than validation errors.
+     *
+     * @param ex the credential validation exception
+     * @return a {@link ResponseEntity} with status 401 and generic error message
+     */
+    @ExceptionHandler({ InvalidUsernameException.class, InvalidPasswordException.class })
+    protected ResponseEntity<ProblemDetail> handleInvalidCredentials(RuntimeException ex) {
+        logger.warn("Authentication failed due to invalid credential format: {}", ex.getMessage());
+
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Invalid credentials");
+        problemDetail.setTitle("Authentication Failed");
+        problemDetail.setProperty("error", "invalid_grant");
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                             .body(problemDetail);
+    }
 
     /**
      * Handles authentication not found exceptions.
