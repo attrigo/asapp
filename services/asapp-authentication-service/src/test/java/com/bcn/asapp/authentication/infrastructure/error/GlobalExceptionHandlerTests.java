@@ -32,6 +32,8 @@ import com.bcn.asapp.authentication.application.authentication.AuthenticationNot
 import com.bcn.asapp.authentication.application.authentication.InvalidJwtException;
 import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
+import com.bcn.asapp.authentication.domain.user.InvalidPasswordException;
+import com.bcn.asapp.authentication.domain.user.InvalidUsernameException;
 
 class GlobalExceptionHandlerTests {
 
@@ -40,6 +42,82 @@ class GlobalExceptionHandlerTests {
     @BeforeEach
     void setUp() {
         globalExceptionHandler = new GlobalExceptionHandler();
+    }
+
+    @Nested
+    class HandleIllegalArgumentException {
+
+        @Test
+        void Returns400WithExceptionMessage_InvalidArgument() {
+            // Given
+            var exception = new IllegalArgumentException("Username must be a valid email address");
+
+            // When
+            var response = globalExceptionHandler.handleIllegalArgumentException(exception);
+
+            // Then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody()
+                               .getTitle()).isEqualTo("Invalid Argument");
+            assertThat(response.getBody()
+                               .getStatus()).isEqualTo(400);
+            assertThat(response.getBody()
+                               .getDetail()).isEqualTo("Username must be a valid email address");
+        }
+
+    }
+
+    @Nested
+    class HandleInvalidUsernameException {
+
+        @Test
+        void Returns401WithGenericMessage_InvalidUsernameFormat() {
+            // Given
+            var exception = new InvalidUsernameException("Username must be a valid email address");
+
+            // When
+            var response = globalExceptionHandler.handleInvalidCredentials(exception);
+
+            // Then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody()
+                               .getTitle()).isEqualTo("Authentication Failed");
+            assertThat(response.getBody()
+                               .getStatus()).isEqualTo(401);
+            assertThat(response.getBody()
+                               .getDetail()).isEqualTo("Invalid credentials");
+            assertThat(response.getBody()
+                               .getProperties()).containsEntry("error", "invalid_grant");
+        }
+
+    }
+
+    @Nested
+    class HandleInvalidPasswordException {
+
+        @Test
+        void Returns401WithGenericMessage_InvalidPasswordFormat() {
+            // Given
+            var exception = new InvalidPasswordException("Raw password must be between 8 and 64 characters");
+
+            // When
+            var response = globalExceptionHandler.handleInvalidCredentials(exception);
+
+            // Then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+            assertThat(response.getBody()).isNotNull();
+            assertThat(response.getBody()
+                               .getTitle()).isEqualTo("Authentication Failed");
+            assertThat(response.getBody()
+                               .getStatus()).isEqualTo(401);
+            assertThat(response.getBody()
+                               .getDetail()).isEqualTo("Invalid credentials");
+            assertThat(response.getBody()
+                               .getProperties()).containsEntry("error", "invalid_grant");
+        }
+
     }
 
     @Nested

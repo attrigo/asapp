@@ -42,7 +42,7 @@ public record Username(
      * Constructs a new {@code Username} instance and validates its integrity.
      *
      * @param username the username value to validate and store
-     * @throws IllegalArgumentException if the username is {@code null}, blank, or does not match the email pattern
+     * @throws InvalidUsernameException if the username is {@code null}, blank, or does not match the email pattern
      */
     public Username {
         validateUsernameIsNotBlank(username);
@@ -54,7 +54,7 @@ public record Username(
      *
      * @param username the username value
      * @return a new {@code Username} instance
-     * @throws IllegalArgumentException if the username is {@code null}, blank, or does not match the email pattern
+     * @throws InvalidUsernameException if the username is {@code null}, blank, or does not match the email pattern
      */
     public static Username of(String username) {
         return new Username(username);
@@ -73,11 +73,11 @@ public record Username(
      * Validates that the username is not {@code null} or blank.
      *
      * @param username the username to validate
-     * @throws IllegalArgumentException if the username is {@code null} or blank
+     * @throws InvalidUsernameException if the username is {@code null} or blank
      */
     private static void validateUsernameIsNotBlank(String username) {
         if (username == null || username.isBlank()) {
-            throw new IllegalArgumentException("Username must not be null or empty");
+            throw new InvalidUsernameException("Username must not be null or empty");
         }
     }
 
@@ -85,11 +85,11 @@ public record Username(
      * Validates that the username matches the email pattern.
      *
      * @param username the username to validate
-     * @throws IllegalArgumentException if the username does not conform to the email format
+     * @throws InvalidUsernameException if the username does not conform to the email format
      */
     private static void validateUsernamePattern(String username) {
         if (!username.matches(SUPPORTED_EMAIL_PATTERN)) {
-            throw new IllegalArgumentException("Username must be a valid email address");
+            throw new InvalidUsernameException("Username must be a valid email address");
         }
     }
 
