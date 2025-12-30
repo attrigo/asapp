@@ -83,11 +83,10 @@ public class JwtVerifier {
 
             return decodedJwt;
 
-        } catch (AuthenticationNotFoundException | UnexpectedJwtTypeException e) {
+        } catch (UnexpectedJwtTypeException | AuthenticationNotFoundException e) {
             throw e;
         } catch (Exception e) {
             var message = String.format("Access token is not valid: %s", encodedToken.token());
-            logger.warn(message, e);
             throw new InvalidJwtException(message, e);
         }
     }
@@ -120,11 +119,10 @@ public class JwtVerifier {
 
             return decodedJwt;
 
-        } catch (AuthenticationNotFoundException | UnexpectedJwtTypeException e) {
+        } catch (UnexpectedJwtTypeException | AuthenticationNotFoundException e) {
             throw e;
         } catch (Exception e) {
             var message = String.format("Refresh token is not valid: %s", encodedToken.token());
-            logger.warn(message, e);
             throw new InvalidJwtException(message, e);
         }
     }
