@@ -150,9 +150,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      */
     private JwtAuthentication retrieveAuthentication(EncodedToken encodedToken) {
         logger.trace("[REFRESH] Step 2/7: Fetching authentication from repository");
-        return jwtAuthenticationRepository.findByRefreshToken(encodedToken)
-                                          .orElseThrow(() -> new AuthenticationNotFoundException(
-                                                  String.format("Authentication not found by refresh token %s", encodedToken.token())));
+        return jwtAuthenticationRepository.findByRefreshToken(encodedToken);
     }
 
     /**

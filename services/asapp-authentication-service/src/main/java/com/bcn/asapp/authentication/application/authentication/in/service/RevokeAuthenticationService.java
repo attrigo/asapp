@@ -135,9 +135,7 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
      */
     private JwtAuthentication retrieveAuthentication(EncodedToken encodedToken) {
         logger.trace("[REVOKE] Step 2/4: Fetching authentication from repository");
-        return jwtAuthenticationRepository.findByAccessToken(encodedToken)
-                                          .orElseThrow(() -> new AuthenticationNotFoundException(
-                                                  String.format("Authentication not found by access token %s", encodedToken.token())));
+        return jwtAuthenticationRepository.findByAccessToken(encodedToken);
     }
 
     /**
