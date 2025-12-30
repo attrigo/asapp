@@ -18,8 +18,8 @@ package com.bcn.asapp.authentication.application.authentication.out;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
+import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthenticationId;
@@ -39,17 +39,19 @@ public interface JwtAuthenticationRepository {
      * Finds a JWT authentication by its access token.
      *
      * @param accessToken the encoded access token
-     * @return an {@link Optional} containing the {@link JwtAuthentication} if found, {@link Optional#empty} otherwise
+     * @return the {@link JwtAuthentication} associated with the access token
+     * @throws AuthenticationNotFoundException if authentication is not found
      */
-    Optional<JwtAuthentication> findByAccessToken(EncodedToken accessToken);
+    JwtAuthentication findByAccessToken(EncodedToken accessToken);
 
     /**
      * Finds a JWT authentication by its refresh token.
      *
      * @param refreshToken the encoded refresh token
-     * @return an {@link Optional} containing the {@link JwtAuthentication} if found, {@link Optional#empty} otherwise
+     * @return the {@link JwtAuthentication} associated with the refresh token
+     * @throws AuthenticationNotFoundException if authentication is not found
      */
-    Optional<JwtAuthentication> findByRefreshToken(EncodedToken refreshToken);
+    JwtAuthentication findByRefreshToken(EncodedToken refreshToken);
 
     /**
      * Finds all JWT authentications associated with a user.

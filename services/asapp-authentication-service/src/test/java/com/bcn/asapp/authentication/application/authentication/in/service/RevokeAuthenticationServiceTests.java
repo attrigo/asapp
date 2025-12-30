@@ -28,7 +28,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 import java.time.Instant;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Nested;
@@ -129,14 +128,15 @@ class RevokeAuthenticationServiceTests {
         void ThrowsAuthenticationNotFoundException_TokenNotFoundInDatabase() {
             // Given
             var encodedAccessToken = EncodedToken.of(accessTokenValue);
-            given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(Optional.empty());
+            given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willThrow(
+                    new AuthenticationNotFoundException("Authentication session not found in repository"));
 
             // When
             var thrown = catchThrowable(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue));
 
             // Then
             assertThat(thrown).isInstanceOf(AuthenticationNotFoundException.class)
-                              .hasMessageContaining("Authentication not found by access token");
+                              .hasMessageContaining("Authentication session not found in repository");
 
             then(tokenVerifier).should(times(1))
                                .verifyAccessToken(encodedAccessToken);
@@ -156,7 +156,7 @@ class RevokeAuthenticationServiceTests {
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var authentication = JwtAuthentication.authenticated(authenticationId, UserId.of(userId), jwtPair);
 
-            given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(Optional.of(authentication));
+            given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(authentication);
             willThrow(new TokenStoreException("Could not delete tokens from fast-access store",
                     new RuntimeException("Token store connection failed"))).given(jwtStore)
                                                                            .delete(jwtPair);
@@ -189,7 +189,7 @@ class RevokeAuthenticationServiceTests {
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var authentication = JwtAuthentication.authenticated(authenticationId, UserId.of(userId), jwtPair);
 
-            given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(Optional.of(authentication));
+            given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(authentication);
             willThrow(new AuthenticationPersistenceException("Could not delete authentication from repository",
                     new RuntimeException("Repository delete failed"))).given(jwtAuthenticationRepository)
                                                                       .deleteById(authenticationId);
@@ -223,7 +223,7 @@ class RevokeAuthenticationServiceTests {
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var authentication = JwtAuthentication.authenticated(authenticationId, UserId.of(userId), jwtPair);
 
-            given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(Optional.of(authentication));
+            given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(authentication);
             willThrow(new AuthenticationPersistenceException("Could not delete authentication from repository",
                     new RuntimeException("Repository delete failed"))).given(jwtAuthenticationRepository)
                                                                       .deleteById(authenticationId);
@@ -260,7 +260,7 @@ class RevokeAuthenticationServiceTests {
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var authentication = JwtAuthentication.authenticated(authenticationId, UserId.of(userId), jwtPair);
 
-            given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(Optional.of(authentication));
+            given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(authentication);
 
             // When
             assertThatCode(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue)).doesNotThrowAnyException();

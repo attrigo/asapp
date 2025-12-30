@@ -18,13 +18,13 @@ package com.bcn.asapp.authentication.infrastructure.authentication.out;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
+import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
 import com.bcn.asapp.authentication.application.authentication.AuthenticationPersistenceException;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
@@ -72,26 +72,30 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
      * Finds a JWT authentication by its access token.
      *
      * @param accessToken the encoded access token
-     * @return an {@link Optional} containing the {@link JwtAuthentication} if found, empty otherwise
+     * @return the {@link JwtAuthentication} associated with the access token
+     * @throws AuthenticationNotFoundException if authentication is not found
      */
     @Override
-    public Optional<JwtAuthentication> findByAccessToken(EncodedToken accessToken) {
+    public JwtAuthentication findByAccessToken(EncodedToken accessToken) {
         logger.trace("[JWT_AUTH_REPOSITORY] Finding authentication by access token");
         return jwtAuthenticationRepository.findByAccessTokenToken(accessToken.value())
-                                          .map(jwtAuthenticationMapper::toJwtAuthentication);
+                                          .map(jwtAuthenticationMapper::toJwtAuthentication)
+                                          .orElseThrow(() -> new AuthenticationNotFoundException("Authentication session not found in repository"));
     }
 
     /**
      * Finds a JWT authentication by its refresh token.
      *
      * @param refreshToken the encoded refresh token
-     * @return an {@link Optional} containing the {@link JwtAuthentication} if found, empty otherwise
+     * @return the {@link JwtAuthentication} associated with the refresh token
+     * @throws AuthenticationNotFoundException if authentication is not found
      */
     @Override
-    public Optional<JwtAuthentication> findByRefreshToken(EncodedToken refreshToken) {
+    public JwtAuthentication findByRefreshToken(EncodedToken refreshToken) {
         logger.trace("[JWT_AUTH_REPOSITORY] Finding authentication by refresh token");
         return jwtAuthenticationRepository.findByRefreshTokenToken(refreshToken.value())
-                                          .map(jwtAuthenticationMapper::toJwtAuthentication);
+                                          .map(jwtAuthenticationMapper::toJwtAuthentication)
+                                          .orElseThrow(() -> new AuthenticationNotFoundException("Authentication session not found in repository"));
     }
 
     /**

@@ -27,7 +27,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
 import java.time.Instant;
-import java.util.Optional;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Nested;
@@ -132,14 +131,15 @@ class RefreshAuthenticationServiceTests {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
 
-            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.empty());
+            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willThrow(
+                    new AuthenticationNotFoundException("Authentication session not found in repository"));
 
             // When
             var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
 
             // Then
             assertThat(thrown).isInstanceOf(AuthenticationNotFoundException.class)
-                              .hasMessageContaining("Authentication not found by refresh token");
+                              .hasMessageContaining("Authentication session not found in repository");
 
             then(tokenVerifier).should(times(1))
                                .verifyRefreshToken(encodedRefreshToken);
@@ -158,7 +158,7 @@ class RefreshAuthenticationServiceTests {
             var oldJwtPair = JwtPair.of(oldAccessToken, oldRefreshToken);
             var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldJwtPair);
 
-            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
+            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(authentication);
             willThrow(new RuntimeException("Token issuance failed")).given(tokenIssuer)
                                                                     .issueTokenPair(oldRefreshToken.subject(), oldRefreshToken.roleClaim());
 
@@ -195,7 +195,7 @@ class RefreshAuthenticationServiceTests {
             var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
             var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
 
-            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
+            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(authentication);
             given(tokenIssuer.issueTokenPair(oldRefreshToken.subject(), oldRefreshToken.roleClaim())).willReturn(newJwtPair);
             willThrow(new RuntimeException("Repository save failed")).given(jwtAuthenticationRepository)
                                                                      .save(authentication);
@@ -233,7 +233,7 @@ class RefreshAuthenticationServiceTests {
             var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
             var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
 
-            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
+            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(authentication);
             given(tokenIssuer.issueTokenPair(oldRefreshToken.subject(), oldRefreshToken.roleClaim())).willReturn(newJwtPair);
             given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
             willThrow(new TokenStoreException("Could not rotate tokens in fast-access store",
@@ -274,7 +274,7 @@ class RefreshAuthenticationServiceTests {
             var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
             var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
 
-            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
+            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(authentication);
             given(tokenIssuer.issueTokenPair(oldRefreshToken.subject(), oldRefreshToken.roleClaim())).willReturn(newJwtPair);
             given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
             willThrow(new TokenStoreException("Could not rotate tokens in fast-access store",
@@ -316,7 +316,7 @@ class RefreshAuthenticationServiceTests {
             var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
             var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
 
-            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
+            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(authentication);
             given(tokenIssuer.issueTokenPair(oldRefreshToken.subject(), oldRefreshToken.roleClaim())).willReturn(newJwtPair);
             given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
             willThrow(new TokenStoreException("Could not rotate tokens in fast-access store",
@@ -359,7 +359,7 @@ class RefreshAuthenticationServiceTests {
             var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
             var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
 
-            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
+            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(authentication);
             given(tokenIssuer.issueTokenPair(oldRefreshToken.subject(), oldRefreshToken.roleClaim())).willReturn(newJwtPair);
             given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
             willThrow(new TokenStoreException("Could not rotate tokens in fast-access store",
@@ -400,7 +400,7 @@ class RefreshAuthenticationServiceTests {
             var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
             var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
 
-            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(Optional.of(authentication));
+            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(authentication);
             given(tokenIssuer.issueTokenPair(oldRefreshToken.subject(), oldRefreshToken.roleClaim())).willReturn(newJwtPair);
             given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
 
