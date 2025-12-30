@@ -115,13 +115,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        logger.debug("[JWT_VALIDATION] Validating authentication token");
+        logger.debug("[JWT_FILTER] Processing authentication for request: {} {}", request.getMethod(), request.getRequestURI());
 
-        logger.trace("[JWT_VALIDATION] Step 1/4: Extracting token from Authorization header");
+        logger.trace("[JWT_FILTER] Step 1/4: Extracting token from Authorization header");
         Optional<String> optionalBearerToken = getBearerToken(request);
 
         if (optionalBearerToken.isEmpty()) {
-            logger.warn("[JWT_VALIDATION] Authentication failed - reason=Bearer token not found");
+            logger.warn("[JWT_FILTER] Authentication failed - reason=Bearer token not found");
             filterChain.doFilter(request, response);
             return;
         }
@@ -129,27 +129,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         var bearerToken = optionalBearerToken.get();
         var encodedToken = EncodedToken.of(bearerToken);
         try {
-            logger.trace("[JWT_VALIDATION] Step 2/4: Decoding and verifying token");
+            logger.trace("[JWT_FILTER] Step 2/4: Decoding and verifying token: {}", encodedToken.value());
             var decodedJwt = jwtVerifier.verifyAccessToken(encodedToken);
 
-            logger.trace("[JWT_VALIDATION] Step 3/4: Creating authentication token");
+            logger.trace("[JWT_FILTER] Step 3/4: Creating authentication token for user: {}", decodedJwt.subject());
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
-            logger.trace("[JWT_VALIDATION] Step 4/4: Setting SecurityContext");
+            logger.trace("[JWT_FILTER] Step 4/4: Setting SecurityContext");
             var newContext = SecurityContextHolder.createEmptyContext();
             newContext.setAuthentication(jwtAuthenticationToken);
             SecurityContextHolder.setContext(newContext);
 
-            logger.debug("[JWT_VALIDATION] Authentication successful for subject={}", jwtAuthenticationToken.getName());
+            logger.debug("[JWT_FILTER] Authentication successful for subject={}", jwtAuthenticationToken.getName());
 
-        } catch (AuthenticationNotFoundException e) {
-            logger.warn("[JWT_VALIDATION] Authentication failed - reason=Session not found");
         } catch (UnexpectedJwtTypeException e) {
-            logger.warn("[JWT_VALIDATION] Authentication failed - reason=Invalid token type");
+            logger.warn("[JWT_FILTER] Authentication failed - reason=Invalid token type");
+        } catch (AuthenticationNotFoundException e) {
+            logger.warn("[JWT_FILTER] Authentication failed - reason=Session not found");
         } catch (InvalidJwtException e) {
-            logger.warn("[JWT_VALIDATION] Authentication failed - reason=Invalid token", e);
+            logger.warn("[JWT_FILTER] Authentication failed - reason=Invalid token", e);
         } catch (Exception e) {
-            logger.warn("[JWT_VALIDATION] Authentication failed - reason=Unexpected error", e);
+            logger.warn("[JWT_FILTER] Authentication failed - reason=Unexpected error", e);
         }
 
         filterChain.doFilter(request, response);

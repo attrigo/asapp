@@ -86,7 +86,8 @@ public class JwtDecoder {
      * @throws JwtException if the token is invalid, malformed, or expired
      */
     public DecodedJwt decode(String token) {
-        logger.trace("[JWT_DECODER] Decoding token");
+        logger.debug("[JWT_DECODER] Decoding token");
+
         var jwsClaims = parseToken(token);
 
         return buildDecodedJwt(token, jwsClaims);
