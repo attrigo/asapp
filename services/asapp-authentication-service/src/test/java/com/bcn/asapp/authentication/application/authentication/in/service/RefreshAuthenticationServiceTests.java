@@ -132,14 +132,14 @@ class RefreshAuthenticationServiceTests {
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
 
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willThrow(
-                    new AuthenticationNotFoundException("Authentication session not found in repository"));
+                    new AuthenticationNotFoundException("Authentication session not found in repository for refresh token"));
 
             // When
             var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
 
             // Then
             assertThat(thrown).isInstanceOf(AuthenticationNotFoundException.class)
-                              .hasMessageContaining("Authentication session not found in repository");
+                              .hasMessageContaining("Authentication session not found in repository for refresh token");
 
             then(tokenVerifier).should(times(1))
                                .verifyRefreshToken(encodedRefreshToken);

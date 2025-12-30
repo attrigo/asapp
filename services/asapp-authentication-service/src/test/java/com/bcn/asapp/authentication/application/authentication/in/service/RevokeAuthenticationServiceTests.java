@@ -129,14 +129,14 @@ class RevokeAuthenticationServiceTests {
             // Given
             var encodedAccessToken = EncodedToken.of(accessTokenValue);
             given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willThrow(
-                    new AuthenticationNotFoundException("Authentication session not found in repository"));
+                    new AuthenticationNotFoundException("Authentication session not found in repository for access token"));
 
             // When
             var thrown = catchThrowable(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue));
 
             // Then
             assertThat(thrown).isInstanceOf(AuthenticationNotFoundException.class)
-                              .hasMessageContaining("Authentication session not found in repository");
+                              .hasMessageContaining("Authentication session not found in repository for access token");
 
             then(tokenVerifier).should(times(1))
                                .verifyAccessToken(encodedAccessToken);

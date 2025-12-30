@@ -169,7 +169,7 @@ public class JwtVerifier {
         logger.trace("[JWT_VERIFIER] Step 3/3: Checking access token exists in store");
         var isTokenActive = jwtStore.accessTokenExists(encodedToken);
         if (!isTokenActive) {
-            throw new AuthenticationNotFoundException(String.format("Authentication session not found for access token: %s", encodedToken.token()));
+            throw new AuthenticationNotFoundException(String.format("Authentication session not found in store for access token: %s", encodedToken.token()));
         }
     }
 
@@ -200,7 +200,7 @@ public class JwtVerifier {
         logger.trace("[JWT_VERIFIER] Step 3/3: Checking refresh token exists in store");
         var isTokenActive = jwtStore.refreshTokenExists(encodedToken);
         if (!isTokenActive) {
-            throw new AuthenticationNotFoundException(String.format("Authentication session not found for refresh token: %s", encodedToken.token()));
+            throw new AuthenticationNotFoundException(String.format("Authentication session not found in store for refresh token: %s", encodedToken.token()));
         }
     }
 
