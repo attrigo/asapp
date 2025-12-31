@@ -184,7 +184,7 @@ class RefreshAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_PersistsAuthenticationFails() {
+        void ThrowsRuntimeException_SaveAuthenticationFails() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
             var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
@@ -222,89 +222,6 @@ class RefreshAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsTokenStoreException_TokenRotationFailsAndCompensationSucceeds() {
-            // Given
-            var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
-            var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
-            var oldRefreshToken = createJwt(JwtType.REFRESH_TOKEN, refreshTokenValue);
-            var oldJwtPair = JwtPair.of(oldAccessToken, oldRefreshToken);
-            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldJwtPair);
-            var newAccessToken = createJwt(JwtType.ACCESS_TOKEN, "new.access.token");
-            var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
-            var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
-
-            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(authentication);
-            given(tokenIssuer.issueTokenPair(oldRefreshToken.subject(), oldRefreshToken.roleClaim())).willReturn(newJwtPair);
-            given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
-            willThrow(new TokenStoreException("Could not rotate tokens in fast-access store",
-                    new RuntimeException("Token store connection failed"))).given(jwtStore)
-                                                                           .delete(oldJwtPair);
-
-            // When
-            var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
-
-            // Then
-            assertThat(thrown).isInstanceOf(TokenStoreException.class)
-                              .hasMessageContaining("Could not rotate tokens in fast-access store")
-                              .hasCauseInstanceOf(RuntimeException.class);
-
-            then(tokenVerifier).should(times(1))
-                               .verifyRefreshToken(encodedRefreshToken);
-            then(jwtAuthenticationRepository).should(times(1))
-                                             .findByRefreshToken(encodedRefreshToken);
-            then(tokenIssuer).should(times(1))
-                             .issueTokenPair(oldRefreshToken.subject(), oldRefreshToken.roleClaim());
-            then(jwtAuthenticationRepository).should(times(1))
-                                             .save(authentication);
-            then(jwtStore).should(times(1))
-                          .delete(oldJwtPair);
-            then(jwtStore).should(times(1))
-                          .save(oldJwtPair);
-        }
-
-        @Test
-        void ThrowsTokenStoreException_TokenSaveFailsAndCompensationSucceeds() {
-            // Given
-            var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
-            var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
-            var oldRefreshToken = createJwt(JwtType.REFRESH_TOKEN, refreshTokenValue);
-            var oldJwtPair = JwtPair.of(oldAccessToken, oldRefreshToken);
-            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldJwtPair);
-            var newAccessToken = createJwt(JwtType.ACCESS_TOKEN, "new.access.token");
-            var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
-            var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
-
-            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(authentication);
-            given(tokenIssuer.issueTokenPair(oldRefreshToken.subject(), oldRefreshToken.roleClaim())).willReturn(newJwtPair);
-            given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
-            willThrow(new TokenStoreException("Could not rotate tokens in fast-access store",
-                    new RuntimeException("Token store connection failed"))).willDoNothing()
-                                                                           .given(jwtStore)
-                                                                           .save(any(JwtPair.class));
-
-            // When
-            var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
-
-            // Then
-            assertThat(thrown).isInstanceOf(TokenStoreException.class)
-                              .hasMessageContaining("Could not rotate tokens in fast-access store")
-                              .hasCauseInstanceOf(RuntimeException.class);
-
-            then(tokenVerifier).should(times(1))
-                               .verifyRefreshToken(encodedRefreshToken);
-            then(jwtAuthenticationRepository).should(times(1))
-                                             .findByRefreshToken(encodedRefreshToken);
-            then(tokenIssuer).should(times(1))
-                             .issueTokenPair(oldRefreshToken.subject(), oldRefreshToken.roleClaim());
-            then(jwtAuthenticationRepository).should(times(1))
-                                             .save(authentication);
-            then(jwtStore).should(times(1))
-                          .delete(oldJwtPair);
-            then(jwtStore).should(times(2))
-                          .save(any(JwtPair.class));
-        }
-
-        @Test
         void ThrowsCompensatingTransactionException_TokenRotationFailsAndCompensationFails() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
@@ -331,6 +248,47 @@ class RefreshAuthenticationServiceTests {
             // Then
             assertThat(thrown).isInstanceOf(CompensatingTransactionException.class)
                               .hasMessageContaining("Failed to compensate token rotation after token activation failure")
+                              .hasCauseInstanceOf(RuntimeException.class);
+
+            then(tokenVerifier).should(times(1))
+                               .verifyRefreshToken(encodedRefreshToken);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .findByRefreshToken(encodedRefreshToken);
+            then(tokenIssuer).should(times(1))
+                             .issueTokenPair(oldRefreshToken.subject(), oldRefreshToken.roleClaim());
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .save(authentication);
+            then(jwtStore).should(times(1))
+                          .delete(oldJwtPair);
+            then(jwtStore).should(times(1))
+                          .save(oldJwtPair);
+        }
+
+        @Test
+        void ThrowsTokenStoreException_TokenRotationFailsAndCompensationSucceeds() {
+            // Given
+            var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
+            var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
+            var oldRefreshToken = createJwt(JwtType.REFRESH_TOKEN, refreshTokenValue);
+            var oldJwtPair = JwtPair.of(oldAccessToken, oldRefreshToken);
+            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldJwtPair);
+            var newAccessToken = createJwt(JwtType.ACCESS_TOKEN, "new.access.token");
+            var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
+            var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
+
+            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(authentication);
+            given(tokenIssuer.issueTokenPair(oldRefreshToken.subject(), oldRefreshToken.roleClaim())).willReturn(newJwtPair);
+            given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
+            willThrow(new TokenStoreException("Could not rotate tokens in fast-access store",
+                    new RuntimeException("Token store connection failed"))).given(jwtStore)
+                                                                           .delete(oldJwtPair);
+
+            // When
+            var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
+
+            // Then
+            assertThat(thrown).isInstanceOf(TokenStoreException.class)
+                              .hasMessageContaining("Could not rotate tokens in fast-access store")
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(tokenVerifier).should(times(1))
@@ -389,7 +347,49 @@ class RefreshAuthenticationServiceTests {
         }
 
         @Test
-        void ReturnsRefreshedAuthentication_ValidRefreshToken() {
+        void ThrowsTokenStoreException_TokenSaveFailsAndCompensationSucceeds() {
+            // Given
+            var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
+            var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
+            var oldRefreshToken = createJwt(JwtType.REFRESH_TOKEN, refreshTokenValue);
+            var oldJwtPair = JwtPair.of(oldAccessToken, oldRefreshToken);
+            var authentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), oldJwtPair);
+            var newAccessToken = createJwt(JwtType.ACCESS_TOKEN, "new.access.token");
+            var newRefreshToken = createJwt(JwtType.REFRESH_TOKEN, "new.refresh.token");
+            var newJwtPair = JwtPair.of(newAccessToken, newRefreshToken);
+
+            given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(authentication);
+            given(tokenIssuer.issueTokenPair(oldRefreshToken.subject(), oldRefreshToken.roleClaim())).willReturn(newJwtPair);
+            given(jwtAuthenticationRepository.save(authentication)).willReturn(authentication);
+            willThrow(new TokenStoreException("Could not rotate tokens in fast-access store",
+                    new RuntimeException("Token store connection failed"))).willDoNothing()
+                                                                           .given(jwtStore)
+                                                                           .save(any(JwtPair.class));
+
+            // When
+            var thrown = catchThrowable(() -> refreshAuthenticationService.refreshAuthentication(refreshTokenValue));
+
+            // Then
+            assertThat(thrown).isInstanceOf(TokenStoreException.class)
+                              .hasMessageContaining("Could not rotate tokens in fast-access store")
+                              .hasCauseInstanceOf(RuntimeException.class);
+
+            then(tokenVerifier).should(times(1))
+                               .verifyRefreshToken(encodedRefreshToken);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .findByRefreshToken(encodedRefreshToken);
+            then(tokenIssuer).should(times(1))
+                             .issueTokenPair(oldRefreshToken.subject(), oldRefreshToken.roleClaim());
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .save(authentication);
+            then(jwtStore).should(times(1))
+                          .delete(oldJwtPair);
+            then(jwtStore).should(times(2))
+                          .save(any(JwtPair.class));
+        }
+
+        @Test
+        void ReturnsRefreshedAuthentication_RefreshAuthenticationSucceeds() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
             var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");
