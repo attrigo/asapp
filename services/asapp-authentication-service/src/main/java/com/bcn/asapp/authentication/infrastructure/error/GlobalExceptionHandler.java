@@ -18,6 +18,7 @@ package com.bcn.asapp.authentication.infrastructure.error;
 
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -87,8 +88,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, @NonNull HttpHeaders headers,
             @NonNull HttpStatusCode status, @NonNull WebRequest request) {
 
-        logger.debug("Validation failed: {} field errors", ex.getBindingResult()
-                                                             .getFieldErrorCount());
+        logger.warn("Validation failed: {}", ex.getBindingResult()
+                                               .getFieldErrors()
+                                               .stream()
+                                               .map(FieldError::getDefaultMessage)
+                                               .collect(Collectors.joining(", ")));
 
         var invalidParameters = buildInvalidParameters(ex.getBindingResult()
                                                          .getFieldErrors());
