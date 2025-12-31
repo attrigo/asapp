@@ -74,10 +74,11 @@ public interface TaskRestAPI {
      * <p>
      * Response codes:
      * <ul>
-     * <li>20O-OK: Task found.</li>
-     * <li>400-BAD_REQUEST: Invalid task id format.</li>
+     * <li>200-OK: Task found.</li>
+     * <li>400-BAD_REQUEST: Invalid task identifier format.</li>
      * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
      * <li>404-NOT_FOUND: Task not found.</li>
+     * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during retrieval.</li>
      * </ul>
      *
      * @param id the task's unique identifier
@@ -88,8 +89,11 @@ public interface TaskRestAPI {
     @ApiResponse(responseCode = "200", description = "Task found", content = { @Content(schema = @Schema(implementation = GetTaskByIdResponse.class)) })
     @ApiResponse(responseCode = "400", description = "Invalid task identifier format", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
+    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "404", description = "Task not found", content = { @Content })
+    @ApiResponse(responseCode = "500", description = "An internal error occurred during retrieval", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     ResponseEntity<GetTaskByIdResponse> getTaskById(@PathVariable("id") @Parameter(description = "Identifier of the task to get") UUID id);
 
     /**
@@ -98,8 +102,9 @@ public interface TaskRestAPI {
      * Response codes:
      * <ul>
      * <li>200-OK: Tasks found for the user.</li>
-     * <li>400-BAD_REQUEST: Invalid user id format.</li>
+     * <li>400-BAD_REQUEST: Invalid user identifier format.</li>
      * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
+     * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during retrieval.</li>
      * </ul>
      *
      * @param userId the user's unique identifier
@@ -112,7 +117,10 @@ public interface TaskRestAPI {
             @Content(schema = @Schema(implementation = GetTasksByUserIdResponse.class)) })
     @ApiResponse(responseCode = "400", description = "Invalid user identifier format", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
+    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "500", description = "An internal error occurred during retrieval", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     List<GetTasksByUserIdResponse> getTasksByUserId(@PathVariable("id") @Parameter(description = "Identifier of the user whose tasks to retrieve") UUID userId);
 
     /**
@@ -120,8 +128,9 @@ public interface TaskRestAPI {
      * <p>
      * Response codes:
      * <ul>
-     * <li>200-OK: Tasks found.</li>
+     * <li>200-OK: Tasks retrieved successfully.</li>
      * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
+     * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during retrieval.</li>
      * </ul>
      *
      * @return a {@link List} of {@link GetAllTasksResponse} containing all tasks found, or an empty list if no tasks exist
@@ -129,8 +138,12 @@ public interface TaskRestAPI {
     @GetMapping(value = TASKS_GET_ALL_PATH, produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Gets all tasks", description = "Retrieves a list of all registered tasks in the system. This endpoint requires authentication. If no tasks exist, an empty array is returned.")
-    @ApiResponse(responseCode = "200", description = "Tasks found", content = { @Content(schema = @Schema(implementation = GetAllTasksResponse.class)) })
-    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
+    @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully", content = {
+            @Content(schema = @Schema(implementation = GetAllTasksResponse.class)) })
+    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "500", description = "An internal error occurred during retrieval", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     List<GetAllTasksResponse> getAllTasks();
 
     /**
@@ -139,8 +152,9 @@ public interface TaskRestAPI {
      * Response codes:
      * <ul>
      * <li>201-CREATED: Task created successfully.</li>
-     * <li>400-BAD_REQUEST: Request body validation failed.</li>
+     * <li>400-BAD_REQUEST: The request body is malformed or contains invalid data.</li>
      * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
+     * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during task creation.</li>
      * </ul>
      *
      * @param request the {@link CreateTaskRequest} containing task data
@@ -152,9 +166,12 @@ public interface TaskRestAPI {
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Task creation request containing all necessary task information", required = true, content = @Content(schema = @Schema(implementation = CreateTaskRequest.class)))
     @ApiResponse(responseCode = "201", description = "Task created successfully", content = {
             @Content(schema = @Schema(implementation = CreateTaskResponse.class)) })
-    @ApiResponse(responseCode = "400", description = "Request body validation failed", content = {
+    @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
+    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "500", description = "An internal error occurred during task creation", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     CreateTaskResponse createTask(@RequestBody @Valid CreateTaskRequest request);
 
     /**
@@ -163,9 +180,10 @@ public interface TaskRestAPI {
      * Response codes:
      * <ul>
      * <li>200-OK: Task updated successfully.</li>
-     * <li>400-BAD_REQUEST: Invalid request id format or request body validation failed.</li>
+     * <li>400-BAD_REQUEST: The task identifier format is invalid or the request body is malformed or contains invalid data.</li>
      * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
      * <li>404-NOT_FOUND: Task not found.</li>
+     * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during task update.</li>
      * </ul>
      *
      * @param id      the task's unique identifier
@@ -177,11 +195,14 @@ public interface TaskRestAPI {
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Task update request containing the task information to be modified", required = true, content = @Content(schema = @Schema(implementation = UpdateTaskRequest.class)))
     @ApiResponse(responseCode = "200", description = "Task updated successfully", content = {
             @Content(schema = @Schema(implementation = UpdateTaskResponse.class)) })
-    @ApiResponse(responseCode = "400", description = "Invalid task identifier format or request body validation failed.", content = {
+    @ApiResponse(responseCode = "400", description = "The task identifier format is invalid or the request body is malformed or contains invalid data", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
+    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "404", description = "Task not found", content = { @Content })
-    ResponseEntity<UpdateTaskResponse> updateTaskById(@PathVariable("id") @Parameter(description = "Identifier of the request to update") UUID id,
+    @ApiResponse(responseCode = "500", description = "An internal error occurred during task update", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    ResponseEntity<UpdateTaskResponse> updateTaskById(@PathVariable("id") @Parameter(description = "Identifier of the task to update") UUID id,
             @RequestBody @Valid UpdateTaskRequest request);
 
     /**
@@ -190,9 +211,10 @@ public interface TaskRestAPI {
      * Response codes:
      * <ul>
      * <li>204-NO_CONTENT: Task deleted successfully.</li>
-     * <li>400-BAD_REQUEST: Invalid task id format.</li>
+     * <li>400-BAD_REQUEST: Invalid task identifier format.</li>
      * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
      * <li>404-NOT_FOUND: Task not found.</li>
+     * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during task deletion.</li>
      * </ul>
      *
      * @param id the task's unique identifier
@@ -203,8 +225,11 @@ public interface TaskRestAPI {
     @ApiResponse(responseCode = "204", description = "Task deleted successfully", content = { @Content })
     @ApiResponse(responseCode = "400", description = "Invalid task identifier format", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
+    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "404", description = "Task not found", content = { @Content })
+    @ApiResponse(responseCode = "500", description = "An internal error occurred during task deletion", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     ResponseEntity<Void> deleteTaskById(@PathVariable("id") @Parameter(description = "Identifier of the task to delete") UUID id);
 
 }

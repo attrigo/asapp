@@ -16,6 +16,8 @@
 
 package com.bcn.asapp.tasks.application.task.in.service;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.bcn.asapp.tasks.application.ApplicationService;
 import com.bcn.asapp.tasks.application.task.in.CreateTaskUseCase;
 import com.bcn.asapp.tasks.application.task.in.command.CreateTaskCommand;
@@ -28,7 +30,16 @@ import com.bcn.asapp.tasks.domain.task.Title;
 import com.bcn.asapp.tasks.domain.task.UserId;
 
 /**
- * Application service responsible for orchestrate task creation operations.
+ * Application service responsible for orchestrating task creation operations.
+ * <p>
+ * Coordinates the task creation workflow including parameter transformation, domain object creation, and persistence to the repository.
+ * <p>
+ * <strong>Orchestration Flow:</strong>
+ * <ol>
+ * <li>Transforms command parameters into domain value objects</li>
+ * <li>Creates task domain object via {@link Task#create}</li>
+ * <li>Persists task to repository via {@link TaskRepository#save}</li>
+ * </ol>
  *
  * @since 0.2.0
  * @author attrigo
@@ -41,7 +52,7 @@ public class CreateTaskService implements CreateTaskUseCase {
     /**
      * Constructs a new {@code CreateTaskService} with required dependencies.
      *
-     * @param taskRepository the task repository
+     * @param taskRepository the repository for task persistence operations
      */
     public CreateTaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
@@ -50,23 +61,47 @@ public class CreateTaskService implements CreateTaskUseCase {
     /**
      * Creates a new task based on the provided command.
      * <p>
-     * Validates and transforms command data into domain objects, creates a new task, and persists it to the repository.
+     * Orchestrates the complete task creation workflow: parameter transformation, domain object creation, and persistence.
      *
      * @param command the {@link CreateTaskCommand} containing task data
-     * @return the created {@link Task} with a persistent ID
-     * @throws IllegalArgumentException if any data within the command is invalid
+     * @return the created {@link Task} with a generated persistent ID
+     * @throws IllegalArgumentException if any data within the command is invalid (blank title, invalid dates, etc.)
      */
     @Override
+    @Transactional
     public Task createTask(CreateTaskCommand command) {
+        var task = mapCommandToDomain(command);
+
+        return persistTask(task);
+    }
+
+    /**
+     * Creates a task domain object from command data.
+     * <p>
+     * Maps command parameters into domain value objects and invokes the task factory method.
+     *
+     * @param command the create task command containing raw data
+     * @return the created {@link Task} domain object without persistence ID
+     * @throws IllegalArgumentException if any value object validation fails
+     */
+    private Task mapCommandToDomain(CreateTaskCommand command) {
         var userId = UserId.of(command.userId());
         var title = Title.of(command.title());
         var description = Description.ofNullable(command.description());
         var startDate = StartDate.ofNullable(command.startDate());
         var endDate = EndDate.ofNullable(command.endDate());
 
-        var createdTask = Task.create(userId, title, description, startDate, endDate);
+        return Task.create(userId, title, description, startDate, endDate);
+    }
 
-        return taskRepository.save(createdTask);
+    /**
+     * Persists task to the repository.
+     *
+     * @param task the task domain object to persist
+     * @return the persisted {@link Task} with generated ID
+     */
+    private Task persistTask(Task task) {
+        return taskRepository.save(task);
     }
 
 }

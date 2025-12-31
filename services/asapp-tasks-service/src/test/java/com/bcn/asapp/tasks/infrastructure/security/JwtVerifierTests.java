@@ -56,7 +56,7 @@ class JwtVerifierTests {
     class VerifyAccessToken {
 
         @Test
-        void ThenThrowsInvalidJwtException_GivenDecoderFails() {
+        void ThrowsInvalidJwtException_DecoderFails() {
             // Given
             var accessToken = defaultTestEncodedAccessToken();
             willThrow(new RuntimeException("Decoder failed")).given(jwtDecoder)
@@ -67,14 +67,15 @@ class JwtVerifierTests {
 
             // Then
             assertThat(thrown).isInstanceOf(InvalidJwtException.class)
-                              .hasMessageContaining("Access token is not valid");
+                              .hasMessageContaining("Access token is not valid")
+                              .hasCauseInstanceOf(RuntimeException.class);
 
             then(jwtDecoder).should(times(1))
                             .decode(accessToken);
         }
 
         @Test
-        void ThenThrowsInvalidJwtException_GivenTokenIsNotAccessToken() {
+        void ThrowsUnexpectedJwtTypeException_TokenIsNotAccessToken() {
             // Given
             var refreshToken = defaultTestEncodedRefreshToken();
             var refreshTokenClaims = Map.<String, Object>of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, "USER");
@@ -85,16 +86,15 @@ class JwtVerifierTests {
             var thrown = catchThrowable(() -> jwtVerifier.verifyAccessToken(refreshToken));
 
             // Then
-            assertThat(thrown).isInstanceOf(InvalidJwtException.class)
-                              .hasMessageContaining("Access token is not valid")
-                              .hasCauseInstanceOf(UnexpectedJwtTypeException.class);
+            assertThat(thrown).isInstanceOf(UnexpectedJwtTypeException.class)
+                              .hasMessageContaining("is not an access token");
 
             then(jwtDecoder).should(times(1))
                             .decode(refreshToken);
         }
 
         @Test
-        void ThenThrowsInvalidJwtException_GivenAccessTokenNotExistsInRedis() {
+        void ThrowsAuthenticationNotFoundException_AccessTokenNotInStore() {
             // Given
             var accessToken = defaultTestEncodedAccessToken();
             var accessTokenClaims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
@@ -106,8 +106,8 @@ class JwtVerifierTests {
             var thrown = catchThrowable(() -> jwtVerifier.verifyAccessToken(accessToken));
 
             // Then
-            assertThat(thrown).isInstanceOf(InvalidJwtException.class)
-                              .hasMessageContaining("Access token is not valid");
+            assertThat(thrown).isInstanceOf(AuthenticationNotFoundException.class)
+                              .hasMessageContaining("Authentication session not found in store for access token");
 
             then(jwtDecoder).should(times(1))
                             .decode(accessToken);
@@ -116,7 +116,7 @@ class JwtVerifierTests {
         }
 
         @Test
-        void ThenVerifiesAccessToken_GivenAccessTokenIsValid() {
+        void ReturnsDecodedJwt_ValidAccessToken() {
             // Given
             var accessToken = defaultTestEncodedAccessToken();
             var accessTokenClaims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");

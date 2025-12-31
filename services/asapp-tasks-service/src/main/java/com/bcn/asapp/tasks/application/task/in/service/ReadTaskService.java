@@ -28,7 +28,9 @@ import com.bcn.asapp.tasks.domain.task.TaskId;
 import com.bcn.asapp.tasks.domain.task.UserId;
 
 /**
- * Application service responsible for orchestrate task retrieval operations.
+ * Application service responsible for orchestrating task retrieval operations.
+ * <p>
+ * Coordinates task query operations including single task retrieval and bulk task listing.
  *
  * @since 0.2.0
  * @author attrigo
