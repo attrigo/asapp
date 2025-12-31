@@ -59,7 +59,7 @@ class ReadUserServiceTests {
     class GetUserById {
 
         @Test
-        void ThrowsDataAccessException_RepositoryFetchFails() {
+        void ThrowsDataAccessException_FetchUserFails() {
             // Given
             var userId = UserId.of(userIdValue);
 
@@ -78,7 +78,7 @@ class ReadUserServiceTests {
         }
 
         @Test
-        void ReturnsEmptyOptional_UserNotFound() {
+        void ReturnsEmptyOptional_UserNotExists() {
             // Given
             var userId = UserId.of(userIdValue);
 
@@ -143,7 +143,7 @@ class ReadUserServiceTests {
         }
 
         @Test
-        void ReturnsEmptyList_NoUsersExist() {
+        void ReturnsEmptyList_NoUsersExists() {
             // Given
             given(userRepository.findAll()).willReturn(Collections.emptyList());
 
@@ -159,7 +159,7 @@ class ReadUserServiceTests {
         }
 
         @Test
-        void ReturnsListOfUsers_UsersExist() {
+        void ReturnsUsers_UsersExists() {
             // Given
             var user1 = User.activeUser(UserId.of(UUID.randomUUID()), Username.of("user1@asapp.com"), USER);
             var user2 = User.activeUser(UserId.of(UUID.randomUUID()), Username.of("user2@asapp.com"), USER);

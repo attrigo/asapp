@@ -73,29 +73,7 @@ class UpdateUserServiceTests {
     class UpdateUserById {
 
         @Test
-        void ReturnsEmptyOptional_UserNotFound() {
-            // Given
-            var command = new UpdateUserCommand(userIdValue, newUsernameValue, newPasswordValue, newRoleValue);
-            var userId = UserId.of(userIdValue);
-
-            given(userRepository.findById(userId)).willReturn(Optional.empty());
-
-            // When
-            var result = updateUserService.updateUserById(command);
-
-            // Then
-            assertThat(result).isEmpty();
-
-            then(userRepository).should(times(1))
-                                .findById(userId);
-            then(passwordService).should(never())
-                                 .encode(any(RawPassword.class));
-            then(userRepository).should(never())
-                                .save(any(User.class));
-        }
-
-        @Test
-        void ThrowsDataAccessException_FindByIdFails() {
+        void ThrowsDataAccessException_FetchUserFails() {
             // Given
             var command = new UpdateUserCommand(userIdValue, newUsernameValue, newPasswordValue, newRoleValue);
             var userId = UserId.of(userIdValue);
@@ -146,7 +124,7 @@ class UpdateUserServiceTests {
         }
 
         @Test
-        void ThrowsDataAccessException_RepositorySaveFails() {
+        void ThrowsDataAccessException_SaveUserFails() {
             // Given
             var command = new UpdateUserCommand(userIdValue, newUsernameValue, newPasswordValue, newRoleValue);
             var userId = UserId.of(userIdValue);
@@ -172,6 +150,28 @@ class UpdateUserServiceTests {
                                  .encode(newRawPassword);
             then(userRepository).should(times(1))
                                 .save(currentUser);
+        }
+
+        @Test
+        void ReturnsEmptyOptional_UserNotExists() {
+            // Given
+            var command = new UpdateUserCommand(userIdValue, newUsernameValue, newPasswordValue, newRoleValue);
+            var userId = UserId.of(userIdValue);
+
+            given(userRepository.findById(userId)).willReturn(Optional.empty());
+
+            // When
+            var result = updateUserService.updateUserById(command);
+
+            // Then
+            assertThat(result).isEmpty();
+
+            then(userRepository).should(times(1))
+                                .findById(userId);
+            then(passwordService).should(never())
+                                 .encode(any(RawPassword.class));
+            then(userRepository).should(never())
+                                .save(any(User.class));
         }
 
         @Test

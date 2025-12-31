@@ -145,7 +145,7 @@ class AuthenticateServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_PersistAuthenticationFails() {
+        void ThrowsRuntimeException_SaveAuthenticationFails() {
             // Given
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);
@@ -175,45 +175,6 @@ class AuthenticateServiceTests {
                                              .save(any(JwtAuthentication.class));
             then(jwtStore).should(never())
                           .save(any(JwtPair.class));
-        }
-
-        @Test
-        void ThrowsTokenStoreException_ActivateTokensFailsAndCompensationSucceeds() {
-            // Given
-            var command = new AuthenticateCommand(usernameValue, passwordValue);
-            var username = Username.of(usernameValue);
-            var password = RawPassword.of(passwordValue);
-            var userAuth = UserAuthentication.authenticated(UserId.of(userId), username, role);
-            var accessToken = createJwt(JwtType.ACCESS_TOKEN);
-            var refreshToken = createJwt(JwtType.REFRESH_TOKEN);
-            var jwtPair = JwtPair.of(accessToken, refreshToken);
-            var savedAuthentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), jwtPair);
-
-            given(credentialsAuthenticator.authenticate(username, password)).willReturn(userAuth);
-            given(tokenIssuer.issueTokenPair(userAuth)).willReturn(jwtPair);
-            given(jwtAuthenticationRepository.save(any(JwtAuthentication.class))).willReturn(savedAuthentication);
-            willThrow(new TokenStoreException("Could not store tokens in fast-access store",
-                    new RuntimeException("Token store connection failed"))).given(jwtStore)
-                                                                           .save(jwtPair);
-
-            // When
-            var thrown = catchThrowable(() -> authenticateService.authenticate(command));
-
-            // Then
-            assertThat(thrown).isInstanceOf(TokenStoreException.class)
-                              .hasMessageContaining("Could not store tokens in fast-access store")
-                              .hasCauseInstanceOf(RuntimeException.class);
-
-            then(credentialsAuthenticator).should(times(1))
-                                          .authenticate(username, password);
-            then(tokenIssuer).should(times(1))
-                             .issueTokenPair(userAuth);
-            then(jwtAuthenticationRepository).should(times(1))
-                                             .save(any(JwtAuthentication.class));
-            then(jwtStore).should(times(1))
-                          .save(jwtPair);
-            then(jwtAuthenticationRepository).should(times(1))
-                                             .deleteById(savedAuthentication.getId());
         }
 
         @Test
@@ -258,7 +219,46 @@ class AuthenticateServiceTests {
         }
 
         @Test
-        void ReturnsAuthenticatedJwtAuthentication_ValidCredentials() {
+        void ThrowsTokenStoreException_ActivateTokensFailsAndCompensationSucceeds() {
+            // Given
+            var command = new AuthenticateCommand(usernameValue, passwordValue);
+            var username = Username.of(usernameValue);
+            var password = RawPassword.of(passwordValue);
+            var userAuth = UserAuthentication.authenticated(UserId.of(userId), username, role);
+            var accessToken = createJwt(JwtType.ACCESS_TOKEN);
+            var refreshToken = createJwt(JwtType.REFRESH_TOKEN);
+            var jwtPair = JwtPair.of(accessToken, refreshToken);
+            var savedAuthentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), jwtPair);
+
+            given(credentialsAuthenticator.authenticate(username, password)).willReturn(userAuth);
+            given(tokenIssuer.issueTokenPair(userAuth)).willReturn(jwtPair);
+            given(jwtAuthenticationRepository.save(any(JwtAuthentication.class))).willReturn(savedAuthentication);
+            willThrow(new TokenStoreException("Could not store tokens in fast-access store",
+                    new RuntimeException("Token store connection failed"))).given(jwtStore)
+                                                                           .save(jwtPair);
+
+            // When
+            var thrown = catchThrowable(() -> authenticateService.authenticate(command));
+
+            // Then
+            assertThat(thrown).isInstanceOf(TokenStoreException.class)
+                              .hasMessageContaining("Could not store tokens in fast-access store")
+                              .hasCauseInstanceOf(RuntimeException.class);
+
+            then(credentialsAuthenticator).should(times(1))
+                                          .authenticate(username, password);
+            then(tokenIssuer).should(times(1))
+                             .issueTokenPair(userAuth);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .save(any(JwtAuthentication.class));
+            then(jwtStore).should(times(1))
+                          .save(jwtPair);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .deleteById(savedAuthentication.getId());
+        }
+
+        @Test
+        void ReturnsAuthenticatedJwtAuthentication_AuthenticationSucceeds() {
             // Given
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);

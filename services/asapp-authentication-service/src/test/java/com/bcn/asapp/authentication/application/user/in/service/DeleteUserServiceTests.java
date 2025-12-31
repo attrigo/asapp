@@ -115,6 +115,44 @@ class DeleteUserServiceTests {
         }
 
         @Test
+        void ThrowsCompensatingTransactionException_DeleteAuthenticationsFailsAndCompensationFails() {
+            // Given
+            var userId = UserId.of(userIdValue);
+            var authentication1 = createJwtAuthentication("token1.access", "token1.refresh");
+            var authentication2 = createJwtAuthentication("token2.access", "token2.refresh");
+            var jwtPair1 = authentication1.getJwtPair();
+            var jwtPair2 = authentication2.getJwtPair();
+
+            given(jwtAuthenticationRepository.findAllByUserId(userId)).willReturn(List.of(authentication1, authentication2));
+            willThrow(new AuthenticationPersistenceException("Could not delete authentications for user from repository",
+                    new RuntimeException("Repository delete failed"))).given(jwtAuthenticationRepository)
+                                                                      .deleteAllByUserId(userId);
+            willThrow(new RuntimeException("Compensation failed")).given(jwtStore)
+                                                                  .save(jwtPair1);
+
+            // When
+            var thrown = catchThrowable(() -> deleteUserService.deleteUserById(userIdValue));
+
+            // Then
+            assertThat(thrown).isInstanceOf(CompensatingTransactionException.class)
+                              .hasMessageContaining("Failed to compensate token deactivation after repository deletion failure")
+                              .hasCauseInstanceOf(RuntimeException.class);
+
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .findAllByUserId(userId);
+            then(jwtStore).should(times(1))
+                          .delete(jwtPair1);
+            then(jwtStore).should(times(1))
+                          .delete(jwtPair2);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .deleteAllByUserId(userId);
+            then(userRepository).should(never())
+                                .deleteById(any(UserId.class));
+            then(jwtStore).should(times(1))
+                          .save(jwtPair1);
+        }
+
+        @Test
         void ThrowsAuthenticationPersistenceException_DeleteAuthenticationsFailsAndCompensationSucceeds() {
             // Given
             var userId = UserId.of(userIdValue);
@@ -149,6 +187,44 @@ class DeleteUserServiceTests {
                           .save(jwtPair1);
             then(jwtStore).should(times(1))
                           .save(jwtPair2);
+        }
+
+        @Test
+        void ThrowsCompensatingTransactionException_DeleteUserFailsAndCompensationFails() {
+            // Given
+            var userId = UserId.of(userIdValue);
+            var authentication1 = createJwtAuthentication("token1.access", "token1.refresh");
+            var authentication2 = createJwtAuthentication("token2.access", "token2.refresh");
+            var jwtPair1 = authentication1.getJwtPair();
+            var jwtPair2 = authentication2.getJwtPair();
+
+            given(jwtAuthenticationRepository.findAllByUserId(userId)).willReturn(List.of(authentication1, authentication2));
+            willThrow(new AuthenticationPersistenceException("Could not delete authentications for user from repository",
+                    new RuntimeException("Repository delete failed"))).given(jwtAuthenticationRepository)
+                                                                      .deleteAllByUserId(userId);
+            willThrow(new RuntimeException("Compensation failed")).given(jwtStore)
+                                                                  .save(jwtPair1);
+
+            // When
+            var thrown = catchThrowable(() -> deleteUserService.deleteUserById(userIdValue));
+
+            // Then
+            assertThat(thrown).isInstanceOf(CompensatingTransactionException.class)
+                              .hasMessageContaining("Failed to compensate token deactivation after repository deletion failure")
+                              .hasCauseInstanceOf(RuntimeException.class);
+
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .findAllByUserId(userId);
+            then(jwtStore).should(times(1))
+                          .delete(jwtPair1);
+            then(jwtStore).should(times(1))
+                          .delete(jwtPair2);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .deleteAllByUserId(userId);
+            then(userRepository).should(never())
+                                .deleteById(any(UserId.class));
+            then(jwtStore).should(times(1))
+                          .save(jwtPair1);
         }
 
         @Test
@@ -190,41 +266,29 @@ class DeleteUserServiceTests {
         }
 
         @Test
-        void ThrowsCompensatingTransactionException_RepositoryFailsAndCompensationFails() {
+        void DoesNotDeleteUserAndReturnsFalse_UserNotExists() {
             // Given
             var userId = UserId.of(userIdValue);
-            var authentication1 = createJwtAuthentication("token1.access", "token1.refresh");
-            var authentication2 = createJwtAuthentication("token2.access", "token2.refresh");
-            var jwtPair1 = authentication1.getJwtPair();
-            var jwtPair2 = authentication2.getJwtPair();
 
-            given(jwtAuthenticationRepository.findAllByUserId(userId)).willReturn(List.of(authentication1, authentication2));
-            willThrow(new AuthenticationPersistenceException("Could not delete authentications for user from repository",
-                    new RuntimeException("Repository delete failed"))).given(jwtAuthenticationRepository)
-                                                                      .deleteAllByUserId(userId);
-            willThrow(new RuntimeException("Compensation failed")).given(jwtStore)
-                                                                  .save(jwtPair1);
+            given(jwtAuthenticationRepository.findAllByUserId(userId)).willReturn(Collections.emptyList());
+            given(userRepository.deleteById(userId)).willReturn(false);
 
             // When
-            var thrown = catchThrowable(() -> deleteUserService.deleteUserById(userIdValue));
+            var result = deleteUserService.deleteUserById(userIdValue);
 
             // Then
-            assertThat(thrown).isInstanceOf(CompensatingTransactionException.class)
-                              .hasMessageContaining("Failed to compensate token deactivation after repository deletion failure")
-                              .hasCauseInstanceOf(RuntimeException.class);
+            assertThat(result).isFalse();
 
             then(jwtAuthenticationRepository).should(times(1))
                                              .findAllByUserId(userId);
-            then(jwtStore).should(times(1))
-                          .delete(jwtPair1);
-            then(jwtStore).should(times(1))
-                          .delete(jwtPair2);
+            then(jwtStore).should(never())
+                          .delete(any(JwtPair.class));
             then(jwtAuthenticationRepository).should(times(1))
                                              .deleteAllByUserId(userId);
-            then(userRepository).should(never())
-                                .deleteById(any(UserId.class));
-            then(jwtStore).should(times(1))
-                          .save(jwtPair1);
+            then(userRepository).should(times(1))
+                                .deleteById(userId);
+            then(jwtStore).should(never())
+                          .save(any(JwtPair.class));
         }
 
         @Test

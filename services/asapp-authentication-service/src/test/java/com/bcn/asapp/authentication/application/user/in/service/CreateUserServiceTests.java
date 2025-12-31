@@ -89,7 +89,7 @@ class CreateUserServiceTests {
         }
 
         @Test
-        void ThrowsDataAccessException_RepositorySaveFails() {
+        void ThrowsDataAccessException_SaveUserFails() {
             // Given
             var command = new CreateUserCommand(usernameValue, passwordValue, roleValue);
             var rawPassword = RawPassword.of(passwordValue);
