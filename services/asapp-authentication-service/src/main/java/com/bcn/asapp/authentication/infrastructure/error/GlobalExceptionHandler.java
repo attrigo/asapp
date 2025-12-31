@@ -240,7 +240,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles JJWT library failures during token operations.
      * <p>
-     * Thrown when JWT token generation or cryptographic operations fail.
+     * Thrown when JWT generation or cryptographic operations fail.
      * <p>
      * Returns HTTP 500 Internal Server Error with a generic message to avoid exposing cryptographic implementation details.
      *

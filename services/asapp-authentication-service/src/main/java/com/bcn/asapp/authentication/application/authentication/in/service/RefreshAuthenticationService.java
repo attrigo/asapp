@@ -154,7 +154,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
     }
 
     /**
-     * Generates a new JWT pair based on the JWT token claims.
+     * Generates a new JWT pair based on the JWT claims.
      *
      * @param jwt the JWT containing subject and role claims
      * @return the newly generated JWT pair
