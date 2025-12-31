@@ -27,7 +27,7 @@ import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 
 /**
- * Infrastructure component responsible for orchestrating JWT token verification through a 3-step validation process.
+ * Infrastructure component responsible for orchestrating JWT verification through a 3-step validation process.
  * <p>
  * Provides the infrastructure capability to verify JWTs using {@link JwtDecoder} and {@link JwtStore}.
  * <p>
@@ -129,7 +129,7 @@ public class JwtVerifier {
     }
 
     /**
-     * Decodes and cryptographically validates the JWT token.
+     * Decodes and cryptographically validates the JWT.
      * <p>
      * Verification step 1: Validates the token's signature using the configured signing key and checks the expiration timestamp.
      *
