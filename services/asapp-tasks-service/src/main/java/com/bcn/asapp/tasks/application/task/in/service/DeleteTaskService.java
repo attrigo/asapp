@@ -18,13 +18,23 @@ package com.bcn.asapp.tasks.application.task.in.service;
 
 import java.util.UUID;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.bcn.asapp.tasks.application.ApplicationService;
 import com.bcn.asapp.tasks.application.task.in.DeleteTaskUseCase;
 import com.bcn.asapp.tasks.application.task.out.TaskRepository;
 import com.bcn.asapp.tasks.domain.task.TaskId;
 
 /**
- * Application service responsible for orchestrate task deletion operations.
+ * Application service responsible for orchestrating task deletion operations.
+ * <p>
+ * Coordinates the task deletion workflow including identifier transformation and removal from the repository.
+ * <p>
+ * <strong>Orchestration Flow:</strong>
+ * <ol>
+ * <li>Transforms UUID into domain value object {@link TaskId}</li>
+ * <li>Deletes task from repository via {@link TaskRepository#deleteById}</li>
+ * </ol>
  *
  * @since 0.2.0
  * @author attrigo
@@ -37,23 +47,36 @@ public class DeleteTaskService implements DeleteTaskUseCase {
     /**
      * Constructs a new {@code DeleteTaskService} with required dependencies.
      *
-     * @param taskRepository the task repository
+     * @param taskRepository the repository for task persistence operations
      */
     public DeleteTaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
     }
 
     /**
-     * Deletes an existing task by their unique identifier.
+     * Deletes an existing task by its unique identifier.
+     * <p>
+     * Orchestrates the task deletion workflow: identifier transformation and deletion.
      *
-     * @param id the task's unique identifier
-     * @return {@code true} if the task was deleted, {@code false} if not found
-     * @throws IllegalArgumentException if the id is invalid
+     * @param id the task's unique identifier as UUID
+     * @return {@code true} if the task was successfully deleted, {@code false} if task was not found
+     * @throws IllegalArgumentException if the id is null or invalid
      */
     @Override
+    @Transactional
     public Boolean deleteTaskById(UUID id) {
         var taskId = TaskId.of(id);
 
+        return deleteTask(taskId);
+    }
+
+    /**
+     * Deletes task from repository by identifier.
+     *
+     * @param taskId the task identifier
+     * @return {@code true} if deleted, {@code false} if not found
+     */
+    private Boolean deleteTask(TaskId taskId) {
         return taskRepository.deleteById(taskId);
     }
 

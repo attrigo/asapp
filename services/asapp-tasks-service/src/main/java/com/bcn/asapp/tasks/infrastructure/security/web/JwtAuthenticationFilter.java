@@ -40,9 +40,11 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import com.bcn.asapp.tasks.infrastructure.security.AuthenticationNotFoundException;
 import com.bcn.asapp.tasks.infrastructure.security.InvalidJwtException;
 import com.bcn.asapp.tasks.infrastructure.security.JwtAuthenticationToken;
 import com.bcn.asapp.tasks.infrastructure.security.JwtVerifier;
+import com.bcn.asapp.tasks.infrastructure.security.UnexpectedJwtTypeException;
 
 /**
  * HTTP filter for JWT-based verification integrated with Spring Security.
@@ -109,28 +111,40 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        logger.debug("[JWT_FILTER] Processing authentication for request: {} {}", request.getMethod(), request.getRequestURI());
+
+        logger.trace("[JWT_FILTER] Step 1/4: Extracting token from Authorization header");
         Optional<String> optionalBearerToken = getBearerToken(request);
 
         if (optionalBearerToken.isEmpty()) {
-            logger.warn("Bearer token not found");
+            logger.warn("[JWT_FILTER] Authentication failed - reason=Bearer token not found");
             filterChain.doFilter(request, response);
             return;
         }
 
         var bearerToken = optionalBearerToken.get();
         try {
+            logger.trace("[JWT_FILTER] Step 2/4: Decoding and verifying token: {}", bearerToken);
             var decodedJwt = jwtVerifier.verifyAccessToken(bearerToken);
 
+            logger.trace("[JWT_FILTER] Step 3/4: Creating authentication token for user: {}", decodedJwt.subject());
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
+            logger.trace("[JWT_FILTER] Step 4/4: Setting SecurityContext");
             var newContext = SecurityContextHolder.createEmptyContext();
             newContext.setAuthentication(jwtAuthenticationToken);
             SecurityContextHolder.setContext(newContext);
 
+            logger.debug("[JWT_FILTER] Authentication successful for user: {}", decodedJwt.subject());
+
+        } catch (UnexpectedJwtTypeException e) {
+            logger.warn("[JWT_FILTER] Authentication failed - reason=Invalid token type");
+        } catch (AuthenticationNotFoundException e) {
+            logger.warn("[JWT_FILTER] Authentication failed - reason=Session not found");
         } catch (InvalidJwtException e) {
-            logger.warn("Invalid bearer token: {}", bearerToken, e);
+            logger.warn("[JWT_FILTER] Authentication failed - reason=Invalid token", e);
         } catch (Exception e) {
-            logger.warn("Error authenticating the bearer token {}", bearerToken, e);
+            logger.warn("[JWT_FILTER] Authentication failed - reason=Unexpected error", e);
         }
 
         filterChain.doFilter(request, response);
