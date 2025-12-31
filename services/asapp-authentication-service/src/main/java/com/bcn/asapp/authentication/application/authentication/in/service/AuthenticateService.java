@@ -32,6 +32,8 @@ import com.bcn.asapp.authentication.application.authentication.out.TokenIssuer;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
+import com.bcn.asapp.authentication.domain.user.InvalidPasswordException;
+import com.bcn.asapp.authentication.domain.user.InvalidUsernameException;
 import com.bcn.asapp.authentication.domain.user.RawPassword;
 import com.bcn.asapp.authentication.domain.user.Username;
 
@@ -94,7 +96,9 @@ public class AuthenticateService implements AuthenticateUseCase {
      *
      * @param authenticateCommand the {@link AuthenticateCommand} containing user credentials
      * @return the {@link JwtAuthentication} containing access and refresh tokens with persistent ID
-     * @throws IllegalArgumentException         if the username or password is invalid
+     * @throws InvalidUsernameException         if the username is invalid (domain validation)
+     * @throws InvalidPasswordException         if the password is invalid (domain validation)
+     * @throws TokenStoreException              if token activation fails (after successful compensation)
      * @throws CompensatingTransactionException if compensating transaction fails
      */
     @Override
