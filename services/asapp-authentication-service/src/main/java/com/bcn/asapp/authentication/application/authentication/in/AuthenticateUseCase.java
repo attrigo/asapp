@@ -17,8 +17,11 @@
 package com.bcn.asapp.authentication.application.authentication.in;
 
 import com.bcn.asapp.authentication.application.CompensatingTransactionException;
+import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
 import com.bcn.asapp.authentication.application.authentication.in.command.AuthenticateCommand;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
+import com.bcn.asapp.authentication.domain.user.InvalidPasswordException;
+import com.bcn.asapp.authentication.domain.user.InvalidUsernameException;
 
 /**
  * Use case for authenticating users in the system.
@@ -35,7 +38,9 @@ public interface AuthenticateUseCase {
      *
      * @param authenticateCommand the {@link AuthenticateCommand} containing user credentials
      * @return the {@link JwtAuthentication} containing access and refresh tokens
-     * @throws IllegalArgumentException         if the username or password is invalid
+     * @throws InvalidUsernameException         if the username is invalid (domain validation)
+     * @throws InvalidPasswordException         if the password is invalid (domain validation)
+     * @throws TokenStoreException              if token activation fails (after successful compensation)
      * @throws CompensatingTransactionException if compensating transaction fails
      */
     JwtAuthentication authenticate(AuthenticateCommand authenticateCommand);
