@@ -34,7 +34,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataAccessException;
 
 import com.bcn.asapp.authentication.application.user.in.command.CreateUserCommand;
 import com.bcn.asapp.authentication.application.user.out.UserRepository;
@@ -89,21 +88,21 @@ class CreateUserServiceTests {
         }
 
         @Test
-        void ThrowsDataAccessException_SaveUserFails() {
+        void ThrowsRuntimeException_SaveUserFails() {
             // Given
             var command = new CreateUserCommand(usernameValue, passwordValue, roleValue);
             var rawPassword = RawPassword.of(passwordValue);
             var encodedPassword = EncodedPassword.of("{bcrypt}$2a$10$encodedPassword");
 
             given(passwordEncoder.encode(rawPassword)).willReturn(encodedPassword);
-            willThrow(new DataAccessException("Database connection failed") {}).given(userRepository)
-                                                                               .save(any(User.class));
+            willThrow(new RuntimeException("Database connection failed")).given(userRepository)
+                                                                         .save(any(User.class));
 
             // When
             var thrown = catchThrowable(() -> createUserService.createUser(command));
 
             // Then
-            assertThat(thrown).isInstanceOf(DataAccessException.class)
+            assertThat(thrown).isInstanceOf(RuntimeException.class)
                               .hasMessageContaining("Database connection failed");
 
             then(passwordEncoder).should(times(1))

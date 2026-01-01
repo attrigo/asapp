@@ -36,7 +36,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataAccessException;
 
 import com.bcn.asapp.authentication.application.user.in.command.UpdateUserCommand;
 import com.bcn.asapp.authentication.application.user.out.UserRepository;
@@ -73,19 +72,19 @@ class UpdateUserServiceTests {
     class UpdateUserById {
 
         @Test
-        void ThrowsDataAccessException_FetchUserFails() {
+        void ThrowsRuntimeException_FetchUserFails() {
             // Given
             var command = new UpdateUserCommand(userIdValue, newUsernameValue, newPasswordValue, newRoleValue);
             var userId = UserId.of(userIdValue);
 
-            willThrow(new DataAccessException("Database connection failed") {}).given(userRepository)
-                                                                               .findById(userId);
+            willThrow(new RuntimeException("Database connection failed")).given(userRepository)
+                                                                         .findById(userId);
 
             // When
             var thrown = catchThrowable(() -> updateUserService.updateUserById(command));
 
             // Then
-            assertThat(thrown).isInstanceOf(DataAccessException.class)
+            assertThat(thrown).isInstanceOf(RuntimeException.class)
                               .hasMessageContaining("Database connection failed");
 
             then(userRepository).should(times(1))
@@ -124,7 +123,7 @@ class UpdateUserServiceTests {
         }
 
         @Test
-        void ThrowsDataAccessException_SaveUserFails() {
+        void ThrowsRuntimeException_SaveUserFails() {
             // Given
             var command = new UpdateUserCommand(userIdValue, newUsernameValue, newPasswordValue, newRoleValue);
             var userId = UserId.of(userIdValue);
@@ -134,14 +133,14 @@ class UpdateUserServiceTests {
 
             given(userRepository.findById(userId)).willReturn(Optional.of(currentUser));
             given(passwordService.encode(newRawPassword)).willReturn(newEncodedPassword);
-            willThrow(new DataAccessException("Database connection failed") {}).given(userRepository)
-                                                                               .save(currentUser);
+            willThrow(new RuntimeException("Database connection failed")).given(userRepository)
+                                                                         .save(currentUser);
 
             // When
             var thrown = catchThrowable(() -> updateUserService.updateUserById(command));
 
             // Then
-            assertThat(thrown).isInstanceOf(DataAccessException.class)
+            assertThat(thrown).isInstanceOf(RuntimeException.class)
                               .hasMessageContaining("Database connection failed");
 
             then(userRepository).should(times(1))
