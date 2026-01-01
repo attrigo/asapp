@@ -60,6 +60,100 @@ var response = restClient.get()
                          .body(UserResponse.class);
 ```
 
+### Logging Strategy
+
+**Principle**: Log level indicates importance and detail granularity
+
+**Standard Hierarchy**:
+
+| Level | Purpose | Production | Example |
+|-------|---------|------------|---------|
+| **ERROR** | System failures, unrecoverable errors | ✅ Always | Database connection failed, external API down |
+| **WARN** | Recoverable issues, degraded state | ✅ Always | Invalid credentials, deprecated API used |
+| **INFO** | Important business events | ✅ Usually | User registered, payment processed, service started |
+| **DEBUG** | High-level operation flow (WHAT) | ⚠️ Optional | "Authenticating user X", "Processing order Y" |
+| **TRACE** | Detailed execution steps (HOW) | ❌ Rarely | "Step 1: validate", "Step 2: persist" |
+
+**Layer-Specific Guidelines**:
+
+**Application Services** (orchestration):
+```java
+logger.debug("Authenticating user {}", command.username());    // Operation entry
+logger.trace("Validating user credentials");                   // Step 1
+logger.trace("Generating tokens");                             // Step 2
+logger.trace("Persisting to database");                        // Step 3
+logger.debug("Authentication completed successfully");         // Operation exit
+```
+
+**Infrastructure Adapters** (translation):
+```java
+logger.trace("Translating domain {} to JDBC entity", user);
+logger.warn("Authentication failed: {}", exception.getMessage());  // Recoverable failures
+```
+
+**Domain Layer** (business logic):
+- Generally NO logging (pure business logic)
+- Exception: Complex algorithms where trace helps debugging
+
+**Controllers** (HTTP layer):
+- Let Spring/framework handle request/response logging
+- Only log business-relevant context if needed
+
+**Key Rules**:
+- **debug** = Operation boundaries (entry/exit, major milestones)
+- **trace** = Detailed steps within operations
+- **Never log sensitive data** (passwords, tokens, PII) - use placeholders
+- **Structured logging**: Include context (user ID, operation ID, entity ID)
+- **Exceptions**: Let them propagate, catch and log at boundaries (adapters, controllers)
+
+### Error Logging Location
+
+**Principle**: Log errors **centrally** in `GlobalExceptionHandler`, not in service methods. This follows Spring Boot's `AbstractErrorWebExceptionHandler.logError()` pattern.
+
+**✅ DO - Centralized in GlobalExceptionHandler**:
+```java
+@ExceptionHandler(TokenGenerationException.class)
+protected ResponseEntity<ProblemDetail> handleTokenGenerationException(TokenGenerationException ex) {
+    logger.error("Token generation failed: {}", ex.getMessage(), ex);  // Log here
+
+    var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, ex.getMessage());
+    problemDetail.setTitle("Token Generation Failed");
+
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(problemDetail);
+}
+```
+
+**❌ DON'T - Logging in Service Methods**:
+```java
+// Service method - NO error logging
+private JwtPair generateTokens(UserAuthentication userAuth) {
+    try {
+        return tokenIssuer.issueTokenPair(userAuth);
+    } catch (Exception e) {
+        // ❌ logger.error("Failed to generate tokens", e);  // Don't log here
+        throw new TokenGenerationException("Could not generate tokens for user", e);  // ✅ Just throw
+    }
+}
+```
+
+**Why Centralized?**
+- ✅ **Single Responsibility**: Services focus on business logic; handlers focus on error handling
+- ✅ **Consistent Format**: All errors logged with same structure, correlation IDs, request context
+- ✅ **No Duplication**: Avoids logging same error multiple times as it bubbles up
+- ✅ **Better Observability**: Integration with metrics/tracing at application boundary
+- ✅ **Spring Boot's Default**: Follows framework's design pattern
+
+**Exception Handler Log Levels**:
+- `logger.error()`: Server errors (5xx) - `TokenGenerationException`, `TokenStoreException`, `PersistenceException`, `CompensatingTransactionException`
+- `logger.warn()`: Client errors with business impact (4xx) - `AuthenticationNotFoundException`, `UnexpectedJwtTypeException`
+- `logger.debug()`: Expected flow exceptions - validation errors, business rule violations
+
+**What to Log in Handler**:
+- Exception message (contains business context from service)
+- Full stack trace (third parameter: `ex`)
+- HTTP status being returned
+- Request correlation ID (if available)
+
 ## Details
 
 ### Adding a New Service
