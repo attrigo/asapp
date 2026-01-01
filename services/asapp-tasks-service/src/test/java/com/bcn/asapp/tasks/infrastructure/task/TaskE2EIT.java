@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.tasks.infrastructure.task;
 
-import static com.bcn.asapp.tasks.infrastructure.security.JwtValidator.ACCESS_TOKEN_PREFIX;
+import static com.bcn.asapp.tasks.infrastructure.security.RedisJwtStore.ACCESS_TOKEN_PREFIX;
 import static com.bcn.asapp.tasks.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
 import static com.bcn.asapp.tasks.testutil.TestFactory.TestTaskFactory.defaultTestTask;
 import static com.bcn.asapp.tasks.testutil.TestFactory.TestTaskFactory.testTaskBuilder;
