@@ -32,7 +32,7 @@ import com.bcn.asapp.tasks.domain.task.UserId;
 /**
  * Application service responsible for orchestrating task creation operations.
  * <p>
- * Coordinates the task creation workflow including parameter transformation, domain object creation, and persistence to the repository.
+ * Coordinates the task creation workflow including command transformation, domain object creation, and persistence to the repository.
  * <p>
  * <strong>Orchestration Flow:</strong>
  * <ol>
@@ -52,7 +52,7 @@ public class CreateTaskService implements CreateTaskUseCase {
     /**
      * Constructs a new {@code CreateTaskService} with required dependencies.
      *
-     * @param taskRepository the repository for task persistence operations
+     * @param taskRepository the task repository
      */
     public CreateTaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
@@ -63,7 +63,7 @@ public class CreateTaskService implements CreateTaskUseCase {
      * <p>
      * Orchestrates the complete task creation workflow: parameter transformation, domain object creation, and persistence.
      *
-     * @param command the {@link CreateTaskCommand} containing task data
+     * @param command the {@link CreateTaskCommand} containing task registration data
      * @return the created {@link Task} with a generated persistent ID
      * @throws IllegalArgumentException if any data within the command is invalid (blank title, invalid dates, etc.)
      */

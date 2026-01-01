@@ -68,7 +68,7 @@ class GlobalExceptionHandlerTests {
         @Test
         void Returns401WithGenericMessage_AuthenticationNotFound() {
             // Given
-            var exception = new AuthenticationNotFoundException("Refresh token not found in active sessions");
+            var exception = new AuthenticationNotFoundException("Access token not found in active sessions");
 
             // When
             var response = globalExceptionHandler.handleAuthenticationNotFoundException(exception);
@@ -94,7 +94,7 @@ class GlobalExceptionHandlerTests {
         @Test
         void Returns401WithGenericMessage_UnexpectedJwtType() {
             // Given
-            var exception = new UnexpectedJwtTypeException("Token is not a refresh token");
+            var exception = new UnexpectedJwtTypeException("Token is not a access token");
 
             // When
             var response = globalExceptionHandler.handleUnexpectedJwtTypeException(exception);

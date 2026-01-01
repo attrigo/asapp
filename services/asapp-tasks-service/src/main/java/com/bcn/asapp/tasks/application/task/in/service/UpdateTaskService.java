@@ -57,7 +57,7 @@ public class UpdateTaskService implements UpdateTaskUseCase {
     /**
      * Constructs a new {@code UpdateTaskService} with required dependencies.
      *
-     * @param taskRepository the repository for task persistence operations
+     * @param taskRepository the task repository
      */
     public UpdateTaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
@@ -92,8 +92,8 @@ public class UpdateTaskService implements UpdateTaskUseCase {
     /**
      * Retrieves task from repository by identifier.
      *
-     * @param taskId the task identifier
-     * @return an {@link Optional} containing the task if found
+     * @param taskId the task's unique identifier
+     * @return an {@link Optional} containing the {@link Task} if found, {@link Optional#empty} otherwise
      */
     private Optional<Task> retrieveTask(TaskId taskId) {
         return taskRepository.findById(taskId);
