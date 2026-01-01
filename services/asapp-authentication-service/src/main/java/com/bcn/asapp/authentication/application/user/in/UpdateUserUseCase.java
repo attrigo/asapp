@@ -36,7 +36,7 @@ public interface UpdateUserUseCase {
      *
      * @param command the {@link UpdateUserCommand} containing user update data
      * @return an {@link Optional} containing the updated {@link User} if found, {@link Optional#empty} otherwise
-     * @throws IllegalArgumentException if username, password, or role is invalid
+     * @throws IllegalArgumentException if any data within the command is invalid (blank username, invalid email format, weak password, invalid role, etc.)
      */
     Optional<User> updateUserById(UpdateUserCommand command);
 
