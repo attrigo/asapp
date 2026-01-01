@@ -22,7 +22,7 @@ import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_DELETE_BY_ID_FULL_PAT
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_ALL_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_UPDATE_BY_ID_FULL_PATH;
-import static com.bcn.asapp.users.infrastructure.security.JwtValidator.ACCESS_TOKEN_PREFIX;
+import static com.bcn.asapp.users.infrastructure.security.RedisJwtStore.ACCESS_TOKEN_PREFIX;
 import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
 import static com.bcn.asapp.users.testutil.TestFactory.TestUserFactory.defaultTestUser;
 import static com.bcn.asapp.users.testutil.TestFactory.TestUserFactory.testUserBuilder;

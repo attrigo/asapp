@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.users.infrastructure.config;
 
-import static com.bcn.asapp.users.infrastructure.security.JwtValidator.ACCESS_TOKEN_PREFIX;
+import static com.bcn.asapp.users.infrastructure.security.RedisJwtStore.ACCESS_TOKEN_PREFIX;
 import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
 import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
 import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.testEncodedTokenBuilder;

@@ -22,10 +22,10 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 /**
- * Infrastructure component responsible for validating JWT session validity through Redis existence checks.
+ * Infrastructure component responsible for checking JWT session validity through Redis existence.
  * <p>
- * Verifies that JWTs exist in the active session store (Redis), ensuring they have not been revoked or expired from the session cache. This provides fast O(1)
- * lookup for session validation without retrieving token data.
+ * Provides fast O(1) lookup to check token existence in Redis, enabling quick validation of whether tokens have been revoked or expired from the fast-access
+ * store.
  * <p>
  * <strong>Redis Key Pattern:</strong>
  * <ul>
@@ -36,11 +36,10 @@ import org.springframework.stereotype.Component;
  * @see RedisTemplate
  * @author attrigo
  */
-// TODO: rename to RedisJwtStore?
 @Component
-public class JwtValidator {
+public class RedisJwtStore {
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtValidator.class);
+    private static final Logger logger = LoggerFactory.getLogger(RedisJwtStore.class);
 
     /**
      * Redis key prefix for access tokens.
@@ -52,11 +51,11 @@ public class JwtValidator {
     private final RedisTemplate<String, String> redisTemplate;
 
     /**
-     * Constructs a new {@code JwtValidator} with required dependencies.
+     * Constructs a new {@code RedisJwtStore} with required dependencies.
      *
      * @param redisTemplate the Spring Data Redis template for executing Redis operations
      */
-    public JwtValidator(RedisTemplate<String, String> redisTemplate) {
+    public RedisJwtStore(RedisTemplate<String, String> redisTemplate) {
         this.redisTemplate = redisTemplate;
     }
 
@@ -74,7 +73,7 @@ public class JwtValidator {
      * @return {@code true} if the access token exists in Redis, {@code false} otherwise
      */
     public Boolean accessTokenExists(String accessToken) {
-        logger.trace("[JWT_VALIDATOR] Checking if access token exists in Redis");
+        logger.trace("[JWT_STORE] Checking if access token exists in Redis");
         var key = ACCESS_TOKEN_PREFIX + accessToken;
         return redisTemplate.hasKey(key);
     }
