@@ -29,7 +29,9 @@ import com.bcn.asapp.users.domain.user.User;
 import com.bcn.asapp.users.domain.user.UserId;
 
 /**
- * Application service responsible for orchestrate user retrieval operations.
+ * Application service responsible for orchestrating user retrieval operations.
+ * <p>
+ * Coordinates user query operations including single user retrieval and bulk user listing.
  *
  * @since 0.2.0
  * @author attrigo
@@ -44,7 +46,7 @@ public class ReadUserService implements ReadUserUseCase {
     /**
      * Constructs a new {@code ReadUserService} with required dependencies.
      *
-     * @param userRepository the user repository for accessing user persistence
+     * @param userRepository the user repository
      * @param tasksGateway   the task gateway for accessing task information from Tasks Service
      */
     public ReadUserService(UserRepository userRepository, TasksGateway tasksGateway) {
@@ -55,14 +57,17 @@ public class ReadUserService implements ReadUserUseCase {
     /**
      * Retrieves a user by their unique identifier, enriched with task references.
      * <p>
-     * This method orchestrates data retrieval from multiple sources:
+     * Orchestrates data retrieval from multiple sources: retrieves user from repository and enriches with task IDs from Tasks Service.
+     * <p>
+     * <strong>Orchestration Flow:</strong>
      * <ol>
-     * <li>Fetches the user from the repository</li>
-     * <li>Fetches associated task IDs from the task gateway</li>
-     * <li>Combines the results into a {@link UserWithTasksResult}</li>
+     * <li>Retrieves user from repository by ID</li>
+     * <li>Returns empty if user not found</li>
+     * <li>Enriches user with task IDs from Tasks Service via gateway</li>
+     * <li>Wraps result in {@link UserWithTasksResult}</li>
      * </ol>
      * <p>
-     * If task retrieval fails or the Task Service is unavailable, the result will contain the user with an empty task list, allowing graceful degradation.
+     * If task retrieval fails or the Tasks Service is unavailable, the result will contain the user with an empty task list, allowing graceful degradation.
      *
      * @param id the user's unique identifier
      * @return an {@link Optional} containing the {@link UserWithTasksResult} if the user is found, {@link Optional#empty} otherwise
@@ -72,11 +77,39 @@ public class ReadUserService implements ReadUserUseCase {
     public Optional<UserWithTasksResult> getUserById(UUID id) {
         var userId = UserId.of(id);
 
-        return this.userRepository.findById(userId)
-                                  .map(user -> {
-                                      var taskIds = tasksGateway.getTaskIdsByUserId(user.getId());
-                                      return new UserWithTasksResult(user, taskIds);
-                                  });
+        var optionalUser = retrieveUser(userId);
+        if (optionalUser.isEmpty()) {
+            return Optional.empty();
+        }
+
+        var user = optionalUser.get();
+        var result = enrichUserWithTasks(user);
+        return Optional.of(result);
+    }
+
+    /**
+     * Retrieves user from repository by identifier.
+     *
+     * @param userId the user identifier
+     * @return an {@link Optional} containing the user if found
+     */
+    private Optional<User> retrieveUser(UserId userId) {
+        return userRepository.findById(userId);
+    }
+
+    /**
+     * Enriches user with task identifiers from Tasks Service.
+     * <p>
+     * Queries the Tasks Service via gateway to retrieve associated task IDs and combines with user data.
+     * <p>
+     * If task retrieval fails, returns user with empty task list (graceful degradation).
+     *
+     * @param user the user to enrich
+     * @return a {@link UserWithTasksResult} containing user and associated task IDs
+     */
+    private UserWithTasksResult enrichUserWithTasks(User user) {
+        var taskIds = tasksGateway.getTaskIdsByUserId(user.getId());
+        return new UserWithTasksResult(user, taskIds);
     }
 
     /**

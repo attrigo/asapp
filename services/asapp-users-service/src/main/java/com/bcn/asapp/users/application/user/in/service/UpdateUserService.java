@@ -18,6 +18,8 @@ package com.bcn.asapp.users.application.user.in.service;
 
 import java.util.Optional;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.bcn.asapp.users.application.ApplicationService;
 import com.bcn.asapp.users.application.user.in.UpdateUserUseCase;
 import com.bcn.asapp.users.application.user.in.command.UpdateUserCommand;
@@ -30,7 +32,18 @@ import com.bcn.asapp.users.domain.user.User;
 import com.bcn.asapp.users.domain.user.UserId;
 
 /**
- * Application service responsible for orchestrate user updates operations.
+ * Application service responsible for orchestrating user update operations.
+ * <p>
+ * Coordinates the user update workflow including user retrieval, parameter transformation, domain object update, and persistence.
+ * <p>
+ * <strong>Orchestration Flow:</strong>
+ * <ol>
+ * <li>Retrieves existing user from repository by ID</li>
+ * <li>Returns empty if user not found</li>
+ * <li>Transforms command parameters into domain value objects</li>
+ * <li>Updates user domain object via {@link User#update}</li>
+ * <li>Persists updated user to repository</li>
+ * </ol>
  *
  * @since 0.2.0
  * @author attrigo
@@ -52,32 +65,65 @@ public class UpdateUserService implements UpdateUserUseCase {
     /**
      * Updates an existing user based on the provided command.
      * <p>
-     * Retrieves the user by ID, validates and transforms command data into domain objects, updates the user, and persists the changes.
+     * Orchestrates the complete user update workflow: retrieval, validation, transformation, domain update, and persistence.
      *
      * @param command the {@link UpdateUserCommand} containing user update data
-     * @return an {@link Optional} containing the updated {@link User} if found, {@link Optional#empty} otherwise
-     * @throws IllegalArgumentException if any data within the command is invalid
+     * @return an {@link Optional} containing the updated {@link User} if found, {@link Optional#empty()} if user does not exist
+     * @throws IllegalArgumentException if any data within the command is invalid (blank names, invalid email format, invalid user ID, etc.)
      */
     @Override
+    @Transactional
     public Optional<User> updateUserById(UpdateUserCommand command) {
         var userId = UserId.of(command.userId());
 
-        var optionalUser = userRepository.findById(userId);
+        var optionalUser = retrieveUser(userId);
         if (optionalUser.isEmpty()) {
             return Optional.empty();
         }
-        var currentUser = optionalUser.get();
 
+        var user = optionalUser.get();
+        updateUserDomain(user, command);
+
+        var updatedUser = persistUser(user);
+        return Optional.of(updatedUser);
+    }
+
+    /**
+     * Retrieves user from repository by identifier.
+     *
+     * @param userId the user identifier
+     * @return an {@link Optional} containing the user if found
+     */
+    private Optional<User> retrieveUser(UserId userId) {
+        return userRepository.findById(userId);
+    }
+
+    /**
+     * Updates user domain object with new values from command.
+     * <p>
+     * Transforms command parameters into value objects and delegates to domain update method.
+     *
+     * @param user    the user domain object to update
+     * @param command the command containing new values
+     * @throws IllegalArgumentException if any value object validation fails
+     */
+    private void updateUserDomain(User user, UpdateUserCommand command) {
         var newFirstName = FirstName.of(command.firstName());
         var newLastName = LastName.of(command.lastName());
         var newEmail = Email.of(command.email());
         var newPhoneNumber = PhoneNumber.of(command.phoneNumber());
 
-        currentUser.update(newFirstName, newLastName, newEmail, newPhoneNumber);
+        user.update(newFirstName, newLastName, newEmail, newPhoneNumber);
+    }
 
-        var userUpdated = userRepository.save(currentUser);
-
-        return Optional.of(userUpdated);
+    /**
+     * Persists updated user to repository.
+     *
+     * @param user the user domain object to persist
+     * @return the persisted {@link User}
+     */
+    private User persistUser(User user) {
+        return userRepository.save(user);
     }
 
 }

@@ -77,22 +77,26 @@ public interface UserRestAPI {
      * Response codes:
      * <ul>
      * <li>200-OK: User found (with or without tasks).</li>
-     * <li>400-BAD_REQUEST: Invalid user id format.</li>
+     * <li>400-BAD_REQUEST: Invalid user identifier format.</li>
      * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
      * <li>404-NOT_FOUND: User not found.</li>
+     * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during retrieval.</li>
      * </ul>
      *
      * @param id the user's unique identifier
      * @return a {@link ResponseEntity} wrapping the {@link GetUserByIdResponse} if found, otherwise wrapping empty
      */
     @GetMapping(value = USERS_GET_BY_ID_PATH, produces = "application/json")
-    @Operation(summary = "Gets a user by their unique identifier with task references", description = "Retrieves detailed information about a specific user by their unique identifier, including a list of associated task IDs. This endpoint requires authentication.")
+    @Operation(summary = "Gets a user by their unique identifier with task references", description = "Retrieves detailed information about a specific user by their unique identifier, including a list of associated task identifiers. This endpoint requires authentication.")
     @ApiResponse(responseCode = "200", description = "User found (with or without tasks)", content = {
             @Content(schema = @Schema(implementation = GetUserByIdResponse.class)) })
     @ApiResponse(responseCode = "400", description = "Invalid user identifier format", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
+    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "404", description = "User not found", content = { @Content })
+    @ApiResponse(responseCode = "500", description = "An internal error occurred during retrieval", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     ResponseEntity<GetUserByIdResponse> getUserById(@PathVariable("id") @Parameter(description = "Identifier of the user to get") UUID id);
 
     /**
@@ -100,8 +104,9 @@ public interface UserRestAPI {
      * <p>
      * Response codes:
      * <ul>
-     * <li>200-OK: Users found.</li>
+     * <li>200-OK: Users retrieved successfully.</li>
      * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
+     * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during retrieval.</li>
      * </ul>
      *
      * @return a {@link List} of {@link GetAllUsersResponse} containing all users found, or an empty list if no users exist
@@ -109,8 +114,12 @@ public interface UserRestAPI {
     @GetMapping(value = USERS_GET_ALL_PATH, produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Gets all users", description = "Retrieves a list of all registered users in the system. This endpoint requires authentication. If no users exist, an empty array is returned.")
-    @ApiResponse(responseCode = "200", description = "Users found", content = { @Content(schema = @Schema(implementation = GetAllUsersResponse.class)) })
-    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
+    @ApiResponse(responseCode = "200", description = "Users retrieved successfully", content = {
+            @Content(schema = @Schema(implementation = GetAllUsersResponse.class)) })
+    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "500", description = "An internal error occurred during retrieval", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     List<GetAllUsersResponse> getAllUsers();
 
     /**
@@ -119,8 +128,9 @@ public interface UserRestAPI {
      * Response codes:
      * <ul>
      * <li>201-CREATED: User created successfully.</li>
-     * <li>400-BAD_REQUEST: Request body validation failed.</li>
+     * <li>400-BAD_REQUEST: The request body is malformed or contains invalid data.</li>
      * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
+     * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during user creation.</li>
      * </ul>
      *
      * @param request the {@link CreateUserRequest} containing user data
@@ -132,9 +142,12 @@ public interface UserRestAPI {
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User creation request containing all necessary user information", required = true, content = @Content(schema = @Schema(implementation = CreateUserRequest.class)))
     @ApiResponse(responseCode = "201", description = "User created successfully", content = {
             @Content(schema = @Schema(implementation = CreateUserResponse.class)) })
-    @ApiResponse(responseCode = "400", description = "Request body validation failed", content = {
+    @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
+    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "500", description = "An internal error occurred during user creation", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     CreateUserResponse createUser(@RequestBody @Valid CreateUserRequest request);
 
     /**
@@ -143,9 +156,10 @@ public interface UserRestAPI {
      * Response codes:
      * <ul>
      * <li>200-OK: User updated successfully.</li>
-     * <li>400-BAD_REQUEST: Invalid request id format or request body validation failed.</li>
+     * <li>400-BAD_REQUEST: The user identifier format is invalid or the request body is malformed or contains invalid data.</li>
      * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
      * <li>404-NOT_FOUND: User not found.</li>
+     * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during user update.</li>
      * </ul>
      *
      * @param id      the user's unique identifier
@@ -157,11 +171,14 @@ public interface UserRestAPI {
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User update request containing the user information to be modified", required = true, content = @Content(schema = @Schema(implementation = UpdateUserRequest.class)))
     @ApiResponse(responseCode = "200", description = "User updated successfully", content = {
             @Content(schema = @Schema(implementation = UpdateUserResponse.class)) })
-    @ApiResponse(responseCode = "400", description = "Invalid user identifier format or request body validation failed.", content = {
+    @ApiResponse(responseCode = "400", description = "The user identifier format is invalid or the request body is malformed or contains invalid data", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
+    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "404", description = "User not found", content = { @Content })
-    ResponseEntity<UpdateUserResponse> updateUserById(@PathVariable("id") @Parameter(description = "Identifier of the request to update") UUID id,
+    @ApiResponse(responseCode = "500", description = "An internal error occurred during user update", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    ResponseEntity<UpdateUserResponse> updateUserById(@PathVariable("id") @Parameter(description = "Identifier of the user to update") UUID id,
             @RequestBody @Valid UpdateUserRequest request);
 
     /**
@@ -170,9 +187,10 @@ public interface UserRestAPI {
      * Response codes:
      * <ul>
      * <li>204-NO_CONTENT: User deleted successfully.</li>
-     * <li>400-BAD_REQUEST: Invalid user id format.</li>
+     * <li>400-BAD_REQUEST: Invalid user identifier format.</li>
      * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
      * <li>404-NOT_FOUND: User not found.</li>
+     * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during user deletion.</li>
      * </ul>
      *
      * @param id the user's unique identifier
@@ -183,8 +201,11 @@ public interface UserRestAPI {
     @ApiResponse(responseCode = "204", description = "User deleted successfully", content = { @Content })
     @ApiResponse(responseCode = "400", description = "Invalid user identifier format", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = { @Content })
+    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "404", description = "User not found", content = { @Content })
+    @ApiResponse(responseCode = "500", description = "An internal error occurred during user deletion", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     ResponseEntity<Void> deleteUserById(@PathVariable("id") @Parameter(description = "Identifier of the user to delete") UUID id);
 
 }
