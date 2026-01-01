@@ -91,8 +91,8 @@ public class UpdateUserService implements UpdateUserUseCase {
     /**
      * Retrieves user from repository by identifier.
      *
-     * @param userId the user identifier
-     * @return an {@link Optional} containing the user if found
+     * @param userId the user's unique identifier
+     * @return an {@link Optional} containing the {@link User} if found, {@link Optional#empty} otherwise
      */
     private Optional<User> retrieveUser(UserId userId) {
         return userRepository.findById(userId);

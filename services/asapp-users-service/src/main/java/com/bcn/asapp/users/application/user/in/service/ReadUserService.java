@@ -70,7 +70,7 @@ public class ReadUserService implements ReadUserUseCase {
      * If task retrieval fails or the Tasks Service is unavailable, the result will contain the user with an empty task list, allowing graceful degradation.
      *
      * @param id the user's unique identifier
-     * @return an {@link Optional} containing the {@link UserWithTasksResult} if the user is found, {@link Optional#empty} otherwise
+     * @return an {@link Optional} containing the {@link UserWithTasksResult} if found, {@link Optional#empty} otherwise
      * @throws IllegalArgumentException if the id is invalid
      */
     @Override
@@ -91,7 +91,7 @@ public class ReadUserService implements ReadUserUseCase {
      * Retrieves user from repository by identifier.
      *
      * @param userId the user identifier
-     * @return an {@link Optional} containing the user if found
+     * @return an {@link Optional} containing the {@link User} if found, {@link Optional#empty} otherwise
      */
     private Optional<User> retrieveUser(UserId userId) {
         return userRepository.findById(userId);

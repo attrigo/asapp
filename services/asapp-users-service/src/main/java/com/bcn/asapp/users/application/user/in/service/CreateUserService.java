@@ -31,7 +31,7 @@ import com.bcn.asapp.users.domain.user.User;
 /**
  * Application service responsible for orchestrating user creation operations.
  * <p>
- * Coordinates the user creation workflow including parameter transformation, domain object creation, and persistence to the repository.
+ * Coordinates the user creation workflow including command transformation, domain object creation, and persistence to the repository.
  * <p>
  * <strong>Orchestration Flow:</strong>
  * <ol>
