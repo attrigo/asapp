@@ -207,13 +207,13 @@ class TaskControllerIT extends WebMvcTestContext {
                                                   .containsEntry("instance", "/api/tasks");
                        assertThatJson(jsonContent).inPath("detail")
                                                   .asString()
-                                                  .contains("The user ID must not be null")
+                                                  .contains("The user ID must not be empty")
                                                   .contains("The title must not be empty");
                    //@formatter:off
                        assertThatJson(jsonContent).inPath("errors")
                                                   .isArray()
                                                   .containsOnly(
-                                                          Map.of("entity", "createTaskRequest", "field", "userId", "message", "The user ID must not be null"),
+                                                          Map.of("entity", "createTaskRequest", "field", "userId", "message", "The user ID must not be empty"),
                                                           Map.of("entity", "createTaskRequest", "field", "title", "message", "The title must not be empty")
                                                   );
                        //@formatter:on
@@ -246,13 +246,13 @@ class TaskControllerIT extends WebMvcTestContext {
                                                   .containsEntry("instance", "/api/tasks");
                        assertThatJson(jsonContent).inPath("detail")
                                                   .asString()
-                                                  .contains("The user ID must not be null")
+                                                  .contains("The user ID must not be empty")
                                                   .contains("The title must not be empty");
                    //@formatter:off
                        assertThatJson(jsonContent).inPath("errors")
                                                   .isArray()
                                                   .containsOnly(
-                                                          Map.of("entity", "createTaskRequest", "field", "userId", "message", "The user ID must not be null"),
+                                                          Map.of("entity", "createTaskRequest", "field", "userId", "message", "The user ID must not be empty"),
                                                           Map.of("entity", "createTaskRequest", "field", "title", "message", "The title must not be empty")
                                                   );
                        //@formatter:on
@@ -403,13 +403,13 @@ class TaskControllerIT extends WebMvcTestContext {
                                                   .containsEntry("instance", "/api/tasks/" + taskIdPath);
                        assertThatJson(jsonContent).inPath("detail")
                                                   .asString()
-                                                  .contains("The user ID must not be null")
+                                                  .contains("The user ID must not be empty")
                                                   .contains("The title must not be empty");
                    //@formatter:off
                        assertThatJson(jsonContent).inPath("errors")
                                                   .isArray()
                                                   .containsOnly(
-                                                          Map.of("entity", "updateTaskRequest", "field", "userId", "message", "The user ID must not be null"),
+                                                          Map.of("entity", "updateTaskRequest", "field", "userId", "message", "The user ID must not be empty"),
                                                           Map.of("entity", "updateTaskRequest", "field", "title", "message", "The title must not be empty")
                                                   );
                        //@formatter:on
@@ -443,13 +443,13 @@ class TaskControllerIT extends WebMvcTestContext {
                                                   .containsEntry("instance", "/api/tasks/" + taskIdPath);
                        assertThatJson(jsonContent).inPath("detail")
                                                   .asString()
-                                                  .contains("The user ID must not be null")
+                                                  .contains("The user ID must not be empty")
                                                   .contains("The title must not be empty");
                    //@formatter:off
                        assertThatJson(jsonContent).inPath("errors")
                                                   .isArray()
                                                   .containsOnly(
-                                                          Map.of("entity", "updateTaskRequest", "field", "userId", "message", "The user ID must not be null"),
+                                                          Map.of("entity", "updateTaskRequest", "field", "userId", "message", "The user ID must not be empty"),
                                                           Map.of("entity", "updateTaskRequest", "field", "title", "message", "The title must not be empty")
                                                   );
                        //@formatter:on

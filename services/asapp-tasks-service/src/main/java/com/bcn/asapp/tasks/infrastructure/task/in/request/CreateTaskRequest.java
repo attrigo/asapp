@@ -27,7 +27,7 @@ import jakarta.validation.constraints.NotBlank;
  * <p>
  * Contains data validation including task ID, title, description, start date and end date.
  *
- * @param userId      the task's user unique identifier; must not be {@code null}
+ * @param userId      the task's user unique identifier; must not be blank
  * @param title       the task's title; must not be blank
  * @param description the task's description
  * @param startDate   the task's start date
@@ -36,7 +36,7 @@ import jakarta.validation.constraints.NotBlank;
  * @author attrigo
  */
 public record CreateTaskRequest(
-        @JsonProperty("user_id") @NotBlank(message = "The user ID must not be null") String userId,
+        @JsonProperty("user_id") @NotBlank(message = "The user ID must not be empty") String userId,
         @NotBlank(message = "The title must not be empty") String title,
         String description,
         @JsonProperty("start_date") Instant startDate,
