@@ -23,7 +23,7 @@ import java.util.UUID;
  * <p>
  * Encapsulates the data required to modify a user.
  *
- * @param userId      the unique identifier of the user to update
+ * @param userId      the user's unique identifier
  * @param firstName   the user's first name
  * @param lastName    the user's last name
  * @param email       the user's email

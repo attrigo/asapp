@@ -71,9 +71,9 @@ public class DeleteUserService implements DeleteUserUseCase {
     }
 
     /**
-     * Deletes user from repository by identifier.
+     * Deletes the user from the repository by identifier.
      *
-     * @param userId the user identifier
+     * @param userId the user's unique identifier
      * @return {@code true} if deleted, {@code false} if not found
      */
     private Boolean deleteUser(UserId userId) {

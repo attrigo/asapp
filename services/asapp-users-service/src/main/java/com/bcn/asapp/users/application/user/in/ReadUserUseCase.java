@@ -42,7 +42,7 @@ public interface ReadUserUseCase {
      * If task retrieval fails or the Task Service is unavailable, the result will contain the user with an empty task list, allowing graceful degradation.
      *
      * @param id the user's unique identifier
-     * @return an {@link Optional} containing the {@link UserWithTasksResult} if the user is found, {@link Optional#empty} otherwise
+     * @return an {@link Optional} containing the {@link UserWithTasksResult} if found, {@link Optional#empty} otherwise
      * @throws IllegalArgumentException if the id is invalid
      */
     Optional<UserWithTasksResult> getUserById(UUID id);
