@@ -31,7 +31,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataAccessException;
 
 import com.bcn.asapp.users.application.user.out.UserRepository;
 import com.bcn.asapp.users.domain.user.UserId;
@@ -51,18 +50,18 @@ class DeleteUserServiceTests {
     class DeleteUserById {
 
         @Test
-        void ThrowsDataAccessException_DeleteUserFails() {
+        void ThrowsRuntimeException_DeleteUserFails() {
             // Given
             var userId = UserId.of(userIdValue);
 
-            willThrow(new DataAccessException("Database connection failed") {}).given(userRepository)
-                                                                               .deleteById(userId);
+            willThrow(new RuntimeException("Database connection failed")).given(userRepository)
+                                                                         .deleteById(userId);
 
             // When
             var thrown = catchThrowable(() -> deleteUserService.deleteUserById(userIdValue));
 
             // Then
-            assertThat(thrown).isInstanceOf(DataAccessException.class)
+            assertThat(thrown).isInstanceOf(RuntimeException.class)
                               .hasMessageContaining("Database connection failed");
 
             then(userRepository).should(times(1))
