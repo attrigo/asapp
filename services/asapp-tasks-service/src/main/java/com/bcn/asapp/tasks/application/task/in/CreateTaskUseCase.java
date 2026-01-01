@@ -32,7 +32,7 @@ public interface CreateTaskUseCase {
     /**
      * Creates a new task based on the provided command.
      *
-     * @param command the {@link CreateTaskCommand} containing task data
+     * @param command the {@link CreateTaskCommand} containing task registration data
      * @return the created {@link Task} with a persistent ID
      * @throws IllegalArgumentException if any data within the command is invalid
      */

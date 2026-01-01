@@ -47,7 +47,7 @@ public class DeleteTaskService implements DeleteTaskUseCase {
     /**
      * Constructs a new {@code DeleteTaskService} with required dependencies.
      *
-     * @param taskRepository the repository for task persistence operations
+     * @param taskRepository the task repository
      */
     public DeleteTaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
@@ -71,9 +71,9 @@ public class DeleteTaskService implements DeleteTaskUseCase {
     }
 
     /**
-     * Deletes task from repository by identifier.
+     * Deletes the task from the repository by identifier.
      *
-     * @param taskId the task identifier
+     * @param taskId the task's unique identifier
      * @return {@code true} if deleted, {@code false} if not found
      */
     private Boolean deleteTask(TaskId taskId) {
