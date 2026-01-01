@@ -35,7 +35,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataAccessException;
 
 import com.bcn.asapp.authentication.application.user.out.UserRepository;
 import com.bcn.asapp.authentication.domain.user.User;
@@ -59,18 +58,18 @@ class ReadUserServiceTests {
     class GetUserById {
 
         @Test
-        void ThrowsDataAccessException_FetchUserFails() {
+        void ThrowsRuntimeException_FetchUserFails() {
             // Given
             var userId = UserId.of(userIdValue);
 
-            willThrow(new DataAccessException("Database connection failed") {}).given(userRepository)
-                                                                               .findById(userId);
+            willThrow(new RuntimeException("Database connection failed")).given(userRepository)
+                                                                         .findById(userId);
 
             // When
             var thrown = catchThrowable(() -> readUserService.getUserById(userIdValue));
 
             // Then
-            assertThat(thrown).isInstanceOf(DataAccessException.class)
+            assertThat(thrown).isInstanceOf(RuntimeException.class)
                               .hasMessageContaining("Database connection failed");
 
             then(userRepository).should(times(1))
@@ -126,16 +125,16 @@ class ReadUserServiceTests {
     class GetAllUsers {
 
         @Test
-        void ThrowsDataAccessException_RepositoryFetchFails() {
+        void ThrowsRuntimeException_RepositoryFetchFails() {
             // Given
-            willThrow(new DataAccessException("Database connection failed") {}).given(userRepository)
-                                                                               .findAll();
+            willThrow(new RuntimeException("Database connection failed")).given(userRepository)
+                                                                         .findAll();
 
             // When
             var thrown = catchThrowable(() -> readUserService.getAllUsers());
 
             // Then
-            assertThat(thrown).isInstanceOf(DataAccessException.class)
+            assertThat(thrown).isInstanceOf(RuntimeException.class)
                               .hasMessageContaining("Database connection failed");
 
             then(userRepository).should(times(1))
