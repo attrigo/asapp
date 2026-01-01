@@ -50,6 +50,8 @@ public class ReadUserService implements ReadUserUseCase {
 
     /**
      * Retrieves a user by their unique identifier.
+     * <p>
+     * Orchestrates the user retrieval workflow: identifier transformation and repository query.
      *
      * @param id the user's unique identifier
      * @return an {@link Optional} containing the {@link User} if found, {@link Optional#empty} otherwise

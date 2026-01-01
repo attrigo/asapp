@@ -34,7 +34,7 @@ public interface CreateUserUseCase {
      *
      * @param command the {@link CreateUserCommand} containing user registration data
      * @return the created {@link User} with a persistent ID
-     * @throws IllegalArgumentException if username, password, or role is invalid
+     * @throws IllegalArgumentException if any data within the command is invalid (blank username, invalid email format, weak password, invalid role, etc.)
      */
     User createUser(CreateUserCommand command);
 

@@ -33,14 +33,15 @@ import com.bcn.asapp.authentication.domain.user.Username;
 /**
  * Application service responsible for orchestrating user update operations.
  * <p>
- * Coordinates the complete user update workflow including retrieval, password encoding, user update, and persistence.
+ * Coordinates the user update workflow including retrieval, password encoding, user update, and persistence.
  * <p>
  * <strong>Orchestration Flow:</strong>
  * <ol>
- * <li>Retrieves the user from the repository by ID</li>
+ * <li>Retrieves existing user from repository by ID</li>
+ * <li>Returns empty if user not found</li>
  * <li>Encodes raw password using {@link PasswordService}</li>
- * <li>Updates the user with new credentials</li>
- * <li>Persists the updated user to the repository</li>
+ * <li>Updates user with new credentials</li>
+ * <li>Persists updated user to repository</li>
  * </ol>
  *
  * @since 0.2.0
@@ -70,8 +71,8 @@ public class UpdateUserService implements UpdateUserUseCase {
      * Orchestrates the complete user update workflow: retrieval, password encoding, user update, and persistence.
      *
      * @param command the {@link UpdateUserCommand} containing user update data
-     * @return an {@link Optional} containing the updated {@link User} if found, {@link Optional#empty} otherwise
-     * @throws IllegalArgumentException if any data within the command is invalid
+     * @return an {@link Optional} containing the updated {@link User} if found, {@link Optional#empty} if user does not exist
+     * @throws IllegalArgumentException if any data within the command is invalid (blank username, invalid email format, weak password, invalid role, etc.)
      */
     @Override
     public Optional<User> updateUserById(UpdateUserCommand command) {
@@ -96,10 +97,10 @@ public class UpdateUserService implements UpdateUserUseCase {
     }
 
     /**
-     * Retrieves user from repository by ID.
+     * Retrieves user from repository by identifier.
      *
      * @param userId the user's unique identifier
-     * @return Optional containing the user if found
+     * @return an {@link Optional} containing the {@link User} if found, {@link Optional#empty} otherwise
      */
     private Optional<User> retrieveUser(UserId userId) {
         return userRepository.findById(userId);
@@ -116,22 +117,25 @@ public class UpdateUserService implements UpdateUserUseCase {
     }
 
     /**
-     * Updates user with new data.
+     * Updates user domain object with new values.
+     * <p>
+     * Delegates to the domain update method to modify user credentials and role.
      *
-     * @param user            the user to update
+     * @param user            the user domain object to update
      * @param username        the new username
      * @param encodedPassword the new encoded password
      * @param role            the new role
+     * @throws IllegalArgumentException if any value object validation fails
      */
     private void updateUserData(User user, Username username, EncodedPassword encodedPassword, Role role) {
         user.update(username, encodedPassword, role);
     }
 
     /**
-     * Persists user to repository.
+     * Persists updated user to repository.
      *
-     * @param user the user to persist
-     * @return the persisted user
+     * @param user the user domain object to persist
+     * @return the persisted {@link User}
      */
     private User persistUser(User user) {
         return userRepository.save(user);

@@ -35,7 +35,7 @@ import com.bcn.asapp.authentication.domain.user.UserId;
 /**
  * Application service responsible for orchestrating user deletion operations.
  * <p>
- * Coordinates the complete user deletion workflow including token revocation and removal from both fast-access store and persistent storage.
+ * Coordinates the user deletion workflow including token revocation and removal from both fast-access store and persistent storage.
  * <p>
  * <strong>Orchestration Flow:</strong>
  * <ol>
@@ -73,9 +73,9 @@ public class DeleteUserService implements DeleteUserUseCase {
     }
 
     /**
-     * Deletes an existing user by their unique identifier.
+     * Deletes an existing user by its unique identifier.
      * <p>
-     * Orchestrates the complete user deletion workflow: token revocation and removal from both storage systems.
+     * Orchestrates the user deletion workflow: token revocation and removal from both storage systems.
      * <p>
      * First deletes from fast-access store, then deletes from repository. If repository deletion fails, all tokens are restored to fast-access store via
      * compensating transaction.
@@ -108,7 +108,7 @@ public class DeleteUserService implements DeleteUserUseCase {
      * Retrieves all JWT pairs for the user from their authentications.
      *
      * @param userId the user's unique identifier
-     * @return the list of JWT pairs for the user
+     * @return the list of {@link JwtPair} for the user
      */
     private List<JwtPair> retrieveJwtPairs(UserId userId) {
         return jwtAuthenticationRepository.findAllByUserId(userId)
@@ -120,7 +120,7 @@ public class DeleteUserService implements DeleteUserUseCase {
     /**
      * Deactivates all token pairs by removing them from the fast-access store.
      *
-     * @param jwtPairs the JWT pairs to deactivate
+     * @param jwtPairs the {@link JwtPair} to deactivate
      */
     private void deactivateAllTokens(List<JwtPair> jwtPairs) {
         jwtPairs.forEach(jwtStore::delete);
@@ -136,10 +136,10 @@ public class DeleteUserService implements DeleteUserUseCase {
     }
 
     /**
-     * Deletes the user from the repository.
+     * Deletes the user from the repository by identifier.
      *
      * @param userId the user's unique identifier
-     * @return {@code true} if the user was deleted, {@code false} if not found
+     * @return {@code true} if deleted, {@code false} if not found
      */
     private Boolean deleteUser(UserId userId) {
         return userRepository.deleteById(userId);
@@ -148,7 +148,7 @@ public class DeleteUserService implements DeleteUserUseCase {
     /**
      * Compensates for repository deletion failure by restoring all tokens to fast-access store.
      *
-     * @param jwtPairs the JWT pairs to restore
+     * @param jwtPairs the {@link JwtPair} to restore
      * @throws CompensatingTransactionException if compensation fails
      */
     private void compensateTokenDeactivation(List<JwtPair> jwtPairs) {

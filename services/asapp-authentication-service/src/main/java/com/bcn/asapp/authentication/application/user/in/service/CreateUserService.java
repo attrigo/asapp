@@ -30,13 +30,13 @@ import com.bcn.asapp.authentication.domain.user.Username;
 /**
  * Application service responsible for orchestrating user creation operations.
  * <p>
- * Coordinates the complete user creation workflow including command transformation, password encoding, user instantiation, and persistence.
+ * Coordinates the user creation workflow including command transformation, password encoding, user instantiation, and persistence.
  * <p>
  * <strong>Orchestration Flow:</strong>
  * <ol>
- * <li>Encodes raw password using {@link PasswordService}</li>
- * <li>Creates an inactive user with provided credentials</li>
- * <li>Persists the user to the repository</li>
+ * <li>Encodes raw password using {@link PasswordService#encode}</li>
+ * <li>Creates an inactive user with provided credentials via {@link User#inactiveUser}</li>
+ * <li>Persists user to repository via {@link UserRepository#save}</li>
  * </ol>
  *
  * @since 0.2.0
@@ -50,7 +50,7 @@ public class CreateUserService implements CreateUserUseCase {
     private final UserRepository userRepository;
 
     /**
-     * Constructs a new {@code CreateUserService} with required dependencies.
+     * Constructs a new {@code CreateUserService} with required dependencies to the repository.
      *
      * @param passwordEncoder the password encoding service
      * @param userRepository  the user repository
@@ -66,8 +66,8 @@ public class CreateUserService implements CreateUserUseCase {
      * Orchestrates the complete user creation workflow: password encoding, user creation, and persistence.
      *
      * @param command the {@link CreateUserCommand} containing user registration data
-     * @return the created {@link User} with a persistent ID
-     * @throws IllegalArgumentException if any data within the command is invalid
+     * @return the created {@link User} with a generated persistent ID
+     * @throws IllegalArgumentException if any data within the command is invalid (blank username, invalid email format, weak password, invalid role, etc.)
      */
     @Override
     public User createUser(CreateUserCommand command) {
@@ -85,7 +85,7 @@ public class CreateUserService implements CreateUserUseCase {
      * Encodes raw password using password service.
      *
      * @param rawPassword the raw password
-     * @return encoded password
+     * @return the {@link EncodedPassword}
      */
     private EncodedPassword encodePassword(RawPassword rawPassword) {
         return passwordEncoder.encode(rawPassword);
@@ -97,17 +97,17 @@ public class CreateUserService implements CreateUserUseCase {
      * @param username        the username
      * @param encodedPassword the encoded password
      * @param role            the user role
-     * @return the inactive user
+     * @return the inactive {@link User}
      */
     private User createInactiveUser(Username username, EncodedPassword encodedPassword, Role role) {
         return User.inactiveUser(username, encodedPassword, role);
     }
 
     /**
-     * Persists user to repository.
+     * Persists user to the repository.
      *
-     * @param user the user to persist
-     * @return the persisted user
+     * @param user the user domain object to persist
+     * @return the persisted {@link User} with generated ID
      */
     private User persistUser(User user) {
         return userRepository.save(user);
