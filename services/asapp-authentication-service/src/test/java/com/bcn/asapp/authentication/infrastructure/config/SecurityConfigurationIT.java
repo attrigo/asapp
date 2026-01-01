@@ -23,6 +23,7 @@ import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedToken
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -234,9 +235,13 @@ class SecurityConfigurationIT {
 
         @BeforeEach
         void beforeEach() {
-            redisTemplate.delete(ACCESS_TOKEN_PREFIX + accessToken);
             redisTemplate.opsForValue()
                          .set(ACCESS_TOKEN_PREFIX + accessToken, "");
+        }
+
+        @AfterEach
+        void afterEach() {
+            redisTemplate.delete(ACCESS_TOKEN_PREFIX + accessToken);
         }
 
         @Test
