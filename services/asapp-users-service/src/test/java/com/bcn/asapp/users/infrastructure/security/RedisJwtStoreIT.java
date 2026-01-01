@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.users.infrastructure.security;
 
-import static com.bcn.asapp.users.infrastructure.security.JwtValidator.ACCESS_TOKEN_PREFIX;
+import static com.bcn.asapp.users.infrastructure.security.RedisJwtStore.ACCESS_TOKEN_PREFIX;
 import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -32,10 +32,10 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 
 @SpringBootTest
 @Import(TestContainerConfiguration.class)
-class JwtValidatorIT {
+class RedisJwtStoreIT {
 
     @Autowired
-    private JwtValidator jwtValidator;
+    private RedisJwtStore redisJwtStore;
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
@@ -58,7 +58,7 @@ class JwtValidatorIT {
             var accessToken = defaultTestEncodedAccessToken();
 
             // When
-            var exists = jwtValidator.accessTokenExists(accessToken);
+            var exists = redisJwtStore.accessTokenExists(accessToken);
 
             // Then
             assertThat(exists).isFalse();
@@ -73,7 +73,7 @@ class JwtValidatorIT {
                          .set(key, "");
 
             // When
-            var exists = jwtValidator.accessTokenExists(accessToken);
+            var exists = redisJwtStore.accessTokenExists(accessToken);
 
             // Then
             assertThat(exists).isTrue();

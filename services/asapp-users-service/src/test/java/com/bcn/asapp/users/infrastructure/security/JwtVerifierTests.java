@@ -47,7 +47,7 @@ class JwtVerifierTests {
     private JwtDecoder jwtDecoder;
 
     @Mock
-    private JwtValidator jwtValidator;
+    private RedisJwtStore redisJwtStore;
 
     @InjectMocks
     private JwtVerifier jwtVerifier;
@@ -100,7 +100,7 @@ class JwtVerifierTests {
             var accessTokenClaims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
             var decodedAccessToken = new DecodedJwt(accessToken, ACCESS_TOKEN_TYPE, "user@asapp.com", accessTokenClaims);
             given(jwtDecoder.decode(accessToken)).willReturn(decodedAccessToken);
-            given(jwtValidator.accessTokenExists(accessToken)).willReturn(false);
+            given(redisJwtStore.accessTokenExists(accessToken)).willReturn(false);
 
             // When
             var thrown = catchThrowable(() -> jwtVerifier.verifyAccessToken(accessToken));
@@ -111,8 +111,8 @@ class JwtVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(accessToken);
-            then(jwtValidator).should(times(1))
-                              .accessTokenExists(accessToken);
+            then(redisJwtStore).should(times(1))
+                               .accessTokenExists(accessToken);
         }
 
         @Test
@@ -122,7 +122,7 @@ class JwtVerifierTests {
             var accessTokenClaims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
             var decodedAccessToken = new DecodedJwt(accessToken, ACCESS_TOKEN_TYPE, "user@asapp.com", accessTokenClaims);
             given(jwtDecoder.decode(accessToken)).willReturn(decodedAccessToken);
-            given(jwtValidator.accessTokenExists(accessToken)).willReturn(true);
+            given(redisJwtStore.accessTokenExists(accessToken)).willReturn(true);
 
             // When
             var actual = jwtVerifier.verifyAccessToken(accessToken);
@@ -133,8 +133,8 @@ class JwtVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(accessToken);
-            then(jwtValidator).should(times(1))
-                              .accessTokenExists(accessToken);
+            then(redisJwtStore).should(times(1))
+                               .accessTokenExists(accessToken);
         }
 
     }

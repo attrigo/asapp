@@ -23,9 +23,9 @@ import org.springframework.stereotype.Component;
 /**
  * Infrastructure component responsible for orchestrating JWT verification through a 3-step validation process.
  * <p>
- * Provides the infrastructure capability to verify JWTs using {@link JwtDecoder} and {@link JwtValidator}.
+ * Provides the infrastructure capability to verify JWTs using {@link JwtDecoder} and {@link RedisJwtStore}.
  * <p>
- * Performs three-step validation: cryptographic verification via {@link JwtDecoder}, token type check, and session validation via {@link JwtValidator}.
+ * Performs three-step validation: cryptographic verification via {@link JwtDecoder}, token type check, and session validation via {@link RedisJwtStore}.
  *
  * @since 0.2.0
  * @author attrigo
@@ -37,17 +37,17 @@ public class JwtVerifier {
 
     private final JwtDecoder jwtDecoder;
 
-    private final JwtValidator jwtValidator;
+    private final RedisJwtStore redisJwtStore;
 
     /**
      * Constructs a new {@code JwtVerifier} with required dependencies.
      *
-     * @param jwtDecoder   the JWT decoder for decoding and validating tokens
-     * @param jwtValidator the JWT validate for checking token revocation status
+     * @param jwtDecoder    the JWT decoder for decoding and validating tokens
+     * @param redisJwtStore the Redis JWT store for checking token revocation status
      */
-    public JwtVerifier(JwtDecoder jwtDecoder, JwtValidator jwtValidator) {
+    public JwtVerifier(JwtDecoder jwtDecoder, RedisJwtStore redisJwtStore) {
         this.jwtDecoder = jwtDecoder;
-        this.jwtValidator = jwtValidator;
+        this.redisJwtStore = redisJwtStore;
     }
 
     /**
@@ -125,7 +125,7 @@ public class JwtVerifier {
      */
     private void checkAccessTokenInActiveStore(String accessToken) {
         logger.trace("[JWT_VERIFIER] Step 3/3: Checking access token exists in store");
-        var isTokenActive = jwtValidator.accessTokenExists(accessToken);
+        var isTokenActive = redisJwtStore.accessTokenExists(accessToken);
         if (!isTokenActive) {
             throw new AuthenticationNotFoundException(String.format("Authentication session not found in store for access token: %s", accessToken));
         }
