@@ -33,7 +33,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataAccessException;
 
 import com.bcn.asapp.tasks.application.task.in.command.CreateTaskCommand;
 import com.bcn.asapp.tasks.application.task.out.TaskRepository;
@@ -70,18 +69,18 @@ class CreateTaskServiceTests {
     class CreateTask {
 
         @Test
-        void ThrowsDataAccessException_SaveTaskFails() {
+        void ThrowsRuntimeException_SaveTaskFails() {
             // Given
             var command = new CreateTaskCommand(userIdValue, titleValue, descriptionValue, startDateValue, endDateValue);
 
-            willThrow(new DataAccessException("Database connection failed") {}).given(taskRepository)
-                                                                               .save(any(Task.class));
+            willThrow(new RuntimeException("Database connection failed")).given(taskRepository)
+                                                                         .save(any(Task.class));
 
             // When
             var thrown = catchThrowable(() -> createTaskService.createTask(command));
 
             // Then
-            assertThat(thrown).isInstanceOf(DataAccessException.class)
+            assertThat(thrown).isInstanceOf(RuntimeException.class)
                               .hasMessageContaining("Database connection failed");
 
             then(taskRepository).should(times(1))
