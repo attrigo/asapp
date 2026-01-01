@@ -35,7 +35,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataAccessException;
 
 import com.bcn.asapp.tasks.application.task.out.TaskRepository;
 import com.bcn.asapp.tasks.domain.task.Description;
@@ -73,18 +72,18 @@ class ReadTaskServiceTests {
     class GetTaskById {
 
         @Test
-        void ThrowsDataAccessException_FetchTaskFails() {
+        void ThrowsRuntimeException_FetchTaskFails() {
             // Given
             var taskId = TaskId.of(taskIdValue);
 
-            willThrow(new DataAccessException("Database connection failed") {}).given(taskRepository)
-                                                                               .findById(taskId);
+            willThrow(new RuntimeException("Database connection failed")).given(taskRepository)
+                                                                         .findById(taskId);
 
             // When
             var thrown = catchThrowable(() -> readTaskService.getTaskById(taskIdValue));
 
             // Then
-            assertThat(thrown).isInstanceOf(DataAccessException.class)
+            assertThat(thrown).isInstanceOf(RuntimeException.class)
                               .hasMessageContaining("Database connection failed");
 
             then(taskRepository).should(times(1))
@@ -140,18 +139,18 @@ class ReadTaskServiceTests {
     class GetTasksByUserId {
 
         @Test
-        void ThrowsDataAccessException_FetchTasksFails() {
+        void ThrowsRuntimeException_FetchTasksFails() {
             // Given
             var userId = UserId.of(userIdValue);
 
-            willThrow(new DataAccessException("Database connection failed") {}).given(taskRepository)
-                                                                               .findByUserId(userId);
+            willThrow(new RuntimeException("Database connection failed")).given(taskRepository)
+                                                                         .findByUserId(userId);
 
             // When
             var thrown = catchThrowable(() -> readTaskService.getTasksByUserId(userIdValue));
 
             // Then
-            assertThat(thrown).isInstanceOf(DataAccessException.class)
+            assertThat(thrown).isInstanceOf(RuntimeException.class)
                               .hasMessageContaining("Database connection failed");
 
             then(taskRepository).should(times(1))
@@ -207,16 +206,16 @@ class ReadTaskServiceTests {
     class GetAllTasks {
 
         @Test
-        void ThrowsDataAccessException_FetchTasksFails() {
+        void ThrowsRuntimeException_FetchTasksFails() {
             // Given
-            willThrow(new DataAccessException("Database connection failed") {}).given(taskRepository)
-                                                                               .findAll();
+            willThrow(new RuntimeException("Database connection failed")).given(taskRepository)
+                                                                         .findAll();
 
             // When
             var thrown = catchThrowable(() -> readTaskService.getAllTasks());
 
             // Then
-            assertThat(thrown).isInstanceOf(DataAccessException.class)
+            assertThat(thrown).isInstanceOf(RuntimeException.class)
                               .hasMessageContaining("Database connection failed");
 
             then(taskRepository).should(times(1))

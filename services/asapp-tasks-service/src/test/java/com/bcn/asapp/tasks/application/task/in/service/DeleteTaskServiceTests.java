@@ -31,7 +31,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataAccessException;
 
 import com.bcn.asapp.tasks.application.task.out.TaskRepository;
 import com.bcn.asapp.tasks.domain.task.TaskId;
@@ -51,18 +50,18 @@ class DeleteTaskServiceTests {
     class DeleteTaskById {
 
         @Test
-        void ThrowsDataAccessException_DeleteTaskFails() {
+        void ThrowsRuntimeException_DeleteTaskFails() {
             // Given
             var taskId = TaskId.of(taskIdValue);
 
-            willThrow(new DataAccessException("Database connection failed") {}).given(taskRepository)
-                                                                               .deleteById(taskId);
+            willThrow(new RuntimeException("Database connection failed")).given(taskRepository)
+                                                                         .deleteById(taskId);
 
             // When
             var thrown = catchThrowable(() -> deleteTaskService.deleteTaskById(taskIdValue));
 
             // Then
-            assertThat(thrown).isInstanceOf(DataAccessException.class)
+            assertThat(thrown).isInstanceOf(RuntimeException.class)
                               .hasMessageContaining("Database connection failed");
 
             then(taskRepository).should(times(1))
