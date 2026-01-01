@@ -29,12 +29,15 @@ import org.springframework.stereotype.Component;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
 /**
- * Component for decoding and validating JWTs.
+ * Infrastructure component for decoding and validating JWTs.
+ * <p>
+ * Provides the infrastructure capability to parse and validate JWTs using the JJWT library.
  * <p>
  * Parses JWTs, verifies their signatures using HMAC-SHA, and constructs {@link DecodedJwt} objects.
  *
@@ -59,16 +62,16 @@ public class JwtDecoder {
     }
 
     /**
-     * Decodes and validates an encoded JWT.
+     * Decodes and validates an encoded token.
      * <p>
      * Parses the token, verifies its signature, and constructs a {@link DecodedJwt}.
      *
-     * @param token the encoded token to decode
+     * @param token the encoded token string to decode
      * @return the decoded and validated {@link DecodedJwt}
-     * @throws io.jsonwebtoken.JwtException if the token is invalid, malformed, or expired
+     * @throws JwtException if the token is invalid, malformed, or expired
      */
     public DecodedJwt decode(String token) {
-        logger.trace("Decoding token {}", token);
+        logger.debug("[JWT_DECODER] Decoding token");
 
         var jwsClaims = parseToken(token);
 
@@ -80,11 +83,10 @@ public class JwtDecoder {
      *
      * @param token the token to parse
      * @return the parsed {@link Jws} containing claims
-     * @throws io.jsonwebtoken.JwtException if parsing or verification fails
+     * @throws JwtException if parsing or verification fails
      */
     private Jws<Claims> parseToken(String token) {
-        logger.trace("Parsing token {}", token);
-
+        logger.trace("[JWT_DECODER] Step 1/3: Parsing JWT string and verifying signature");
         return Jwts.parser()
                    .verifyWith(secretKey)
                    .build()
@@ -100,11 +102,11 @@ public class JwtDecoder {
      * @return the constructed {@link DecodedJwt} object
      */
     private DecodedJwt buildDecodedJwt(String token, Jws<Claims> jwsClaims) {
-        logger.trace("Building decoded JWT with encoded token {} and claims {}", token, jwsClaims);
-
+        logger.trace("[JWT_DECODER] Step 2/3: Extracting header and payload");
         var tokenHeader = jwsClaims.getHeader();
         var tokenPayload = jwsClaims.getPayload();
 
+        logger.trace("[JWT_DECODER] Step 3/3: Creating DecodedToken");
         var type = tokenHeader.getType();
         var subject = tokenPayload.getSubject();
         var tokenUseClaim = tokenPayload.get(TOKEN_USE, String.class);

@@ -22,14 +22,21 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 /**
- * Component for validating JWTs.
+ * Infrastructure component responsible for validating JWT session validity through Redis existence checks.
  * <p>
- * Checks for JWT existence in Redis to validate tokens have not been revoked.
+ * Verifies that JWTs exist in the active session store (Redis), ensuring they have not been revoked or expired from the session cache. This provides fast O(1)
+ * lookup for session validation without retrieving token data.
+ * <p>
+ * <strong>Redis Key Pattern:</strong>
+ * <ul>
+ * <li>Access tokens: {@code jwt:access_token:<token_value>}</li>
+ * </ul>
  *
  * @since 0.2.0
  * @see RedisTemplate
  * @author attrigo
  */
+// TODO: rename to RedisJwtStore?
 @Component
 public class JwtValidator {
 
@@ -67,14 +74,9 @@ public class JwtValidator {
      * @return {@code true} if the access token exists in Redis, {@code false} otherwise
      */
     public Boolean accessTokenExists(String accessToken) {
-        logger.trace("Checking if access token exists");
-
+        logger.trace("[JWT_VALIDATOR] Checking if access token exists in Redis");
         var key = ACCESS_TOKEN_PREFIX + accessToken;
-        var exists = redisTemplate.hasKey(key);
-
-        logger.trace("Access token exists: {}", exists);
-
-        return exists;
+        return redisTemplate.hasKey(key);
     }
 
 }

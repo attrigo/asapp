@@ -17,23 +17,22 @@
 package com.bcn.asapp.users.infrastructure.security;
 
 /**
- * Exception thrown when a JWT is invalid.
+ * Exception thrown when an authentication cannot be found.
  * <p>
- * Indicates issues such as malformed tokens, invalid signatures, or expired tokens.
+ * Indicates that no authentication session exists for the provided token.
  *
  * @since 0.2.0
  * @author attrigo
  */
-public class InvalidJwtException extends RuntimeException {
+public class AuthenticationNotFoundException extends RuntimeException {
 
     /**
-     * Constructs a new {@code InvalidJwtException} with the specified detail message and cause.
+     * Constructs a new {@code AuthenticationNotFoundException} with the specified message.
      *
-     * @param message the detail message providing additional information about the exception
-     * @param cause   the underlying cause of the exception
+     * @param message the detail message
      */
-    public InvalidJwtException(String message, Throwable cause) {
-        super(message, cause);
+    public AuthenticationNotFoundException(String message) {
+        super(message);
     }
 
 }
