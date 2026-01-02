@@ -89,8 +89,8 @@ public class JwtIssuer implements TokenIssuer {
      * @param refreshTokenExpirationTime the refresh token expiration time in milliseconds
      */
     public JwtIssuer(@Value("${asapp.security.jwt-secret}") String jwtSecret,
-            @Value("${asapp.security.access-token-expiration-time}") Long accessTokenExpirationTime,
-            @Value("${asapp.security.refresh-token-expiration-time}") Long refreshTokenExpirationTime) {
+            @Value("${asapp.security.access-token.expiration-time}") Long accessTokenExpirationTime,
+            @Value("${asapp.security.refresh-token.expiration-time}") Long refreshTokenExpirationTime) {
 
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
         this.accessTokenExpirationTime = accessTokenExpirationTime;

@@ -238,8 +238,8 @@ spring.datasource.password=secret
 
 # JWT Security
 asapp.security.jwt-secret=<base64-encoded-secret>
-asapp.security.access-token-expiration-time=300000    # 5 minutes
-asapp.security.refresh-token-expiration-time=3600000  # 1 hour
+asapp.security.access-token.expiration-time=300000    # 5 minutes
+asapp.security.refresh-token.expiration-time=3600000  # 1 hour
 
 # Redis
 spring.data.redis.host=localhost
