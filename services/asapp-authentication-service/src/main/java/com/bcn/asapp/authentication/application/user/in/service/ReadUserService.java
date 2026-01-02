@@ -42,7 +42,7 @@ public class ReadUserService implements ReadUserUseCase {
     /**
      * Constructs a new {@code ReadUserService} with required dependencies.
      *
-     * @param userRepository the user repository
+     * @param userRepository the repository for user data access
      */
     public ReadUserService(UserRepository userRepository) {
         this.userRepository = userRepository;

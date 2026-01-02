@@ -44,11 +44,11 @@ import com.bcn.asapp.authentication.domain.user.Username;
  * <p>
  * <strong>Orchestration Flow:</strong>
  * <ol>
- * <li>Validates user credentials via {@link CredentialsAuthenticator}</li>
- * <li>Generates JWT pair via {@link TokenIssuer}</li>
+ * <li>Validates user credentials</li>
+ * <li>Generates {@link JwtPair}</li>
  * <li>Creates {@link JwtAuthentication} domain aggregate</li>
- * <li>Persists authentication to repository via {@link JwtAuthenticationRepository}</li>
- * <li>Stores tokens in fast-access store via {@link JwtStore}</li>
+ * <li>Persists authentication to repository</li>
+ * <li>Stores tokens in fast-access store</li>
  * </ol>
  * <p>
  * If fast-access store fails after repository commit, the persisted authentication is deleted to maintain consistency between storage systems.
@@ -74,7 +74,7 @@ public class AuthenticateService implements AuthenticateUseCase {
      *
      * @param credentialsAuthenticator    the credentials authenticator for validating user credentials
      * @param tokenIssuer                 the token issuer for generating JWTs
-     * @param jwtAuthenticationRepository the repository for persisting JWT authentications
+     * @param jwtAuthenticationRepository the repository for JWT authentications data access
      * @param jwtStore                    the store for fast token lookup and validation
      */
     public AuthenticateService(CredentialsAuthenticator credentialsAuthenticator, TokenIssuer tokenIssuer,
@@ -130,7 +130,7 @@ public class AuthenticateService implements AuthenticateUseCase {
      * Authenticates user credentials and returns the authenticated user information.
      *
      * @param command the authentication command containing username and password
-     * @return the authenticated user information
+     * @return the authenticated {@link UserAuthentication} information
      */
     private UserAuthentication authenticateCredentials(AuthenticateCommand command) {
         logger.trace("[AUTHENTICATE] Step 1/4: Authenticating credentials");
@@ -144,7 +144,7 @@ public class AuthenticateService implements AuthenticateUseCase {
      * Generates a JWT pair (access and refresh tokens) for the authenticated user.
      *
      * @param userAuthentication the authenticated user information
-     * @return the generated JWT pair
+     * @return the generated {@link JwtPair}
      */
     private JwtPair generateTokenPair(UserAuthentication userAuthentication) {
         logger.trace("[AUTHENTICATE] Step 2/4: Generating JWT pair");
@@ -156,7 +156,7 @@ public class AuthenticateService implements AuthenticateUseCase {
      *
      * @param userAuthentication the authenticated user information
      * @param jwtPair            the JWT pair
-     * @return the JWT authentication aggregate
+     * @return the created {@link JwtAuthentication}
      */
     private JwtAuthentication createJwtAuthentication(UserAuthentication userAuthentication, JwtPair jwtPair) {
         return JwtAuthentication.unAuthenticated(userAuthentication.userId(), jwtPair);
@@ -166,7 +166,7 @@ public class AuthenticateService implements AuthenticateUseCase {
      * Persists the JWT authentication to the repository.
      *
      * @param jwtAuthentication the JWT authentication to persist
-     * @return the persisted JWT authentication with assigned ID
+     * @return the persisted {@link JwtAuthentication} with assigned ID
      */
     private JwtAuthentication persistAuthentication(JwtAuthentication jwtAuthentication) {
         logger.trace("[AUTHENTICATE] Step 3/4: Persisting authentication to repository");

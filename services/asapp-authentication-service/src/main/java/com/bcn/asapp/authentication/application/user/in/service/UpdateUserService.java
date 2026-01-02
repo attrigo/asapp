@@ -39,7 +39,7 @@ import com.bcn.asapp.authentication.domain.user.Username;
  * <ol>
  * <li>Retrieves existing user from repository by ID</li>
  * <li>Returns empty if user not found</li>
- * <li>Encodes raw password using {@link PasswordService}</li>
+ * <li>Encodes raw password</li>
  * <li>Updates user with new credentials</li>
  * <li>Persists updated user to repository</li>
  * </ol>
@@ -57,8 +57,8 @@ public class UpdateUserService implements UpdateUserUseCase {
     /**
      * Constructs a new {@code UpdateUserService} with required dependencies.
      *
-     * @param passwordService the password encoding service
-     * @param userRepository  the user repository
+     * @param passwordService the password encoding service for securing user passwords
+     * @param userRepository  the repository for user data access
      */
     public UpdateUserService(PasswordService passwordService, UserRepository userRepository) {
         this.passwordService = passwordService;

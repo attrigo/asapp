@@ -34,9 +34,9 @@ import com.bcn.asapp.authentication.domain.user.Username;
  * <p>
  * <strong>Orchestration Flow:</strong>
  * <ol>
- * <li>Encodes raw password using {@link PasswordService#encode}</li>
- * <li>Creates an inactive user with provided credentials via {@link User#inactiveUser}</li>
- * <li>Persists user to repository via {@link UserRepository#save}</li>
+ * <li>Encodes raw password</li>
+ * <li>Creates an inactive {@link User}</li>
+ * <li>Persists user to repository via</li>
  * </ol>
  *
  * @since 0.2.0
@@ -50,10 +50,10 @@ public class CreateUserService implements CreateUserUseCase {
     private final UserRepository userRepository;
 
     /**
-     * Constructs a new {@code CreateUserService} with required dependencies to the repository.
+     * Constructs a new {@code CreateUserService} with required dependencies.
      *
-     * @param passwordEncoder the password encoding service
-     * @param userRepository  the user repository
+     * @param passwordEncoder the password encoding service for securing user passwords
+     * @param userRepository  the repository for user data access
      */
     public CreateUserService(PasswordService passwordEncoder, UserRepository userRepository) {
         this.passwordEncoder = passwordEncoder;
