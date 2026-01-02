@@ -33,7 +33,7 @@ import com.bcn.asapp.users.domain.user.UserId;
  * <strong>Orchestration Flow:</strong>
  * <ol>
  * <li>Transforms UUID into domain value object {@link UserId}</li>
- * <li>Deletes user from repository via {@link UserRepository#deleteById}</li>
+ * <li>Deletes user from repository</li>
  * </ol>
  *
  * @since 0.2.0
@@ -47,7 +47,7 @@ public class DeleteUserService implements DeleteUserUseCase {
     /**
      * Constructs a new {@code DeleteUserService} with required dependencies.
      *
-     * @param userRepository the user repository
+     * @param userRepository the repository for user data access
      */
     public DeleteUserService(UserRepository userRepository) {
         this.userRepository = userRepository;

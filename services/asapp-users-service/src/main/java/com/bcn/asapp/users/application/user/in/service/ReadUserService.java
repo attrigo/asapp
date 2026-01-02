@@ -46,8 +46,8 @@ public class ReadUserService implements ReadUserUseCase {
     /**
      * Constructs a new {@code ReadUserService} with required dependencies.
      *
-     * @param userRepository the user repository
-     * @param tasksGateway   the task gateway for accessing task information from Tasks Service
+     * @param userRepository the repository for user data access
+     * @param tasksGateway   the task gateway for accessing task information from tasks-service
      */
     public ReadUserService(UserRepository userRepository, TasksGateway tasksGateway) {
         this.userRepository = userRepository;
@@ -57,17 +57,17 @@ public class ReadUserService implements ReadUserUseCase {
     /**
      * Retrieves a user by their unique identifier, enriched with task references.
      * <p>
-     * Orchestrates data retrieval from multiple sources: retrieves user from repository and enriches with task IDs from Tasks Service.
+     * Orchestrates data retrieval from multiple sources: retrieves user from repository and enriches with task IDs from tasks-service.
      * <p>
      * <strong>Orchestration Flow:</strong>
      * <ol>
      * <li>Retrieves user from repository by ID</li>
      * <li>Returns empty if user not found</li>
-     * <li>Enriches user with task IDs from Tasks Service via gateway</li>
+     * <li>Enriches user with task IDs from tasks-service via gateway</li>
      * <li>Wraps result in {@link UserWithTasksResult}</li>
      * </ol>
      * <p>
-     * If task retrieval fails or the Tasks Service is unavailable, the result will contain the user with an empty task list, allowing graceful degradation.
+     * If task retrieval fails or the tasks-service is unavailable, the result will contain the user with an empty task list, allowing graceful degradation.
      *
      * @param id the user's unique identifier
      * @return an {@link Optional} containing the {@link UserWithTasksResult} if found, {@link Optional#empty} otherwise
@@ -98,9 +98,9 @@ public class ReadUserService implements ReadUserUseCase {
     }
 
     /**
-     * Enriches user with task identifiers from Tasks Service.
+     * Enriches user with task identifiers from tasks-service.
      * <p>
-     * Queries the Tasks Service via gateway to retrieve associated task IDs and combines with user data.
+     * Queries the tasks-service via gateway to retrieve associated task IDs and combines with user data.
      * <p>
      * If task retrieval fails, returns user with empty task list (graceful degradation).
      *

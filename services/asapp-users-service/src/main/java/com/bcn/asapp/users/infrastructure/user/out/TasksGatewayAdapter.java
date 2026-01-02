@@ -26,7 +26,7 @@ import com.bcn.asapp.users.application.user.out.TasksGateway;
 import com.bcn.asapp.users.domain.user.UserId;
 
 /**
- * Adapter implementation of {@link TasksGateway} for external calls to Tasks Service.
+ * Adapter implementation of {@link TasksGateway} for external calls to tasks-service.
  * <p>
  * Bridges the application layer with the infrastructure layer by translating domain-level requests into external service calls.
  *
@@ -41,14 +41,14 @@ public class TasksGatewayAdapter implements TasksGateway {
     /**
      * Constructs a new {@code TasksServiceGateway} with required dependencies.
      *
-     * @param tasksClient the client for communicating with the Tasks Service
+     * @param tasksClient the client for communicating with the tasks-service
      */
     public TasksGatewayAdapter(TasksClient tasksClient) {
         this.tasksClient = tasksClient;
     }
 
     /**
-     * Retrieves all task identifiers associated with a specific user by delegating to the Tasks Service client.
+     * Retrieves all task identifiers associated with a specific user by delegating to the tasks-service client.
      *
      * @param userId the user's unique identifier
      * @return a {@link List} of task UUIDs associated with the user, otherwise an empty list if the user has no tasks or the retrieval fails
