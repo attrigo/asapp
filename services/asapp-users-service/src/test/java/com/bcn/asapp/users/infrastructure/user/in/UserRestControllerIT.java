@@ -14,15 +14,13 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.authentication.infrastructure.user.in;
+package com.bcn.asapp.users.infrastructure.user.in;
 
-import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
-import static com.bcn.asapp.authentication.domain.user.Role.USER;
-import static com.bcn.asapp.url.authentication.UserRestAPIURL.USERS_CREATE_FULL_PATH;
-import static com.bcn.asapp.url.authentication.UserRestAPIURL.USERS_DELETE_BY_ID_FULL_PATH;
-import static com.bcn.asapp.url.authentication.UserRestAPIURL.USERS_GET_BY_ID_FULL_PATH;
-import static com.bcn.asapp.url.authentication.UserRestAPIURL.USERS_ROOT_PATH;
-import static com.bcn.asapp.url.authentication.UserRestAPIURL.USERS_UPDATE_BY_ID_FULL_PATH;
+import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_CREATE_FULL_PATH;
+import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_DELETE_BY_ID_FULL_PATH;
+import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_BY_ID_FULL_PATH;
+import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_ROOT_PATH;
+import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_UPDATE_BY_ID_FULL_PATH;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -36,13 +34,12 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 
-import com.bcn.asapp.authentication.testutil.WebMvcTestContext;
+import com.bcn.asapp.users.testutil.WebMvcTestContext;
 
 @WithMockUser
-class UserControllerIT extends WebMvcTestContext {
+class UserRestControllerIT extends WebMvcTestContext {
 
     @Nested
     class GetUserById {
@@ -91,7 +88,6 @@ class UserControllerIT extends WebMvcTestContext {
 
     }
 
-    @WithAnonymousUser
     @Nested
     class CreateUser {
 
@@ -162,16 +158,18 @@ class UserControllerIT extends WebMvcTestContext {
                                                   .containsEntry("instance", "/api/users");
                        assertThatJson(jsonContent).inPath("detail")
                                                   .asString()
-                                                  .contains("The username must not be empty")
-                                                  .contains("The password must not be empty")
-                                                  .contains("The role must be a valid Role");
+                                                  .contains("The first name must not be empty")
+                                                  .contains("The last name must not be empty")
+                                                  .contains("The email must not be empty")
+                                                  .contains("The phone number must not be empty");
                    //@formatter:off
                        assertThatJson(jsonContent).inPath("errors")
                                                   .isArray()
                                                   .containsOnly(
-                                                          Map.of("entity", "createUserRequest", "field", "username", "message", "The username must not be empty"),
-                                                          Map.of("entity", "createUserRequest", "field", "password", "message", "The password must not be empty"),
-                                                          Map.of("entity", "createUserRequest", "field", "role", "message", "The role must be a valid Role")
+                                                          Map.of("entity", "createUserRequest", "field", "firstName", "message", "The first name must not be empty"),
+                                                          Map.of("entity", "createUserRequest", "field", "lastName", "message", "The last name must not be empty"),
+                                                          Map.of("entity", "createUserRequest", "field", "email", "message", "The email must not be empty"),
+                                                          Map.of("entity", "createUserRequest", "field", "phoneNumber", "message", "The phone number must not be empty")
                                                   );
                        //@formatter:on
                    });
@@ -182,9 +180,10 @@ class UserControllerIT extends WebMvcTestContext {
             // When & Then
             var requestBody = """
                     {
-                    "username": "",
-                    "password": "",
-                    "role": ""
+                    "first_name": "",
+                    "last_name": "",
+                    "email": "",
+                    "phone_number": ""
                     }
                     """;
 
@@ -204,35 +203,38 @@ class UserControllerIT extends WebMvcTestContext {
                                                   .containsEntry("instance", "/api/users");
                        assertThatJson(jsonContent).inPath("detail")
                                                   .asString()
-                                                  .contains("The username must not be empty")
-                                                  .contains("The username must be a valid email address")
-                                                  .contains("The password must not be empty")
-                                                  .contains("The password must be between 8 and 64 characters")
-                                                  .contains("The role must be a valid Role");
+                                                  .contains("The first name must not be empty")
+                                                  .contains("The last name must not be empty")
+                                                  .contains("The email must not be empty")
+                                                  .contains("The email must be a valid email address")
+                                                  .contains("The phone number must not be empty")
+                                                  .contains("The phone number must be a valid phone number");
                    //@formatter:off
                        assertThatJson(jsonContent).inPath("errors")
                                                   .isArray()
                                                   .containsOnly(
-                                                          Map.of("entity", "createUserRequest", "field", "username", "message", "The username must not be empty"),
-                                                          Map.of("entity", "createUserRequest", "field", "username", "message","The username must be a valid email address"),
-                                                          Map.of("entity", "createUserRequest", "field", "password", "message","The password must not be empty"),
-                                                          Map.of("entity", "createUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters"),
-                                                          Map.of("entity", "createUserRequest", "field", "role", "message", "The role must be a valid Role")
+                                                          Map.of("entity", "createUserRequest", "field", "firstName", "message", "The first name must not be empty"),
+                                                          Map.of("entity", "createUserRequest", "field", "lastName", "message", "The last name must not be empty"),
+                                                          Map.of("entity", "createUserRequest", "field", "email", "message", "The email must not be empty"),
+                                                          Map.of("entity", "createUserRequest", "field", "email", "message", "The email must be a valid email address"),
+                                                          Map.of("entity", "createUserRequest", "field", "phoneNumber", "message", "The phone number must not be empty"),
+                                                          Map.of("entity", "createUserRequest", "field", "phoneNumber", "message", "The phone number must be a valid phone number")
                                                   );
                        //@formatter:on
                    });
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyUsernameFieldIsInvalid() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyEmailFieldIsInvalid() {
             // When & Then
             var requestBody = """
                     {
-                    "username": "invalid_username",
-                    "password": "%s",
-                    "role": "%s"
+                    "first_name": "%s",
+                    "last_name": "%s",
+                    "email": "invalid_email",
+                    "phone_number": "%s"
                     }
-                    """.formatted("TEST@09_password?!", USER.name());
+                    """.formatted("FirstName", "LastName", "555 555 555");
 
             var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                              .content(requestBody);
@@ -250,27 +252,28 @@ class UserControllerIT extends WebMvcTestContext {
                                                   .containsEntry("instance", "/api/users");
                        assertThatJson(jsonContent).inPath("detail")
                                                   .asString()
-                                                  .contains("The username must be a valid email address");
+                                                  .contains("The email must be a valid email address");
                    //@formatter:off
                        assertThatJson(jsonContent).inPath("errors")
                                                   .isArray()
                                                   .containsOnly(
-                                                          Map.of("entity", "createUserRequest", "field", "username", "message", "The username must be a valid email address")
+                                                          Map.of("entity", "createUserRequest", "field", "email", "message", "The email must be a valid email address")
                                                   );
                        //@formatter:on
                    });
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyPasswordFieldIsInvalid() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyPhoneNumberFieldIsInvalid() {
             // When & Then
             var requestBody = """
                     {
-                    "username": "%s",
-                    "password": "invalid",
-                    "role": "%s"
+                    "first_name": "%s",
+                    "last_name": "%s",
+                    "email": "%s",
+                    "phone_number": "invalid_phone_number"
                     }
-                    """.formatted("user@asapp.com", USER.name());
+                    """.formatted("FirstName", "LastName", "user@asapp.com");
 
             var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                              .content(requestBody);
@@ -288,50 +291,12 @@ class UserControllerIT extends WebMvcTestContext {
                                                   .containsEntry("instance", "/api/users");
                        assertThatJson(jsonContent).inPath("detail")
                                                   .asString()
-                                                  .contains("The password must be between 8 and 64 characters");
+                                                  .contains("The phone number must be a valid phone number");
                    //@formatter:off
                        assertThatJson(jsonContent).inPath("errors")
                                                   .isArray()
                                                   .containsOnly(
-                                                          Map.of("entity", "createUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters")
-                                                  );
-                       //@formatter:on
-                   });
-        }
-
-        @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyRoleFieldIsInvalid() {
-            // When & Then
-            var requestBody = """
-                    {
-                    "username": "%s",
-                    "password": "%s",
-                    "role": "invalid_role"
-                    }
-                    """.formatted("user@asapp.com", "TEST@09_password?!");
-
-            var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
-                                                             .content(requestBody);
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.BAD_REQUEST)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
-                                                  .containsEntry("title", "Bad Request")
-                                                  .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/users");
-                       assertThatJson(jsonContent).inPath("detail")
-                                                  .asString()
-                                                  .contains("The role must be a valid Role");
-                   //@formatter:off
-                       assertThatJson(jsonContent).inPath("errors")
-                                                  .isArray()
-                                                  .containsOnly(
-                                                          Map.of("entity", "createUserRequest", "field", "role", "message", "The role must be a valid Role")
+                                                          Map.of("entity", "createUserRequest", "field", "phoneNumber", "message", "The phone number must be a valid phone number")
                                                   );
                        //@formatter:on
                    });
@@ -347,11 +312,12 @@ class UserControllerIT extends WebMvcTestContext {
             // When & Then
             var requestBody = """
                     {
-                    "username": "%s",
-                    "password": "%s",
-                    "role": "%s"
+                    "first_name": "%s",
+                    "last_name": "%s",
+                    "email": "%s",
+                    "phone_number": "%s"
                     }
-                    """.formatted("new_user@asapp.com", "new_test#Password12", ADMIN.name());
+                    """.formatted("NewFirstName", "NewLastName", "new_user@asapp.com", "555-555-555");
 
             var requestBuilder = put(USERS_ROOT_PATH + "/").contentType(MediaType.APPLICATION_JSON)
                                                            .content(requestBody);
@@ -377,11 +343,12 @@ class UserControllerIT extends WebMvcTestContext {
             var userIdPath = 1L;
             var requestBody = """
                     {
-                    "username": "%s",
-                    "password": "%s",
-                    "role": "%s"
+                    "first_name": "%s",
+                    "last_name": "%s",
+                    "email": "%s",
+                    "phone_number": "%s"
                     }
-                    """.formatted("new_user@asapp.com", "new_test#Password12", ADMIN.name());
+                    """.formatted("NewFirstName", "NewLastName", "new_user@asapp.com", "555-555-555");
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
                                                                               .content(requestBody);
@@ -404,7 +371,7 @@ class UserControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyIsNotJson() {
             // When & Then
-            var userIdPath = UUID.fromString("5b0e9f8d-4a7c-4d2e-b3f8-9d6e8c7f5a4b");
+            var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = "";
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.TEXT_PLAIN)
@@ -428,7 +395,7 @@ class UserControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsNotPresent() {
             // When & Then
-            var userIdPath = UUID.fromString("6c1f0a9e-5b8d-4e3f-c4a9-0e7f9d8e6b5c");
+            var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = "";
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
@@ -452,7 +419,7 @@ class UserControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsEmpty() {
             // When & Then
-            var userIdPath = UUID.fromString("7d2a1b0f-6c9e-4f4a-d5b0-1f8a0e9f7d6e");
+            var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = "{}";
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
@@ -471,16 +438,18 @@ class UserControllerIT extends WebMvcTestContext {
                                                   .containsEntry("instance", "/api/users/" + userIdPath);
                        assertThatJson(jsonContent).inPath("detail")
                                                   .asString()
-                                                  .contains("The username must not be empty")
-                                                  .contains("The password must not be empty")
-                                                  .contains("The role must be a valid Role");
+                                                  .contains("The first name must not be empty")
+                                                  .contains("The last name must not be empty")
+                                                  .contains("The email must not be empty")
+                                                  .contains("The phone number must not be empty");
                    //@formatter:off
                        assertThatJson(jsonContent).inPath("errors")
                                                   .isArray()
                                                   .containsOnly(
-                                                          Map.of("entity", "updateUserRequest", "field", "username", "message", "The username must not be empty"),
-                                                          Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must not be empty"),
-                                                          Map.of("entity", "updateUserRequest", "field", "role", "message", "The role must be a valid Role")
+                                                          Map.of("entity", "updateUserRequest", "field", "firstName", "message", "The first name must not be empty"),
+                                                          Map.of("entity", "updateUserRequest", "field", "lastName", "message", "The last name must not be empty"),
+                                                          Map.of("entity", "updateUserRequest", "field", "email", "message", "The email must not be empty"),
+                                                          Map.of("entity", "updateUserRequest", "field", "phoneNumber", "message", "The phone number must not be empty")
                                                   );
                        //@formatter:on
                    });
@@ -489,12 +458,13 @@ class UserControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyMandatoryFieldsAreEmpty() {
             // When & Then
-            var userIdPath = UUID.fromString("8e3b2c1a-7d0f-4a5b-e6c1-2a9b1f0e8d7f");
+            var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = """
                     {
-                    "username": "",
-                    "password": "",
-                    "role": ""
+                    "first_name": "",
+                    "last_name": "",
+                    "email": "",
+                    "phone_number": ""
                     }
                     """;
 
@@ -514,36 +484,39 @@ class UserControllerIT extends WebMvcTestContext {
                                                   .containsEntry("instance", "/api/users/" + userIdPath);
                        assertThatJson(jsonContent).inPath("detail")
                                                   .asString()
-                                                  .contains("The username must not be empty")
-                                                  .contains("The username must be a valid email address")
-                                                  .contains("The password must not be empty")
-                                                  .contains("The password must be between 8 and 64 characters")
-                                                  .contains("The role must be a valid Role");
+                                                  .contains("The first name must not be empty")
+                                                  .contains("The last name must not be empty")
+                                                  .contains("The email must not be empty")
+                                                  .contains("The email must be a valid email address")
+                                                  .contains("The phone number must not be empty")
+                                                  .contains("The phone number must be a valid phone number");
                    //@formatter:off
                        assertThatJson(jsonContent).inPath("errors")
                                                   .isArray()
                                                   .containsOnly(
-                                                          Map.of("entity", "updateUserRequest", "field", "username", "message", "The username must not be empty"),
-                                                          Map.of("entity", "updateUserRequest", "field", "username", "message", "The username must be a valid email address"),
-                                                          Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must not be empty"),
-                                                          Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters"),
-                                                          Map.of("entity", "updateUserRequest", "field", "role", "message", "The role must be a valid Role")
+                                                          Map.of("entity", "updateUserRequest", "field", "firstName", "message", "The first name must not be empty"),
+                                                          Map.of("entity", "updateUserRequest", "field", "lastName", "message", "The last name must not be empty"),
+                                                          Map.of("entity", "updateUserRequest", "field", "email", "message", "The email must not be empty"),
+                                                          Map.of("entity", "updateUserRequest", "field", "email", "message", "The email must be a valid email address"),
+                                                          Map.of("entity", "updateUserRequest", "field", "phoneNumber", "message", "The phone number must not be empty"),
+                                                          Map.of("entity", "updateUserRequest", "field", "phoneNumber", "message", "The phone number must be a valid phone number")
                                                   );
                        //@formatter:on
                    });
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyUsernameFieldIsInvalid() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyEmailFieldIsInvalid() {
             // When & Then
-            var userIdPath = UUID.fromString("9f4c3d2b-8e1a-4b6c-f7d2-3b0c2a1f9e8a");
+            var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = """
                     {
-                    "username": "invalid_username",
-                    "password": "%s",
-                    "role": "%s"
+                    "first_name": "%s",
+                    "last_name": "%s",
+                    "email": "invalid_email",
+                    "phone_number": "%s"
                     }
-                    """.formatted("TEST@09_password?!", ADMIN.name());
+                    """.formatted("NewFirstName", "NewLastName", "555-555-555");
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
                                                                               .content(requestBody);
@@ -561,28 +534,29 @@ class UserControllerIT extends WebMvcTestContext {
                                                   .containsEntry("instance", "/api/users/" + userIdPath);
                        assertThatJson(jsonContent).inPath("detail")
                                                   .asString()
-                                                  .contains("The username must be a valid email address");
+                                                  .contains("The email must be a valid email address");
                    //@formatter:off
                        assertThatJson(jsonContent).inPath("errors")
                                                   .isArray()
                                                   .containsOnly(
-                                                          Map.of("entity", "updateUserRequest", "field", "username", "message", "The username must be a valid email address")
+                                                          Map.of("entity", "updateUserRequest", "field", "email", "message", "The email must be a valid email address")
                                                   );
                        //@formatter:on
                    });
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyPasswordFieldIsInvalid() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyPhoneNumberFieldIsInvalid() {
             // When & Then
-            var userIdPath = UUID.fromString("0a5d4e3c-9f2b-4c7d-a8e3-4d1c3b2a0f9b");
+            var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = """
                     {
-                    "username": "%s",
-                    "password": "invalid",
-                    "role": "%s"
+                    "first_name": "%s",
+                    "last_name": "%s",
+                    "email": "%s",
+                    "phone_number": "invalid_phone_number"
                     }
-                    """.formatted("new_user@asapp.com", ADMIN.name());
+                    """.formatted("NewFirstName", "NewLastName", "new_user@asapp.com");
 
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
                                                                               .content(requestBody);
@@ -600,51 +574,12 @@ class UserControllerIT extends WebMvcTestContext {
                                                   .containsEntry("instance", "/api/users/" + userIdPath);
                        assertThatJson(jsonContent).inPath("detail")
                                                   .asString()
-                                                  .contains("The password must be between 8 and 64 characters");
+                                                  .contains("The phone number must be a valid phone number");
                    //@formatter:off
                        assertThatJson(jsonContent).inPath("errors")
                                                   .isArray()
                                                   .containsOnly(
-                                                          Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters")
-                                                  );
-                       //@formatter:on
-                   });
-        }
-
-        @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyRoleFieldIsInvalid() {
-            // When & Then
-            var userIdPath = UUID.fromString("1b6e5f4d-0a3c-4d8e-b9f4-5e2d4c3b2a1c");
-            var requestBody = """
-                    {
-                    "username": "%s",
-                    "password": "%s",
-                    "role": "invalid_role"
-                    }
-                    """.formatted("new_user@asapp.com", "new_test#Password12");
-
-            var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
-                                                                              .content(requestBody);
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.BAD_REQUEST)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
-                                                  .containsEntry("title", "Bad Request")
-                                                  .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/users/" + userIdPath);
-                       assertThatJson(jsonContent).inPath("detail")
-                                                  .asString()
-                                                  .contains("The role must be a valid Role");
-                   //@formatter:off
-                       assertThatJson(jsonContent).inPath("errors")
-                                                  .isArray()
-                                                  .containsOnly(
-                                                          Map.of("entity", "updateUserRequest", "field", "role", "message", "The role must be a valid Role")
+                                                          Map.of("entity", "updateUserRequest", "field", "phoneNumber", "message", "The phone number must be a valid phone number")
                                                   );
                        //@formatter:on
                    });

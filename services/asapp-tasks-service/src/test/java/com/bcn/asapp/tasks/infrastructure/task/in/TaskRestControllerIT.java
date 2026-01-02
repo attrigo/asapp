@@ -41,7 +41,7 @@ import org.springframework.security.test.context.support.WithMockUser;
 import com.bcn.asapp.tasks.testutil.WebMvcTestContext;
 
 @WithMockUser
-class TaskControllerIT extends WebMvcTestContext {
+class TaskRestControllerIT extends WebMvcTestContext {
 
     @Nested
     class GetTaskById {

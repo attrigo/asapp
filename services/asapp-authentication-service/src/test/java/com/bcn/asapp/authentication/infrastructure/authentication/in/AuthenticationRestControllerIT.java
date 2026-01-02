@@ -31,7 +31,7 @@ import org.springframework.http.MediaType;
 
 import com.bcn.asapp.authentication.testutil.WebMvcTestContext;
 
-class AuthenticationControllerIT extends WebMvcTestContext {
+class AuthenticationRestControllerIT extends WebMvcTestContext {
 
     @Nested
     class Authenticate {
