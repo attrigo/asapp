@@ -103,11 +103,18 @@ The service implements **DDD patterns**:
 
 ### Security Model
 
-**JWT Validation**:
-- Validates tokens issued by Authentication service
-- Token validation includes signature verification and Redis-based revocation checks
-- Extracts claims (username, role) for authorization
-- Revoked tokens (removed from Redis) return 401 Unauthorized
+**Token Validation Flow**:
+1. Signature validation (HMAC-SHA with secret key)
+2. Expiration check (iat/exp claims validation)
+3. Token type verification (must be "access" token)
+4. Redis existence check (revocation verification - source of truth for active sessions)
+5. Claims extraction (username, role, token_use)
+
+**Security Components**:
+- `JwtDecoder` - Validates signatures and extracts claims
+- `JwtVerifier` - Ensures correct token type
+- `JwtAuthenticationFilter` - Intercepts and validates requests
+- `RedisJwtStore` - Fast token existence checks for revocation
 
 ## Quick Start
 
