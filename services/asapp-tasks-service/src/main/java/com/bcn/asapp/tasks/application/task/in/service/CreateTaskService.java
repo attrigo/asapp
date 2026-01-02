@@ -37,8 +37,8 @@ import com.bcn.asapp.tasks.domain.task.UserId;
  * <strong>Orchestration Flow:</strong>
  * <ol>
  * <li>Transforms command parameters into domain value objects</li>
- * <li>Creates task domain object via {@link Task#create}</li>
- * <li>Persists task to repository via {@link TaskRepository#save}</li>
+ * <li>Creates {@link Task} domain object</li>
+ * <li>Persists task to repository</li>
  * </ol>
  *
  * @since 0.2.0
@@ -52,7 +52,7 @@ public class CreateTaskService implements CreateTaskUseCase {
     /**
      * Constructs a new {@code CreateTaskService} with required dependencies.
      *
-     * @param taskRepository the task repository
+     * @param taskRepository the repository for task data access
      */
     public CreateTaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;

@@ -43,7 +43,7 @@ public class ReadTaskService implements ReadTaskUseCase {
     /**
      * Constructs a new {@code ReadTaskService} with required dependencies.
      *
-     * @param taskRepository the task repository
+     * @param taskRepository the repository for task data access
      */
     public ReadTaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
