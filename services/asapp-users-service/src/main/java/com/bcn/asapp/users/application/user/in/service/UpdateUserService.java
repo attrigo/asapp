@@ -41,7 +41,7 @@ import com.bcn.asapp.users.domain.user.UserId;
  * <li>Retrieves existing user from repository by ID</li>
  * <li>Returns empty if user not found</li>
  * <li>Transforms command parameters into domain value objects</li>
- * <li>Updates user domain object via {@link User#update}</li>
+ * <li>Updates user domain object</li>
  * <li>Persists updated user to repository</li>
  * </ol>
  *
@@ -56,7 +56,7 @@ public class UpdateUserService implements UpdateUserUseCase {
     /**
      * Constructs a new {@code UpdateUserService} with required dependencies.
      *
-     * @param userRepository the user repository
+     * @param userRepository the repository for user data access
      */
     public UpdateUserService(UserRepository userRepository) {
         this.userRepository = userRepository;

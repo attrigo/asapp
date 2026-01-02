@@ -39,7 +39,7 @@ public interface ReadUserUseCase {
      * This method combines user information from the User bounded context with task identifiers from the Task bounded context. It returns a
      * {@link UserWithTasksResult} that contains the user entity along with a list of task IDs associated with that user.
      * <p>
-     * If task retrieval fails or the Task Service is unavailable, the result will contain the user with an empty task list, allowing graceful degradation.
+     * If task retrieval fails or the tasks-service is unavailable, the result will contain the user with an empty task list, allowing graceful degradation.
      *
      * @param id the user's unique identifier
      * @return an {@link Optional} containing the {@link UserWithTasksResult} if found, {@link Optional#empty} otherwise

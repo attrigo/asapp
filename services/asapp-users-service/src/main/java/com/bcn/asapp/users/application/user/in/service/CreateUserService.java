@@ -36,8 +36,8 @@ import com.bcn.asapp.users.domain.user.User;
  * <strong>Orchestration Flow:</strong>
  * <ol>
  * <li>Transforms command parameters into domain value objects</li>
- * <li>Creates user domain object via {@link User#create}</li>
- * <li>Persists user to repository via {@link UserRepository#save}</li>
+ * <li>Creates {@link User} domain object</li>
+ * <li>Persists user to repository</li>
  * </ol>
  *
  * @since 0.2.0
@@ -51,7 +51,7 @@ public class CreateUserService implements CreateUserUseCase {
     /**
      * Constructs a new {@code CreateUserService} with required dependencies.
      *
-     * @param userRepository the user repository
+     * @param userRepository the repository for user data access
      */
     public CreateUserService(UserRepository userRepository) {
         this.userRepository = userRepository;

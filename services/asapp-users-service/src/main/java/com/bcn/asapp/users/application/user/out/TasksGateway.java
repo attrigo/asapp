@@ -22,7 +22,7 @@ import java.util.UUID;
 import com.bcn.asapp.users.domain.user.UserId;
 
 /**
- * Gateway port for accessing task information from Tasks Service.
+ * Gateway port for accessing task information from tasks-service.
  * <p>
  * Defines the contract for retrieving task-related data that exists outside the User bounded context.
  *
@@ -34,7 +34,7 @@ public interface TasksGateway {
     /**
      * Retrieves all task identifiers associated with a specific user.
      * <p>
-     * This method queries the Tasks Service to obtain references to all tasks belonging to the specified user. Only task identifiers are returned, maintaining
+     * This method queries the tasks-service to obtain references to all tasks belonging to the specified user. Only task identifiers are returned, maintaining
      * loose coupling between bounded contexts.
      * <p>
      * The implementation should handle communication failures gracefully, either by returning an empty list or propagating an appropriate exception based on
