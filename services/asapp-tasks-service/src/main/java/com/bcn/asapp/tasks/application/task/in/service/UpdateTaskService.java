@@ -42,7 +42,7 @@ import com.bcn.asapp.tasks.domain.task.UserId;
  * <li>Retrieves existing task from repository by ID</li>
  * <li>Returns empty if task not found</li>
  * <li>Transforms command parameters into domain value objects</li>
- * <li>Updates task domain object via {@link Task#update}</li>
+ * <li>Updates task domain object</li>
  * <li>Persists updated task to repository</li>
  * </ol>
  *
@@ -57,7 +57,7 @@ public class UpdateTaskService implements UpdateTaskUseCase {
     /**
      * Constructs a new {@code UpdateTaskService} with required dependencies.
      *
-     * @param taskRepository the task repository
+     * @param taskRepository the repository for task data access
      */
     public UpdateTaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;

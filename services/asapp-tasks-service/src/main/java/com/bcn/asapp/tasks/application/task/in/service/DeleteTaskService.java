@@ -33,7 +33,7 @@ import com.bcn.asapp.tasks.domain.task.TaskId;
  * <strong>Orchestration Flow:</strong>
  * <ol>
  * <li>Transforms UUID into domain value object {@link TaskId}</li>
- * <li>Deletes task from repository via {@link TaskRepository#deleteById}</li>
+ * <li>Deletes task from repository</li>
  * </ol>
  *
  * @since 0.2.0
@@ -47,7 +47,7 @@ public class DeleteTaskService implements DeleteTaskUseCase {
     /**
      * Constructs a new {@code DeleteTaskService} with required dependencies.
      *
-     * @param taskRepository the task repository
+     * @param taskRepository the repository for task data access
      */
     public DeleteTaskService(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
