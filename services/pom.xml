@@ -20,17 +20,24 @@
 
     <properties>
         <!-- Dependencies Versions -->
-        <jjwt.version>0.12.6</jjwt.version>
-        <json-unit-assertj.version>4.1.1</json-unit-assertj.version>
+        <!-- Compile Dependencies -->
+        <!-- * Org Dependencies -->
         <mapstruct.version>1.6.3</mapstruct.version>
-        <mockserver-client-java.version>5.15.0</mockserver-client-java.version>
-        <pitest-maven.version>1.20.4</pitest-maven.version>
         <springdoc-openapi-starter.version>2.8.5</springdoc-openapi-starter.version>
+        <!-- * Other Dependencies -->
+        <jjwt.version>0.12.6</jjwt.version>
+
+        <!-- Test Dependencies -->
+        <!-- * Org Dependencies -->
+        <mockserver-client-java.version>5.15.0</mockserver-client-java.version>
+        <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
+        <!-- * Other Dependencies -->
+        <json-unit-assertj.version>4.1.1</json-unit-assertj.version>
         <testcontainers-redis.version>2.2.4</testcontainers-redis.version>
 
         <!-- Plugins Versions -->
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-        <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
+        <pitest-maven.version>1.20.4</pitest-maven.version>
     </properties>
 
     <dependencyManagement>

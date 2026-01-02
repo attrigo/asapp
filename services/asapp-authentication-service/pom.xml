@@ -19,6 +19,8 @@
 
     <properties>
         <!-- Dependencies Versions -->
+        <!-- Compile Dependencies -->
+        <!-- * Org Dependencies -->
         <bcprov-jdk18on.version>1.80</bcprov-jdk18on.version>
     </properties>
 
