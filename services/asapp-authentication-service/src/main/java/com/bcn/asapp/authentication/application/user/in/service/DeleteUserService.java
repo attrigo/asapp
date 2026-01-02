@@ -39,7 +39,7 @@ import com.bcn.asapp.authentication.domain.user.UserId;
  * <p>
  * <strong>Orchestration Flow:</strong>
  * <ol>
- * <li>Retrieves all JWT pairs for the user via {@link JwtAuthenticationRepository}</li>
+ * <li>Retrieves all JWT pairs for the user</li>
  * <li>Deletes all token pairs from fast-access store (immediate revocation)</li>
  * <li>Deletes all JWT authentications from repository</li>
  * <li>Deletes user from repository</li>
@@ -63,8 +63,8 @@ public class DeleteUserService implements DeleteUserUseCase {
      * Constructs a new {@code DeleteUserService} with required dependencies.
      *
      * @param jwtStore                    the JWT store for fast-access store operations
-     * @param userRepository              the user repository
-     * @param jwtAuthenticationRepository the JWT authentication repository
+     * @param userRepository              the repository for user data access
+     * @param jwtAuthenticationRepository the repository for JWT authentications data access
      */
     public DeleteUserService(JwtStore jwtStore, UserRepository userRepository, JwtAuthenticationRepository jwtAuthenticationRepository) {
         this.jwtStore = jwtStore;

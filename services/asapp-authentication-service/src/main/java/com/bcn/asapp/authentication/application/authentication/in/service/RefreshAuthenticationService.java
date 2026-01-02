@@ -43,9 +43,9 @@ import com.bcn.asapp.authentication.domain.authentication.JwtPair;
  * <p>
  * <strong>Orchestration Flow:</strong>
  * <ol>
- * <li>Verifies refresh token via {@link TokenVerifier}</li>
- * <li>Fetches authentication from repository via {@link JwtAuthenticationRepository}</li>
- * <li>Generates new JWT pair via {@link TokenIssuer}</li>
+ * <li>Verifies refresh token</li>
+ * <li>Fetches authentication from repository</li>
+ * <li>Generates new {@link JwtPair}</li>
  * <li>Updates domain aggregate with new tokens</li>
  * <li>Persists updated authentication to repository</li>
  * <li>Deletes old tokens from fast-access store and stores new tokens</li>
@@ -74,7 +74,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      *
      * @param tokenVerifier               the token verifier for verifying refresh tokens
      * @param tokenIssuer                 the token issuer for generating new JWTs
-     * @param jwtAuthenticationRepository the repository for persisting JWT authentications
+     * @param jwtAuthenticationRepository the repository for JWT authentications data access
      * @param jwtStore                    the store for fast token lookup and validation
      */
     public RefreshAuthenticationService(TokenVerifier tokenVerifier, TokenIssuer tokenIssuer, JwtAuthenticationRepository jwtAuthenticationRepository,
@@ -145,7 +145,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      * Fetches the authentication record from the repository using the refresh token.
      *
      * @param encodedToken the refresh token to search for
-     * @return the JWT authentication from repository
+     * @return the {@link JwtAuthentication} from repository
      * @throws AuthenticationNotFoundException if authentication is not found in repository
      */
     private JwtAuthentication retrieveAuthentication(EncodedToken encodedToken) {
@@ -157,7 +157,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      * Generates a new JWT pair based on the JWT claims.
      *
      * @param jwt the JWT containing subject and role claims
-     * @return the newly generated JWT pair
+     * @return the newly generated {@link JwtPair}
      */
     private JwtPair generateNewTokenPair(Jwt jwt) {
         logger.trace("[REFRESH] Step 3/7: Generating new JWT pair");
@@ -179,7 +179,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      * Persists the updated authentication to the repository.
      *
      * @param jwtAuthentication the authentication to persist
-     * @return the persisted authentication
+     * @return the persisted {@link JwtAuthentication}
      */
     private JwtAuthentication persistAuthenticationUpdate(JwtAuthentication jwtAuthentication) {
         logger.trace("[REFRESH] Step 5/7: Persisting updated authentication to repository");

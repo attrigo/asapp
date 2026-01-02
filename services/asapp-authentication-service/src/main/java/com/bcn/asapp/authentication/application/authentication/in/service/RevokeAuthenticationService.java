@@ -40,8 +40,8 @@ import com.bcn.asapp.authentication.domain.authentication.JwtPair;
  * <p>
  * <strong>Orchestration Flow:</strong>
  * <ol>
- * <li>Verifies access token via {@link TokenVerifier}</li>
- * <li>Fetches authentication from repository via {@link JwtAuthenticationRepository}</li>
+ * <li>Verifies access token</li>
+ * <li>Fetches authentication from repository</li>
  * <li>Deletes token pair from fast-access store</li>
  * <li>Deletes authentication from repository</li>
  * </ol>
@@ -66,7 +66,7 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
      * Constructs a new {@code RevokeAuthenticationService} with required dependencies.
      *
      * @param tokenVerifier               the token verifier for verifying access tokens
-     * @param jwtAuthenticationRepository the repository for persisting JWT authentications
+     * @param jwtAuthenticationRepository the repository for JWT authentications data access
      * @param jwtStore                    the store for fast token lookup and validation
      */
     public RevokeAuthenticationService(TokenVerifier tokenVerifier, JwtAuthenticationRepository jwtAuthenticationRepository, JwtStore jwtStore) {
@@ -130,7 +130,7 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
      * Fetches the authentication record from the repository using the access token.
      *
      * @param encodedToken the access token to search for
-     * @return the JWT authentication from repository
+     * @return the {@link JwtAuthentication} from repository
      * @throws AuthenticationNotFoundException if authentication is not found in repository
      */
     private JwtAuthentication retrieveAuthentication(EncodedToken encodedToken) {
