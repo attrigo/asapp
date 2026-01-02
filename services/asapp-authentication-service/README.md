@@ -125,8 +125,9 @@ The service implements **DDD patterns**:
 **Token Validation Flow**:
 1. Signature validation (HMAC-SHA with secret key)
 2. Expiration check (iat/exp claims validation)
-3. Redis existence check (revocation verification)
-4. Claims extraction (username, role, token_use)
+3. Token type verification (must be "access" token)
+4. Redis existence check (revocation verification - source of truth for active sessions)
+5. Claims extraction (username, role, token_use)
 
 **Security Components**:
 - `JwtIssuer` - Creates signed tokens with HMAC-SHA
