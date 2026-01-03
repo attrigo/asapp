@@ -57,7 +57,7 @@ class ExpiredJwtCleanupSchedulerIT {
     class CleanupExpiredAuthentications {
 
         @Test
-        void CompletesSuccessfully_ThereAreNotAuthentication() {
+        void CompletesSuccessfully_AuthenticationsNotExist() {
             // When
             expiredJwtCleanupScheduler.cleanupExpiredAuthentications();
 
@@ -67,7 +67,7 @@ class ExpiredJwtCleanupSchedulerIT {
         }
 
         @Test
-        void PreservesActiveAuthentications_ThereAreOnlyActiveAuthentications() {
+        void PreservesActiveAuthentications_OnlyActiveAuthenticationsExist() {
             // Given
             var user = createDefaultUser();
 
@@ -84,7 +84,7 @@ class ExpiredJwtCleanupSchedulerIT {
         }
 
         @Test
-        void DeletesOnlyExpiredAuthentications_ThereAreActiveAndExpiredAuthentications() {
+        void DeletesOnlyExpiredAuthentications_ActiveAndExpiredAuthenticationsExist() {
             // Given
             var user = createDefaultUser();
 
@@ -101,7 +101,7 @@ class ExpiredJwtCleanupSchedulerIT {
         }
 
         @Test
-        void DeletesExpiredAuthentications_ThereAreExpiredAuthentications() {
+        void DeletesExpiredAuthentications_ExpiredAuthenticationsExist() {
             // Given
             var user = createDefaultUser();
 

@@ -33,7 +33,7 @@ class EncodedPasswordTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenPasswordIsNullOrEmpty(String password) {
+        void ThrowsIllegalArgumentException_NullOrEmptyPassword(String password) {
             // When
             var thrown = catchThrowable(() -> new EncodedPassword(password));
 
@@ -43,7 +43,7 @@ class EncodedPasswordTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenPasswordIsNotEncoded() {
+        void ThrowsIllegalArgumentException_PasswordNotEncoded() {
             // When
             var thrown = catchThrowable(() -> new EncodedPassword("not_encoded_password"));
 
@@ -53,7 +53,7 @@ class EncodedPasswordTests {
         }
 
         @Test
-        void ThenReturnsEncodedPassword_GivenPasswordIsValid() {
+        void ReturnsEncodedPassword_ValidPassword() {
             // When
             var actual = new EncodedPassword(passwordValue);
 
@@ -68,7 +68,7 @@ class EncodedPasswordTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenPasswordIsNullOrEmpty(String password) {
+        void ThrowsIllegalArgumentException_NullOrEmptyPassword(String password) {
             // When
             var thrown = catchThrowable(() -> EncodedPassword.of(password));
 
@@ -78,7 +78,7 @@ class EncodedPasswordTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenPasswordIsNotEncoded() {
+        void ThrowsIllegalArgumentException_PasswordNotEncoded() {
             // When
             var thrown = catchThrowable(() -> EncodedPassword.of("not_encoded_password"));
 
@@ -88,7 +88,7 @@ class EncodedPasswordTests {
         }
 
         @Test
-        void ThenReturnsEncodedPassword_GivenPasswordIsValid() {
+        void ReturnsEncodedPassword_ValidPassword() {
             // When
             var actual = EncodedPassword.of(passwordValue);
 
@@ -102,7 +102,7 @@ class EncodedPasswordTests {
     class GetValue {
 
         @Test
-        void ThenReturnsPasswordValue_GivenPasswordIsValid() {
+        void ReturnsPasswordValue_ValidPassword() {
             // Given
             var password = EncodedPassword.of(passwordValue);
 

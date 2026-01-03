@@ -56,7 +56,7 @@ class CustomUserDetailsServiceTests {
     class LoadUserByUsername {
 
         @Test
-        void ThenThrowsUsernameNotFoundException_GivenUsernameNotExists() {
+        void ThrowsUsernameNotFoundException_UsernameNotExists() {
             // Given
             given(userRepositoryMock.findByUsername(usernameValue)).willReturn(Optional.empty());
 
@@ -73,7 +73,7 @@ class CustomUserDetailsServiceTests {
 
         @ParameterizedTest
         @EnumSource(value = Role.class)
-        void ThenReturnsCustomUserDetails_GivenUsernameExistsWithRole(Role role) {
+        void ReturnsCustomUserDetails_UsernameExistsWithRole(Role role) {
             // Given
             var userId = UUID.fromString("36f65be6-b9b7-43ef-9f89-b49a724aea0a");
             var password = "{bcrypt}password";

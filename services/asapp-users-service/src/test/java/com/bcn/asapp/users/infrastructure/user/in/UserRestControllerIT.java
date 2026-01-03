@@ -45,7 +45,7 @@ class UserRestControllerIT extends WebMvcTestContext {
     class GetUserById {
 
         @Test
-        void ReturnsStatusNotFoundAndBodyWithProblemDetail_UserIdPathIsNotPresent() {
+        void ReturnsStatusNotFoundAndBodyWithProblemDetail_UserIdMissingInPath() {
             // When & Then
             var requestBuilder = get(USERS_ROOT_PATH + "/");
             mockMvc.perform(requestBuilder)
@@ -65,7 +65,7 @@ class UserRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_UserIdPathIsInvalid() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidUserIdPath() {
             // When & Then
             var userIdPath = 1L;
 
@@ -92,7 +92,7 @@ class UserRestControllerIT extends WebMvcTestContext {
     class CreateUser {
 
         @Test
-        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyIsNotJson() {
+        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyNotJson() {
             // When & Then
             var requestBody = "";
 
@@ -115,7 +115,7 @@ class UserRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsNotPresent() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyMissingInRequest() {
             // When & Then
             var requestBody = "";
 
@@ -138,7 +138,7 @@ class UserRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsEmpty() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyRequestBody() {
             // When & Then
             var requestBody = "{}";
 
@@ -176,7 +176,7 @@ class UserRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyMandatoryFieldsAreEmpty() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyEmptyMandatoryFields() {
             // When & Then
             var requestBody = """
                     {
@@ -225,7 +225,7 @@ class UserRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyEmailFieldIsInvalid() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidRequestBodyEmailField() {
             // When & Then
             var requestBody = """
                     {
@@ -264,7 +264,7 @@ class UserRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyPhoneNumberFieldIsInvalid() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidRequestBodyPhoneNumberField() {
             // When & Then
             var requestBody = """
                     {
@@ -308,7 +308,7 @@ class UserRestControllerIT extends WebMvcTestContext {
     class UpdateUserById {
 
         @Test
-        void ReturnsStatusNotFoundAndBodyWithProblemDetail_UserIdPathIsNotPresent() {
+        void ReturnsStatusNotFoundAndBodyWithProblemDetail_UserIdMissingInPath() {
             // When & Then
             var requestBody = """
                     {
@@ -338,7 +338,7 @@ class UserRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_UserIdPathIsInvalid() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidUserIdPath() {
             // When & Then
             var userIdPath = 1L;
             var requestBody = """
@@ -369,7 +369,7 @@ class UserRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyIsNotJson() {
+        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyNotJson() {
             // When & Then
             var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = "";
@@ -393,7 +393,7 @@ class UserRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsNotPresent() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyMissingInRequest() {
             // When & Then
             var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = "";
@@ -417,7 +417,7 @@ class UserRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsEmpty() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyRequestBody() {
             // When & Then
             var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = "{}";
@@ -456,7 +456,7 @@ class UserRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyMandatoryFieldsAreEmpty() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyEmptyMandatoryFields() {
             // When & Then
             var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = """
@@ -506,7 +506,7 @@ class UserRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyEmailFieldIsInvalid() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidRequestBodyEmailField() {
             // When & Then
             var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = """
@@ -546,7 +546,7 @@ class UserRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyPhoneNumberFieldIsInvalid() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidRequestBodyPhoneNumberField() {
             // When & Then
             var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = """
@@ -591,7 +591,7 @@ class UserRestControllerIT extends WebMvcTestContext {
     class DeleteUserById {
 
         @Test
-        void ReturnsStatusNotFoundAndBodyWithProblemDetail_UserIdPathIsNotPresent() {
+        void ReturnsStatusNotFoundAndBodyWithProblemDetail_UserIdMissingInPath() {
             // When & Then
             var requestBuilder = delete(USERS_ROOT_PATH + "/");
             mockMvc.perform(requestBuilder)
@@ -611,7 +611,7 @@ class UserRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_UserIdPathIsInvalid() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidUserIdPath() {
             // When & Then
             var userIdPath = 1L;
 

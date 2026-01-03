@@ -47,7 +47,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
     class GetTaskById {
 
         @Test
-        void ReturnsStatusNotFoundAndBodyWithProblemDetail_TaskIdPathIsNotPresent() {
+        void ReturnsStatusNotFoundAndBodyWithProblemDetail_TaskIdMissingInPath() {
             // When & Then
             var requestBuilder = get(TASKS_ROOT_PATH + "/");
             mockMvc.perform(requestBuilder)
@@ -67,7 +67,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_TaskIdPathIsInvalid() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidTaskIdPath() {
             // When & Then
             var taskIdPath = 1L;
 
@@ -94,7 +94,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
     class GetTasksByUserId {
 
         @Test
-        void ReturnsStatusNotFoundAndBodyWithProblemDetails_UserIdPathIsNotPresent() {
+        void ReturnsStatusNotFoundAndBodyWithProblemDetails_UserIdPathNotPresent() {
             // When & Then
             var requestBuilder = get(TASKS_ROOT_PATH + "/user/");
             mockMvc.perform(requestBuilder)
@@ -114,7 +114,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetails_UserIdPathIsInvalid() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetails_InvalidUserIdPath() {
             // When & Then
             var userIdPath = 1L;
 
@@ -141,7 +141,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
     class CreateTask {
 
         @Test
-        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyIsNotJson() {
+        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyNotJson() {
             // When & Then
             var requestBody = "";
 
@@ -164,7 +164,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsNotPresent() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyMissingInRequest() {
             // When & Then
             var requestBody = "";
 
@@ -187,7 +187,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsEmpty() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyRequestBody() {
             // When & Then
             var requestBody = "{}";
 
@@ -221,7 +221,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyMandatoryFieldsAreEmpty() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyEmptyMandatoryFields() {
             // When & Then
             var requestBody = """
                     {
@@ -265,7 +265,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
     class UpdateTaskById {
 
         @Test
-        void ReturnsStatusNotFoundAndBodyWithProblemDetail_TaskIdPathIsNotPresent() {
+        void ReturnsStatusNotFoundAndBodyWithProblemDetail_TaskIdMissingInPath() {
             // When & Then
             var newUserId = UUID.fromString("c2f7d9e3-5a8b-46cf-9d4e-8a2f7b3c5e1d");
             var newStartDate = Instant.parse("2025-03-03T13:00:00Z");
@@ -299,7 +299,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_TaskIdPathIsInvalid() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidTaskIdPath() {
             // When & Then
             var taskIdPath = 1L;
             var newUserId = UUID.fromString("c2f7d9e3-5a8b-46cf-9d4e-8a2f7b3c5e1d");
@@ -334,7 +334,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyIsNotJson() {
+        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyNotJson() {
             // When & Then
             var taskIdPath = UUID.fromString("e3a8c5d1-7f9b-482b-9f6a-2d8e5b7c9f3a");
             var requestBody = "";
@@ -358,7 +358,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsNotPresent() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyMissingInRequest() {
             // When & Then
             var taskIdPath = UUID.fromString("e3a8c5d1-7f9b-482b-9f6a-2d8e5b7c9f3a");
             var requestBody = "";
@@ -382,7 +382,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsEmpty() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyRequestBody() {
             // When & Then
             var taskIdPath = UUID.fromString("e3a8c5d1-7f9b-482b-9f6a-2d8e5b7c9f3a");
             var requestBody = "{}";
@@ -417,7 +417,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyMandatoryFieldsAreEmpty() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyEmptyMandatoryFields() {
             // When & Then
             var taskIdPath = UUID.fromString("e3a8c5d1-7f9b-482b-9f6a-2d8e5b7c9f3a");
             var requestBody = """
@@ -462,7 +462,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
     class DeleteTaskById {
 
         @Test
-        void ReturnsStatusNotFoundAndBodyWithProblemDetail_TaskIdPathIsNotPresent() {
+        void ReturnsStatusNotFoundAndBodyWithProblemDetail_TaskIdMissingInPath() {
             // When & Then
             var requestBuilder = delete(TASKS_ROOT_PATH + "/");
             mockMvc.perform(requestBuilder)
@@ -482,7 +482,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_TaskIdPathIsInvalid() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidTaskIdPath() {
             // When & Then
             var taskIdPath = 1L;
 

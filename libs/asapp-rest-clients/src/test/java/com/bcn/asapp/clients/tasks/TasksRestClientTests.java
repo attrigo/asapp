@@ -75,7 +75,7 @@ class TasksRestClientTests {
     class GetTaskIdsByUserId {
 
         @Test
-        void ThenReturnsEmptyList_GivenServerError() {
+        void ReturnsEmptyList_ServerError() {
             // Given
             var expectedUri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
             var uriVariables = USER_ID.toString();
@@ -93,7 +93,7 @@ class TasksRestClientTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUserIdIsNull() {
+        void ThrowsIllegalArgumentException_NullUserId() {
             // When
             var thrown = catchThrowable(() -> tasksRestClient.getTaskIdsByUserId(null));
 
@@ -103,7 +103,7 @@ class TasksRestClientTests {
         }
 
         @Test
-        void ThenReturnsEmptyList_GivenResponseIsNull() {
+        void ReturnsEmptyList_NullResponse() {
             // Given
             var expectedUri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
             var uriVariables = USER_ID.toString();
@@ -121,7 +121,7 @@ class TasksRestClientTests {
         }
 
         @Test
-        void ThenReturnsEmptyList_GivenUserHasNoTasks() {
+        void ReturnsEmptyList_TasksNotExistForUser() {
             // Given
             var expectedUri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
             var uriVariables = USER_ID.toString();
@@ -141,7 +141,7 @@ class TasksRestClientTests {
         }
 
         @Test
-        void ThenReturnsSingleTaskId_GivenUserHasOneTask() {
+        void ReturnsSingleTaskId_UserWithOneTask() {
             // Given
             var expectedUri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
             var uriVariables = USER_ID.toString();
@@ -168,7 +168,7 @@ class TasksRestClientTests {
         }
 
         @Test
-        void ThenReturnsListOfTaskIds_GivenUserHasMultipleTasks() {
+        void ReturnsListOfTaskIds_UserWithMultipleTasks() {
             // Given
             var expectedUri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
             var uriVariables = USER_ID.toString();

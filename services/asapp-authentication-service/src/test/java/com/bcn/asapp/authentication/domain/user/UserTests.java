@@ -40,7 +40,7 @@ class UserTests {
     class CreateInactiveUser {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUsernameIsNull() {
+        void ThrowsIllegalArgumentException_NullUsername() {
             // When
             var thrown = catchThrowable(() -> User.inactiveUser(null, password, role));
 
@@ -50,7 +50,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenPasswordIsNull() {
+        void ThrowsIllegalArgumentException_NullPassword() {
             // When
             var thrown = catchThrowable(() -> User.inactiveUser(username, null, role));
 
@@ -60,7 +60,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenRoleIsNull() {
+        void ThrowsIllegalArgumentException_NullRole() {
             // When
             var thrown = catchThrowable(() -> User.inactiveUser(username, password, null));
 
@@ -70,7 +70,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsInactiveUser_GivenParametersAreValid() {
+        void ReturnsInactiveUser_ValidParameters() {
             // When
             var actual = User.inactiveUser(username, password, role);
 
@@ -87,7 +87,7 @@ class UserTests {
     class CreateActiveUser {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+        void ThrowsIllegalArgumentException_NullId() {
             // When
             var thrown = catchThrowable(() -> User.activeUser(null, username, role));
 
@@ -97,7 +97,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUsernameIsNull() {
+        void ThrowsIllegalArgumentException_NullUsername() {
             // When
             var thrown = catchThrowable(() -> User.activeUser(id, null, role));
 
@@ -107,7 +107,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenRoleIsNull() {
+        void ThrowsIllegalArgumentException_NullRole() {
             // When
             var thrown = catchThrowable(() -> User.activeUser(id, username, null));
 
@@ -117,7 +117,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsActiveUser_GivenParametersAreValid() {
+        void ReturnsActiveUser_ValidParameters() {
             // When
             var actual = User.activeUser(id, username, role);
 
@@ -134,7 +134,7 @@ class UserTests {
     class UpdateUserData {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUsernameIsNullOnInactiveUser() {
+        void ThrowsIllegalArgumentException_NullUsernameOnInactiveUser() {
             // Given
             var user = User.inactiveUser(username, password, role);
 
@@ -150,7 +150,7 @@ class UserTests {
         }
 
         @Test
-        void ThenUpdatesUsernameAndRole_GivenPasswordIsNullOnInactiveUser() {
+        void UpdatesUsernameAndRole_NullPasswordOnInactiveUser() {
             // Given
             var user = User.inactiveUser(username, password, role);
 
@@ -168,7 +168,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenRoleIsNullOnInactiveUser() {
+        void ThrowsIllegalArgumentException_NullRoleOnInactiveUser() {
             // Given
             var user = User.inactiveUser(username, password, role);
 
@@ -184,7 +184,7 @@ class UserTests {
         }
 
         @Test
-        void ThenUpdatesAllFieldsExpectPassword_GivenParametersAreValidOnInactiveUser() {
+        void UpdatesAllFieldsExceptPassword_ValidParametersOnInactiveUser() {
             // Given
             var user = User.inactiveUser(username, password, role);
 
@@ -203,7 +203,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUsernameIsNullOnActiveUser() {
+        void ThrowsIllegalArgumentException_NullUsernameOnActiveUser() {
             // Given
             var user = User.activeUser(id, username, role);
 
@@ -219,7 +219,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenPasswordIsNullOnActiveUser() {
+        void ThrowsIllegalArgumentException_NullPasswordOnActiveUser() {
             // Given
             var user = User.activeUser(id, username, role);
 
@@ -235,7 +235,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenRoleIsNullOnActiveUser() {
+        void ThrowsIllegalArgumentException_NullRoleOnActiveUser() {
             // Given
             var user = User.activeUser(id, username, role);
 
@@ -251,7 +251,7 @@ class UserTests {
         }
 
         @Test
-        void ThenUpdatesAllFields_GivenParametersAreValidOnActiveUser() {
+        void UpdatesAllFields_ValidParametersOnActiveUser() {
             // Given
             var user = User.activeUser(id, username, role);
 
@@ -275,7 +275,7 @@ class UserTests {
     class CheckEquality {
 
         @Test
-        void ThenReturnsFalse_GivenOtherUserIsNull() {
+        void ReturnsFalse_NullOtherUser() {
             // Given
             var user = User.activeUser(id, username, role);
 
@@ -287,7 +287,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenOtherClassIsNotUser() {
+        void ReturnsFalse_OtherClassNotUser() {
             // Given
             var user = User.activeUser(id, username, role);
             var other = "not a user";
@@ -300,7 +300,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsTrue_GivenOtherUserIsSameObject() {
+        void ReturnsTrue_SameObjectOtherUser() {
             // Given
             var user = User.activeUser(id, username, role);
 
@@ -312,7 +312,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsTrue_GivenThreeInactiveUsersWithSameUsername() {
+        void ReturnsTrue_ThreeInactiveUsersSameUsername() {
             // Given
             var user1 = User.inactiveUser(Username.of("user@asapp.com"), password, USER);
             var user2 = User.inactiveUser(Username.of("user@asapp.com"), password, USER);
@@ -330,7 +330,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenThreeInactiveUsersWithDifferentUsername() {
+        void ReturnsFalse_ThreeInactiveUsersDifferentUsername() {
             // Given
             var user1 = User.inactiveUser(Username.of("user1@asapp.com"), password, USER);
             var user2 = User.inactiveUser(Username.of("user2@asapp.com"), password, USER);
@@ -348,7 +348,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenInactiveUserAndActiveUser() {
+        void ReturnsFalse_InactiveUserAndActiveUser() {
             // Given
             var user1 = User.inactiveUser(Username.of("inactive_user@asapp.com"), password, USER);
             var user2 = User.activeUser(id, Username.of("active_user@asapp.com"), USER);
@@ -363,7 +363,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsTrue_GivenThreeActiveUsersWithSameId() {
+        void ReturnsTrue_ThreeActiveUsersSameId() {
             // Given
             var user1 = User.activeUser(id, Username.of("user1@asapp.com"), USER);
             var user2 = User.activeUser(id, Username.of("user2@asapp.com"), USER);
@@ -381,7 +381,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenThreeActiveUsersWithDifferentId() {
+        void ReturnsFalse_ThreeActiveUsersDifferentId() {
             // Given
             var userId1 = UserId.of(UUID.fromString("6ba7b810-9dad-11d1-80b4-00c04fd430c8"));
             var userId2 = UserId.of(UUID.fromString("8f7e3d2a-5c4b-4e9f-9a1e-3b2c1d0e5f6a"));
@@ -407,7 +407,7 @@ class UserTests {
     class HashCode {
 
         @Test
-        void ThenReturnsSameHashCode_GivenTwoInactiveUsersWithSameUsername() {
+        void ReturnsSameHashCode_TwoInactiveUsersWithSameUsername() {
             // Given
             var user1 = User.inactiveUser(Username.of("user@asapp.com"), password, USER);
             var user2 = User.inactiveUser(Username.of("user@asapp.com"), password, USER);
@@ -421,7 +421,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsDifferentHashCode_GivenTwoInactiveUsersWithDifferentUsername() {
+        void ReturnsDifferentHashCode_TwoInactiveUsersWithDifferentUsername() {
             // Given
             var user1 = User.inactiveUser(Username.of("user1@asapp.com"), password, USER);
             var user2 = User.inactiveUser(Username.of("user2@asapp.com"), password, USER);
@@ -435,7 +435,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsDifferentHashCode_GivenInactiveUserAndActiveUser() {
+        void ReturnsDifferentHashCode_InactiveUserAndActiveUser() {
             // Given
             var user1 = User.inactiveUser(Username.of("inactive_user@asapp.com"), password, USER);
             var user2 = User.activeUser(id, Username.of("active_user@asapp.com"), USER);
@@ -449,7 +449,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsSameHashCode_GivenTwoActiveUsersWithSameId() {
+        void ReturnsSameHashCode_TwoActiveUsersSameId() {
             // Given
             var user1 = User.activeUser(id, Username.of("user1@asapp.com"), USER);
             var user2 = User.activeUser(id, Username.of("user2@asapp.com"), USER);
@@ -463,7 +463,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsDifferentHashCode_GivenTwoActiveUsersWithDifferentId() {
+        void ReturnsDifferentHashCode_TwoActiveUsersDifferentId() {
             // Given
             var userId1 = UserId.of(UUID.fromString("7c9e4a2f-3d1b-4e8c-9f5a-6b8d2c3e1f4a"));
             var userId2 = UserId.of(UUID.fromString("5a6b7c8d-9e0f-4a1b-2c3d-4e5f6a7b8c9d"));
@@ -484,7 +484,7 @@ class UserTests {
     class GetId {
 
         @Test
-        void ThenReturnsNull_GivenInactiveUser() {
+        void ReturnsNull_InactiveUser() {
             // Given
             var user = User.inactiveUser(username, password, role);
 
@@ -496,7 +496,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsId_GivenActiveUser() {
+        void ReturnsId_ActiveUser() {
             // Given
             var user = User.activeUser(id, username, role);
 
@@ -513,7 +513,7 @@ class UserTests {
     class GetUsername {
 
         @Test
-        void ThenReturnsUsername_GivenInactiveUser() {
+        void ReturnsUsername_InactiveUser() {
             // Given
             var user = User.inactiveUser(username, password, role);
 
@@ -525,7 +525,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsUsername_GivenActiveUser() {
+        void ReturnsUsername_ActiveUser() {
             // Given
             var user = User.activeUser(id, username, role);
 
@@ -542,7 +542,7 @@ class UserTests {
     class GetPassword {
 
         @Test
-        void ThenReturnsPassword_GivenInactiveUser() {
+        void ReturnsPassword_InactiveUser() {
             // Given
             var user = User.inactiveUser(username, password, role);
 
@@ -554,7 +554,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsNull_GivenActiveUser() {
+        void ReturnsNull_ActiveUser() {
             // Given
             var user = User.activeUser(id, username, role);
 
@@ -571,7 +571,7 @@ class UserTests {
     class GetRole {
 
         @Test
-        void ThenReturnsRole_GivenInactiveUser() {
+        void ReturnsRole_InactiveUser() {
             // Given
             var user = User.inactiveUser(username, password, role);
 
@@ -583,7 +583,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsRole_GivenActiveUser() {
+        void ReturnsRole_ActiveUser() {
             // Given
             var user = User.activeUser(id, username, role);
 

@@ -192,7 +192,7 @@ class ReadUserServiceTests {
         }
 
         @Test
-        void ReturnsEmptyList_UsersNotExists() {
+        void ReturnsEmptyList_UsersNotExist() {
             // Given
             given(userRepository.findAll()).willReturn(List.of());
 
@@ -206,7 +206,7 @@ class ReadUserServiceTests {
         }
 
         @Test
-        void ReturnsUsers_UsersExists() {
+        void ReturnsUsers_UsersExist() {
             // Given
             var userId1 = UserId.of(UUID.randomUUID());
             var userId2 = UserId.of(UUID.randomUUID());

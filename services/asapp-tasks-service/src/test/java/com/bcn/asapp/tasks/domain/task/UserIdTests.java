@@ -32,7 +32,7 @@ class UserIdTests {
     class CreateUserIdWithConstructor {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+        void ThrowsIllegalArgumentException_NullId() {
             // When
             var thrown = catchThrowable(() -> new UserId(null));
 
@@ -42,7 +42,7 @@ class UserIdTests {
         }
 
         @Test
-        void ThenReturnsUserId_GivenIdIsValid() {
+        void ReturnsUserId_ValidId() {
             // When
             var actual = new UserId(userIdValue);
 
@@ -56,7 +56,7 @@ class UserIdTests {
     class CreateUserIdWithFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+        void ThrowsIllegalArgumentException_NullId() {
             // When
             var thrown = catchThrowable(() -> UserId.of(null));
 
@@ -66,7 +66,7 @@ class UserIdTests {
         }
 
         @Test
-        void ThenReturnsUserId_GivenIdIsValid() {
+        void ReturnsUserId_ValidId() {
             // When
             var actual = UserId.of(userIdValue);
 
@@ -80,7 +80,7 @@ class UserIdTests {
     class GetValue {
 
         @Test
-        void ThenReturnsUserIdValue_GivenUserIdIsValid() {
+        void ReturnsUserIdValue_ValidUserId() {
             // Given
             var userId = UserId.of(userIdValue);
 

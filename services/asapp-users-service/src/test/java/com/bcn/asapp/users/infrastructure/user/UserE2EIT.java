@@ -114,7 +114,7 @@ class UserE2EIT {
     class GetUserById {
 
         @Test
-        void DoesNotGetUserAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+        void DoesNotGetUserAndReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
             var userIdPath = UUID.fromString("b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e");
 
@@ -259,7 +259,7 @@ class UserE2EIT {
     class GetAllUsers {
 
         @Test
-        void DoesNotGetUsersAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+        void DoesNotGetUsersAndReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
             webTestClient.get()
                          .uri(USERS_GET_ALL_FULL_PATH)
@@ -272,7 +272,7 @@ class UserE2EIT {
         }
 
         @Test
-        void DoesNotGetUsersAndReturnsStatusOKAndEmptyBody_ThereAreNotUsers() {
+        void DoesNotGetUsersAndReturnsStatusOKAndEmptyBody_UsersNotExist() {
             // When
             var response = webTestClient.get()
                                         .uri(USERS_GET_ALL_FULL_PATH)
@@ -292,7 +292,7 @@ class UserE2EIT {
         }
 
         @Test
-        void GetsAllUsersAndReturnsStatusOKAndBodyWithFoundUsers_ThereAreUsers() {
+        void GetsAllUsersAndReturnsStatusOKAndBodyWithFoundUsers_UsersExist() {
             // Given
             var user1 = testUserBuilder().withEmail("user1@asapp.com")
                                          .build();
@@ -338,7 +338,7 @@ class UserE2EIT {
     class CreateUser {
 
         @Test
-        void DoesNotCreateUserAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+        void DoesNotCreateUserAndReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When
             var createUserRequestBody = new CreateUserRequest("FirstName", "LastName", "user@asapp.com", "555 555 555");
 
@@ -400,7 +400,7 @@ class UserE2EIT {
     class UpdateUserById {
 
         @Test
-        void DoesNotUpdateUserAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+        void DoesNotUpdateUserAndReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
             var userIdPath = UUID.fromString("a6b7c8d9-e0f1-4a2b-3c4d-5e6f7a8b9c0d");
 
@@ -490,7 +490,7 @@ class UserE2EIT {
     class DeleteUserById {
 
         @Test
-        void DoesNotDeleteUserAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+        void DoesNotDeleteUserAndReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
             var userIdPath = UUID.fromString("c8d9e0f1-a2b3-4c4d-5e6f-7a8b9c0d1e2f");
 
@@ -547,7 +547,7 @@ class UserE2EIT {
         }
 
         @Test
-        void DeletesUserAndReturnsStatusNoContentAndEmptyBody_UserExistsAndHasBeenAuthenticated() {
+        void DeletesUserAndReturnsStatusNoContentAndEmptyBody_AuthenticatedUserExists() {
             // Given
             var user = defaultTestUser();
             var userCreated = userRepository.save(user);

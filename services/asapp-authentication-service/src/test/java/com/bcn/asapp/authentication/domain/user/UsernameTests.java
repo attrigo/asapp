@@ -36,7 +36,7 @@ class UsernameTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsInvalidUsernameException_GivenUsernameIsNullOrEmpty(String username) {
+        void ThrowsInvalidUsernameException_NullOrEmptyUsername(String username) {
             // When
             var thrown = catchThrowable(() -> new Username(username));
 
@@ -47,7 +47,7 @@ class UsernameTests {
 
         @ParameterizedTest
         @MethodSource("com.bcn.asapp.authentication.domain.user.UsernameTests#provideInvalidUsernames")
-        void ThenThrowsInvalidUsernameException_GivenUsernameIsNotEmail(String username) {
+        void ThrowsInvalidUsernameException_UsernameNotEmail(String username) {
             // When
             var thrown = catchThrowable(() -> new Username(username));
 
@@ -58,7 +58,7 @@ class UsernameTests {
 
         @ParameterizedTest
         @MethodSource("com.bcn.asapp.authentication.domain.user.UsernameTests#provideValidUsernames")
-        void ThenReturnsUsername_GivenUsernameIsValid(String username) {
+        void ReturnsUsername_ValidUsername(String username) {
             // When
             var actual = new Username(username);
 
@@ -73,7 +73,7 @@ class UsernameTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsInvalidUsernameException_GivenUsernameIsNullOrEmpty(String username) {
+        void ThrowsInvalidUsernameException_NullOrEmptyUsername(String username) {
             // When
             var thrown = catchThrowable(() -> Username.of(username));
 
@@ -84,7 +84,7 @@ class UsernameTests {
 
         @ParameterizedTest
         @MethodSource("com.bcn.asapp.authentication.domain.user.UsernameTests#provideInvalidUsernames")
-        void ThenThrowsInvalidUsernameException_GivenUsernameIsNotEmail(String username) {
+        void ThrowsInvalidUsernameException_UsernameNotEmail(String username) {
             // When
             var thrown = catchThrowable(() -> Username.of(username));
 
@@ -95,7 +95,7 @@ class UsernameTests {
 
         @ParameterizedTest
         @MethodSource("com.bcn.asapp.authentication.domain.user.UsernameTests#provideValidUsernames")
-        void ThenReturnsUsername_GivenUsernameIsValid(String username) {
+        void ReturnsUsername_ValidUsername(String username) {
             // When
             var actual = Username.of(username);
 
@@ -109,7 +109,7 @@ class UsernameTests {
     class GetValue {
 
         @Test
-        void ThenReturnsUsernameValue_GivenUsernameIsValid() {
+        void ReturnsUsernameValue_ValidUsername() {
             // Given
             var username = Username.of(usernameValue);
 

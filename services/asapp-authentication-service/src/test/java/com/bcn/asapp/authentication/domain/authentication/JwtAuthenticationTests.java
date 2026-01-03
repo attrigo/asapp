@@ -66,7 +66,7 @@ class JwtAuthenticationTests {
     class CreateJwtUnAuthenticated {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUserIdIsNull() {
+        void ThrowsIllegalArgumentException_NullUserId() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
 
@@ -79,7 +79,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenJwtPairIsNull() {
+        void ThrowsIllegalArgumentException_NullJwtPair() {
             // When
             var thrown = catchThrowable(() -> JwtAuthentication.unAuthenticated(userId, null));
 
@@ -89,7 +89,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsInactiveUser_GivenParametersAreValid() {
+        void ReturnsUnauthenticatedJwt_ValidParameters() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
 
@@ -109,7 +109,7 @@ class JwtAuthenticationTests {
     class CreateJwtAuthenticated {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+        void ThrowsIllegalArgumentException_NullId() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
 
@@ -122,7 +122,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUserIdIsNull() {
+        void ThrowsIllegalArgumentException_NullUserId() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
 
@@ -135,7 +135,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenJwtPairIsNull() {
+        void ThrowsIllegalArgumentException_NullJwtPair() {
             // When
             var thrown = catchThrowable(() -> JwtAuthentication.authenticated(id, userId, null));
 
@@ -145,7 +145,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsInactiveUser_GivenParametersAreValid() {
+        void ReturnsUnauthenticatedJwt_ValidParameters() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
 
@@ -165,7 +165,7 @@ class JwtAuthenticationTests {
     class GetAccessToken {
 
         @Test
-        void ThenReturnsAccessToken_GivenJwtUnAuthenticated() {
+        void ReturnsAccessToken_JwtUnauthenticated() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, jwtPair);
@@ -178,7 +178,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsAccessToken_GivenJwtAuthenticated() {
+        void ReturnsAccessToken_JwtAuthenticated() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);
@@ -196,7 +196,7 @@ class JwtAuthenticationTests {
     class GetRefreshToken {
 
         @Test
-        void ThenReturnsAccessToken_GivenJwtUnAuthenticated() {
+        void ReturnsAccessToken_JwtUnauthenticated() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, jwtPair);
@@ -209,7 +209,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsAccessToken_GivenJwtAuthenticated() {
+        void ReturnsAccessToken_JwtAuthenticated() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);
@@ -227,7 +227,7 @@ class JwtAuthenticationTests {
     class RefreshTokens {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenJwtPairIsNullOnJwtUnAuthenticated() {
+        void ThrowsIllegalArgumentException_NullJwtPairOnJwtUnAuthenticated() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, jwtPair);
@@ -241,7 +241,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenRefreshesTokens_GivenJwtPairIsValidOnJwtUnAuthenticated() {
+        void RefreshesTokens_ValidJwtPairOnJwtUnauthenticated() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, jwtPair);
@@ -265,7 +265,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenJwtPairIsNullOnJwtAuthenticated() {
+        void ThrowsIllegalArgumentException_NullJwtPairOnJwtAuthenticated() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);
@@ -279,7 +279,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenRefreshesTokens_GivenJwtPairIsValidOnJwtAuthenticated() {
+        void RefreshesTokens_ValidJwtPairOnJwtAuthenticated() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);
@@ -308,7 +308,7 @@ class JwtAuthenticationTests {
     class CheckEquality {
 
         @Test
-        void ThenReturnsFalse_GivenOtherJwtAuthenticationIsNull() {
+        void ReturnsFalse_NullOtherJwtAuthentication() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);
@@ -321,7 +321,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenOtherClassIsNotJwtAuthentication() {
+        void ReturnsFalse_OtherClassNotJwtAuthentication() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);
@@ -335,7 +335,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsTrue_GivenOtherJwtAuthenticationIsSameObject() {
+        void ReturnsTrue_SameObjectOtherJwtAuthentication() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);
@@ -348,7 +348,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenJwtUnAuthenticatedAndJwtAuthenticated() {
+        void ReturnsFalse_JwtUnauthenticatedAndJwtAuthenticated() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication1 = JwtAuthentication.unAuthenticated(userId, jwtPair);
@@ -364,7 +364,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsTrue_GivenThreeJwtAuthenticationWithSameId() {
+        void ReturnsTrue_ThreeJwtAuthenticationsSameId() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication1 = JwtAuthentication.authenticated(id, userId, jwtPair);
@@ -383,7 +383,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenThreeJwtAuthenticationWithDifferentId() {
+        void ReturnsFalse_ThreeJwtAuthenticationsDifferentId() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthenticationId1 = JwtAuthenticationId.of(UUID.fromString("4e5f6789-0123-4456-c789-0abcdef12345"));
@@ -410,7 +410,7 @@ class JwtAuthenticationTests {
     class HashCode {
 
         @Test
-        void ThenReturnsDifferentHashCode_GivenTwoJwtUnAuthenticated() {
+        void ReturnsDifferentHashCode_TwoJwtUnauthenticated() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication1 = JwtAuthentication.unAuthenticated(userId, jwtPair);
@@ -425,7 +425,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsDifferentHashCode_GivenJwtUnAuthenticatedAndJwtAuthenticated() {
+        void ReturnsDifferentHashCode_JwtUnauthenticatedAndJwtAuthenticated() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication1 = JwtAuthentication.unAuthenticated(userId, jwtPair);
@@ -440,7 +440,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsSameHashCode_GivenTwoJwtAuthenticatedWithSameId() {
+        void ReturnsSameHashCode_TwoJwtAuthenticatedSameId() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication1 = JwtAuthentication.authenticated(id, userId, jwtPair);
@@ -455,7 +455,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsDifferentHashCode_GivenTwoJwtAuthenticatedWithDifferentId() {
+        void ReturnsDifferentHashCode_TwoJwtAuthenticatedDifferentId() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthenticationId1 = JwtAuthenticationId.of(UUID.fromString("78901234-5678-4abc-b234-def123456789"));
@@ -477,7 +477,7 @@ class JwtAuthenticationTests {
     class GetId {
 
         @Test
-        void ThenReturnsNull_GivenJwtUnAuthenticated() {
+        void ReturnsNull_JwtUnauthenticated() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, jwtPair);
@@ -490,7 +490,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsId_GivenJwtAuthenticated() {
+        void ReturnsId_JwtAuthenticated() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);
@@ -508,7 +508,7 @@ class JwtAuthenticationTests {
     class GetUserId {
 
         @Test
-        void ThenReturnsUserId_GivenJwtUnAuthenticated() {
+        void ReturnsUserId_JwtUnauthenticated() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, jwtPair);
@@ -521,7 +521,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsUserId_GivenJwtAuthenticated() {
+        void ReturnsUserId_JwtAuthenticated() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);
@@ -539,7 +539,7 @@ class JwtAuthenticationTests {
     class GetJwtPair {
 
         @Test
-        void ThenReturnsJwtPair_GivenJwtUnAuthenticated() {
+        void ReturnsJwtPair_JwtUnauthenticated() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication = JwtAuthentication.unAuthenticated(userId, jwtPair);
@@ -553,7 +553,7 @@ class JwtAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsJwtPair_GivenJwtAuthenticated() {
+        void ReturnsJwtPair_JwtAuthenticated() {
             // Given
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var jwtAuthentication = JwtAuthentication.authenticated(id, userId, jwtPair);

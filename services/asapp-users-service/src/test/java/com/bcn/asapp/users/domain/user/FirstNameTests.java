@@ -33,7 +33,7 @@ class FirstNameTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenFirstNameIsNullOrEmpty(String firstName) {
+        void ThrowsIllegalArgumentException_NullOrEmptyFirstName(String firstName) {
             // When
             var thrown = catchThrowable(() -> new FirstName(firstName));
 
@@ -43,7 +43,7 @@ class FirstNameTests {
         }
 
         @Test
-        void ThenReturnsFirstName_GivenFirstNameIsValid() {
+        void ReturnsFirstName_ValidFirstName() {
             // When
             var actual = new FirstName(firstNameValue);
 
@@ -58,7 +58,7 @@ class FirstNameTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenFirstNameIsNullOrEmpty(String firstName) {
+        void ThrowsIllegalArgumentException_NullOrEmptyFirstName(String firstName) {
             // When
             var thrown = catchThrowable(() -> FirstName.of(firstName));
 
@@ -68,7 +68,7 @@ class FirstNameTests {
         }
 
         @Test
-        void ThenReturnsFirstName_GivenFirstNameIsValid() {
+        void ReturnsFirstName_ValidFirstName() {
             // When
             var actual = FirstName.of(firstNameValue);
 
@@ -82,7 +82,7 @@ class FirstNameTests {
     class GetValue {
 
         @Test
-        void ThenReturnsFirstNameValue_GivenFirstNameIsValid() {
+        void ReturnsFirstNameValue_ValidFirstName() {
             // Given
             var firstName = FirstName.of(firstNameValue);
 

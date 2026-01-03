@@ -40,7 +40,7 @@ class UserTests {
     class CreateNewUser {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenFirstNameIsNull() {
+        void ThrowsIllegalArgumentException_NullFirstName() {
             // When
             var thrown = catchThrowable(() -> User.create(null, lastName, email, phoneNumber));
 
@@ -50,7 +50,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenLastNameIsNull() {
+        void ThrowsIllegalArgumentException_NullLastName() {
             // When
             var thrown = catchThrowable(() -> User.create(firstName, null, email, phoneNumber));
 
@@ -60,7 +60,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenEmailIsNull() {
+        void ThrowsIllegalArgumentException_NullEmail() {
             // When
             var thrown = catchThrowable(() -> User.create(firstName, lastName, null, phoneNumber));
 
@@ -70,7 +70,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenPhoneNumberIsNull() {
+        void ThrowsIllegalArgumentException_NullPhoneNumber() {
             // When
             var thrown = catchThrowable(() -> User.create(firstName, lastName, email, null));
 
@@ -80,7 +80,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsNewUser_GivenParametersAreValid() {
+        void ReturnsNewUser_ValidParameters() {
             // When
             var actual = User.create(firstName, lastName, email, phoneNumber);
 
@@ -98,7 +98,7 @@ class UserTests {
     class CreateReconstitutedUser {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+        void ThrowsIllegalArgumentException_NullId() {
             // When
             var thrown = catchThrowable(() -> User.reconstitute(null, firstName, lastName, email, phoneNumber));
 
@@ -108,7 +108,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenFirstNameIsNull() {
+        void ThrowsIllegalArgumentException_NullFirstName() {
             // When
             var thrown = catchThrowable(() -> User.reconstitute(id, null, lastName, email, phoneNumber));
 
@@ -118,7 +118,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenLastNameIsNull() {
+        void ThrowsIllegalArgumentException_NullLastName() {
             // When
             var thrown = catchThrowable(() -> User.reconstitute(id, firstName, null, email, phoneNumber));
 
@@ -128,7 +128,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenEmailIsNull() {
+        void ThrowsIllegalArgumentException_NullEmail() {
             // When
             var thrown = catchThrowable(() -> User.reconstitute(id, firstName, lastName, null, phoneNumber));
 
@@ -138,7 +138,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenPhoneNumberIsNull() {
+        void ThrowsIllegalArgumentException_NullPhoneNumber() {
             // When
             var thrown = catchThrowable(() -> User.reconstitute(id, firstName, lastName, email, null));
 
@@ -148,7 +148,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsReconstitutedUser_GivenParametersAreValid() {
+        void ReturnsReconstitutedUser_ValidParameters() {
             // When
             var actual = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
@@ -166,7 +166,7 @@ class UserTests {
     class UpdateUserData {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenFirstNameIsNullOnNewUser() {
+        void ThrowsIllegalArgumentException_NullFirstNameOnNewUser() {
             // Given
             var user = User.create(firstName, lastName, email, phoneNumber);
 
@@ -183,7 +183,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenLastNameIsNullOnNewUser() {
+        void ThrowsIllegalArgumentException_NullLastNameOnNewUser() {
             // Given
             var user = User.create(firstName, lastName, email, phoneNumber);
 
@@ -200,7 +200,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenEmailIsNullOnNewUser() {
+        void ThrowsIllegalArgumentException_NullEmailOnNewUser() {
             // Given
             var user = User.create(firstName, lastName, email, phoneNumber);
 
@@ -217,7 +217,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenPhoneNumberIsNullOnNewUser() {
+        void ThrowsIllegalArgumentException_NullPhoneNumberOnNewUser() {
             // Given
             var user = User.create(firstName, lastName, email, phoneNumber);
 
@@ -234,7 +234,7 @@ class UserTests {
         }
 
         @Test
-        void ThenUpdatesAllFields_GivenParametersAreValidOnNewUser() {
+        void UpdatesAllFields_ValidParametersOnNewUser() {
             // Given
             var user = User.create(firstName, lastName, email, phoneNumber);
 
@@ -255,7 +255,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenFirstNameIsNullOnReconstitutedUser() {
+        void ThrowsIllegalArgumentException_NullFirstNameOnReconstitutedUser() {
             // Given
             var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
@@ -272,7 +272,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenLastNameIsNullOnReconstitutedUser() {
+        void ThrowsIllegalArgumentException_NullLastNameOnReconstitutedUser() {
             // Given
             var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
@@ -289,7 +289,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenEmailIsNullOnReconstitutedUser() {
+        void ThrowsIllegalArgumentException_NullEmailOnReconstitutedUser() {
             // Given
             var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
@@ -306,7 +306,7 @@ class UserTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenPhoneNumberIsNullOnReconstitutedUser() {
+        void ThrowsIllegalArgumentException_NullPhoneNumberOnReconstitutedUser() {
             // Given
             var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
@@ -323,7 +323,7 @@ class UserTests {
         }
 
         @Test
-        void ThenUpdatesAllFields_GivenParametersAreValidOnReconstitutedUser() {
+        void UpdatesAllFields_ValidParametersOnReconstitutedUser() {
             // Given
             var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
@@ -349,7 +349,7 @@ class UserTests {
     class CheckEquality {
 
         @Test
-        void ThenReturnsFalse_GivenOtherUserIsNull() {
+        void ReturnsFalse_NullOtherUser() {
             // Given
             var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
@@ -361,7 +361,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenOtherClassIsNotUser() {
+        void ReturnsFalse_OtherClassNotUser() {
             // Given
             var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
             var other = "not a user";
@@ -374,7 +374,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsTrue_GivenOtherUserIsSameObject() {
+        void ReturnsTrue_SameObjectOtherUser() {
             // Given
             var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
@@ -386,7 +386,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenNewUserAndReconstitutedUser() {
+        void ReturnsFalse_NewUserAndReconstitutedUser() {
             // Given
             var user1 = User.create(firstName, lastName, email, phoneNumber);
             var user2 = User.reconstitute(id, firstName, lastName, email, phoneNumber);
@@ -401,7 +401,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsTrue_GivenThreeReconstitutedUsersWithSameId() {
+        void ReturnsTrue_ThreeReconstitutedUsersSameId() {
             // Given
             var user1 = User.reconstitute(id, firstName, lastName, email, phoneNumber);
             var user2 = User.reconstitute(id, firstName, lastName, email, phoneNumber);
@@ -419,7 +419,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenThreeReconstitutedUsersWithDifferentId() {
+        void ReturnsFalse_ThreeReconstitutedUsersDifferentId() {
             // Given
             var userId1 = UserId.of(UUID.fromString("6ba7b810-9dad-11d1-80b4-00c04fd430c8"));
             var userId2 = UserId.of(UUID.fromString("8f7e3d2a-5c4b-4e9f-9a1e-3b2c1d0e5f6a"));
@@ -445,7 +445,7 @@ class UserTests {
     class HashCode {
 
         @Test
-        void ThenReturnsDifferentHashCode_GivenTwoNewUsers() {
+        void ReturnsDifferentHashCode_TwoNewUsers() {
             // Given
             var user1 = User.create(firstName, lastName, email, phoneNumber);
             var user2 = User.create(firstName, lastName, email, phoneNumber);
@@ -459,7 +459,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsDifferentHashCode_GivenNewUserAndReconstitutedUser() {
+        void ReturnsDifferentHashCode_NewUserAndReconstitutedUser() {
             // Given
             var user1 = User.create(firstName, lastName, email, phoneNumber);
             var user2 = User.reconstitute(id, firstName, lastName, email, phoneNumber);
@@ -473,7 +473,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsSameHashCode_GivenTwoReconstitutedUsersWithSameId() {
+        void ReturnsSameHashCode_TwoReconstitutedUsersSameId() {
             // Given
             var user1 = User.reconstitute(id, firstName, lastName, email, phoneNumber);
             var user2 = User.reconstitute(id, firstName, lastName, email, phoneNumber);
@@ -487,7 +487,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsDifferentHashCode_GivenTwoReconstitutedUsersWithDifferentId() {
+        void ReturnsDifferentHashCode_TwoReconstitutedUsersDifferentId() {
             // Given
             var userId1 = UserId.of(UUID.fromString("7c9e4a2f-3d1b-4e8c-9f5a-6b8d2c3e1f4a"));
             var userId2 = UserId.of(UUID.fromString("5a6b7c8d-9e0f-4a1b-2c3d-4e5f6a7b8c9d"));
@@ -508,7 +508,7 @@ class UserTests {
     class GetId {
 
         @Test
-        void ThenReturnsNull_GivenNewUser() {
+        void ReturnsNull_NewUser() {
             // Given
             var user = User.create(firstName, lastName, email, phoneNumber);
 
@@ -520,7 +520,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsId_GivenReconstitutedUser() {
+        void ReturnsId_ReconstitutedUser() {
             // Given
             var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
@@ -537,7 +537,7 @@ class UserTests {
     class GetFirstName {
 
         @Test
-        void ThenReturnsFirstName_GivenNewUser() {
+        void ReturnsFirstName_NewUser() {
             // Given
             var user = User.create(firstName, lastName, email, phoneNumber);
 
@@ -549,7 +549,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsFirstName_GivenReconstitutedUser() {
+        void ReturnsFirstName_ReconstitutedUser() {
             // Given
             var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
@@ -566,7 +566,7 @@ class UserTests {
     class GetLastName {
 
         @Test
-        void ThenReturnsLastName_GivenNewUser() {
+        void ReturnsLastName_NewUser() {
             // Given
             var user = User.create(firstName, lastName, email, phoneNumber);
 
@@ -578,7 +578,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsLastName_GivenReconstitutedUser() {
+        void ReturnsLastName_ReconstitutedUser() {
             // Given
             var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
@@ -595,7 +595,7 @@ class UserTests {
     class GetEmail {
 
         @Test
-        void ThenReturnsEmail_GivenNewUser() {
+        void ReturnsEmail_NewUser() {
             // Given
             var user = User.create(firstName, lastName, email, phoneNumber);
 
@@ -607,7 +607,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsEmail_GivenReconstitutedUser() {
+        void ReturnsEmail_ReconstitutedUser() {
             // Given
             var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 
@@ -624,7 +624,7 @@ class UserTests {
     class GetPhoneNumber {
 
         @Test
-        void ThenReturnsPhoneNumber_GivenNewUser() {
+        void ReturnsPhoneNumber_NewUser() {
             // Given
             var user = User.create(firstName, lastName, email, phoneNumber);
 
@@ -636,7 +636,7 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsPhoneNumber_GivenReconstitutedUser() {
+        void ReturnsPhoneNumber_ReconstitutedUser() {
             // Given
             var user = User.reconstitute(id, firstName, lastName, email, phoneNumber);
 

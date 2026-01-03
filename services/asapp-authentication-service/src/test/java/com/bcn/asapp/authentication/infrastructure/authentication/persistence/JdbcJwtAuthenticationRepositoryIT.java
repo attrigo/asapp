@@ -129,7 +129,7 @@ class JdbcJwtAuthenticationRepositoryIT {
     class FindAllByUserId {
 
         @Test
-        void DoesNotFindJwtAuthenticationsAndReturnsEmptyList_UserHasNoJwtAuthentications() {
+        void DoesNotFindJwtAuthenticationsAndReturnsEmptyList_JwtAuthenticationsNotExistForUser() {
             // Given
             var user = createDefaultUser();
 
@@ -143,7 +143,7 @@ class JdbcJwtAuthenticationRepositoryIT {
         }
 
         @Test
-        void FindsAllJwtAuthenticationsAndReturnsList_UserHasMultipleJwtAuthentications() {
+        void FindsAllJwtAuthenticationsAndReturnsList_MultipleUserJwtAuthenticationsExist() {
             // Given
             var user = createDefaultUser();
 
@@ -167,7 +167,7 @@ class JdbcJwtAuthenticationRepositoryIT {
     class DeleteAllByUserId {
 
         @Test
-        void DeletesUserJwtAuthentications_UserHasJwtAuthentications() {
+        void DeletesUserJwtAuthentications_UserJwtAuthenticationsExist() {
             // Given
             var user = createDefaultUser();
 
@@ -196,7 +196,7 @@ class JdbcJwtAuthenticationRepositoryIT {
     class DeleteAllByRefreshTokenExpiredBefore {
 
         @Test
-        void DoesNotDeleteJwtAuthenticationsAndReturnsZero_ThereAreNotJwtAuthentications() {
+        void DoesNotDeleteJwtAuthenticationsAndReturnsZero_JwtAuthenticationsNotExist() {
             // When
             var expiredBefore = Instant.now();
 
@@ -207,7 +207,7 @@ class JdbcJwtAuthenticationRepositoryIT {
         }
 
         @Test
-        void DoesNotDeleteActiveJwtAuthenticationsAndReturnsZero_ThereAreActiveJwtAuthentications() {
+        void DoesNotDeleteActiveJwtAuthenticationsAndReturnsZero_ActiveJwtAuthenticationsExist() {
             // Given
             var user = createDefaultUser();
 
@@ -228,7 +228,7 @@ class JdbcJwtAuthenticationRepositoryIT {
         }
 
         @Test
-        void DeleteExpiredJwtAuthenticationsAndReturnsDeletedCount_ThereAreExpiredAndActiveJwtAuthentications() {
+        void DeleteExpiredJwtAuthenticationsAndReturnsDeletedCount_ExpiredAndActiveJwtAuthenticationsExist() {
             // Given
             var user = createDefaultUser();
 

@@ -36,7 +36,7 @@ class DefaultUriHandlerTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenBaseUriIsNullOrEmpty(String baseUri) {
+        void ThrowsIllegalArgumentException_NullOrEmptyBaseUri(String baseUri) {
             // When
             var thrown = catchThrowable(() -> new DefaultUriHandler(baseUri));
 
@@ -47,7 +47,7 @@ class DefaultUriHandlerTests {
 
         @ParameterizedTest
         @MethodSource("com.bcn.asapp.clients.util.DefaultUriHandlerTests#provideBlankStrings")
-        void ThenThrowsIllegalArgumentException_GivenBaseUriIsBlank(String baseUri) {
+        void ThrowsIllegalArgumentException_BlankBaseUri(String baseUri) {
             // When
             var thrown = catchThrowable(() -> new DefaultUriHandler(baseUri));
 
@@ -57,7 +57,7 @@ class DefaultUriHandlerTests {
         }
 
         @Test
-        void ThenReturnsUriHandler_GivenBaseUriIsValid() {
+        void ReturnsUriHandler_ValidBaseUri() {
             // When
             var actual = new DefaultUriHandler(BASE_URL);
 
@@ -71,7 +71,7 @@ class DefaultUriHandlerTests {
     class NewInstance {
 
         @Test
-        void ThenReturnsNewUriBuilder_GivenFirstCall() {
+        void ReturnsNewUriBuilder_FirstCall() {
             // Given
             var uriHandler = new DefaultUriHandler(BASE_URL);
 
@@ -83,7 +83,7 @@ class DefaultUriHandlerTests {
         }
 
         @Test
-        void ThenReturnsDifferentInstances_GivenMultipleCalls() {
+        void ReturnsDifferentInstances_MultipleCalls() {
             // Given
             var uriHandler = new DefaultUriHandler(BASE_URL);
             var firstInstance = uriHandler.newInstance();
@@ -97,7 +97,7 @@ class DefaultUriHandlerTests {
         }
 
         @Test
-        void ThenBuildsUriWithBasePath_GivenNoAdditionalPath() {
+        void BuildsUriWithBasePath_MissingAdditionalPath() {
             // Given
             var uriHandler = new DefaultUriHandler(BASE_URL);
 
@@ -110,7 +110,7 @@ class DefaultUriHandlerTests {
         }
 
         @Test
-        void ThenBuildsUriWithAppendedPath_GivenAdditionalPath() {
+        void BuildsUriWithAppendedPath_AdditionalPath() {
             // Given
             var uriHandler = new DefaultUriHandler(BASE_URL);
             var path = "/api/users";
@@ -125,7 +125,7 @@ class DefaultUriHandlerTests {
         }
 
         @Test
-        void ThenBuildsUriWithPathVariable_GivenPathTemplate() {
+        void BuildsUriWithPathVariable_PathTemplate() {
             // Given
             var uriHandler = new DefaultUriHandler(BASE_URL);
             var pathTemplate = "/api/users/{id}";
@@ -141,7 +141,7 @@ class DefaultUriHandlerTests {
         }
 
         @Test
-        void ThenBuildsUriWithQueryParams_GivenQueryParameters() {
+        void BuildsUriWithQueryParams_QueryParameters() {
             // Given
             var uriHandler = new DefaultUriHandler(BASE_URL);
             var path = "/api/users";

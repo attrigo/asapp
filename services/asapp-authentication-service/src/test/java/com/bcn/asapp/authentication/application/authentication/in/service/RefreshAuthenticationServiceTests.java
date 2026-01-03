@@ -87,7 +87,7 @@ class RefreshAuthenticationServiceTests {
     class RefreshAuthentication {
 
         @Test
-        void ThrowsUnexpectedJwtTypeException_TokenIsNotRefreshType() {
+        void ThrowsUnexpectedJwtTypeException_TokenNotRefreshType() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
             willThrow(new UnexpectedJwtTypeException("Token is not a refresh token")).given(tokenVerifier)

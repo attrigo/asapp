@@ -32,7 +32,7 @@ class EndDateTests {
     class CreateEndDateWithConstructor {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenEndDateIsNull() {
+        void ThrowsIllegalArgumentException_NullEndDate() {
             // When
             var thrown = catchThrowable(() -> new EndDate(null));
 
@@ -42,7 +42,7 @@ class EndDateTests {
         }
 
         @Test
-        void ThenReturnsEndDate_GivenEndDateIsValid() {
+        void ReturnsEndDate_ValidEndDate() {
             // When
             var actual = new EndDate(endDateValue);
 
@@ -56,7 +56,7 @@ class EndDateTests {
     class CreateEndDateWithFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenEndDateIsNull() {
+        void ThrowsIllegalArgumentException_NullEndDate() {
             // When
             var thrown = catchThrowable(() -> EndDate.of(null));
 
@@ -66,7 +66,7 @@ class EndDateTests {
         }
 
         @Test
-        void ThenReturnsEndDate_GivenEndDateIsValid() {
+        void ReturnsEndDate_ValidEndDate() {
             // When
             var actual = EndDate.of(endDateValue);
 
@@ -80,7 +80,7 @@ class EndDateTests {
     class CreateEndDateWithNullableFactoryMethod {
 
         @Test
-        void ThenReturnsNull_GivenEndDateIsNull() {
+        void ReturnsNull_NullEndDate() {
             // When
             var actual = EndDate.ofNullable(null);
 
@@ -89,7 +89,7 @@ class EndDateTests {
         }
 
         @Test
-        void ThenReturnsEndDate_GivenEndDateIsValid() {
+        void ReturnsEndDate_ValidEndDate() {
             // When
             var actual = EndDate.ofNullable(endDateValue);
 
@@ -103,7 +103,7 @@ class EndDateTests {
     class GetValue {
 
         @Test
-        void ThenReturnsEndDateValue_GivenEndDateIsValid() {
+        void ReturnsEndDateValue_ValidEndDate() {
             // Given
             var endDate = EndDate.of(endDateValue);
 

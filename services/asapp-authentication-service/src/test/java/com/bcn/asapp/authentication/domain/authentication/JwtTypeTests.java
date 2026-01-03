@@ -34,7 +34,7 @@ class JwtTypeTests {
     class GetType {
 
         @Test
-        void ThenReturnsAtJwt_GivenAccessToken() {
+        void ReturnsAtJwt_AccessToken() {
             // When
             var actual = ACCESS_TOKEN.type();
 
@@ -43,7 +43,7 @@ class JwtTypeTests {
         }
 
         @Test
-        void ThenReturnsRtJwt_GivenRefreshToken() {
+        void ReturnsRtJwt_RefreshToken() {
             // When
             var actual = REFRESH_TOKEN.type();
 
@@ -53,7 +53,7 @@ class JwtTypeTests {
 
         @ParameterizedTest
         @EnumSource(JwtType.class)
-        void ThenReturnsNonNull_GivenAllJwtTypes(JwtType jwtType) {
+        void ReturnsNonNull_AllJwtTypes(JwtType jwtType) {
             // When
             var actual = jwtType.type();
 
@@ -68,7 +68,7 @@ class JwtTypeTests {
     class OfType {
 
         @Test
-        void ThenReturnsAccessToken_GivenAtJwt() {
+        void ReturnsAccessToken_AtJwt() {
             // When
             var actual = JwtType.ofType("at+jwt");
 
@@ -77,7 +77,7 @@ class JwtTypeTests {
         }
 
         @Test
-        void ThenReturnsRefreshToken_GivenRtJwt() {
+        void ReturnsRefreshToken_RtJwt() {
             // When
             var actual = JwtType.ofType("rt+jwt");
 
@@ -86,7 +86,7 @@ class JwtTypeTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenTypeIsNull() {
+        void ThrowsIllegalArgumentException_NullType() {
             // When
             var thrown = catchThrowable(() -> JwtType.ofType(null));
 
@@ -98,7 +98,7 @@ class JwtTypeTests {
         @ParameterizedTest
         @EmptySource
         @ValueSource(strings = { "invalid", "jwt", "AT+JWT", "RT+JWT", "access_token", "refresh_token", "at jwt", "rt jwt" })
-        void ThrowsIllegalArgumentException_GivenTypeIsInvalid(String invalidType) {
+        void ThrowsIllegalArgumentException_InvalidType(String invalidType) {
             // When
             var thrown = catchThrowable(() -> JwtType.ofType(invalidType));
 

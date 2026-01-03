@@ -85,7 +85,7 @@ class RevokeAuthenticationServiceTests {
     class RevokeAuthentication {
 
         @Test
-        void ThrowsUnexpectedJwtTypeException_TokenIsNotAccessType() {
+        void ThrowsUnexpectedJwtTypeException_TokenNotAccessType() {
             // Given
             var encodedAccessToken = EncodedToken.of(accessTokenValue);
             willThrow(new UnexpectedJwtTypeException("Token is not an access token")).given(tokenVerifier)

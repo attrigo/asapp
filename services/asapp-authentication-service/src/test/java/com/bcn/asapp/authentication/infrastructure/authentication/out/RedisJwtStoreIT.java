@@ -133,7 +133,7 @@ class RedisJwtStoreIT {
     class Save {
 
         @Test
-        void StoresJwtPairInRedis_JwtPairIsValid() {
+        void StoresJwtPairInRedis_ValidJwtPair() {
             // Given
             var jwtPair = defaultTestDomainJwtAuthentication().getJwtPair();
             var accessTokenKey = buildAccessTokenKey(jwtPair);
@@ -158,7 +158,7 @@ class RedisJwtStoreIT {
         }
 
         @Test
-        void StoresJwtPairWithCorrectTtl_JwtPairIsValid() {
+        void StoresJwtPairWithCorrectTtl_ValidJwtPair() {
             // Given
             var jwtPair = defaultTestDomainJwtAuthentication().getJwtPair();
             var accessTokenKey = buildAccessTokenKey(jwtPair);
@@ -181,7 +181,7 @@ class RedisJwtStoreIT {
         }
 
         @Test
-        void StoresJwtPairWithMinimumTtl_TokenIsExpiringSoon() {
+        void StoresJwtPairWithMinimumTtl_TokenExpiringSoon() {
             // Given
             var now = java.time.Instant.now();
             var expiringSoon = now.plusSeconds(EXPIRING_SOON_SECONDS);
@@ -243,7 +243,7 @@ class RedisJwtStoreIT {
         }
 
         @Test
-        void AutoDeletesAccessToken_AccessTokenHasExpired() throws InterruptedException {
+        void AutoDeletesAccessToken_AccessTokenExpiredInRedis() throws InterruptedException {
             // Given
             var now = java.time.Instant.now();
             var expiringSoon = now.plusSeconds(1L);
@@ -266,7 +266,7 @@ class RedisJwtStoreIT {
         }
 
         @Test
-        void AutoDeletesRefreshToken_RefreshTokenHasExpires() throws InterruptedException {
+        void AutoDeletesRefreshToken_RefreshTokenExpiredInRedis() throws InterruptedException {
             // Given
             var now = java.time.Instant.now();
             var expiringSoon = now.plusSeconds(1L);

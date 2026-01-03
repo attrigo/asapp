@@ -85,7 +85,7 @@ class TaskE2EIT {
     class GetTaskById {
 
         @Test
-        void DoesNotGetTaskAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+        void DoesNotGetTaskAndReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
             var taskIdPath = UUID.fromString("a7f3e5d2-6b9c-4a81-9e3f-2d4b8c7e1a9f");
 
@@ -151,7 +151,7 @@ class TaskE2EIT {
     class GetTasksByUserId {
 
         @Test
-        void DoesNotGetTasksAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+        void DoesNotGetTasksAndReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
             var userIdPath = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
 
@@ -166,7 +166,7 @@ class TaskE2EIT {
         }
 
         @Test
-        void DoesNotGetTasksAndReturnsStatusOKAndEmptyBody_ThereAreNotTasksWithUserId() {
+        void DoesNotGetTasksAndReturnsStatusOKAndEmptyBody_TasksNotExistForUserId() {
             // Given
             var userIdPath = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
 
@@ -189,7 +189,7 @@ class TaskE2EIT {
         }
 
         @Test
-        void GetsTasksAndReturnsStatusOKAndBodyWithFoundTasks_ThereAreTasksWithUserId() {
+        void GetsTasksAndReturnsStatusOKAndBodyWithFoundTasks_TasksWithUserIdExist() {
             // Given
             var userId = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
 
@@ -237,7 +237,7 @@ class TaskE2EIT {
     class GetAllTasks {
 
         @Test
-        void DoesNotGetTasksAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+        void DoesNotGetTasksAndReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
             webTestClient.get()
                          .uri(TASKS_GET_ALL_FULL_PATH)
@@ -250,7 +250,7 @@ class TaskE2EIT {
         }
 
         @Test
-        void DoesNotGetTasksAndReturnsStatusOKAndEmptyBody_ThereAreNotTasks() {
+        void DoesNotGetTasksAndReturnsStatusOKAndEmptyBody_TasksNotExist() {
             // When
             var response = webTestClient.get()
                                         .uri(TASKS_GET_ALL_FULL_PATH)
@@ -270,7 +270,7 @@ class TaskE2EIT {
         }
 
         @Test
-        void GetsAllTasksAndReturnsStatusOKAndBodyWithFoundTasks_ThereAreTasks() {
+        void GetsAllTasksAndReturnsStatusOKAndBodyWithFoundTasks_TasksExist() {
             // Given
             var task1 = testTaskBuilder().withTitle("Title1")
                                          .build();
@@ -316,7 +316,7 @@ class TaskE2EIT {
     class CreateTask {
 
         @Test
-        void DoesNotCreateTaskAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+        void DoesNotCreateTaskAndReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             var userId = UUID.fromString("f8b4d2e9-7c5a-4f36-8d9b-1e3a7f4c6b8d");
             var startDate = Instant.parse("2025-01-01T11:00:00Z");
             var endDate = Instant.parse("2025-02-02T12:00:00Z");
@@ -384,7 +384,7 @@ class TaskE2EIT {
     class UpdateTaskById {
 
         @Test
-        void DoesNotUpdateTaskAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+        void DoesNotUpdateTaskAndReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
             var taskIdPath = UUID.fromString("b7f3a8d1-4e9c-4118-8f2b-6d9e3a5c7b1f");
 
@@ -484,7 +484,7 @@ class TaskE2EIT {
     class DeleteTaskById {
 
         @Test
-        void DoesNotDeleteTaskAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+        void DoesNotDeleteTaskAndReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
             var taskIdPath = UUID.fromString("a4e7f1c9-8b2d-464d-9e7a-5f3c8d1b6e4a");
 

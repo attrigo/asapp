@@ -33,7 +33,7 @@ class DescriptionTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenDescriptionIsNullOrEmpty(String description) {
+        void ThrowsIllegalArgumentException_NullOrEmptyDescription(String description) {
             // When
             var thrown = catchThrowable(() -> new Description(description));
 
@@ -43,7 +43,7 @@ class DescriptionTests {
         }
 
         @Test
-        void ThenReturnsDescription_GivenDescriptionIsValid() {
+        void ReturnsDescription_ValidDescription() {
             // When
             var actual = new Description(descriptionValue);
 
@@ -58,7 +58,7 @@ class DescriptionTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenDescriptionIsNullOrEmpty(String description) {
+        void ThrowsIllegalArgumentException_NullOrEmptyDescription(String description) {
             // When
             var thrown = catchThrowable(() -> Description.of(description));
 
@@ -68,7 +68,7 @@ class DescriptionTests {
         }
 
         @Test
-        void ThenReturnsDescription_GivenDescriptionIsValid() {
+        void ReturnsDescription_ValidDescription() {
             // When
             var actual = Description.of(descriptionValue);
 
@@ -83,7 +83,7 @@ class DescriptionTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenReturnsNull_GivenDescriptionIsNullOrEmpty(String description) {
+        void ReturnsNull_NullOrEmptyDescription(String description) {
             // When
             var actual = Description.ofNullable(description);
 
@@ -92,7 +92,7 @@ class DescriptionTests {
         }
 
         @Test
-        void ThenReturnsNull_GivenDescriptionIsBlank() {
+        void ReturnsNull_BlankDescription() {
             // When
             var actual = Description.ofNullable("   ");
 
@@ -101,7 +101,7 @@ class DescriptionTests {
         }
 
         @Test
-        void ThenReturnsDescription_GivenDescriptionIsValid() {
+        void ReturnsDescription_ValidDescription() {
             // When
             var actual = Description.ofNullable(descriptionValue);
 
@@ -115,7 +115,7 @@ class DescriptionTests {
     class GetValue {
 
         @Test
-        void ThenReturnsDescriptionValue_GivenDescriptionIsValid() {
+        void ReturnsDescriptionValue_ValidDescription() {
             // Given
             var description = Description.of(descriptionValue);
 

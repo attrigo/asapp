@@ -44,7 +44,7 @@ class UseAuthenticationTests {
     class CreateUnAuthenticateUserWithConstructor {
 
         @Test
-        void ThenReturnsUnAuthenticatedUser_GivenIdIsNull() {
+        void ReturnsUnAuthenticatedUser_NullId() {
             // When
             var actual = new UserAuthentication(null, username, password, role, false);
 
@@ -57,7 +57,7 @@ class UseAuthenticationTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUsernameIsNull() {
+        void ThrowsIllegalArgumentException_NullUsername() {
             // When
             var thrown = catchThrowable(() -> new UserAuthentication(userId, null, password, role, false));
 
@@ -67,7 +67,7 @@ class UseAuthenticationTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenPasswordIsNull() {
+        void ThrowsIllegalArgumentException_NullPassword() {
             // When
             var thrown = catchThrowable(() -> new UserAuthentication(userId, username, null, role, false));
 
@@ -77,7 +77,7 @@ class UseAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsUnAuthenticatedUser_GivenRoleIsNull() {
+        void ReturnsUnAuthenticatedUser_NullRole() {
             // When
             var actual = new UserAuthentication(userId, username, password, null, false);
 
@@ -90,7 +90,7 @@ class UseAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsUnAuthenticatedUser_GivenParametersAreValid() {
+        void ReturnsUnAuthenticatedUser_ValidParameters() {
             // When
             var actual = new UserAuthentication(userId, username, password, role, false);
 
@@ -108,7 +108,7 @@ class UseAuthenticationTests {
     class CreateAuthenticateUserWithConstructor {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+        void ThrowsIllegalArgumentException_NullId() {
             // When
             var thrown = catchThrowable(() -> new UserAuthentication(null, username, password, role, true));
 
@@ -118,7 +118,7 @@ class UseAuthenticationTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUsernameIsNull() {
+        void ThrowsIllegalArgumentException_NullUsername() {
             // When
             var thrown = catchThrowable(() -> new UserAuthentication(userId, null, password, role, true));
 
@@ -128,7 +128,7 @@ class UseAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsUnAuthenticatedUser_GivenPasswordIsNull() {
+        void ReturnsUnAuthenticatedUser_NullPassword() {
             // When
             var actual = new UserAuthentication(userId, username, null, role, true);
 
@@ -141,7 +141,7 @@ class UseAuthenticationTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenRoleIsNull() {
+        void ThrowsIllegalArgumentException_NullRole() {
             // When
             var thrown = catchThrowable(() -> new UserAuthentication(userId, username, password, null, true));
 
@@ -151,7 +151,7 @@ class UseAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsUnAuthenticatedUser_GivenParametersAreValid() {
+        void ReturnsUnAuthenticatedUser_ValidParameters() {
             // When
             var actual = new UserAuthentication(userId, username, password, role, true);
 
@@ -169,7 +169,7 @@ class UseAuthenticationTests {
     class CreateUnAuthenticatedUser {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUsernameIsNull() {
+        void ThrowsIllegalArgumentException_NullUsername() {
             // When
             var thrown = catchThrowable(() -> UserAuthentication.unAuthenticated(null, password));
 
@@ -179,7 +179,7 @@ class UseAuthenticationTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenPasswordIsNull() {
+        void ThrowsIllegalArgumentException_NullPassword() {
             // When
             var thrown = catchThrowable(() -> UserAuthentication.unAuthenticated(username, null));
 
@@ -189,7 +189,7 @@ class UseAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsUnAuthenticatedUser_GivenParametersAreValid() {
+        void ReturnsUnAuthenticatedUser_ValidParameters() {
             // When
             var actual = UserAuthentication.unAuthenticated(username, password);
 
@@ -207,7 +207,7 @@ class UseAuthenticationTests {
     class CreateAuthenticatedUser {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+        void ThrowsIllegalArgumentException_NullId() {
             // When
             var thrown = catchThrowable(() -> UserAuthentication.authenticated(null, username, role));
 
@@ -217,7 +217,7 @@ class UseAuthenticationTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUsernameIsNull() {
+        void ThrowsIllegalArgumentException_NullUsername() {
             // When
             var thrown = catchThrowable(() -> UserAuthentication.authenticated(userId, null, role));
 
@@ -227,7 +227,7 @@ class UseAuthenticationTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenRoleIsNull() {
+        void ThrowsIllegalArgumentException_NullRole() {
             // When
             var thrown = catchThrowable(() -> UserAuthentication.authenticated(userId, username, null));
 
@@ -237,7 +237,7 @@ class UseAuthenticationTests {
         }
 
         @Test
-        void ThenReturnsActiveUser_GivenParametersAreValid() {
+        void ReturnsActiveUser_ValidParameters() {
             // When
             var actual = UserAuthentication.authenticated(userId, username, role);
 
