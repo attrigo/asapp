@@ -61,7 +61,7 @@ class JdbcJwtAuthenticationRepositoryIT {
     class FindByAccessTokenToken {
 
         @Test
-        void DoesNotFindJwtAuthenticationAndReturnsEmptyOptional_JwtAuthenticationNotExists() {
+        void ReturnsEmptyOptional_JwtAuthenticationNotExists() {
             // When
             var accessToken = defaultTestEncodedAccessToken();
 
@@ -72,7 +72,7 @@ class JdbcJwtAuthenticationRepositoryIT {
         }
 
         @Test
-        void FindsJwtAuthenticationAndReturnsJwtAuthentication_JwtAuthenticationExists() {
+        void ReturnsJwtAuthentication_JwtAuthenticationExists() {
             // Given
             var user = createDefaultUser();
 
@@ -95,7 +95,7 @@ class JdbcJwtAuthenticationRepositoryIT {
     class FindByRefreshTokenToken {
 
         @Test
-        void DoesNotFindJwtAuthenticationAndReturnsEmptyOptional_JwtAuthenticationNotExists() {
+        void ReturnsEmptyOptional_JwtAuthenticationNotExists() {
             // When
             var accessToken = defaultTestEncodedRefreshToken();
 
@@ -106,7 +106,7 @@ class JdbcJwtAuthenticationRepositoryIT {
         }
 
         @Test
-        void FindsJwtAuthenticationAndReturnsJwtAuthentication_JwtAuthenticationExists() {
+        void ReturnsJwtAuthentication_JwtAuthenticationExists() {
             // Given
             var user = createDefaultUser();
 
@@ -129,7 +129,7 @@ class JdbcJwtAuthenticationRepositoryIT {
     class FindAllByUserId {
 
         @Test
-        void DoesNotFindJwtAuthenticationsAndReturnsEmptyList_UserHasNoJwtAuthentications() {
+        void ReturnsEmptyList_JwtAuthenticationsNotExistForUser() {
             // Given
             var user = createDefaultUser();
 
@@ -143,7 +143,7 @@ class JdbcJwtAuthenticationRepositoryIT {
         }
 
         @Test
-        void FindsAllJwtAuthenticationsAndReturnsList_UserHasMultipleJwtAuthentications() {
+        void ReturnsListOfJwtAuthentications_MultipleUserJwtAuthenticationsExist() {
             // Given
             var user = createDefaultUser();
 
@@ -167,7 +167,7 @@ class JdbcJwtAuthenticationRepositoryIT {
     class DeleteAllByUserId {
 
         @Test
-        void DeletesUserJwtAuthentications_UserHasJwtAuthentications() {
+        void DeletesUserJwtAuthentications_UserJwtAuthenticationsExist() {
             // Given
             var user = createDefaultUser();
 
@@ -196,7 +196,7 @@ class JdbcJwtAuthenticationRepositoryIT {
     class DeleteAllByRefreshTokenExpiredBefore {
 
         @Test
-        void DoesNotDeleteJwtAuthenticationsAndReturnsZero_ThereAreNotJwtAuthentications() {
+        void ReturnsZero_JwtAuthenticationsNotExist() {
             // When
             var expiredBefore = Instant.now();
 
@@ -207,7 +207,7 @@ class JdbcJwtAuthenticationRepositoryIT {
         }
 
         @Test
-        void DoesNotDeleteActiveJwtAuthenticationsAndReturnsZero_ThereAreActiveJwtAuthentications() {
+        void ReturnsZero_ActiveJwtAuthenticationsExist() {
             // Given
             var user = createDefaultUser();
 
@@ -228,7 +228,7 @@ class JdbcJwtAuthenticationRepositoryIT {
         }
 
         @Test
-        void DeleteExpiredJwtAuthenticationsAndReturnsDeletedCount_ThereAreExpiredAndActiveJwtAuthentications() {
+        void ReturnsAmountOfExpiredJwtAuthenticationsDeleted_ExpiredAndActiveJwtAuthenticationsExist() {
             // Given
             var user = createDefaultUser();
 
@@ -253,7 +253,7 @@ class JdbcJwtAuthenticationRepositoryIT {
         }
 
         @Test
-        void DeletesExpiredAuthentications_RefreshTokenExpired() {
+        void ReturnsAmountOfExpiredJwtAuthenticationsDeleted__RefreshTokenExpired() {
             // Given
             var user = createDefaultUser();
 

@@ -52,7 +52,7 @@ class JwtAuthenticationTokenTests {
     class CreateJwtAuthenticatedToken {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenJwtIsNull() {
+        void ThrowsIllegalArgumentException_NullJwt() {
             // When
             var thrown = catchThrowable(() -> JwtAuthenticationToken.authenticated(null));
 
@@ -62,7 +62,7 @@ class JwtAuthenticationTokenTests {
         }
 
         @Test
-        void ThenCreatesJwtAuthenticatedTokenWithoutAuthorities_GivenJwtNotContainsRoleClaim() {
+        void ReturnsJwtAuthenticatedTokenWithoutAuthorities_MissingRoleClaim() {
             // Given
             var claimsWithoutRole = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE);
             var decodedJwtWithoutRoleClaim = new DecodedJwt(token, ACCESS_TOKEN_TYPE, principal, claimsWithoutRole);
@@ -80,7 +80,7 @@ class JwtAuthenticationTokenTests {
         }
 
         @Test
-        void ThenCreatesJwtAuthenticatedToken_GivenParametersAreValid() {
+        void ReturnsJwtAuthenticatedToken_ValidParameters() {
             // When
             var actual = JwtAuthenticationToken.authenticated(decodedJwt);
 
@@ -101,7 +101,7 @@ class JwtAuthenticationTokenTests {
     class GetCredentials {
 
         @Test
-        void ThenReturnsNull_GivenJwtIsValid() {
+        void ReturnsNull_ValidJwt() {
             // Given
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
@@ -118,7 +118,7 @@ class JwtAuthenticationTokenTests {
     class GetPrincipal {
 
         @Test
-        void ThenReturnsPrincipalAsSubject_GivenJwtIsValid() {
+        void ReturnsPrincipalAsSubject_ValidJwt() {
             // Given
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
@@ -135,7 +135,7 @@ class JwtAuthenticationTokenTests {
     class GetJwt {
 
         @Test
-        void ThenReturnsJwt_GivenJwtIsValid() {
+        void ReturnsJwt_ValidJwt() {
             // Given
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 

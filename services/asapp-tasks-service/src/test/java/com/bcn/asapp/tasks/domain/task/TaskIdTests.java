@@ -32,7 +32,7 @@ class TaskIdTests {
     class CreateTaskIdWithConstructor {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+        void ThrowsIllegalArgumentException_NullId() {
             // When
             var thrown = catchThrowable(() -> new TaskId(null));
 
@@ -42,7 +42,7 @@ class TaskIdTests {
         }
 
         @Test
-        void ThenReturnsTaskId_GivenIdIsValid() {
+        void ReturnsTaskId_ValidId() {
             // When
             var actual = new TaskId(idValue);
 
@@ -56,7 +56,7 @@ class TaskIdTests {
     class CreateTaskIdWithFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+        void ThrowsIllegalArgumentException_NullId() {
             // When
             var thrown = catchThrowable(() -> TaskId.of(null));
 
@@ -66,7 +66,7 @@ class TaskIdTests {
         }
 
         @Test
-        void ThenReturnsTaskId_GivenIdIsValid() {
+        void ReturnsTaskId_ValidId() {
             // When
             var actual = TaskId.of(idValue);
 
@@ -80,7 +80,7 @@ class TaskIdTests {
     class GetValue {
 
         @Test
-        void ThenReturnsTaskIdValue_GivenTaskIdIsValid() {
+        void ReturnsTaskIdValue_ValidTaskId() {
             // Given
             var taskId = TaskId.of(idValue);
 

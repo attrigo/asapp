@@ -32,7 +32,7 @@ class JwtAuthenticationIdTests {
     class CreateJwtAuthenticationIdWithConstructor {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+        void ThrowsIllegalArgumentException_NullId() {
             // When
             var thrown = catchThrowable(() -> new JwtAuthenticationId(null));
 
@@ -42,7 +42,7 @@ class JwtAuthenticationIdTests {
         }
 
         @Test
-        void ThenReturnsUserId_GivenIdIsValid() {
+        void ReturnsUserId_ValidId() {
             // When
             var actual = new JwtAuthenticationId(idValue);
 
@@ -56,7 +56,7 @@ class JwtAuthenticationIdTests {
     class CreateJwtAuthenticationIdWithFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+        void ThrowsIllegalArgumentException_NullId() {
             // When
             var thrown = catchThrowable(() -> JwtAuthenticationId.of(null));
 
@@ -66,7 +66,7 @@ class JwtAuthenticationIdTests {
         }
 
         @Test
-        void ThenReturnsUserId_GivenIdIsValid() {
+        void ReturnsUserId_ValidId() {
             // When
             var actual = JwtAuthenticationId.of(idValue);
 
@@ -80,7 +80,7 @@ class JwtAuthenticationIdTests {
     class GetValue {
 
         @Test
-        void ThenReturnsUserIdValue_GivenJwtAuthenticationIsValid() {
+        void ReturnsUserIdValue_ValidJwtAuthentication() {
             // Given
             var jwtAuthenticationId = JwtAuthenticationId.of(idValue);
 

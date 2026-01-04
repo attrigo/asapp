@@ -87,7 +87,7 @@ class RefreshAuthenticationServiceTests {
     class RefreshAuthentication {
 
         @Test
-        void ThrowsUnexpectedJwtTypeException_TokenIsNotRefreshType() {
+        void ThrowsUnexpectedJwtTypeException_TokenNotRefreshType() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
             willThrow(new UnexpectedJwtTypeException("Token is not a refresh token")).given(tokenVerifier)
@@ -127,7 +127,7 @@ class RefreshAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsAuthenticationNotFoundException_TokenNotFoundInDatabase() {
+        void ThrowsAuthenticationNotFoundException_TokenNotFoundInRepository() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
 
@@ -389,7 +389,7 @@ class RefreshAuthenticationServiceTests {
         }
 
         @Test
-        void ReturnsRefreshedAuthentication_RefreshAuthenticationSucceeds() {
+        void ReturnsRefreshedJwtAuthentication_ValidRefreshToken() {
             // Given
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
             var oldAccessToken = createJwt(JwtType.ACCESS_TOKEN, "old.access.token");

@@ -76,7 +76,7 @@ public class JwtInterceptorTests {
     class Intercept {
 
         @Test
-        void ThenThrowsIllegalStateException_GivenNoAuthenticationInSecurityContext() {
+        void ThrowsIllegalStateException_AuthenticationMissingInSecurityContext() {
             // Given
             given(securityContext.getAuthentication()).willReturn(null);
 
@@ -91,7 +91,7 @@ public class JwtInterceptorTests {
         }
 
         @Test
-        void ThenThrowsIllegalStateException_GivenAuthenticationIsNotJwtAuthenticationToken() {
+        void ThrowsIllegalStateException_AuthenticationNotJwtAuthenticationToken() {
             // Given
             var authentication = new UsernamePasswordAuthenticationToken("username", "password");
             given(securityContext.getAuthentication()).willReturn(authentication);
@@ -108,7 +108,7 @@ public class JwtInterceptorTests {
         }
 
         @Test
-        void ThenAddsAuthorizationHeaderAndExecutesRequest_GivenAuthenticationIsValid() throws IOException {
+        void ExecutesRequest_ValidAuthentication() throws IOException {
             // Given
             var encodedToken = defaultTestEncodedAccessToken();
             var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");

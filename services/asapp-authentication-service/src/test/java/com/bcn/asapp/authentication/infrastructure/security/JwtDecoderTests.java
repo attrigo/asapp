@@ -52,7 +52,7 @@ class JwtDecoderTests {
     class DecodeToken {
 
         @Test
-        void ThenThrowsException_GivenMalformedToken() {
+        void ThrowsMalformedJwtException_MalformedToken() {
             // When
             var thrown = catchThrowable(() -> jwtDecoder.decode("invalid_token"));
 
@@ -61,7 +61,7 @@ class JwtDecoderTests {
         }
 
         @Test
-        void ThenThrowsException_GivenTokenHasInvalidSignature() {
+        void ThrowsSignatureException_InvalidSignatureToken() {
             // Given
             var differentSecretKey = Keys.hmacShaKeyFor("different-secret-key-with-at-least-32-bytes".getBytes());
             var tokenWithInvalidSignature = testEncodedTokenBuilder().accessToken()
@@ -76,7 +76,7 @@ class JwtDecoderTests {
         }
 
         @Test
-        void ThenThrowsException_GivenTokenHasExpired() {
+        void ThrowsExpiredJwtException_ExpiredToken() {
             // Given
             var expiredToken = testEncodedTokenBuilder().accessToken()
                                                         .withSecretKey(secretKey)
@@ -91,7 +91,7 @@ class JwtDecoderTests {
         }
 
         @Test
-        void ThenReturnsDecodedJwt_GivenAccessTokenIsValid() {
+        void ReturnsDecodedJwt_ValidAccessToken() {
             // Given
             var accessToken = testEncodedTokenBuilder().accessToken()
                                                        .withSecretKey(secretKey)
@@ -111,7 +111,7 @@ class JwtDecoderTests {
         }
 
         @Test
-        void ThenReturnsDecodedJwt_GivenRefreshTokenIsValid() {
+        void ReturnsDecodedJwt_ValidRefreshToken() {
             // Given
             var refreshToken = testEncodedTokenBuilder().refreshToken()
                                                         .withSecretKey(secretKey)

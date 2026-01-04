@@ -125,7 +125,7 @@ class ReadUserServiceTests {
     class GetAllUsers {
 
         @Test
-        void ThrowsRuntimeException_RepositoryFetchFails() {
+        void ThrowsRuntimeException_FetchUsersFails() {
             // Given
             willThrow(new RuntimeException("Database connection failed")).given(userRepository)
                                                                          .findAll();
@@ -142,7 +142,7 @@ class ReadUserServiceTests {
         }
 
         @Test
-        void ReturnsEmptyList_NoUsersExists() {
+        void ReturnsEmptyList_UsersNotExist() {
             // Given
             given(userRepository.findAll()).willReturn(Collections.emptyList());
 
@@ -158,7 +158,7 @@ class ReadUserServiceTests {
         }
 
         @Test
-        void ReturnsUsers_UsersExists() {
+        void ReturnsUsers_UsersExist() {
             // Given
             var user1 = User.activeUser(UserId.of(UUID.randomUUID()), Username.of("user1@asapp.com"), USER);
             var user2 = User.activeUser(UserId.of(UUID.randomUUID()), Username.of("user2@asapp.com"), USER);

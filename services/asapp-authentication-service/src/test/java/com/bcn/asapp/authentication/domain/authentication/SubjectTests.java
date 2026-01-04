@@ -33,7 +33,7 @@ class SubjectTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenSubjectIsNullOrEmpty(String subject) {
+        void ThrowsIllegalArgumentException_NullOrEmptySubject(String subject) {
             // When
             var thrown = catchThrowable(() -> new Subject(subject));
 
@@ -43,7 +43,7 @@ class SubjectTests {
         }
 
         @Test
-        void ThenReturnsSubject_GivenSubjectIsValid() {
+        void ReturnsSubject_ValidSubject() {
             // When
             var actual = new Subject(subjectValue);
 
@@ -58,7 +58,7 @@ class SubjectTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenSubjectIsNullOrEmpty(String subject) {
+        void ThrowsIllegalArgumentException_NullOrEmptySubject(String subject) {
             // When
             var thrown = catchThrowable(() -> Subject.of(subject));
 
@@ -68,7 +68,7 @@ class SubjectTests {
         }
 
         @Test
-        void ThenReturnsSubject_GivenSubjectIsValid() {
+        void ReturnsSubject_ValidSubject() {
             // When
             var actual = Subject.of(subjectValue);
 
@@ -82,7 +82,7 @@ class SubjectTests {
     class GetValue {
 
         @Test
-        void ThenReturnsSubjectValue_GivenSubjectIsValid() {
+        void ReturnsSubjectValue_ValidSubject() {
             // Given
             var subject = Subject.of(subjectValue);
 

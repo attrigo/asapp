@@ -82,7 +82,7 @@ class JwtVerifierTests {
         }
 
         @Test
-        void ThrowsUnexpectedJwtTypeException_TokenIsNotAccessToken() {
+        void ThrowsUnexpectedJwtTypeException_TokenNotAccessToken() {
             // Given
             var refreshTokenString = defaultTestEncodedRefreshToken();
             var refreshToken = EncodedToken.of(refreshTokenString);
@@ -173,7 +173,7 @@ class JwtVerifierTests {
         }
 
         @Test
-        void ThrowsUnexpectedJwtTypeException_TokenIsNotRefreshToken() {
+        void ThrowsUnexpectedJwtTypeException_TokenNotRefreshToken() {
             // Given
             var accessTokenString = defaultTestEncodedAccessToken();
             var accessToken = EncodedToken.of(accessTokenString);

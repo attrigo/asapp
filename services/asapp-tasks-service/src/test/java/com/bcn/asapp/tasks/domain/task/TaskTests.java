@@ -43,7 +43,7 @@ class TaskTests {
     class CreateNewTask {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUserIdIsNull() {
+        void ThrowsIllegalArgumentException_NullUserId() {
             // When
             var thrown = catchThrowable(() -> Task.create(null, title, description, startDate, endDate));
 
@@ -53,7 +53,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenTitleIsNull() {
+        void ThrowsIllegalArgumentException_NullTitle() {
             // When
             var thrown = catchThrowable(() -> Task.create(userId, null, description, startDate, endDate));
 
@@ -63,7 +63,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsNewTaskWithNullDescription_GivenDescriptionIsNull() {
+        void ReturnsNewTaskWithNullDescription_NullDescription() {
             // When
             var actual = Task.create(userId, title, null, startDate, endDate);
 
@@ -76,7 +76,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsNewTaskWithNullStartDate_GivenStartDateIsNull() {
+        void ReturnsNewTaskWithNullStartDate_NullStartDate() {
             // When
             var actual = Task.create(userId, title, description, null, endDate);
 
@@ -89,7 +89,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsNewTaskWithNullEndDate_GivenEndDateIsNull() {
+        void ReturnsNewTaskWithNullEndDate_NullEndDate() {
             // When
             var actual = Task.create(userId, title, description, startDate, null);
 
@@ -102,7 +102,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsNewTask_GivenParametersAreValid() {
+        void ReturnsNewTask_ValidParameters() {
             // When
             var actual = Task.create(userId, title, description, startDate, endDate);
 
@@ -120,7 +120,7 @@ class TaskTests {
     class CreateReconstitutedTask {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+        void ThrowsIllegalArgumentException_NullId() {
             // When
             var thrown = catchThrowable(() -> Task.reconstitute(null, userId, title, description, startDate, endDate));
 
@@ -130,7 +130,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUserIdIsNull() {
+        void ThrowsIllegalArgumentException_NullUserId() {
             // When
             var thrown = catchThrowable(() -> Task.reconstitute(id, null, title, description, startDate, endDate));
 
@@ -140,7 +140,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenTitleIsNull() {
+        void ThrowsIllegalArgumentException_NullTitle() {
             // When
             var thrown = catchThrowable(() -> Task.reconstitute(id, userId, null, description, startDate, endDate));
 
@@ -150,7 +150,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsReconstitutedTaskWithNullDescription_GivenDescriptionIsNull() {
+        void ReturnsReconstitutedTaskWithNullDescription_NullDescription() {
             // When
             var actual = Task.reconstitute(id, userId, title, null, startDate, endDate);
 
@@ -163,7 +163,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsReconstitutedTaskWithNullStartDate_GivenStartDateIsNull() {
+        void ReturnsReconstitutedTaskWithNullStartDate_NullStartDate() {
             // When
             var actual = Task.reconstitute(id, userId, title, description, null, endDate);
 
@@ -176,7 +176,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsReconstitutedTaskWithNullEndDate_GivenEndDateIsNull() {
+        void ReturnsReconstitutedTaskWithNullEndDate_NullEndDate() {
             // When
             var actual = Task.reconstitute(id, userId, title, description, startDate, null);
 
@@ -189,7 +189,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsReconstitutedTask_GivenParametersAreValid() {
+        void ReturnsReconstitutedTask_ValidParameters() {
             // When
             var actual = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
@@ -207,7 +207,7 @@ class TaskTests {
     class UpdateTaskData {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUserIdIsNullOnNewTask() {
+        void ThrowsIllegalArgumentException_NullUserIdOnNewTask() {
             // Given
             var task = Task.create(userId, title, description, startDate, endDate);
 
@@ -225,7 +225,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenTitleIsNullOnNewTask() {
+        void ThrowsIllegalArgumentException_NullTitleOnNewTask() {
             // Given
             var task = Task.create(userId, title, description, startDate, endDate);
 
@@ -243,7 +243,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenUpdatesAllFields_GivenDescriptionIsNullOnNewTask() {
+        void UpdatesAllFields_NullDescriptionOnNewTask() {
             // Given
             var task = Task.create(userId, title, description, startDate, endDate);
 
@@ -265,7 +265,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenUpdatesAllFields_GivenStartDateIsNullOnNewTask() {
+        void UpdatesAllFields_NullStartDateOnNewTask() {
             // Given
             var task = Task.create(userId, title, description, startDate, endDate);
 
@@ -287,7 +287,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenUpdatesAllFields_GivenEndDateIsNullOnNewTask() {
+        void UpdatesAllFields_NullEndDateOnNewTask() {
             // Given
             var task = Task.create(userId, title, description, startDate, endDate);
 
@@ -309,7 +309,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenUpdatesAllFields_GivenParametersAreValidOnNewTask() {
+        void UpdatesAllFields_ValidParametersOnNewTask() {
             // Given
             var task = Task.create(userId, title, description, startDate, endDate);
 
@@ -332,7 +332,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUserIdIsNullOnReconstitutedTask() {
+        void ThrowsIllegalArgumentException_NullUserIdOnReconstitutedTask() {
             // Given
             var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
@@ -350,7 +350,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenTitleIsNullOnReconstitutedTask() {
+        void ThrowsIllegalArgumentException_NullTitleOnReconstitutedTask() {
             // Given
             var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
@@ -368,7 +368,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenUpdatesAllFields_GivenDescriptionIsNullOnReconstitutedTask() {
+        void UpdatesAllFields_NullDescriptionOnReconstitutedTask() {
             // Given
             var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
@@ -390,7 +390,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenUpdatesAllFields_GivenStartDateIsNullOnReconstitutedTask() {
+        void UpdatesAllFields_NullStartDateOnReconstitutedTask() {
             // Given
             var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
@@ -412,7 +412,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenUpdatesAllFields_GivenEndDateIsNullOnReconstitutedTask() {
+        void UpdatesAllFields_NullEndDateOnReconstitutedTask() {
             // Given
             var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
@@ -434,7 +434,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenUpdatesAllFields_GivenParametersAreValidOnReconstitutedTask() {
+        void UpdatesAllFields_ValidParametersOnReconstitutedTask() {
             // Given
             var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
@@ -462,7 +462,7 @@ class TaskTests {
     class CheckEquality {
 
         @Test
-        void ThenReturnsFalse_GivenOtherTaskIsNull() {
+        void ReturnsFalse_NullOtherTask() {
             // Given
             var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
@@ -474,7 +474,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenOtherClassIsNotTask() {
+        void ReturnsFalse_OtherClassNotTask() {
             // Given
             var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
             var other = "not a task";
@@ -487,7 +487,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsTrue_GivenOtherTaskIsSameObject() {
+        void ReturnsTrue_SameObjectOtherTask() {
             // Given
             var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
@@ -499,7 +499,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenNewTaskAndReconstitutedTask() {
+        void ReturnsFalse_NewTaskAndReconstitutedTask() {
             // Given
             var task1 = Task.create(userId, title, description, startDate, endDate);
             var task2 = Task.reconstitute(id, userId, title, description, startDate, endDate);
@@ -514,7 +514,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsTrue_GivenThreeReconstitutedTasksWithSameId() {
+        void ReturnsTrue_ThreeReconstitutedTasksSameId() {
             // Given
             var task1 = Task.reconstitute(id, userId, title, description, startDate, endDate);
             var task2 = Task.reconstitute(id, userId, title, description, startDate, endDate);
@@ -532,7 +532,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenThreeReconstitutedTasksWithDifferentId() {
+        void ReturnsFalse_ThreeReconstitutedTasksDifferentId() {
             // Given
             var taskId1 = TaskId.of(UUID.fromString("e1f2a3b4-c5d6-4e7f-8a9b-0c1d2e3f4a5b"));
             var taskId2 = TaskId.of(UUID.fromString("f2a3b4c5-d6e7-4f8a-9b0c-1d2e3f4a5b6c"));
@@ -558,7 +558,7 @@ class TaskTests {
     class HashCode {
 
         @Test
-        void ThenReturnsDifferentHashCode_GivenTwoNewTasks() {
+        void ReturnsDifferentHashCode_TwoNewTasks() {
             // Given
             var task1 = Task.create(userId, title, description, startDate, endDate);
             var task2 = Task.create(userId, title, description, startDate, endDate);
@@ -572,7 +572,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsDifferentHashCode_GivenNewTaskAndReconstitutedTask() {
+        void ReturnsDifferentHashCode_NewTaskAndReconstitutedTask() {
             // Given
             var task1 = Task.create(userId, title, description, startDate, endDate);
             var task2 = Task.reconstitute(id, userId, title, description, startDate, endDate);
@@ -586,7 +586,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsSameHashCode_GivenTwoReconstitutedTasksWithSameId() {
+        void ReturnsSameHashCode_TwoReconstitutedTasksSameId() {
             // Given
             var task1 = Task.reconstitute(id, userId, title, description, startDate, endDate);
             var task2 = Task.reconstitute(id, userId, title, description, startDate, endDate);
@@ -600,7 +600,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsDifferentHashCode_GivenTwoReconstitutedTasksWithDifferentId() {
+        void ReturnsDifferentHashCode_TwoReconstitutedTasksDifferentId() {
             // Given
             var taskId1 = TaskId.of(UUID.fromString("b4c5d6e7-f8a9-4b0c-1d2e-3f4a5b6c7d8e"));
             var taskId2 = TaskId.of(UUID.fromString("c5d6e7f8-a9b0-4c1d-2e3f-4a5b6c7d8e9f"));
@@ -621,7 +621,7 @@ class TaskTests {
     class GetId {
 
         @Test
-        void ThenReturnsNull_GivenNewTask() {
+        void ReturnsNull_NewTask() {
             // Given
             var task = Task.create(userId, title, description, startDate, endDate);
 
@@ -633,7 +633,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsId_GivenReconstitutedTask() {
+        void ReturnsId_ReconstitutedTask() {
             // Given
             var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
@@ -650,7 +650,7 @@ class TaskTests {
     class GetUserId {
 
         @Test
-        void ThenReturnsUserId_GivenNewTask() {
+        void ReturnsUserId_NewTask() {
             // Given
             var task = Task.create(userId, title, description, startDate, endDate);
 
@@ -662,7 +662,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsUserId_GivenReconstitutedTask() {
+        void ReturnsUserId_ReconstitutedTask() {
             // Given
             var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
@@ -679,7 +679,7 @@ class TaskTests {
     class GetTitle {
 
         @Test
-        void ThenReturnsTitle_GivenNewTask() {
+        void ReturnsTitle_NewTask() {
             // Given
             var task = Task.create(userId, title, description, startDate, endDate);
 
@@ -691,7 +691,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsTitle_GivenReconstitutedTask() {
+        void ReturnsTitle_ReconstitutedTask() {
             // Given
             var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
@@ -708,7 +708,7 @@ class TaskTests {
     class GetDescription {
 
         @Test
-        void ThenReturnsDescription_GivenNewTask() {
+        void ReturnsDescription_NewTask() {
             // Given
             var task = Task.create(userId, title, description, startDate, endDate);
 
@@ -720,7 +720,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsDescription_GivenReconstitutedTask() {
+        void ReturnsDescription_ReconstitutedTask() {
             // Given
             var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
@@ -737,7 +737,7 @@ class TaskTests {
     class GetStartDate {
 
         @Test
-        void ThenReturnsStartDate_GivenNewTask() {
+        void ReturnsStartDate_NewTask() {
             // Given
             var task = Task.create(userId, title, description, startDate, endDate);
 
@@ -749,7 +749,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsStartDate_GivenReconstitutedTask() {
+        void ReturnsStartDate_ReconstitutedTask() {
             // Given
             var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 
@@ -766,7 +766,7 @@ class TaskTests {
     class GetEndDate {
 
         @Test
-        void ThenReturnsEndDate_GivenNewTask() {
+        void ReturnsEndDate_NewTask() {
             // Given
             var task = Task.create(userId, title, description, startDate, endDate);
 
@@ -778,7 +778,7 @@ class TaskTests {
         }
 
         @Test
-        void ThenReturnsEndDate_GivenReconstitutedTask() {
+        void ReturnsEndDate_ReconstitutedTask() {
             // Given
             var task = Task.reconstitute(id, userId, title, description, startDate, endDate);
 

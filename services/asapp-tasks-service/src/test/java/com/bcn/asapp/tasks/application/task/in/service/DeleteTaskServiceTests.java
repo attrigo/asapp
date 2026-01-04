@@ -69,7 +69,7 @@ class DeleteTaskServiceTests {
         }
 
         @Test
-        void DoesNotDeleteTaskReturnsFalse_TaskNotExists() {
+        void ReturnsFalse_TaskNotExists() {
             // Given
             var taskId = TaskId.of(taskIdValue);
 
@@ -85,7 +85,7 @@ class DeleteTaskServiceTests {
         }
 
         @Test
-        void DeletesTaskAndReturnsTrue_TaskExists() {
+        void ReturnsTrue_TaskExists() {
             // Given
             var taskId = TaskId.of(taskIdValue);
 

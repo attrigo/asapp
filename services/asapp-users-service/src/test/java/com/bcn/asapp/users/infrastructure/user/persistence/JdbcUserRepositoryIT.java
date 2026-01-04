@@ -48,7 +48,7 @@ class JdbcUserRepositoryIT {
     class DeleteUserById {
 
         @Test
-        void DoesNotDeleteUserAndReturnsZero_UserNotExists() {
+        void ReturnsZero_UserNotExists() {
             // When
             var userId = UUID.fromString("9c3a7f0e-4d2b-4e8a-9f1c-5b6d7e8f9a0b");
 
@@ -59,7 +59,7 @@ class JdbcUserRepositoryIT {
         }
 
         @Test
-        void DeletesUserAndReturnsAmountOfUsersDeleted_UserExists() {
+        void ReturnsAmountOfUsersDeleted_UserExists() {
             // Given
             var user = defaultTestUser();
             var userCreated = userRepository.save(user);

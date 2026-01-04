@@ -88,7 +88,7 @@ class CreateTaskServiceTests {
         }
 
         @Test
-        void ReturnsCreatedTask_CreationSucceeds() {
+        void ReturnsCreatedTask_ValidUser() {
             // Given
             var userId = UserId.of(userIdValue);
             var title = Title.of(titleValue);

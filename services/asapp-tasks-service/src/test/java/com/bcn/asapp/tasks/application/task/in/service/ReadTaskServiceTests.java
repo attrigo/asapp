@@ -91,7 +91,7 @@ class ReadTaskServiceTests {
         }
 
         @Test
-        void ReturnsEmpty_TaskNotExists() {
+        void ReturnsEmptyOptional_TaskNotExists() {
             // Given
             var taskId = TaskId.of(taskIdValue);
 
@@ -158,7 +158,7 @@ class ReadTaskServiceTests {
         }
 
         @Test
-        void ReturnsEmptyList_TasksNotExists() {
+        void ReturnsEmptyList_TasksNotExist() {
             // Given
             var userId = UserId.of(userIdValue);
 
@@ -174,7 +174,7 @@ class ReadTaskServiceTests {
         }
 
         @Test
-        void ReturnsTasks_TasksExists() {
+        void ReturnsTasks_TasksExist() {
             // Given
             var userId = UserId.of(userIdValue);
             var taskId1 = TaskId.of(UUID.randomUUID());
@@ -223,7 +223,7 @@ class ReadTaskServiceTests {
         }
 
         @Test
-        void ReturnsEmptyList_TasksNotExists() {
+        void ReturnsEmptyList_TasksNotExist() {
             // Given
             given(taskRepository.findAll()).willReturn(List.of());
 
@@ -237,7 +237,7 @@ class ReadTaskServiceTests {
         }
 
         @Test
-        void ReturnsTasks_TasksExists() {
+        void ReturnsTasks_TasksExist() {
             // Given
             var userId1 = UserId.of(UUID.randomUUID());
             var userId2 = UserId.of(UUID.randomUUID());

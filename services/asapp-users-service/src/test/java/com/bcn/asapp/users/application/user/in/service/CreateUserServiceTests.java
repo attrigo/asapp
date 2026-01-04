@@ -83,7 +83,7 @@ class CreateUserServiceTests {
         }
 
         @Test
-        void ReturnsCreatedUser_CreationSucceeds() {
+        void ReturnsCreatedUser_ValidUser() {
             // Given
             var firstName = FirstName.of(firstNameValue);
             var lastName = LastName.of(lastNameValue);

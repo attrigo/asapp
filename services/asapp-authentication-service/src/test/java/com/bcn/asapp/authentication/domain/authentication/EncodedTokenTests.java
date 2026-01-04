@@ -33,7 +33,7 @@ class EncodedTokenTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenTokenIsNullOrEmpty(String token) {
+        void ThrowsIllegalArgumentException_NullOrEmptyToken(String token) {
             // When
             var thrown = catchThrowable(() -> new EncodedToken(token));
 
@@ -43,7 +43,7 @@ class EncodedTokenTests {
         }
 
         @Test
-        void ThenReturnsEncodedToken_GivenTokenIsValid() {
+        void ReturnsEncodedToken_ValidToken() {
             // When
             var actual = new EncodedToken(tokenValue);
 
@@ -58,7 +58,7 @@ class EncodedTokenTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenTokenIsNullOrEmpty(String token) {
+        void ThrowsIllegalArgumentException_NullOrEmptyToken(String token) {
             // When
             var thrown = catchThrowable(() -> EncodedToken.of(token));
 
@@ -68,7 +68,7 @@ class EncodedTokenTests {
         }
 
         @Test
-        void ThenReturnsEncodedToken_GivenTokenIsValid() {
+        void ReturnsEncodedToken_ValidToken() {
             // When
             var actual = EncodedToken.of(tokenValue);
 
@@ -82,7 +82,7 @@ class EncodedTokenTests {
     class GetValue {
 
         @Test
-        void ThenReturnsEncodedTokenValue_GivenTokenIsValid() {
+        void ReturnsEncodedTokenValue_ValidToken() {
             // Given
             var encodedToken = EncodedToken.of(tokenValue);
 

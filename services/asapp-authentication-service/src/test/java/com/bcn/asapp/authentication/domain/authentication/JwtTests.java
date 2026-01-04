@@ -55,7 +55,7 @@ class JwtTests {
     class CreateJwtWithConstructor {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenEncodedTokenIsNull() {
+        void ThrowsIllegalArgumentException_NullEncodedToken() {
             // When
             var thrown = catchThrowable(() -> new Jwt(null, accessTokenType, subject, accessTokenClaims, issued, expiration));
 
@@ -65,7 +65,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenTypeIsNull() {
+        void ThrowsIllegalArgumentException_NullType() {
             // When
             var thrown = catchThrowable(() -> new Jwt(encodedToken, null, subject, accessTokenClaims, issued, expiration));
 
@@ -75,7 +75,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenSubjectIsNull() {
+        void ThrowsIllegalArgumentException_NullSubject() {
             // When
             var thrown = catchThrowable(() -> new Jwt(encodedToken, accessTokenType, null, accessTokenClaims, issued, expiration));
 
@@ -85,7 +85,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenClaimsIsNull() {
+        void ThrowsIllegalArgumentException_NullClaims() {
             // When
             var thrown = catchThrowable(() -> new Jwt(encodedToken, accessTokenType, subject, null, issued, expiration));
 
@@ -95,7 +95,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenClaimsMissingTokenUseClaim() {
+        void ThrowsIllegalArgumentException_MissingTokenUseClaim() {
             // Given
             var invalidClaims = JwtClaims.of(Map.of(ROLE, USER.name()));
 
@@ -108,7 +108,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenClaimsHasInvalidTokenUseClaim() {
+        void ThrowsIllegalArgumentException_InvalidTokenUseClaim() {
             // Given
             var invalidClaims = JwtClaims.of(Map.of(TOKEN_USE, "invalid_token_claim", ROLE, USER.name()));
 
@@ -124,7 +124,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenAccessTokenTypeWithRefreshTokenUseClaim() {
+        void ThrowsIllegalArgumentException_AccessTokenTypeWithRefreshTokenUseClaim() {
             // When
             var thrown = catchThrowable(() -> new Jwt(encodedToken, accessTokenType, subject, refreshTokenClaims, issued, expiration));
 
@@ -136,7 +136,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenRefreshTokenTypeWithAccessTokenUseClaim() {
+        void ThrowsIllegalArgumentException_RefreshTokenTypeWithAccessTokenUseClaim() {
             // When
             var thrown = catchThrowable(() -> new Jwt(encodedToken, refreshTokenType, subject, accessTokenClaims, issued, expiration));
 
@@ -148,7 +148,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenExpirationBeforeIssued() {
+        void ThrowsIllegalArgumentException_ExpirationBeforeIssued() {
             // Given
             var expirationValue = issued.value()
                                         .minus(1, DAYS);
@@ -163,7 +163,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenReturnsJwt_GivenParametersAreValidOnAccessToken() {
+        void ReturnsJwt_ValidParametersOnAccessToken() {
             // When
             var actual = new Jwt(encodedToken, accessTokenType, subject, accessTokenClaims, issued, expiration);
 
@@ -178,7 +178,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenReturnsJwt_GivenParametersAreValidOnRefreshToken() {
+        void ReturnsJwt_ValidParametersOnRefreshToken() {
             // When
             var actual = new Jwt(encodedToken, refreshTokenType, subject, refreshTokenClaims, issued, expiration);
 
@@ -198,7 +198,7 @@ class JwtTests {
     class CreateJwtWithFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenEncodedTokenIsNull() {
+        void ThrowsIllegalArgumentException_NullEncodedToken() {
             // When
             var thrown = catchThrowable(() -> Jwt.of(null, accessTokenType, subject, accessTokenClaims, issued, expiration));
 
@@ -208,7 +208,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenTypeIsNull() {
+        void ThrowsIllegalArgumentException_NullType() {
             // When
             var thrown = catchThrowable(() -> Jwt.of(encodedToken, null, subject, accessTokenClaims, issued, expiration));
 
@@ -218,7 +218,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenSubjectIsNull() {
+        void ThrowsIllegalArgumentException_NullSubject() {
             // When
             var thrown = catchThrowable(() -> Jwt.of(encodedToken, accessTokenType, null, accessTokenClaims, issued, expiration));
 
@@ -228,7 +228,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenClaimsIsNull() {
+        void ThrowsIllegalArgumentException_NullClaims() {
             // When
             var thrown = catchThrowable(() -> Jwt.of(encodedToken, accessTokenType, subject, null, issued, expiration));
 
@@ -238,7 +238,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenClaimsMissingTokenUseClaim() {
+        void ThrowsIllegalArgumentException_MissingTokenUseClaim() {
             // Given
             var invalidClaims = JwtClaims.of(Map.of(ROLE, USER.name()));
 
@@ -251,7 +251,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenClaimsHasInvalidTokenUseClaim() {
+        void ThrowsIllegalArgumentException_InvalidTokenUseClaim() {
             // Given
             var invalidClaims = JwtClaims.of(Map.of(TOKEN_USE, "invalid_token_claim", ROLE, USER.name()));
 
@@ -267,7 +267,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenAccessTokenTypeWithRefreshTokenUseClaim() {
+        void ThrowsIllegalArgumentException_AccessTokenTypeWithRefreshTokenUseClaim() {
             // When
             var thrown = catchThrowable(() -> Jwt.of(encodedToken, accessTokenType, subject, refreshTokenClaims, issued, expiration));
 
@@ -279,7 +279,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenRefreshTokenTypeWithAccessTokenUseClaim() {
+        void ThrowsIllegalArgumentException_RefreshTokenTypeWithAccessTokenUseClaim() {
             // When
             var thrown = catchThrowable(() -> Jwt.of(encodedToken, refreshTokenType, subject, accessTokenClaims, issued, expiration));
 
@@ -291,7 +291,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenExpirationBeforeIssued() {
+        void ThrowsIllegalArgumentException_ExpirationBeforeIssued() {
             // Given
             var expirationValue = issued.value()
                                         .minus(1, DAYS);
@@ -306,7 +306,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenReturnsJwt_GivenParametersAreValidOnAccessToken() {
+        void ReturnsJwt_ValidParametersOnAccessToken() {
             // When
             var actual = Jwt.of(encodedToken, accessTokenType, subject, accessTokenClaims, issued, expiration);
 
@@ -321,7 +321,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenReturnsJwt_GivenParametersAreValidOnRefreshToken() {
+        void ReturnsJwt_ValidParametersOnRefreshToken() {
             // When
             var actual = Jwt.of(encodedToken, refreshTokenType, subject, refreshTokenClaims, issued, expiration);
 
@@ -341,7 +341,7 @@ class JwtTests {
     class CheckIsAccessToken {
 
         @Test
-        void ThenReturnsTrue_GivenJwtIsAccessToken() {
+        void ReturnsTrue_AccessTokenJwt() {
             // Given
             var jwt = Jwt.of(encodedToken, accessTokenType, subject, accessTokenClaims, issued, expiration);
 
@@ -353,7 +353,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenJwtIsRefreshToken() {
+        void ReturnsFalse_RefreshTokenJwt() {
             // Given
             var jwt = Jwt.of(encodedToken, refreshTokenType, subject, refreshTokenClaims, issued, expiration);
 
@@ -370,7 +370,7 @@ class JwtTests {
     class CheckIsRefreshToken {
 
         @Test
-        void ThenReturnsTrue_GivenJwtIsRefreshToken() {
+        void ReturnsTrue_RefreshTokenJwt() {
             // Given
             var jwt = Jwt.of(encodedToken, refreshTokenType, subject, refreshTokenClaims, issued, expiration);
 
@@ -382,7 +382,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenJwtIsAccessToken() {
+        void ReturnsFalse_AccessTokenJwt() {
             // Given
             var jwt = Jwt.of(encodedToken, accessTokenType, subject, accessTokenClaims, issued, expiration);
 
@@ -399,7 +399,7 @@ class JwtTests {
     class GetEncodedTokenValue {
 
         @Test
-        void ThenReturnsEncodedTokenValue_GivenJwtIsValid() {
+        void ReturnsEncodedTokenValue_ValidJwt() {
             // Given
             var jwt = Jwt.of(encodedToken, accessTokenType, subject, accessTokenClaims, issued, expiration);
 
@@ -416,7 +416,7 @@ class JwtTests {
     class GetRoleClaim {
 
         @Test
-        void ThenReturnsRole_GivenRoleClaimExists() {
+        void ReturnsRole_RoleClaimExists() {
             // Given
             var jwt = Jwt.of(encodedToken, accessTokenType, subject, accessTokenClaims, issued, expiration);
 
@@ -428,7 +428,7 @@ class JwtTests {
         }
 
         @Test
-        void ThenReturnsNull_GivenRoleClaimNotExist() {
+        void ReturnsNull_RoleClaimNotExist() {
             // Given
             var claims = JwtClaims.of(Map.of(TOKEN_USE, ACCESS_TOKEN_USE));
             var jwt = Jwt.of(encodedToken, accessTokenType, subject, claims, issued, expiration);

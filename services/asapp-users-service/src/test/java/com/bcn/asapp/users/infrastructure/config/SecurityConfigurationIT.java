@@ -50,7 +50,7 @@ class SecurityConfigurationIT {
     class HttpBasicAuthentication {
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderIsNotPresent() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderMissingInRequest() {
             // When & Then
             webTestClient.get()
                          .uri("/actuator")
@@ -62,7 +62,7 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsInvalidBearerToken() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_BearerTokenInvalidInAuthorizationHeader() {
             // When & Then
             var nonBearerToken = "invalid_bearer_token";
 
@@ -77,7 +77,7 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsEmptyBearerToken() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_BearerTokenEmptyInAuthorizationHeader() {
             // When & Then
             var bearerToken = "Bearer ";
 
@@ -92,7 +92,7 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderNotContainsBearerToken() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_BearerTokenMissingInAuthorizationHeader() {
             // When & Then
             var bearerToken = "Bearer " + "invalid_bearer_token";
 
@@ -107,7 +107,7 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsExpiredBearerTokenWithWrongSignature() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_BearerTokenExpiredWithWrongSignatureInAuthorizationHeader() {
             // When & Then
             var bearerToken = "Bearer " + testEncodedTokenBuilder().accessToken()
                                                                    .withSecretKey("M0LBjhuY5Xgk25aRFCTp72EXM2HEnRY7KHAIlNQCxzwsMw7HgQBbdN4Mka94siHP")
@@ -124,7 +124,7 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsExpiredBearerToken() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_BearerTokenExpiredInAuthorizationHeader() {
             // When & Then
             var bearerToken = "Bearer " + testEncodedTokenBuilder().accessToken()
                                                                    .expired()
@@ -141,7 +141,7 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsNotSignedBearerToken() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_BearerTokenNotSignedInAuthorizationHeader() {
             // When & Then
             var bearerToken = "Bearer " + testEncodedTokenBuilder().accessToken()
                                                                    .notSigned()
@@ -158,7 +158,7 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsBearerTokenWithoutType() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_BearerTokenMissingTypeInAuthorizationHeader() {
             // When & Then
             var bearerToken = "Bearer " + testEncodedTokenBuilder().withType("")
                                                                    .notSigned()
@@ -175,7 +175,7 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsBearerTokenWithInvalidType() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_BearerTokenInvalidTypeInAuthorizationHeader() {
             // When & Then
             var bearerToken = "Bearer " + testEncodedTokenBuilder().withType("invalid_type")
                                                                    .notSigned()
@@ -192,7 +192,7 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsRefreshBearerToken() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_BearerTokenRefreshTypeInAuthorizationHeader() {
             // When & Then
             var bearerToken = "Bearer " + defaultTestEncodedRefreshToken();
 
@@ -207,7 +207,7 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_AuthorizationHeaderContainsValidBearerTokenNotExistsInRedis() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_BearerTokenValidInAuthorizationHeaderNotExistsInRedis() {
             // When & Then
             var bearerToken = "Bearer " + defaultTestEncodedAccessToken();
 
@@ -245,7 +245,7 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_AccessActuatorEndpoint_AuthorizationHeaderIsNotPresent() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_AccessActuatorEndpoint_AuthorizationHeaderNotPresent() {
             // When & Then
             webTestClient.get()
                          .uri("/actuator")
@@ -281,7 +281,7 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        void ReturnsStatusOkAndBodyContainsStatusAndGroups_AccessActuatorHealthEndpoint_AuthorizationHeaderIsNotPresent() {
+        void ReturnsStatusOkAndBodyContainsStatusAndGroups_AccessActuatorHealthEndpoint_AuthorizationHeaderNotPresent() {
             // When & Then
             webTestClient.get()
                          .uri("/actuator/health")
@@ -361,7 +361,7 @@ class SecurityConfigurationIT {
     class SwaggerAuthentication {
 
         @Test
-        void ReturnsStatusFoundAndHeaderLocationToSwaggerIndexAndEmptyBody_AccessSwaggerEndpoint_AuthorizationHeaderIsNotPresent() {
+        void ReturnsStatusFoundAndHeaderLocationToSwaggerIndexAndEmptyBody_AccessSwaggerEndpoint_AuthorizationHeaderNotPresent() {
             // When & Then
             webTestClient.get()
                          .uri("/swagger-ui.html")
@@ -394,7 +394,7 @@ class SecurityConfigurationIT {
     class OpenApiAuthentication {
 
         @Test
-        void ReturnsStatusOkAndBodyWithContent_AccessOpenApiEndpoint_AuthorizationHeaderIsNotPresent() {
+        void ReturnsStatusOkAndBodyWithContent_AccessOpenApiEndpoint_AuthorizationHeaderNotPresent() {
             // When & Then
             webTestClient.get()
                          .uri("/v3/api-docs")

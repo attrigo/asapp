@@ -32,7 +32,7 @@ class StartDateTests {
     class CreateStartDateWithConstructor {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenStartDateIsNull() {
+        void ThrowsIllegalArgumentException_NullStartDate() {
             // When
             var thrown = catchThrowable(() -> new StartDate(null));
 
@@ -42,7 +42,7 @@ class StartDateTests {
         }
 
         @Test
-        void ThenReturnsStartDate_GivenStartDateIsValid() {
+        void ReturnsStartDate_ValidStartDate() {
             // When
             var actual = new StartDate(startDateValue);
 
@@ -56,7 +56,7 @@ class StartDateTests {
     class CreateStartDateWithFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenStartDateIsNull() {
+        void ThrowsIllegalArgumentException_NullStartDate() {
             // When
             var thrown = catchThrowable(() -> StartDate.of(null));
 
@@ -66,7 +66,7 @@ class StartDateTests {
         }
 
         @Test
-        void ThenReturnsStartDate_GivenStartDateIsValid() {
+        void ReturnsStartDate_ValidStartDate() {
             // When
             var actual = StartDate.of(startDateValue);
 
@@ -80,7 +80,7 @@ class StartDateTests {
     class CreateStartDateWithNullableFactoryMethod {
 
         @Test
-        void ThenReturnsNull_GivenStartDateIsNull() {
+        void ReturnsNull_NullStartDate() {
             // When
             var actual = StartDate.ofNullable(null);
 
@@ -89,7 +89,7 @@ class StartDateTests {
         }
 
         @Test
-        void ThenReturnsStartDate_GivenStartDateIsValid() {
+        void ReturnsStartDate_ValidStartDate() {
             // When
             var actual = StartDate.ofNullable(startDateValue);
 
@@ -103,7 +103,7 @@ class StartDateTests {
     class GetValue {
 
         @Test
-        void ThenReturnsStartDateValue_GivenStartDateIsValid() {
+        void ReturnsStartDateValue_ValidStartDate() {
             // Given
             var startDate = StartDate.of(startDateValue);
 

@@ -51,7 +51,7 @@ class JacksonConfigurationIT {
     class SerializeEntityToJson {
 
         @Test
-        void SerializesJsonWithoutNullValues_EntityHasNullValues() throws Exception {
+        void ReturnsJsonWithoutNullValues_EntityWithNullValues() throws Exception {
             // Given
             var uuid = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
             var testEntity = new TestEntity(uuid, "Test", null);
@@ -66,7 +66,7 @@ class JacksonConfigurationIT {
         }
 
         @Test
-        void SerializesJsonWithEmptyList_EntityHasEmptyList() throws Exception {
+        void ReturnsJsonWithEmptyList_EntityWithEmptyList() throws Exception {
             // Given
             var uuid = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
             var testEntity = new TestEntity(uuid, "Test", Collections.emptyList());
@@ -82,7 +82,7 @@ class JacksonConfigurationIT {
         }
 
         @Test
-        void SerializesJsonDatesInISO8601Format_EntityHasDates() throws Exception {
+        void ReturnsJsonWithISO8601Dates_EntityWithDates() throws Exception {
             // Given
             var localDate = LocalDate.of(2024, 6, 15);
             var localDateTime = LocalDateTime.of(2024, 6, 15, 14, 23, 40);
@@ -105,7 +105,7 @@ class JacksonConfigurationIT {
     class DeserializeJsonToEntity {
 
         @Test
-        void ThrowsInvalidFormatException_RawJsonHasWrongDateFormat() {
+        void ThrowsInvalidFormatException_RawJsonWithWrongDateFormat() {
             // Given
             var localDateAsJson = """
                     {"localDate":"15/06/2024"}
@@ -119,7 +119,7 @@ class JacksonConfigurationIT {
         }
 
         @Test
-        void ThrowsInvalidFormatException_RawJsonHasWrongDateTimeFormat() {
+        void ThrowsInvalidFormatException_RawJsonWithWrongDateTimeFormat() {
             // Given
             var localDateAsJson = """
                     {"localDateTime":"15/06/2024 14:23:40"}
@@ -133,7 +133,7 @@ class JacksonConfigurationIT {
         }
 
         @Test
-        void ThrowsInvalidFormatException_RawJsonHasWrongInstantFormat() {
+        void ThrowsInvalidFormatException_RawJsonWithWrongInstantFormat() {
             // Given
             var localDateAsJson = """
                     {"instant":"15/06/2024 14:23:40"}
@@ -147,7 +147,7 @@ class JacksonConfigurationIT {
         }
 
         @Test
-        void DeserializesRawJsonToEntity_RawJsonHasValidDates() throws JsonProcessingException {
+        void ReturnsEntity_RawJsonWithValidDates() throws JsonProcessingException {
             // Given
             var localDateAsJson = """
                     {"localDate":"2024-06-15","localDateTime":"2024-06-15T14:23:40","instant":"2024-06-15T15:14:40.123Z"}

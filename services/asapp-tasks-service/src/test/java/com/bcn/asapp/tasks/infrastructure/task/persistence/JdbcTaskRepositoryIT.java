@@ -49,7 +49,7 @@ class JdbcTaskRepositoryIT {
     class FindByUserId {
 
         @Test
-        void DoesNotFindTasksAndReturnsEmptyList_TasksNotExistsByUserId() {
+        void ReturnsEmptyList_TasksNotExistsByUserId() {
             // When
             var userId = UUID.fromString("c8e5a2f9-4d7b-46af-9d8e-6b3f1c9a5e2d");
 
@@ -60,7 +60,7 @@ class JdbcTaskRepositoryIT {
         }
 
         @Test
-        void FindsTasksAndReturnsTasksFound_TasksExistsByUserId() {
+        void ReturnsTasksFound_TasksExistsByUserId() {
             // Given
             var userId = UUID.fromString("c8e5a2f9-4d7b-46af-9d8e-6b3f1c9a5e2d");
 
@@ -91,7 +91,7 @@ class JdbcTaskRepositoryIT {
     class DeleteTaskById {
 
         @Test
-        void DoesNotDeleteTaskAndReturnsZero_TaskNotExists() {
+        void ReturnsZero_TaskNotExists() {
             // When
             var taskId = UUID.fromString("e2a7c9f4-6b3d-48ab-9f1a-8d5b3e7c2a9f");
 
@@ -102,7 +102,7 @@ class JdbcTaskRepositoryIT {
         }
 
         @Test
-        void DeletesTaskAndReturnsAmountOfTasksDeleted_TaskExists() {
+        void ReturnsAmountOfTasksDeleted_TaskExists() {
             // Given
             var task = defaultTestTask();
             var taskCreated = taskRepository.save(task);

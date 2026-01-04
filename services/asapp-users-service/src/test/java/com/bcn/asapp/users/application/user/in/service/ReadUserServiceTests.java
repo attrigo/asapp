@@ -90,7 +90,36 @@ class ReadUserServiceTests {
         }
 
         @Test
-        void ReturnsEmpty_UserNotExists() {
+        void ReturnsUserWithEmptyTaskList_TasksGatewayFails() {
+            // Given
+            var userId = UserId.of(userIdValue);
+            var firstName = FirstName.of(firstNameValue);
+            var lastName = LastName.of(lastNameValue);
+            var email = Email.of(emailValue);
+            var phoneNumber = PhoneNumber.of(phoneNumberValue);
+
+            var user = User.reconstitute(userId, firstName, lastName, email, phoneNumber);
+
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            given(tasksGateway.getTaskIdsByUserId(userId)).willReturn(List.of());
+
+            // When
+            var result = readUserService.getUserById(userIdValue);
+
+            // Then
+            then(userRepository).should(times(1))
+                                .findById(userId);
+            then(tasksGateway).should(times(1))
+                              .getTaskIdsByUserId(userId);
+            assertThat(result).isPresent();
+            assertThat(result.get()
+                             .user()).isEqualTo(user);
+            assertThat(result.get()
+                             .taskIds()).isEmpty();
+        }
+
+        @Test
+        void ReturnsEmptyOptional_UserNotExists() {
             // Given
             var userId = UserId.of(userIdValue);
 
@@ -140,35 +169,6 @@ class ReadUserServiceTests {
                              .taskIds()).contains(taskId1, taskId2);
         }
 
-        @Test
-        void ReturnsUserWithEmptyTaskList_TasksGatewayFails() {
-            // Given
-            var userId = UserId.of(userIdValue);
-            var firstName = FirstName.of(firstNameValue);
-            var lastName = LastName.of(lastNameValue);
-            var email = Email.of(emailValue);
-            var phoneNumber = PhoneNumber.of(phoneNumberValue);
-
-            var user = User.reconstitute(userId, firstName, lastName, email, phoneNumber);
-
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
-            given(tasksGateway.getTaskIdsByUserId(userId)).willReturn(List.of());
-
-            // When
-            var result = readUserService.getUserById(userIdValue);
-
-            // Then
-            then(userRepository).should(times(1))
-                                .findById(userId);
-            then(tasksGateway).should(times(1))
-                              .getTaskIdsByUserId(userId);
-            assertThat(result).isPresent();
-            assertThat(result.get()
-                             .user()).isEqualTo(user);
-            assertThat(result.get()
-                             .taskIds()).isEmpty();
-        }
-
     }
 
     @Nested
@@ -192,7 +192,7 @@ class ReadUserServiceTests {
         }
 
         @Test
-        void ReturnsEmptyList_UsersNotExists() {
+        void ReturnsEmptyList_UsersNotExist() {
             // Given
             given(userRepository.findAll()).willReturn(List.of());
 
@@ -206,7 +206,7 @@ class ReadUserServiceTests {
         }
 
         @Test
-        void ReturnsUsers_UsersExists() {
+        void ReturnsUsers_UsersExist() {
             // Given
             var userId1 = UserId.of(UUID.randomUUID());
             var userId2 = UserId.of(UUID.randomUUID());

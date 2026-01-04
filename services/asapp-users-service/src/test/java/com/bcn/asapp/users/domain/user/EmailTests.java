@@ -36,7 +36,7 @@ class EmailTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenEmailIsNullOrEmpty(String email) {
+        void ThrowsIllegalArgumentException_NullOrEmptyEmail(String email) {
             // When
             var thrown = catchThrowable(() -> new Email(email));
 
@@ -47,7 +47,7 @@ class EmailTests {
 
         @ParameterizedTest
         @MethodSource("com.bcn.asapp.users.domain.user.EmailTests#provideInvalidEmails")
-        void ThenThrowsIllegalArgumentException_GivenEmailIsNotValid(String email) {
+        void ThrowsIllegalArgumentException_InvalidEmail(String email) {
             // When
             var thrown = catchThrowable(() -> new Email(email));
 
@@ -58,7 +58,7 @@ class EmailTests {
 
         @ParameterizedTest
         @MethodSource("com.bcn.asapp.users.domain.user.EmailTests#provideValidEmails")
-        void ThenReturnsEmail_GivenEmailIsValid(String email) {
+        void ReturnsEmail_ValidEmail(String email) {
             // When
             var actual = new Email(email);
 
@@ -73,7 +73,7 @@ class EmailTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenEmailIsNullOrEmpty(String email) {
+        void ThrowsIllegalArgumentException_NullOrEmptyEmail(String email) {
             // When
             var thrown = catchThrowable(() -> Email.of(email));
 
@@ -84,7 +84,7 @@ class EmailTests {
 
         @ParameterizedTest
         @MethodSource("com.bcn.asapp.users.domain.user.EmailTests#provideInvalidEmails")
-        void ThenThrowsIllegalArgumentException_GivenEmailIsNotValid(String email) {
+        void ThrowsIllegalArgumentException_InvalidEmail(String email) {
             // When
             var thrown = catchThrowable(() -> Email.of(email));
 
@@ -95,7 +95,7 @@ class EmailTests {
 
         @ParameterizedTest
         @MethodSource("com.bcn.asapp.users.domain.user.EmailTests#provideValidEmails")
-        void ThenReturnsEmail_GivenEmailIsValid(String email) {
+        void ReturnsEmail_ValidEmail(String email) {
             // When
             var actual = Email.of(email);
 
@@ -109,7 +109,7 @@ class EmailTests {
     class GetValue {
 
         @Test
-        void ThenReturnsEmailValue_GivenEmailIsValid() {
+        void ReturnsEmailValue_ValidEmail() {
             // Given
             var email = Email.of(emailValue);
 

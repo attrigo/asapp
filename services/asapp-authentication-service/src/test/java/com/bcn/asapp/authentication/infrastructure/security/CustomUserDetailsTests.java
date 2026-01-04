@@ -43,7 +43,7 @@ class CustomUserDetailsTests {
     class CreateCustomUserDetails {
 
         @Test
-        void ThenReturnsCustomUserDetailsWithEmptyAuthorities_GivenWithEmptyAuthorities() {
+        void ReturnsCustomUserDetailsWithEmptyAuthorities_EmptyAuthorities() {
             // Given
             var emptyAuthorities = AuthorityUtils.NO_AUTHORITIES;
 
@@ -56,7 +56,7 @@ class CustomUserDetailsTests {
 
         @ParameterizedTest
         @EnumSource(value = Role.class)
-        void ThenReturnsCustomUserDetails_GivenAllParametersAreValid(Role role) {
+        void ReturnsCustomUserDetails_ValidParameters(Role role) {
             // Given
             var authorities = AuthorityUtils.createAuthorityList(role.name());
 
@@ -74,7 +74,7 @@ class CustomUserDetailsTests {
         }
 
         @Test
-        void ThenReturnsCustomUserDetailsWithMultipleAuthorities_GivenMultipleAuthorities() {
+        void ReturnsCustomUserDetailsWithMultipleAuthorities_MultipleAuthorities() {
             // Given
             var multipleAuthorities = AuthorityUtils.createAuthorityList(USER.name(), ADMIN.name());
 
@@ -93,7 +93,7 @@ class CustomUserDetailsTests {
     class GetUserId {
 
         @Test
-        void ThenReturnsUserId() {
+        void ReturnsUserId() {
             // Given
             var authorities = AuthorityUtils.createAuthorityList(USER.name());
             var userDetails = new CustomUserDetails(userIdValue, usernameValue, passwordValue, authorities);

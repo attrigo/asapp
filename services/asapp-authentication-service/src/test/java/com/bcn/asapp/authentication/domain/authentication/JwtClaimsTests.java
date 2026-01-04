@@ -33,7 +33,7 @@ class JwtClaimsTests {
     class CreateJwtClaimsWithConstructor {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenClaimsIsNull() {
+        void ThrowsIllegalArgumentException_NullClaims() {
             // When
             var thrown = catchThrowable(() -> new JwtClaims(null));
 
@@ -43,7 +43,7 @@ class JwtClaimsTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenClaimsIsEmpty() {
+        void ThrowsIllegalArgumentException_EmptyClaims() {
             // When
             var thrown = catchThrowable(() -> new JwtClaims(Map.of()));
 
@@ -53,7 +53,7 @@ class JwtClaimsTests {
         }
 
         @Test
-        void ThenReturnsJwtClaims_GivenClaimsAreValid() {
+        void ReturnsJwtClaims_ValidClaims() {
             // When
             var actual = new JwtClaims(claimsValue);
 
@@ -70,7 +70,7 @@ class JwtClaimsTests {
     class CreateJwtClaimsWithMapFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenClaimsIsNull() {
+        void ThrowsIllegalArgumentException_NullClaims() {
             // When
             var thrown = catchThrowable(() -> JwtClaims.of(null));
 
@@ -80,7 +80,7 @@ class JwtClaimsTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenClaimsIsEmpty() {
+        void ThrowsIllegalArgumentException_EmptyClaims() {
             // When
             var thrown = catchThrowable(() -> JwtClaims.of(Map.of()));
 
@@ -90,7 +90,7 @@ class JwtClaimsTests {
         }
 
         @Test
-        void ThenReturnsJwtClaims_GivenClaimsAreValid() {
+        void ReturnsJwtClaims_ValidClaims() {
             // When
             var actual = JwtClaims.of(claimsValue);
 
@@ -107,7 +107,7 @@ class JwtClaimsTests {
     class CreateJwtClaimsWithKeyValueFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenFirstKeyIsNull() {
+        void ThrowsIllegalArgumentException_NullFirstKey() {
             // When
             var thrown = catchThrowable(() -> JwtClaims.of(null, "value1", "key2", "value2"));
 
@@ -117,7 +117,7 @@ class JwtClaimsTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenFirstValueIsNull() {
+        void ThrowsIllegalArgumentException_NullFirstValue() {
             // When
             var thrown = catchThrowable(() -> JwtClaims.of("key1", null, "key2", "value2"));
 
@@ -127,7 +127,7 @@ class JwtClaimsTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenSecondKeyIsNull() {
+        void ThrowsIllegalArgumentException_NullSecondKey() {
             // When
             var thrown = catchThrowable(() -> JwtClaims.of("key1", "value1", null, "value2"));
 
@@ -137,7 +137,7 @@ class JwtClaimsTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenSecondValueIsNull() {
+        void ThrowsIllegalArgumentException_NullSecondValue() {
             // When
             var thrown = catchThrowable(() -> JwtClaims.of("key1", "value1", "key2", null));
 
@@ -147,7 +147,7 @@ class JwtClaimsTests {
         }
 
         @Test
-        void ThenReturnsJwtClaims_GivenParametersAreValid() {
+        void ReturnsJwtClaims_ValidParameters() {
             // When
             var actual = JwtClaims.of("key1", "value1", "key2", "value2");
 
@@ -163,7 +163,7 @@ class JwtClaimsTests {
     class ModifyClaims {
 
         @Test
-        void ThenReturnsImmutableClaims_GivenOriginalClaimsAreModified() {
+        void ReturnsImmutableClaims_ModifiedOriginalClaims() {
             // Given
             var claims = new HashMap<String, Object>();
             claims.put("sub", "user");
@@ -179,7 +179,7 @@ class JwtClaimsTests {
         }
 
         @Test
-        void ThenThrowsException_GivenClaimsAreModified() {
+        void ThrowsException_ModifiedClaims() {
             // Given
             var jwtClaims = JwtClaims.of(claimsValue);
 
@@ -197,7 +197,7 @@ class JwtClaimsTests {
     class GetClaim {
 
         @Test
-        void ThenReturnsEmpty_GivenClaimNameNotExist() {
+        void ReturnsEmpty_ClaimNameNotExistsInClaims() {
             // Given
             var jwtClaims = JwtClaims.of(claimsValue);
 
@@ -209,7 +209,7 @@ class JwtClaimsTests {
         }
 
         @Test
-        void ThenReturnsEmpty_GivenClaimNameIsNull() {
+        void ReturnsEmpty_NullClaimName() {
             // Given
             var jwtClaims = JwtClaims.of(claimsValue);
 
@@ -221,7 +221,7 @@ class JwtClaimsTests {
         }
 
         @Test
-        void ThenReturnsEmpty_GivenRequiredTypeNotMatch() {
+        void ReturnsEmpty_RequiredTypeMismatch() {
             // Given
             var jwtClaims = JwtClaims.of(claimsValue);
 
@@ -233,7 +233,7 @@ class JwtClaimsTests {
         }
 
         @Test
-        void ThenReturnsClaimValue_GivenClaimExistsAndTypeMatches() {
+        void ReturnsClaimValue_ClaimMatchingTypeInClaims() {
             // Given
             var jwtClaims = JwtClaims.of(claimsValue);
 
@@ -246,7 +246,7 @@ class JwtClaimsTests {
         }
 
         @Test
-        void ThenReturnsClaimValue_GivenMultipleClaimsWithDifferentTypes() {
+        void ReturnsClaimValue_MultipleClaimsDifferentTypes() {
             // Given
             var jwtClaims = JwtClaims.of(claimsValue);
 
@@ -270,7 +270,7 @@ class JwtClaimsTests {
     class GetValue {
 
         @Test
-        void ThenReturnsClaimsMap_GivenClaimsAreValid() {
+        void ReturnsClaimsMap_ValidClaims() {
             // Given
             var jwtClaims = JwtClaims.of(claimsValue);
 

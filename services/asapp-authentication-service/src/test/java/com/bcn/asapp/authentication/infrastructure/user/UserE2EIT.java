@@ -95,7 +95,7 @@ class UserE2EIT {
     class GetUserById {
 
         @Test
-        void DoesNotGetUserAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
             var userIdPath = UUID.fromString("b9e4d3c2-5c7f-4ba0-c3e9-8f4d6b2a0c5e");
 
@@ -110,7 +110,7 @@ class UserE2EIT {
         }
 
         @Test
-        void DoesNotGetUserAndReturnsStatusNotFoundAndEmptyBody_UserNotExists() {
+        void ReturnsStatusNotFoundAndEmptyBody_UserNotExists() {
             // When & Then
             var userIdPath = UUID.fromString("b9e4d3c2-5c7f-4ba0-c3e9-8f4d6b2a0c5e");
 
@@ -126,7 +126,7 @@ class UserE2EIT {
         }
 
         @Test
-        void GetsUserAndReturnsStatusOKAndBodyWithFoundUser_UserExists() {
+        void ReturnsStatusOKAndBodyWithFoundUser_UserExists() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -160,7 +160,7 @@ class UserE2EIT {
     class GetAllUsers {
 
         @Test
-        void DoesNotGetUsersAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
             webTestClient.get()
                          .uri(USERS_GET_ALL_FULL_PATH)
@@ -173,7 +173,7 @@ class UserE2EIT {
         }
 
         @Test
-        void GetsAllUsersAndReturnsStatusOKAndBodyWithFoundUsers_ThereAreUsers() {
+        void ReturnsStatusOKAndBodyWithFoundUsers_UsersExist() {
             // Given
             var user1 = testUserBuilder().withUsername("user1@asapp.com")
                                          .buildJdbcEntity();
@@ -216,7 +216,7 @@ class UserE2EIT {
     class CreateUser {
 
         @Test
-        void CreatesUserAndReturnsStatusCreatedAndBodyWithUserCreated() {
+        void ReturnsStatusCreatedAndBodyWithUserCreated() {
             // When
             var createUserRequestBody = new CreateUserRequest("user@asapp.com", "TEST@09_password?!", USER.name());
 
@@ -258,7 +258,7 @@ class UserE2EIT {
     class UpdateUserById {
 
         @Test
-        void DoesNotUpdateUserAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
             var userIdPath = UUID.fromString("d1a6f5e4-7e9a-4dc2-e5fb-0a6f8d4c2e7a");
             var updateUserRequest = new UpdateUserRequest("new_user@asapp.com", "new_test#Password12", ADMIN.name());
@@ -276,7 +276,7 @@ class UserE2EIT {
         }
 
         @Test
-        void DoesNotUpdateUserAndReturnsStatusNotFoundAndEmptyBody_UserNotExists() {
+        void ReturnsStatusNotFoundAndEmptyBody_UserNotExists() {
             // When & Then
             var userIdPath = UUID.fromString("d1a6f5e4-7e9a-4dc2-e5fb-0a6f8d4c2e7a");
             var updateUserRequest = new UpdateUserRequest("new_user@asapp.com", "new_test#Password12", ADMIN.name());
@@ -295,7 +295,7 @@ class UserE2EIT {
         }
 
         @Test
-        void UpdatesUserAndReturnsStatusOkAndBodyWithUpdatedUser_UserExists() {
+        void ReturnsStatusOkAndBodyWithUpdatedUser_UserExists() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -345,7 +345,7 @@ class UserE2EIT {
     class DeleteUserById {
 
         @Test
-        void DoesNotDeleteUserAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
             var userIdPath = UUID.fromString("f3c8b7a6-9ebc-4fe4-a7bd-2c8b0f6e4a9c");
 
@@ -360,7 +360,7 @@ class UserE2EIT {
         }
 
         @Test
-        void DoesNotDeleteUserAndReturnsStatusNotFoundAndEmptyBody_UserNotExists() {
+        void ReturnsStatusNotFoundAndEmptyBody_UserNotExists() {
             // When & Then
             var userIdPath = UUID.fromString("f3c8b7a6-9ebc-4fe4-a7bd-2c8b0f6e4a9c");
 
@@ -376,7 +376,7 @@ class UserE2EIT {
         }
 
         @Test
-        void DeletesUserAndReturnsStatusNoContentAndEmptyBody_UserExists() {
+        void ReturnsStatusNoContentAndEmptyBody_UserExists() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -402,7 +402,7 @@ class UserE2EIT {
         }
 
         @Test
-        void RevokesAuthenticationsAndDeletesUserAndReturnsStatusNoContentAndEmptyBody_UserExistsAndHasBeenAuthenticated() {
+        void ReturnsStatusNoContentAndEmptyBody_AuthenticatedUserExists() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);

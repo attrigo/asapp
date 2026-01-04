@@ -51,7 +51,7 @@ class DecodedJwtTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenEncodedTokenIsNull(String encodedToken) {
+        void ThrowsIllegalArgumentException_NullEncodedToken(String encodedToken) {
             // When
             var thrown = catchThrowable(() -> new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, accessTokenClaims));
 
@@ -62,7 +62,7 @@ class DecodedJwtTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenTypeIsNull(String type) {
+        void ThrowsIllegalArgumentException_NullType(String type) {
             // When
             var thrown = catchThrowable(() -> new DecodedJwt(encodedToken, type, subject, accessTokenClaims));
 
@@ -73,7 +73,7 @@ class DecodedJwtTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenSubjectIsNull(String subject) {
+        void ThrowsIllegalArgumentException_NullSubject(String subject) {
             // When
             var thrown = catchThrowable(() -> new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, accessTokenClaims));
 
@@ -83,7 +83,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenClaimsIsNull() {
+        void ThrowsIllegalArgumentException_NullClaims() {
             // When
             var thrown = catchThrowable(() -> new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, null));
 
@@ -93,7 +93,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenClaimsIsEmpty() {
+        void ThrowsIllegalArgumentException_EmptyClaims() {
             // When
             var thrown = catchThrowable(() -> new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, Map.of()));
 
@@ -103,7 +103,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        void ThenCreatesDecodedJwt_GivenAllParametersAreValid() {
+        void ReturnsDecodedJwt_ValidParameters() {
             // When
             var actual = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, accessTokenClaims);
 
@@ -121,7 +121,7 @@ class DecodedJwtTests {
     class CheckIsAccessToken {
 
         @Test
-        void ThenReturnsFalse_GivenTypeIsNotAccessToken() {
+        void ReturnsFalse_TypeNotAccessToken() {
             // Given
             var decodedJwt = new DecodedJwt(encodedToken, REFRESH_TOKEN_TYPE, subject, accessTokenClaims);
 
@@ -133,7 +133,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenTokenUseClaimIsNotAccess() {
+        void ReturnsFalse_TokenUseClaimNotAccess() {
             // Given
             var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, refreshTokenClaims);
 
@@ -145,7 +145,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenTypeIsAccessTokenButTokenUseClaimIsRefresh() {
+        void ReturnsFalse_AccessTokenTypeWithRefreshClaim() {
             // Given
             var mixedClaims = Map.<String, Object>of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, roleClaim);
             var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, mixedClaims);
@@ -158,7 +158,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        void ThenReturnsTrue_GivenTypeAndTokenUseClaimAreAccessToken() {
+        void ReturnsTrue_AccessTokenTypeAndClaim() {
             // Given
             var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, accessTokenClaims);
 
@@ -175,7 +175,7 @@ class DecodedJwtTests {
     class CheckIsRefreshToken {
 
         @Test
-        void ThenReturnsFalse_GivenTypeIsNotRefreshToken() {
+        void ReturnsFalse_TypeNotRefreshToken() {
             // Given
             var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, accessTokenClaims);
 
@@ -187,7 +187,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenTokenUseClaimIsNotRefresh() {
+        void ReturnsFalse_TokenUseClaimNotRefresh() {
             // Given
             var accessTokenClaims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, roleClaim);
             var decodedJwt = new DecodedJwt(encodedToken, REFRESH_TOKEN_TYPE, subject, accessTokenClaims);
@@ -200,7 +200,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenTypeIsRefreshTokenButTokenUseClaimIsAccess() {
+        void ReturnsFalse_RefreshTokenTypeWithAccessClaim() {
             // Given
             var mixedClaims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, roleClaim);
             var decodedJwt = new DecodedJwt(encodedToken, REFRESH_TOKEN_TYPE, subject, mixedClaims);
@@ -213,7 +213,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        void ThenReturnsTrue_GivenTypeAndTokenUseClaimAreRefreshToken() {
+        void ReturnsTrue_RefreshTokenTypeAndClaim() {
             // Given
             var decodedJwt = new DecodedJwt(encodedToken, REFRESH_TOKEN_TYPE, subject, refreshTokenClaims);
 
@@ -230,7 +230,7 @@ class DecodedJwtTests {
     class GetRoleClaim {
 
         @Test
-        void ThenReturnsNull_GivenRoleClaimIsNotPresent() {
+        void ReturnsNull_RoleClaimMissingInToken() {
             // Given
             var claimsWithoutRole = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE);
             var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, claimsWithoutRole);
@@ -243,7 +243,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        void ThenReturnsNull_GivenRoleClaimIsNotString() {
+        void ReturnsNull_RoleClaimNotString() {
             // Given
             var claimsWithNonStringRole = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, 123);
             var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, claimsWithNonStringRole);
@@ -256,7 +256,7 @@ class DecodedJwtTests {
         }
 
         @Test
-        void ThenReturnsRoleClaim_GivenRoleClaimIsPresent() {
+        void ReturnsRoleClaim_RoleClaimPresentInToken() {
             // Given
             var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, subject, accessTokenClaims);
 

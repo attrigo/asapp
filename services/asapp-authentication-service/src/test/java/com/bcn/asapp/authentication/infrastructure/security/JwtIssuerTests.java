@@ -65,7 +65,7 @@ class JwtIssuerTests {
 
         @ParameterizedTest
         @EnumSource(value = Role.class)
-        void ThenReturnsJwtPair_GivenUserAuthentication(Role role) {
+        void ReturnsJwtPair_ValidUserAuthentication(Role role) {
             // Given
             var userAuthentication = UserAuthentication.authenticated(UserId.of(userIdValue), Username.of(usernameValue), role);
 
@@ -109,7 +109,7 @@ class JwtIssuerTests {
 
         @ParameterizedTest
         @EnumSource(value = Role.class)
-        void ThenReturnsJwtPair_GivenSubjectAndRole(Role role) {
+        void ReturnsJwtPair_ValidSubjectAndRole(Role role) {
             // Given
             var subject = Subject.of(usernameValue);
 

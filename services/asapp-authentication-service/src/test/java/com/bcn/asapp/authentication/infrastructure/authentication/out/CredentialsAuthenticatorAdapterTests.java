@@ -85,7 +85,7 @@ class CredentialsAuthenticatorAdapterTests {
         }
 
         @Test
-        void ThrowsBadCredentialsException_PrincipalIsNotCustomUserDetails() {
+        void ThrowsBadCredentialsException_PrincipalNotCustomUserDetails() {
             // Given
             var authenticationToken = new UsernamePasswordAuthenticationToken("invalid_principal", null, AuthorityUtils.createAuthorityList(role.name()));
             given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(authenticationToken);
@@ -103,7 +103,7 @@ class CredentialsAuthenticatorAdapterTests {
         }
 
         @Test
-        void ThrowsBadCredentialsException_AuthoritiesAreEmpty() {
+        void ThrowsBadCredentialsException_EmptyAuthorities() {
             // Given
             var userDetails = new CustomUserDetails(userId, username.value(), password.value(), AuthorityUtils.NO_AUTHORITIES);
             var authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, AuthorityUtils.NO_AUTHORITIES);

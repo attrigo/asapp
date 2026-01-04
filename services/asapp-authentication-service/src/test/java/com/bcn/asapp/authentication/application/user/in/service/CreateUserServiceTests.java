@@ -112,7 +112,7 @@ class CreateUserServiceTests {
         }
 
         @Test
-        void ReturnsCreatedUser_CreationSucceeds() {
+        void ReturnsCreatedUser_ValidUser() {
             // Given
             var command = new CreateUserCommand(usernameValue, passwordValue, roleValue);
             var username = Username.of(usernameValue);

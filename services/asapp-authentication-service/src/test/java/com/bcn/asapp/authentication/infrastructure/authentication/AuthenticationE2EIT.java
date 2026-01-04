@@ -96,7 +96,7 @@ class AuthenticationE2EIT {
     class Authenticate {
 
         @Test
-        void DoesNotAuthenticateAndReturnsStatusUnauthorizedAndBodyWithGenericMessage_UsernameNotEmailFormat() {
+        void ReturnsStatusUnauthorizedAndBodyWithGenericMessage_UsernameNotEmailFormat() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -133,7 +133,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void DoesNotAuthenticateReturnsStatusUnauthorizedAndEmptyBody_PasswordNotMatch() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_PasswordNotMatch() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -158,7 +158,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void AuthenticatesUserAndReturnsStatusOkAndBodyWithGeneratedAuthentication_UserNotAuthenticated() {
+        void ReturnsStatusOkAndBodyWithGeneratedAuthentication_UserNotAuthenticated() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -188,7 +188,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void AuthenticatesUserAndReturnsStatusOkAndBodyWithGeneratedAuthentication_AdminUserNotAuthenticated() {
+        void ReturnsStatusOkAndBodyWithGeneratedAuthentication_AdminUserNotAuthenticated() {
             // Given
             var user = testUserBuilder().withRole(ADMIN.name())
                                         .buildJdbcEntity();
@@ -219,7 +219,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void AuthenticatesUserAndReturnsStatusOkAndBodyWithNewGeneratedAuthentication_UserAlreadyAuthenticated() {
+        void ReturnsStatusOkAndBodyWithNewGeneratedAuthentication_UserAlreadyAuthenticated() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -259,7 +259,7 @@ class AuthenticationE2EIT {
     class RefreshAuthentication {
 
         @Test
-        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_InvalidRefreshToken() {
+        void ReturnsStatusUnauthorizedWithGenericMessage_InvalidRefreshToken() {
             // When
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest("invalid_refresh_token");
 
@@ -292,7 +292,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_JwtIsAccessToken() {
+        void ReturnsStatusUnauthorizedWithGenericMessage_AccessTokenJwt() {
             // When
             var accessToken = defaultTestEncodedAccessToken();
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(accessToken);
@@ -326,7 +326,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_RefreshTokenHasExpired() {
+        void ReturnsStatusUnauthorizedWithGenericMessage_ExpiredRefreshToken() {
             // When
             var refreshToken = testEncodedTokenBuilder().refreshToken()
                                                         .expired()
@@ -362,7 +362,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_RefreshTokenSubjectNotExists() {
+        void ReturnsStatusUnauthorizedWithGenericMessage_RefreshTokenSubjectNotExists() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -403,7 +403,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_RefreshTokenNotExists() {
+        void ReturnsStatusUnauthorizedWithGenericMessage_RefreshTokenNotExists() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -442,7 +442,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void RefreshesAuthenticationAndReturnsStatusOkAndBodyWithRefreshedAuthentication_RefreshTokenBelongsToUserAlreadyAuthenticated() {
+        void ReturnsStatusOkAndBodyWithRefreshedAuthentication_RefreshTokenOfAuthenticatedUser() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -479,7 +479,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void RefreshesAuthenticationAndReturnsStatusOkAndBodyWithRefreshedAuthentication_RefreshTokenBelongsToUserHasSeveralAuthentications() {
+        void ReturnsStatusOkAndBodyWithRefreshedAuthentication_RefreshTokenBelongsToUserWithSeveralAuthentications() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -525,7 +525,7 @@ class AuthenticationE2EIT {
     class RevokeAuthentication {
 
         @Test
-        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_InvalidAccessToken() {
+        void ReturnsStatusUnauthorizedWithGenericMessage_InvalidAccessToken() {
             // When
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest("invalid_access_token");
 
@@ -558,7 +558,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_JwtIsRefreshToken() {
+        void ReturnsStatusUnauthorizedWithGenericMessage_RefreshTokenJwt() {
             // When
             var refreshToken = defaultTestEncodedRefreshToken();
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(refreshToken);
@@ -592,7 +592,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_AccessTokenHasExpired() {
+        void ReturnsStatusUnauthorizedWithGenericMessage_ExpiredAccessToken() {
             // When
             var accessToken = testEncodedTokenBuilder().accessToken()
                                                        .expired()
@@ -628,7 +628,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_AccessTokenSubjectNotExists() {
+        void ReturnsStatusUnauthorizedWithGenericMessage_AccessTokenSubjectNotExists() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -669,7 +669,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_AccessTokenNotExists() {
+        void ReturnsStatusUnauthorizedWithGenericMessage_AccessTokenNotExists() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -708,7 +708,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void RevokesAuthenticationAndReturnsStatusOkAndEmptyBody_AccessTokenBelongsToUserAlreadyAuthenticated() {
+        void ReturnsStatusOkAndEmptyBody_AccessTokenOfAuthenticatedUser() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -740,7 +740,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void RevokesAuthenticationAndReturnsStatusOkAndEmptyBody_AccessTokenBelongsToUserHasSeveralAuthentications() {
+        void ReturnsStatusOkAndEmptyBody_AccessTokenBelongsToUserWithSeveralAuthentications() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);

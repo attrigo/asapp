@@ -33,7 +33,7 @@ class ExpirationTests {
     class CreateExpirationWithConstructor {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenExpirationIsNull() {
+        void ThrowsIllegalArgumentException_NullExpiration() {
             // When
             var thrown = catchThrowable(() -> new Expiration(null));
 
@@ -43,7 +43,7 @@ class ExpirationTests {
         }
 
         @Test
-        void ThenReturnsExpiration_GivenExpirationIsValid() {
+        void ReturnsExpiration_ValidExpiration() {
             // When
             var actual = new Expiration(expirationValue);
 
@@ -57,7 +57,7 @@ class ExpirationTests {
     class CreateExpirationWithIssuedAndExpirationTimeFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIssuedIsNull() {
+        void ThrowsIllegalArgumentException_NullIssued() {
             // When
             var thrown = catchThrowable(() -> Expiration.of(null, 1000L));
 
@@ -67,7 +67,7 @@ class ExpirationTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenExpirationTimeIsNull() {
+        void ThrowsIllegalArgumentException_NullExpirationTime() {
             // When
             var thrown = catchThrowable(() -> Expiration.of(Issued.of(expirationValue), null));
 
@@ -77,7 +77,7 @@ class ExpirationTests {
         }
 
         @Test
-        void ThenReturnsExpiration_GivenIssuedAndExpirationTimeAreValid() {
+        void ReturnsExpiration_ValidIssuedAndExpirationTime() {
             // When
             var actual = Expiration.of(Issued.of(expirationValue), 1000L);
 
@@ -91,7 +91,7 @@ class ExpirationTests {
     class CreateExpirationWithDateFactory {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenExpirationDateIsNull() {
+        void ThrowsIllegalArgumentException_NullExpirationDate() {
             // When
             var thrown = catchThrowable(() -> Expiration.of(null));
 
@@ -101,7 +101,7 @@ class ExpirationTests {
         }
 
         @Test
-        void ThenReturnsExpiration_GivenExpirationDateIsValid() {
+        void ReturnsExpiration_ValidExpirationDate() {
             // Given
             var date = Date.from(expirationValue);
 
@@ -118,7 +118,7 @@ class ExpirationTests {
     class GetValue {
 
         @Test
-        void ThenReturnsInstant_GivenExpirationIsValid() {
+        void ReturnsInstant_ValidExpiration() {
             // Given
             var expiration = new Expiration(expirationValue);
 
@@ -135,7 +135,7 @@ class ExpirationTests {
     class GetAsDate {
 
         @Test
-        void ThenReturnsDateWithSameInstant_GivenExpirationIsValid() {
+        void ReturnsDateWithSameInstant_ValidExpiration() {
             // Given
             var expiration = new Expiration(expirationValue);
 
@@ -148,7 +148,7 @@ class ExpirationTests {
         }
 
         @Test
-        void ThenReturnsNewDateInstance_GivenExpirationIsValid() {
+        void ReturnsNewDateInstance_ValidExpiration() {
             // Given
             var expiration = new Expiration(expirationValue);
 

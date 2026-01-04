@@ -85,7 +85,7 @@ class RevokeAuthenticationServiceTests {
     class RevokeAuthentication {
 
         @Test
-        void ThrowsUnexpectedJwtTypeException_TokenIsNotAccessType() {
+        void ThrowsUnexpectedJwtTypeException_TokenNotAccessType() {
             // Given
             var encodedAccessToken = EncodedToken.of(accessTokenValue);
             willThrow(new UnexpectedJwtTypeException("Token is not an access token")).given(tokenVerifier)
@@ -125,7 +125,7 @@ class RevokeAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsAuthenticationNotFoundException_TokenNotFoundInDatabase() {
+        void ThrowsAuthenticationNotFoundException_TokenNotFoundInRepository() {
             // Given
             var encodedAccessToken = EncodedToken.of(accessTokenValue);
             given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willThrow(
@@ -251,7 +251,7 @@ class RevokeAuthenticationServiceTests {
         }
 
         @Test
-        void RevokesAuthentication_RevokeAuthenticationSucceeds() {
+        void RevokesAuthentications_ValidAccessToken() {
             // Given
             var encodedAccessToken = EncodedToken.of(accessTokenValue);
             var accessToken = createJwt(JwtType.ACCESS_TOKEN, accessTokenValue);

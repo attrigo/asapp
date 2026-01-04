@@ -33,7 +33,7 @@ class TitleTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenTitleIsNullOrEmpty(String title) {
+        void ThrowsIllegalArgumentException_NullOrEmptyTitle(String title) {
             // When
             var thrown = catchThrowable(() -> new Title(title));
 
@@ -43,7 +43,7 @@ class TitleTests {
         }
 
         @Test
-        void ThenReturnsTitle_GivenTitleIsValid() {
+        void ReturnsTitle_ValidTitle() {
             // When
             var actual = new Title(titleValue);
 
@@ -58,7 +58,7 @@ class TitleTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenTitleIsNullOrEmpty(String title) {
+        void ThrowsIllegalArgumentException_NullOrEmptyTitle(String title) {
             // When
             var thrown = catchThrowable(() -> Title.of(title));
 
@@ -68,7 +68,7 @@ class TitleTests {
         }
 
         @Test
-        void ThenReturnsTitle_GivenTitleIsValid() {
+        void ReturnsTitle_ValidTitle() {
             // When
             var actual = Title.of(titleValue);
 
@@ -82,7 +82,7 @@ class TitleTests {
     class GetValue {
 
         @Test
-        void ThenReturnsTitleValue_GivenTitleIsValid() {
+        void ReturnsTitleValue_ValidTitle() {
             // Given
             var title = Title.of(titleValue);
 

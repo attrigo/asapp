@@ -77,7 +77,7 @@ class PasswordEncoderIT {
     class AuthenticateWithUserPassword {
 
         @Test
-        void AuthenticatesUserAndReturnsStatusOkAndBodyWithGeneratedAuthentication_StoredUserPasswordHasBcryptEncode() {
+        void ReturnsStatusOkAndBodyWithGeneratedAuthentication_BcryptEncodedStoredUserPassword() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -100,7 +100,7 @@ class PasswordEncoderIT {
         }
 
         @Test
-        void AuthenticatesUserAndReturnsStatusOkAndBodyWithGeneratedAuthentication_StoredUserPasswordHasArgon2Encode() {
+        void ReturnsStatusOkAndBodyWithGeneratedAuthentication_Argon2EncodedStoredUserPassword() {
             // Given
             var argon2Encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
             var user = testUserBuilder().withPasswordEncoder("{argon2@SpringSecurity_v5_8}", argon2Encoder)
@@ -125,7 +125,7 @@ class PasswordEncoderIT {
         }
 
         @Test
-        void AuthenticatesUserAndReturnsStatusOkAndBodyWithGeneratedAuthentication_StoredUserPasswordHasPbkdf2Encode() {
+        void ReturnsStatusOkAndBodyWithGeneratedAuthentication_Pbkdf2EncodedStoredUserPassword() {
             // Given
             var pbkdf2Encoder = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
             var user = testUserBuilder().withPasswordEncoder("{pbkdf2@SpringSecurity_v5_8}", pbkdf2Encoder)
@@ -150,7 +150,7 @@ class PasswordEncoderIT {
         }
 
         @Test
-        void AuthenticatesUserAndReturnsStatusOkAndBodyWithGeneratedAuthentication_StoredUserPasswordHasScryptEncode() {
+        void ReturnsStatusOkAndBodyWithGeneratedAuthentication_ScryptEncodedStoredUserPassword() {
             // Given
             var scryptEncoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8();
             var user = testUserBuilder().withPasswordEncoder("{scrypt@SpringSecurity_v5_8}", scryptEncoder)
@@ -175,7 +175,7 @@ class PasswordEncoderIT {
         }
 
         @Test
-        void AuthenticatesUserAndReturnsStatusOkAndBodyWithGeneratedAuthentication_StoredUserPasswordHasNoopEncode() {
+        void ReturnsStatusOkAndBodyWithGeneratedAuthentication_NoopEncodedStoredUserPassword() {
             // Given
             var noOpEncoder = NoOpPasswordEncoder.getInstance();
             var user = testUserBuilder().withPasswordEncoder("{noop}", noOpEncoder)

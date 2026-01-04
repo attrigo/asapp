@@ -37,7 +37,7 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
     class Authenticate {
 
         @Test
-        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyIsNotJson() {
+        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyNotJson() {
             // When & Then
             var requestBody = "";
 
@@ -61,7 +61,7 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsNotPresent() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyMissingInRequest() {
             // When & Then
             var requestBody = "";
 
@@ -84,7 +84,7 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsEmpty() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyRequestBody() {
             // When & Then
             var requestBody = "{}";
 
@@ -117,7 +117,7 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyFieldsAreEmpty() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyEmptyMandatoryFields() {
             // When & Then
             var requestBody = """
                     {
@@ -160,7 +160,7 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
     class RefreshAuthentication {
 
         @Test
-        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyIsNotJson() {
+        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyNotJson() {
             // When & Then
             var requestBody = "";
 
@@ -183,7 +183,7 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsNotPresent() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyMissingInRequest() {
             // When & Then
             var requestBody = "";
 
@@ -206,7 +206,7 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsEmpty() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyRequestBody() {
             // When & Then
             var requestBody = "{}";
 
@@ -238,7 +238,7 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyFieldsAreEmpty() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyEmptyMandatoryFields() {
             // When & Then
             var requestBody = """
                     {
@@ -279,7 +279,7 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
     class RevokeAuthentication {
 
         @Test
-        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyIsNotJson() {
+        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyNotJson() {
             // When & Then
             var requestBody = "";
 
@@ -302,7 +302,7 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsNotPresent() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyMissingInRequest() {
             // When & Then
             var requestBody = "";
 
@@ -325,7 +325,7 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsEmpty() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyRequestBody() {
             // When & Then
             var requestBody = "{}";
 
@@ -357,7 +357,7 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyFieldsAreEmpty() {
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyEmptyMandatoryFields() {
             // When & Then
             var requestBody = """
                     {

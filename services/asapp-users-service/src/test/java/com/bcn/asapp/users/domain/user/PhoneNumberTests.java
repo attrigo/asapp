@@ -36,7 +36,7 @@ class PhoneNumberTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenPhoneNumberIsNullOrEmpty(String phoneNumber) {
+        void ThrowsIllegalArgumentException_NullOrEmptyPhoneNumber(String phoneNumber) {
             // When
             var thrown = catchThrowable(() -> new PhoneNumber(phoneNumber));
 
@@ -47,7 +47,7 @@ class PhoneNumberTests {
 
         @ParameterizedTest
         @MethodSource("com.bcn.asapp.users.domain.user.PhoneNumberTests#provideInvalidPhoneNumbers")
-        void ThenThrowsIllegalArgumentException_GivenPhoneNumberIsNotValid(String phoneNumber) {
+        void ThrowsIllegalArgumentException_InvalidPhoneNumber(String phoneNumber) {
             // When
             var thrown = catchThrowable(() -> new PhoneNumber(phoneNumber));
 
@@ -58,7 +58,7 @@ class PhoneNumberTests {
 
         @ParameterizedTest
         @MethodSource("com.bcn.asapp.users.domain.user.PhoneNumberTests#provideValidPhoneNumbers")
-        void ThenReturnsPhoneNumber_GivenPhoneNumberIsValid(String phoneNumber) {
+        void ReturnsPhoneNumber_ValidPhoneNumber(String phoneNumber) {
             // When
             var actual = new PhoneNumber(phoneNumber);
 
@@ -73,7 +73,7 @@ class PhoneNumberTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenPhoneNumberIsNullOrEmpty(String phoneNumber) {
+        void ThrowsIllegalArgumentException_NullOrEmptyPhoneNumber(String phoneNumber) {
             // When
             var thrown = catchThrowable(() -> PhoneNumber.of(phoneNumber));
 
@@ -84,7 +84,7 @@ class PhoneNumberTests {
 
         @ParameterizedTest
         @MethodSource("com.bcn.asapp.users.domain.user.PhoneNumberTests#provideInvalidPhoneNumbers")
-        void ThenThrowsIllegalArgumentException_GivenPhoneNumberIsNotValid(String phoneNumber) {
+        void ThrowsIllegalArgumentException_InvalidPhoneNumber(String phoneNumber) {
             // When
             var thrown = catchThrowable(() -> PhoneNumber.of(phoneNumber));
 
@@ -95,7 +95,7 @@ class PhoneNumberTests {
 
         @ParameterizedTest
         @MethodSource("com.bcn.asapp.users.domain.user.PhoneNumberTests#provideValidPhoneNumbers")
-        void ThenReturnsPhoneNumber_GivenPhoneNumberIsValid(String phoneNumber) {
+        void ReturnsPhoneNumber_ValidPhoneNumber(String phoneNumber) {
             // When
             var actual = PhoneNumber.of(phoneNumber);
 
@@ -109,7 +109,7 @@ class PhoneNumberTests {
     class GetValue {
 
         @Test
-        void ThenReturnsPhoneNumberValue_GivenPhoneNumberIsValid() {
+        void ReturnsPhoneNumberValue_ValidPhoneNumber() {
             // Given
             var phoneNumber = PhoneNumber.of(phoneNumberValue);
 

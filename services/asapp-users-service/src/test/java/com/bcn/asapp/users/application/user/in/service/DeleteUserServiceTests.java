@@ -69,7 +69,7 @@ class DeleteUserServiceTests {
         }
 
         @Test
-        void DoesNotDeleteUserReturnsFalse_UserNotExists() {
+        void ReturnsFalse_UserNotExists() {
             // Given
             var userId = UserId.of(userIdValue);
 
@@ -85,7 +85,7 @@ class DeleteUserServiceTests {
         }
 
         @Test
-        void DeletesUserAndReturnsTrue_UserExists() {
+        void ReturnsTrue_UserExists() {
             // Given
             var userId = UserId.of(userIdValue);
 

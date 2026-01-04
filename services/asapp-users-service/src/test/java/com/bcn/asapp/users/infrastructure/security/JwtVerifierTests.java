@@ -75,7 +75,7 @@ class JwtVerifierTests {
         }
 
         @Test
-        void ThrowsUnexpectedJwtTypeException_TokenIsNotAccessToken() {
+        void ThrowsUnexpectedJwtTypeException_TokenNotAccessToken() {
             // Given
             var refreshToken = defaultTestEncodedRefreshToken();
             var refreshTokenClaims = Map.<String, Object>of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, "USER");

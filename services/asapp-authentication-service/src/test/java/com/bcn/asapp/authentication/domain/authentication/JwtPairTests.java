@@ -56,7 +56,7 @@ class JwtPairTests {
     class CreateJwtPairWithConstructor {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenAccessTokenIsNull() {
+        void ThrowsIllegalArgumentException_NullAccessToken() {
             // When
             var thrown = catchThrowable(() -> new JwtPair(null, refreshToken));
 
@@ -66,7 +66,7 @@ class JwtPairTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenRefreshTokeIsNull() {
+        void ThrowsIllegalArgumentException_NullRefreshToken() {
             // When
             var thrown = catchThrowable(() -> new JwtPair(accessToken, null));
 
@@ -76,7 +76,7 @@ class JwtPairTests {
         }
 
         @Test
-        void ThenReturnsJwtClaims_GivenAccessTokenAndRefreshTokenAreValid() {
+        void ReturnsJwtPair_ValidAccessTokenAndRefreshToken() {
             // When
             var actual = new JwtPair(accessToken, refreshToken);
 
@@ -91,7 +91,7 @@ class JwtPairTests {
     class CreateJwtPairWithFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenAccessTokenIsNull() {
+        void ThrowsIllegalArgumentException_NullAccessToken() {
             // When
             var thrown = catchThrowable(() -> JwtPair.of(null, refreshToken));
 
@@ -101,7 +101,7 @@ class JwtPairTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenRefreshTokeIsNull() {
+        void ThrowsIllegalArgumentException_NullRefreshToken() {
             // When
             var thrown = catchThrowable(() -> JwtPair.of(accessToken, null));
 
@@ -111,7 +111,7 @@ class JwtPairTests {
         }
 
         @Test
-        void ThenReturnsJwtClaims_GivenAccessTokenAndRefreshTokenAreValid() {
+        void ReturnsJwtPair_ValidAccessTokenAndRefreshToken() {
             // When
             var actual = JwtPair.of(accessToken, refreshToken);
 

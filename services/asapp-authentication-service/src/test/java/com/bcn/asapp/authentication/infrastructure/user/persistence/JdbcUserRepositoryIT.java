@@ -54,7 +54,7 @@ class JdbcUserRepositoryIT {
     class FindByUsername {
 
         @Test
-        void DoesNotFindUserAndReturnsEmptyOptional_UserNotExists() {
+        void ReturnsEmptyOptional_UserNotExists() {
             // When
             var actualUser = userRepository.findByUsername("not_exist_user@asapp.com");
 
@@ -63,7 +63,7 @@ class JdbcUserRepositoryIT {
         }
 
         @Test
-        void FindsUserAndReturnsTasksFound_UserExists() {
+        void ReturnsTasksFound_UserExists() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
@@ -85,7 +85,7 @@ class JdbcUserRepositoryIT {
     class DeleteUserById {
 
         @Test
-        void DoesNotDeleteUserAndReturnsZero_UserNotExists() {
+        void ReturnsZero_UserNotExists() {
             // When
             var userId = UUID.fromString("4a9d8f7e-3c2b-4e1f-a6d9-8e7f6c5d4b3a");
 
@@ -96,7 +96,7 @@ class JdbcUserRepositoryIT {
         }
 
         @Test
-        void DeletesUserAndReturnsAmountOfUsersDeleted_UserExists() {
+        void ReturnsAmountOfUsersDeleted_UserExists() {
             // Given
             var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);

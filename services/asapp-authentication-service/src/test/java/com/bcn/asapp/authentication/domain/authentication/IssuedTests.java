@@ -35,7 +35,7 @@ class IssuedTests {
     class CreateIssuedWithConstructor {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIssuedIsNull() {
+        void ThrowsIllegalArgumentException_NullIssued() {
             // When
             var thrown = catchThrowable(() -> new Issued(null));
 
@@ -45,7 +45,7 @@ class IssuedTests {
         }
 
         @Test
-        void ThenReturnsIssued_GivenIssuedIsValid() {
+        void ReturnsIssued_ValidIssued() {
             // When
             var actual = new Issued(issuedValue);
 
@@ -59,7 +59,7 @@ class IssuedTests {
     class CreateIssuedWithNowFactoryMethod {
 
         @Test
-        void ThenReturnsIssuedCloseToCurrentTime() {
+        void ReturnsIssued_CloseToCurrentTime() {
             // When
             var actual = Issued.now();
 
@@ -73,7 +73,7 @@ class IssuedTests {
     class CreateIssuedWithInstantFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIssuedInstantIsNull() {
+        void ThrowsIllegalArgumentException_NullIssuedInstant() {
             // When
             var thrown = catchThrowable(() -> Issued.of((Instant) null));
 
@@ -83,7 +83,7 @@ class IssuedTests {
         }
 
         @Test
-        void ThenReturnsIssued_GivenIssuedInstantIsValid() {
+        void ReturnsIssued_ValidIssuedInstant() {
             // When
             var actual = Issued.of(issuedValue);
 
@@ -97,7 +97,7 @@ class IssuedTests {
     class CreateIssuedWithDateFactory {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIssuedDateIsNull() {
+        void ThrowsIllegalArgumentException_NullIssuedDate() {
             // When
             var thrown = catchThrowable(() -> Issued.of((Date) null));
 
@@ -107,7 +107,7 @@ class IssuedTests {
         }
 
         @Test
-        void ThenReturnsIssued_GivenIssuedDateIsValid() {
+        void ReturnsIssued_ValidIssuedDate() {
             // Given
             var date = Date.from(issuedValue);
 
@@ -124,7 +124,7 @@ class IssuedTests {
     class GetValue {
 
         @Test
-        void ThenReturnsInstant_GivenIssuedIsValid() {
+        void ReturnsInstant_ValidIssued() {
             // Given
             var issued = Issued.of(issuedValue);
 
@@ -141,7 +141,7 @@ class IssuedTests {
     class GetAsDate {
 
         @Test
-        void ThenReturnsDateWithSameInstant_GivenIssuedIsValid() {
+        void ReturnsDateWithSameInstant_ValidIssued() {
             // Given
             var issued = Issued.of(issuedValue);
 
@@ -154,7 +154,7 @@ class IssuedTests {
         }
 
         @Test
-        void ThenReturnsNewDateInstance_GivenIssuedIsValid() {
+        void ReturnsNewDateInstance_ValidIssued() {
             // Given
             var issued = Issued.of(issuedValue);
 

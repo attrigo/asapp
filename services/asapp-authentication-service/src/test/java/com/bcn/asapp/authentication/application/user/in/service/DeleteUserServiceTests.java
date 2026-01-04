@@ -266,7 +266,7 @@ class DeleteUserServiceTests {
         }
 
         @Test
-        void DoesNotDeleteUserAndReturnsFalse_UserNotExists() {
+        void ReturnsFalse_UserNotExists() {
             // Given
             var userId = UserId.of(userIdValue);
 
@@ -292,7 +292,7 @@ class DeleteUserServiceTests {
         }
 
         @Test
-        void DeletesUserAndReturnsTrue_UserHasNoAuthentications() {
+        void ReturnsTrue_UserAuthenticationsNotExist() {
             // Given
             var userId = UserId.of(userIdValue);
 
@@ -316,7 +316,7 @@ class DeleteUserServiceTests {
         }
 
         @Test
-        void DeletesUserAndReturnsTrue_UserHasMultipleAuthentications() {
+        void ReturnsTrue_MultipleUserAuthenticationsExist() {
             // Given
             var userId = UserId.of(userIdValue);
             var authentication1 = createJwtAuthentication("token1.access", "token1.refresh");

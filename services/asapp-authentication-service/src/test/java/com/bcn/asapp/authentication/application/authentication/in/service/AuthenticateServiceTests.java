@@ -258,7 +258,7 @@ class AuthenticateServiceTests {
         }
 
         @Test
-        void ReturnsAuthenticatedJwtAuthentication_AuthenticationSucceeds() {
+        void ReturnsAuthenticatedJwtAuthentication_ValidCredentials() {
             // Given
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);

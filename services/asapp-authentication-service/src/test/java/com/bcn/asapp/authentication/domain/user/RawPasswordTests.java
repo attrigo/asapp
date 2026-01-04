@@ -34,7 +34,7 @@ class RawPasswordTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsInvalidPasswordException_GivenPasswordIsNullOrEmpty(String password) {
+        void ThrowsInvalidPasswordException_NullOrEmptyPassword(String password) {
             // When
             var thrown = catchThrowable(() -> new RawPassword(password));
 
@@ -49,7 +49,7 @@ class RawPasswordTests {
          */
         @ParameterizedTest
         @ValueSource(strings = { "1234", "1234567" })
-        void ThenThrowsInvalidPasswordException_GivenPasswordIsTooShort(String password) {
+        void ThrowsInvalidPasswordException_PasswordTooShort(String password) {
             // When
             var thrown = catchThrowable(() -> new RawPassword(password));
 
@@ -65,7 +65,7 @@ class RawPasswordTests {
         @ParameterizedTest
         @ValueSource(strings = { "12345678901234567890123456789012345678901234567890123456789012345",
                 "123456789012345678901234567890123456789012345678901234567890123456789" })
-        void ThenThrowsInvalidPasswordException_GivenPasswordIsTooLong(String password) {
+        void ThrowsInvalidPasswordException_PasswordTooLong(String password) {
             // When
             var thrown = catchThrowable(() -> new RawPassword(password));
 
@@ -80,7 +80,7 @@ class RawPasswordTests {
          */
         @ParameterizedTest
         @ValueSource(strings = { "12345678", "1234567890123456789012345678901234567890123456789012345678901234" })
-        void ThenReturnsRawPassword_GivenPasswordIsAtBoundary(String password) {
+        void ReturnsRawPassword_PasswordAtBoundary(String password) {
             // When
             var actual = new RawPassword(password);
 
@@ -89,7 +89,7 @@ class RawPasswordTests {
         }
 
         @Test
-        void ThenReturnsRawPassword_GivenPasswordIsValid() {
+        void ReturnsRawPassword_ValidPassword() {
             // When
             var actual = new RawPassword(passwordValue);
 
@@ -104,7 +104,7 @@ class RawPasswordTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenThrowsInvalidPasswordException_GivenPasswordIsNullOrEmpty(String password) {
+        void ThrowsInvalidPasswordException_NullOrEmptyPassword(String password) {
             // When
             var thrown = catchThrowable(() -> RawPassword.of(password));
 
@@ -115,7 +115,7 @@ class RawPasswordTests {
 
         @ParameterizedTest
         @ValueSource(strings = { "pass", "long_password_123456789123456789123456789123456789123456789123456879" })
-        void ThenThrowsInvalidPasswordException_GivenPasswordLengthIsNotValid(String password) {
+        void ThrowsInvalidPasswordException_InvalidPasswordLength(String password) {
             // When
             var thrown = catchThrowable(() -> RawPassword.of(password));
 
@@ -125,7 +125,7 @@ class RawPasswordTests {
         }
 
         @Test
-        void ThenReturnsRawPassword_GivenPasswordIsValid() {
+        void ReturnsRawPassword_ValidPassword() {
             // When
             var actual = RawPassword.of(passwordValue);
 
@@ -139,7 +139,7 @@ class RawPasswordTests {
     class GetValue {
 
         @Test
-        void ThenReturnsPasswordValue_GivenPasswordIsValid() {
+        void ReturnsPasswordValue_ValidPassword() {
             // Given
             var password = RawPassword.of(passwordValue);
 

@@ -174,7 +174,7 @@ class UpdateUserServiceTests {
         }
 
         @Test
-        void ReturnsUpdatedUser_UpdateSucceed() {
+        void ReturnsUpdatedUser_UserExists() {
             // Given
             var command = new UpdateUserCommand(userIdValue, newUsernameValue, newPasswordValue, newRoleValue);
             var userId = UserId.of(userIdValue);
