@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.tasks.infrastructure.task.persistence;
 
-import static com.bcn.asapp.tasks.testutil.TestFactory.TestTaskFactory.defaultTestTask;
+import static com.bcn.asapp.tasks.testutil.TestFactory.TestTaskFactory.defaultTestJdbcTask;
 import static com.bcn.asapp.tasks.testutil.TestFactory.TestTaskFactory.testTaskBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -65,11 +65,11 @@ class JdbcTaskRepositoryIT {
             var userId = UUID.fromString("c8e5a2f9-4d7b-46af-9d8e-6b3f1c9a5e2d");
 
             var task1 = testTaskBuilder().withUserId(userId)
-                                         .build();
+                                         .buildJdbcEntity();
             var task2 = testTaskBuilder().withUserId(userId)
-                                         .build();
+                                         .buildJdbcEntity();
             var task3 = testTaskBuilder().withUserId(userId)
-                                         .build();
+                                         .buildJdbcEntity();
             var taskCreated1 = taskRepository.save(task1);
             var taskCreated2 = taskRepository.save(task2);
             var taskCreated3 = taskRepository.save(task3);
@@ -104,7 +104,7 @@ class JdbcTaskRepositoryIT {
         @Test
         void ReturnsAmountOfTasksDeleted_TaskExists() {
             // Given
-            var task = defaultTestTask();
+            var task = defaultTestJdbcTask();
             var taskCreated = taskRepository.save(task);
             assertThat(taskCreated).isNotNull();
 

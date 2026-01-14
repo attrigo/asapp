@@ -39,6 +39,13 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+import com.bcn.asapp.tasks.domain.task.Description;
+import com.bcn.asapp.tasks.domain.task.EndDate;
+import com.bcn.asapp.tasks.domain.task.StartDate;
+import com.bcn.asapp.tasks.domain.task.Task;
+import com.bcn.asapp.tasks.domain.task.TaskId;
+import com.bcn.asapp.tasks.domain.task.Title;
+import com.bcn.asapp.tasks.domain.task.UserId;
 import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskEntity;
 
 public class TestFactory {
@@ -57,8 +64,12 @@ public class TestFactory {
 
         TestTaskFactory() {}
 
-        public static JdbcTaskEntity defaultTestTask() {
-            return new Builder().build();
+        public static Task defaultTestDomainTask() {
+            return testTaskBuilder().buildDomainEntity();
+        }
+
+        public static JdbcTaskEntity defaultTestJdbcTask() {
+            return testTaskBuilder().buildJdbcEntity();
         }
 
         public static Builder testTaskBuilder() {
@@ -66,6 +77,8 @@ public class TestFactory {
         }
 
         public static class Builder {
+
+            private UUID taskId;
 
             private UUID userId;
 
@@ -78,11 +91,17 @@ public class TestFactory {
             private Instant endDate;
 
             Builder() {
+                taskId = UUID.randomUUID();
                 userId = TEST_TASK_USER_ID;
                 title = TEST_TASK_TITLE;
                 description = TEST_TASK_DESCRIPTION;
                 startDate = TEST_TASK_START_DATE;
                 endDate = TEST_TASK_END_DATE;
+            }
+
+            public Builder taskId(UUID taskId) {
+                this.taskId = taskId;
+                return this;
             }
 
             public Builder withUserId(UUID userId) {
@@ -111,7 +130,22 @@ public class TestFactory {
                 return this;
             }
 
-            public JdbcTaskEntity build() {
+            public Task buildDomainEntity() {
+                var userIdVO = UserId.of(userId);
+                var titleVO = Title.of(title);
+                var descriptionVO = Description.of(description);
+                var startDateVO = StartDate.of(startDate);
+                var endDateVO = EndDate.of(endDate);
+
+                if (userId == null) {
+                    return Task.create(userIdVO, titleVO, descriptionVO, startDateVO, endDateVO);
+                } else {
+                    var taskIdVO = TaskId.of(taskId);
+                    return Task.reconstitute(taskIdVO, userIdVO, titleVO, descriptionVO, startDateVO, endDateVO);
+                }
+            }
+
+            public JdbcTaskEntity buildJdbcEntity() {
                 return new JdbcTaskEntity(null, userId, title, description, startDate, endDate);
             }
 
