@@ -24,7 +24,7 @@ import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_UPDATE_BY_ID_FULL_PATH;
 import static com.bcn.asapp.users.infrastructure.security.RedisJwtStore.ACCESS_TOKEN_PREFIX;
 import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
-import static com.bcn.asapp.users.testutil.TestFactory.TestUserFactory.defaultTestUser;
+import static com.bcn.asapp.users.testutil.TestFactory.TestUserFactory.defaultTestJdbcUser;
 import static com.bcn.asapp.users.testutil.TestFactory.TestUserFactory.testUserBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockserver.matchers.Times.once;
@@ -131,7 +131,7 @@ class UserE2EIT {
         @Test
         void ReturnsStatusOKAndBodyWithFoundUserWithoutTasks_UserExistsAndTasksServiceFails(CapturedOutput output) {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -183,7 +183,7 @@ class UserE2EIT {
         @Test
         void ReturnsStatusOKAndBodyWithFoundUserWithoutTasks_UserExistsWithoutTasks(CapturedOutput output) {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -219,7 +219,7 @@ class UserE2EIT {
         @Test
         void ReturnsStatusOKAndBodyWithFoundUserWithTasks_UserExistsWithTasks() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -295,11 +295,11 @@ class UserE2EIT {
         void ReturnsStatusOKAndBodyWithFoundUsers_UsersExist() {
             // Given
             var user1 = testUserBuilder().withEmail("user1@asapp.com")
-                                         .build();
+                                         .buildJdbcEntity();
             var user2 = testUserBuilder().withEmail("user2@asapp.com")
-                                         .build();
+                                         .buildJdbcEntity();
             var user3 = testUserBuilder().withEmail("user3@asapp.com")
-                                         .build();
+                                         .buildJdbcEntity();
             var userCreated1 = userRepository.save(user1);
             var userCreated2 = userRepository.save(user2);
             var userCreated3 = userRepository.save(user3);
@@ -441,7 +441,7 @@ class UserE2EIT {
         @Test
         void ReturnsStatusOkAndBodyWithUpdatedUser_UserExists() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -523,7 +523,7 @@ class UserE2EIT {
         @Test
         void ReturnsStatusNoContentAndEmptyBody_UserExists() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -549,7 +549,7 @@ class UserE2EIT {
         @Test
         void ReturnsStatusNoContentAndEmptyBody_AuthenticatedUserExists() {
             // Given
-            var user = defaultTestUser();
+            var user = defaultTestJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 

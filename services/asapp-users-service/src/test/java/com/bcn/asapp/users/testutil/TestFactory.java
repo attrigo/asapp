@@ -29,6 +29,7 @@ import java.time.Instant;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import javax.crypto.SecretKey;
 
@@ -38,6 +39,12 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+import com.bcn.asapp.users.domain.user.Email;
+import com.bcn.asapp.users.domain.user.FirstName;
+import com.bcn.asapp.users.domain.user.LastName;
+import com.bcn.asapp.users.domain.user.PhoneNumber;
+import com.bcn.asapp.users.domain.user.User;
+import com.bcn.asapp.users.domain.user.UserId;
 import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserEntity;
 
 public class TestFactory {
@@ -54,8 +61,12 @@ public class TestFactory {
 
         TestUserFactory() {}
 
-        public static JdbcUserEntity defaultTestUser() {
-            return new Builder().build();
+        public static User defaultTestDomainUser() {
+            return testUserBuilder().buildDomainEntity();
+        }
+
+        public static JdbcUserEntity defaultTestJdbcUser() {
+            return testUserBuilder().buildJdbcEntity();
         }
 
         public static Builder testUserBuilder() {
@@ -63,6 +74,8 @@ public class TestFactory {
         }
 
         public static class Builder {
+
+            private UUID userId;
 
             private String firstName;
 
@@ -73,6 +86,7 @@ public class TestFactory {
             private String phoneNumber;
 
             Builder() {
+                userId = UUID.randomUUID();
                 firstName = TEST_USER_FIRST_NAME;
                 lastName = TEST_USER_LAST_NAME;
                 email = TEST_USER_EMAIL;
@@ -81,6 +95,11 @@ public class TestFactory {
 
             public Builder withFirstName(String firstName) {
                 this.firstName = firstName;
+                return this;
+            }
+
+            public Builder withUserId(UUID userId) {
+                this.userId = userId;
                 return this;
             }
 
@@ -99,7 +118,21 @@ public class TestFactory {
                 return this;
             }
 
-            public JdbcUserEntity build() {
+            public User buildDomainEntity() {
+                var firstNameVO = FirstName.of(firstName);
+                var lastNameVO = LastName.of(lastName);
+                var emailVO = Email.of(email);
+                var phoneNumberVO = PhoneNumber.of(phoneNumber);
+
+                if (userId == null) {
+                    return User.create(firstNameVO, lastNameVO, emailVO, phoneNumberVO);
+                } else {
+                    var userIdVO = UserId.of(userId);
+                    return User.reconstitute(userIdVO, firstNameVO, lastNameVO, emailVO, phoneNumberVO);
+                }
+            }
+
+            public JdbcUserEntity buildJdbcEntity() {
                 return new JdbcUserEntity(null, firstName, lastName, email, phoneNumber);
             }
 
