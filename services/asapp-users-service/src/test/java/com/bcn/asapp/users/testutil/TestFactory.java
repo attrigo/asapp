@@ -22,11 +22,14 @@ import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.ROLE;
 import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.users.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
 import static com.bcn.asapp.users.infrastructure.security.JwtTypeNames.REFRESH_TOKEN_TYPE;
+import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
+import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
@@ -45,6 +48,7 @@ import com.bcn.asapp.users.domain.user.LastName;
 import com.bcn.asapp.users.domain.user.PhoneNumber;
 import com.bcn.asapp.users.domain.user.User;
 import com.bcn.asapp.users.domain.user.UserId;
+import com.bcn.asapp.users.infrastructure.security.DecodedJwt;
 import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserEntity;
 
 public class TestFactory {
@@ -134,6 +138,103 @@ public class TestFactory {
 
             public JdbcUserEntity buildJdbcEntity() {
                 return new JdbcUserEntity(null, firstName, lastName, email, phoneNumber);
+            }
+
+        }
+
+    }
+
+    public static final class TestDecodedJwtFactory {
+
+        private static final String TEST_DECODED_JWT_SUBJECT = "user@asapp.com";
+
+        private static final String TEST_DECODED_JWT_ROLE = "USER";
+
+        private static final Map<String, Object> TEST_DECODED_JWT_AT_CLAIMS = Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, TEST_DECODED_JWT_ROLE);
+
+        private static final Map<String, Object> TEST_DECODED_JWT_RT_CLAIMS = Map.of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, TEST_DECODED_JWT_ROLE);
+
+        TestDecodedJwtFactory() {}
+
+        public static DecodedJwt defaultTestDecodedAccessToken() {
+            return testDecodedJwtBuilder().accessToken()
+                                          .build();
+        }
+
+        public static DecodedJwt defaultTestDecodedRefreshToken() {
+            return testDecodedJwtBuilder().refreshToken()
+                                          .build();
+        }
+
+        public static Builder testDecodedJwtBuilder() {
+            return new Builder();
+        }
+
+        public static class Builder {
+
+            private String encodedToken;
+
+            private String type;
+
+            private String subject;
+
+            private Map<String, Object> claims;
+
+            Builder() {
+                this.subject = TEST_DECODED_JWT_SUBJECT;
+            }
+
+            public Builder accessToken() {
+                this.encodedToken = defaultTestEncodedAccessToken();
+                this.type = ACCESS_TOKEN_TYPE;
+                this.claims = TEST_DECODED_JWT_AT_CLAIMS;
+                return this;
+            }
+
+            public Builder refreshToken() {
+                this.encodedToken = defaultTestEncodedRefreshToken();
+                this.type = REFRESH_TOKEN_TYPE;
+                this.claims = TEST_DECODED_JWT_RT_CLAIMS;
+                return this;
+            }
+
+            public Builder withEncodedToken(String encodedToken) {
+                this.encodedToken = encodedToken;
+                return this;
+            }
+
+            public Builder withType(String type) {
+                this.type = type;
+                return this;
+            }
+
+            public Builder withSubject(String subject) {
+                this.subject = subject;
+                return this;
+            }
+
+            public Builder withClaims(Map<String, Object> claims) {
+                this.claims = claims;
+                return this;
+            }
+
+            public Builder withRole(Object role) {
+                if (this.claims == null) {
+                    this.claims = new HashMap<>();
+                }
+                this.claims.put(ROLE, role);
+                return this;
+            }
+
+            public Builder withoutRoleClaim() {
+                if (this.claims != null) {
+                    this.claims.remove(ROLE);
+                }
+                return this;
+            }
+
+            public DecodedJwt build() {
+                return new DecodedJwt(encodedToken, type, subject, claims);
             }
 
         }
