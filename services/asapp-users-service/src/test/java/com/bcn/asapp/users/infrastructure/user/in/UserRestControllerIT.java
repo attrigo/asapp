@@ -38,6 +38,18 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import com.bcn.asapp.users.testutil.WebMvcTestContext;
 
+/**
+ * Verifies user REST API contract validation and error handling.
+ * <p>
+ * Coverage:
+ * <li>Validates path parameter format (UUID required for user IDs)</li>
+ * <li>Validates request content type (JSON required for POST/PUT operations)</li>
+ * <li>Validates request body presence and structure</li>
+ * <li>Validates mandatory field constraints (first name, last name, email, phone number)</li>
+ * <li>Validates email format and phone number format patterns</li>
+ * <li>Returns RFC 7807 Problem Details for all validation failures</li>
+ * <li>Tests all HTTP endpoints (GET by ID, POST, PUT, DELETE)</li>
+ */
 @WithMockUser
 class UserRestControllerIT extends WebMvcTestContext {
 

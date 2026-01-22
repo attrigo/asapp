@@ -30,6 +30,14 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
 
+/**
+ * Verifies Redis token store integration for session validation.
+ * <p>
+ * Coverage:
+ * <li>Verifies token existence check returns false when token not present in Redis</li>
+ * <li>Verifies token existence check returns true when token stored in Redis</li>
+ * <li>Tests actual Redis operations with TestContainers</li>
+ */
 @SpringBootTest
 @Import(TestContainerConfiguration.class)
 class RedisJwtStoreIT {

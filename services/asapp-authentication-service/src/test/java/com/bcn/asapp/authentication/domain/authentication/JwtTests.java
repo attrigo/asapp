@@ -33,6 +33,20 @@ import java.util.Map;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Verifies Jwt value object encapsulates complete token structure with claim consistency and immutability.
+ * <p>
+ * Coverage:
+ * <li>Rejects null encoded token, type, subject, or claims
+ * <li>Validates claims contain mandatory token_use claim
+ * <li>Validates token_use claim value is "access" or "refresh"
+ * <li>Validates token type matches token_use claim value
+ * <li>Validates issued timestamp is before expiration timestamp
+ * <li>Creates valid access and refresh tokens with all components
+ * <li>Provides type checking methods (isAccessToken, isRefreshToken)
+ * <li>Extracts role claim from token claims
+ * <li>Provides access to encoded token value
+ */
 class JwtTests {
 
     private final EncodedToken encodedToken = EncodedToken.of("eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0In0.c2lnbmF0dXJl");

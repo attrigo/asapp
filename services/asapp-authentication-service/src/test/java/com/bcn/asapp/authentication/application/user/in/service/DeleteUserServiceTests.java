@@ -58,6 +58,15 @@ import com.bcn.asapp.authentication.domain.authentication.Subject;
 import com.bcn.asapp.authentication.domain.user.Role;
 import com.bcn.asapp.authentication.domain.user.UserId;
 
+/**
+ * Verifies user deletion orchestration with cascading authentication cleanup and compensation.
+ * <p>
+ * Coverage:
+ * <li>Token deactivation failures propagate without executing deletion operations</li>
+ * <li>User deletion failures trigger compensation to reactivate deactivated tokens</li>
+ * <li>Compensation failures throw CompensatingTransactionException</li>
+ * <li>Successful deletion deactivates all user tokens, deletes user, and cascades to authentication records</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class DeleteUserServiceTests {
 

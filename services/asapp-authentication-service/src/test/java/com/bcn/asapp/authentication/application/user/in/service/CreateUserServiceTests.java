@@ -44,6 +44,14 @@ import com.bcn.asapp.authentication.domain.user.User;
 import com.bcn.asapp.authentication.domain.user.UserId;
 import com.bcn.asapp.authentication.domain.user.Username;
 
+/**
+ * Verifies user creation orchestration with password encoding.
+ * <p>
+ * Coverage:
+ * <li>Password encoding failures propagate without completing creation workflow</li>
+ * <li>Persistence failures propagate without completing creation workflow</li>
+ * <li>Successful creation encodes password, persists user, and returns assigned identity</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class CreateUserServiceTests {
 

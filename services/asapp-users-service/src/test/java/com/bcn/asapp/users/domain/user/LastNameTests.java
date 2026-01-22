@@ -24,6 +24,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
+/**
+ * Verifies LastName value object encapsulates user family name with self-validation and immutability.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or empty last name values</li>
+ * <li>Creates LastName with constructor and factory method for valid inputs</li>
+ * <li>Provides access to wrapped last name value</li>
+ */
 class LastNameTests {
 
     private final String lastNameValue = "LastName";

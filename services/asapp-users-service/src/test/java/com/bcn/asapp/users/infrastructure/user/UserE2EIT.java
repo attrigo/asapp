@@ -69,6 +69,20 @@ import com.bcn.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
 import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserRepository;
 import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 
+/**
+ * Verifies end-to-end user management workflows across full application stack.
+ * <p>
+ * Coverage:
+ * <li>Rejects all operations without valid JWT authentication</li>
+ * <li>Retrieves user by identifier returning 404 when not found, user when exists</li>
+ * <li>Retrieves user with task enrichment via external gateway (graceful degradation on failure)</li>
+ * <li>Retrieves all users returning empty or collection</li>
+ * <li>Creates user persisting to database and returning assigned identifier</li>
+ * <li>Updates existing user persisting changes and returning updated data</li>
+ * <li>Deletes existing user removing from database</li>
+ * <li>Tests complete flow: HTTP → Security → Controller → Service → Repository → Database</li>
+ * <li>Tests external service integration using MockServer for task service calls</li>
+ */
 @SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient(timeout = "30000")
 @Import(TestContainerConfiguration.class)

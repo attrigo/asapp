@@ -44,6 +44,17 @@ import com.bcn.asapp.authentication.infrastructure.authentication.persistence.Jd
 import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserRepository;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 
+/**
+ * Verifies password encoding with support for multiple encoding formats during authentication.
+ * <p>
+ * Coverage:
+ * <li>Authenticates users with noop-encoded passwords
+ * <li>Authenticates users with bcrypt-encoded passwords
+ * <li>Authenticates users with argon2-encoded passwords
+ * <li>Authenticates users with scrypt-encoded passwords
+ * <li>Authenticates users with pbkdf2-encoded passwords
+ * <li>Returns valid JWT token pair for all encoding types
+ */
 @SpringBootTest(classes = AsappAuthenticationServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient(timeout = "30000")
 @Import(TestContainerConfiguration.class)

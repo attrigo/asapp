@@ -33,6 +33,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
+/**
+ * Verifies decoded JWT wrapper encapsulates token metadata with type-safe access.
+ * <p>
+ * Coverage:
+ * <li>Validates encoded token, type, subject, and claims required at construction</li>
+ * <li>Determines access token identity by matching type and token_use claim</li>
+ * <li>Extracts role claim with null handling for missing or invalid values</li>
+ * <li>Provides immutable access to all token metadata</li>
+ */
 class DecodedJwtTests {
 
     private final String encodedToken = defaultTestEncodedAccessToken();

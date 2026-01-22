@@ -63,6 +63,21 @@ import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserEnti
 import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserRepository;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 
+/**
+ * Verifies end-to-end authentication workflows across full application stack.
+ * <p>
+ * Coverage:
+ * <li>Authenticates user credentials generating JWT pair persisted to database and activated in Redis</li>
+ * <li>Refreshes authentication rotating token pair with old tokens deactivated and new tokens activated</li>
+ * <li>Revokes authentication deleting from database and deactivating in Redis</li>
+ * <li>Tests complete flow: HTTP → Security → Controller → Service → Repository → Database + Redis</li>
+ * <li>Complete refresh flow: old tokens revoked, new tokens generated and stored
+ * <li>Complete revoke flow: authentication deleted from DB, tokens removed from Redis
+ * <li>Validates tokens are properly formatted JWTs with correct claims
+ * <li>Validates tokens exist in both PostgreSQL and Redis after issuance
+ * <li>Validates old tokens removed and new tokens added during refresh
+ * <li>Validates tokens completely removed after revocation
+ */
 @SpringBootTest(classes = AsappAuthenticationServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient(timeout = "30000")
 @Import(TestContainerConfiguration.class)

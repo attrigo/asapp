@@ -59,6 +59,17 @@ import com.bcn.asapp.authentication.domain.user.Role;
 import com.bcn.asapp.authentication.domain.user.UserId;
 import com.bcn.asapp.authentication.domain.user.Username;
 
+/**
+ * Verifies authentication workflow orchestration.
+ * <p>
+ * Coverage:
+ * <li>Credential validation failures propagate without executing downstream steps</li>
+ * <li>Token generation failures prevent persistence and activation</li>
+ * <li>Persistence failures prevent token activation</li>
+ * <li>Token activation failures trigger compensation to delete persisted authentication</li>
+ * <li>Compensation failures throw CompensatingTransactionException</li>
+ * <li>Successful authentication completes all orchestration steps</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class AuthenticateServiceTests {
 

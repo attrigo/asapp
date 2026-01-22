@@ -27,6 +27,15 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
+/**
+ * Verifies PhoneNumber value object encapsulates contact number with format validation and immutability.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or empty phone number values</li>
+ * <li>Validates phone number must match allowed patterns (666777888, 666 777 888, 666-777-888)</li>
+ * <li>Creates PhoneNumber with constructor and factory method for valid inputs</li>
+ * <li>Provides access to wrapped phone number value</li>
+ */
 class PhoneNumberTests {
 
     private final String phoneNumberValue = "555 555 555";

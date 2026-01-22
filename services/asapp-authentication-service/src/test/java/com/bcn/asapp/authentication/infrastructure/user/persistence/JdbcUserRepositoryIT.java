@@ -33,6 +33,14 @@ import org.springframework.context.annotation.Import;
 import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationRepository;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 
+/**
+ * Verifies JDBC repository operations for user credential persistence against database.
+ * <p>
+ * Coverage:
+ * <li>Persists and retrieves user credentials by multiple identifiers (ID, username)</li>
+ * <li>Deletes user with cascading cleanup to authentication records</li>
+ * <li>Tests actual database operations with TestContainers PostgreSQL</li>
+ */
 @DataJdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import({ TestContainerConfiguration.class, JacksonAutoConfiguration.class })

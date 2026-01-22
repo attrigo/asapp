@@ -46,6 +46,15 @@ import com.bcn.asapp.authentication.infrastructure.security.CustomUserDetails;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidPrincipalException;
 import com.bcn.asapp.authentication.infrastructure.security.RoleNotFoundException;
 
+/**
+ * Verifies credential authentication adapter translating between domain and Spring Security types.
+ * <p>
+ * Coverage:
+ * <li>Delegates authentication to Spring Security framework</li>
+ * <li>Translates authenticated principal to domain UserAuthentication</li>
+ * <li>Propagates authentication failures from Spring Security</li>
+ * <li>Handles invalid principal type with domain exception</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class CredentialsAuthenticatorAdapterTests {
 

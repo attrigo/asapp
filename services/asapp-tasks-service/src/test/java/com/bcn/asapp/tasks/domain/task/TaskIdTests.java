@@ -24,6 +24,15 @@ import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Verifies TaskId value object encapsulates aggregate identity with type safety.
+ * <p>
+ * Coverage:
+ * <li>Null ID is rejected via constructor</li>
+ * <li>Null ID is rejected via factory method</li>
+ * <li>Valid UUID identifier is accepted and preserved</li>
+ * <li>Value accessor returns underlying UUID</li>
+ */
 class TaskIdTests {
 
     private final UUID idValue = UUID.fromString("d68ca3f3-c27f-4602-9679-64e4b871811d");;

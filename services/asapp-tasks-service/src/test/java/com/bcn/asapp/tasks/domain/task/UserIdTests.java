@@ -24,6 +24,15 @@ import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Verifies UserId value object encapsulates task ownership reference with type safety.
+ * <p>
+ * Coverage:
+ * <li>Null ID is rejected via constructor</li>
+ * <li>Null ID is rejected via factory method</li>
+ * <li>Valid UUID identifier is accepted and preserved</li>
+ * <li>Value accessor returns underlying UUID</li>
+ */
 class UserIdTests {
 
     private final UUID userIdValue = UUID.fromString("09726a94-df21-48ad-864a-f3612499ff3d");

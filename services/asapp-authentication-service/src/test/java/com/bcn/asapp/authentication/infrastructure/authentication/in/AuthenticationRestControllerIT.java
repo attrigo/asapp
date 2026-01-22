@@ -31,6 +31,16 @@ import org.springframework.http.MediaType;
 
 import com.bcn.asapp.authentication.testutil.WebMvcTestContext;
 
+/**
+ * Verifies authentication REST API contract validation and error handling.
+ * <p>
+ * Coverage:
+ * <li>Validates request content type (JSON required for POST operations)</li>
+ * <li>Validates request body presence and structure</li>
+ * <li>Validates mandatory field constraints (username, password, tokens)</li>
+ * <li>Returns RFC 7807 Problem Details for all validation failures</li>
+ * <li>Tests all HTTP endpoints (authenticate, refresh, revoke)</li>
+ */
 class AuthenticationRestControllerIT extends WebMvcTestContext {
 
     @Nested

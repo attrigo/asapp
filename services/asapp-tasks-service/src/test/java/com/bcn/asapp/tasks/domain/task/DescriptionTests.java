@@ -24,6 +24,17 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
+/**
+ * Verifies Description value object encapsulates task description text with self-validation and immutability.
+ * <p>
+ * Coverage:
+ * <li>Null or empty description is rejected via constructor</li>
+ * <li>Null or empty description is rejected via factory method</li>
+ * <li>Nullable factory method returns null for invalid input</li>
+ * <li>Nullable factory method returns null for blank input</li>
+ * <li>Valid description is accepted and preserved</li>
+ * <li>Value accessor returns underlying description text</li>
+ */
 class DescriptionTests {
 
     private final String descriptionValue = "Description";

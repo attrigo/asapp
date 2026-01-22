@@ -60,6 +60,22 @@ import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserEnti
 import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserRepository;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 
+/**
+ * Verifies end-to-end user management workflows across full application stack.
+ * <p>
+ * Coverage:
+ * <li>Rejects all operations without valid JWT authentication</li>
+ * <li>Creates user with password encoding and persistence to database</li>
+ * <li>Retrieves user by identifier returning 404 when not found, user when exists</li>
+ * <li>Retrieves all users returning empty or collection</li>
+ * <li>Updates existing user persisting changes with password re-encoding when provided</li>
+ * <li>Deletes existing user cascading to authentication records and deactivating tokens</li>
+ * <li>Tests complete flow: HTTP → Security → Controller → Service → Repository → Database</li>
+ * <li>Complete delete user flow: user removed from DB, associated tokens cleaned up
+ * <li>Validates authentication tokens removed from PostgreSQL and Redis after user deletion
+ * <li>Validates JWT authentication required for all endpoints
+ * <li>Validates password never returned in responses
+ */
 @SpringBootTest(classes = AsappAuthenticationServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient(timeout = "30000")
 @Import(TestContainerConfiguration.class)

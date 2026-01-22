@@ -44,6 +44,14 @@ import com.bcn.asapp.tasks.domain.task.TaskId;
 import com.bcn.asapp.tasks.domain.task.Title;
 import com.bcn.asapp.tasks.domain.task.UserId;
 
+/**
+ * Verifies task creation orchestration.
+ * <p>
+ * Coverage:
+ * <li>Persistence failures propagate without completing creation workflow</li>
+ * <li>Successful creation persists task with assigned identity</li>
+ * <li>Domain constraints validated before persistence</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class CreateTaskServiceTests {
 

@@ -51,6 +51,9 @@ import com.bcn.asapp.users.domain.user.UserId;
 import com.bcn.asapp.users.infrastructure.security.DecodedJwt;
 import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserEntity;
 
+/**
+ * Provides test data builders for domain entities, infrastructure entities, and JWT tokens with fluent API.
+ */
 public class TestFactory {
 
     public static final class TestUserFactory {

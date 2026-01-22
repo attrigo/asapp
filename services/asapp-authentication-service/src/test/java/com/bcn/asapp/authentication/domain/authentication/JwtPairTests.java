@@ -33,6 +33,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Verifies JwtPair value object encapsulates token pairing with completeness validation and immutability.
+ * <p>
+ * Coverage:
+ * <li>Rejects null access token
+ * <li>Rejects null refresh token
+ * <li>Creates JwtPair with constructor and factory method for valid token pair
+ */
 class JwtPairTests {
 
     private Jwt accessToken;

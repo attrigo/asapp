@@ -41,6 +41,16 @@ import com.bcn.asapp.authentication.domain.user.Role;
 import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserEntity;
 import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserRepository;
 
+/**
+ * Verifies user credential lookup and translation to Spring Security user details.
+ * <p>
+ * Coverage:
+ * <li>Retrieves user by username from repository</li>
+ * <li>Translates repository entity to Spring Security user details with authorities</li>
+ * <li>Throws UsernameNotFoundException when user not found</li>
+ * <li>Throws UsernameNotFoundException when user not found
+ * <li>Supports all role types (USER, ADMIN)
+ */
 @ExtendWith(MockitoExtension.class)
 class CustomUserDetailsServiceTests {
 

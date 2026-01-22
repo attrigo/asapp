@@ -27,6 +27,15 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
+/**
+ * Verifies Username value object encapsulates user identification with self-validation and immutability.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or empty username values
+ * <li>Validates username must be valid email address format
+ * <li>Creates Username with constructor and factory method for valid inputs
+ * <li>Provides access to wrapped username value
+ */
 class UsernameTests {
 
     private final String usernameValue = "user@asapp.com";

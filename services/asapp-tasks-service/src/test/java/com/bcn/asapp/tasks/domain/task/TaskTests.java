@@ -25,6 +25,22 @@ import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Verifies Task aggregate root protects transactional boundaries and enforces domain invariants.
+ * <p>
+ * Coverage:
+ * <li>New task creation requires user ID and title</li>
+ * <li>New task creation accepts optional description, start date, and end date</li>
+ * <li>Reconstituted task creation requires ID, user ID, and title</li>
+ * <li>Reconstituted task creation accepts optional description, start date, and end date</li>
+ * <li>Task update requires user ID and title on both new and reconstituted tasks</li>
+ * <li>Task update accepts optional description, start date, and end date on both states</li>
+ * <li>Equality is identity-based for reconstituted tasks using ID</li>
+ * <li>Equality is instance-based for new tasks without ID</li>
+ * <li>Hash code is ID-based for reconstituted tasks</li>
+ * <li>Hash code is instance-based for new tasks</li>
+ * <li>Accessor methods return corresponding value objects</li>
+ */
 class TaskTests {
 
     private final TaskId id = TaskId.of(UUID.fromString("d68ca3f3-c27f-4602-9679-64e4b871811d"));

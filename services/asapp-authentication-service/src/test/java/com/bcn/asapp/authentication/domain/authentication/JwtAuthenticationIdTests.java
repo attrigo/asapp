@@ -24,6 +24,14 @@ import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Verifies JwtAuthenticationId value object encapsulates authentication identity with immutability guarantees.
+ * <p>
+ * Coverage:
+ * <li>Rejects null UUID values
+ * <li>Creates JwtAuthenticationId with constructor and factory method for valid UUIDs
+ * <li>Provides access to wrapped UUID value
+ */
 class JwtAuthenticationIdTests {
 
     private final UUID idValue = UUID.fromString("9b3e7f12-4c8a-4d3e-a9f2-6e5d4c3b2a10");

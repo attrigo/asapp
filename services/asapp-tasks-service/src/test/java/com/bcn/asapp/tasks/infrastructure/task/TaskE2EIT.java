@@ -54,6 +54,19 @@ import com.bcn.asapp.tasks.infrastructure.task.in.response.UpdateTaskResponse;
 import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskRepository;
 import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
 
+/**
+ * Verifies end-to-end task management workflows across full application stack.
+ * <p>
+ * Coverage:
+ * <li>Rejects all operations without valid JWT authentication</li>
+ * <li>Retrieves task by identifier returning 404 when not found, task when exists</li>
+ * <li>Retrieves tasks by user ownership returning empty or collection</li>
+ * <li>Retrieves all tasks across users returning empty or collection</li>
+ * <li>Creates task persisting to database and returning assigned identifier</li>
+ * <li>Updates existing task persisting changes and returning updated data</li>
+ * <li>Deletes existing task removing from database</li>
+ * <li>Tests complete flow: HTTP → Security → Controller → Service → Repository → Database</li>
+ */
 @SpringBootTest(classes = AsappTasksServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient(timeout = "30000")
 @Import(TestContainerConfiguration.class)

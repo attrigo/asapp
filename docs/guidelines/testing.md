@@ -175,6 +175,200 @@ Choose the right pattern based on what the condition describes. Each pattern opt
    - ✅ Application tests: `_AccessTokenExpiredInStore`, `_UserNotFoundInRepository`
    - ❌ Application tests: `_AccessTokenExpiredInRedis` (leaks infrastructure details)
 
+### Test Class Javadoc
+
+**Pattern**: Short behavioral summary + Coverage section with detailed behaviors
+
+**Purpose**: Document what the test class verifies without coupling to implementation details
+
+**General Guidelines**:
+
+✅ **DO**:
+- Start with "Verifies" followed by the behavior being tested (for test classes)
+- Keep summary concise and high-level (avoid listing specific details)
+- Use Coverage section for detailed list of behaviors
+- Focus on **what** is verified, not **how** or **with what tools**
+- Omit @since tags in test classes
+- Write behavior descriptions that remain valid when implementation changes
+
+❌ **DON'T**:
+- Reference class names in summary
+- Duplicate information between summary and Coverage section
+- List specific fields, methods, or technical details in summary
+- Use phrases like "tests the X class" or "unit tests for Y"
+
+---
+
+#### Domain Classes
+
+**Guidelines**:
+- Use DDD terminology: value objects **"encapsulate"**, aggregates **"protect boundaries"**
+- Emphasize immutability, self-validation, and domain consistency
+- Focus on what the domain concept represents, not validation mechanics
+
+**Structure**:
+```java
+/**
+ * Verifies [DomainConcept] value object encapsulates [concept] with [characteristics].
+ * <p>
+ * Coverage:
+ * <li>[Specific behavior 1]</li>
+ * <li>[Specific behavior 2]</li>
+ */
+```
+
+**Examples**:
+
+Value object:
+```java
+/**
+ * Verifies Username value object encapsulates user identification with self-validation and immutability.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or empty username values</li>
+ * <li>Validates username must be valid email address format</li>
+ * <li>Creates Username with constructor and factory method for valid inputs</li>
+ * <li>Provides access to wrapped username value</li>
+ */
+class UsernameTests {
+```
+
+Aggregate:
+```java
+/**
+ * Verifies User aggregate root protects identity boundaries across persistence states and maintains consistency.
+ * <p>
+ * Coverage:
+ * <li>Creates inactive user with username, password, and role, null ID</li>
+ * <li>Creates active user with ID, username, and role, null password</li>
+ * <li>Updates user data (username, password, role) on both states</li>
+ * <li>Validates username, password, and role required for inactive state</li>
+ * <li>Validates ID, username, and role required for active state</li>
+ * <li>Implements identity-based equality using ID for active users, username for inactive users</li>
+ */
+class UserTests {
+```
+
+---
+
+#### Application Services
+
+**Guidelines**:
+- Focus on orchestration and workflow behavior
+- Emphasize failure handling, compensation, and transaction boundaries
+- Describe the business flow being tested
+
+**Structure**:
+```java
+/**
+ * Verifies [workflow/operation] orchestration.
+ * <p>
+ * Coverage:
+ * <li>[Workflow step 1]</li>
+ * <li>[Failure scenario 1]</li>
+ * <li>[Compensation behavior]</li>
+ */
+```
+
+**Example**:
+```java
+/**
+ * Verifies authentication workflow orchestration.
+ * <p>
+ * Coverage:
+ * <li>Credential validation failures propagate without executing downstream steps</li>
+ * <li>Token generation failures prevent persistence and activation</li>
+ * <li>Persistence failures prevent token activation</li>
+ * <li>Token activation failures trigger compensation to delete persisted authentication</li>
+ * <li>Compensation failures throw CompensatingTransactionException</li>
+ * <li>Successful authentication completes all orchestration steps</li>
+ */
+@ExtendWith(MockitoExtension.class)
+class AuthenticateServiceTests {
+```
+
+---
+
+#### Infrastructure Adapters
+
+**Guidelines**:
+- Use hexagonal architecture terminology: **"adapter bridges"**, **"translates"**, **"delegates"**
+- Emphasize the translation between layers (domain ↔ infrastructure)
+- Focus on integration with external frameworks/systems
+
+**Structure**:
+```java
+/**
+ * Verifies adapter bridges [operation] between [layer1] and [layer2/framework].
+ * <p>
+ * Coverage:
+ * <li>[Delegation behavior]</li>
+ * <li>[Translation behavior]</li>
+ * <li>[Error handling]</li>
+ */
+```
+
+**Example**:
+```java
+/**
+ * Verifies adapter bridges credential authentication between application layer and Spring Security framework.
+ * <p>
+ * Coverage:
+ * <li>Delegates authentication to Spring Security AuthenticationManager</li>
+ * <li>Translates CustomUserDetails to UserAuthentication domain object</li>
+ * <li>Extracts user ID, username, and role from authenticated principal</li>
+ * <li>Propagates BadCredentialsException from Spring Security</li>
+ * <li>Handles invalid principal types gracefully</li>
+ * <li>Handles missing role in principal</li>
+ */
+@ExtendWith(MockitoExtension.class)
+class CredentialsAuthenticatorAdapterTests {
+```
+
+---
+
+#### Utility Classes
+
+**Guidelines**:
+- Start with **"Provides"** or **"Configures"**
+- **No Coverage section** (they're helpers, not tests)
+- Keep it simple and concise
+
+**Structure**:
+```java
+/**
+ * Provides/Configures [capability/resource] for [purpose].
+ */
+```
+
+**Examples**:
+
+Test data factory:
+```java
+/**
+ * Provides test data builders for domain and infrastructure entities with fluent API.
+ */
+public class TestFactory {
+```
+
+Container configuration:
+```java
+/**
+ * Configures TestContainers for integration testing with singleton lifecycle.
+ * <p>
+ * Creates containers for following services:
+ * <li>PostgreSQL</li>
+ * <li>Redis</li>
+ * <p>
+ * This configuration class ensures containers start once per test execution, rather than once per test class, reducing startup overhead. This is achieved using
+ * a singleton pattern by declaring containers as {@code static final} fields.
+ * <p>
+ * Spring Boot's {@code @ServiceConnection} auto-configures connection properties.
+ */
+@TestConfiguration(proxyBeanMethods = false)
+@Testcontainers
+public class TestContainerConfiguration {
+```
 
 ### BDDMockito (Not Regular Mockito)
 ```java

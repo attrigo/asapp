@@ -37,6 +37,17 @@ import org.springframework.web.client.RestClient;
 
 import com.bcn.asapp.clients.util.DefaultUriHandler;
 
+/**
+ * Verifies Tasks service HTTP client delegation with resilient error handling and JSON deserialization.
+ * <p>
+ * Coverage:
+ * <li>Rejects null user identifiers with validation exception</li>
+ * <li>Returns empty collection when server errors occur (graceful degradation)</li>
+ * <li>Returns empty collection when response body is null or empty</li>
+ * <li>Deserializes single task ID from JSON response array</li>
+ * <li>Deserializes multiple task IDs from JSON response array</li>
+ * <li>Tests HTTP interactions with MockRestServiceServer</li>
+ */
 class TasksRestClientTests {
 
     private static final String BASE_URL = "http://localhost:8081/asapp-tasks-service";

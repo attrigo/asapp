@@ -42,6 +42,15 @@ import com.bcn.asapp.authentication.domain.user.Role;
 import com.bcn.asapp.authentication.domain.user.UserId;
 import com.bcn.asapp.authentication.domain.user.Username;
 
+/**
+ * Verifies JWT token generation with cryptographic signing and structured claims.
+ * <p>
+ * Coverage:
+ * <li>Generates access and refresh tokens with distinct type headers and expiration times</li>
+ * <li>Includes mandatory claims (subject, role, token_use) in both token types</li>
+ * <li>Signs tokens with configured secret key for cryptographic verification</li>
+ * <li>Supports all role types in claim generation</li>
+ */
 class JwtIssuerTests {
 
     private final UUID userIdValue = UUID.fromString("184c3f38-0783-4b4e-a570-709416bd856b");

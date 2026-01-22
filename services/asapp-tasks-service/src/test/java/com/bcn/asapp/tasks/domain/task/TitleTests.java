@@ -24,6 +24,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
+/**
+ * Verifies Title value object encapsulates task name with self-validation and immutability.
+ * <p>
+ * Coverage:
+ * <li>Null or empty title is rejected via constructor</li>
+ * <li>Null or empty title is rejected via factory method</li>
+ * <li>Valid title is accepted and preserved</li>
+ * <li>Value accessor returns underlying title text</li>
+ */
 class TitleTests {
 
     private final String titleValue = "Title";

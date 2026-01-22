@@ -31,6 +31,15 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;
 
+/**
+ * Verifies Spring Security authentication token construction from decoded JWT.
+ * <p>
+ * Coverage:
+ * <li>Rejects null decoded JWT at construction</li>
+ * <li>Constructs authenticated token without authorities when role claim missing</li>
+ * <li>Constructs authenticated token with principal, authorities, and encoded token</li>
+ * <li>Provides access to principal (subject), credentials (null), and JWT string</li>
+ */
 class JwtAuthenticationTokenTests {
 
     private final String principal = "user@asapp.com";

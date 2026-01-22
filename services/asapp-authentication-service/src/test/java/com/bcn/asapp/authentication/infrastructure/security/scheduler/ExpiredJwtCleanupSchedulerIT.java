@@ -34,6 +34,15 @@ import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserEnti
 import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserRepository;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 
+/**
+ * Verifies scheduled cleanup of expired JWT authentications from the database.
+ * <p>
+ * Coverage:
+ * <li>Deletes authentications where refresh token expired before current time
+ * <li>Preserves authentications where refresh token not yet expired
+ * <li>Handles multiple expired authentications in single cleanup
+ * <li>Handles cleanup when no expired authentications exist
+ */
 @SpringBootTest
 @Import(TestContainerConfiguration.class)
 class ExpiredJwtCleanupSchedulerIT {

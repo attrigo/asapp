@@ -33,6 +33,15 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 
+/**
+ * Verifies JWT decoding and cryptographic validation.
+ * <p>
+ * Coverage:
+ * <li>Rejects malformed token structure</li>
+ * <li>Rejects tokens with invalid cryptographic signature</li>
+ * <li>Rejects expired tokens based on expiration timestamp</li>
+ * <li>Decodes valid tokens extracting type, subject, and claims</li>
+ */
 class JwtDecoderTests {
 
     private final SecretKey secretKey = Keys.hmacShaKeyFor(new byte[32]);

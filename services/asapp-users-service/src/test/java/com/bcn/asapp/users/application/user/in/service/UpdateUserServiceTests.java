@@ -44,6 +44,15 @@ import com.bcn.asapp.users.domain.user.PhoneNumber;
 import com.bcn.asapp.users.domain.user.User;
 import com.bcn.asapp.users.domain.user.UserId;
 
+/**
+ * Verifies user update orchestration with two-phase workflow.
+ * <p>
+ * Coverage:
+ * <li>Fetch failures prevent update workflow execution</li>
+ * <li>Persistence failures after successful fetch propagate</li>
+ * <li>Returns empty when user does not exist (no-op update)</li>
+ * <li>Successful update completes fetch, mutation, and persistence phases</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class UpdateUserServiceTests {
 

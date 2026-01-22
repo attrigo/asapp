@@ -68,6 +68,9 @@ import com.bcn.asapp.authentication.infrastructure.authentication.persistence.Jd
 import com.bcn.asapp.authentication.infrastructure.security.DecodedJwt;
 import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserEntity;
 
+/**
+ * Provides test data builders for domain entities, infrastructure entities, and JWT tokens with fluent API.
+ */
 public class TestFactory {
 
     private static final Long TEST_EXPIRATION_TIME_MILLIS = 300000L;

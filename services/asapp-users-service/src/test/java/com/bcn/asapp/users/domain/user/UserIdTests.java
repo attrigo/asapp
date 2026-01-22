@@ -24,6 +24,14 @@ import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Verifies UserId value object encapsulates aggregate identity with type safety.
+ * <p>
+ * Coverage:
+ * <li>Rejects null identifier</li>
+ * <li>Creates UserId with constructor and factory method for valid UUID</li>
+ * <li>Provides access to wrapped identifier value</li>
+ */
 class UserIdTests {
 
     private final UUID idValue = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");

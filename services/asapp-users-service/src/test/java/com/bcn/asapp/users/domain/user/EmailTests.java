@@ -27,6 +27,15 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
+/**
+ * Verifies Email value object encapsulates contact email address with format validation and immutability.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or empty email values</li>
+ * <li>Validates email must match standard email address format</li>
+ * <li>Creates Email with constructor and factory method for valid inputs</li>
+ * <li>Provides access to wrapped email value</li>
+ */
 class EmailTests {
 
     private final String emailValue = "user@asapp.com";

@@ -24,6 +24,17 @@ import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Verifies User aggregate root protects profile boundaries across persistence states and maintains consistency.
+ * <p>
+ * Coverage:
+ * <li>Creates new user with profile data (first name, last name, email, phone), null ID</li>
+ * <li>Creates reconstituted user with ID and complete profile data</li>
+ * <li>Updates profile data on both creation and reconstitution states</li>
+ * <li>Validates all profile fields required for both states</li>
+ * <li>Validates ID required only for reconstituted state</li>
+ * <li>Implements identity-based equality using ID for reconstituted users, unique hash for new users</li>
+ */
 class UserTests {
 
     private final UserId id = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));

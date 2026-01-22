@@ -24,6 +24,16 @@ import java.time.Instant;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Verifies EndDate value object encapsulates task completion deadline with temporal type safety.
+ * <p>
+ * Coverage:
+ * <li>Null end date is rejected via constructor</li>
+ * <li>Null end date is rejected via factory method</li>
+ * <li>Nullable factory method returns null for null input</li>
+ * <li>Valid end date timestamp is accepted and preserved</li>
+ * <li>Value accessor returns underlying Instant</li>
+ */
 class EndDateTests {
 
     private final Instant endDateValue = Instant.parse("2025-01-02T10:00:00Z");

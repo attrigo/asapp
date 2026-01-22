@@ -41,6 +41,15 @@ import com.bcn.asapp.authentication.domain.user.User;
 import com.bcn.asapp.authentication.domain.user.UserId;
 import com.bcn.asapp.authentication.domain.user.Username;
 
+/**
+ * Verifies user retrieval orchestration across multiple query strategies.
+ * <p>
+ * Coverage:
+ * <li>Retrieval failures propagate for all query strategies (by ID, all users)</li>
+ * <li>Returns empty result when no users match query criteria</li>
+ * <li>Returns single user when queried by unique identifier</li>
+ * <li>Returns user collection when querying all users</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class ReadUserServiceTests {
 

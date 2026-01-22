@@ -37,6 +37,17 @@ import org.junit.jupiter.api.Test;
 
 import com.bcn.asapp.authentication.domain.user.UserId;
 
+/**
+ * Verifies JWT authentication aggregate root protects token lifecycle boundaries and maintains consistency.
+ * <p>
+ * Coverage:
+ * <li>Creates unauthenticated JWT with user ID and token pair, null authentication ID
+ * <li>Creates authenticated JWT with authentication ID, user ID, and token pair
+ * <li>Refreshes JWT pair with new tokens while maintaining authentication ID and user ID
+ * <li>Validates user ID and JWT pair required for both states
+ * <li>Validates authentication ID required for authenticated state
+ * <li>Implements identity-based equality using authentication ID for authenticated, user ID for unauthenticated
+ */
 class JwtAuthenticationTests {
 
     private JwtAuthenticationId id;

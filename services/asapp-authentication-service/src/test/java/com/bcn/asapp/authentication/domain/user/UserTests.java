@@ -26,6 +26,17 @@ import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Verifies User aggregate root protects identity boundaries across persistence states and maintains consistency.
+ * <p>
+ * Coverage:
+ * <li>Creates inactive user with username, password, and role, null ID
+ * <li>Creates active user with ID, username, and role, null password
+ * <li>Updates user data (username, password, role) on both states
+ * <li>Validates username, password, and role required for inactive state
+ * <li>Validates ID, username, and role required for active state
+ * <li>Implements identity-based equality using ID for active users, username for inactive users
+ */
 class UserTests {
 
     private final UserId id = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));

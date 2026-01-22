@@ -42,6 +42,14 @@ import com.bcn.asapp.users.domain.user.PhoneNumber;
 import com.bcn.asapp.users.domain.user.User;
 import com.bcn.asapp.users.domain.user.UserId;
 
+/**
+ * Verifies user creation orchestration.
+ * <p>
+ * Coverage:
+ * <li>Persistence failures propagate without completing creation workflow</li>
+ * <li>Successful creation persists user with assigned identity</li>
+ * <li>Domain constraints validated before persistence</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class CreateUserServiceTests {
 

@@ -30,6 +30,17 @@ import com.bcn.asapp.authentication.domain.user.Role;
 import com.bcn.asapp.authentication.domain.user.UserId;
 import com.bcn.asapp.authentication.domain.user.Username;
 
+/**
+ * Verifies UserAuthentication value object encapsulates authentication state with role-based validation and immutability.
+ * <p>
+ * Coverage:
+ * <li>Creates unauthenticated user with username and password, null ID and role
+ * <li>Creates authenticated user with ID, username, and role, null password
+ * <li>Validates username required for both authenticated and unauthenticated states
+ * <li>Validates password required for unauthenticated state
+ * <li>Validates ID and role required for authenticated state
+ * <li>Provides factory methods for unauthenticated and authenticated states
+ */
 class UseAuthenticationTests {
 
     private final UserId userId = UserId.of(UUID.fromString("7f3d8e2a-91c4-4b6f-a8d2-5e9f1c3b7a4d"));

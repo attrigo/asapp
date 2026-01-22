@@ -40,6 +40,15 @@ import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserEnti
 import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserRepository;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 
+/**
+ * Verifies JDBC repository operations for authentication session persistence against database.
+ * <p>
+ * Coverage:
+ * <li>Persists and retrieves authentication sessions by multiple identifiers (ID, access token, refresh token)</li>
+ * <li>Queries authentications by user identifier and expiration criteria</li>
+ * <li>Deletes authentication sessions with cascading cleanup</li>
+ * <li>Tests actual database operations with TestContainers PostgreSQL</li>
+ */
 @DataJdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import({ TestContainerConfiguration.class, JacksonAutoConfiguration.class })

@@ -46,6 +46,15 @@ import com.bcn.asapp.authentication.domain.user.User;
 import com.bcn.asapp.authentication.domain.user.UserId;
 import com.bcn.asapp.authentication.domain.user.Username;
 
+/**
+ * Verifies user update orchestration with two-phase workflow.
+ * <p>
+ * Coverage:
+ * <li>Retrieval failures propagate without executing update operations</li>
+ * <li>Password encoding failures propagate when password update requested</li>
+ * <li>Persistence failures propagate without completing update workflow</li>
+ * <li>Successful update retrieves user, re-encodes password if provided, updates data, and persists changes</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class UpdateUserServiceTests {
 

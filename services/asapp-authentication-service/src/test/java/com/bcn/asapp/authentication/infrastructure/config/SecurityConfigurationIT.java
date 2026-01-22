@@ -38,6 +38,20 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import com.bcn.asapp.authentication.AsappAuthenticationServiceApplication;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 
+/**
+ * Verifies Spring Security configuration for JWT authentication and endpoint access control.
+ * <p>
+ * Coverage:
+ * <li>Rejects requests without Authorization header</li>
+ * <li>Rejects malformed, expired, unsigned, or invalid signature tokens</li>
+ * <li>Rejects refresh tokens for access token endpoints</li>
+ * <li>Rejects valid tokens not present in session store</li>
+ * <li>Grants access to actuator endpoints with valid authenticated token</li>
+ * <li>Allows public access to health endpoint (limited info) and full details with authentication</li>
+ * <li>Allows public access to Swagger UI and OpenAPI documentation</li>
+ * <li>Rejects requests with refresh tokens on access-protected endpoints
+ * <li>Returns 401 Unauthorized for authentication failures
+ */
 @SpringBootTest(classes = AsappAuthenticationServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient(timeout = "30000")
 @Import(TestContainerConfiguration.class)

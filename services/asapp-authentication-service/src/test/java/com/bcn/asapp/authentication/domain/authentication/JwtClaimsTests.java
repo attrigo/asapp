@@ -25,6 +25,18 @@ import java.util.Map;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Verifies JwtClaims value object encapsulates token payload with type-safe access and immutability guarantees.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or empty claims maps
+ * <li>Creates JwtClaims with constructor and factory methods (Map, key-value pairs)
+ * <li>Validates all keys and values are non-null in key-value factory
+ * <li>Returns immutable claims map preventing external modification
+ * <li>Provides type-safe claim access with Optional return
+ * <li>Returns empty Optional for missing claims or type mismatches
+ * <li>Provides access to wrapped claims map
+ */
 class JwtClaimsTests {
 
     private final Map<String, Object> claimsValue = Map.of("sub", "user", "exp", 123456789L, "active", true);

@@ -27,6 +27,16 @@ import java.util.Date;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Verifies Issued value object encapsulates token issuance timestamp with type-safe conversion and immutability.
+ * <p>
+ * Coverage:
+ * <li>Rejects null issued timestamp values
+ * <li>Creates Issued with constructor and factory methods (now, Instant, Date)
+ * <li>Converts Instant to Date representation correctly
+ * <li>Returns new Date instance on each call to prevent mutation
+ * <li>Provides access to wrapped Instant value
+ */
 class IssuedTests {
 
     private final Instant issuedValue = Instant.parse("2025-01-01T10:00:00Z");

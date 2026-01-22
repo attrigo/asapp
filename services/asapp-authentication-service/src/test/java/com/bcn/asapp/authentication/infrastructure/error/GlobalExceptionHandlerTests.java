@@ -35,6 +35,16 @@ import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtType
 import com.bcn.asapp.authentication.domain.user.InvalidPasswordException;
 import com.bcn.asapp.authentication.domain.user.InvalidUsernameException;
 
+/**
+ * Verifies centralized exception handling and translation to RFC 7807 Problem Details format.
+ * <p>
+ * Coverage:
+ * <li>Translates domain validation failures to 400 Bad Request with specific messages</li>
+ * <li>Translates authentication failures to 401 Unauthorized with generic messages (security best practice)</li>
+ * <li>Translates database failures to 500 Internal Server Error with generic messages</li>
+ * <li>Translates Redis connection failures to 503 Service Unavailable</li>
+ * <li>All responses follow RFC 7807 Problem Details structure with error codes</li>
+ */
 class GlobalExceptionHandlerTests {
 
     private GlobalExceptionHandler globalExceptionHandler;

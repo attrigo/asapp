@@ -31,6 +31,14 @@ import org.springframework.context.annotation.Import;
 
 import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 
+/**
+ * Verifies JDBC repository operations for users against database.
+ * <p>
+ * Coverage:
+ * <li>Deletes user by identifier returning zero when not found</li>
+ * <li>Deletes user by identifier returning count when successfully deleted</li>
+ * <li>Tests actual database operations with TestContainers PostgreSQL</li>
+ */
 @DataJdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(TestContainerConfiguration.class)

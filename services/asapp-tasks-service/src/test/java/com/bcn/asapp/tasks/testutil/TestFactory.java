@@ -52,6 +52,9 @@ import com.bcn.asapp.tasks.domain.task.UserId;
 import com.bcn.asapp.tasks.infrastructure.security.DecodedJwt;
 import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskEntity;
 
+/**
+ * Provides test data builders for domain entities, infrastructure entities, and JWT tokens with fluent API.
+ */
 public class TestFactory {
 
     public static final class TestTaskFactory {

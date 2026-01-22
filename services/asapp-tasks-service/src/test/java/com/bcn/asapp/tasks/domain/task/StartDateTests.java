@@ -24,6 +24,16 @@ import java.time.Instant;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Verifies StartDate value object encapsulates task commencement time with temporal type safety.
+ * <p>
+ * Coverage:
+ * <li>Null start date is rejected via constructor</li>
+ * <li>Null start date is rejected via factory method</li>
+ * <li>Nullable factory method returns null for null input</li>
+ * <li>Valid start date timestamp is accepted and preserved</li>
+ * <li>Value accessor returns underlying Instant</li>
+ */
 class StartDateTests {
 
     private final Instant startDateValue = Instant.parse("2025-01-01T10:00:00Z");

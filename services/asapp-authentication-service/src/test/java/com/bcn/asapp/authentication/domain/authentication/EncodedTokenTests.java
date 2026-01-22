@@ -24,6 +24,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
+/**
+ * Verifies EncodedToken value object encapsulates JWT string representation with self-validation and immutability.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or empty token values
+ * <li>Creates EncodedToken with constructor and factory method for valid inputs
+ * <li>Provides access to wrapped token value
+ */
 class EncodedTokenTests {
 
     private final String tokenValue = "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW4ifQ.c2lnbmF0dXJlVGVzdA";

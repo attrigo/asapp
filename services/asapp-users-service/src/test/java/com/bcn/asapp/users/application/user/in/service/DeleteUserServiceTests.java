@@ -35,6 +35,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.bcn.asapp.users.application.user.out.UserRepository;
 import com.bcn.asapp.users.domain.user.UserId;
 
+/**
+ * Verifies user deletion orchestration.
+ * <p>
+ * Coverage:
+ * <li>Deletion failures propagate without completing workflow</li>
+ * <li>Returns false when user does not exist</li>
+ * <li>Returns true when user successfully deleted</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class DeleteUserServiceTests {
 

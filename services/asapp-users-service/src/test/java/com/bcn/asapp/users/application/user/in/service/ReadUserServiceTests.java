@@ -44,6 +44,17 @@ import com.bcn.asapp.users.domain.user.PhoneNumber;
 import com.bcn.asapp.users.domain.user.User;
 import com.bcn.asapp.users.domain.user.UserId;
 
+/**
+ * Verifies user retrieval orchestration across multiple query strategies including task enrichment.
+ * <p>
+ * Coverage:
+ * <li>Retrieval failures propagate for all query strategies (by ID, all users)</li>
+ * <li>Returns empty result when no users match query criteria</li>
+ * <li>Returns single user when queried by unique identifier</li>
+ * <li>Returns user collection when querying all users</li>
+ * <li>Enriches user data with associated task identifiers via external gateway</li>
+ * <li>Handles task gateway failures gracefully returning empty task list</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class ReadUserServiceTests {
 

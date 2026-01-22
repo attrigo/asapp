@@ -36,6 +36,15 @@ import org.springframework.data.redis.core.RedisTemplate;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 
+/**
+ * Verifies Redis token store integration for session management with TTL-based expiration.
+ * <p>
+ * Coverage:
+ * <li>Activates token pairs in Redis with calculated TTL from expiration timestamps</li>
+ * <li>Verifies token existence checks return correct status</li>
+ * <li>Deactivates token pairs removing them from Redis</li>
+ * <li>Tests actual Redis operations with TestContainers</li>
+ */
 @SpringBootTest
 @Import(TestContainerConfiguration.class)
 class RedisJwtStoreIT {

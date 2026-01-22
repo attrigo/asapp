@@ -28,6 +28,15 @@ import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+/**
+ * Verifies JwtType value object encapsulates token classification with type-safe enumeration and immutability.
+ * <p>
+ * Coverage:
+ * <li>Maps ACCESS_TOKEN to "at+jwt" and REFRESH_TOKEN to "rt+jwt"
+ * <li>Creates JwtType from valid type strings
+ * <li>Rejects null or invalid type strings
+ * <li>Ensures all enum values have non-null type strings
+ */
 class JwtTypeTests {
 
     @Nested

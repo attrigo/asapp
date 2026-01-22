@@ -39,6 +39,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 
+/**
+ * Verifies Jackson JSON serialization and deserialization configuration.
+ * <p>
+ * Coverage:
+ * <li>Excludes null values from JSON output</li>
+ * <li>Includes empty collections in JSON output</li>
+ * <li>Serializes temporal types to ISO-8601 format (LocalDate, LocalDateTime, Instant)</li>
+ * <li>Rejects non-ISO-8601 date formats during deserialization</li>
+ * <li>Deserializes ISO-8601 dates to corresponding Java temporal types</li>
+ */
 @ExtendWith(SpringExtension.class)
 @TestPropertySource(locations = "classpath:application.properties")
 @AutoConfigureWebMvc

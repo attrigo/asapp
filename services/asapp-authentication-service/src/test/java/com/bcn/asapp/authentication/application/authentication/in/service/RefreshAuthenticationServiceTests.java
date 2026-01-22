@@ -57,6 +57,18 @@ import com.bcn.asapp.authentication.domain.authentication.Subject;
 import com.bcn.asapp.authentication.domain.user.Role;
 import com.bcn.asapp.authentication.domain.user.UserId;
 
+/**
+ * Verifies token refresh orchestration with token rotation and compensation.
+ * <p>
+ * Coverage:
+ * <li>Token verification failures propagate without executing refresh operations</li>
+ * <li>Type mismatch failures (access token provided) propagate without executing refresh operations</li>
+ * <li>Authentication retrieval failures propagate without executing refresh operations</li>
+ * <li>Token generation failures propagate without modifying existing authentication</li>
+ * <li>Token activation failures trigger compensation to reactivate old token pair</li>
+ * <li>Compensation failures throw CompensatingTransactionException</li>
+ * <li>Successful refresh verifies token, retrieves authentication, generates new tokens, rotates in store, and persists changes</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class RefreshAuthenticationServiceTests {
 

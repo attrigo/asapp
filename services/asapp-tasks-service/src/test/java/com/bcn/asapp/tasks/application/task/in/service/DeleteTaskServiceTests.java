@@ -35,6 +35,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.bcn.asapp.tasks.application.task.out.TaskRepository;
 import com.bcn.asapp.tasks.domain.task.TaskId;
 
+/**
+ * Verifies task deletion orchestration.
+ * <p>
+ * Coverage:
+ * <li>Deletion failures propagate without completing workflow</li>
+ * <li>Returns false when task does not exist</li>
+ * <li>Returns true when task successfully deleted</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class DeleteTaskServiceTests {
 

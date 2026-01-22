@@ -32,6 +32,16 @@ import org.springframework.context.annotation.Import;
 
 import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
 
+/**
+ * Verifies JDBC repository operations for tasks against database.
+ * <p>
+ * Coverage:
+ * <li>Queries tasks by user ownership returning empty when none found</li>
+ * <li>Queries tasks by user ownership returning all matching tasks</li>
+ * <li>Deletes task by identifier returning zero when not found</li>
+ * <li>Deletes task by identifier returning count when successfully deleted</li>
+ * <li>Tests actual database operations with TestContainers PostgreSQL</li>
+ */
 @DataJdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(TestContainerConfiguration.class)

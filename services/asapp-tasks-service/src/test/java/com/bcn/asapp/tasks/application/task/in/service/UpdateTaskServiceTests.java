@@ -46,6 +46,15 @@ import com.bcn.asapp.tasks.domain.task.TaskId;
 import com.bcn.asapp.tasks.domain.task.Title;
 import com.bcn.asapp.tasks.domain.task.UserId;
 
+/**
+ * Verifies task update orchestration with two-phase workflow.
+ * <p>
+ * Coverage:
+ * <li>Fetch failures prevent update workflow execution</li>
+ * <li>Persistence failures after successful fetch propagate</li>
+ * <li>Returns empty when task does not exist (no-op update)</li>
+ * <li>Successful update completes fetch, mutation, and persistence phases</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class UpdateTaskServiceTests {
 

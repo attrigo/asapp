@@ -48,6 +48,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.bcn.asapp.users.infrastructure.security.DecodedJwt;
 import com.bcn.asapp.users.infrastructure.security.JwtAuthenticationToken;
 
+/**
+ * Verifies JWT propagation interceptor for service-to-service communication.
+ * <p>
+ * Coverage:
+ * <li>Rejects requests when authentication missing from security context</li>
+ * <li>Rejects requests when authentication is not JWT-based</li>
+ * <li>Extracts JWT from authenticated security context</li>
+ * <li>Adds Authorization Bearer header to outgoing HTTP requests</li>
+ * <li>Delegates request execution to chain with enriched headers</li>
+ */
 @ExtendWith(MockitoExtension.class)
 public class JwtInterceptorTests {
 

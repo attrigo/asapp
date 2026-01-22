@@ -45,6 +45,16 @@ import com.bcn.asapp.tasks.domain.task.TaskId;
 import com.bcn.asapp.tasks.domain.task.Title;
 import com.bcn.asapp.tasks.domain.task.UserId;
 
+/**
+ * Verifies task retrieval orchestration across multiple query strategies.
+ * <p>
+ * Coverage:
+ * <li>Retrieval failures propagate for all query strategies (by ID, by user, all tasks)</li>
+ * <li>Returns empty result when no tasks match query criteria</li>
+ * <li>Returns single task when queried by unique identifier</li>
+ * <li>Returns task collection when queried by user ownership</li>
+ * <li>Returns all tasks regardless of ownership</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class ReadTaskServiceTests {
 

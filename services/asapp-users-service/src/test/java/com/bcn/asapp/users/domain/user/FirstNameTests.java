@@ -24,6 +24,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
+/**
+ * Verifies FirstName value object encapsulates user given name with self-validation and immutability.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or empty first name values</li>
+ * <li>Creates FirstName with constructor and factory method for valid inputs</li>
+ * <li>Provides access to wrapped first name value</li>
+ */
 class FirstNameTests {
 
     private final String firstNameValue = "FirstName";

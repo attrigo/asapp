@@ -25,6 +25,16 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+/**
+ * Verifies RawPassword value object encapsulates plaintext credentials with domain constraints and immutability.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or empty password values
+ * <li>Validates password length must be between 8 and 64 characters
+ * <li>Accepts passwords at boundary lengths (8 and 64 characters)
+ * <li>Creates RawPassword with constructor and factory method for valid inputs
+ * <li>Provides access to wrapped password value
+ */
 class RawPasswordTests {
 
     private final String passwordValue = "TEST@09_password?!";

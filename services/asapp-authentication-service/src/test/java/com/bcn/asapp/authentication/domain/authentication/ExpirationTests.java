@@ -25,6 +25,17 @@ import java.util.Date;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Verifies Expiration value object encapsulates token expiration timestamp with type-safe conversion and immutability.
+ * <p>
+ * Coverage:
+ * <li>Rejects null expiration timestamp values
+ * <li>Creates Expiration with constructor and factory methods (Date, Issued plus milliseconds)
+ * <li>Calculates expiration from issued timestamp plus duration correctly
+ * <li>Converts Instant to Date representation correctly
+ * <li>Returns new Date instance on each call to prevent mutation
+ * <li>Provides access to wrapped Instant value
+ */
 class ExpirationTests {
 
     private final Instant expirationValue = Instant.parse("2025-01-01T11:00:00Z");

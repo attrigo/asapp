@@ -27,6 +27,17 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
+/**
+ * Verifies URI construction with fluent builder pattern and base URL validation.
+ * <p>
+ * Coverage:
+ * <li>Rejects null, empty, or blank base URIs with validation exception</li>
+ * <li>Returns new builder instances for each invocation (factory pattern)</li>
+ * <li>Constructs URIs with base path only when no additional paths provided</li>
+ * <li>Appends paths to base URI maintaining proper structure</li>
+ * <li>Resolves path templates with variable substitution</li>
+ * <li>Builds URIs with query parameters maintaining proper encoding</li>
+ */
 class DefaultUriHandlerTests {
 
     private static final String BASE_URL = "http://localhost:8081/asapp-service";

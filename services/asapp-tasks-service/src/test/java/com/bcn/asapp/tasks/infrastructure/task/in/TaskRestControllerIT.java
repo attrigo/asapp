@@ -40,6 +40,17 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import com.bcn.asapp.tasks.testutil.WebMvcTestContext;
 
+/**
+ * Verifies task REST API contract validation and error handling.
+ * <p>
+ * Coverage:
+ * <li>Validates path parameter format (UUID required for task and user IDs)</li>
+ * <li>Validates request content type (JSON required for POST/PUT operations)</li>
+ * <li>Validates request body presence and structure</li>
+ * <li>Validates mandatory field constraints (user ID, title)</li>
+ * <li>Returns RFC 7807 Problem Details for all validation failures</li>
+ * <li>Tests all HTTP endpoints (GET by ID, GET by user, POST, PUT, DELETE)</li>
+ */
 @WithMockUser
 class TaskRestControllerIT extends WebMvcTestContext {
 

@@ -24,6 +24,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
+/**
+ * Verifies Subject value object encapsulates JWT subject claim with self-validation and immutability.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or empty subject values
+ * <li>Creates Subject with constructor and factory method for valid inputs
+ * <li>Provides access to wrapped subject value
+ */
 class SubjectTests {
 
     private final String subjectValue = "user@asapp.com";

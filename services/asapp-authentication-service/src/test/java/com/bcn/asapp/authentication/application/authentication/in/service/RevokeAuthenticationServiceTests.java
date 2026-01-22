@@ -58,6 +58,17 @@ import com.bcn.asapp.authentication.domain.authentication.Subject;
 import com.bcn.asapp.authentication.domain.user.Role;
 import com.bcn.asapp.authentication.domain.user.UserId;
 
+/**
+ * Verifies token revocation orchestration with compensation.
+ * <p>
+ * Coverage:
+ * <li>Token verification failures propagate without executing revocation operations</li>
+ * <li>Type mismatch failures (refresh token provided) propagate without executing revocation operations</li>
+ * <li>Authentication retrieval failures propagate without executing revocation operations</li>
+ * <li>Persistence deletion failures trigger compensation to restore deactivated tokens</li>
+ * <li>Compensation failures throw CompensatingTransactionException</li>
+ * <li>Successful revocation verifies token, retrieves authentication, deletes from repository, and deactivates in store</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class RevokeAuthenticationServiceTests {
 

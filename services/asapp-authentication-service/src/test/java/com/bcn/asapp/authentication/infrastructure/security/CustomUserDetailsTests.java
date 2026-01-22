@@ -31,6 +31,14 @@ import org.springframework.security.core.authority.AuthorityUtils;
 
 import com.bcn.asapp.authentication.domain.user.Role;
 
+/**
+ * Verifies Spring Security user details wrapper construction with authorities and account status.
+ * <p>
+ * Coverage:
+ * <li>Creates user details with user ID, username, password, and variable authority count</li>
+ * <li>Provides default account status flags (non-expired, non-locked, enabled)</li>
+ * <li>Grants access to wrapped user identity and credentials</li>
+ */
 class CustomUserDetailsTests {
 
     private final UUID userIdValue = UUID.fromString("ce1dd321-b023-4abf-8af9-eb4c69ebb4e0");

@@ -40,6 +40,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+/**
+ * Verifies JWT verification orchestration combining decoding and session validation.
+ * <p>
+ * Coverage:
+ * <li>Decoding failures prevent verification workflow completion</li>
+ * <li>Token type mismatches throw domain exception</li>
+ * <li>Missing session in store throws authentication not found</li>
+ * <li>Successful verification returns decoded JWT with validated session</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class JwtVerifierTests {
 

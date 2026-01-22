@@ -24,6 +24,15 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
+/**
+ * Verifies EncodedPassword value object encapsulates encrypted credentials with format validation and immutability.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or empty encoded password values
+ * <li>Validates password must start with encoding identifier like {bcrypt}
+ * <li>Creates EncodedPassword with constructor and factory method for valid inputs
+ * <li>Provides access to wrapped encoded password value
+ */
 class EncodedPasswordTests {
 
     private final String passwordValue = "{noop}password";
