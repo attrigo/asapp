@@ -22,7 +22,7 @@ import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.ROLE;
 import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.tasks.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
 import static com.bcn.asapp.tasks.infrastructure.security.JwtTypeNames.REFRESH_TOKEN_TYPE;
-import static com.bcn.asapp.tasks.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
+import static com.bcn.asapp.tasks.testutil.EncodedTokenFactory.encodedAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
@@ -44,7 +44,7 @@ import org.junit.jupiter.params.provider.NullAndEmptySource;
  */
 class DecodedJwtTests {
 
-    private final String encodedToken = defaultTestEncodedAccessToken();
+    private final String encodedToken = encodedAccessToken();
 
     private final String subject = "user@asapp.com";
 

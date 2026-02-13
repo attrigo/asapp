@@ -17,9 +17,9 @@
 package com.bcn.asapp.tasks.infrastructure.task;
 
 import static com.bcn.asapp.tasks.infrastructure.security.RedisJwtStore.ACCESS_TOKEN_PREFIX;
-import static com.bcn.asapp.tasks.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
-import static com.bcn.asapp.tasks.testutil.TestFactory.TestTaskFactory.defaultTestJdbcTask;
-import static com.bcn.asapp.tasks.testutil.TestFactory.TestTaskFactory.testTaskBuilder;
+import static com.bcn.asapp.tasks.testutil.EncodedTokenFactory.encodedAccessToken;
+import static com.bcn.asapp.tasks.testutil.TaskFactory.aJdbcTask;
+import static com.bcn.asapp.tasks.testutil.TaskFactory.aTaskBuilder;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_CREATE_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_DELETE_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_ALL_FULL_PATH;
@@ -81,7 +81,7 @@ class TaskE2EIT {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
-    private final String accessToken = defaultTestEncodedAccessToken();
+    private final String accessToken = encodedAccessToken();
 
     private final String bearerToken = "Bearer " + accessToken;
 
@@ -131,7 +131,7 @@ class TaskE2EIT {
         @Test
         void ReturnsStatusOKAndBodyWithFoundTask_TaskExists() {
             // Given
-            var task = defaultTestJdbcTask();
+            var task = aJdbcTask();
             var taskCreated = taskRepository.save(task);
             assertThat(taskCreated).isNotNull();
 
@@ -206,12 +206,12 @@ class TaskE2EIT {
             // Given
             var userId = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
 
-            var task1 = testTaskBuilder().withUserId(userId)
-                                         .buildJdbcEntity();
-            var task2 = testTaskBuilder().withUserId(userId)
-                                         .buildJdbcEntity();
-            var task3 = testTaskBuilder().withUserId(userId)
-                                         .buildJdbcEntity();
+            var task1 = aTaskBuilder().withUserId(userId)
+                                      .buildJdbc();
+            var task2 = aTaskBuilder().withUserId(userId)
+                                      .buildJdbc();
+            var task3 = aTaskBuilder().withUserId(userId)
+                                      .buildJdbc();
             var taskCreated1 = taskRepository.save(task1);
             var taskCreated2 = taskRepository.save(task2);
             var taskCreated3 = taskRepository.save(task3);
@@ -285,12 +285,12 @@ class TaskE2EIT {
         @Test
         void ReturnsStatusOKAndBodyWithFoundTasks_TasksExist() {
             // Given
-            var task1 = testTaskBuilder().withTitle("Title1")
-                                         .buildJdbcEntity();
-            var task2 = testTaskBuilder().withTitle("Title2")
-                                         .buildJdbcEntity();
-            var task3 = testTaskBuilder().withTitle("Title3")
-                                         .buildJdbcEntity();
+            var task1 = aTaskBuilder().withTitle("Title1")
+                                      .buildJdbc();
+            var task2 = aTaskBuilder().withTitle("Title2")
+                                      .buildJdbc();
+            var task3 = aTaskBuilder().withTitle("Title3")
+                                      .buildJdbc();
             var taskCreated1 = taskRepository.save(task1);
             var taskCreated2 = taskRepository.save(task2);
             var taskCreated3 = taskRepository.save(task3);
@@ -444,7 +444,7 @@ class TaskE2EIT {
         @Test
         void ReturnsStatusOkAndBodyWithUpdatedTask_TaskExists() {
             // Given
-            var task = defaultTestJdbcTask();
+            var task = aJdbcTask();
             var taskCreated = taskRepository.save(task);
             assertThat(taskCreated).isNotNull();
 
@@ -530,7 +530,7 @@ class TaskE2EIT {
         @Test
         void ReturnsStatusNoContentAndEmptyBody_TaskExists() {
             // Given
-            var task = defaultTestJdbcTask();
+            var task = aJdbcTask();
             var taskCreated = taskRepository.save(task);
             assertThat(taskCreated).isNotNull();
 

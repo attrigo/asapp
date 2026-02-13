@@ -22,8 +22,8 @@ import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.ROLE;
 import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.tasks.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
 import static com.bcn.asapp.tasks.infrastructure.security.JwtTypeNames.REFRESH_TOKEN_TYPE;
-import static com.bcn.asapp.tasks.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
-import static com.bcn.asapp.tasks.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
+import static com.bcn.asapp.tasks.testutil.EncodedTokenFactory.encodedAccessToken;
+import static com.bcn.asapp.tasks.testutil.EncodedTokenFactory.encodedRefreshToken;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.BDDMockito.given;
@@ -67,7 +67,7 @@ class JwtVerifierTests {
         @Test
         void ThrowsInvalidJwtException_DecoderFails() {
             // Given
-            var accessToken = defaultTestEncodedAccessToken();
+            var accessToken = encodedAccessToken();
             willThrow(new RuntimeException("Decoder failed")).given(jwtDecoder)
                                                              .decode(accessToken);
 
@@ -86,7 +86,7 @@ class JwtVerifierTests {
         @Test
         void ThrowsUnexpectedJwtTypeException_TokenNotAccessToken() {
             // Given
-            var refreshToken = defaultTestEncodedRefreshToken();
+            var refreshToken = encodedRefreshToken();
             var refreshTokenClaims = Map.<String, Object>of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, "USER");
             var decodedRefreshToken = new DecodedJwt(refreshToken, REFRESH_TOKEN_TYPE, "user@asapp.com", refreshTokenClaims);
             given(jwtDecoder.decode(refreshToken)).willReturn(decodedRefreshToken);
@@ -105,7 +105,7 @@ class JwtVerifierTests {
         @Test
         void ThrowsAuthenticationNotFoundException_AccessTokenNotInStore() {
             // Given
-            var accessToken = defaultTestEncodedAccessToken();
+            var accessToken = encodedAccessToken();
             var accessTokenClaims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
             var decodedAccessToken = new DecodedJwt(accessToken, ACCESS_TOKEN_TYPE, "user@asapp.com", accessTokenClaims);
             given(jwtDecoder.decode(accessToken)).willReturn(decodedAccessToken);
@@ -127,7 +127,7 @@ class JwtVerifierTests {
         @Test
         void ReturnsDecodedJwt_ValidAccessToken() {
             // Given
-            var accessToken = defaultTestEncodedAccessToken();
+            var accessToken = encodedAccessToken();
             var accessTokenClaims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
             var decodedAccessToken = new DecodedJwt(accessToken, ACCESS_TOKEN_TYPE, "user@asapp.com", accessTokenClaims);
             given(jwtDecoder.decode(accessToken)).willReturn(decodedAccessToken);

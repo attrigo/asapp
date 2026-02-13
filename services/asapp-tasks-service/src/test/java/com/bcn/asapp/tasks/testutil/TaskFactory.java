@@ -1,0 +1,132 @@
+/**
+* Copyright 2023 the original author or authors.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+package com.bcn.asapp.tasks.testutil;
+
+import static com.bcn.asapp.tasks.testutil.TestFactoryConstants.DEFAULT_TASK_DESCRIPTION;
+import static com.bcn.asapp.tasks.testutil.TestFactoryConstants.DEFAULT_TASK_END_DATE;
+import static com.bcn.asapp.tasks.testutil.TestFactoryConstants.DEFAULT_TASK_START_DATE;
+import static com.bcn.asapp.tasks.testutil.TestFactoryConstants.DEFAULT_TASK_TITLE;
+import static com.bcn.asapp.tasks.testutil.TestFactoryConstants.DEFAULT_TASK_USER_ID;
+
+import java.time.Instant;
+import java.util.UUID;
+
+import com.bcn.asapp.tasks.domain.task.Description;
+import com.bcn.asapp.tasks.domain.task.EndDate;
+import com.bcn.asapp.tasks.domain.task.StartDate;
+import com.bcn.asapp.tasks.domain.task.Task;
+import com.bcn.asapp.tasks.domain.task.TaskId;
+import com.bcn.asapp.tasks.domain.task.Title;
+import com.bcn.asapp.tasks.domain.task.UserId;
+import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskEntity;
+
+/**
+ * Provides test data builders for Task domain entities and JdbcTaskEntity instances with fluent API.
+ *
+ * @since 0.2.0
+ */
+public final class TaskFactory {
+
+    private TaskFactory() {}
+
+    public static Task aTask() {
+        return aTaskBuilder().build();
+    }
+
+    public static JdbcTaskEntity aJdbcTask() {
+        return aTaskBuilder().buildJdbc();
+    }
+
+    public static Builder aTaskBuilder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+
+        private UUID taskId;
+
+        private UUID userId;
+
+        private String title;
+
+        private String description;
+
+        private Instant startDate;
+
+        private Instant endDate;
+
+        Builder() {
+            taskId = UUID.randomUUID();
+            userId = DEFAULT_TASK_USER_ID;
+            title = DEFAULT_TASK_TITLE;
+            description = DEFAULT_TASK_DESCRIPTION;
+            startDate = DEFAULT_TASK_START_DATE;
+            endDate = DEFAULT_TASK_END_DATE;
+        }
+
+        public Builder withTaskId(UUID taskId) {
+            this.taskId = taskId;
+            return this;
+        }
+
+        public Builder withUserId(UUID userId) {
+            this.userId = userId;
+            return this;
+        }
+
+        public Builder withTitle(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public Builder withDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public Builder withStartDate(Instant startDate) {
+            this.startDate = startDate;
+            return this;
+        }
+
+        public Builder withEndDate(Instant endDate) {
+            this.endDate = endDate;
+            return this;
+        }
+
+        public Task build() {
+            var userIdVO = UserId.of(userId);
+            var titleVO = Title.of(title);
+            var descriptionVO = Description.of(description);
+            var startDateVO = StartDate.of(startDate);
+            var endDateVO = EndDate.of(endDate);
+
+            if (taskId == null) {
+                return Task.create(userIdVO, titleVO, descriptionVO, startDateVO, endDateVO);
+            } else {
+                var taskIdVO = TaskId.of(taskId);
+                return Task.reconstitute(taskIdVO, userIdVO, titleVO, descriptionVO, startDateVO, endDateVO);
+            }
+        }
+
+        public JdbcTaskEntity buildJdbc() {
+            return new JdbcTaskEntity(null, userId, title, description, startDate, endDate);
+        }
+
+    }
+
+}

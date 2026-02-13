@@ -20,7 +20,7 @@ import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.ACCESS_T
 import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.ROLE;
 import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.tasks.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
-import static com.bcn.asapp.tasks.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
+import static com.bcn.asapp.tasks.testutil.EncodedTokenFactory.encodedAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
@@ -46,7 +46,7 @@ class JwtAuthenticationTokenTests {
 
     private final String role = "USER";
 
-    private final String token = defaultTestEncodedAccessToken();
+    private final String token = encodedAccessToken();
 
     private DecodedJwt decodedJwt;
 
