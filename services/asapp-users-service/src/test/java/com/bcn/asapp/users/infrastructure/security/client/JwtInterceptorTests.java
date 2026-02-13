@@ -20,7 +20,7 @@ import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.ACCESS_T
 import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.ROLE;
 import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.users.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
-import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
+import static com.bcn.asapp.users.testutil.EncodedTokenFactory.encodedAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.ArgumentMatchers.eq;
@@ -120,7 +120,7 @@ public class JwtInterceptorTests {
         @Test
         void ExecutesRequest_ValidAuthentication() throws IOException {
             // Given
-            var encodedToken = defaultTestEncodedAccessToken();
+            var encodedToken = encodedAccessToken();
             var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
             var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, "user@asapp.com", claims);
             var authentication = JwtAuthenticationToken.authenticated(decodedJwt);

@@ -17,7 +17,7 @@
 package com.bcn.asapp.users.infrastructure.security;
 
 import static com.bcn.asapp.users.infrastructure.security.RedisJwtStore.ACCESS_TOKEN_PREFIX;
-import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
+import static com.bcn.asapp.users.testutil.EncodedTokenFactory.encodedAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -63,7 +63,7 @@ class RedisJwtStoreIT {
         @Test
         void ReturnsFalse_AccessTokenNotExists() {
             // Given
-            var accessToken = defaultTestEncodedAccessToken();
+            var accessToken = encodedAccessToken();
 
             // When
             var exists = redisJwtStore.accessTokenExists(accessToken);
@@ -75,7 +75,7 @@ class RedisJwtStoreIT {
         @Test
         void ReturnsTrue_AccessTokenExists() {
             // Given
-            var accessToken = defaultTestEncodedAccessToken();
+            var accessToken = encodedAccessToken();
             var key = ACCESS_TOKEN_PREFIX + accessToken;
             redisTemplate.opsForValue()
                          .set(key, "");
