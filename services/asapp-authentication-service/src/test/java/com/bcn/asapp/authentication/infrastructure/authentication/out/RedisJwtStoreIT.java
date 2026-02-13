@@ -18,8 +18,8 @@ package com.bcn.asapp.authentication.infrastructure.authentication.out;
 
 import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtStore.ACCESS_TOKEN_PREFIX;
 import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtStore.REFRESH_TOKEN_PREFIX;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestJwtAuthenticationFactory.defaultTestDomainJwtAuthentication;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestJwtAuthenticationFactory.testJwtAuthenticationBuilder;
+import static com.bcn.asapp.authentication.testutil.JwtAuthenticationFactory.aJwtAuthenticationBuilder;
+import static com.bcn.asapp.authentication.testutil.JwtAuthenticationFactory.authenticatedJwtAuth;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.concurrent.TimeUnit;
@@ -74,9 +74,9 @@ class RedisJwtStoreIT {
         @Test
         void ReturnsFalse_AccessTokenNotExists() {
             // Given
-            var accessToken = defaultTestDomainJwtAuthentication().getJwtPair()
-                                                                  .accessToken()
-                                                                  .encodedToken();
+            var accessToken = authenticatedJwtAuth().getJwtPair()
+                                                    .accessToken()
+                                                    .encodedToken();
 
             // When
             var exists = redisJwtStore.accessTokenExists(accessToken);
@@ -88,7 +88,7 @@ class RedisJwtStoreIT {
         @Test
         void ReturnsTrue_AccessTokenExists() {
             // Given
-            var jwtPair = defaultTestDomainJwtAuthentication().getJwtPair();
+            var jwtPair = authenticatedJwtAuth().getJwtPair();
             var accessToken = jwtPair.accessToken()
                                      .encodedToken();
 
@@ -109,9 +109,9 @@ class RedisJwtStoreIT {
         @Test
         void ReturnsFalse_RefreshTokenNotExists() {
             // Given
-            var refreshToken = defaultTestDomainJwtAuthentication().getJwtPair()
-                                                                   .refreshToken()
-                                                                   .encodedToken();
+            var refreshToken = authenticatedJwtAuth().getJwtPair()
+                                                     .refreshToken()
+                                                     .encodedToken();
 
             // When
             var exists = redisJwtStore.refreshTokenExists(refreshToken);
@@ -123,7 +123,7 @@ class RedisJwtStoreIT {
         @Test
         void ReturnsTrue_RefreshTokenExists() {
             // Given
-            var jwtPair = defaultTestDomainJwtAuthentication().getJwtPair();
+            var jwtPair = authenticatedJwtAuth().getJwtPair();
             var refreshToken = jwtPair.refreshToken()
                                       .encodedToken();
 
@@ -144,7 +144,7 @@ class RedisJwtStoreIT {
         @Test
         void StoresJwtPair_ValidJwtPair() {
             // Given
-            var jwtPair = defaultTestDomainJwtAuthentication().getJwtPair();
+            var jwtPair = authenticatedJwtAuth().getJwtPair();
             var accessTokenKey = buildAccessTokenKey(jwtPair);
             var refreshTokenKey = buildRefreshTokenKey(jwtPair);
 
@@ -169,7 +169,7 @@ class RedisJwtStoreIT {
         @Test
         void StoresJwtPairWithCorrectTtl_ValidJwtPair() {
             // Given
-            var jwtPair = defaultTestDomainJwtAuthentication().getJwtPair();
+            var jwtPair = authenticatedJwtAuth().getJwtPair();
             var accessTokenKey = buildAccessTokenKey(jwtPair);
             var refreshTokenKey = buildRefreshTokenKey(jwtPair);
 
@@ -194,10 +194,10 @@ class RedisJwtStoreIT {
             // Given
             var now = java.time.Instant.now();
             var expiringSoon = now.plusSeconds(EXPIRING_SOON_SECONDS);
-            var jwtPair = testJwtAuthenticationBuilder().withAccessTokenExpiration(expiringSoon)
-                                                        .withRefreshTokenExpiration(expiringSoon)
-                                                        .buildDomainEntity()
-                                                        .getJwtPair();
+            var jwtPair = aJwtAuthenticationBuilder().withAccessTokenExpiration(expiringSoon)
+                                                     .withRefreshTokenExpiration(expiringSoon)
+                                                     .build()
+                                                     .getJwtPair();
             var accessTokenKey = buildAccessTokenKey(jwtPair);
             var refreshTokenKey = buildRefreshTokenKey(jwtPair);
 
@@ -218,7 +218,7 @@ class RedisJwtStoreIT {
         @Test
         void OverwritesExistingTokens_StoreSameJwtPair() throws InterruptedException {
             // Given
-            var jwtPair = defaultTestDomainJwtAuthentication().getJwtPair();
+            var jwtPair = authenticatedJwtAuth().getJwtPair();
             var accessTokenKey = buildAccessTokenKey(jwtPair);
             var refreshTokenKey = buildRefreshTokenKey(jwtPair);
 
@@ -256,10 +256,10 @@ class RedisJwtStoreIT {
             // Given
             var now = java.time.Instant.now();
             var expiringSoon = now.plusSeconds(1L);
-            var jwtPair = testJwtAuthenticationBuilder().withAccessTokenExpiration(expiringSoon)
-                                                        .withRefreshTokenExpiration(expiringSoon)
-                                                        .buildDomainEntity()
-                                                        .getJwtPair();
+            var jwtPair = aJwtAuthenticationBuilder().withAccessTokenExpiration(expiringSoon)
+                                                     .withRefreshTokenExpiration(expiringSoon)
+                                                     .build()
+                                                     .getJwtPair();
             var accessTokenKey = buildAccessTokenKey(jwtPair);
 
             // When
@@ -279,10 +279,10 @@ class RedisJwtStoreIT {
             // Given
             var now = java.time.Instant.now();
             var expiringSoon = now.plusSeconds(1L);
-            var jwtPair = testJwtAuthenticationBuilder().withAccessTokenExpiration(expiringSoon)
-                                                        .withRefreshTokenExpiration(expiringSoon)
-                                                        .buildDomainEntity()
-                                                        .getJwtPair();
+            var jwtPair = aJwtAuthenticationBuilder().withAccessTokenExpiration(expiringSoon)
+                                                     .withRefreshTokenExpiration(expiringSoon)
+                                                     .build()
+                                                     .getJwtPair();
             var refreshTokenKey = buildRefreshTokenKey(jwtPair);
 
             // When
@@ -305,7 +305,7 @@ class RedisJwtStoreIT {
         @Test
         void DeletesJwtPair_JwtPairExists() {
             // Given
-            var jwtPair = defaultTestDomainJwtAuthentication().getJwtPair();
+            var jwtPair = authenticatedJwtAuth().getJwtPair();
             var accessTokenKey = buildAccessTokenKey(jwtPair);
             var refreshTokenKey = buildRefreshTokenKey(jwtPair);
 
@@ -329,7 +329,7 @@ class RedisJwtStoreIT {
         @Test
         void CompletesWithoutErrors_JwtPairNotExists() {
             // Given
-            var jwtPair = defaultTestDomainJwtAuthentication().getJwtPair();
+            var jwtPair = authenticatedJwtAuth().getJwtPair();
             var accessTokenKey = buildAccessTokenKey(jwtPair);
             var refreshTokenKey = buildRefreshTokenKey(jwtPair);
 

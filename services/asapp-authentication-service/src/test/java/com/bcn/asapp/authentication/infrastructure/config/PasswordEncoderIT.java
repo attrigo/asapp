@@ -16,8 +16,8 @@
 
 package com.bcn.asapp.authentication.infrastructure.config;
 
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestJdbcUser;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.testUserBuilder;
+import static com.bcn.asapp.authentication.testutil.UserFactory.aJdbcUser;
+import static com.bcn.asapp.authentication.testutil.UserFactory.aUserBuilder;
 import static com.bcn.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_TOKEN_FULL_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -90,7 +90,7 @@ class PasswordEncoderIT {
         @Test
         void ReturnsStatusOkAndBodyWithGeneratedAuthentication_BcryptEncodedStoredUserPassword() {
             // Given
-            var user = defaultTestJdbcUser();
+            var user = aJdbcUser();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -114,8 +114,8 @@ class PasswordEncoderIT {
         void ReturnsStatusOkAndBodyWithGeneratedAuthentication_Argon2EncodedStoredUserPassword() {
             // Given
             var argon2Encoder = Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8();
-            var user = testUserBuilder().withPasswordEncoder("{argon2@SpringSecurity_v5_8}", argon2Encoder)
-                                        .buildJdbcEntity();
+            var user = aUserBuilder().withPasswordEncoder("{argon2@SpringSecurity_v5_8}", argon2Encoder)
+                                     .buildJdbc();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -139,8 +139,8 @@ class PasswordEncoderIT {
         void ReturnsStatusOkAndBodyWithGeneratedAuthentication_Pbkdf2EncodedStoredUserPassword() {
             // Given
             var pbkdf2Encoder = Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8();
-            var user = testUserBuilder().withPasswordEncoder("{pbkdf2@SpringSecurity_v5_8}", pbkdf2Encoder)
-                                        .buildJdbcEntity();
+            var user = aUserBuilder().withPasswordEncoder("{pbkdf2@SpringSecurity_v5_8}", pbkdf2Encoder)
+                                     .buildJdbc();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -164,8 +164,8 @@ class PasswordEncoderIT {
         void ReturnsStatusOkAndBodyWithGeneratedAuthentication_ScryptEncodedStoredUserPassword() {
             // Given
             var scryptEncoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8();
-            var user = testUserBuilder().withPasswordEncoder("{scrypt@SpringSecurity_v5_8}", scryptEncoder)
-                                        .buildJdbcEntity();
+            var user = aUserBuilder().withPasswordEncoder("{scrypt@SpringSecurity_v5_8}", scryptEncoder)
+                                     .buildJdbc();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 
@@ -189,8 +189,8 @@ class PasswordEncoderIT {
         void ReturnsStatusOkAndBodyWithGeneratedAuthentication_NoopEncodedStoredUserPassword() {
             // Given
             var noOpEncoder = NoOpPasswordEncoder.getInstance();
-            var user = testUserBuilder().withPasswordEncoder("{noop}", noOpEncoder)
-                                        .buildJdbcEntity();
+            var user = aUserBuilder().withPasswordEncoder("{noop}", noOpEncoder)
+                                     .buildJdbc();
             var userCreated = userRepository.save(user);
             assertThat(userCreated).isNotNull();
 

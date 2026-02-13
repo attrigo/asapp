@@ -19,7 +19,7 @@ package com.bcn.asapp.authentication.infrastructure.security;
 import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.ACCESS_TOKEN_TYPE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.REFRESH_TOKEN_TYPE;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.testEncodedTokenBuilder;
+import static com.bcn.asapp.authentication.testutil.EncodedTokenFactory.anEncodedTokenBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
@@ -73,9 +73,9 @@ class JwtDecoderTests {
         void ThrowsSignatureException_InvalidSignatureToken() {
             // Given
             var differentSecretKey = Keys.hmacShaKeyFor("different-secret-key-with-at-least-32-bytes".getBytes());
-            var tokenWithInvalidSignature = testEncodedTokenBuilder().accessToken()
-                                                                     .withSecretKey(differentSecretKey)
-                                                                     .build();
+            var tokenWithInvalidSignature = anEncodedTokenBuilder().accessToken()
+                                                                   .withSecretKey(differentSecretKey)
+                                                                   .build();
 
             // When
             var thrown = catchThrowable(() -> jwtDecoder.decode(tokenWithInvalidSignature));
@@ -87,10 +87,10 @@ class JwtDecoderTests {
         @Test
         void ThrowsExpiredJwtException_ExpiredToken() {
             // Given
-            var expiredToken = testEncodedTokenBuilder().accessToken()
-                                                        .withSecretKey(secretKey)
-                                                        .expired()
-                                                        .build();
+            var expiredToken = anEncodedTokenBuilder().accessToken()
+                                                      .withSecretKey(secretKey)
+                                                      .expired()
+                                                      .build();
 
             // When
             var thrown = catchThrowable(() -> jwtDecoder.decode(expiredToken));
@@ -102,9 +102,9 @@ class JwtDecoderTests {
         @Test
         void ReturnsDecodedJwt_ValidAccessToken() {
             // Given
-            var accessToken = testEncodedTokenBuilder().accessToken()
-                                                       .withSecretKey(secretKey)
-                                                       .build();
+            var accessToken = anEncodedTokenBuilder().accessToken()
+                                                     .withSecretKey(secretKey)
+                                                     .build();
 
             // When
             var actual = jwtDecoder.decode(accessToken);
@@ -122,9 +122,9 @@ class JwtDecoderTests {
         @Test
         void ReturnsDecodedJwt_ValidRefreshToken() {
             // Given
-            var refreshToken = testEncodedTokenBuilder().refreshToken()
-                                                        .withSecretKey(secretKey)
-                                                        .build();
+            var refreshToken = anEncodedTokenBuilder().refreshToken()
+                                                      .withSecretKey(secretKey)
+                                                      .build();
 
             // When
             var actual = jwtDecoder.decode(refreshToken);

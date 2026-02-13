@@ -21,7 +21,7 @@ import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.R
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.ACCESS_TOKEN_TYPE;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
+import static com.bcn.asapp.authentication.testutil.EncodedTokenFactory.encodedAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
@@ -47,7 +47,7 @@ class JwtAuthenticationTokenTests {
 
     private final String role = USER.name();
 
-    private final String token = defaultTestEncodedAccessToken();
+    private final String token = encodedAccessToken();
 
     private DecodedJwt decodedJwt;
 

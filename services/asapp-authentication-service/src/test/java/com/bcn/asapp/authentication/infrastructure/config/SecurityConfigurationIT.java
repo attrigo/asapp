@@ -17,9 +17,9 @@
 package com.bcn.asapp.authentication.infrastructure.config;
 
 import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtStore.ACCESS_TOKEN_PREFIX;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.testEncodedTokenBuilder;
+import static com.bcn.asapp.authentication.testutil.EncodedTokenFactory.anEncodedTokenBuilder;
+import static com.bcn.asapp.authentication.testutil.EncodedTokenFactory.encodedAccessToken;
+import static com.bcn.asapp.authentication.testutil.EncodedTokenFactory.encodedRefreshToken;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -123,9 +123,9 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_BearerTokenExpiredWithWrongSignatureInAuthorizationHeader() {
             // When & Then
-            var bearerToken = "Bearer " + testEncodedTokenBuilder().accessToken()
-                                                                   .withSecretKey("M0LBjhuY5Xgk25aRFCTp72EXM2HEnRY7KHAIlNQCxzwsMw7HgQBbdN4Mka94siHP")
-                                                                   .build();
+            var bearerToken = "Bearer " + anEncodedTokenBuilder().accessToken()
+                                                                 .withSecretKey("M0LBjhuY5Xgk25aRFCTp72EXM2HEnRY7KHAIlNQCxzwsMw7HgQBbdN4Mka94siHP")
+                                                                 .build();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -140,9 +140,9 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_BearerTokenExpiredInAuthorizationHeader() {
             // When & Then
-            var bearerToken = "Bearer " + testEncodedTokenBuilder().accessToken()
-                                                                   .expired()
-                                                                   .build();
+            var bearerToken = "Bearer " + anEncodedTokenBuilder().accessToken()
+                                                                 .expired()
+                                                                 .build();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -157,9 +157,9 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_BearerTokenNotSignedInAuthorizationHeader() {
             // When & Then
-            var bearerToken = "Bearer " + testEncodedTokenBuilder().accessToken()
-                                                                   .notSigned()
-                                                                   .build();
+            var bearerToken = "Bearer " + anEncodedTokenBuilder().accessToken()
+                                                                 .notSigned()
+                                                                 .build();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -174,9 +174,9 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_BearerTokenMissingTypeInAuthorizationHeader() {
             // When & Then
-            var bearerToken = "Bearer " + testEncodedTokenBuilder().withType("")
-                                                                   .notSigned()
-                                                                   .build();
+            var bearerToken = "Bearer " + anEncodedTokenBuilder().withType("")
+                                                                 .notSigned()
+                                                                 .build();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -191,9 +191,9 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_BearerTokenInvalidTypeInAuthorizationHeader() {
             // When & Then
-            var bearerToken = "Bearer " + testEncodedTokenBuilder().withType("invalid_type")
-                                                                   .notSigned()
-                                                                   .build();
+            var bearerToken = "Bearer " + anEncodedTokenBuilder().withType("invalid_type")
+                                                                 .notSigned()
+                                                                 .build();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -208,7 +208,7 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_BearerTokenRefreshTypeInAuthorizationHeader() {
             // When & Then
-            var bearerToken = "Bearer " + defaultTestEncodedRefreshToken();
+            var bearerToken = "Bearer " + encodedRefreshToken();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -223,7 +223,7 @@ class SecurityConfigurationIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_BearerTokenValidInAuthorizationHeaderNotExistsInRedis() {
             // When & Then
-            var bearerToken = "Bearer " + defaultTestEncodedAccessToken();
+            var bearerToken = "Bearer " + encodedAccessToken();
 
             webTestClient.get()
                          .uri("/actuator")
@@ -243,7 +243,7 @@ class SecurityConfigurationIT {
         @Autowired
         private RedisTemplate<String, String> redisTemplate;
 
-        private final String accessToken = defaultTestEncodedAccessToken();
+        private final String accessToken = encodedAccessToken();
 
         private final String bearerToken = "Bearer " + accessToken;
 

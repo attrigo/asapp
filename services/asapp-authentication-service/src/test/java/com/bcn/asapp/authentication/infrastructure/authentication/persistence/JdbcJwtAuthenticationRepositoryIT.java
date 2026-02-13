@@ -17,11 +17,11 @@
 package com.bcn.asapp.authentication.infrastructure.authentication.persistence;
 
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ROLE;
+import static com.bcn.asapp.authentication.testutil.EncodedTokenFactory.encodedAccessToken;
+import static com.bcn.asapp.authentication.testutil.EncodedTokenFactory.encodedRefreshToken;
 import static com.bcn.asapp.authentication.testutil.JwtAssertions.assertThatJwt;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestJwtAuthenticationFactory.testJwtAuthenticationBuilder;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestJdbcUser;
+import static com.bcn.asapp.authentication.testutil.JwtAuthenticationFactory.aJwtAuthenticationBuilder;
+import static com.bcn.asapp.authentication.testutil.UserFactory.aJdbcUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;
@@ -72,7 +72,7 @@ class JdbcJwtAuthenticationRepositoryIT {
         @Test
         void ReturnsEmptyOptional_JwtAuthenticationNotExists() {
             // When
-            var accessToken = defaultTestEncodedAccessToken();
+            var accessToken = encodedAccessToken();
 
             var actualJwtAuthentication = jwtAuthenticationRepository.findByAccessTokenToken(accessToken);
 
@@ -106,7 +106,7 @@ class JdbcJwtAuthenticationRepositoryIT {
         @Test
         void ReturnsEmptyOptional_JwtAuthenticationNotExists() {
             // When
-            var accessToken = defaultTestEncodedRefreshToken();
+            var accessToken = encodedRefreshToken();
 
             var actualJwtAuthentication = jwtAuthenticationRepository.findByRefreshTokenToken(accessToken);
 
@@ -289,7 +289,7 @@ class JdbcJwtAuthenticationRepositoryIT {
     }
 
     private JdbcUserEntity createDefaultUser() {
-        var user = defaultTestJdbcUser();
+        var user = aJdbcUser();
         var userCreated = userRepository.save(user);
         assertThat(userCreated).isNotNull();
 
@@ -297,8 +297,8 @@ class JdbcJwtAuthenticationRepositoryIT {
     }
 
     private JdbcJwtAuthenticationEntity createDefaultJwtAuthentication(JdbcUserEntity user) {
-        var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(user.id())
-                                                              .buildJdbcEntity();
+        var jwtAuthentication = aJwtAuthenticationBuilder().withUserId(user.id())
+                                                           .buildJdbc();
         var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
         assertThat(jwtAuthenticationCreated).isNotNull();
 
@@ -306,9 +306,9 @@ class JdbcJwtAuthenticationRepositoryIT {
     }
 
     private JdbcJwtAuthenticationEntity createExpiredJwtAuthentication(JdbcUserEntity user) {
-        var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(user.id())
-                                                              .withRefreshTokenExpired()
-                                                              .buildJdbcEntity();
+        var jwtAuthentication = aJwtAuthenticationBuilder().withUserId(user.id())
+                                                           .withRefreshTokenExpired()
+                                                           .buildJdbc();
         var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
         assertThat(jwtAuthenticationCreated).isNotNull();
 

@@ -16,9 +16,9 @@
 
 package com.bcn.asapp.authentication.infrastructure.security.scheduler;
 
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestJwtAuthenticationFactory.testJwtAuthenticationBuilder;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestJdbcUser;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.testUserBuilder;
+import static com.bcn.asapp.authentication.testutil.JwtAuthenticationFactory.aJwtAuthenticationBuilder;
+import static com.bcn.asapp.authentication.testutil.UserFactory.aJdbcUser;
+import static com.bcn.asapp.authentication.testutil.UserFactory.aUserBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -128,10 +128,10 @@ class ExpiredJwtCleanupSchedulerIT {
         @Test
         void DeletesExpiredAuthentications_MultipleUsersWithExpiredTokens() {
             // Given
-            var user1 = testUserBuilder().withUsername("user1@asapp.com")
-                                         .buildJdbcEntity();
-            var user2 = testUserBuilder().withUsername("user2@asapp.com")
-                                         .buildJdbcEntity();
+            var user1 = aUserBuilder().withUsername("user1@asapp.com")
+                                      .buildJdbc();
+            var user2 = aUserBuilder().withUsername("user2@asapp.com")
+                                      .buildJdbc();
             user1 = userRepository.save(user1);
             user2 = userRepository.save(user2);
             assertThat(user1).isNotNull();
@@ -153,7 +153,7 @@ class ExpiredJwtCleanupSchedulerIT {
     }
 
     private JdbcUserEntity createDefaultUser() {
-        var user = defaultTestJdbcUser();
+        var user = aJdbcUser();
         var userCreated = userRepository.save(user);
         assertThat(userCreated).isNotNull();
 
@@ -161,8 +161,8 @@ class ExpiredJwtCleanupSchedulerIT {
     }
 
     private JdbcJwtAuthenticationEntity createDefaultJwtAuthentication(JdbcUserEntity user) {
-        var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(user.id())
-                                                              .buildJdbcEntity();
+        var jwtAuthentication = aJwtAuthenticationBuilder().withUserId(user.id())
+                                                           .buildJdbc();
         var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
         assertThat(jwtAuthenticationCreated).isNotNull();
 
@@ -170,9 +170,9 @@ class ExpiredJwtCleanupSchedulerIT {
     }
 
     private JdbcJwtAuthenticationEntity createExpiredJwtAuthentication(JdbcUserEntity user) {
-        var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(user.id())
-                                                              .withRefreshTokenExpired()
-                                                              .buildJdbcEntity();
+        var jwtAuthentication = aJwtAuthenticationBuilder().withUserId(user.id())
+                                                           .withRefreshTokenExpired()
+                                                           .buildJdbc();
         var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
         assertThat(jwtAuthenticationCreated).isNotNull();
 

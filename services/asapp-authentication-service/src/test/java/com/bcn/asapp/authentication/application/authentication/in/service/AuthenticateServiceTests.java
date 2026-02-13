@@ -17,6 +17,8 @@
 package com.bcn.asapp.authentication.application.authentication.in.service;
 
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
+import static com.bcn.asapp.authentication.testutil.JwtFactory.aJwtBuilder;
+import static com.bcn.asapp.authentication.testutil.UserAuthenticationFactory.anAuthenticatedUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,7 +28,6 @@ import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 
-import java.time.Instant;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Nested;
@@ -43,16 +44,9 @@ import com.bcn.asapp.authentication.application.authentication.out.CredentialsAu
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.application.authentication.out.TokenIssuer;
-import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
-import com.bcn.asapp.authentication.domain.authentication.Expiration;
-import com.bcn.asapp.authentication.domain.authentication.Issued;
-import com.bcn.asapp.authentication.domain.authentication.Jwt;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthenticationId;
-import com.bcn.asapp.authentication.domain.authentication.JwtClaims;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
-import com.bcn.asapp.authentication.domain.authentication.JwtType;
-import com.bcn.asapp.authentication.domain.authentication.Subject;
 import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
 import com.bcn.asapp.authentication.domain.user.RawPassword;
 import com.bcn.asapp.authentication.domain.user.Role;
@@ -132,7 +126,7 @@ class AuthenticateServiceTests {
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);
             var password = RawPassword.of(passwordValue);
-            var userAuth = UserAuthentication.authenticated(UserId.of(userId), username, role);
+            var userAuth = anAuthenticatedUser(userId, usernameValue, role);
 
             given(credentialsAuthenticator.authenticate(username, password)).willReturn(userAuth);
             willThrow(new RuntimeException("Token issuance failed")).given(tokenIssuer)
@@ -161,9 +155,11 @@ class AuthenticateServiceTests {
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);
             var password = RawPassword.of(passwordValue);
-            var userAuth = UserAuthentication.authenticated(UserId.of(userId), username, role);
-            var accessToken = createJwt(JwtType.ACCESS_TOKEN);
-            var refreshToken = createJwt(JwtType.REFRESH_TOKEN);
+            var userAuth = anAuthenticatedUser(userId, usernameValue, role);
+            var accessToken = aJwtBuilder().accessToken()
+                                           .build();
+            var refreshToken = aJwtBuilder().refreshToken()
+                                            .build();
             var jwtPair = JwtPair.of(accessToken, refreshToken);
 
             given(credentialsAuthenticator.authenticate(username, password)).willReturn(userAuth);
@@ -194,9 +190,11 @@ class AuthenticateServiceTests {
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);
             var password = RawPassword.of(passwordValue);
-            var userAuth = UserAuthentication.authenticated(UserId.of(userId), username, role);
-            var accessToken = createJwt(JwtType.ACCESS_TOKEN);
-            var refreshToken = createJwt(JwtType.REFRESH_TOKEN);
+            var userAuth = anAuthenticatedUser(userId, usernameValue, role);
+            var accessToken = aJwtBuilder().accessToken()
+                                           .build();
+            var refreshToken = aJwtBuilder().refreshToken()
+                                            .build();
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var savedAuthentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), jwtPair);
 
@@ -235,9 +233,11 @@ class AuthenticateServiceTests {
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);
             var password = RawPassword.of(passwordValue);
-            var userAuth = UserAuthentication.authenticated(UserId.of(userId), username, role);
-            var accessToken = createJwt(JwtType.ACCESS_TOKEN);
-            var refreshToken = createJwt(JwtType.REFRESH_TOKEN);
+            var userAuth = anAuthenticatedUser(userId, usernameValue, role);
+            var accessToken = aJwtBuilder().accessToken()
+                                           .build();
+            var refreshToken = aJwtBuilder().refreshToken()
+                                            .build();
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var savedAuthentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), jwtPair);
 
@@ -274,9 +274,11 @@ class AuthenticateServiceTests {
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);
             var password = RawPassword.of(passwordValue);
-            var userAuth = UserAuthentication.authenticated(UserId.of(userId), username, role);
-            var accessToken = createJwt(JwtType.ACCESS_TOKEN);
-            var refreshToken = createJwt(JwtType.REFRESH_TOKEN);
+            var userAuth = anAuthenticatedUser(userId, usernameValue, role);
+            var accessToken = aJwtBuilder().accessToken()
+                                           .build();
+            var refreshToken = aJwtBuilder().refreshToken()
+                                            .build();
             var jwtPair = JwtPair.of(accessToken, refreshToken);
             var savedAuthentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), jwtPair);
 
@@ -303,16 +305,6 @@ class AuthenticateServiceTests {
                           .save(jwtPair);
         }
 
-    }
-
-    private Jwt createJwt(JwtType type) {
-        var encodedToken = EncodedToken.of("test.token.value");
-        var subject = Subject.of(usernameValue);
-        var claims = JwtClaims.of("role", role.name(), "token_use", type == JwtType.ACCESS_TOKEN ? "access" : "refresh");
-        var issued = Issued.of(Instant.now());
-        var expiration = Expiration.of(issued, 300000L);
-
-        return Jwt.of(encodedToken, type, subject, claims, issued, expiration);
     }
 
 }
