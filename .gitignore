@@ -33,5 +33,4 @@ build/
 .vscode/
 
 ### Claude Code ###
-.claude/
-!.claude/rules/
+.claude/settings.local.json
