@@ -81,7 +81,7 @@ class UpdateUserServiceTests {
             var command = new UpdateUserCommand(existingUserId.value(), newFirstName.value(), newLastName.value(), newEmail.value(), newPhoneNumber.value());
 
             given(userRepository.findById(existingUserId)).willReturn(Optional.of(existingUser));
-            given(userRepository.save(existingUser)).willReturn(newUser);
+            given(userRepository.save(existingUser)).willReturn(existingUser); // Returns same reference so assertions verify the in-place domain mutation
 
             // When
             var actual = updateUserService.updateUserById(command);

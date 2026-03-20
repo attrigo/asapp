@@ -52,8 +52,23 @@
         <!-- Plugins Versions -->
         <git-build-hook-maven-plugin.version>3.5.0</git-build-hook-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
+        <pitest-maven.version>1.20.4</pitest-maven.version>
+        <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
         <spotless-maven-plugin.version>2.46.1</spotless-maven-plugin.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Test Dependencies -->
+            <!-- * Org Dependencies -->
+            <dependency>
+                <groupId>org.pitest</groupId>
+                <artifactId>pitest-junit5-plugin</artifactId>
+                <version>${pitest-junit5-plugin.version}</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <pluginManagement>
@@ -87,6 +102,16 @@
                             </goals>
                         </execution>
                     </executions>
+                </plugin>
+
+                <!-- Org Plugins -->
+                <plugin>
+                    <groupId>org.pitest</groupId>
+                    <artifactId>pitest-maven</artifactId>
+                    <version>${pitest-maven.version}</version>
+                    <configuration>
+                        <mutationThreshold>100</mutationThreshold>
+                    </configuration>
                 </plugin>
 
                 <!-- Other Plugins -->

@@ -209,9 +209,11 @@
                 <configuration>
                     <targetClasses>
                         <param>com.bcn.asapp.authentication.domain.*</param>
+                        <param>com.bcn.asapp.authentication.application.*.in.service.*</param>
                     </targetClasses>
                     <targetTests>
                         <param>com.bcn.asapp.authentication.domain.*</param>
+                        <param>com.bcn.asapp.authentication.application.*.in.service.*</param>
                     </targetTests>
                 </configuration>
             </plugin>

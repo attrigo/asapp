@@ -212,9 +212,11 @@
                 <configuration>
                     <targetClasses>
                         <param>com.bcn.asapp.users.domain.*</param>
+                        <param>com.bcn.asapp.users.application.*.in.service.*</param>
                     </targetClasses>
                     <targetTests>
                         <param>com.bcn.asapp.users.domain.*</param>
+                        <param>com.bcn.asapp.users.application.*.in.service.*</param>
                     </targetTests>
                 </configuration>
             </plugin>

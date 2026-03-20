@@ -198,9 +198,11 @@
                 <configuration>
                     <targetClasses>
                         <param>com.bcn.asapp.tasks.domain.*</param>
+                        <param>com.bcn.asapp.tasks.application.*.in.service.*</param>
                     </targetClasses>
                     <targetTests>
                         <param>com.bcn.asapp.tasks.domain.*</param>
+                        <param>com.bcn.asapp.tasks.application.*.in.service.*</param>
                     </targetTests>
                 </configuration>
             </plugin>

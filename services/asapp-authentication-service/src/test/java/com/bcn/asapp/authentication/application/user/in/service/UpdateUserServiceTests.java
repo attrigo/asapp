@@ -35,6 +35,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -87,6 +88,8 @@ class UpdateUserServiceTests {
             var newRawPassword = RawPassword.of(newPasswordValue);
             var newEncodedPassword = EncodedPassword.of("{bcrypt}$2a$10$newEncodedPassword");
 
+            var userArgumentCaptor = ArgumentCaptor.forClass(User.class);
+
             given(userRepository.findById(existingUserId)).willReturn(Optional.of(existingUser));
             given(passwordService.encode(newRawPassword)).willReturn(newEncodedPassword);
             given(userRepository.save(existingUser)).willReturn(newUser);
@@ -110,8 +113,17 @@ class UpdateUserServiceTests {
                                 .findById(existingUserId);
             then(passwordService).should(times(1))
                                  .encode(newRawPassword);
+
+            // Verifies domain object was mutated before persist (save() returns reconstituted active user without password)
             then(userRepository).should(times(1))
-                                .save(existingUser);
+                                .save(userArgumentCaptor.capture());
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(userArgumentCaptor.getValue().getUsername()).as("saved username").isEqualTo(newUsername);
+                softly.assertThat(userArgumentCaptor.getValue().getPassword()).as("saved password").isEqualTo(newEncodedPassword);
+                softly.assertThat(userArgumentCaptor.getValue().getRole()).as("saved role").isEqualTo(newRole);
+                // @formatter:on
+            });
         }
 
         @Test
