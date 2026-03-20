@@ -24,30 +24,39 @@ import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests {@link UserId} validation and value access.
+ * <p>
+ * Coverage:
+ * <li>Rejects null UUID values</li>
+ * <li>Accepts valid UUIDs through constructor and factory method</li>
+ * <li>Provides access to wrapped UUID value</li>
+ */
 class UserIdTests {
-
-    private final UUID idValue = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
 
     @Nested
     class CreateUserIdWithConstructor {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+        void ReturnsUserId_ValidId() {
+            // Given
+            var userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+
             // When
-            var thrown = catchThrowable(() -> new UserId(null));
+            var actual = new UserId(userId);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("User ID must not be null");
+            assertThat(actual.id()).isEqualTo(userId);
         }
 
         @Test
-        void ThenReturnsUserId_GivenIdIsValid() {
+        void ThrowsIllegalArgumentException_NullId() {
             // When
-            var actual = new UserId(idValue);
+            var actual = catchThrowable(() -> new UserId(null));
 
             // Then
-            assertThat(actual.id()).isEqualTo(idValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("User ID must not be null");
         }
 
     }
@@ -56,22 +65,25 @@ class UserIdTests {
     class CreateUserIdWithFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+        void ReturnsUserId_ValidId() {
+            // Given
+            var userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+
             // When
-            var thrown = catchThrowable(() -> UserId.of(null));
+            var actual = UserId.of(userId);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("User ID must not be null");
+            assertThat(actual.id()).isEqualTo(userId);
         }
 
         @Test
-        void ThenReturnsUserId_GivenIdIsValid() {
+        void ThrowsIllegalArgumentException_NullId() {
             // When
-            var actual = UserId.of(idValue);
+            var actual = catchThrowable(() -> UserId.of(null));
 
             // Then
-            assertThat(actual.id()).isEqualTo(idValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("User ID must not be null");
         }
 
     }
@@ -80,15 +92,16 @@ class UserIdTests {
     class GetValue {
 
         @Test
-        void ThenReturnsUserIdValue_GivenUserIdIsValid() {
+        void ReturnsUserIdValue_ValidUserId() {
             // Given
-            var userId = UserId.of(idValue);
+            var userIdValue = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+            var userId = UserId.of(userIdValue);
 
             // When
             var actual = userId.value();
 
             // Then
-            assertThat(actual).isEqualTo(idValue);
+            assertThat(actual).isEqualTo(userIdValue);
         }
 
     }

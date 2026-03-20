@@ -25,21 +25,56 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+/**
+ * Tests {@link RawPassword} validation and value access.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or blank password values</li>
+ * <li>Validates password length must be between 8 and 64 characters</li>
+ * <li>Accepts passwords at boundary lengths (8 and 64 characters)</li>
+ * <li>Accepts valid inputs through constructor and factory method</li>
+ * <li>Provides access to wrapped password value</li>
+ */
 class RawPasswordTests {
-
-    private final String passwordValue = "TEST@09_password?!";
 
     @Nested
     class CreateRawPasswordWithConstructor {
 
-        @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsInvalidPasswordException_GivenPasswordIsNullOrEmpty(String password) {
+        @Test
+        void ReturnsRawPassword_ValidPassword() {
+            // Given
+            var password = "TEST@09_password?!";
+
             // When
-            var thrown = catchThrowable(() -> new RawPassword(password));
+            var actual = new RawPassword(password);
 
             // Then
-            assertThat(thrown).isInstanceOf(InvalidPasswordException.class)
+            assertThat(actual.password()).isEqualTo(password);
+        }
+
+        /**
+         * <li>"12345678" = 8 chars - minimum valid
+         * <li>"1234567890123456789012345678901234567890123456789012345678901234" = 64 chars - maximum valid
+         */
+        @ParameterizedTest
+        @ValueSource(strings = { "12345678", "1234567890123456789012345678901234567890123456789012345678901234" })
+        void ReturnsRawPassword_PasswordAtBoundary(String password) {
+            // When
+            var actual = new RawPassword(password);
+
+            // Then
+            assertThat(actual.password()).isEqualTo(password);
+        }
+
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsInvalidPasswordException_NullOrBlankPassword(String password) {
+            // When
+            var actual = catchThrowable(() -> new RawPassword(password));
+
+            // Then
+            assertThat(actual).isInstanceOf(InvalidPasswordException.class)
                               .hasMessage("Raw password must not be null or empty");
         }
 
@@ -49,12 +84,12 @@ class RawPasswordTests {
          */
         @ParameterizedTest
         @ValueSource(strings = { "1234", "1234567" })
-        void ThenThrowsInvalidPasswordException_GivenPasswordIsTooShort(String password) {
+        void ThrowsInvalidPasswordException_PasswordTooShort(String password) {
             // When
-            var thrown = catchThrowable(() -> new RawPassword(password));
+            var actual = catchThrowable(() -> new RawPassword(password));
 
             // Then
-            assertThat(thrown).isInstanceOf(InvalidPasswordException.class)
+            assertThat(actual).isInstanceOf(InvalidPasswordException.class)
                               .hasMessage("Raw password must be between 8 and 64 characters");
         }
 
@@ -65,36 +100,13 @@ class RawPasswordTests {
         @ParameterizedTest
         @ValueSource(strings = { "12345678901234567890123456789012345678901234567890123456789012345",
                 "123456789012345678901234567890123456789012345678901234567890123456789" })
-        void ThenThrowsInvalidPasswordException_GivenPasswordIsTooLong(String password) {
+        void ThrowsInvalidPasswordException_PasswordTooLong(String password) {
             // When
-            var thrown = catchThrowable(() -> new RawPassword(password));
+            var actual = catchThrowable(() -> new RawPassword(password));
 
             // Then
-            assertThat(thrown).isInstanceOf(InvalidPasswordException.class)
+            assertThat(actual).isInstanceOf(InvalidPasswordException.class)
                               .hasMessage("Raw password must be between 8 and 64 characters");
-        }
-
-        /**
-         * <li>"12345678" = 8 chars - minimum valid
-         * <li>"1234567890123456789012345678901234567890123456789012345678901234" = 64 chars - maximum valid
-         */
-        @ParameterizedTest
-        @ValueSource(strings = { "12345678", "1234567890123456789012345678901234567890123456789012345678901234" })
-        void ThenReturnsRawPassword_GivenPasswordIsAtBoundary(String password) {
-            // When
-            var actual = new RawPassword(password);
-
-            // Then
-            assertThat(actual.password()).isEqualTo(password);
-        }
-
-        @Test
-        void ThenReturnsRawPassword_GivenPasswordIsValid() {
-            // When
-            var actual = new RawPassword(passwordValue);
-
-            // Then
-            assertThat(actual.password()).isEqualTo(passwordValue);
         }
 
     }
@@ -102,35 +114,39 @@ class RawPasswordTests {
     @Nested
     class CreateRawPasswordWithFactoryMethod {
 
-        @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsInvalidPasswordException_GivenPasswordIsNullOrEmpty(String password) {
+        @Test
+        void ReturnsRawPassword_ValidPassword() {
+            // Given
+            var password = "TEST@09_password?!";
+
             // When
-            var thrown = catchThrowable(() -> RawPassword.of(password));
+            var actual = RawPassword.of(password);
 
             // Then
-            assertThat(thrown).isInstanceOf(InvalidPasswordException.class)
+            assertThat(actual.password()).isEqualTo(password);
+        }
+
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsInvalidPasswordException_NullOrBlankPassword(String password) {
+            // When
+            var actual = catchThrowable(() -> RawPassword.of(password));
+
+            // Then
+            assertThat(actual).isInstanceOf(InvalidPasswordException.class)
                               .hasMessage("Raw password must not be null or empty");
         }
 
         @ParameterizedTest
         @ValueSource(strings = { "pass", "long_password_123456789123456789123456789123456789123456789123456879" })
-        void ThenThrowsInvalidPasswordException_GivenPasswordLengthIsNotValid(String password) {
+        void ThrowsInvalidPasswordException_InvalidPasswordLength(String password) {
             // When
-            var thrown = catchThrowable(() -> RawPassword.of(password));
+            var actual = catchThrowable(() -> RawPassword.of(password));
 
             // Then
-            assertThat(thrown).isInstanceOf(InvalidPasswordException.class)
+            assertThat(actual).isInstanceOf(InvalidPasswordException.class)
                               .hasMessage("Raw password must be between 8 and 64 characters");
-        }
-
-        @Test
-        void ThenReturnsRawPassword_GivenPasswordIsValid() {
-            // When
-            var actual = RawPassword.of(passwordValue);
-
-            // Then
-            assertThat(actual.password()).isEqualTo(passwordValue);
         }
 
     }
@@ -139,8 +155,9 @@ class RawPasswordTests {
     class GetValue {
 
         @Test
-        void ThenReturnsPasswordValue_GivenPasswordIsValid() {
+        void ReturnsPasswordValue_ValidPassword() {
             // Given
+            var passwordValue = "TEST@09_password?!";
             var password = RawPassword.of(passwordValue);
 
             // When

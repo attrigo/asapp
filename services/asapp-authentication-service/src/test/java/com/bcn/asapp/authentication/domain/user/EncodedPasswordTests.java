@@ -23,42 +23,54 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
+/**
+ * Tests {@link EncodedPassword} validation and value access.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or blank encoded password values</li>
+ * <li>Validates password must start with encoding identifier like {bcrypt}</li>
+ * <li>Accepts valid inputs through constructor and factory method</li>
+ * <li>Provides access to wrapped encoded password value</li>
+ */
 class EncodedPasswordTests {
-
-    private final String passwordValue = "{noop}password";
 
     @Nested
     class CreateEncodedPasswordWithConstructor {
 
-        @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenPasswordIsNullOrEmpty(String password) {
+        @Test
+        void ReturnsEncodedPassword_ValidPassword() {
+            // Given
+            var password = "{noop}password";
+
             // When
-            var thrown = catchThrowable(() -> new EncodedPassword(password));
+            var actual = new EncodedPassword(password);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
+            assertThat(actual.password()).isEqualTo(password);
+        }
+
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsIllegalArgumentException_NullOrBlankPassword(String password) {
+            // When
+            var actual = catchThrowable(() -> new EncodedPassword(password));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
                               .hasMessage("Encoded password must not be null or empty");
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenPasswordIsNotEncoded() {
+        void ThrowsIllegalArgumentException_PasswordNotEncoded() {
             // When
-            var thrown = catchThrowable(() -> new EncodedPassword("not_encoded_password"));
+            var actual = catchThrowable(() -> new EncodedPassword("password_not_encoded"));
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
                               .hasMessage("Encoded password must start with an encoding id like {bcrypt}");
-        }
-
-        @Test
-        void ThenReturnsEncodedPassword_GivenPasswordIsValid() {
-            // When
-            var actual = new EncodedPassword(passwordValue);
-
-            // Then
-            assertThat(actual.password()).isEqualTo(passwordValue);
         }
 
     }
@@ -66,34 +78,38 @@ class EncodedPasswordTests {
     @Nested
     class CreateEncodedPasswordWithFactoryMethod {
 
-        @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenPasswordIsNullOrEmpty(String password) {
+        @Test
+        void ReturnsEncodedPassword_ValidPassword() {
+            // Given
+            var password = "{noop}password";
+
             // When
-            var thrown = catchThrowable(() -> EncodedPassword.of(password));
+            var actual = EncodedPassword.of(password);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
+            assertThat(actual.password()).isEqualTo(password);
+        }
+
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsIllegalArgumentException_NullOrBlankPassword(String password) {
+            // When
+            var actual = catchThrowable(() -> EncodedPassword.of(password));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
                               .hasMessage("Encoded password must not be null or empty");
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenPasswordIsNotEncoded() {
+        void ThrowsIllegalArgumentException_PasswordNotEncoded() {
             // When
-            var thrown = catchThrowable(() -> EncodedPassword.of("not_encoded_password"));
+            var actual = catchThrowable(() -> EncodedPassword.of("password_not_encoded"));
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
                               .hasMessage("Encoded password must start with an encoding id like {bcrypt}");
-        }
-
-        @Test
-        void ThenReturnsEncodedPassword_GivenPasswordIsValid() {
-            // When
-            var actual = EncodedPassword.of(passwordValue);
-
-            // Then
-            assertThat(actual.password()).isEqualTo(passwordValue);
         }
 
     }
@@ -102,8 +118,9 @@ class EncodedPasswordTests {
     class GetValue {
 
         @Test
-        void ThenReturnsPasswordValue_GivenPasswordIsValid() {
+        void ReturnsPasswordValue_ValidPassword() {
             // Given
+            var passwordValue = "{noop}password";
             var password = EncodedPassword.of(passwordValue);
 
             // When

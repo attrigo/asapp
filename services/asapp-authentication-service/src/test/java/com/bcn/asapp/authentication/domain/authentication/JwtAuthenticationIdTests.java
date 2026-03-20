@@ -24,30 +24,39 @@ import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests {@link JwtAuthenticationId} validation and value access.
+ * <p>
+ * Coverage:
+ * <li>Rejects null UUID values</li>
+ * <li>Accepts valid UUIDs through constructor and factory method</li>
+ * <li>Provides access to wrapped UUID value</li>
+ */
 class JwtAuthenticationIdTests {
-
-    private final UUID idValue = UUID.fromString("9b3e7f12-4c8a-4d3e-a9f2-6e5d4c3b2a10");
 
     @Nested
     class CreateJwtAuthenticationIdWithConstructor {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+        void ReturnsJwtAuthenticationId_ValidId() {
+            // Given
+            var jwtAuthenticationId = UUID.fromString("9b3e7f12-4c8a-4d3e-a9f2-6e5d4c3b2a10");
+
             // When
-            var thrown = catchThrowable(() -> new JwtAuthenticationId(null));
+            var actual = new JwtAuthenticationId(jwtAuthenticationId);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("JWT Authentication ID must not be null");
+            assertThat(actual.id()).isEqualTo(jwtAuthenticationId);
         }
 
         @Test
-        void ThenReturnsUserId_GivenIdIsValid() {
+        void ThrowsIllegalArgumentException_NullId() {
             // When
-            var actual = new JwtAuthenticationId(idValue);
+            var actual = catchThrowable(() -> new JwtAuthenticationId(null));
 
             // Then
-            assertThat(actual.id()).isEqualTo(idValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("JWT Authentication ID must not be null");
         }
 
     }
@@ -56,22 +65,25 @@ class JwtAuthenticationIdTests {
     class CreateJwtAuthenticationIdWithFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+        void ReturnsJwtAuthenticationId_ValidId() {
+            // Given
+            var jwtAuthenticationId = UUID.fromString("9b3e7f12-4c8a-4d3e-a9f2-6e5d4c3b2a10");
+
             // When
-            var thrown = catchThrowable(() -> JwtAuthenticationId.of(null));
+            var actual = JwtAuthenticationId.of(jwtAuthenticationId);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("JWT Authentication ID must not be null");
+            assertThat(actual.id()).isEqualTo(jwtAuthenticationId);
         }
 
         @Test
-        void ThenReturnsUserId_GivenIdIsValid() {
+        void ThrowsIllegalArgumentException_NullId() {
             // When
-            var actual = JwtAuthenticationId.of(idValue);
+            var actual = catchThrowable(() -> JwtAuthenticationId.of(null));
 
             // Then
-            assertThat(actual.id()).isEqualTo(idValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("JWT Authentication ID must not be null");
         }
 
     }
@@ -80,15 +92,16 @@ class JwtAuthenticationIdTests {
     class GetValue {
 
         @Test
-        void ThenReturnsUserIdValue_GivenJwtAuthenticationIsValid() {
+        void ReturnsJwtAuthenticationIdValue_ValidJwtAuthenticationId() {
             // Given
-            var jwtAuthenticationId = JwtAuthenticationId.of(idValue);
+            var jwtAuthenticationIdValue = UUID.fromString("9b3e7f12-4c8a-4d3e-a9f2-6e5d4c3b2a10");
+            var jwtAuthenticationId = JwtAuthenticationId.of(jwtAuthenticationIdValue);
 
             // When
             var actual = jwtAuthenticationId.value();
 
             // Then
-            assertThat(actual).isEqualTo(idValue);
+            assertThat(actual).isEqualTo(jwtAuthenticationIdValue);
         }
 
     }

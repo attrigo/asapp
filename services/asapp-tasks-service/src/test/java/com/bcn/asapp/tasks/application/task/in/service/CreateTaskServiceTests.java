@@ -16,13 +16,15 @@
 
 package com.bcn.asapp.tasks.application.task.in.service;
 
+import static com.bcn.asapp.tasks.testutil.fixture.TaskFactory.aTask;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.times;
 import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.times;
 
 import java.time.Instant;
 import java.util.UUID;
@@ -36,14 +38,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.bcn.asapp.tasks.application.task.in.command.CreateTaskCommand;
 import com.bcn.asapp.tasks.application.task.out.TaskRepository;
-import com.bcn.asapp.tasks.domain.task.Description;
-import com.bcn.asapp.tasks.domain.task.EndDate;
-import com.bcn.asapp.tasks.domain.task.StartDate;
 import com.bcn.asapp.tasks.domain.task.Task;
-import com.bcn.asapp.tasks.domain.task.TaskId;
-import com.bcn.asapp.tasks.domain.task.Title;
-import com.bcn.asapp.tasks.domain.task.UserId;
 
+/**
+ * Tests {@link CreateTaskService} task creation and persistence.
+ * <p>
+ * Coverage:
+ * <li>Persistence failures propagate without completing creation workflow</li>
+ * <li>Successful creation persists task with assigned identity</li>
+ * <li>Domain constraints validated before persistence</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class CreateTaskServiceTests {
 
@@ -53,62 +57,64 @@ class CreateTaskServiceTests {
     @InjectMocks
     private CreateTaskService createTaskService;
 
-    // Specific test data
-    private final UUID userIdValue = UUID.randomUUID();
-
-    private final String titleValue = "Task Title";
-
-    private final String descriptionValue = "Task Description";
-
-    private final Instant startDateValue = Instant.now();
-
-    private final Instant endDateValue = Instant.now()
-                                                .plusSeconds(3600);
-
     @Nested
     class CreateTask {
 
         @Test
-        void ThrowsRuntimeException_SaveTaskFails() {
+        void ReturnsCreatedTask_ValidUser() {
             // Given
-            var command = new CreateTaskCommand(userIdValue, titleValue, descriptionValue, startDateValue, endDateValue);
+            var task = aTask();
+            var userId = task.getUserId();
+            var title = task.getTitle();
+            var description = task.getDescription();
+            var startDate = task.getStartDate();
+            var endDate = task.getEndDate();
+            var command = new CreateTaskCommand(userId.value(), title.value(), description.value(), startDate.value(), endDate.value());
 
-            willThrow(new RuntimeException("Database connection failed")).given(taskRepository)
-                                                                         .save(any(Task.class));
+            given(taskRepository.save(any(Task.class))).willReturn(task);
 
             // When
-            var thrown = catchThrowable(() -> createTaskService.createTask(command));
+            var actual = createTaskService.createTask(command);
 
             // Then
-            assertThat(thrown).isInstanceOf(RuntimeException.class)
-                              .hasMessageContaining("Database connection failed");
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual).as("created task").isNotNull();
+                softly.assertThat(actual.getId()).as("ID").isNotNull();
+                softly.assertThat(actual.getUserId()).as("user ID").isEqualTo(userId);
+                softly.assertThat(actual.getTitle()).as("title").isEqualTo(title);
+                softly.assertThat(actual.getDescription()).as("description").isEqualTo(description);
+                softly.assertThat(actual.getStartDate()).as("start date").isEqualTo(startDate);
+                softly.assertThat(actual.getEndDate()).as("end date").isEqualTo(endDate);
+                // @formatter:on
+            });
 
             then(taskRepository).should(times(1))
                                 .save(any(Task.class));
         }
 
         @Test
-        void ReturnsCreatedTask_CreationSucceeds() {
+        void ThrowsRuntimeException_TaskPersistenceFails() {
             // Given
-            var userId = UserId.of(userIdValue);
-            var title = Title.of(titleValue);
-            var description = Description.ofNullable(descriptionValue);
-            var startDate = StartDate.ofNullable(startDateValue);
-            var endDate = EndDate.ofNullable(endDateValue);
-            var savedTask = Task.reconstitute(TaskId.of(UUID.randomUUID()), userId, title, description, startDate, endDate);
-            var command = new CreateTaskCommand(userIdValue, titleValue, descriptionValue, startDateValue, endDateValue);
+            var userId = UUID.fromString("09726a94-df21-48ad-864a-f3612499ff3d");
+            var title = "Title";
+            var description = "Description";
+            var startDate = Instant.parse("2025-01-01T10:00:00Z");
+            var endDate = Instant.parse("2025-01-02T10:00:00Z");
+            var command = new CreateTaskCommand(userId, title, description, startDate, endDate);
 
-            given(taskRepository.save(any(Task.class))).willReturn(savedTask);
+            willThrow(new RuntimeException("Database connection failed")).given(taskRepository)
+                                                                         .save(any(Task.class));
 
             // When
-            var result = createTaskService.createTask(command);
+            var actual = catchThrowable(() -> createTaskService.createTask(command));
 
             // Then
+            assertThat(actual).isInstanceOf(RuntimeException.class)
+                              .hasMessage("Database connection failed");
+
             then(taskRepository).should(times(1))
                                 .save(any(Task.class));
-            assertThat(result).isNotNull();
-            assertThat(result.getId()).isNotNull();
-            assertThat(result.getTitle()).isEqualTo(title);
         }
 
     }

@@ -20,8 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.times;
 import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.times;
 
 import java.util.UUID;
 
@@ -35,6 +35,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.bcn.asapp.tasks.application.task.out.TaskRepository;
 import com.bcn.asapp.tasks.domain.task.TaskId;
 
+/**
+ * Tests {@link DeleteTaskService} task deletion and failure propagation.
+ * <p>
+ * Coverage:
+ * <li>Deletion failures propagate without completing workflow</li>
+ * <li>Returns false when task does not exist</li>
+ * <li>Returns true when task successfully deleted</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class DeleteTaskServiceTests {
 
@@ -44,60 +52,63 @@ class DeleteTaskServiceTests {
     @InjectMocks
     private DeleteTaskService deleteTaskService;
 
-    private final UUID taskIdValue = UUID.randomUUID();
-
     @Nested
     class DeleteTaskById {
 
         @Test
-        void ThrowsRuntimeException_DeleteTaskFails() {
+        void ReturnsTrue_TaskExists() {
             // Given
+            var taskIdValue = UUID.fromString("c3d4e5f6-a7b8-4901-c2d3-e4f5a6b7c8d9");
+            var taskId = TaskId.of(taskIdValue);
+
+            given(taskRepository.deleteById(taskId)).willReturn(true);
+
+            // When
+            var actual = deleteTaskService.deleteTaskById(taskIdValue);
+
+            // Then
+            assertThat(actual).isTrue();
+
+            then(taskRepository).should(times(1))
+                                .deleteById(taskId);
+        }
+
+        @Test
+        void ReturnsFalse_TaskNotExists() {
+            // Given
+            var taskIdValue = UUID.fromString("c3d4e5f6-a7b8-4901-c2d3-e4f5a6b7c8d9");
+            var taskId = TaskId.of(taskIdValue);
+
+            given(taskRepository.deleteById(taskId)).willReturn(false);
+
+            // When
+            var actual = deleteTaskService.deleteTaskById(taskIdValue);
+
+            // Then
+            assertThat(actual).isFalse();
+
+            then(taskRepository).should(times(1))
+                                .deleteById(taskId);
+        }
+
+        @Test
+        void ThrowsRuntimeException_TaskDeletionFails() {
+            // Given
+            var taskIdValue = UUID.fromString("c3d4e5f6-a7b8-4901-c2d3-e4f5a6b7c8d9");
             var taskId = TaskId.of(taskIdValue);
 
             willThrow(new RuntimeException("Database connection failed")).given(taskRepository)
                                                                          .deleteById(taskId);
 
             // When
-            var thrown = catchThrowable(() -> deleteTaskService.deleteTaskById(taskIdValue));
+            var actual = catchThrowable(() -> deleteTaskService.deleteTaskById(taskIdValue));
 
             // Then
-            assertThat(thrown).isInstanceOf(RuntimeException.class)
-                              .hasMessageContaining("Database connection failed");
+            assertThat(actual).isInstanceOf(RuntimeException.class)
+                              .hasMessage("Database connection failed");
 
             then(taskRepository).should(times(1))
                                 .deleteById(taskId);
-        }
-
-        @Test
-        void DoesNotDeleteTaskReturnsFalse_TaskNotExists() {
-            // Given
-            var taskId = TaskId.of(taskIdValue);
-
-            given(taskRepository.deleteById(taskId)).willReturn(false);
-
-            // When
-            var result = deleteTaskService.deleteTaskById(taskIdValue);
-
-            // Then
-            then(taskRepository).should(times(1))
-                                .deleteById(taskId);
-            assertThat(result).isFalse();
-        }
-
-        @Test
-        void DeletesTaskAndReturnsTrue_TaskExists() {
-            // Given
-            var taskId = TaskId.of(taskIdValue);
-
-            given(taskRepository.deleteById(taskId)).willReturn(true);
-
-            // When
-            var result = deleteTaskService.deleteTaskById(taskIdValue);
-
-            // Then
-            then(taskRepository).should(times(1))
-                                .deleteById(taskId);
-            assertThat(result).isTrue();
         }
 
     }

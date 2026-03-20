@@ -38,6 +38,11 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 
+/**
+ * Provides custom AssertJ assertions for JWT token validation with fluent API.
+ *
+ * @since 0.2.0
+ */
 public class JwtAssertions extends AbstractAssert<JwtAssertions, Jws<Claims>> {
 
     private static final String JWT_SECRET;

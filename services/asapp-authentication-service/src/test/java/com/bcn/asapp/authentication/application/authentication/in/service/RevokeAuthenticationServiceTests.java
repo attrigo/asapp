@@ -16,19 +16,16 @@
 
 package com.bcn.asapp.authentication.application.authentication.in.service;
 
-import static com.bcn.asapp.authentication.domain.user.Role.USER;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtAuthenticationFactory.aJwtAuthenticationBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
-import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.never;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.times;
 import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-
-import java.time.Instant;
-import java.util.UUID;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -46,18 +43,20 @@ import com.bcn.asapp.authentication.application.authentication.out.JwtAuthentica
 import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
-import com.bcn.asapp.authentication.domain.authentication.Expiration;
-import com.bcn.asapp.authentication.domain.authentication.Issued;
-import com.bcn.asapp.authentication.domain.authentication.Jwt;
-import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthenticationId;
-import com.bcn.asapp.authentication.domain.authentication.JwtClaims;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
-import com.bcn.asapp.authentication.domain.authentication.JwtType;
-import com.bcn.asapp.authentication.domain.authentication.Subject;
-import com.bcn.asapp.authentication.domain.user.Role;
-import com.bcn.asapp.authentication.domain.user.UserId;
 
+/**
+ * Tests {@link RevokeAuthenticationService} token revocation, store deactivation, and compensation on failure.
+ * <p>
+ * Coverage:
+ * <li>Token verification failures propagate without executing revocation operations</li>
+ * <li>Type mismatch failures (refresh token provided) propagate without executing revocation operations</li>
+ * <li>Authentication retrieval failures propagate without executing revocation operations</li>
+ * <li>Persistence deletion failures trigger compensation to restore deactivated tokens</li>
+ * <li>Compensation failures wrap the original cause and propagate to the caller</li>
+ * <li>Successful revocation verifies token, retrieves authentication, deletes from repository, and deactivates in store</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class RevokeAuthenticationServiceTests {
 
@@ -73,30 +72,48 @@ class RevokeAuthenticationServiceTests {
     @InjectMocks
     private RevokeAuthenticationService revokeAuthenticationService;
 
-    private final String accessTokenValue = "test.access.token";
-
-    private final String usernameValue = "user@asapp.com";
-
-    private final UUID userId = UUID.fromString("61c5064b-1906-4d11-a8ab-5bfd309e2631");
-
-    private final Role role = USER;
-
     @Nested
     class RevokeAuthentication {
 
         @Test
-        void ThrowsUnexpectedJwtTypeException_TokenIsNotAccessType() {
+        void RevokesAuthentication_ValidAccessToken() {
             // Given
+            var accessTokenValue = "access.token";
             var encodedAccessToken = EncodedToken.of(accessTokenValue);
+            var jwtAuthentication = aJwtAuthenticationBuilder().withTokenValues(accessTokenValue, "refresh.token")
+                                                               .build();
+            var jwtPair = jwtAuthentication.getJwtPair();
+
+            given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(jwtAuthentication);
+
+            // When & Then
+            assertThatCode(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue)).doesNotThrowAnyException();
+
+            then(tokenVerifier).should(times(1))
+                               .verifyAccessToken(encodedAccessToken);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .findByAccessToken(encodedAccessToken);
+            then(jwtStore).should(times(1))
+                          .delete(jwtPair);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .deleteById(jwtAuthentication.getId());
+        }
+
+        @Test
+        void ThrowsUnexpectedJwtTypeException_TokenNotAccessType() {
+            // Given
+            var accessTokenValue = "access.token";
+            var encodedAccessToken = EncodedToken.of(accessTokenValue);
+
             willThrow(new UnexpectedJwtTypeException("Token is not an access token")).given(tokenVerifier)
                                                                                      .verifyAccessToken(encodedAccessToken);
 
             // When
-            var thrown = catchThrowable(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue));
+            var actual = catchThrowable(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue));
 
             // Then
-            assertThat(thrown).isInstanceOf(UnexpectedJwtTypeException.class)
-                              .hasMessageContaining("is not an access token");
+            assertThat(actual).isInstanceOf(UnexpectedJwtTypeException.class)
+                              .hasMessage("Token is not an access token");
 
             then(tokenVerifier).should(times(1))
                                .verifyAccessToken(encodedAccessToken);
@@ -107,16 +124,18 @@ class RevokeAuthenticationServiceTests {
         @Test
         void ThrowsAuthenticationNotFoundException_TokenNotFoundInStore() {
             // Given
+            var accessTokenValue = "access.token";
             var encodedAccessToken = EncodedToken.of(accessTokenValue);
+
             willThrow(new AuthenticationNotFoundException("Access token not found in active sessions")).given(tokenVerifier)
                                                                                                        .verifyAccessToken(encodedAccessToken);
 
             // When
-            var thrown = catchThrowable(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue));
+            var actual = catchThrowable(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue));
 
             // Then
-            assertThat(thrown).isInstanceOf(AuthenticationNotFoundException.class)
-                              .hasMessageContaining("Access token not found in active sessions");
+            assertThat(actual).isInstanceOf(AuthenticationNotFoundException.class)
+                              .hasMessage("Access token not found in active sessions");
 
             then(tokenVerifier).should(times(1))
                                .verifyAccessToken(encodedAccessToken);
@@ -125,18 +144,20 @@ class RevokeAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsAuthenticationNotFoundException_TokenNotFoundInDatabase() {
+        void ThrowsAuthenticationNotFoundException_TokenNotFoundInRepository() {
             // Given
+            var accessTokenValue = "access.token";
             var encodedAccessToken = EncodedToken.of(accessTokenValue);
+
             given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willThrow(
                     new AuthenticationNotFoundException("Authentication session not found in repository for access token"));
 
             // When
-            var thrown = catchThrowable(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue));
+            var actual = catchThrowable(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue));
 
             // Then
-            assertThat(thrown).isInstanceOf(AuthenticationNotFoundException.class)
-                              .hasMessageContaining("Authentication session not found in repository for access token");
+            assertThat(actual).isInstanceOf(AuthenticationNotFoundException.class)
+                              .hasMessage("Authentication session not found in repository for access token");
 
             then(tokenVerifier).should(times(1))
                                .verifyAccessToken(encodedAccessToken);
@@ -147,26 +168,26 @@ class RevokeAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsTokenStoreException_DeactivateTokensFails() {
+        void ThrowsTokenStoreException_TokenDeactivationFails() {
             // Given
+            var accessTokenValue = "access.token";
             var encodedAccessToken = EncodedToken.of(accessTokenValue);
-            var accessToken = createJwt(JwtType.ACCESS_TOKEN, accessTokenValue);
-            var refreshToken = createJwt(JwtType.REFRESH_TOKEN, "test.refresh.token");
-            var authenticationId = JwtAuthenticationId.of(UUID.randomUUID());
-            var jwtPair = JwtPair.of(accessToken, refreshToken);
-            var authentication = JwtAuthentication.authenticated(authenticationId, UserId.of(userId), jwtPair);
+            var jwtAuthentication = aJwtAuthenticationBuilder().withTokenValues(accessTokenValue, "refresh.token")
+                                                               .build();
+            var jwtPair = jwtAuthentication.getJwtPair();
+            var tokenStoreException = new TokenStoreException("Could not delete tokens from fast-access store",
+                    new RuntimeException("Token store connection failed"));
 
-            given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(authentication);
-            willThrow(new TokenStoreException("Could not delete tokens from fast-access store",
-                    new RuntimeException("Token store connection failed"))).given(jwtStore)
-                                                                           .delete(jwtPair);
+            given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(jwtAuthentication);
+            willThrow(tokenStoreException).given(jwtStore)
+                                          .delete(jwtPair);
 
             // When
-            var thrown = catchThrowable(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue));
+            var actual = catchThrowable(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue));
 
             // Then
-            assertThat(thrown).isInstanceOf(TokenStoreException.class)
-                              .hasMessageContaining("Could not delete tokens from fast-access store")
+            assertThat(actual).isInstanceOf(TokenStoreException.class)
+                              .hasMessage("Could not delete tokens from fast-access store")
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(tokenVerifier).should(times(1))
@@ -180,28 +201,29 @@ class RevokeAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsCompensatingTransactionException_DeleteAuthenticationFailsAndCompensationFails() {
+        void ThrowsCompensatingTransactionException_AuthenticationDeletionFailsAndCompensationFails() {
             // Given
+            var accessTokenValue = "access.token";
             var encodedAccessToken = EncodedToken.of(accessTokenValue);
-            var accessToken = createJwt(JwtType.ACCESS_TOKEN, accessTokenValue);
-            var refreshToken = createJwt(JwtType.REFRESH_TOKEN, "test.refresh.token");
-            var authenticationId = JwtAuthenticationId.of(UUID.randomUUID());
-            var jwtPair = JwtPair.of(accessToken, refreshToken);
-            var authentication = JwtAuthentication.authenticated(authenticationId, UserId.of(userId), jwtPair);
+            var jwtAuthentication = aJwtAuthenticationBuilder().withTokenValues(accessTokenValue, "refresh.token")
+                                                               .build();
+            var jwtAuthenticationId = jwtAuthentication.getId();
+            var jwtPair = jwtAuthentication.getJwtPair();
+            var authenticationPersistenceException = new AuthenticationPersistenceException("Could not delete authentication from repository",
+                    new RuntimeException("Repository delete failed"));
 
-            given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(authentication);
-            willThrow(new AuthenticationPersistenceException("Could not delete authentication from repository",
-                    new RuntimeException("Repository delete failed"))).given(jwtAuthenticationRepository)
-                                                                      .deleteById(authenticationId);
+            given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(jwtAuthentication);
+            willThrow(authenticationPersistenceException).given(jwtAuthenticationRepository)
+                                                         .deleteById(jwtAuthenticationId);
             willThrow(new RuntimeException("Compensation failed")).given(jwtStore)
                                                                   .save(jwtPair);
 
             // When
-            var thrown = catchThrowable(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue));
+            var actual = catchThrowable(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue));
 
             // Then
-            assertThat(thrown).isInstanceOf(CompensatingTransactionException.class)
-                              .hasMessageContaining("Failed to compensate token deactivation after repository deletion failure")
+            assertThat(actual).isInstanceOf(CompensatingTransactionException.class)
+                              .hasMessage("Failed to compensate token deactivation after repository deletion failure")
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(tokenVerifier).should(times(1))
@@ -211,32 +233,33 @@ class RevokeAuthenticationServiceTests {
             then(jwtStore).should(times(1))
                           .delete(jwtPair);
             then(jwtAuthenticationRepository).should(times(1))
-                                             .deleteById(authenticationId);
+                                             .deleteById(jwtAuthenticationId);
             then(jwtStore).should(times(1))
                           .save(jwtPair);
         }
 
         @Test
-        void ThrowsAuthenticationPersistenceException_DeleteAuthenticationFailsAndCompensationSucceeds() {
+        void ThrowsAuthenticationPersistenceException_AuthenticationDeletionFailsAndCompensationSucceeds() {
             // Given
+            var accessTokenValue = "access.token";
             var encodedAccessToken = EncodedToken.of(accessTokenValue);
-            var accessToken = createJwt(JwtType.ACCESS_TOKEN, accessTokenValue);
-            var refreshToken = createJwt(JwtType.REFRESH_TOKEN, "test.refresh.token");
-            var authenticationId = JwtAuthenticationId.of(UUID.randomUUID());
-            var jwtPair = JwtPair.of(accessToken, refreshToken);
-            var authentication = JwtAuthentication.authenticated(authenticationId, UserId.of(userId), jwtPair);
+            var jwtAuthentication = aJwtAuthenticationBuilder().withTokenValues(accessTokenValue, "refresh.token")
+                                                               .build();
+            var jwtAuthenticationId = jwtAuthentication.getId();
+            var jwtPair = jwtAuthentication.getJwtPair();
+            var authenticationPersistenceException = new AuthenticationPersistenceException("Could not delete authentication from repository",
+                    new RuntimeException("Repository delete failed"));
 
-            given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(authentication);
-            willThrow(new AuthenticationPersistenceException("Could not delete authentication from repository",
-                    new RuntimeException("Repository delete failed"))).given(jwtAuthenticationRepository)
-                                                                      .deleteById(authenticationId);
+            given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(jwtAuthentication);
+            willThrow(authenticationPersistenceException).given(jwtAuthenticationRepository)
+                                                         .deleteById(jwtAuthenticationId);
 
             // When
-            var thrown = catchThrowable(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue));
+            var actual = catchThrowable(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue));
 
             // Then
-            assertThat(thrown).isInstanceOf(AuthenticationPersistenceException.class)
-                              .hasMessageContaining("Could not delete authentication from repository");
+            assertThat(actual).isInstanceOf(AuthenticationPersistenceException.class)
+                              .hasMessage("Could not delete authentication from repository");
 
             then(tokenVerifier).should(times(1))
                                .verifyAccessToken(encodedAccessToken);
@@ -245,47 +268,11 @@ class RevokeAuthenticationServiceTests {
             then(jwtStore).should(times(1))
                           .delete(jwtPair);
             then(jwtAuthenticationRepository).should(times(1))
-                                             .deleteById(authenticationId);
+                                             .deleteById(jwtAuthenticationId);
             then(jwtStore).should(times(1))
                           .save(jwtPair);
         }
 
-        @Test
-        void RevokesAuthentication_RevokeAuthenticationSucceeds() {
-            // Given
-            var encodedAccessToken = EncodedToken.of(accessTokenValue);
-            var accessToken = createJwt(JwtType.ACCESS_TOKEN, accessTokenValue);
-            var refreshToken = createJwt(JwtType.REFRESH_TOKEN, "test.refresh.token");
-            var authenticationId = JwtAuthenticationId.of(UUID.randomUUID());
-            var jwtPair = JwtPair.of(accessToken, refreshToken);
-            var authentication = JwtAuthentication.authenticated(authenticationId, UserId.of(userId), jwtPair);
-
-            given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(authentication);
-
-            // When
-            assertThatCode(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue)).doesNotThrowAnyException();
-
-            // Then
-            then(tokenVerifier).should(times(1))
-                               .verifyAccessToken(encodedAccessToken);
-            then(jwtAuthenticationRepository).should(times(1))
-                                             .findByAccessToken(encodedAccessToken);
-            then(jwtStore).should(times(1))
-                          .delete(jwtPair);
-            then(jwtAuthenticationRepository).should(times(1))
-                                             .deleteById(authenticationId);
-        }
-
-    }
-
-    private Jwt createJwt(JwtType type, String tokenValue) {
-        var encodedToken = EncodedToken.of(tokenValue);
-        var subject = Subject.of(usernameValue);
-        var claims = JwtClaims.of("role", role.name(), "token_use", type == JwtType.ACCESS_TOKEN ? "access" : "refresh");
-        var issued = Issued.of(Instant.now());
-        var expiration = Expiration.of(issued, 300000L);
-
-        return Jwt.of(encodedToken, type, subject, claims, issued, expiration);
     }
 
 }

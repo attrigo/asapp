@@ -31,18 +31,29 @@ import org.springframework.http.MediaType;
 
 import com.bcn.asapp.authentication.testutil.WebMvcTestContext;
 
-class AuthenticationControllerIT extends WebMvcTestContext {
+/**
+ * Tests {@link AuthenticationRestController} request validation and error responses.
+ * <p>
+ * Coverage:
+ * <li>Validates request content type (JSON required for POST operations)</li>
+ * <li>Validates request body presence and structure</li>
+ * <li>Validates mandatory field constraints (username, password, tokens)</li>
+ * <li>Returns RFC 7807 Problem Details for all validation failures</li>
+ * <li>Tests all HTTP endpoints (authenticate, refresh, revoke)</li>
+ */
+class AuthenticationRestControllerIT extends WebMvcTestContext {
 
     @Nested
     class Authenticate {
 
         @Test
-        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyIsNotJson() {
-            // When & Then
+        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_NonJsonRequestBody() {
+            // Given
             var requestBody = "";
-
             var requestBuilder = post(AUTH_TOKEN_FULL_PATH).contentType(MediaType.TEXT_PLAIN)
                                                            .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
@@ -61,12 +72,13 @@ class AuthenticationControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsNotPresent() {
-            // When & Then
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_MissingRequestBody() {
+            // Given
             var requestBody = "";
-
             var requestBuilder = post(AUTH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                            .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -84,12 +96,13 @@ class AuthenticationControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsEmpty() {
-            // When & Then
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyRequestBody() {
+            // Given
             var requestBody = "{}";
-
             var requestBuilder = post(AUTH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                            .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -117,17 +130,18 @@ class AuthenticationControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyFieldsAreEmpty() {
-            // When & Then
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyMandatoryFields() {
+            // Given
             var requestBody = """
                     {
                     "username": "",
                     "password": ""
                     }
                     """;
-
             var requestBuilder = post(AUTH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                            .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -160,12 +174,13 @@ class AuthenticationControllerIT extends WebMvcTestContext {
     class RefreshAuthentication {
 
         @Test
-        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyIsNotJson() {
-            // When & Then
+        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_NonJsonRequestBody() {
+            // Given
             var requestBody = "";
-
             var requestBuilder = post(AUTH_REFRESH_TOKEN_FULL_PATH).contentType(MediaType.TEXT_PLAIN)
                                                                    .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
@@ -183,12 +198,13 @@ class AuthenticationControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsNotPresent() {
-            // When & Then
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_MissingRequestBody() {
+            // Given
             var requestBody = "";
-
             var requestBuilder = post(AUTH_REFRESH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                                    .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -206,12 +222,13 @@ class AuthenticationControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsEmpty() {
-            // When & Then
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyRequestBody() {
+            // Given
             var requestBody = "{}";
-
             var requestBuilder = post(AUTH_REFRESH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                                    .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -238,16 +255,17 @@ class AuthenticationControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyFieldsAreEmpty() {
-            // When & Then
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyMandatoryFields() {
+            // Given
             var requestBody = """
                     {
                     "refresh_token": ""
                     }
                     """;
-
             var requestBuilder = post(AUTH_REFRESH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                                    .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -279,12 +297,13 @@ class AuthenticationControllerIT extends WebMvcTestContext {
     class RevokeAuthentication {
 
         @Test
-        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyIsNotJson() {
-            // When & Then
+        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_NonJsonRequestBody() {
+            // Given
             var requestBody = "";
-
             var requestBuilder = post(AUTH_REVOKE_FULL_PATH).contentType(MediaType.TEXT_PLAIN)
                                                             .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
@@ -302,12 +321,13 @@ class AuthenticationControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsNotPresent() {
-            // When & Then
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_MissingRequestBody() {
+            // Given
             var requestBody = "";
-
             var requestBuilder = post(AUTH_REVOKE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                             .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -325,12 +345,13 @@ class AuthenticationControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsEmpty() {
-            // When & Then
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyRequestBody() {
+            // Given
             var requestBody = "{}";
-
             var requestBuilder = post(AUTH_REVOKE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                             .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -357,16 +378,17 @@ class AuthenticationControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyFieldsAreEmpty() {
-            // When & Then
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyMandatoryFields() {
+            // Given
             var requestBody = """
                     {
                     "access_token": ""
                     }
                     """;
-
             var requestBuilder = post(AUTH_REVOKE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                             .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)

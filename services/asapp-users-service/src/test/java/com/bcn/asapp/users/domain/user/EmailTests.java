@@ -26,44 +26,53 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
+/**
+ * Tests {@link Email} validation and value access.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or blank email values</li>
+ * <li>Validates email must match standard email address format</li>
+ * <li>Accepts valid inputs through constructor and factory method</li>
+ * <li>Provides access to wrapped email value</li>
+ */
 class EmailTests {
-
-    private final String emailValue = "user@asapp.com";
 
     @Nested
     class CreateEmailWithConstructor {
 
         @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenEmailIsNullOrEmpty(String email) {
-            // When
-            var thrown = catchThrowable(() -> new Email(email));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Email must not be null or empty");
-        }
-
-        @ParameterizedTest
-        @MethodSource("com.bcn.asapp.users.domain.user.EmailTests#provideInvalidEmails")
-        void ThenThrowsIllegalArgumentException_GivenEmailIsNotValid(String email) {
-            // When
-            var thrown = catchThrowable(() -> new Email(email));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Email must be a valid email address");
-        }
-
-        @ParameterizedTest
         @MethodSource("com.bcn.asapp.users.domain.user.EmailTests#provideValidEmails")
-        void ThenReturnsEmail_GivenEmailIsValid(String email) {
+        void ReturnsEmail_ValidEmail(String email) {
             // When
             var actual = new Email(email);
 
             // Then
             assertThat(actual.email()).isEqualTo(email);
+        }
+
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsIllegalArgumentException_NullOrBlankEmail(String email) {
+            // When
+            var actual = catchThrowable(() -> new Email(email));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Email must not be null or empty");
+        }
+
+        @ParameterizedTest
+        @MethodSource("com.bcn.asapp.users.domain.user.EmailTests#provideInvalidEmails")
+        void ThrowsIllegalArgumentException_InvalidEmail(String email) {
+            // When
+            var actual = catchThrowable(() -> new Email(email));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Email must be a valid email address");
         }
 
     }
@@ -72,35 +81,36 @@ class EmailTests {
     class CreateEmailWithFactoryMethod {
 
         @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenEmailIsNullOrEmpty(String email) {
-            // When
-            var thrown = catchThrowable(() -> Email.of(email));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Email must not be null or empty");
-        }
-
-        @ParameterizedTest
-        @MethodSource("com.bcn.asapp.users.domain.user.EmailTests#provideInvalidEmails")
-        void ThenThrowsIllegalArgumentException_GivenEmailIsNotValid(String email) {
-            // When
-            var thrown = catchThrowable(() -> Email.of(email));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Email must be a valid email address");
-        }
-
-        @ParameterizedTest
         @MethodSource("com.bcn.asapp.users.domain.user.EmailTests#provideValidEmails")
-        void ThenReturnsEmail_GivenEmailIsValid(String email) {
+        void ReturnsEmail_ValidEmail(String email) {
             // When
             var actual = Email.of(email);
 
             // Then
             assertThat(actual.email()).isEqualTo(email);
+        }
+
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsIllegalArgumentException_NullOrBlankEmail(String email) {
+            // When
+            var actual = catchThrowable(() -> Email.of(email));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Email must not be null or empty");
+        }
+
+        @ParameterizedTest
+        @MethodSource("com.bcn.asapp.users.domain.user.EmailTests#provideInvalidEmails")
+        void ThrowsIllegalArgumentException_InvalidEmail(String email) {
+            // When
+            var actual = catchThrowable(() -> Email.of(email));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Email must be a valid email address");
         }
 
     }
@@ -109,8 +119,9 @@ class EmailTests {
     class GetValue {
 
         @Test
-        void ThenReturnsEmailValue_GivenEmailIsValid() {
+        void ReturnsEmailValue_ValidEmail() {
             // Given
+            var emailValue = "user@asapp.com";
             var email = Email.of(emailValue);
 
             // When

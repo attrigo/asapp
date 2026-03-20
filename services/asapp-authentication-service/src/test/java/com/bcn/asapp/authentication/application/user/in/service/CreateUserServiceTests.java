@@ -17,16 +17,16 @@
 package com.bcn.asapp.authentication.application.user.in.service;
 
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
+import static com.bcn.asapp.authentication.testutil.fixture.UserFactory.anActiveUser;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.never;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.times;
 import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-
-import java.util.UUID;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -41,9 +41,15 @@ import com.bcn.asapp.authentication.domain.user.EncodedPassword;
 import com.bcn.asapp.authentication.domain.user.PasswordService;
 import com.bcn.asapp.authentication.domain.user.RawPassword;
 import com.bcn.asapp.authentication.domain.user.User;
-import com.bcn.asapp.authentication.domain.user.UserId;
-import com.bcn.asapp.authentication.domain.user.Username;
 
+/**
+ * Tests {@link CreateUserService} password encoding and user persistence.
+ * <p>
+ * Coverage:
+ * <li>Password encoding failures propagate without completing creation workflow</li>
+ * <li>Persistence failures propagate without completing creation workflow</li>
+ * <li>Successful creation encodes password, persists user, and returns assigned identity</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class CreateUserServiceTests {
 
@@ -56,54 +62,36 @@ class CreateUserServiceTests {
     @InjectMocks
     private CreateUserService createUserService;
 
-    private final String usernameValue = "user@asapp.com";
-
-    private final String passwordValue = "password123";
-
-    private final String roleValue = "USER";
-
     @Nested
     class CreateUser {
 
         @Test
-        void ThrowsRuntimeException_PasswordEncodingFails() {
+        void ReturnsCreatedUser_ValidUser() {
             // Given
-            var command = new CreateUserCommand(usernameValue, passwordValue, roleValue);
-            var rawPassword = RawPassword.of(passwordValue);
-
-            willThrow(new RuntimeException("Password encoding failed")).given(passwordEncoder)
-                                                                       .encode(rawPassword);
-
-            // When
-            var thrown = catchThrowable(() -> createUserService.createUser(command));
-
-            // Then
-            assertThat(thrown).isInstanceOf(RuntimeException.class)
-                              .hasMessageContaining("Password encoding failed");
-
-            then(passwordEncoder).should(times(1))
-                                 .encode(rawPassword);
-            then(userRepository).should(never())
-                                .save(any(User.class));
-        }
-
-        @Test
-        void ThrowsRuntimeException_SaveUserFails() {
-            // Given
-            var command = new CreateUserCommand(usernameValue, passwordValue, roleValue);
+            var user = anActiveUser();
+            var username = user.getUsername();
+            var passwordValue = "TEST@09_password?!";
+            var role = user.getRole();
+            var command = new CreateUserCommand(username.value(), passwordValue, role.name());
             var rawPassword = RawPassword.of(passwordValue);
             var encodedPassword = EncodedPassword.of("{bcrypt}$2a$10$encodedPassword");
 
             given(passwordEncoder.encode(rawPassword)).willReturn(encodedPassword);
-            willThrow(new RuntimeException("Database connection failed")).given(userRepository)
-                                                                         .save(any(User.class));
+            given(userRepository.save(any(User.class))).willReturn(user);
 
             // When
-            var thrown = catchThrowable(() -> createUserService.createUser(command));
+            var actual = createUserService.createUser(command);
 
             // Then
-            assertThat(thrown).isInstanceOf(RuntimeException.class)
-                              .hasMessageContaining("Database connection failed");
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual).as("created user").isNotNull();
+                softly.assertThat(actual.getId()).as("ID").isNotNull();
+                softly.assertThat(actual.getUsername()).as("username").isEqualTo(username);
+                softly.assertThat(actual.getPassword()).as("password").isNull();
+                softly.assertThat(actual.getRole()).as("role").isEqualTo(USER);
+                // @formatter:on
+            });
 
             then(passwordEncoder).should(times(1))
                                  .encode(rawPassword);
@@ -112,25 +100,50 @@ class CreateUserServiceTests {
         }
 
         @Test
-        void ReturnsCreatedUser_CreationSucceeds() {
+        void ThrowsRuntimeException_PasswordEncodingFails() {
             // Given
-            var command = new CreateUserCommand(usernameValue, passwordValue, roleValue);
-            var username = Username.of(usernameValue);
+            var username = "user@asapp.com";
+            var passwordValue = "TEST@09_password?!";
+            var role = "USER";
+            var command = new CreateUserCommand(username, passwordValue, role);
             var rawPassword = RawPassword.of(passwordValue);
-            var encodedPassword = EncodedPassword.of("{bcrypt}$2a$10$encodedPassword");
-            var savedUser = User.activeUser(UserId.of(UUID.randomUUID()), username, USER);
 
-            given(passwordEncoder.encode(rawPassword)).willReturn(encodedPassword);
-            given(userRepository.save(any(User.class))).willReturn(savedUser);
+            willThrow(new RuntimeException("Password encoding failed")).given(passwordEncoder)
+                                                                       .encode(rawPassword);
 
             // When
-            var result = createUserService.createUser(command);
+            var actual = catchThrowable(() -> createUserService.createUser(command));
 
             // Then
-            assertThat(result).isNotNull();
-            assertThat(result.getId()).isNotNull();
-            assertThat(result.getUsername()).isEqualTo(username);
-            assertThat(result.getRole()).isEqualTo(USER);
+            assertThat(actual).isInstanceOf(RuntimeException.class)
+                              .hasMessage("Password encoding failed");
+
+            then(passwordEncoder).should(times(1))
+                                 .encode(rawPassword);
+            then(userRepository).should(never())
+                                .save(any(User.class));
+        }
+
+        @Test
+        void ThrowsRuntimeException_UserPersistenceFails() {
+            // Given
+            var username = "user@asapp.com";
+            var passwordValue = "TEST@09_password?!";
+            var role = "USER";
+            var command = new CreateUserCommand(username, passwordValue, role);
+            var rawPassword = RawPassword.of(passwordValue);
+            var encodedPassword = EncodedPassword.of("{bcrypt}$2a$10$encodedPassword");
+
+            given(passwordEncoder.encode(rawPassword)).willReturn(encodedPassword);
+            willThrow(new RuntimeException("Database connection failed")).given(userRepository)
+                                                                         .save(any(User.class));
+
+            // When
+            var actual = catchThrowable(() -> createUserService.createUser(command));
+
+            // Then
+            assertThat(actual).isInstanceOf(RuntimeException.class)
+                              .hasMessage("Database connection failed");
 
             then(passwordEncoder).should(times(1))
                                  .encode(rawPassword);

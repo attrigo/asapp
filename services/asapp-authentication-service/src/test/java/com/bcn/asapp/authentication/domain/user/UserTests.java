@@ -19,6 +19,7 @@ package com.bcn.asapp.authentication.domain.user;
 import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
 import java.util.UUID;
@@ -26,59 +27,83 @@ import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests {@link User} persistence states, field updates, and identity equality.
+ * <p>
+ * Coverage:
+ * <li>Creates inactive user with username, password, and role, null ID</li>
+ * <li>Creates active user with ID, username, and role, null password</li>
+ * <li>Updates user data (username, password, role) on both states</li>
+ * <li>Validates username, password, and role required for inactive state</li>
+ * <li>Validates ID, username, and role required for active state</li>
+ * <li>Implements identity-based equality using ID for active users, username for inactive users</li>
+ */
 class UserTests {
-
-    private final UserId id = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
-
-    private final Username username = Username.of("user@asapp.com");
-
-    private final EncodedPassword password = EncodedPassword.of("{noop}password");
-
-    private final Role role = USER;
 
     @Nested
     class CreateInactiveUser {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUsernameIsNull() {
-            // When
-            var thrown = catchThrowable(() -> User.inactiveUser(null, password, role));
+        void ReturnsInactiveUser_ValidParameters() {
+            // Given
+            var username = Username.of("user@asapp.com");
+            var password = EncodedPassword.of("{noop}password");
+            var role = USER;
 
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Username must not be null");
-        }
-
-        @Test
-        void ThenThrowsIllegalArgumentException_GivenPasswordIsNull() {
-            // When
-            var thrown = catchThrowable(() -> User.inactiveUser(username, null, role));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Password must not be null");
-        }
-
-        @Test
-        void ThenThrowsIllegalArgumentException_GivenRoleIsNull() {
-            // When
-            var thrown = catchThrowable(() -> User.inactiveUser(username, password, null));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Role must not be null");
-        }
-
-        @Test
-        void ThenReturnsInactiveUser_GivenParametersAreValid() {
             // When
             var actual = User.inactiveUser(username, password, role);
 
             // Then
-            assertThat(actual.getId()).isNull();
-            assertThat(actual.getUsername()).isEqualTo(username);
-            assertThat(actual.getPassword()).isEqualTo(password);
-            assertThat(actual.getRole()).isEqualTo(role);
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual.getId()).as("ID").isNull();
+                softly.assertThat(actual.getUsername()).as("username").isEqualTo(username);
+                softly.assertThat(actual.getPassword()).as("password").isEqualTo(password);
+                softly.assertThat(actual.getRole()).as("role").isEqualTo(role);
+                // @formatter:on
+            });
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_NullUsername() {
+            // Given
+            var password = EncodedPassword.of("{noop}password");
+            var role = USER;
+
+            // When
+            var actual = catchThrowable(() -> User.inactiveUser(null, password, role));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Username must not be null");
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_NullPassword() {
+            // Given
+            var username = Username.of("user@asapp.com");
+            var role = USER;
+
+            // When
+            var actual = catchThrowable(() -> User.inactiveUser(username, null, role));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Password must not be null");
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_NullRole() {
+            // Given
+            var username = Username.of("user@asapp.com");
+            var password = EncodedPassword.of("{noop}password");
+
+            // When
+            var actual = catchThrowable(() -> User.inactiveUser(username, password, null));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Role must not be null");
         }
 
     }
@@ -87,45 +112,66 @@ class UserTests {
     class CreateActiveUser {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+        void ReturnsActiveUser_ValidParameters() {
+            // Given
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var username = Username.of("user@asapp.com");
+            var role = USER;
+
             // When
-            var thrown = catchThrowable(() -> User.activeUser(null, username, role));
+            var actual = User.activeUser(userId, username, role);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual.getId()).as("ID").isEqualTo(userId);
+                softly.assertThat(actual.getUsername()).as("username").isEqualTo(username);
+                softly.assertThat(actual.getPassword()).as("password").isNull();
+                softly.assertThat(actual.getRole()).as("role").isEqualTo(role);
+                // @formatter:on
+            });
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_NullId() {
+            // Given
+            var username = Username.of("user@asapp.com");
+            var role = USER;
+
+            // When
+            var actual = catchThrowable(() -> User.activeUser(null, username, role));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
                               .hasMessage("ID must not be null");
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUsernameIsNull() {
+        void ThrowsIllegalArgumentException_NullUsername() {
+            // Given
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var role = USER;
+
             // When
-            var thrown = catchThrowable(() -> User.activeUser(id, null, role));
+            var actual = catchThrowable(() -> User.activeUser(userId, null, role));
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
                               .hasMessage("Username must not be null");
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenRoleIsNull() {
+        void ThrowsIllegalArgumentException_NullRole() {
+            // Given
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var username = Username.of("user@asapp.com");
+
             // When
-            var thrown = catchThrowable(() -> User.activeUser(id, username, null));
+            var actual = catchThrowable(() -> User.activeUser(userId, username, null));
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
                               .hasMessage("Role must not be null");
-        }
-
-        @Test
-        void ThenReturnsActiveUser_GivenParametersAreValid() {
-            // When
-            var actual = User.activeUser(id, username, role);
-
-            // Then
-            assertThat(actual.getId()).isEqualTo(id);
-            assertThat(actual.getUsername()).isEqualTo(username);
-            assertThat(actual.getPassword()).isNull();
-            assertThat(actual.getRole()).isEqualTo(role);
         }
 
     }
@@ -134,25 +180,36 @@ class UserTests {
     class UpdateUserData {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUsernameIsNullOnInactiveUser() {
+        void UpdatesAllFieldsExceptPassword_ValidParametersOnInactiveUser() {
             // Given
-            var user = User.inactiveUser(username, password, role);
+            var username = Username.of("user@asapp.com");
+            var password = EncodedPassword.of("{noop}password");
+            var user = User.inactiveUser(username, password, USER);
 
+            var newUsername = Username.of("new_user@asapp.com");
             var newPassword = EncodedPassword.of("{noop}new_password");
             var newRole = ADMIN;
 
             // When
-            var thrown = catchThrowable(() -> user.update(null, newPassword, newRole));
+            user.update(newUsername, newPassword, newRole);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Username must not be null");
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(user.getId()).as("ID").isNull();
+                softly.assertThat(user.getUsername()).as("username").isEqualTo(newUsername);
+                softly.assertThat(user.getPassword()).as("password").isEqualTo(password);
+                softly.assertThat(user.getRole()).as("role").isEqualTo(newRole);
+                // @formatter:on
+            });
         }
 
         @Test
-        void ThenUpdatesUsernameAndRole_GivenPasswordIsNullOnInactiveUser() {
+        void UpdatesUsernameAndRole_NullPasswordOnInactiveUser() {
             // Given
-            var user = User.inactiveUser(username, password, role);
+            var username = Username.of("user@asapp.com");
+            var password = EncodedPassword.of("{noop}password");
+            var user = User.inactiveUser(username, password, USER);
 
             var newUsername = Username.of("new_user@asapp.com");
             var newRole = ADMIN;
@@ -161,32 +218,22 @@ class UserTests {
             user.update(newUsername, null, newRole);
 
             // Then
-            assertThat(user.getId()).isNull();
-            assertThat(user.getUsername()).isEqualTo(newUsername);
-            assertThat(user.getPassword()).isEqualTo(password);
-            assertThat(user.getRole()).isEqualTo(newRole);
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(user.getId()).as("ID").isNull();
+                softly.assertThat(user.getUsername()).as("username").isEqualTo(newUsername);
+                softly.assertThat(user.getPassword()).as("password").isEqualTo(password);
+                softly.assertThat(user.getRole()).as("role").isEqualTo(newRole);
+                // @formatter:on
+            });
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenRoleIsNullOnInactiveUser() {
+        void UpdatesAllFields_ValidParametersOnActiveUser() {
             // Given
-            var user = User.inactiveUser(username, password, role);
-
-            var newUsername = Username.of("new_user@asapp.com");
-            var newPassword = EncodedPassword.of("{noop}new_password");
-
-            // When
-            var thrown = catchThrowable(() -> user.update(newUsername, newPassword, null));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Role must not be null");
-        }
-
-        @Test
-        void ThenUpdatesAllFieldsExpectPassword_GivenParametersAreValidOnInactiveUser() {
-            // Given
-            var user = User.inactiveUser(username, password, role);
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var username = Username.of("user@asapp.com");
+            var user = User.activeUser(userId, username, USER);
 
             var newUsername = Username.of("new_user@asapp.com");
             var newPassword = EncodedPassword.of("{noop}new_password");
@@ -196,77 +243,104 @@ class UserTests {
             user.update(newUsername, newPassword, newRole);
 
             // Then
-            assertThat(user.getId()).isNull();
-            assertThat(user.getUsername()).isEqualTo(newUsername);
-            assertThat(user.getPassword()).isEqualTo(password);
-            assertThat(user.getRole()).isEqualTo(newRole);
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(user.getId()).as("ID").isEqualTo(userId);
+                softly.assertThat(user.getUsername()).as("username").isEqualTo(newUsername);
+                softly.assertThat(user.getPassword()).as("password").isEqualTo(newPassword);
+                softly.assertThat(user.getRole()).as("role").isEqualTo(newRole);
+                // @formatter:on
+            });
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUsernameIsNullOnActiveUser() {
+        void ThrowsIllegalArgumentException_NullUsernameOnInactiveUser() {
             // Given
-            var user = User.activeUser(id, username, role);
+            var username = Username.of("user@asapp.com");
+            var password = EncodedPassword.of("{noop}password");
+            var user = User.inactiveUser(username, password, USER);
 
             var newPassword = EncodedPassword.of("{noop}new_password");
             var newRole = ADMIN;
 
             // When
-            var thrown = catchThrowable(() -> user.update(null, newPassword, newRole));
+            var actual = catchThrowable(() -> user.update(null, newPassword, newRole));
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
                               .hasMessage("Username must not be null");
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenPasswordIsNullOnActiveUser() {
+        void ThrowsIllegalArgumentException_NullRoleOnInactiveUser() {
             // Given
-            var user = User.activeUser(id, username, role);
-
-            var newUsername = Username.of("new_user@asapp.com");
-            var newRole = ADMIN;
-
-            // When
-            var thrown = catchThrowable(() -> user.update(newUsername, null, newRole));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Password must not be null");
-        }
-
-        @Test
-        void ThenThrowsIllegalArgumentException_GivenRoleIsNullOnActiveUser() {
-            // Given
-            var user = User.activeUser(id, username, role);
+            var username = Username.of("user@asapp.com");
+            var password = EncodedPassword.of("{noop}password");
+            var user = User.inactiveUser(username, password, USER);
 
             var newUsername = Username.of("new_user@asapp.com");
             var newPassword = EncodedPassword.of("{noop}new_password");
 
             // When
-            var thrown = catchThrowable(() -> user.update(newUsername, newPassword, null));
+            var actual = catchThrowable(() -> user.update(newUsername, newPassword, null));
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
                               .hasMessage("Role must not be null");
         }
 
         @Test
-        void ThenUpdatesAllFields_GivenParametersAreValidOnActiveUser() {
+        void ThrowsIllegalArgumentException_NullUsernameOnActiveUser() {
             // Given
-            var user = User.activeUser(id, username, role);
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var username = Username.of("user@asapp.com");
+            var user = User.activeUser(userId, username, USER);
 
-            var newUsername = Username.of("new_user@asapp.com");
             var newPassword = EncodedPassword.of("{noop}new_password");
             var newRole = ADMIN;
 
             // When
-            user.update(newUsername, newPassword, newRole);
+            var actual = catchThrowable(() -> user.update(null, newPassword, newRole));
 
             // Then
-            assertThat(user.getId()).isEqualTo(id);
-            assertThat(user.getUsername()).isEqualTo(newUsername);
-            assertThat(user.getPassword()).isEqualTo(newPassword);
-            assertThat(user.getRole()).isEqualTo(newRole);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Username must not be null");
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_NullRoleOnActiveUser() {
+            // Given
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var username = Username.of("user@asapp.com");
+            var user = User.activeUser(userId, username, USER);
+
+            var newUsername = Username.of("new_user@asapp.com");
+            var newPassword = EncodedPassword.of("{noop}new_password");
+
+            // When
+            var actual = catchThrowable(() -> user.update(newUsername, newPassword, null));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Role must not be null");
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_NullPasswordOnActiveUser() {
+            // Given
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var username = Username.of("user@asapp.com");
+            var user = User.activeUser(userId, username, USER);
+
+            var newUsername = Username.of("new_user@asapp.com");
+            var newRole = ADMIN;
+
+            // When
+            var actual = catchThrowable(() -> user.update(newUsername, null, newRole));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Password must not be null");
         }
 
     }
@@ -275,34 +349,11 @@ class UserTests {
     class CheckEquality {
 
         @Test
-        void ThenReturnsFalse_GivenOtherUserIsNull() {
+        void ReturnsTrue_SameObjectOtherUser() {
             // Given
-            var user = User.activeUser(id, username, role);
-
-            // When
-            var actual = user.equals(null);
-
-            // Then
-            assertThat(actual).isFalse();
-        }
-
-        @Test
-        void ThenReturnsFalse_GivenOtherClassIsNotUser() {
-            // Given
-            var user = User.activeUser(id, username, role);
-            var other = "not a user";
-
-            // When
-            var actual = user.equals(other);
-
-            // Then
-            assertThat(actual).isFalse();
-        }
-
-        @Test
-        void ThenReturnsTrue_GivenOtherUserIsSameObject() {
-            // Given
-            var user = User.activeUser(id, username, role);
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var username = Username.of("user@asapp.com");
+            var user = User.activeUser(userId, username, USER);
 
             // When
             var actual = user.equals(user);
@@ -312,8 +363,9 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsTrue_GivenThreeInactiveUsersWithSameUsername() {
+        void ReturnsTrue_ThreeInactiveUsersSameUsername() {
             // Given
+            var password = EncodedPassword.of("{noop}password");
             var user1 = User.inactiveUser(Username.of("user@asapp.com"), password, USER);
             var user2 = User.inactiveUser(Username.of("user@asapp.com"), password, USER);
             var user3 = User.inactiveUser(Username.of("user@asapp.com"), password, USER);
@@ -330,8 +382,57 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenThreeInactiveUsersWithDifferentUsername() {
+        void ReturnsTrue_ThreeActiveUsersSameId() {
             // Given
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var user1 = User.activeUser(userId, Username.of("user1@asapp.com"), USER);
+            var user2 = User.activeUser(userId, Username.of("user2@asapp.com"), USER);
+            var user3 = User.activeUser(userId, Username.of("user3@asapp.com"), USER);
+
+            // When
+            var actual1 = user1.equals(user2);
+            var actual2 = user2.equals(user3);
+            var actual3 = user1.equals(user3);
+
+            // Then
+            assertThat(actual1).isTrue();
+            assertThat(actual2).isTrue();
+            assertThat(actual3).isTrue();
+        }
+
+        @Test
+        void ReturnsFalse_NullOtherUser() {
+            // Given
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var username = Username.of("user@asapp.com");
+            var user = User.activeUser(userId, username, USER);
+
+            // When
+            var actual = user.equals(null);
+
+            // Then
+            assertThat(actual).isFalse();
+        }
+
+        @Test
+        void ReturnsFalse_OtherClassNotUser() {
+            // Given
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var username = Username.of("user@asapp.com");
+            var user = User.activeUser(userId, username, USER);
+            var other = "not a user";
+
+            // When
+            var actual = user.equals(other);
+
+            // Then
+            assertThat(actual).isFalse();
+        }
+
+        @Test
+        void ReturnsFalse_ThreeInactiveUsersDifferentUsername() {
+            // Given
+            var password = EncodedPassword.of("{noop}password");
             var user1 = User.inactiveUser(Username.of("user1@asapp.com"), password, USER);
             var user2 = User.inactiveUser(Username.of("user2@asapp.com"), password, USER);
             var user3 = User.inactiveUser(Username.of("user3@asapp.com"), password, USER);
@@ -348,10 +449,12 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsFalse_GivenInactiveUserAndActiveUser() {
+        void ReturnsFalse_InactiveUserAndActiveUser() {
             // Given
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var password = EncodedPassword.of("{noop}password");
             var user1 = User.inactiveUser(Username.of("inactive_user@asapp.com"), password, USER);
-            var user2 = User.activeUser(id, Username.of("active_user@asapp.com"), USER);
+            var user2 = User.activeUser(userId, Username.of("active_user@asapp.com"), USER);
 
             // When
             var actual1 = user1.equals(user2);
@@ -363,29 +466,12 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsTrue_GivenThreeActiveUsersWithSameId() {
-            // Given
-            var user1 = User.activeUser(id, Username.of("user1@asapp.com"), USER);
-            var user2 = User.activeUser(id, Username.of("user2@asapp.com"), USER);
-            var user3 = User.activeUser(id, Username.of("user3@asapp.com"), USER);
-
-            // When
-            var actual1 = user1.equals(user2);
-            var actual2 = user2.equals(user3);
-            var actual3 = user1.equals(user3);
-
-            // Then
-            assertThat(actual1).isTrue();
-            assertThat(actual2).isTrue();
-            assertThat(actual3).isTrue();
-        }
-
-        @Test
-        void ThenReturnsFalse_GivenThreeActiveUsersWithDifferentId() {
+        void ReturnsFalse_ThreeActiveUsersDifferentId() {
             // Given
             var userId1 = UserId.of(UUID.fromString("6ba7b810-9dad-11d1-80b4-00c04fd430c8"));
             var userId2 = UserId.of(UUID.fromString("8f7e3d2a-5c4b-4e9f-9a1e-3b2c1d0e5f6a"));
             var userId3 = UserId.of(UUID.fromString("3f8d2a1b-6c5e-4f7d-9a8b-2c1e0d9f8e7c"));
+            var username = Username.of("user@asapp.com");
             var user1 = User.activeUser(userId1, username, USER);
             var user2 = User.activeUser(userId2, username, USER);
             var user3 = User.activeUser(userId3, username, USER);
@@ -407,8 +493,9 @@ class UserTests {
     class HashCode {
 
         @Test
-        void ThenReturnsSameHashCode_GivenTwoInactiveUsersWithSameUsername() {
+        void ReturnsSameHashCode_TwoInactiveUsersWithSameUsername() {
             // Given
+            var password = EncodedPassword.of("{noop}password");
             var user1 = User.inactiveUser(Username.of("user@asapp.com"), password, USER);
             var user2 = User.inactiveUser(Username.of("user@asapp.com"), password, USER);
 
@@ -421,8 +508,24 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsDifferentHashCode_GivenTwoInactiveUsersWithDifferentUsername() {
+        void ReturnsSameHashCode_TwoActiveUsersSameId() {
             // Given
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var user1 = User.activeUser(userId, Username.of("user1@asapp.com"), USER);
+            var user2 = User.activeUser(userId, Username.of("user2@asapp.com"), USER);
+
+            // When
+            var actual1 = user1.hashCode();
+            var actual2 = user2.hashCode();
+
+            // Then
+            assertThat(actual1).isEqualTo(actual2);
+        }
+
+        @Test
+        void ReturnsDifferentHashCode_TwoInactiveUsersWithDifferentUsername() {
+            // Given
+            var password = EncodedPassword.of("{noop}password");
             var user1 = User.inactiveUser(Username.of("user1@asapp.com"), password, USER);
             var user2 = User.inactiveUser(Username.of("user2@asapp.com"), password, USER);
 
@@ -435,10 +538,12 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsDifferentHashCode_GivenInactiveUserAndActiveUser() {
+        void ReturnsDifferentHashCode_InactiveUserAndActiveUser() {
             // Given
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var password = EncodedPassword.of("{noop}password");
             var user1 = User.inactiveUser(Username.of("inactive_user@asapp.com"), password, USER);
-            var user2 = User.activeUser(id, Username.of("active_user@asapp.com"), USER);
+            var user2 = User.activeUser(userId, Username.of("active_user@asapp.com"), USER);
 
             // When
             var actual1 = user1.hashCode();
@@ -449,24 +554,11 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsSameHashCode_GivenTwoActiveUsersWithSameId() {
-            // Given
-            var user1 = User.activeUser(id, Username.of("user1@asapp.com"), USER);
-            var user2 = User.activeUser(id, Username.of("user2@asapp.com"), USER);
-
-            // When
-            var actual1 = user1.hashCode();
-            var actual2 = user2.hashCode();
-
-            // Then
-            assertThat(actual1).isEqualTo(actual2);
-        }
-
-        @Test
-        void ThenReturnsDifferentHashCode_GivenTwoActiveUsersWithDifferentId() {
+        void ReturnsDifferentHashCode_TwoActiveUsersDifferentId() {
             // Given
             var userId1 = UserId.of(UUID.fromString("7c9e4a2f-3d1b-4e8c-9f5a-6b8d2c3e1f4a"));
             var userId2 = UserId.of(UUID.fromString("5a6b7c8d-9e0f-4a1b-2c3d-4e5f6a7b8c9d"));
+            var username = Username.of("user@asapp.com");
             var user1 = User.activeUser(userId1, username, USER);
             var user2 = User.activeUser(userId2, username, USER);
 
@@ -484,9 +576,25 @@ class UserTests {
     class GetId {
 
         @Test
-        void ThenReturnsNull_GivenInactiveUser() {
+        void ReturnsId_ActiveUser() {
             // Given
-            var user = User.inactiveUser(username, password, role);
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var username = Username.of("user@asapp.com");
+            var user = User.activeUser(userId, username, USER);
+
+            // When
+            var actual = user.getId();
+
+            // Then
+            assertThat(actual).isEqualTo(userId);
+        }
+
+        @Test
+        void ReturnsNull_InactiveUser() {
+            // Given
+            var username = Username.of("user@asapp.com");
+            var password = EncodedPassword.of("{noop}password");
+            var user = User.inactiveUser(username, password, USER);
 
             // When
             var actual = user.getId();
@@ -495,27 +603,17 @@ class UserTests {
             assertThat(actual).isNull();
         }
 
-        @Test
-        void ThenReturnsId_GivenActiveUser() {
-            // Given
-            var user = User.activeUser(id, username, role);
-
-            // When
-            var actual = user.getId();
-
-            // Then
-            assertThat(actual).isEqualTo(id);
-        }
-
     }
 
     @Nested
     class GetUsername {
 
         @Test
-        void ThenReturnsUsername_GivenInactiveUser() {
+        void ReturnsUsername_InactiveUser() {
             // Given
-            var user = User.inactiveUser(username, password, role);
+            var username = Username.of("user@asapp.com");
+            var password = EncodedPassword.of("{noop}password");
+            var user = User.inactiveUser(username, password, USER);
 
             // When
             var actual = user.getUsername();
@@ -525,9 +623,11 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsUsername_GivenActiveUser() {
+        void ReturnsUsername_ActiveUser() {
             // Given
-            var user = User.activeUser(id, username, role);
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var username = Username.of("user@asapp.com");
+            var user = User.activeUser(userId, username, USER);
 
             // When
             var actual = user.getUsername();
@@ -542,9 +642,11 @@ class UserTests {
     class GetPassword {
 
         @Test
-        void ThenReturnsPassword_GivenInactiveUser() {
+        void ReturnsPassword_InactiveUser() {
             // Given
-            var user = User.inactiveUser(username, password, role);
+            var username = Username.of("user@asapp.com");
+            var password = EncodedPassword.of("{noop}password");
+            var user = User.inactiveUser(username, password, USER);
 
             // When
             var actual = user.getPassword();
@@ -554,9 +656,11 @@ class UserTests {
         }
 
         @Test
-        void ThenReturnsNull_GivenActiveUser() {
+        void ReturnsNull_ActiveUser() {
             // Given
-            var user = User.activeUser(id, username, role);
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var username = Username.of("user@asapp.com");
+            var user = User.activeUser(userId, username, USER);
 
             // When
             var actual = user.getPassword();
@@ -571,27 +675,31 @@ class UserTests {
     class GetRole {
 
         @Test
-        void ThenReturnsRole_GivenInactiveUser() {
+        void ReturnsRole_InactiveUser() {
             // Given
-            var user = User.inactiveUser(username, password, role);
+            var username = Username.of("user@asapp.com");
+            var password = EncodedPassword.of("{noop}password");
+            var user = User.inactiveUser(username, password, USER);
 
             // When
             var actual = user.getRole();
 
             // Then
-            assertThat(actual).isEqualTo(role);
+            assertThat(actual).isEqualTo(USER);
         }
 
         @Test
-        void ThenReturnsRole_GivenActiveUser() {
+        void ReturnsRole_ActiveUser() {
             // Given
-            var user = User.activeUser(id, username, role);
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var username = Username.of("user@asapp.com");
+            var user = User.activeUser(userId, username, USER);
 
             // When
             var actual = user.getRole();
 
             // Then
-            assertThat(actual).isEqualTo(role);
+            assertThat(actual).isEqualTo(USER);
         }
 
     }

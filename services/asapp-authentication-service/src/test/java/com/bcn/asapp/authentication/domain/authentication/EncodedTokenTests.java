@@ -23,32 +23,43 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
+/**
+ * Tests {@link EncodedToken} validation and value access.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or blank token values</li>
+ * <li>Accepts valid inputs through constructor and factory method</li>
+ * <li>Provides access to wrapped token value</li>
+ */
 class EncodedTokenTests {
-
-    private final String tokenValue = "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW4ifQ.c2lnbmF0dXJlVGVzdA";
 
     @Nested
     class CreateEncodedTokenWithConstructor {
 
-        @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenTokenIsNullOrEmpty(String token) {
+        @Test
+        void ReturnsEncodedToken_ValidToken() {
+            // Given
+            var token = "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW4ifQ.c2lnbmF0dXJlVGVzdA";
+
             // When
-            var thrown = catchThrowable(() -> new EncodedToken(token));
+            var actual = new EncodedToken(token);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Encoded token must not be null or empty");
+            assertThat(actual.token()).isEqualTo(token);
         }
 
-        @Test
-        void ThenReturnsEncodedToken_GivenTokenIsValid() {
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsIllegalArgumentException_NullOrBlankToken(String token) {
             // When
-            var actual = new EncodedToken(tokenValue);
+            var actual = catchThrowable(() -> new EncodedToken(token));
 
             // Then
-            assertThat(actual.token()).isEqualTo(tokenValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Encoded token must not be null or empty");
         }
 
     }
@@ -56,24 +67,28 @@ class EncodedTokenTests {
     @Nested
     class CreateEncodedTokenWithFactoryMethod {
 
-        @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenTokenIsNullOrEmpty(String token) {
+        @Test
+        void ReturnsEncodedToken_ValidToken() {
+            // Given
+            var token = "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW4ifQ.c2lnbmF0dXJlVGVzdA";
+
             // When
-            var thrown = catchThrowable(() -> EncodedToken.of(token));
+            var actual = EncodedToken.of(token);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Encoded token must not be null or empty");
+            assertThat(actual.token()).isEqualTo(token);
         }
 
-        @Test
-        void ThenReturnsEncodedToken_GivenTokenIsValid() {
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsIllegalArgumentException_NullOrBlankToken(String token) {
             // When
-            var actual = EncodedToken.of(tokenValue);
+            var actual = catchThrowable(() -> EncodedToken.of(token));
 
             // Then
-            assertThat(actual.token()).isEqualTo(tokenValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Encoded token must not be null or empty");
         }
 
     }
@@ -82,8 +97,9 @@ class EncodedTokenTests {
     class GetValue {
 
         @Test
-        void ThenReturnsEncodedTokenValue_GivenTokenIsValid() {
+        void ReturnsEncodedTokenValue_ValidToken() {
             // Given
+            var tokenValue = "eyJhbGciOiJIUzM4NCIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYWRtaW4ifQ.c2lnbmF0dXJlVGVzdA";
             var encodedToken = EncodedToken.of(tokenValue);
 
             // When

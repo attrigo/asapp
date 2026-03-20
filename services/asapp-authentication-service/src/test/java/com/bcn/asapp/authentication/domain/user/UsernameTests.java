@@ -26,44 +26,53 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
+/**
+ * Tests {@link Username} validation and value access.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or blank username values</li>
+ * <li>Validates username must be valid email address format</li>
+ * <li>Accepts valid inputs through constructor and factory method</li>
+ * <li>Provides access to wrapped username value</li>
+ */
 class UsernameTests {
-
-    private final String usernameValue = "user@asapp.com";
 
     @Nested
     class CreateUsernameWithConstructor {
 
         @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsInvalidUsernameException_GivenUsernameIsNullOrEmpty(String username) {
-            // When
-            var thrown = catchThrowable(() -> new Username(username));
-
-            // Then
-            assertThat(thrown).isInstanceOf(InvalidUsernameException.class)
-                              .hasMessage("Username must not be null or empty");
-        }
-
-        @ParameterizedTest
-        @MethodSource("com.bcn.asapp.authentication.domain.user.UsernameTests#provideInvalidUsernames")
-        void ThenThrowsInvalidUsernameException_GivenUsernameIsNotEmail(String username) {
-            // When
-            var thrown = catchThrowable(() -> new Username(username));
-
-            // Then
-            assertThat(thrown).isInstanceOf(InvalidUsernameException.class)
-                              .hasMessage("Username must be a valid email address");
-        }
-
-        @ParameterizedTest
         @MethodSource("com.bcn.asapp.authentication.domain.user.UsernameTests#provideValidUsernames")
-        void ThenReturnsUsername_GivenUsernameIsValid(String username) {
+        void ReturnsUsername_ValidUsername(String username) {
             // When
             var actual = new Username(username);
 
             // Then
             assertThat(actual.username()).isEqualTo(username);
+        }
+
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsInvalidUsernameException_NullOrBlankUsername(String username) {
+            // When
+            var actual = catchThrowable(() -> new Username(username));
+
+            // Then
+            assertThat(actual).isInstanceOf(InvalidUsernameException.class)
+                              .hasMessage("Username must not be null or empty");
+        }
+
+        @ParameterizedTest
+        @MethodSource("com.bcn.asapp.authentication.domain.user.UsernameTests#provideInvalidUsernames")
+        void ThrowsInvalidUsernameException_UsernameNotEmail(String username) {
+            // When
+            var actual = catchThrowable(() -> new Username(username));
+
+            // Then
+            assertThat(actual).isInstanceOf(InvalidUsernameException.class)
+                              .hasMessage("Username must be a valid email address");
         }
 
     }
@@ -72,35 +81,36 @@ class UsernameTests {
     class CreateUsernameWithFactoryMethod {
 
         @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsInvalidUsernameException_GivenUsernameIsNullOrEmpty(String username) {
-            // When
-            var thrown = catchThrowable(() -> Username.of(username));
-
-            // Then
-            assertThat(thrown).isInstanceOf(InvalidUsernameException.class)
-                              .hasMessage("Username must not be null or empty");
-        }
-
-        @ParameterizedTest
-        @MethodSource("com.bcn.asapp.authentication.domain.user.UsernameTests#provideInvalidUsernames")
-        void ThenThrowsInvalidUsernameException_GivenUsernameIsNotEmail(String username) {
-            // When
-            var thrown = catchThrowable(() -> Username.of(username));
-
-            // Then
-            assertThat(thrown).isInstanceOf(InvalidUsernameException.class)
-                              .hasMessage("Username must be a valid email address");
-        }
-
-        @ParameterizedTest
         @MethodSource("com.bcn.asapp.authentication.domain.user.UsernameTests#provideValidUsernames")
-        void ThenReturnsUsername_GivenUsernameIsValid(String username) {
+        void ReturnsUsername_ValidUsername(String username) {
             // When
             var actual = Username.of(username);
 
             // Then
             assertThat(actual.username()).isEqualTo(username);
+        }
+
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsInvalidUsernameException_NullOrBlankUsername(String username) {
+            // When
+            var actual = catchThrowable(() -> Username.of(username));
+
+            // Then
+            assertThat(actual).isInstanceOf(InvalidUsernameException.class)
+                              .hasMessage("Username must not be null or empty");
+        }
+
+        @ParameterizedTest
+        @MethodSource("com.bcn.asapp.authentication.domain.user.UsernameTests#provideInvalidUsernames")
+        void ThrowsInvalidUsernameException_UsernameNotEmail(String username) {
+            // When
+            var actual = catchThrowable(() -> Username.of(username));
+
+            // Then
+            assertThat(actual).isInstanceOf(InvalidUsernameException.class)
+                              .hasMessage("Username must be a valid email address");
         }
 
     }
@@ -109,8 +119,9 @@ class UsernameTests {
     class GetValue {
 
         @Test
-        void ThenReturnsUsernameValue_GivenUsernameIsValid() {
+        void ReturnsUsernameValue_ValidUsername() {
             // Given
+            var usernameValue = "user@asapp.com";
             var username = Username.of(usernameValue);
 
             // When

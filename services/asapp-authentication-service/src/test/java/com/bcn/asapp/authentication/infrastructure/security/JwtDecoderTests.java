@@ -19,8 +19,9 @@ package com.bcn.asapp.authentication.infrastructure.security;
 import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.ACCESS_TOKEN_TYPE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.REFRESH_TOKEN_TYPE;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.testEncodedTokenBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenFactory.anEncodedTokenBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
 import java.util.Base64;
@@ -35,6 +36,15 @@ import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
 
+/**
+ * Tests {@link JwtDecoder} token validation, signature verification, and claim extraction.
+ * <p>
+ * Coverage:
+ * <li>Rejects malformed token structure</li>
+ * <li>Rejects tokens with invalid cryptographic signature</li>
+ * <li>Rejects expired tokens based on expiration timestamp</li>
+ * <li>Decodes valid tokens extracting type, subject, and claims</li>
+ */
 class JwtDecoderTests {
 
     private final SecretKey secretKey = Keys.hmacShaKeyFor(new byte[32]);
@@ -52,82 +62,93 @@ class JwtDecoderTests {
     class DecodeToken {
 
         @Test
-        void ThenThrowsException_GivenMalformedToken() {
+        void ReturnsDecodedJwt_ValidAccessToken() {
+            // Given
+            var encodedAccessToken = anEncodedTokenBuilder().accessToken()
+                                                            .withSecretKey(secretKey)
+                                                            .build();
+
             // When
-            var thrown = catchThrowable(() -> jwtDecoder.decode("invalid_token"));
+            var actual = jwtDecoder.decode(encodedAccessToken);
 
             // Then
-            assertThat(thrown).isInstanceOf(MalformedJwtException.class);
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual).as("decoded JWT").isNotNull();
+                softly.assertThat(actual.encodedToken()).as("encoded token").isEqualTo(encodedAccessToken);
+                softly.assertThat(actual.type()).as("type").isEqualTo(ACCESS_TOKEN_TYPE);
+                softly.assertThat(actual.subject()).as("subject").isEqualTo("user@asapp.com");
+                softly.assertThat(actual.isAccessToken()).as("is access token").isTrue();
+                softly.assertThat(actual.isRefreshToken()).as("is refresh token").isFalse();
+                softly.assertThat(actual.roleClaim()).as("role claim").isEqualTo(USER.name());
+                // @formatter:on
+            });
         }
 
         @Test
-        void ThenThrowsException_GivenTokenHasInvalidSignature() {
+        void ReturnsDecodedJwt_ValidRefreshToken() {
             // Given
-            var differentSecretKey = Keys.hmacShaKeyFor("different-secret-key-with-at-least-32-bytes".getBytes());
-            var tokenWithInvalidSignature = testEncodedTokenBuilder().accessToken()
-                                                                     .withSecretKey(differentSecretKey)
-                                                                     .build();
+            var encodedRefreshToken = anEncodedTokenBuilder().refreshToken()
+                                                             .withSecretKey(secretKey)
+                                                             .build();
 
             // When
-            var thrown = catchThrowable(() -> jwtDecoder.decode(tokenWithInvalidSignature));
+            var actual = jwtDecoder.decode(encodedRefreshToken);
 
             // Then
-            assertThat(thrown).isInstanceOf(SignatureException.class);
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual).as("decoded JWT").isNotNull();
+                softly.assertThat(actual.encodedToken()).as("encoded token").isEqualTo(encodedRefreshToken);
+                softly.assertThat(actual.type()).as("type").isEqualTo(REFRESH_TOKEN_TYPE);
+                softly.assertThat(actual.subject()).as("subject").isEqualTo("user@asapp.com");
+                softly.assertThat(actual.isAccessToken()).as("is access token").isFalse();
+                softly.assertThat(actual.isRefreshToken()).as("is refresh token").isTrue();
+                softly.assertThat(actual.roleClaim()).as("role claim").isEqualTo(USER.name());
+                // @formatter:on
+            });
         }
 
         @Test
-        void ThenThrowsException_GivenTokenHasExpired() {
-            // Given
-            var expiredToken = testEncodedTokenBuilder().accessToken()
-                                                        .withSecretKey(secretKey)
-                                                        .expired()
-                                                        .build();
-
+        void ThrowsMalformedJwtException_MalformedToken() {
             // When
-            var thrown = catchThrowable(() -> jwtDecoder.decode(expiredToken));
+            var actual = catchThrowable(() -> jwtDecoder.decode("invalid_token"));
 
             // Then
-            assertThat(thrown).isInstanceOf(ExpiredJwtException.class);
+            assertThat(actual).isInstanceOf(MalformedJwtException.class)
+                              .hasMessageContaining("JWT");
         }
 
         @Test
-        void ThenReturnsDecodedJwt_GivenAccessTokenIsValid() {
+        void ThrowsSignatureException_InvalidSignatureToken() {
             // Given
-            var accessToken = testEncodedTokenBuilder().accessToken()
-                                                       .withSecretKey(secretKey)
-                                                       .build();
+            var secretKey = Keys.hmacShaKeyFor("invalid-secret-key-with-at-least-32-bytes".getBytes());
+            var encodedAccessToken = anEncodedTokenBuilder().accessToken()
+                                                            .withSecretKey(secretKey)
+                                                            .build();
 
             // When
-            var actual = jwtDecoder.decode(accessToken);
+            var actual = catchThrowable(() -> jwtDecoder.decode(encodedAccessToken));
 
             // Then
-            assertThat(actual).isNotNull();
-            assertThat(actual.encodedToken()).isEqualTo(accessToken);
-            assertThat(actual.type()).isEqualTo(ACCESS_TOKEN_TYPE);
-            assertThat(actual.subject()).isEqualTo("user@asapp.com");
-            assertThat(actual.isAccessToken()).isTrue();
-            assertThat(actual.isRefreshToken()).isFalse();
-            assertThat(actual.roleClaim()).isEqualTo(USER.name());
+            assertThat(actual).isInstanceOf(SignatureException.class)
+                              .hasMessageContaining("signature");
         }
 
         @Test
-        void ThenReturnsDecodedJwt_GivenRefreshTokenIsValid() {
+        void ThrowsExpiredJwtException_ExpiredToken() {
             // Given
-            var refreshToken = testEncodedTokenBuilder().refreshToken()
-                                                        .withSecretKey(secretKey)
-                                                        .build();
+            var encodedAccessToken = anEncodedTokenBuilder().accessToken()
+                                                            .withSecretKey(secretKey)
+                                                            .expired()
+                                                            .build();
 
             // When
-            var actual = jwtDecoder.decode(refreshToken);
+            var actual = catchThrowable(() -> jwtDecoder.decode(encodedAccessToken));
 
             // Then
-            assertThat(actual).isNotNull();
-            assertThat(actual.encodedToken()).isEqualTo(refreshToken);
-            assertThat(actual.type()).isEqualTo(REFRESH_TOKEN_TYPE);
-            assertThat(actual.subject()).isEqualTo("user@asapp.com");
-            assertThat(actual.isAccessToken()).isFalse();
-            assertThat(actual.isRefreshToken()).isTrue();
-            assertThat(actual.roleClaim()).isEqualTo(USER.name());
+            assertThat(actual).isInstanceOf(ExpiredJwtException.class)
+                              .hasMessageContaining("expired");
         }
 
     }

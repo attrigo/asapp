@@ -17,7 +17,7 @@
 package com.bcn.asapp.tasks.infrastructure.security;
 
 import static com.bcn.asapp.tasks.infrastructure.security.RedisJwtStore.ACCESS_TOKEN_PREFIX;
-import static com.bcn.asapp.tasks.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
+import static com.bcn.asapp.tasks.testutil.fixture.EncodedTokenFactory.encodedAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -30,6 +30,14 @@ import org.springframework.data.redis.core.RedisTemplate;
 
 import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
 
+/**
+ * Tests {@link RedisJwtStore} token existence checks against Redis.
+ * <p>
+ * Coverage:
+ * <li>Verifies token existence check returns false when token not present in Redis</li>
+ * <li>Verifies token existence check returns true when token stored in Redis</li>
+ * <li>Tests actual Redis operations with TestContainers</li>
+ */
 @SpringBootTest
 @Import(TestContainerConfiguration.class)
 class RedisJwtStoreIT {
@@ -53,32 +61,40 @@ class RedisJwtStoreIT {
     class AccessTokenExists {
 
         @Test
-        void ReturnsFalse_AccessTokenNotExists() {
+        void ReturnsTrue_AccessTokenExists() {
             // Given
-            var accessToken = defaultTestEncodedAccessToken();
+            var accessToken = createAccessToken();
 
             // When
-            var exists = redisJwtStore.accessTokenExists(accessToken);
+            var actual = redisJwtStore.accessTokenExists(accessToken);
 
             // Then
-            assertThat(exists).isFalse();
+            assertThat(actual).isTrue();
         }
 
         @Test
-        void ReturnsTrue_AccessTokenExists() {
+        void ReturnsFalse_AccessTokenNotExists() {
             // Given
-            var accessToken = defaultTestEncodedAccessToken();
-            var key = ACCESS_TOKEN_PREFIX + accessToken;
-            redisTemplate.opsForValue()
-                         .set(key, "");
+            var encodedAccessToken = encodedAccessToken();
 
             // When
-            var exists = redisJwtStore.accessTokenExists(accessToken);
+            var actual = redisJwtStore.accessTokenExists(encodedAccessToken);
 
             // Then
-            assertThat(exists).isTrue();
+            assertThat(actual).isFalse();
         }
 
+    }
+
+    // Test Data Creation Helpers
+
+    private String createAccessToken() {
+        var encodedAccessToken = encodedAccessToken();
+        var accessTokenKey = ACCESS_TOKEN_PREFIX + encodedAccessToken;
+        redisTemplate.opsForValue()
+                     .set(accessTokenKey, "");
+        assertThat(redisTemplate.hasKey(accessTokenKey)).isTrue();
+        return encodedAccessToken;
     }
 
 }

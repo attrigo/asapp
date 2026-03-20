@@ -22,7 +22,7 @@ import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.R
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import java.util.Base64;
 import java.util.Map;
@@ -42,11 +42,16 @@ import com.bcn.asapp.authentication.domain.user.Role;
 import com.bcn.asapp.authentication.domain.user.UserId;
 import com.bcn.asapp.authentication.domain.user.Username;
 
+/**
+ * Tests {@link JwtIssuer} token generation, claim population, and cryptographic signing.
+ * <p>
+ * Coverage:
+ * <li>Generates access and refresh tokens with distinct type headers and expiration times</li>
+ * <li>Includes mandatory claims (subject, role, token_use) in both token types</li>
+ * <li>Signs tokens with configured secret key for cryptographic verification</li>
+ * <li>Supports all role types in claim generation</li>
+ */
 class JwtIssuerTests {
-
-    private final UUID userIdValue = UUID.fromString("184c3f38-0783-4b4e-a570-709416bd856b");
-
-    private final String usernameValue = "user@asapp.com";
 
     private JwtIssuer jwtIssuer;
 
@@ -65,41 +70,33 @@ class JwtIssuerTests {
 
         @ParameterizedTest
         @EnumSource(value = Role.class)
-        void ThenReturnsJwtPair_GivenUserAuthentication(Role role) {
+        void ReturnsJwtPair_ValidUserAuthentication(Role role) {
             // Given
-            var userAuthentication = UserAuthentication.authenticated(UserId.of(userIdValue), Username.of(usernameValue), role);
+            var userIdValue = UUID.fromString("184c3f38-0783-4b4e-a570-709416bd856b");
+            var userId = UserId.of(userIdValue);
+            var usernameValue = "user@asapp.com";
+            var username = Username.of(usernameValue);
+            var userAuthentication = UserAuthentication.authenticated(userId, username, role);
 
             // When
             var actual = jwtIssuer.issueTokenPair(userAuthentication);
 
             // Then
-            assertThat(actual).isNotNull();
-            assertThat(actual.accessToken()).isNotNull();
-            assertThat(actual.refreshToken()).isNotNull();
-
-            // Verify access token
-            assertThat(actual.accessToken()
-                             .type()).isEqualTo(ACCESS_TOKEN);
-            assertThat(actual.accessToken()
-                             .subject()).extracting(Subject::value)
-                                        .isEqualTo(usernameValue);
-            assertThat(actual.accessToken()
-                             .claims()).extracting(JwtClaims::value)
-                                       .isEqualTo(Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, role.name()));
-            assertThat(actual.accessToken()
-                             .isAccessToken()).isTrue();
-
-            // Verify refresh token
-            assertThat(actual.refreshToken()
-                             .type()).isEqualTo(REFRESH_TOKEN);
-            assertThat(actual.refreshToken()
-                             .subject()).extracting(Subject::value)
-                                        .isEqualTo(usernameValue);
-            assertThat(actual.refreshToken()
-                             .claims()).extracting(JwtClaims::value)
-                                       .isEqualTo(Map.of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, role.name()));
-            assertThat(actual.refreshToken()
-                             .isRefreshToken()).isTrue();
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual).as("JWT pair").isNotNull();
+                softly.assertThat(actual.accessToken()).as("access token").isNotNull();
+                softly.assertThat(actual.refreshToken()).as("refresh token").isNotNull();
+                softly.assertThat(actual.accessToken().type()).as("access token type").isEqualTo(ACCESS_TOKEN);
+                softly.assertThat(actual.accessToken().subject()).as("access token subject").extracting(Subject::value).isEqualTo(usernameValue);
+                softly.assertThat(actual.accessToken().claims()).as("access token claims").extracting(JwtClaims::value).isEqualTo(Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, role.name()));
+                softly.assertThat(actual.accessToken().isAccessToken()).as("is access token").isTrue();
+                softly.assertThat(actual.refreshToken().type()).as("refresh token type").isEqualTo(REFRESH_TOKEN);
+                softly.assertThat(actual.refreshToken().subject()).as("refresh token subject").extracting(Subject::value).isEqualTo(usernameValue);
+                softly.assertThat(actual.refreshToken().claims()).as("refresh token claims").extracting(JwtClaims::value).isEqualTo(Map.of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, role.name()));
+                softly.assertThat(actual.refreshToken().isRefreshToken()).as("is refresh token").isTrue();
+                // @formatter:on
+            });
         }
 
     }
@@ -109,41 +106,30 @@ class JwtIssuerTests {
 
         @ParameterizedTest
         @EnumSource(value = Role.class)
-        void ThenReturnsJwtPair_GivenSubjectAndRole(Role role) {
+        void ReturnsJwtPair_ValidSubjectAndRole(Role role) {
             // Given
-            var subject = Subject.of(usernameValue);
+            var subjectValue = "user@asapp.com";
+            var subject = Subject.of(subjectValue);
 
             // When
             var actual = jwtIssuer.issueTokenPair(subject, role);
 
             // Then
-            assertThat(actual).isNotNull();
-            assertThat(actual.accessToken()).isNotNull();
-            assertThat(actual.refreshToken()).isNotNull();
-
-            // Verify access token
-            assertThat(actual.accessToken()
-                             .type()).isEqualTo(ACCESS_TOKEN);
-            assertThat(actual.accessToken()
-                             .subject()).extracting(Subject::value)
-                                        .isEqualTo(usernameValue);
-            assertThat(actual.accessToken()
-                             .claims()).extracting(JwtClaims::value)
-                                       .isEqualTo(Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, role.name()));
-            assertThat(actual.accessToken()
-                             .isAccessToken()).isTrue();
-
-            // Verify refresh token
-            assertThat(actual.refreshToken()
-                             .type()).isEqualTo(REFRESH_TOKEN);
-            assertThat(actual.refreshToken()
-                             .subject()).extracting(Subject::value)
-                                        .isEqualTo(usernameValue);
-            assertThat(actual.refreshToken()
-                             .claims()).extracting(JwtClaims::value)
-                                       .isEqualTo(Map.of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, role.name()));
-            assertThat(actual.refreshToken()
-                             .isRefreshToken()).isTrue();
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual).as("JWT pair").isNotNull();
+                softly.assertThat(actual.accessToken()).as("access token").isNotNull();
+                softly.assertThat(actual.refreshToken()).as("refresh token").isNotNull();
+                softly.assertThat(actual.accessToken().type()).as("access token type").isEqualTo(ACCESS_TOKEN);
+                softly.assertThat(actual.accessToken().subject()).as("access token subject").extracting(Subject::value).isEqualTo(subjectValue);
+                softly.assertThat(actual.accessToken().claims()).as("access token claims").extracting(JwtClaims::value).isEqualTo(Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, role.name()));
+                softly.assertThat(actual.accessToken().isAccessToken()).as("is access token").isTrue();
+                softly.assertThat(actual.refreshToken().type()).as("refresh token type").isEqualTo(REFRESH_TOKEN);
+                softly.assertThat(actual.refreshToken().subject()).as("refresh token subject").extracting(Subject::value).isEqualTo(subjectValue);
+                softly.assertThat(actual.refreshToken().claims()).as("refresh token claims").extracting(JwtClaims::value).isEqualTo(Map.of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, role.name()));
+                softly.assertThat(actual.refreshToken().isRefreshToken()).as("is refresh token").isTrue();
+                // @formatter:on
+            });
         }
 
     }

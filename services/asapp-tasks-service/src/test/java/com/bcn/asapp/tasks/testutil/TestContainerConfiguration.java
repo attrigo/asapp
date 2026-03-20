@@ -26,6 +26,20 @@ import org.testcontainers.utility.DockerImageName;
 
 import com.redis.testcontainers.RedisContainer;
 
+/**
+ * Configures TestContainers for integration testing with singleton lifecycle.
+ * <p>
+ * Creates containers for following services:
+ * <li>PostgreSQL</li>
+ * <li>Redis</li>
+ * <p>
+ * This configuration class ensures containers start once per test execution, rather than once per test class, reducing startup overhead. This is achieved using
+ * a singleton pattern by declaring containers as {@code static} fields.
+ * <p>
+ * Spring Boot's {@code @ServiceConnection} auto-configures connection properties.
+ *
+ * @since 0.2.0
+ */
 @TestConfiguration(proxyBeanMethods = false)
 @Testcontainers
 public class TestContainerConfiguration {
@@ -37,10 +51,10 @@ public class TestContainerConfiguration {
     }
 
     @Container
-    public static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>(DockerImageName.parse("postgres:17.7"));
+    public static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>(DockerImageName.parse("postgres:17.7"));
 
     @Container
-    public static RedisContainer redisContainer = new RedisContainer(DockerImageName.parse("redis:8.4.0-alpine"));
+    public static final RedisContainer redisContainer = new RedisContainer(DockerImageName.parse("redis:8.4.0-alpine"));
 
     @Bean
     @ServiceConnection

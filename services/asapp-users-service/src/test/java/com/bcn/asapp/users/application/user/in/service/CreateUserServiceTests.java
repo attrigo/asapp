@@ -16,15 +16,15 @@
 
 package com.bcn.asapp.users.application.user.in.service;
 
+import static com.bcn.asapp.users.testutil.fixture.UserFactory.aUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.times;
 import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.times;
-
-import java.util.UUID;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -35,13 +35,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.bcn.asapp.users.application.user.in.command.CreateUserCommand;
 import com.bcn.asapp.users.application.user.out.UserRepository;
-import com.bcn.asapp.users.domain.user.Email;
-import com.bcn.asapp.users.domain.user.FirstName;
-import com.bcn.asapp.users.domain.user.LastName;
-import com.bcn.asapp.users.domain.user.PhoneNumber;
 import com.bcn.asapp.users.domain.user.User;
-import com.bcn.asapp.users.domain.user.UserId;
 
+/**
+ * Tests {@link CreateUserService} user creation and persistence.
+ * <p>
+ * Coverage:
+ * <li>Persistence failures propagate without completing creation workflow</li>
+ * <li>Successful creation persists user with assigned identity</li>
+ * <li>Domain constraints validated before persistence</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class CreateUserServiceTests {
 
@@ -51,61 +54,61 @@ class CreateUserServiceTests {
     @InjectMocks
     private CreateUserService createUserService;
 
-    // Specific test data
-    private final String firstNameValue = "FirstName";
-
-    private final String lastNameValue = "LastName";
-
-    private final String emailValue = "user@asapp.com";
-
-    private final String phoneNumberValue = "555 555 555";
-
     @Nested
     class CreateUser {
 
         @Test
-        void ThrowsRuntimeException_SaveUserFails() {
+        void ReturnsCreatedUser_ValidUser() {
             // Given
-            var command = new CreateUserCommand(firstNameValue, lastNameValue, emailValue, phoneNumberValue);
+            var user = aUser();
+            var firstName = user.getFirstName();
+            var lastName = user.getLastName();
+            var email = user.getEmail();
+            var phoneNumber = user.getPhoneNumber();
+            var command = new CreateUserCommand(firstName.value(), lastName.value(), email.value(), phoneNumber.value());
 
-            willThrow(new RuntimeException("Database connection failed")).given(userRepository)
-                                                                         .save(any(User.class));
+            given(userRepository.save(any(User.class))).willReturn(user);
 
             // When
-            var thrown = catchThrowable(() -> createUserService.createUser(command));
+            var actual = createUserService.createUser(command);
 
             // Then
-            assertThat(thrown).isInstanceOf(RuntimeException.class)
-                              .hasMessageContaining("Database connection failed");
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual).as("created user").isNotNull();
+                softly.assertThat(actual.getId()).as("ID").isNotNull();
+                softly.assertThat(actual.getFirstName()).as("first name").isEqualTo(firstName);
+                softly.assertThat(actual.getLastName()).as("last name").isEqualTo(lastName);
+                softly.assertThat(actual.getEmail()).as("email").isEqualTo(email);
+                softly.assertThat(actual.getPhoneNumber()).as("phone number").isEqualTo(phoneNumber);
+                // @formatter:on
+            });
 
             then(userRepository).should(times(1))
                                 .save(any(User.class));
         }
 
         @Test
-        void ReturnsCreatedUser_CreationSucceeds() {
+        void ThrowsRuntimeException_UserPersistenceFails() {
             // Given
-            var firstName = FirstName.of(firstNameValue);
-            var lastName = LastName.of(lastNameValue);
-            var email = Email.of(emailValue);
-            var phoneNumber = PhoneNumber.of(phoneNumberValue);
-            var savedUser = User.reconstitute(UserId.of(UUID.randomUUID()), firstName, lastName, email, phoneNumber);
-            var command = new CreateUserCommand(firstNameValue, lastNameValue, emailValue, phoneNumberValue);
+            var firstName = "FirstName";
+            var lastName = "LastName";
+            var email = "user@asapp.com";
+            var phoneNumber = "555 555 555";
+            var command = new CreateUserCommand(firstName, lastName, email, phoneNumber);
 
-            given(userRepository.save(any(User.class))).willReturn(savedUser);
+            willThrow(new RuntimeException("Database connection failed")).given(userRepository)
+                                                                         .save(any(User.class));
 
             // When
-            var result = createUserService.createUser(command);
+            var actual = catchThrowable(() -> createUserService.createUser(command));
 
             // Then
+            assertThat(actual).isInstanceOf(RuntimeException.class)
+                              .hasMessage("Database connection failed");
+
             then(userRepository).should(times(1))
                                 .save(any(User.class));
-            assertThat(result).isNotNull();
-            assertThat(result.getId()).isNotNull();
-            assertThat(result.getFirstName()).isEqualTo(firstName);
-            assertThat(result.getLastName()).isEqualTo(lastName);
-            assertThat(result.getEmail()).isEqualTo(email);
-            assertThat(result.getPhoneNumber()).isEqualTo(phoneNumber);
         }
 
     }

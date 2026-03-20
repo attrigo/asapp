@@ -26,44 +26,53 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
+/**
+ * Tests {@link PhoneNumber} validation and value access.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or blank phone number values</li>
+ * <li>Validates phone number must match allowed patterns (666777888, 666 777 888, 666-777-888)</li>
+ * <li>Accepts valid inputs through constructor and factory method</li>
+ * <li>Provides access to wrapped phone number value</li>
+ */
 class PhoneNumberTests {
-
-    private final String phoneNumberValue = "555 555 555";
 
     @Nested
     class CreatePhoneNumberWithConstructor {
 
         @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenPhoneNumberIsNullOrEmpty(String phoneNumber) {
-            // When
-            var thrown = catchThrowable(() -> new PhoneNumber(phoneNumber));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Phone number must not be null or empty");
-        }
-
-        @ParameterizedTest
-        @MethodSource("com.bcn.asapp.users.domain.user.PhoneNumberTests#provideInvalidPhoneNumbers")
-        void ThenThrowsIllegalArgumentException_GivenPhoneNumberIsNotValid(String phoneNumber) {
-            // When
-            var thrown = catchThrowable(() -> new PhoneNumber(phoneNumber));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Phone number must follow one of these pattern: 666777888, 666 777 888 or 666-777-888");
-        }
-
-        @ParameterizedTest
         @MethodSource("com.bcn.asapp.users.domain.user.PhoneNumberTests#provideValidPhoneNumbers")
-        void ThenReturnsPhoneNumber_GivenPhoneNumberIsValid(String phoneNumber) {
+        void ReturnsPhoneNumber_ValidPhoneNumber(String phoneNumber) {
             // When
             var actual = new PhoneNumber(phoneNumber);
 
             // Then
             assertThat(actual.phoneNumber()).isEqualTo(phoneNumber);
+        }
+
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsIllegalArgumentException_NullOrBlankPhoneNumber(String phoneNumber) {
+            // When
+            var actual = catchThrowable(() -> new PhoneNumber(phoneNumber));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Phone number must not be null or empty");
+        }
+
+        @ParameterizedTest
+        @MethodSource("com.bcn.asapp.users.domain.user.PhoneNumberTests#provideInvalidPhoneNumbers")
+        void ThrowsIllegalArgumentException_InvalidPhoneNumber(String phoneNumber) {
+            // When
+            var actual = catchThrowable(() -> new PhoneNumber(phoneNumber));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Phone number must follow one of these pattern: 666777888, 666 777 888 or 666-777-888");
         }
 
     }
@@ -72,35 +81,36 @@ class PhoneNumberTests {
     class CreatePhoneNumberWithFactoryMethod {
 
         @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenPhoneNumberIsNullOrEmpty(String phoneNumber) {
-            // When
-            var thrown = catchThrowable(() -> PhoneNumber.of(phoneNumber));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Phone number must not be null or empty");
-        }
-
-        @ParameterizedTest
-        @MethodSource("com.bcn.asapp.users.domain.user.PhoneNumberTests#provideInvalidPhoneNumbers")
-        void ThenThrowsIllegalArgumentException_GivenPhoneNumberIsNotValid(String phoneNumber) {
-            // When
-            var thrown = catchThrowable(() -> PhoneNumber.of(phoneNumber));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Phone number must follow one of these pattern: 666777888, 666 777 888 or 666-777-888");
-        }
-
-        @ParameterizedTest
         @MethodSource("com.bcn.asapp.users.domain.user.PhoneNumberTests#provideValidPhoneNumbers")
-        void ThenReturnsPhoneNumber_GivenPhoneNumberIsValid(String phoneNumber) {
+        void ReturnsPhoneNumber_ValidPhoneNumber(String phoneNumber) {
             // When
             var actual = PhoneNumber.of(phoneNumber);
 
             // Then
             assertThat(actual.phoneNumber()).isEqualTo(phoneNumber);
+        }
+
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsIllegalArgumentException_NullOrBlankPhoneNumber(String phoneNumber) {
+            // When
+            var actual = catchThrowable(() -> PhoneNumber.of(phoneNumber));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Phone number must not be null or empty");
+        }
+
+        @ParameterizedTest
+        @MethodSource("com.bcn.asapp.users.domain.user.PhoneNumberTests#provideInvalidPhoneNumbers")
+        void ThrowsIllegalArgumentException_InvalidPhoneNumber(String phoneNumber) {
+            // When
+            var actual = catchThrowable(() -> PhoneNumber.of(phoneNumber));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Phone number must follow one of these pattern: 666777888, 666 777 888 or 666-777-888");
         }
 
     }
@@ -109,8 +119,9 @@ class PhoneNumberTests {
     class GetValue {
 
         @Test
-        void ThenReturnsPhoneNumberValue_GivenPhoneNumberIsValid() {
+        void ReturnsPhoneNumberValue_ValidPhoneNumber() {
             // Given
+            var phoneNumberValue = "555 555 555";
             var phoneNumber = PhoneNumber.of(phoneNumberValue);
 
             // When

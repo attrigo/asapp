@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.users.infrastructure.user.persistence;
 
-import static com.bcn.asapp.users.testutil.TestFactory.TestUserFactory.defaultTestUser;
+import static com.bcn.asapp.users.testutil.fixture.UserFactory.aJdbcUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;
@@ -31,6 +31,14 @@ import org.springframework.context.annotation.Import;
 
 import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 
+/**
+ * Tests {@link JdbcUserRepository} delete operations against PostgreSQL.
+ * <p>
+ * Coverage:
+ * <li>Deletes user by identifier returning zero when not found</li>
+ * <li>Deletes user by identifier returning count when successfully deleted</li>
+ * <li>Tests actual database operations with TestContainers PostgreSQL</li>
+ */
 @DataJdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(TestContainerConfiguration.class)
@@ -48,32 +56,39 @@ class JdbcUserRepositoryIT {
     class DeleteUserById {
 
         @Test
-        void DoesNotDeleteUserAndReturnsZero_UserNotExists() {
-            // When
-            var userId = UUID.fromString("9c3a7f0e-4d2b-4e8a-9f1c-5b6d7e8f9a0b");
-
-            var actual = userRepository.deleteUserById(userId);
-
-            // Then
-            assertThat(actual).isZero();
-        }
-
-        @Test
-        void DeletesUserAndReturnsAmountOfUsersDeleted_UserExists() {
+        void ReturnsDeletionCount_UserExists() {
             // Given
-            var user = defaultTestUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
+            var createdUser = createUser();
+            var userId = createdUser.id();
 
             // When
-            var userId = userCreated.id();
-
             var actual = userRepository.deleteUserById(userId);
 
             // Then
             assertThat(actual).isGreaterThan(0);
         }
 
+        @Test
+        void ReturnsZero_UserNotExists() {
+            // Given
+            var userId = UUID.fromString("9c3a7f0e-4d2b-4e8a-9f1c-5b6d7e8f9a0b");
+
+            // When
+            var actual = userRepository.deleteUserById(userId);
+
+            // Then
+            assertThat(actual).isZero();
+        }
+
+    }
+
+    // Test Data Creation Helpers
+
+    private JdbcUserEntity createUser() {
+        var user = aJdbcUser();
+        var createdUser = userRepository.save(user);
+        assertThat(createdUser).isNotNull();
+        return createdUser;
     }
 
 }

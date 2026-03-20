@@ -24,30 +24,39 @@ import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests {@link TaskId} validation and value access.
+ * <p>
+ * Coverage:
+ * <li>Rejects null identifier via constructor and factory method</li>
+ * <li>Accepts valid UUIDs through constructor and factory method</li>
+ * <li>Provides access to wrapped identifier value</li>
+ */
 class TaskIdTests {
-
-    private final UUID idValue = UUID.fromString("d68ca3f3-c27f-4602-9679-64e4b871811d");;
 
     @Nested
     class CreateTaskIdWithConstructor {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+        void ReturnsTaskId_ValidId() {
+            // Given
+            var taskId = UUID.fromString("d68ca3f3-c27f-4602-9679-64e4b871811d");
+
             // When
-            var thrown = catchThrowable(() -> new TaskId(null));
+            var actual = new TaskId(taskId);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Task ID must not be null");
+            assertThat(actual.id()).isEqualTo(taskId);
         }
 
         @Test
-        void ThenReturnsTaskId_GivenIdIsValid() {
+        void ThrowsIllegalArgumentException_NullId() {
             // When
-            var actual = new TaskId(idValue);
+            var actual = catchThrowable(() -> new TaskId(null));
 
             // Then
-            assertThat(actual.id()).isEqualTo(idValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Task ID must not be null");
         }
 
     }
@@ -56,22 +65,25 @@ class TaskIdTests {
     class CreateTaskIdWithFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIdIsNull() {
+        void ReturnsTaskId_ValidId() {
+            // Given
+            var taskId = UUID.fromString("d68ca3f3-c27f-4602-9679-64e4b871811d");
+
             // When
-            var thrown = catchThrowable(() -> TaskId.of(null));
+            var actual = TaskId.of(taskId);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Task ID must not be null");
+            assertThat(actual.id()).isEqualTo(taskId);
         }
 
         @Test
-        void ThenReturnsTaskId_GivenIdIsValid() {
+        void ThrowsIllegalArgumentException_NullId() {
             // When
-            var actual = TaskId.of(idValue);
+            var actual = catchThrowable(() -> TaskId.of(null));
 
             // Then
-            assertThat(actual.id()).isEqualTo(idValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Task ID must not be null");
         }
 
     }
@@ -80,15 +92,16 @@ class TaskIdTests {
     class GetValue {
 
         @Test
-        void ThenReturnsTaskIdValue_GivenTaskIdIsValid() {
+        void ReturnsTaskIdValue_ValidTaskId() {
             // Given
-            var taskId = TaskId.of(idValue);
+            var taskIdValue = UUID.fromString("d68ca3f3-c27f-4602-9679-64e4b871811d");
+            var taskId = TaskId.of(taskIdValue);
 
             // When
             var actual = taskId.value();
 
             // Then
-            assertThat(actual).isEqualTo(idValue);
+            assertThat(actual).isEqualTo(taskIdValue);
         }
 
     }

@@ -18,6 +18,7 @@ package com.bcn.asapp.clients.tasks;
 
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -28,7 +29,6 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 
 import java.util.UUID;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -37,19 +37,22 @@ import org.springframework.web.client.RestClient;
 
 import com.bcn.asapp.clients.util.DefaultUriHandler;
 
+/**
+ * Tests {@link TasksRestClient} HTTP delegation, error resilience, and JSON deserialization.
+ * <p>
+ * Coverage:
+ * <li>Deserializes single task ID from JSON response array</li>
+ * <li>Deserializes multiple task IDs from JSON response array</li>
+ * <li>Returns empty collection when no tasks exist for user</li>
+ * <li>Rejects null user identifiers with validation exception</li>
+ * <li>Returns empty collection when response body is null</li>
+ * <li>Returns empty collection when server errors occur (graceful degradation)</li>
+ */
 class TasksRestClientTests {
 
     private static final String BASE_URL = "http://localhost:8081/asapp-tasks-service";
 
-    private static final UUID USER_ID = UUID.randomUUID();
-
-    private static final UUID TASK_ID_1 = UUID.randomUUID();
-
-    private static final UUID TASK_ID_2 = UUID.randomUUID();
-
-    private static final UUID TASK_ID_3 = UUID.randomUUID();
-
-    private MockRestServiceServer mockServer;
+    private MockRestServiceServer server;
 
     private TasksRestClient tasksRestClient;
 
@@ -57,147 +60,163 @@ class TasksRestClientTests {
     void beforeEach() {
         var uriHandler = new DefaultUriHandler(BASE_URL);
         var restClientBuilder = RestClient.builder();
-
-        mockServer = MockRestServiceServer.bindTo(restClientBuilder)
-                                          .build();
-
+        server = MockRestServiceServer.bindTo(restClientBuilder)
+                                      .build();
         var restClient = restClientBuilder.build();
-
         tasksRestClient = new TasksRestClient(uriHandler, restClient);
-    }
-
-    @AfterEach
-    void afterEach() {
-        mockServer.verify();
     }
 
     @Nested
     class GetTaskIdsByUserId {
 
         @Test
-        void ThenReturnsEmptyList_GivenServerError() {
+        void ReturnsSingleTaskId_UserHasOneTask() {
             // Given
-            var expectedUri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
-            var uriVariables = USER_ID.toString();
+            var userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+            var taskId = UUID.fromString("660e8400-e29b-41d4-a716-446655440001");
+            var uri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
+            var uriVariables = userId.toString();
+            var responseBody = """
+                    [
+                        {
+                            "task_id": "%s"
+                        }
+                    ]
+                    """.formatted(taskId);
 
-            mockServer.expect(requestToUriTemplate(expectedUri, uriVariables))
-                      .andExpect(method(GET))
-                      .andRespond(withServerError());
+            server.expect(requestToUriTemplate(uri, uriVariables))
+                  .andExpect(method(GET))
+                  .andRespond(withSuccess(responseBody, APPLICATION_JSON));
 
             // When
-            var actual = tasksRestClient.getTaskIdsByUserId(USER_ID);
+            var actual = tasksRestClient.getTaskIdsByUserId(userId);
+
+            // Then
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual).as("result").isNotNull();
+                softly.assertThat(actual).as("size").hasSize(1);
+                softly.assertThat(actual).as("elements").containsExactly(taskId);
+                // @formatter:on
+            });
+
+            server.verify();
+        }
+
+        @Test
+        void ReturnsTaskIds_UserHasMultipleTasks() {
+            // Given
+            var userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+            var taskId1 = UUID.fromString("660e8400-e29b-41d4-a716-446655440001");
+            var taskId2 = UUID.fromString("660e8400-e29b-41d4-a716-446655440002");
+            var taskId3 = UUID.fromString("660e8400-e29b-41d4-a716-446655440003");
+            var uri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
+            var uriVariables = userId.toString();
+            var responseBody = """
+                    [
+                        {
+                            "task_id": "%s"
+                        },
+                        {
+                            "task_id": "%s"
+                        },
+                        {
+                            "task_id": "%s"
+                        }
+                    ]
+                    """.formatted(taskId1, taskId2, taskId3);
+
+            server.expect(requestToUriTemplate(uri, uriVariables))
+                  .andExpect(method(GET))
+                  .andRespond(withSuccess(responseBody, APPLICATION_JSON));
+
+            // When
+            var actual = tasksRestClient.getTaskIdsByUserId(userId);
+
+            // Then
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual).as("result").isNotNull();
+                softly.assertThat(actual).as("size").hasSize(3);
+                softly.assertThat(actual).as("elements").containsExactly(taskId1, taskId2, taskId3);
+                // @formatter:on
+            });
+
+            server.verify();
+        }
+
+        @Test
+        void ReturnsEmptyList_TasksNotExistForUserId() {
+            // Given
+            var userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+            var uri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
+            var uriVariables = userId.toString();
+            var responseBody = "[]";
+
+            server.expect(requestToUriTemplate(uri, uriVariables))
+                  .andExpect(method(GET))
+                  .andRespond(withSuccess(responseBody, APPLICATION_JSON));
+
+            // When
+            var actual = tasksRestClient.getTaskIdsByUserId(userId);
 
             // Then
             assertThat(actual).isNotNull()
                               .isEmpty();
+
+            server.verify();
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenUserIdIsNull() {
+        void ThrowsIllegalArgumentException_NullUserId() {
             // When
-            var thrown = catchThrowable(() -> tasksRestClient.getTaskIdsByUserId(null));
+            var actual = catchThrowable(() -> tasksRestClient.getTaskIdsByUserId(null));
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
                               .hasMessage("User ID must not be null");
         }
 
         @Test
-        void ThenReturnsEmptyList_GivenResponseIsNull() {
+        void ReturnsEmptyList_NullResponse() {
             // Given
-            var expectedUri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
-            var uriVariables = USER_ID.toString();
+            var userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+            var uri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
+            var uriVariables = userId.toString();
 
-            mockServer.expect(requestToUriTemplate(expectedUri, uriVariables))
-                      .andExpect(method(GET))
-                      .andRespond(withSuccess());
+            server.expect(requestToUriTemplate(uri, uriVariables))
+                  .andExpect(method(GET))
+                  .andRespond(withSuccess());
 
             // When
-            var actual = tasksRestClient.getTaskIdsByUserId(USER_ID);
+            var actual = tasksRestClient.getTaskIdsByUserId(userId);
 
             // Then
             assertThat(actual).isNotNull()
                               .isEmpty();
+
+            server.verify();
         }
 
         @Test
-        void ThenReturnsEmptyList_GivenUserHasNoTasks() {
+        void ReturnsEmptyList_ServerCallFails() {
             // Given
-            var expectedUri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
-            var uriVariables = USER_ID.toString();
+            var userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+            var uri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
+            var uriVariables = userId.toString();
 
-            var responseBody = "[]";
-
-            mockServer.expect(requestToUriTemplate(expectedUri, uriVariables))
-                      .andExpect(method(GET))
-                      .andRespond(withSuccess(responseBody, APPLICATION_JSON));
+            server.expect(requestToUriTemplate(uri, uriVariables))
+                  .andExpect(method(GET))
+                  .andRespond(withServerError());
 
             // When
-            var actual = tasksRestClient.getTaskIdsByUserId(USER_ID);
+            var actual = tasksRestClient.getTaskIdsByUserId(userId);
 
             // Then
             assertThat(actual).isNotNull()
                               .isEmpty();
-        }
 
-        @Test
-        void ThenReturnsSingleTaskId_GivenUserHasOneTask() {
-            // Given
-            var expectedUri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
-            var uriVariables = USER_ID.toString();
-
-            var responseBody = """
-                    [
-                        {
-                            "task_id": "%s"
-                        }
-                    ]
-                    """.formatted(TASK_ID_1);
-
-            mockServer.expect(requestToUriTemplate(expectedUri, uriVariables))
-                      .andExpect(method(GET))
-                      .andRespond(withSuccess(responseBody, APPLICATION_JSON));
-
-            // When
-            var actual = tasksRestClient.getTaskIdsByUserId(USER_ID);
-
-            // Then
-            assertThat(actual).isNotNull()
-                              .hasSize(1)
-                              .containsExactly(TASK_ID_1);
-        }
-
-        @Test
-        void ThenReturnsListOfTaskIds_GivenUserHasMultipleTasks() {
-            // Given
-            var expectedUri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
-            var uriVariables = USER_ID.toString();
-
-            var responseBody = """
-                    [
-                        {
-                            "task_id": "%s"
-                        },
-                        {
-                            "task_id": "%s"
-                        },
-                        {
-                            "task_id": "%s"
-                        }
-                    ]
-                    """.formatted(TASK_ID_1, TASK_ID_2, TASK_ID_3);
-
-            mockServer.expect(requestToUriTemplate(expectedUri, uriVariables))
-                      .andExpect(method(GET))
-                      .andRespond(withSuccess(responseBody, APPLICATION_JSON));
-
-            // When
-            var actual = tasksRestClient.getTaskIdsByUserId(USER_ID);
-
-            // Then
-            assertThat(actual).isNotNull()
-                              .hasSize(3)
-                              .containsExactly(TASK_ID_1, TASK_ID_2, TASK_ID_3);
+            server.verify();
         }
 
     }

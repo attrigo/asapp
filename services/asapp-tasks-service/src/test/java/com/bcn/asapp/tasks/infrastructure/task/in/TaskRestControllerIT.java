@@ -40,16 +40,29 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import com.bcn.asapp.tasks.testutil.WebMvcTestContext;
 
+/**
+ * Tests {@link TaskRestController} request validation and error responses.
+ * <p>
+ * Coverage:
+ * <li>Validates path parameter format (UUID required for task and user IDs)</li>
+ * <li>Validates request content type (JSON required for POST/PUT operations)</li>
+ * <li>Validates request body presence and structure</li>
+ * <li>Validates mandatory field constraints (user ID, title)</li>
+ * <li>Returns RFC 7807 Problem Details for all validation failures</li>
+ * <li>Tests all HTTP endpoints (GET by ID, GET by user, POST, PUT, DELETE)</li>
+ */
 @WithMockUser
-class TaskControllerIT extends WebMvcTestContext {
+class TaskRestControllerIT extends WebMvcTestContext {
 
     @Nested
     class GetTaskById {
 
         @Test
-        void ReturnsStatusNotFoundAndBodyWithProblemDetail_TaskIdPathIsNotPresent() {
-            // When & Then
+        void ReturnsStatusNotFoundAndBodyWithProblemDetail_MissingTaskId() {
+            // Given
             var requestBuilder = get(TASKS_ROOT_PATH + "/");
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.NOT_FOUND)
@@ -67,11 +80,12 @@ class TaskControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_TaskIdPathIsInvalid() {
-            // When & Then
-            var taskIdPath = 1L;
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidTaskId() {
+            // Given
+            var taskId = 1L;
+            var requestBuilder = get(TASKS_GET_BY_ID_FULL_PATH, taskId);
 
-            var requestBuilder = get(TASKS_GET_BY_ID_FULL_PATH, taskIdPath);
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -94,9 +108,11 @@ class TaskControllerIT extends WebMvcTestContext {
     class GetTasksByUserId {
 
         @Test
-        void ReturnsStatusNotFoundAndBodyWithProblemDetails_UserIdPathIsNotPresent() {
-            // When & Then
+        void ReturnsStatusNotFoundAndBodyWithProblemDetail_MissingUserId() {
+            // Given
             var requestBuilder = get(TASKS_ROOT_PATH + "/user/");
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.NOT_FOUND)
@@ -114,11 +130,12 @@ class TaskControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetails_UserIdPathIsInvalid() {
-            // When & Then
-            var userIdPath = 1L;
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidUserId() {
+            // Given
+            var userId = 1L;
+            var requestBuilder = get(TASKS_GET_BY_USER_ID_FULL_PATH, userId);
 
-            var requestBuilder = get(TASKS_GET_BY_USER_ID_FULL_PATH, userIdPath);
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -141,12 +158,13 @@ class TaskControllerIT extends WebMvcTestContext {
     class CreateTask {
 
         @Test
-        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyIsNotJson() {
-            // When & Then
+        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_NonJsonRequestBody() {
+            // Given
             var requestBody = "";
-
             var requestBuilder = post(TASKS_CREATE_FULL_PATH).contentType(MediaType.TEXT_PLAIN)
                                                              .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
@@ -164,12 +182,13 @@ class TaskControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsNotPresent() {
-            // When & Then
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_MissingRequestBody() {
+            // Given
             var requestBody = "";
-
             var requestBuilder = post(TASKS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                              .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -187,12 +206,13 @@ class TaskControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsEmpty() {
-            // When & Then
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyRequestBody() {
+            // Given
             var requestBody = "{}";
-
             var requestBuilder = post(TASKS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                              .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -221,17 +241,18 @@ class TaskControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyMandatoryFieldsAreEmpty() {
-            // When & Then
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyMandatoryFields() {
+            // Given
             var requestBody = """
                     {
                     "user_id": "",
                     "title": ""
                     }
                     """;
-
             var requestBuilder = post(TASKS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                              .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -265,8 +286,8 @@ class TaskControllerIT extends WebMvcTestContext {
     class UpdateTaskById {
 
         @Test
-        void ReturnsStatusNotFoundAndBodyWithProblemDetail_TaskIdPathIsNotPresent() {
-            // When & Then
+        void ReturnsStatusNotFoundAndBodyWithProblemDetail_MissingTaskId() {
+            // Given
             var newUserId = UUID.fromString("c2f7d9e3-5a8b-46cf-9d4e-8a2f7b3c5e1d");
             var newStartDate = Instant.parse("2025-03-03T13:00:00Z");
             var newEndDate = Instant.parse("2025-04-04T14:00:00Z");
@@ -278,10 +299,11 @@ class TaskControllerIT extends WebMvcTestContext {
                     "start_date": "%s",
                     "end_date": "%s"
                     }
-                    """.formatted(newUserId, "NewTitle", "NewDescription", newStartDate, newEndDate);
-
+                    """.formatted(newUserId, "New Title", "New Description", newStartDate, newEndDate);
             var requestBuilder = put(TASKS_ROOT_PATH + "/").contentType(MediaType.APPLICATION_JSON)
                                                            .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.NOT_FOUND)
@@ -299,9 +321,9 @@ class TaskControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_TaskIdPathIsInvalid() {
-            // When & Then
-            var taskIdPath = 1L;
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidTaskId() {
+            // Given
+            var taskId = 1L;
             var newUserId = UUID.fromString("c2f7d9e3-5a8b-46cf-9d4e-8a2f7b3c5e1d");
             var newStartDate = Instant.parse("2025-03-03T13:00:00Z");
             var newEndDate = Instant.parse("2025-04-04T14:00:00Z");
@@ -313,10 +335,11 @@ class TaskControllerIT extends WebMvcTestContext {
                     "start_date": "%s",
                     "end_date": "%s"
                     }
-                    """.formatted(newUserId, "NewTitle", "NewDescription", newStartDate, newEndDate);
+                    """.formatted(newUserId, "New Title", "New Description", newStartDate, newEndDate);
+            var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskId).contentType(MediaType.APPLICATION_JSON)
+                                                                          .content(requestBody);
 
-            var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskIdPath).contentType(MediaType.APPLICATION_JSON)
-                                                                              .content(requestBody);
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -334,13 +357,14 @@ class TaskControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyIsNotJson() {
-            // When & Then
-            var taskIdPath = UUID.fromString("e3a8c5d1-7f9b-482b-9f6a-2d8e5b7c9f3a");
+        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_NonJsonRequestBody() {
+            // Given
+            var taskId = UUID.fromString("e3a8c5d1-7f9b-482b-9f6a-2d8e5b7c9f3a");
             var requestBody = "";
+            var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskId).contentType(MediaType.TEXT_PLAIN)
+                                                                          .content(requestBody);
 
-            var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskIdPath).contentType(MediaType.TEXT_PLAIN)
-                                                                              .content(requestBody);
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
@@ -353,18 +377,19 @@ class TaskControllerIT extends WebMvcTestContext {
                                                   .containsEntry("title", "Unsupported Media Type")
                                                   .containsEntry("status", 415)
                                                   .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
-                                                  .containsEntry("instance", "/api/tasks/" + taskIdPath);
+                                                  .containsEntry("instance", "/api/tasks/" + taskId);
                    });
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsNotPresent() {
-            // When & Then
-            var taskIdPath = UUID.fromString("e3a8c5d1-7f9b-482b-9f6a-2d8e5b7c9f3a");
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_MissingRequestBody() {
+            // Given
+            var taskId = UUID.fromString("e3a8c5d1-7f9b-482b-9f6a-2d8e5b7c9f3a");
             var requestBody = "";
+            var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskId).contentType(MediaType.APPLICATION_JSON)
+                                                                          .content(requestBody);
 
-            var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskIdPath).contentType(MediaType.APPLICATION_JSON)
-                                                                              .content(requestBody);
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -377,18 +402,19 @@ class TaskControllerIT extends WebMvcTestContext {
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("detail", "Failed to read request")
-                                                  .containsEntry("instance", "/api/tasks/" + taskIdPath);
+                                                  .containsEntry("instance", "/api/tasks/" + taskId);
                    });
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsEmpty() {
-            // When & Then
-            var taskIdPath = UUID.fromString("e3a8c5d1-7f9b-482b-9f6a-2d8e5b7c9f3a");
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyRequestBody() {
+            // Given
+            var taskId = UUID.fromString("e3a8c5d1-7f9b-482b-9f6a-2d8e5b7c9f3a");
             var requestBody = "{}";
+            var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskId).contentType(MediaType.APPLICATION_JSON)
+                                                                          .content(requestBody);
 
-            var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskIdPath).contentType(MediaType.APPLICATION_JSON)
-                                                                              .content(requestBody);
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -400,7 +426,7 @@ class TaskControllerIT extends WebMvcTestContext {
                                                   .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/tasks/" + taskIdPath);
+                                                  .containsEntry("instance", "/api/tasks/" + taskId);
                        assertThatJson(jsonContent).inPath("detail")
                                                   .asString()
                                                   .contains("The user ID must not be empty")
@@ -417,18 +443,19 @@ class TaskControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyMandatoryFieldsAreEmpty() {
-            // When & Then
-            var taskIdPath = UUID.fromString("e3a8c5d1-7f9b-482b-9f6a-2d8e5b7c9f3a");
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyMandatoryFields() {
+            // Given
+            var taskId = UUID.fromString("e3a8c5d1-7f9b-482b-9f6a-2d8e5b7c9f3a");
             var requestBody = """
                     {
                     "user_id": "",
                     "title": ""
                     }
                     """;
+            var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskId).contentType(MediaType.APPLICATION_JSON)
+                                                                          .content(requestBody);
 
-            var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskIdPath).contentType(MediaType.APPLICATION_JSON)
-                                                                              .content(requestBody);
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -440,7 +467,7 @@ class TaskControllerIT extends WebMvcTestContext {
                                                   .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/tasks/" + taskIdPath);
+                                                  .containsEntry("instance", "/api/tasks/" + taskId);
                        assertThatJson(jsonContent).inPath("detail")
                                                   .asString()
                                                   .contains("The user ID must not be empty")
@@ -462,9 +489,11 @@ class TaskControllerIT extends WebMvcTestContext {
     class DeleteTaskById {
 
         @Test
-        void ReturnsStatusNotFoundAndBodyWithProblemDetail_TaskIdPathIsNotPresent() {
-            // When & Then
+        void ReturnsStatusNotFoundAndBodyWithProblemDetail_MissingTaskId() {
+            // Given
             var requestBuilder = delete(TASKS_ROOT_PATH + "/");
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.NOT_FOUND)
@@ -482,11 +511,12 @@ class TaskControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_TaskIdPathIsInvalid() {
-            // When & Then
-            var taskIdPath = 1L;
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidTaskId() {
+            // Given
+            var taskId = 1L;
+            var requestBuilder = delete(TASKS_DELETE_BY_ID_FULL_PATH, taskId);
 
-            var requestBuilder = delete(TASKS_DELETE_BY_ID_FULL_PATH, taskIdPath);
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)

@@ -23,32 +23,43 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
+/**
+ * Tests {@link FirstName} validation and value access.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or blank first name values</li>
+ * <li>Accepts valid inputs through constructor and factory method</li>
+ * <li>Provides access to wrapped first name value</li>
+ */
 class FirstNameTests {
-
-    private final String firstNameValue = "FirstName";
 
     @Nested
     class CreateFirstNameWithConstructor {
 
-        @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenFirstNameIsNullOrEmpty(String firstName) {
+        @Test
+        void ReturnsFirstName_ValidFirstName() {
+            // Given
+            var firstName = "FirstName";
+
             // When
-            var thrown = catchThrowable(() -> new FirstName(firstName));
+            var actual = new FirstName(firstName);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("First name must not be null or empty");
+            assertThat(actual.firstName()).isEqualTo(firstName);
         }
 
-        @Test
-        void ThenReturnsFirstName_GivenFirstNameIsValid() {
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsIllegalArgumentException_NullOrBlankFirstName(String firstName) {
             // When
-            var actual = new FirstName(firstNameValue);
+            var actual = catchThrowable(() -> new FirstName(firstName));
 
             // Then
-            assertThat(actual.firstName()).isEqualTo(firstNameValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("First name must not be null or empty");
         }
 
     }
@@ -56,24 +67,28 @@ class FirstNameTests {
     @Nested
     class CreateFirstNameWithFactoryMethod {
 
-        @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenFirstNameIsNullOrEmpty(String firstName) {
+        @Test
+        void ReturnsFirstName_ValidFirstName() {
+            // Given
+            var firstName = "FirstName";
+
             // When
-            var thrown = catchThrowable(() -> FirstName.of(firstName));
+            var actual = FirstName.of(firstName);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("First name must not be null or empty");
+            assertThat(actual.firstName()).isEqualTo(firstName);
         }
 
-        @Test
-        void ThenReturnsFirstName_GivenFirstNameIsValid() {
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsIllegalArgumentException_NullOrBlankFirstName(String firstName) {
             // When
-            var actual = FirstName.of(firstNameValue);
+            var actual = catchThrowable(() -> FirstName.of(firstName));
 
             // Then
-            assertThat(actual.firstName()).isEqualTo(firstNameValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("First name must not be null or empty");
         }
 
     }
@@ -82,8 +97,9 @@ class FirstNameTests {
     class GetValue {
 
         @Test
-        void ThenReturnsFirstNameValue_GivenFirstNameIsValid() {
+        void ReturnsFirstNameValue_ValidFirstName() {
             // Given
+            var firstNameValue = "FirstName";
             var firstName = FirstName.of(firstNameValue);
 
             // When
