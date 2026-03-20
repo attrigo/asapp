@@ -30,13 +30,9 @@
         <!-- Test Dependencies -->
         <!-- * Org Dependencies -->
         <mockserver-client-java.version>5.15.0</mockserver-client-java.version>
-        <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
         <!-- * Other Dependencies -->
         <json-unit-assertj.version>4.1.1</json-unit-assertj.version>
         <testcontainers-redis.version>2.2.4</testcontainers-redis.version>
-
-        <!-- Plugins Versions -->
-        <pitest-maven.version>1.20.4</pitest-maven.version>
     </properties>
 
     <dependencyManagement>
@@ -88,12 +84,6 @@
 
             <!-- Test Dependencies -->
             <!-- * Org Dependencies -->
-            <dependency>
-                <groupId>org.pitest</groupId>
-                <artifactId>pitest-junit5-plugin</artifactId>
-                <version>${pitest-junit5-plugin.version}</version>
-                <scope>test</scope>
-            </dependency>
             <dependency>
                 <groupId>org.mock-server</groupId>
                 <artifactId>mockserver-client-java</artifactId>
@@ -264,11 +254,6 @@
                         </migrationSqlOutputFile>
                         <outputFileEncoding>UTF-8</outputFileEncoding>
                     </configuration>
-                </plugin>
-                <plugin>
-                    <groupId>org.pitest</groupId>
-                    <artifactId>pitest-maven</artifactId>
-                    <version>${pitest-maven.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

@@ -37,6 +37,15 @@
                     </configuration>
                 </plugin>
 
+                <!-- Org Plugins -->
+                <plugin>
+                    <groupId>org.pitest</groupId>
+                    <artifactId>pitest-maven</artifactId>
+                    <configuration>
+                        <skip>true</skip>
+                    </configuration>
+                </plugin>
+
                 <!-- Other Plugins -->
                 <plugin>
                     <groupId>org.jacoco</groupId>

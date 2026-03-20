@@ -84,7 +84,7 @@ class UpdateTaskServiceTests {
                     newEndDate.value());
 
             given(taskRepository.findById(existingTaskId)).willReturn(Optional.of(existingTask));
-            given(taskRepository.save(existingTask)).willReturn(newTask);
+            given(taskRepository.save(existingTask)).willReturn(existingTask); // Returns same reference so assertions verify the in-place domain mutation
 
             // When
             var actual = updateTaskService.updateTaskById(command);
