@@ -17,7 +17,7 @@ Essential guides for understanding and working with ASAPP:
 @docs/guidelines/architecture.md
 
 ### Testing
-@docs/guidelines/testing.md
+Testing rules auto-load based on file type (*Tests.java, *IT.java). See `.claude/rules/testing-*.md` for details.
 
 ### API Conventions
 @docs/guidelines/api-conventions.md

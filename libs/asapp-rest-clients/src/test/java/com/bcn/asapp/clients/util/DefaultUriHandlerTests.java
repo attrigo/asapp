@@ -27,6 +27,17 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
 
+/**
+ * Tests {@link DefaultUriHandler} URI construction, path appending, and template resolution.
+ * <p>
+ * Coverage:
+ * <li>Rejects null, empty, or blank base URIs with validation exception</li>
+ * <li>Returns new builder instances for each invocation (factory pattern)</li>
+ * <li>Constructs URIs with base path only when no additional paths provided</li>
+ * <li>Appends paths to base URI maintaining proper structure</li>
+ * <li>Resolves path templates with variable substitution</li>
+ * <li>Builds URIs with query parameters maintaining proper encoding</li>
+ */
 class DefaultUriHandlerTests {
 
     private static final String BASE_URL = "http://localhost:8081/asapp-service";
@@ -34,35 +45,35 @@ class DefaultUriHandlerTests {
     @Nested
     class CreateDefaultUriHandler {
 
-        @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenBaseUriIsNullOrEmpty(String baseUri) {
-            // When
-            var thrown = catchThrowable(() -> new DefaultUriHandler(baseUri));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Base URI must not be null or blank");
-        }
-
-        @ParameterizedTest
-        @MethodSource("com.bcn.asapp.clients.util.DefaultUriHandlerTests#provideBlankStrings")
-        void ThenThrowsIllegalArgumentException_GivenBaseUriIsBlank(String baseUri) {
-            // When
-            var thrown = catchThrowable(() -> new DefaultUriHandler(baseUri));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Base URI must not be null or blank");
-        }
-
         @Test
-        void ThenReturnsUriHandler_GivenBaseUriIsValid() {
+        void ReturnsUriHandler_ValidBaseUri() {
             // When
             var actual = new DefaultUriHandler(BASE_URL);
 
             // Then
             assertThat(actual).isNotNull();
+        }
+
+        @ParameterizedTest
+        @NullAndEmptySource
+        void ThrowsIllegalArgumentException_NullOrEmptyBaseUri(String baseUri) {
+            // When
+            var actual = catchThrowable(() -> new DefaultUriHandler(baseUri));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Base URI must not be null or blank");
+        }
+
+        @ParameterizedTest
+        @MethodSource("com.bcn.asapp.clients.util.DefaultUriHandlerTests#provideBlankStrings")
+        void ThrowsIllegalArgumentException_BlankBaseUri(String baseUri) {
+            // When
+            var actual = catchThrowable(() -> new DefaultUriHandler(baseUri));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Base URI must not be null or blank");
         }
 
     }
@@ -71,7 +82,7 @@ class DefaultUriHandlerTests {
     class NewInstance {
 
         @Test
-        void ThenReturnsNewUriBuilder_GivenFirstCall() {
+        void ReturnsNewUriBuilder_FirstCall() {
             // Given
             var uriHandler = new DefaultUriHandler(BASE_URL);
 
@@ -83,21 +94,21 @@ class DefaultUriHandlerTests {
         }
 
         @Test
-        void ThenReturnsDifferentInstances_GivenMultipleCalls() {
+        void ReturnsDifferentInstances_MultipleCalls() {
             // Given
             var uriHandler = new DefaultUriHandler(BASE_URL);
-            var firstInstance = uriHandler.newInstance();
+            var instance = uriHandler.newInstance();
 
             // When
-            var secondInstance = uriHandler.newInstance();
+            var actual = uriHandler.newInstance();
 
             // Then
-            assertThat(secondInstance).isNotNull()
-                                      .isNotSameAs(firstInstance);
+            assertThat(actual).isNotNull()
+                              .isNotSameAs(instance);
         }
 
         @Test
-        void ThenBuildsUriWithBasePath_GivenNoAdditionalPath() {
+        void ReturnsUriWithBasePath_MissingAdditionalPath() {
             // Given
             var uriHandler = new DefaultUriHandler(BASE_URL);
 
@@ -110,7 +121,7 @@ class DefaultUriHandlerTests {
         }
 
         @Test
-        void ThenBuildsUriWithAppendedPath_GivenAdditionalPath() {
+        void ReturnsUriWithAppendedPath_AdditionalPath() {
             // Given
             var uriHandler = new DefaultUriHandler(BASE_URL);
             var path = "/api/users";
@@ -125,15 +136,15 @@ class DefaultUriHandlerTests {
         }
 
         @Test
-        void ThenBuildsUriWithPathVariable_GivenPathTemplate() {
+        void ReturnsUriWithPathVariable_PathTemplate() {
             // Given
             var uriHandler = new DefaultUriHandler(BASE_URL);
-            var pathTemplate = "/api/users/{id}";
+            var path = "/api/users/{id}";
             var userId = "123";
 
             // When
             var actual = uriHandler.newInstance()
-                                   .path(pathTemplate)
+                                   .path(path)
                                    .build(userId);
 
             // Then
@@ -141,7 +152,7 @@ class DefaultUriHandlerTests {
         }
 
         @Test
-        void ThenBuildsUriWithQueryParams_GivenQueryParameters() {
+        void ReturnsUriWithQueryParams_QueryParameters() {
             // Given
             var uriHandler = new DefaultUriHandler(BASE_URL);
             var path = "/api/users";

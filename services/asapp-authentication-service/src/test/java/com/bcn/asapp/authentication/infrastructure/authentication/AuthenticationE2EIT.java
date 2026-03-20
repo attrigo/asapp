@@ -26,19 +26,19 @@ import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
 import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtStore.ACCESS_TOKEN_PREFIX;
 import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtStore.REFRESH_TOKEN_PREFIX;
 import static com.bcn.asapp.authentication.testutil.JwtAssertions.assertThatJwt;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedRefreshToken;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.testEncodedTokenBuilder;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestJwtAuthenticationFactory.testJwtAuthenticationBuilder;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestJdbcUser;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.testUserBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenFactory.anEncodedTokenBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenFactory.encodedAccessToken;
+import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenFactory.encodedRefreshToken;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtAuthenticationFactory.aJwtAuthenticationBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.UserFactory.aJdbcUser;
+import static com.bcn.asapp.authentication.testutil.fixture.UserFactory.aUserBuilder;
 import static com.bcn.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_REFRESH_TOKEN_FULL_PATH;
 import static com.bcn.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_REVOKE_FULL_PATH;
 import static com.bcn.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_TOKEN_FULL_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
-import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -63,6 +63,21 @@ import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserEnti
 import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserRepository;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 
+/**
+ * Tests end-to-end authentication workflows including token issuance, refresh, and revocation.
+ * <p>
+ * Coverage:
+ * <li>Authenticates user credentials generating JWT pair persisted to database and activated in Redis</li>
+ * <li>Refreshes authentication rotating token pair with old tokens deactivated and new tokens activated</li>
+ * <li>Revokes authentication deleting from database and deactivating in Redis</li>
+ * <li>Tests complete flow: HTTP → Security → Controller → Service → Repository → Database + Redis</li>
+ * <li>Complete refresh flow: old tokens revoked, new tokens generated and stored</li>
+ * <li>Complete revoke flow: authentication deleted from DB, tokens removed from Redis</li>
+ * <li>Validates tokens are properly formatted JWTs with correct claims</li>
+ * <li>Validates tokens exist in both PostgreSQL and Redis after issuance</li>
+ * <li>Validates old tokens removed and new tokens added during refresh</li>
+ * <li>Validates tokens completely removed after revocation</li>
+ */
 @SpringBootTest(classes = AsappAuthenticationServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient(timeout = "30000")
 @Import(TestContainerConfiguration.class)
@@ -96,15 +111,98 @@ class AuthenticationE2EIT {
     class Authenticate {
 
         @Test
-        void DoesNotAuthenticateAndReturnsStatusUnauthorizedAndBodyWithGenericMessage_UsernameNotEmailFormat() {
+        void ReturnsStatusOkAndBodyWithGeneratedAuthentication_UserNotAuthenticated() {
             // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
+            var createdUser = createUser();
+            var authenticateRequestBody = new AuthenticateRequest(createdUser.username(), "TEST@09_password?!");
 
             // When
-            var authenticateRequestBody = new AuthenticateRequest("not_exists_username", "TEST@09_password?!");
+            var actual = webTestClient.post()
+                                      .uri(AUTH_TOKEN_FULL_PATH)
+                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                      .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                      .bodyValue(authenticateRequestBody)
+                                      .exchange()
+                                      .expectStatus()
+                                      .isOk()
+                                      .expectHeader()
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .expectBody(AuthenticateResponse.class)
+                                      .returnResult()
+                                      .getResponseBody();
 
+            // Then
+            assertThat(actual).isNotNull();
+            assertAPIResponse(actual.accessToken(), actual.refreshToken(), createdUser);
+            assertAuthenticationExist(actual.accessToken(), actual.refreshToken(), createdUser);
+        }
+
+        @Test
+        void ReturnsStatusOkAndBodyWithGeneratedAuthentication_AdminUserNotAuthenticated() {
+            // Given
+            var user = aUserBuilder().withRole(ADMIN)
+                                     .buildJdbc();
+            var createdUser = createUser(user);
+            var authenticateRequestBody = new AuthenticateRequest(createdUser.username(), "TEST@09_password?!");
+
+            // When
+            var actual = webTestClient.post()
+                                      .uri(AUTH_TOKEN_FULL_PATH)
+                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                      .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                      .bodyValue(authenticateRequestBody)
+                                      .exchange()
+                                      .expectStatus()
+                                      .isOk()
+                                      .expectHeader()
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .expectBody(AuthenticateResponse.class)
+                                      .returnResult()
+                                      .getResponseBody();
+
+            // Then
+            assertThat(actual).isNotNull();
+            assertAPIResponse(actual.accessToken(), actual.refreshToken(), createdUser);
+            assertAuthenticationExist(actual.accessToken(), actual.refreshToken(), createdUser);
+        }
+
+        @Test
+        void ReturnsStatusOkAndBodyWithNewGeneratedAuthentication_UserAlreadyAuthenticated() {
+            // Given
+            var createdUser = createUser();
+            var createdJwtAuthentication = createJwtAuthenticationForUser(createdUser);
+            var accessToken = createdJwtAuthentication.accessToken();
+            var refreshToken = createdJwtAuthentication.refreshToken();
+            var authenticateRequestBody = new AuthenticateRequest(createdUser.username(), "TEST@09_password?!");
+
+            // When
+            var actual = webTestClient.post()
+                                      .uri(AUTH_TOKEN_FULL_PATH)
+                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                      .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                      .bodyValue(authenticateRequestBody)
+                                      .exchange()
+                                      .expectStatus()
+                                      .isOk()
+                                      .expectHeader()
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .expectBody(AuthenticateResponse.class)
+                                      .returnResult()
+                                      .getResponseBody();
+
+            // Then
+            assertThat(actual).isNotNull();
+            assertAPIResponse(actual.accessToken(), actual.refreshToken(), createdUser);
+            assertAuthenticationExist(actual.accessToken(), actual.refreshToken(), createdUser);
+            assertAuthenticationExist(accessToken.token(), refreshToken.token(), createdUser);
+        }
+
+        @Test
+        void ReturnsStatusUnauthorizedAndBodyWithGenericMessage_UsernameNotEmailFormat() {
+            // Given
+            var authenticateRequestBody = new AuthenticateRequest("invalid_username", "TEST@09_password?!");
+
+            // When
             webTestClient.post()
                          .uri(AUTH_TOKEN_FULL_PATH)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -114,7 +212,6 @@ class AuthenticationE2EIT {
                          .expectStatus()
                          .isUnauthorized()
                          .expectBody()
-
                          .jsonPath("$.type")
                          .isEqualTo("about:blank")
                          .jsonPath("$.title")
@@ -129,19 +226,15 @@ class AuthenticationE2EIT {
                          .isEqualTo("/asapp-authentication-service/api/auth/token");
 
             // Then
-            assertNoAuthenticationsExists();
+            assertAuthenticationNotExist();
         }
 
         @Test
-        void DoesNotAuthenticateReturnsStatusUnauthorizedAndEmptyBody_PasswordNotMatch() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_UsernameNotExists() {
             // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
+            var authenticateRequestBody = new AuthenticateRequest("user_not_exist@asapp.com", "TEST@09_password?!");
 
             // When
-            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), "not_match_password");
-
             webTestClient.post()
                          .uri(AUTH_TOKEN_FULL_PATH)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -154,103 +247,29 @@ class AuthenticationE2EIT {
                          .isEmpty();
 
             // Then
-            assertNoAuthenticationsExists();
+            assertAuthenticationNotExist();
         }
 
         @Test
-        void AuthenticatesUserAndReturnsStatusOkAndBodyWithGeneratedAuthentication_UserNotAuthenticated() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_NonMatchingPassword() {
             // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
+            var createdUser = createUser();
+            var authenticateRequestBody = new AuthenticateRequest(createdUser.username(), "password_not_match");
 
             // When
-            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), "TEST@09_password?!");
-
-            var response = webTestClient.post()
-                                        .uri(AUTH_TOKEN_FULL_PATH)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                                        .bodyValue(authenticateRequestBody)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isOk()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBody(AuthenticateResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
+            webTestClient.post()
+                         .uri(AUTH_TOKEN_FULL_PATH)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                         .bodyValue(authenticateRequestBody)
+                         .exchange()
+                         .expectStatus()
+                         .isUnauthorized()
+                         .expectBody()
+                         .isEmpty();
 
             // Then
-            assertThat(response).isNotNull();
-            assertAPIResponse(response.accessToken(), response.refreshToken(), userCreated);
-            assertAuthenticationExists(response.accessToken(), response.refreshToken(), userCreated);
-        }
-
-        @Test
-        void AuthenticatesUserAndReturnsStatusOkAndBodyWithGeneratedAuthentication_AdminUserNotAuthenticated() {
-            // Given
-            var user = testUserBuilder().withRole(ADMIN.name())
-                                        .buildJdbcEntity();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
-
-            // When
-            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), "TEST@09_password?!");
-
-            var response = webTestClient.post()
-                                        .uri(AUTH_TOKEN_FULL_PATH)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                                        .bodyValue(authenticateRequestBody)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isOk()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBody(AuthenticateResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
-
-            // Then
-            assertThat(response).isNotNull();
-            assertAPIResponse(response.accessToken(), response.refreshToken(), userCreated);
-            assertAuthenticationExists(response.accessToken(), response.refreshToken(), userCreated);
-        }
-
-        @Test
-        void AuthenticatesUserAndReturnsStatusOkAndBodyWithNewGeneratedAuthentication_UserAlreadyAuthenticated() {
-            // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
-
-            var previousJwtAuthentication = createJwtAuthentication(userCreated);
-            var previousAccessToken = previousJwtAuthentication.accessToken();
-            var previousRefreshToken = previousJwtAuthentication.refreshToken();
-
-            // When
-            var authenticateRequestBody = new AuthenticateRequest(userCreated.username(), "TEST@09_password?!");
-
-            var response = webTestClient.post()
-                                        .uri(AUTH_TOKEN_FULL_PATH)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                                        .bodyValue(authenticateRequestBody)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isOk()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBody(AuthenticateResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
-
-            // Then
-            assertThat(response).isNotNull();
-            assertAPIResponse(response.accessToken(), response.refreshToken(), userCreated);
-            assertAuthenticationExists(response.accessToken(), response.refreshToken(), userCreated);
-            assertAuthenticationExists(previousAccessToken.token(), previousRefreshToken.token(), userCreated);
+            assertAuthenticationNotExist();
         }
 
     }
@@ -259,10 +278,78 @@ class AuthenticationE2EIT {
     class RefreshAuthentication {
 
         @Test
-        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_InvalidRefreshToken() {
+        void ReturnsStatusOkAndBodyWithRefreshedAuthentication_ValidRefreshToken() {
+            // Given
+            var createdUser = createUser();
+            var createdJwtAuthentication = createJwtAuthenticationForUser(createdUser);
+            var accessToken = createdJwtAuthentication.accessToken();
+            var refreshToken = createdJwtAuthentication.refreshToken();
+            var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken.token());
+
             // When
+            var actual = webTestClient.post()
+                                      .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
+                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                      .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                      .bodyValue(refreshAuthenticationRequestBody)
+                                      .exchange()
+                                      .expectStatus()
+                                      .isOk()
+                                      .expectHeader()
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .expectBody(RefreshAuthenticationResponse.class)
+                                      .returnResult()
+                                      .getResponseBody();
+
+            // Then
+            assertThat(actual).isNotNull();
+            assertAPIResponse(actual.accessToken(), actual.refreshToken(), createdUser);
+            assertAuthenticationExist(actual.accessToken(), actual.refreshToken(), createdUser);
+            assertAuthenticationNotExist(accessToken.token(), refreshToken.token());
+        }
+
+        @Test
+        void ReturnsStatusOkAndBodyWithRefreshedAuthentication_UserHasSeveralAuthentications() {
+            // Given
+            var createdUser = createUser();
+            var createdJwtAuthentication1 = createJwtAuthenticationForUser(createdUser);
+            var createdJwtAuthentication2 = createJwtAuthenticationForUser(createdUser);
+            var accessToken1 = createdJwtAuthentication1.accessToken();
+            var refreshToken1 = createdJwtAuthentication1.refreshToken();
+            var accessToken2 = createdJwtAuthentication2.accessToken();
+            var refreshToken2 = createdJwtAuthentication2.refreshToken();
+            var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken1.token());
+
+            // When
+
+            var actual = webTestClient.post()
+                                      .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
+                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                      .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                      .bodyValue(refreshAuthenticationRequestBody)
+                                      .exchange()
+                                      .expectStatus()
+                                      .isOk()
+                                      .expectHeader()
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .expectBody(RefreshAuthenticationResponse.class)
+                                      .returnResult()
+                                      .getResponseBody();
+
+            // Then
+            assertThat(actual).isNotNull();
+            assertAPIResponse(actual.accessToken(), actual.refreshToken(), createdUser);
+            assertAuthenticationExist(actual.accessToken(), actual.refreshToken(), createdUser);
+            assertAuthenticationNotExist(accessToken1.token(), refreshToken1.token());
+            assertAuthenticationExist(accessToken2.token(), refreshToken2.token(), createdUser);
+        }
+
+        @Test
+        void ReturnsStatusUnauthorizedWithGenericMessage_InvalidRefreshToken() {
+            // Given
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest("invalid_refresh_token");
 
+            // When
             webTestClient.post()
                          .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -288,15 +375,16 @@ class AuthenticationE2EIT {
                          .isEqualTo("/asapp-authentication-service/api/auth/refresh");
 
             // Then
-            assertNoAuthenticationsExists();
+            assertAuthenticationNotExist();
         }
 
         @Test
-        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_JwtIsAccessToken() {
-            // When
-            var accessToken = defaultTestEncodedAccessToken();
-            var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(accessToken);
+        void ReturnsStatusUnauthorizedWithGenericMessage_AccessTokenJwt() {
+            // Given
+            var encodedAccessToken = encodedAccessToken();
+            var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(encodedAccessToken);
 
+            // When
             webTestClient.post()
                          .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -322,17 +410,18 @@ class AuthenticationE2EIT {
                          .isEqualTo("/asapp-authentication-service/api/auth/refresh");
 
             // Then
-            assertNoAuthenticationsExists();
+            assertAuthenticationNotExist();
         }
 
         @Test
-        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_RefreshTokenHasExpired() {
-            // When
-            var refreshToken = testEncodedTokenBuilder().refreshToken()
-                                                        .expired()
-                                                        .build();
-            var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken);
+        void ReturnsStatusUnauthorizedWithGenericMessage_ExpiredRefreshToken() {
+            // Given
+            var encodedRefreshToken = anEncodedTokenBuilder().refreshToken()
+                                                             .expired()
+                                                             .build();
+            var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(encodedRefreshToken);
 
+            // When
             webTestClient.post()
                          .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -358,22 +447,18 @@ class AuthenticationE2EIT {
                          .isEqualTo("/asapp-authentication-service/api/auth/refresh");
 
             // Then
-            assertNoAuthenticationsExists();
+            assertAuthenticationNotExist();
         }
 
         @Test
-        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_RefreshTokenSubjectNotExists() {
+        void ReturnsStatusUnauthorizedWithGenericMessage_RefreshTokenSubjectNotExists() {
             // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
+            var encodedRefreshToken = anEncodedTokenBuilder().refreshToken()
+                                                             .withSubject("subject_not_exist")
+                                                             .build();
+            var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(encodedRefreshToken);
 
             // When
-            var refreshToken = testEncodedTokenBuilder().refreshToken()
-                                                        .withSubject("not_exists_subject")
-                                                        .build();
-            var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken);
-
             webTestClient.post()
                          .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -399,20 +484,16 @@ class AuthenticationE2EIT {
                          .isEqualTo("/asapp-authentication-service/api/auth/refresh");
 
             // Then
-            assertNoAuthenticationsExists();
+            assertAuthenticationNotExist();
         }
 
         @Test
-        void DoesNotRefreshAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_RefreshTokenNotExists() {
+        void ReturnsStatusUnauthorizedWithGenericMessage_RefreshTokenNotExists() {
             // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
+            var encodedRefreshToken = encodedRefreshToken();
+            var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(encodedRefreshToken);
 
             // When
-            var refreshToken = defaultTestEncodedRefreshToken();
-            var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken);
-
             webTestClient.post()
                          .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -438,85 +519,89 @@ class AuthenticationE2EIT {
                          .isEqualTo("/asapp-authentication-service/api/auth/refresh");
 
             // Then
-            assertNoAuthenticationsExists();
+            assertAuthenticationNotExist();
         }
 
         @Test
-        void RefreshesAuthenticationAndReturnsStatusOkAndBodyWithRefreshedAuthentication_RefreshTokenBelongsToUserAlreadyAuthenticated() {
+        void ReturnsStatusUnauthorizedWithGenericMessage_RefreshTokenExistsInDbButNotInRedis() {
             // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
-
-            var previousJwtAuthentication = createJwtAuthentication(userCreated);
-            var previousAccessToken = previousJwtAuthentication.accessToken();
-            var previousRefreshToken = previousJwtAuthentication.refreshToken();
+            var createdUser = createUser();
+            var jwtAuthentication = aJwtAuthenticationBuilder().withUserId(createdUser.id())
+                                                               .buildJdbc();
+            var createdJwtAuthentication = createJwtAuthenticationInDB(jwtAuthentication);
+            var accessToken = createdJwtAuthentication.accessToken();
+            var refreshToken = createdJwtAuthentication.refreshToken();
+            var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken.token());
 
             // When
-            var refreshToken = previousJwtAuthentication.refreshToken()
-                                                        .token();
-            var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken);
-
-            var response = webTestClient.post()
-                                        .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                                        .bodyValue(refreshAuthenticationRequestBody)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isOk()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBody(RefreshAuthenticationResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
+            webTestClient.post()
+                         .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                         .bodyValue(refreshAuthenticationRequestBody)
+                         .exchange()
+                         .expectStatus()
+                         .isUnauthorized()
+                         .expectHeader()
+                         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .expectBody()
+                         .jsonPath("$.type")
+                         .isEqualTo("about:blank")
+                         .jsonPath("$.title")
+                         .isEqualTo("Authentication Failed")
+                         .jsonPath("$.status")
+                         .isEqualTo(401)
+                         .jsonPath("$.detail")
+                         .isEqualTo("Invalid credentials")
+                         .jsonPath("$.error")
+                         .isEqualTo("invalid_grant")
+                         .jsonPath("$.instance")
+                         .isEqualTo("/asapp-authentication-service/api/auth/refresh");
 
             // Then
-            assertThat(response).isNotNull();
-            assertAPIResponse(response.accessToken(), response.refreshToken(), userCreated);
-            assertAuthenticationExists(response.accessToken(), response.refreshToken(), userCreated);
-            assertAuthenticationNotExist(previousAccessToken.token(), previousRefreshToken.token());
+            assertAuthenticationExistInDB(accessToken.token(), refreshToken.token(), createdUser);
+            assertAuthenticationNotExistInRedis(accessToken.token(), refreshToken.token());
         }
 
         @Test
-        void RefreshesAuthenticationAndReturnsStatusOkAndBodyWithRefreshedAuthentication_RefreshTokenBelongsToUserHasSeveralAuthentications() {
+        void ReturnsStatusUnauthorizedWithGenericMessage_RefreshTokenExistsInRedisButNotInDb() {
             // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
-
-            var previousJwtAuthentication1 = createJwtAuthentication(userCreated);
-            var previousJwtAuthentication2 = createJwtAuthentication(userCreated);
-            var previousAccessToken1 = previousJwtAuthentication1.accessToken();
-            var previousRefreshToken1 = previousJwtAuthentication1.refreshToken();
-            var previousAccessToken2 = previousJwtAuthentication2.accessToken();
-            var previousRefreshToken2 = previousJwtAuthentication2.refreshToken();
+            var createdUser = createUser();
+            var jwtAuthentication = aJwtAuthenticationBuilder().withUserId(createdUser.id())
+                                                               .buildJdbc();
+            createJwtAuthenticationInRedis(jwtAuthentication);
+            var accessToken = jwtAuthentication.accessToken();
+            var refreshToken = jwtAuthentication.refreshToken();
+            var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken.token());
 
             // When
-            var refreshToken = previousJwtAuthentication1.refreshToken()
-                                                         .token();
-            var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken);
-
-            var response = webTestClient.post()
-                                        .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                                        .bodyValue(refreshAuthenticationRequestBody)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isOk()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBody(RefreshAuthenticationResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
+            webTestClient.post()
+                         .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                         .bodyValue(refreshAuthenticationRequestBody)
+                         .exchange()
+                         .expectStatus()
+                         .isUnauthorized()
+                         .expectHeader()
+                         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .expectBody()
+                         .jsonPath("$.type")
+                         .isEqualTo("about:blank")
+                         .jsonPath("$.title")
+                         .isEqualTo("Authentication Failed")
+                         .jsonPath("$.status")
+                         .isEqualTo(401)
+                         .jsonPath("$.detail")
+                         .isEqualTo("Invalid credentials")
+                         .jsonPath("$.error")
+                         .isEqualTo("invalid_grant")
+                         .jsonPath("$.instance")
+                         .isEqualTo("/asapp-authentication-service/api/auth/refresh");
 
             // Then
-            assertThat(response).isNotNull();
-            assertAPIResponse(response.accessToken(), response.refreshToken(), userCreated);
-            assertAuthenticationExists(response.accessToken(), response.refreshToken(), userCreated);
-            assertAuthenticationNotExist(previousAccessToken1.token(), previousRefreshToken1.token());
-            assertAuthenticationExists(previousAccessToken2.token(), previousRefreshToken2.token(), userCreated);
+            assertAuthenticationNotExistInDB(accessToken.token(), refreshToken.token());
+            assertAuthenticationExistInRedis(accessToken.token(), refreshToken.token());
         }
 
     }
@@ -525,10 +610,65 @@ class AuthenticationE2EIT {
     class RevokeAuthentication {
 
         @Test
-        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_InvalidAccessToken() {
+        void ReturnsStatusOkAndEmptyBody_ValidAccessToken() {
+            // Given
+            var createdUser = createUser();
+            var createdJwtAuthentication = createJwtAuthenticationForUser(createdUser);
+            var accessToken = createdJwtAuthentication.accessToken();
+            var refreshToken = createdJwtAuthentication.refreshToken();
+            var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken.token());
+
             // When
+            webTestClient.post()
+                         .uri(AUTH_REVOKE_FULL_PATH)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                         .bodyValue(revokeAuthenticationRequestBody)
+                         .exchange()
+                         .expectStatus()
+                         .isOk()
+                         .expectBody()
+                         .isEmpty();
+
+            // Then
+            assertAuthenticationNotExist(accessToken.token(), refreshToken.token());
+        }
+
+        @Test
+        void ReturnsStatusOkAndEmptyBody_UserHasSeveralAuthentications() {
+            // Given
+            var createdUser = createUser();
+            var createdJwtAuthentication1 = createJwtAuthenticationForUser(createdUser);
+            var createdJwtAuthentication2 = createJwtAuthenticationForUser(createdUser);
+            var accessToken1 = createdJwtAuthentication1.accessToken();
+            var refreshToken1 = createdJwtAuthentication1.refreshToken();
+            var accessToken2 = createdJwtAuthentication2.accessToken();
+            var refreshToken2 = createdJwtAuthentication2.refreshToken();
+            var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken1.token());
+
+            // When
+            webTestClient.post()
+                         .uri(AUTH_REVOKE_FULL_PATH)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                         .bodyValue(revokeAuthenticationRequestBody)
+                         .exchange()
+                         .expectStatus()
+                         .isOk()
+                         .expectBody()
+                         .isEmpty();
+
+            // Then
+            assertAuthenticationNotExist(accessToken1.token(), refreshToken1.token());
+            assertAuthenticationExist(accessToken2.token(), refreshToken2.token(), createdUser);
+        }
+
+        @Test
+        void ReturnsStatusUnauthorizedWithGenericMessage_InvalidAccessToken() {
+            // Given
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest("invalid_access_token");
 
+            // When
             webTestClient.post()
                          .uri(AUTH_REVOKE_FULL_PATH)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -554,15 +694,16 @@ class AuthenticationE2EIT {
                          .isEqualTo("/asapp-authentication-service/api/auth/revoke");
 
             // Then
-            assertNoAuthenticationsExists();
+            assertAuthenticationNotExist();
         }
 
         @Test
-        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_JwtIsRefreshToken() {
-            // When
-            var refreshToken = defaultTestEncodedRefreshToken();
-            var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(refreshToken);
+        void ReturnsStatusUnauthorizedWithGenericMessage_RefreshTokenJwt() {
+            // Given
+            var encodedRefreshToken = encodedRefreshToken();
+            var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(encodedRefreshToken);
 
+            // When
             webTestClient.post()
                          .uri(AUTH_REVOKE_FULL_PATH)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -588,17 +729,18 @@ class AuthenticationE2EIT {
                          .isEqualTo("/asapp-authentication-service/api/auth/revoke");
 
             // Then
-            assertNoAuthenticationsExists();
+            assertAuthenticationNotExist();
         }
 
         @Test
-        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_AccessTokenHasExpired() {
-            // When
-            var accessToken = testEncodedTokenBuilder().accessToken()
-                                                       .expired()
-                                                       .build();
-            var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken);
+        void ReturnsStatusUnauthorizedWithGenericMessage_ExpiredAccessToken() {
+            // Given
+            var encodedAccessToken = anEncodedTokenBuilder().accessToken()
+                                                            .expired()
+                                                            .build();
+            var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(encodedAccessToken);
 
+            // When
             webTestClient.post()
                          .uri(AUTH_REVOKE_FULL_PATH)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -624,22 +766,18 @@ class AuthenticationE2EIT {
                          .isEqualTo("/asapp-authentication-service/api/auth/revoke");
 
             // Then
-            assertNoAuthenticationsExists();
+            assertAuthenticationNotExist();
         }
 
         @Test
-        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_AccessTokenSubjectNotExists() {
+        void ReturnsStatusUnauthorizedWithGenericMessage_AccessTokenSubjectNotExists() {
             // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
+            var encodedAccessToken = anEncodedTokenBuilder().accessToken()
+                                                            .withSubject("subject_not_exist")
+                                                            .build();
+            var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(encodedAccessToken);
 
             // When
-            var accessToken = testEncodedTokenBuilder().accessToken()
-                                                       .withSubject("not_exists_subject")
-                                                       .build();
-            var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken);
-
             webTestClient.post()
                          .uri(AUTH_REVOKE_FULL_PATH)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -665,20 +803,16 @@ class AuthenticationE2EIT {
                          .isEqualTo("/asapp-authentication-service/api/auth/revoke");
 
             // Then
-            assertNoAuthenticationsExists();
+            assertAuthenticationNotExist();
         }
 
         @Test
-        void DoesNotRevokeAuthenticationAndReturnsStatusUnauthorizedWithGenericMessage_AccessTokenNotExists() {
+        void ReturnsStatusUnauthorizedWithGenericMessage_AccessTokenNotExists() {
             // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
+            var encodedAccessToken = encodedAccessToken();
+            var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(encodedAccessToken);
 
             // When
-            var accessToken = defaultTestEncodedAccessToken();
-            var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken);
-
             webTestClient.post()
                          .uri(AUTH_REVOKE_FULL_PATH)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -704,25 +838,21 @@ class AuthenticationE2EIT {
                          .isEqualTo("/asapp-authentication-service/api/auth/revoke");
 
             // Then
-            assertNoAuthenticationsExists();
+            assertAuthenticationNotExist();
         }
 
         @Test
-        void RevokesAuthenticationAndReturnsStatusOkAndEmptyBody_AccessTokenBelongsToUserAlreadyAuthenticated() {
+        void ReturnsStatusUnauthorizedWithGenericMessage_AccessTokenExistsInDbButNotInRedis() {
             // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
-
-            var previousJwtAuthentication = createJwtAuthentication(userCreated);
-            var previousAccessToken = previousJwtAuthentication.accessToken();
-            var previousRefreshToken = previousJwtAuthentication.refreshToken();
+            var createdUser = createUser();
+            var jwtAuthentication = aJwtAuthenticationBuilder().withUserId(createdUser.id())
+                                                               .buildJdbc();
+            var createdJwtAuthentication = createJwtAuthenticationInDB(jwtAuthentication);
+            var accessToken = createdJwtAuthentication.accessToken();
+            var refreshToken = createdJwtAuthentication.refreshToken();
+            var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken.token());
 
             // When
-            var accessToken = previousJwtAuthentication.accessToken()
-                                                       .token();
-            var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken);
-
             webTestClient.post()
                          .uri(AUTH_REVOKE_FULL_PATH)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -730,34 +860,40 @@ class AuthenticationE2EIT {
                          .bodyValue(revokeAuthenticationRequestBody)
                          .exchange()
                          .expectStatus()
-                         .isOk()
+                         .isUnauthorized()
+                         .expectHeader()
+                         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                          .expectBody()
-                         .isEmpty();
+                         .jsonPath("$.type")
+                         .isEqualTo("about:blank")
+                         .jsonPath("$.title")
+                         .isEqualTo("Authentication Failed")
+                         .jsonPath("$.status")
+                         .isEqualTo(401)
+                         .jsonPath("$.detail")
+                         .isEqualTo("Invalid credentials")
+                         .jsonPath("$.error")
+                         .isEqualTo("invalid_grant")
+                         .jsonPath("$.instance")
+                         .isEqualTo("/asapp-authentication-service/api/auth/revoke");
 
             // Then
-
-            assertAuthenticationNotExist(previousAccessToken.token(), previousRefreshToken.token());
+            assertAuthenticationExistInDB(accessToken.token(), refreshToken.token(), createdUser);
+            assertAuthenticationNotExistInRedis(accessToken.token(), refreshToken.token());
         }
 
         @Test
-        void RevokesAuthenticationAndReturnsStatusOkAndEmptyBody_AccessTokenBelongsToUserHasSeveralAuthentications() {
+        void ReturnsStatusUnauthorizedWithGenericMessage_AccessTokenExistsInRedisButNotInDb() {
             // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
-
-            var previousJwtAuthentication1 = createJwtAuthentication(userCreated);
-            var previousJwtAuthentication2 = createJwtAuthentication(userCreated);
-            var previousAccessToken1 = previousJwtAuthentication1.accessToken();
-            var previousRefreshToken1 = previousJwtAuthentication1.refreshToken();
-            var previousAccessToken2 = previousJwtAuthentication2.accessToken();
-            var previousRefreshToken2 = previousJwtAuthentication2.refreshToken();
+            var createdUser = createUser();
+            var jwtAuthentication = aJwtAuthenticationBuilder().withUserId(createdUser.id())
+                                                               .buildJdbc();
+            createJwtAuthenticationInRedis(jwtAuthentication);
+            var accessToken = jwtAuthentication.accessToken();
+            var refreshToken = jwtAuthentication.refreshToken();
+            var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken.token());
 
             // When
-            var accessToken = previousJwtAuthentication1.accessToken()
-                                                        .token();
-            var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken);
-
             webTestClient.post()
                          .uri(AUTH_REVOKE_FULL_PATH)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
@@ -765,61 +901,124 @@ class AuthenticationE2EIT {
                          .bodyValue(revokeAuthenticationRequestBody)
                          .exchange()
                          .expectStatus()
-                         .isOk()
+                         .isUnauthorized()
+                         .expectHeader()
+                         .contentType(MediaType.APPLICATION_PROBLEM_JSON)
                          .expectBody()
-                         .isEmpty();
+                         .jsonPath("$.type")
+                         .isEqualTo("about:blank")
+                         .jsonPath("$.title")
+                         .isEqualTo("Authentication Failed")
+                         .jsonPath("$.status")
+                         .isEqualTo(401)
+                         .jsonPath("$.detail")
+                         .isEqualTo("Invalid credentials")
+                         .jsonPath("$.error")
+                         .isEqualTo("invalid_grant")
+                         .jsonPath("$.instance")
+                         .isEqualTo("/asapp-authentication-service/api/auth/revoke");
 
             // Then
-
-            assertAuthenticationNotExist(previousAccessToken1.token(), previousRefreshToken1.token());
-            assertAuthenticationExists(previousAccessToken2.token(), previousRefreshToken2.token(), userCreated);
+            assertAuthenticationNotExistInDB(accessToken.token(), refreshToken.token());
+            assertAuthenticationExistInRedis(accessToken.token(), refreshToken.token());
         }
 
     }
 
-    private JdbcJwtAuthenticationEntity createJwtAuthentication(JdbcUserEntity user) {
-        var jwtAuthentication = testJwtAuthenticationBuilder().withUserId(user.id())
-                                                              .buildJdbcEntity();
-        var jwtAuthenticationCreated = jwtAuthenticationRepository.save(jwtAuthentication);
-        assertThat(jwtAuthenticationCreated).isNotNull();
+    // Test Data Creation Helpers
 
-        var accessToken = jwtAuthenticationCreated.accessToken();
-        var refreshToken = jwtAuthenticationCreated.refreshToken();
+    private JdbcUserEntity createUser() {
+        var user = aJdbcUser();
+        return createUser(user);
+    }
 
+    private JdbcUserEntity createUser(JdbcUserEntity user) {
+        var createdUser = userRepository.save(user);
+        assertThat(createdUser).isNotNull();
+        return createdUser;
+    }
+
+    private JdbcJwtAuthenticationEntity createJwtAuthenticationForUser(JdbcUserEntity user) {
+        var jwtAuthentication = aJwtAuthenticationBuilder().withUserId(user.id())
+                                                           .buildJdbc();
+        var createdJwtAuthentication = createJwtAuthenticationInDB(jwtAuthentication);
+        createJwtAuthenticationInRedis(jwtAuthentication);
+        return createdJwtAuthentication;
+    }
+
+    private JdbcJwtAuthenticationEntity createJwtAuthenticationInDB(JdbcJwtAuthenticationEntity jwtAuthentication) {
+        var createdJwtAuthentication = jwtAuthenticationRepository.save(jwtAuthentication);
+        assertThat(createdJwtAuthentication).isNotNull();
+        return createdJwtAuthentication;
+    }
+
+    private void createJwtAuthenticationInRedis(JdbcJwtAuthenticationEntity jwtAuthentication) {
+        var accessToken = jwtAuthentication.accessToken();
+        var refreshToken = jwtAuthentication.refreshToken();
         redisTemplate.opsForValue()
                      .set(ACCESS_TOKEN_PREFIX + accessToken.token(), "");
         redisTemplate.opsForValue()
                      .set(REFRESH_TOKEN_PREFIX + refreshToken.token(), "");
-
-        return jwtAuthenticationCreated;
+        assertThat(redisTemplate.hasKey(ACCESS_TOKEN_PREFIX + accessToken.token())).isTrue();
+        assertThat(redisTemplate.hasKey(REFRESH_TOKEN_PREFIX + refreshToken.token())).isTrue();
     }
+
+    // Assertions Helpers
 
     private void assertAPIResponse(String actualAccessToken, String actualRefreshToken, JdbcUserEntity expectedUser) {
         var expectedRoleName = expectedUser.role();
 
-        SoftAssertions.assertSoftly(softAssertions -> {
-            assertThatJwt(actualAccessToken).isNotNull()
-                                            .isAccessToken()
-                                            .hasSubject(expectedUser.username())
-                                            .hasClaim(ROLE, expectedRoleName, String.class)
-                                            .hasIssuedAt()
-                                            .hasExpiration();
-            assertThatJwt(actualRefreshToken).isNotNull()
-                                             .isRefreshToken()
-                                             .hasSubject(expectedUser.username())
-                                             .hasClaim(ROLE, expectedRoleName, String.class)
-                                             .hasIssuedAt()
-                                             .hasExpiration();
-        });
+        assertThatJwt(actualAccessToken).isNotNull()
+                                        .isAccessToken()
+                                        .hasSubject(expectedUser.username())
+                                        .hasClaim(ROLE, expectedRoleName, String.class)
+                                        .hasIssuedAt()
+                                        .hasExpiration();
+        assertThatJwt(actualRefreshToken).isNotNull()
+                                         .isRefreshToken()
+                                         .hasSubject(expectedUser.username())
+                                         .hasClaim(ROLE, expectedRoleName, String.class)
+                                         .hasIssuedAt()
+                                         .hasExpiration();
     }
 
-    private void assertAuthenticationExists(String expectedAccessToken, String expectedRefreshToken, JdbcUserEntity expectedUser) {
+    private void assertAuthenticationExist(String expectedAccessToken, String expectedRefreshToken, JdbcUserEntity expectedUser) {
+        assertAuthenticationExistInDB(expectedAccessToken, expectedRefreshToken, expectedUser);
+        assertAuthenticationExistInRedis(expectedAccessToken, expectedRefreshToken);
+    }
+
+    private void assertAuthenticationExistInDB(String expectedAccessToken, String expectedRefreshToken, JdbcUserEntity expectedUser) {
         var expectedUsername = expectedUser.username();
         var expectedRole = expectedUser.role();
 
-        // Database
         var actualAuthentication = jwtAuthenticationRepository.findByAccessTokenToken(expectedAccessToken);
 
+        assertSoftly(softly -> {
+            // @formatter:off
+            softly.assertThat(actualAuthentication).as("authentication").isNotEmpty();
+            softly.assertThat(actualAuthentication).get()
+                  .extracting(JdbcJwtAuthenticationEntity::accessToken)
+                  .satisfies(actualAccessToken -> softly.assertThat(actualAccessToken.token()).as("access token value").isEqualTo(expectedAccessToken),
+                          actualAccessToken -> softly.assertThat(actualAccessToken.type()).as("access token type").isEqualTo(ACCESS_TOKEN.type()),
+                          actualAccessToken -> softly.assertThat(actualAccessToken.subject()).as("access token subject").isEqualTo(expectedUsername),
+                          actualAccessToken -> softly.assertThat(actualAccessToken.claims().claims().get(TOKEN_USE)).as("access token use claim").isEqualTo(ACCESS_TOKEN_USE),
+                          actualAccessToken -> softly.assertThat(actualAccessToken.claims().claims().get(ROLE)).as("access token role claim").isEqualTo(expectedRole),
+                          actualAccessToken -> softly.assertThat(actualAccessToken.issued()).as("access token issued").isNotNull(),
+                          actualAccessToken -> softly.assertThat(actualAccessToken.expiration()).as("access token expiration").isNotNull());
+            softly.assertThat(actualAuthentication).get()
+                  .extracting(JdbcJwtAuthenticationEntity::refreshToken)
+                  .satisfies(actualRefreshToken -> softly.assertThat(actualRefreshToken.token()).as("refresh token value").isEqualTo(expectedRefreshToken),
+                          actualRefreshToken -> softly.assertThat(actualRefreshToken.type()).as("refresh token type").isEqualTo(REFRESH_TOKEN.type()),
+                          actualRefreshToken -> softly.assertThat(actualRefreshToken.subject()).as("refresh token subject").isEqualTo(expectedUsername),
+                          actualRefreshToken -> softly.assertThat(actualRefreshToken.claims().claims().get(TOKEN_USE)).as("refresh token use claim").isEqualTo(REFRESH_TOKEN_USE),
+                          actualRefreshToken -> softly.assertThat(actualRefreshToken.claims().claims().get(ROLE)).as("refresh token role claim").isEqualTo(expectedRole),
+                          actualRefreshToken -> softly.assertThat(actualRefreshToken.issued()).as("refresh token issued").isNotNull(),
+                          actualRefreshToken -> softly.assertThat(actualRefreshToken.expiration()).as("refresh token expiration").isNotNull());
+            // @formatter:on
+        });
+    }
+
+    private void assertAuthenticationExistInRedis(String expectedAccessToken, String expectedRefreshToken) {
         // Redis
         var expectedAccessTokenRedisKey = ACCESS_TOKEN_PREFIX + expectedAccessToken;
         var expectedRefreshTokenRedisKey = REFRESH_TOKEN_PREFIX + expectedRefreshToken;
@@ -830,71 +1029,56 @@ class AuthenticationE2EIT {
         var actualRefreshTokenInRedis = redisTemplate.opsForValue()
                                                      .get(expectedRefreshTokenRedisKey);
 
-        // @formatter:off
-        SoftAssertions.assertSoftly(softAssertions -> {
-            // Database
-            assertThat(actualAuthentication).isNotEmpty();
-            assertThat(actualAuthentication).get()
-                                            .extracting(JdbcJwtAuthenticationEntity::accessToken)
-                                            .satisfies(actualAccessToken -> assertThat(actualAccessToken.token()).isEqualTo(expectedAccessToken),
-                                                    actualAccessToken -> assertThat(actualAccessToken.type()).isEqualTo(ACCESS_TOKEN.type()),
-                                                    actualAccessToken -> assertThat(actualAccessToken.subject()).isEqualTo(expectedUsername),
-                                                    actualAccessToken -> assertThat(actualAccessToken.claims().claims().get(TOKEN_USE)).isEqualTo(ACCESS_TOKEN_USE),
-                                                    actualAccessToken -> assertThat(actualAccessToken.claims().claims().get(ROLE)).isEqualTo(expectedRole),
-                                                    actualAccessToken -> assertThat(actualAccessToken.issued()).isNotNull(),
-                                                    actualAccessToken -> assertThat(actualAccessToken.expiration()).isNotNull());
-            assertThat(actualAuthentication).get()
-                                            .extracting(JdbcJwtAuthenticationEntity::refreshToken)
-                                            .satisfies(actualRefreshToken -> assertThat(actualRefreshToken.token()).isEqualTo(expectedRefreshToken),
-                                                    actualRefreshToken -> assertThat(actualRefreshToken.type()).isEqualTo(REFRESH_TOKEN.type()),
-                                                    actualRefreshToken -> assertThat(actualRefreshToken.subject()).isEqualTo(expectedUsername),
-                                                    actualRefreshToken -> assertThat(actualRefreshToken.claims().claims().get(TOKEN_USE)).isEqualTo(REFRESH_TOKEN_USE),
-                                                    actualRefreshToken -> assertThat(actualRefreshToken.claims().claims().get(ROLE)).isEqualTo(expectedRole),
-                                                    actualRefreshToken -> assertThat(actualRefreshToken.issued()).isNotNull(),
-                                                    actualRefreshToken -> assertThat(actualRefreshToken.expiration()).isNotNull());
-
-            // Redis
-            assertThat(actualAccessTokenKeyExists).isTrue();
-            assertThat(actualRefreshTokenKeyExists).isTrue();
-            assertThat(actualAccessTokenInRedis).isEmpty();
-            assertThat(actualRefreshTokenInRedis).isEmpty();
+        assertSoftly(softly -> {
+            // @formatter:off
+            softly.assertThat(actualAccessTokenKeyExists).as("access token exists in Redis").isTrue();
+            softly.assertThat(actualRefreshTokenKeyExists).as("refresh token exists in Redis").isTrue();
+            softly.assertThat(actualAccessTokenInRedis).as("access token value in Redis").isEmpty();
+            softly.assertThat(actualRefreshTokenInRedis).as("refresh token value in Redis").isEmpty();
+            // @formatter:on
         });
-        // @formatter:on
     }
 
     private void assertAuthenticationNotExist(String expectedAccessToken, String expectedRefreshToken) {
-        // Database
+        assertAuthenticationNotExistInDB(expectedAccessToken, expectedRefreshToken);
+        assertAuthenticationNotExistInRedis(expectedAccessToken, expectedRefreshToken);
+    }
+
+    private void assertAuthenticationNotExistInDB(String expectedAccessToken, String expectedRefreshToken) {
         var actualAuthenticationFromAccessToken = jwtAuthenticationRepository.findByAccessTokenToken(expectedAccessToken);
         var actualAuthenticationFromRefreshToken = jwtAuthenticationRepository.findByRefreshTokenToken(expectedRefreshToken);
+        assertSoftly(softly -> {
+            // @formatter:off
+            softly.assertThat(actualAuthenticationFromAccessToken).as("authentication from access token").isEmpty();
+            softly.assertThat(actualAuthenticationFromRefreshToken).as("authentication from refresh token").isEmpty();
+            // @formatter:on
+        });
+    }
 
+    private void assertAuthenticationNotExistInRedis(String expectedAccessToken, String expectedRefreshToken) {
         // Redis
         var actualAccessTokenKey = ACCESS_TOKEN_PREFIX + expectedAccessToken;
         var actualRefreshTokenKey = REFRESH_TOKEN_PREFIX + expectedRefreshToken;
         var actualAccessTokenKeyExists = redisTemplate.hasKey(actualAccessTokenKey);
         var actualRefreshTokenKeyExists = redisTemplate.hasKey(actualRefreshTokenKey);
 
-        SoftAssertions.assertSoftly(softAssertions -> {
-            // Database
-            assertThat(actualAuthenticationFromAccessToken).isEmpty();
-            assertThat(actualAuthenticationFromRefreshToken).isEmpty();
-
-            // Redis
-            assertThat(actualAccessTokenKeyExists).isFalse();
-            assertThat(actualRefreshTokenKeyExists).isFalse();
+        assertSoftly(softly -> {
+            // @formatter:off
+            softly.assertThat(actualAccessTokenKeyExists).as("access token exists in Redis").isFalse();
+            softly.assertThat(actualRefreshTokenKeyExists).as("refresh token exists in Redis").isFalse();
+            // @formatter:on
         });
     }
 
-    private void assertNoAuthenticationsExists() {
+    private void assertAuthenticationNotExist() {
         // Database
         var actualAuthenticationsInDB = jwtAuthenticationRepository.findAll();
 
         // Redis
         var actualAuthenticationsInRedis = redisTemplate.keys("jwt:*");
 
-        SoftAssertions.assertSoftly(softAssertions -> {
-            assertThat(actualAuthenticationsInDB).isEmpty();
-            assertThat(actualAuthenticationsInRedis).isEmpty();
-        });
+        assertThat(actualAuthenticationsInDB).isEmpty();
+        assertThat(actualAuthenticationsInRedis).isEmpty();
     }
 
 }

@@ -23,32 +23,44 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
+/**
+ * Tests {@link Description} validation, nullable factory, and value access.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or blank description values</li>
+ * <li>Accepts valid inputs through constructor and factory method</li>
+ * <li>Returns null from nullable factory for null, empty, or blank input</li>
+ * <li>Provides access to wrapped description value</li>
+ */
 class DescriptionTests {
-
-    private final String descriptionValue = "Description";
 
     @Nested
     class CreateDescriptionWithConstructor {
 
-        @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenDescriptionIsNullOrEmpty(String description) {
+        @Test
+        void ReturnsDescription_ValidDescription() {
+            // Given
+            var description = "Description";
+
             // When
-            var thrown = catchThrowable(() -> new Description(description));
+            var actual = new Description(description);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Description must not be null or empty");
+            assertThat(actual.description()).isEqualTo(description);
         }
 
-        @Test
-        void ThenReturnsDescription_GivenDescriptionIsValid() {
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsIllegalArgumentException_NullOrBlankDescription(String description) {
             // When
-            var actual = new Description(descriptionValue);
+            var actual = catchThrowable(() -> new Description(description));
 
             // Then
-            assertThat(actual.description()).isEqualTo(descriptionValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Description must not be null or empty");
         }
 
     }
@@ -56,24 +68,28 @@ class DescriptionTests {
     @Nested
     class CreateDescriptionWithFactoryMethod {
 
-        @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenDescriptionIsNullOrEmpty(String description) {
+        @Test
+        void ReturnsDescription_ValidDescription() {
+            // Given
+            var description = "Description";
+
             // When
-            var thrown = catchThrowable(() -> Description.of(description));
+            var actual = Description.of(description);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Description must not be null or empty");
+            assertThat(actual.description()).isEqualTo(description);
         }
 
-        @Test
-        void ThenReturnsDescription_GivenDescriptionIsValid() {
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsIllegalArgumentException_NullOrBlankDescription(String description) {
             // When
-            var actual = Description.of(descriptionValue);
+            var actual = catchThrowable(() -> Description.of(description));
 
             // Then
-            assertThat(actual.description()).isEqualTo(descriptionValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Description must not be null or empty");
         }
 
     }
@@ -81,32 +97,27 @@ class DescriptionTests {
     @Nested
     class CreateDescriptionWithNullableFactoryMethod {
 
+        @Test
+        void ReturnsDescription_ValidDescription() {
+            // Given
+            var description = "Description";
+
+            // When
+            var actual = Description.ofNullable(description);
+
+            // Then
+            assertThat(actual.description()).isEqualTo(description);
+        }
+
         @ParameterizedTest
         @NullAndEmptySource
-        void ThenReturnsNull_GivenDescriptionIsNullOrEmpty(String description) {
+        @ValueSource(strings = { " ", "\t" })
+        void ReturnsNull_NullOrBlankDescription(String description) {
             // When
             var actual = Description.ofNullable(description);
 
             // Then
             assertThat(actual).isNull();
-        }
-
-        @Test
-        void ThenReturnsNull_GivenDescriptionIsBlank() {
-            // When
-            var actual = Description.ofNullable("   ");
-
-            // Then
-            assertThat(actual).isNull();
-        }
-
-        @Test
-        void ThenReturnsDescription_GivenDescriptionIsValid() {
-            // When
-            var actual = Description.ofNullable(descriptionValue);
-
-            // Then
-            assertThat(actual.description()).isEqualTo(descriptionValue);
         }
 
     }
@@ -115,8 +126,9 @@ class DescriptionTests {
     class GetValue {
 
         @Test
-        void ThenReturnsDescriptionValue_GivenDescriptionIsValid() {
+        void ReturnsDescriptionValue_ValidDescription() {
             // Given
+            var descriptionValue = "Description";
             var description = Description.of(descriptionValue);
 
             // When

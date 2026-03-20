@@ -23,10 +23,11 @@ import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_ALL_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_UPDATE_BY_ID_FULL_PATH;
 import static com.bcn.asapp.users.infrastructure.security.RedisJwtStore.ACCESS_TOKEN_PREFIX;
-import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
-import static com.bcn.asapp.users.testutil.TestFactory.TestUserFactory.defaultTestUser;
-import static com.bcn.asapp.users.testutil.TestFactory.TestUserFactory.testUserBuilder;
+import static com.bcn.asapp.users.testutil.fixture.EncodedTokenFactory.encodedAccessToken;
+import static com.bcn.asapp.users.testutil.fixture.UserFactory.aJdbcUser;
+import static com.bcn.asapp.users.testutil.fixture.UserFactory.aUserBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockserver.matchers.Times.once;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
@@ -66,9 +67,24 @@ import com.bcn.asapp.users.infrastructure.user.in.response.CreateUserResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetAllUsersResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUserByIdResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
+import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserEntity;
 import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserRepository;
 import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 
+/**
+ * Tests end-to-end user management workflows including CRUD operations and task enrichment.
+ * <p>
+ * Coverage:
+ * <li>Rejects all operations without valid JWT authentication</li>
+ * <li>Retrieves user by identifier returning 404 when not found, user when exists</li>
+ * <li>Retrieves user with task enrichment via external gateway (graceful degradation on failure)</li>
+ * <li>Retrieves all users returning empty or collection</li>
+ * <li>Creates user persisting to database and returning assigned identifier</li>
+ * <li>Updates existing user persisting changes and returning updated data</li>
+ * <li>Deletes existing user removing from database</li>
+ * <li>Tests complete flow: HTTP → Security → Controller → Service → Repository → Database</li>
+ * <li>Tests external service integration using MockServer for task service calls</li>
+ */
 @SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient(timeout = "30000")
 @Import(TestContainerConfiguration.class)
@@ -96,81 +112,128 @@ class UserE2EIT {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
-    private final String accessToken = defaultTestEncodedAccessToken();
+    private final String encodedAccessToken = encodedAccessToken();
 
-    private final String bearerToken = "Bearer " + accessToken;
+    private final String bearerToken = "Bearer " + encodedAccessToken;
 
     @BeforeEach
     void beforeEach() {
         userRepository.deleteAll();
         mockServerClient.reset();
 
-        redisTemplate.delete(ACCESS_TOKEN_PREFIX + accessToken);
+        assertThat(redisTemplate.getConnectionFactory()).isNotNull();
+        redisTemplate.delete(ACCESS_TOKEN_PREFIX + encodedAccessToken);
         redisTemplate.opsForValue()
-                     .set(ACCESS_TOKEN_PREFIX + accessToken, "");
+                     .set(ACCESS_TOKEN_PREFIX + encodedAccessToken, "");
     }
 
     @Nested
     class GetUserById {
 
         @Test
-        void DoesNotGetUserAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
-            // When & Then
-            var userIdPath = UUID.fromString("b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e");
+        void ReturnsStatusOKAndBodyWithFoundUserWithoutTasks_UserExistsWithoutTasks(CapturedOutput output) {
+            // Given
+            var createdUser = createUser();
+            var userId = createdUser.id();
+            var response = new GetUserByIdResponse(createdUser.id(), createdUser.firstName(), createdUser.lastName(), createdUser.email(),
+                    createdUser.phoneNumber(), Collections.emptyList());
 
-            webTestClient.get()
-                         .uri(USERS_GET_BY_ID_FULL_PATH, userIdPath)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            mockRequestToGetTasksByUserIdWithOkResponse(userId, Collections.emptyList());
+
+            // When
+            var actual = webTestClient.get()
+                                      .uri(USERS_GET_BY_ID_FULL_PATH, userId)
+                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                      .exchange()
+                                      .expectStatus()
+                                      .isOk()
+                                      .expectHeader()
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .expectBody(GetUserByIdResponse.class)
+                                      .returnResult()
+                                      .getResponseBody();
+
+            // Then
+            assertThat(actual).isEqualTo(response);
+
+            // Assert no warning logs appear for a successful empty response
+            assertThat(output.getAll()).doesNotContain("Failed to retrieve tasks")
+                                       .doesNotContain("Returning empty list");
         }
 
         @Test
-        void GetsUserAndReturnsStatusOKAndBodyWithFoundUserWithoutTasks_UserExistsAndTasksServiceFails(CapturedOutput output) {
+        void ReturnsStatusOKAndBodyWithFoundUserWithTasks_UserExistsWithTasks() {
             // Given
-            var user = defaultTestUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
+            var createdUser = createUser();
+            var userId = createdUser.id();
+            var taskId1 = UUID.fromString("d3e4f5a6-b7c8-4d9e-0f1a-2b3c4d5e6f7a");
+            var taskId2 = UUID.fromString("e4f5a6b7-c8d9-4e0f-1a2b-3c4d5e6f7a8b");
+            var taskId3 = UUID.fromString("f5a6b7c8-d9e0-4f1a-2b3c-4d5e6f7a8b9c");
+            var taskIds = List.of(taskId1, taskId2, taskId3);
+            var response = new GetUserByIdResponse(createdUser.id(), createdUser.firstName(), createdUser.lastName(), createdUser.email(),
+                    createdUser.phoneNumber(), taskIds);
 
-            mockRequestToGetTasksByUserIdWithServerErrorResponse(userCreated.id());
+            mockRequestToGetTasksByUserIdWithOkResponse(userId, taskIds);
 
             // When
-            var userIdPath = userCreated.id();
-
-            var response = webTestClient.get()
-                                        .uri(USERS_GET_BY_ID_FULL_PATH, userIdPath)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isOk()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBody(GetUserByIdResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
+            var actual = webTestClient.get()
+                                      .uri(USERS_GET_BY_ID_FULL_PATH, userId)
+                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                      .exchange()
+                                      .expectStatus()
+                                      .isOk()
+                                      .expectHeader()
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .expectBody(GetUserByIdResponse.class)
+                                      .returnResult()
+                                      .getResponseBody();
 
             // Then
-            // Assert API response - graceful degradation returns empty list
-            var expectedResponse = new GetUserByIdResponse(userCreated.id(), userCreated.firstName(), userCreated.lastName(), userCreated.email(),
-                    userCreated.phoneNumber(), Collections.emptyList());
-            assertThat(response).isEqualTo(expectedResponse);
+            assertThat(actual).isEqualTo(response);
+        }
+
+        @Test
+        void ReturnsStatusOKAndBodyWithFoundUserWithoutTasks_UserExistsAndTasksServiceFails(CapturedOutput output) {
+            // Given
+            var createdUser = createUser();
+            var userId = createdUser.id();
+            var response = new GetUserByIdResponse(createdUser.id(), createdUser.firstName(), createdUser.lastName(), createdUser.email(),
+                    createdUser.phoneNumber(), Collections.emptyList());
+
+            mockRequestToGetTasksByUserIdWithServerErrorResponse(userId);
+
+            // When
+            var actual = webTestClient.get()
+                                      .uri(USERS_GET_BY_ID_FULL_PATH, userId)
+                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                      .exchange()
+                                      .expectStatus()
+                                      .isOk()
+                                      .expectHeader()
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .expectBody(GetUserByIdResponse.class)
+                                      .returnResult()
+                                      .getResponseBody();
+
+            // Then
+            assertThat(actual).isEqualTo(response);
 
             // Assert warning logs appear due to service failure
-            assertThat(output.getAll()).contains("Failed to retrieve tasks for user " + userCreated.id())
+            assertThat(output.getAll()).contains("Failed to retrieve tasks for user " + createdUser.id())
                                        .contains("Returning empty list");
         }
 
         @Test
-        void DoesNotGetUserAndReturnsStatusNotFoundAndEmptyBody_UserNotExists() {
-            // When & Then
-            var userIdPath = UUID.fromString("b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e");
+        void ReturnsStatusNotFoundAndEmptyBody_UserNotExists() {
+            // Given
+            var userId = UUID.fromString("b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e");
 
+            // When & Then
             webTestClient.get()
-                         .uri(USERS_GET_BY_ID_FULL_PATH, userIdPath)
+                         .uri(USERS_GET_BY_ID_FULL_PATH, userId)
                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                          .exchange()
@@ -181,76 +244,19 @@ class UserE2EIT {
         }
 
         @Test
-        void GetsUserAndReturnsStatusOKAndBodyWithFoundUserWithoutTasks_UserExistsWithoutTasks(CapturedOutput output) {
+        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // Given
-            var user = defaultTestUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
+            var userId = UUID.fromString("b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e");
 
-            mockRequestToGetTasksByUserIdWithOkResponse(userCreated.id(), Collections.emptyList());
-
-            // When
-            var userIdPath = userCreated.id();
-
-            var response = webTestClient.get()
-                                        .uri(USERS_GET_BY_ID_FULL_PATH, userIdPath)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isOk()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBody(GetUserByIdResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
-
-            // Then
-            // Assert API response
-            var expectedResponse = new GetUserByIdResponse(userCreated.id(), userCreated.firstName(), userCreated.lastName(), userCreated.email(),
-                    userCreated.phoneNumber(), Collections.emptyList());
-            assertThat(response).isEqualTo(expectedResponse);
-
-            // Assert NO warning logs appear for a successful empty response
-            assertThat(output.getAll()).doesNotContain("Failed to retrieve tasks")
-                                       .doesNotContain("Returning empty list");
-        }
-
-        @Test
-        void GetsUserAndReturnsStatusOKAndBodyWithFoundUserWithTasks_UserExistsWithTasks() {
-            // Given
-            var user = defaultTestUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
-
-            var taskId1 = UUID.fromString("d3e4f5a6-b7c8-4d9e-0f1a-2b3c4d5e6f7a");
-            var taskId2 = UUID.fromString("e4f5a6b7-c8d9-4e0f-1a2b-3c4d5e6f7a8b");
-            var taskId3 = UUID.fromString("f5a6b7c8-d9e0-4f1a-2b3c-4d5e6f7a8b9c");
-            var taskIds = List.of(taskId1, taskId2, taskId3);
-
-            mockRequestToGetTasksByUserIdWithOkResponse(userCreated.id(), taskIds);
-
-            // When
-            var userIdPath = userCreated.id();
-
-            var response = webTestClient.get()
-                                        .uri(USERS_GET_BY_ID_FULL_PATH, userIdPath)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isOk()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBody(GetUserByIdResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
-
-            // Then
-            // Assert API response
-            var expectedResponse = new GetUserByIdResponse(userCreated.id(), userCreated.firstName(), userCreated.lastName(), userCreated.email(),
-                    userCreated.phoneNumber(), taskIds);
-            assertThat(response).isEqualTo(expectedResponse);
+            // When & Then
+            webTestClient.get()
+                         .uri(USERS_GET_BY_ID_FULL_PATH, userId)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .exchange()
+                         .expectStatus()
+                         .isUnauthorized()
+                         .expectBody()
+                         .isEmpty();
         }
 
     }
@@ -259,7 +265,65 @@ class UserE2EIT {
     class GetAllUsers {
 
         @Test
-        void DoesNotGetUsersAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+        void ReturnsStatusOKAndBodyWithFoundUsers_UsersExist() {
+            // Given
+            var user1 = aUserBuilder().withEmail("user1@asapp.com")
+                                      .buildJdbc();
+            var user2 = aUserBuilder().withEmail("user2@asapp.com")
+                                      .buildJdbc();
+            var user3 = aUserBuilder().withEmail("user3@asapp.com")
+                                      .buildJdbc();
+            var createdUser1 = createUser(user1);
+            var createdUser2 = createUser(user2);
+            var createdUser3 = createUser(user3);
+            var response1 = new GetAllUsersResponse(createdUser1.id(), createdUser1.firstName(), createdUser1.lastName(), createdUser1.email(),
+                    createdUser1.phoneNumber());
+            var response2 = new GetAllUsersResponse(createdUser2.id(), createdUser2.firstName(), createdUser2.lastName(), createdUser2.email(),
+                    createdUser2.phoneNumber());
+            var response3 = new GetAllUsersResponse(createdUser3.id(), createdUser3.firstName(), createdUser3.lastName(), createdUser3.email(),
+                    createdUser3.phoneNumber());
+
+            // When
+            var actual = webTestClient.get()
+                                      .uri(USERS_GET_ALL_FULL_PATH)
+                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                      .exchange()
+                                      .expectStatus()
+                                      .isOk()
+                                      .expectHeader()
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .expectBodyList(GetAllUsersResponse.class)
+                                      .returnResult()
+                                      .getResponseBody();
+
+            // Then
+            assertThat(actual).hasSize(3)
+                              .containsExactlyInAnyOrder(response1, response2, response3);
+        }
+
+        @Test
+        void ReturnsStatusOKAndEmptyBody_UsersNotExist() {
+            // When
+            var actual = webTestClient.get()
+                                      .uri(USERS_GET_ALL_FULL_PATH)
+                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                      .exchange()
+                                      .expectStatus()
+                                      .isOk()
+                                      .expectHeader()
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .expectBodyList(GetAllUsersResponse.class)
+                                      .returnResult()
+                                      .getResponseBody();
+
+            // Then
+            assertThat(actual).isEmpty();
+        }
+
+        @Test
+        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
             webTestClient.get()
                          .uri(USERS_GET_ALL_FULL_PATH)
@@ -271,75 +335,55 @@ class UserE2EIT {
                          .isEmpty();
         }
 
-        @Test
-        void DoesNotGetUsersAndReturnsStatusOKAndEmptyBody_ThereAreNotUsers() {
-            // When
-            var response = webTestClient.get()
-                                        .uri(USERS_GET_ALL_FULL_PATH)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isOk()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBodyList(GetAllUsersResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
-            // Then
-            // Assert API response
-            assertThat(response).isEmpty();
-        }
-
-        @Test
-        void GetsAllUsersAndReturnsStatusOKAndBodyWithFoundUsers_ThereAreUsers() {
-            // Given
-            var user1 = testUserBuilder().withEmail("user1@asapp.com")
-                                         .build();
-            var user2 = testUserBuilder().withEmail("user2@asapp.com")
-                                         .build();
-            var user3 = testUserBuilder().withEmail("user3@asapp.com")
-                                         .build();
-            var userCreated1 = userRepository.save(user1);
-            var userCreated2 = userRepository.save(user2);
-            var userCreated3 = userRepository.save(user3);
-            assertThat(userCreated1).isNotNull();
-            assertThat(userCreated2).isNotNull();
-            assertThat(userCreated3).isNotNull();
-
-            // When
-            var response = webTestClient.get()
-                                        .uri(USERS_GET_ALL_FULL_PATH)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isOk()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBodyList(GetAllUsersResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
-            // Then
-            // Assert API response
-            var expectedResponse1 = new GetAllUsersResponse(userCreated1.id(), userCreated1.firstName(), userCreated1.lastName(), userCreated1.email(),
-                    userCreated1.phoneNumber());
-            var expectedResponse2 = new GetAllUsersResponse(userCreated2.id(), userCreated2.firstName(), userCreated2.lastName(), userCreated2.email(),
-                    userCreated2.phoneNumber());
-            var expectedResponse3 = new GetAllUsersResponse(userCreated3.id(), userCreated3.firstName(), userCreated3.lastName(), userCreated3.email(),
-                    userCreated3.phoneNumber());
-            assertThat(response).hasSize(3)
-                                .containsExactlyInAnyOrder(expectedResponse1, expectedResponse2, expectedResponse3);
-        }
-
     }
 
     @Nested
     class CreateUser {
 
         @Test
-        void DoesNotCreateUserAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+        void ReturnsStatusCreatedAndBodyWithUserCreated_ValidUser() {
+            // Given
+            var createUserRequestBody = new CreateUserRequest("FirstName", "LastName", "user@asapp.com", "555 555 555");
+
             // When
+            var actual = webTestClient.post()
+                                      .uri(USERS_CREATE_FULL_PATH)
+                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                      .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                      .bodyValue(createUserRequestBody)
+                                      .exchange()
+                                      .expectStatus()
+                                      .isCreated()
+                                      .expectHeader()
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .expectBody(CreateUserResponse.class)
+                                      .returnResult()
+                                      .getResponseBody();
+
+            // Then
+            assertThat(actual).isNotNull()
+                              .extracting(CreateUserResponse::userId)
+                              .isNotNull();
+
+            // Assert the user has been created
+            var createdUser = userRepository.findById(actual.userId());
+            assertThat(createdUser).as("user optional")
+                                   .isPresent();
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(createdUser.get().id()).as("id").isEqualTo(actual.userId());
+                softly.assertThat(createdUser.get().firstName()).as("firstName").isEqualTo(createUserRequestBody.firstName());
+                softly.assertThat(createdUser.get().lastName()).as("lastName").isEqualTo(createUserRequestBody.lastName());
+                softly.assertThat(createdUser.get().email()).as("email").isEqualTo(createUserRequestBody.email());
+                softly.assertThat(createdUser.get().phoneNumber()).as("phoneNumber") .isEqualTo(createUserRequestBody.phoneNumber());
+                // @formatter:on
+            });
+        }
+
+        @Test
+        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
+            // Given
             var createUserRequestBody = new CreateUserRequest("FirstName", "LastName", "user@asapp.com", "555 555 555");
 
             // When & Then
@@ -355,78 +399,63 @@ class UserE2EIT {
                          .isEmpty();
         }
 
-        @Test
-        void CreatesUserAndReturnsStatusCreatedAndBodyWithUserCreated() {
-            // When
-            var createUserRequestBody = new CreateUserRequest("FirstName", "LastName", "user@asapp.com", "555 555 555");
-
-            var response = webTestClient.post()
-                                        .uri(USERS_CREATE_FULL_PATH)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                                        .bodyValue(createUserRequestBody)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isCreated()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBody(CreateUserResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
-
-            // Then
-            // Assert API response
-            assertThat(response).isNotNull()
-                                .extracting(CreateUserResponse::userId)
-                                .isNotNull();
-
-            // Assert the user has been created
-            var optionalActualUser = userRepository.findById(response.userId());
-            assertThat(optionalActualUser).isNotEmpty()
-                                          .get()
-                                          .satisfies(actualUser -> {
-                                              assertThat(actualUser.id()).isEqualTo(response.userId());
-                                              assertThat(actualUser.firstName()).isEqualTo(createUserRequestBody.firstName());
-                                              assertThat(actualUser.lastName()).isEqualTo(createUserRequestBody.lastName());
-                                              assertThat(actualUser.email()).isEqualTo(createUserRequestBody.email());
-                                              assertThat(actualUser.phoneNumber()).isEqualTo(createUserRequestBody.phoneNumber());
-                                          });
-        }
-
     }
 
     @Nested
     class UpdateUserById {
 
         @Test
-        void DoesNotUpdateUserAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
-            // When & Then
-            var userIdPath = UUID.fromString("a6b7c8d9-e0f1-4a2b-3c4d-5e6f7a8b9c0d");
+        void ReturnsStatusOkAndBodyWithUpdatedUser_UserExists() {
+            // Given
+            var createdUser = createUser();
+            var userId = createdUser.id();
+            var updateUserRequest = new UpdateUserRequest("New FirstName", "New LastName", "new_user@asapp.com", "666 666 666");
 
-            var updateUserRequest = new UpdateUserRequest("NewFirstName", "NewLastName", "new_user@asapp.com", "555-555-555");
+            // When
+            var actual = webTestClient.put()
+                                      .uri(USERS_UPDATE_BY_ID_FULL_PATH, userId)
+                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                      .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                      .bodyValue(updateUserRequest)
+                                      .exchange()
+                                      .expectStatus()
+                                      .isOk()
+                                      .expectHeader()
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .expectBody(UpdateUserResponse.class)
+                                      .returnResult()
+                                      .getResponseBody();
 
-            webTestClient.put()
-                         .uri(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                         .bodyValue(updateUserRequest)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            // Then
+            assertThat(actual).isNotNull()
+                              .extracting(UpdateUserResponse::userId)
+                              .isEqualTo(createdUser.id());
+
+            // Assert the user has been updated
+            var updatedUser = userRepository.findById(actual.userId());
+            assertThat(updatedUser).as("user optional")
+                                   .isPresent();
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(updatedUser.get().id()).as("id").isEqualTo(actual.userId());
+                softly.assertThat(updatedUser.get().firstName()).as("firstName").isEqualTo(updateUserRequest.firstName());
+                softly.assertThat(updatedUser.get().lastName()).as("lastName").isEqualTo(updateUserRequest.lastName());
+                softly.assertThat(updatedUser.get().email()).as("email").isEqualTo(updateUserRequest.email());
+                softly.assertThat(updatedUser.get().phoneNumber()).as("phoneNumber").isEqualTo(updateUserRequest.phoneNumber());
+                // @formatter:on
+            });
         }
 
         @Test
-        void DoesNotUpdateUserAndReturnsStatusNotFoundAndEmptyBody_UserNotExists() {
+        void ReturnsStatusNotFoundAndEmptyBody_UserNotExists() {
+            // Given
+            var userId = UUID.fromString("a6b7c8d9-e0f1-4a2b-3c4d-5e6f7a8b9c0d");
+            var updateUserRequest = new UpdateUserRequest("New FirstName", "New LastName", "new_user@asapp.com", "666 666 666");
+
             // When & Then
-            var userIdPath = UUID.fromString("a6b7c8d9-e0f1-4a2b-3c4d-5e6f7a8b9c0d");
-
-            var updateUserRequest = new UpdateUserRequest("NewFirstName", "NewLastName", "new_user@asapp.com", "555-555-555");
-
             webTestClient.put()
-                         .uri(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath)
+                         .uri(USERS_UPDATE_BY_ID_FULL_PATH, userId)
                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -439,49 +468,22 @@ class UserE2EIT {
         }
 
         @Test
-        void UpdatesUserAndReturnsStatusOkAndBodyWithUpdatedUser_UserExists() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // Given
-            var user = defaultTestUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
+            var userId = UUID.fromString("a6b7c8d9-e0f1-4a2b-3c4d-5e6f7a8b9c0d");
+            var updateUserRequest = new UpdateUserRequest("New FirstName", "New LastName", "new_user@asapp.com", "666 666 666");
 
-            // When
-            var userIdPath = userCreated.id();
-
-            var updateUserRequest = new UpdateUserRequest("NewFirstName", "NewLastName", "new_user@asapp.com", "555-555-555");
-
-            var response = webTestClient.put()
-                                        .uri(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                                        .bodyValue(updateUserRequest)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isOk()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBody(UpdateUserResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
-
-            // Then
-            // Assert API response
-            assertThat(response).isNotNull()
-                                .extracting(UpdateUserResponse::userId)
-                                .isEqualTo(userCreated.id());
-
-            // Assert the user has been updated
-            var optionalActualUser = userRepository.findById(response.userId());
-            assertThat(optionalActualUser).isNotEmpty()
-                                          .get()
-                                          .satisfies(actualUser -> {
-                                              assertThat(actualUser.id()).isEqualTo(response.userId());
-                                              assertThat(actualUser.firstName()).isEqualTo(updateUserRequest.firstName());
-                                              assertThat(actualUser.lastName()).isEqualTo(updateUserRequest.lastName());
-                                              assertThat(actualUser.email()).isEqualTo(updateUserRequest.email());
-                                              assertThat(actualUser.phoneNumber()).isEqualTo(updateUserRequest.phoneNumber());
-                                          });
+            // When & Then
+            webTestClient.put()
+                         .uri(USERS_UPDATE_BY_ID_FULL_PATH, userId)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                         .bodyValue(updateUserRequest)
+                         .exchange()
+                         .expectStatus()
+                         .isUnauthorized()
+                         .expectBody()
+                         .isEmpty();
         }
 
     }
@@ -490,27 +492,36 @@ class UserE2EIT {
     class DeleteUserById {
 
         @Test
-        void DoesNotDeleteUserAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
-            // When & Then
-            var userIdPath = UUID.fromString("c8d9e0f1-a2b3-4c4d-5e6f-7a8b9c0d1e2f");
+        void ReturnsStatusNoContentAndEmptyBody_UserExists() {
+            // Given
+            var createdUser = createUser();
+            var userId = createdUser.id();
 
+            // When
             webTestClient.delete()
-                         .uri(USERS_DELETE_BY_ID_FULL_PATH, userIdPath)
+                         .uri(USERS_DELETE_BY_ID_FULL_PATH, userId)
+                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                          .exchange()
                          .expectStatus()
-                         .isUnauthorized()
+                         .isNoContent()
                          .expectBody()
                          .isEmpty();
+
+            // Then
+            // Assert the user has been deleted
+            var deletedUser = userRepository.findById(createdUser.id());
+            assertThat(deletedUser).isEmpty();
         }
 
         @Test
-        void DoesNotDeleteUserAndReturnsStatusNotFoundAndEmptyBody_UserNotExists() {
-            // When & Then
-            var userIdPath = UUID.fromString("c8d9e0f1-a2b3-4c4d-5e6f-7a8b9c0d1e2f");
+        void ReturnsStatusNotFoundAndEmptyBody_UserNotExists() {
+            // Given
+            var userId = UUID.fromString("c8d9e0f1-a2b3-4c4d-5e6f-7a8b9c0d1e2f");
 
+            // When & Then
             webTestClient.delete()
-                         .uri(USERS_DELETE_BY_ID_FULL_PATH, userIdPath)
+                         .uri(USERS_DELETE_BY_ID_FULL_PATH, userId)
                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                          .exchange()
@@ -521,58 +532,37 @@ class UserE2EIT {
         }
 
         @Test
-        void DeletesUserAndReturnsStatusNoContentAndEmptyBody_UserExists() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // Given
-            var user = defaultTestUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
+            var userId = UUID.fromString("c8d9e0f1-a2b3-4c4d-5e6f-7a8b9c0d1e2f");
 
-            // When
-            var userIdPath = userCreated.id();
-
+            // When & Then
             webTestClient.delete()
-                         .uri(USERS_DELETE_BY_ID_FULL_PATH, userIdPath)
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                         .uri(USERS_DELETE_BY_ID_FULL_PATH, userId)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                          .exchange()
                          .expectStatus()
-                         .isNoContent()
+                         .isUnauthorized()
                          .expectBody()
                          .isEmpty();
-
-            // Then
-            // Assert the user has been deleted
-            var optionalActualUser = userRepository.findById(userCreated.id());
-            assertThat(optionalActualUser).isEmpty();
-        }
-
-        @Test
-        void DeletesUserAndReturnsStatusNoContentAndEmptyBody_UserExistsAndHasBeenAuthenticated() {
-            // Given
-            var user = defaultTestUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
-
-            // When
-            var userIdPath = userCreated.id();
-
-            webTestClient.delete()
-                         .uri(USERS_DELETE_BY_ID_FULL_PATH, userIdPath)
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .exchange()
-                         .expectStatus()
-                         .isNoContent()
-                         .expectBody()
-                         .isEmpty();
-
-            // Then
-            // Assert the user has been deleted
-            var optionalActualUser = userRepository.findById(userCreated.id());
-            assertThat(optionalActualUser).isEmpty();
         }
 
     }
+
+    // Test Data Creation Helpers
+
+    private JdbcUserEntity createUser() {
+        var user = aJdbcUser();
+        return createUser(user);
+    }
+
+    private JdbcUserEntity createUser(JdbcUserEntity user) {
+        var createdUser = userRepository.save(user);
+        assertThat(createdUser).isNotNull();
+        return createdUser;
+    }
+
+    // Mock Helpers
 
     private void mockRequestToGetTasksByUserIdWithOkResponse(UUID userId, List<UUID> taskIds) {
         try {

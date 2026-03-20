@@ -25,43 +25,56 @@ import java.util.Map;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests {@link JwtClaims} claim access, immutability, and factory validation.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or empty claims maps</li>
+ * <li>Accepts valid inputs through constructor and factory methods (Map, key-value pairs)</li>
+ * <li>Validates all keys and values are non-null in key-value factory</li>
+ * <li>Returns immutable claims map preventing external modification</li>
+ * <li>Provides type-safe claim access with Optional return</li>
+ * <li>Returns empty Optional for missing claims or type mismatches</li>
+ * <li>Provides access to wrapped claims map</li>
+ */
 class JwtClaimsTests {
-
-    private final Map<String, Object> claimsValue = Map.of("sub", "user", "exp", 123456789L, "active", true);
 
     @Nested
     class CreateJwtClaimsWithConstructor {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenClaimsIsNull() {
+        void ReturnsJwtClaims_ValidClaims() {
+            // Given
+            var claims = Map.<String, Object>of("sub", "user", "exp", 123456789L, "active", true);
+
             // When
-            var thrown = catchThrowable(() -> new JwtClaims(null));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Claim could not be null or empty");
-        }
-
-        @Test
-        void ThenThrowsIllegalArgumentException_GivenClaimsIsEmpty() {
-            // When
-            var thrown = catchThrowable(() -> new JwtClaims(Map.of()));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Claim could not be null or empty");
-        }
-
-        @Test
-        void ThenReturnsJwtClaims_GivenClaimsAreValid() {
-            // When
-            var actual = new JwtClaims(claimsValue);
+            var actual = new JwtClaims(claims);
 
             // Then
             assertThat(actual.claims()).hasSize(3)
                                        .containsEntry("sub", "user")
                                        .containsEntry("exp", 123456789L)
                                        .containsEntry("active", true);
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_NullClaims() {
+            // When
+            var actual = catchThrowable(() -> new JwtClaims(null));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Claim could not be null or empty");
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_EmptyClaims() {
+            // When
+            var actual = catchThrowable(() -> new JwtClaims(Map.of()));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Claim could not be null or empty");
         }
 
     }
@@ -70,29 +83,12 @@ class JwtClaimsTests {
     class CreateJwtClaimsWithMapFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenClaimsIsNull() {
+        void ReturnsJwtClaims_ValidClaims() {
+            // Given
+            var claims = Map.<String, Object>of("sub", "user", "exp", 123456789L, "active", true);
+
             // When
-            var thrown = catchThrowable(() -> JwtClaims.of(null));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Claim could not be null or empty");
-        }
-
-        @Test
-        void ThenThrowsIllegalArgumentException_GivenClaimsIsEmpty() {
-            // When
-            var thrown = catchThrowable(() -> JwtClaims.of(Map.of()));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Claim could not be null or empty");
-        }
-
-        @Test
-        void ThenReturnsJwtClaims_GivenClaimsAreValid() {
-            // When
-            var actual = JwtClaims.of(claimsValue);
+            var actual = JwtClaims.of(claims);
 
             // Then
             assertThat(actual.claims()).hasSize(3)
@@ -101,53 +97,33 @@ class JwtClaimsTests {
                                        .containsEntry("active", true);
         }
 
+        @Test
+        void ThrowsIllegalArgumentException_NullClaims() {
+            // When
+            var actual = catchThrowable(() -> JwtClaims.of(null));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Claim could not be null or empty");
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_EmptyClaims() {
+            // When
+            var actual = catchThrowable(() -> JwtClaims.of(Map.of()));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Claim could not be null or empty");
+        }
+
     }
 
     @Nested
     class CreateJwtClaimsWithKeyValueFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenFirstKeyIsNull() {
-            // When
-            var thrown = catchThrowable(() -> JwtClaims.of(null, "value1", "key2", "value2"));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Claim keys and values must not be null");
-        }
-
-        @Test
-        void ThenThrowsIllegalArgumentException_GivenFirstValueIsNull() {
-            // When
-            var thrown = catchThrowable(() -> JwtClaims.of("key1", null, "key2", "value2"));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Claim keys and values must not be null");
-        }
-
-        @Test
-        void ThenThrowsIllegalArgumentException_GivenSecondKeyIsNull() {
-            // When
-            var thrown = catchThrowable(() -> JwtClaims.of("key1", "value1", null, "value2"));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Claim keys and values must not be null");
-        }
-
-        @Test
-        void ThenThrowsIllegalArgumentException_GivenSecondValueIsNull() {
-            // When
-            var thrown = catchThrowable(() -> JwtClaims.of("key1", "value1", "key2", null));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Claim keys and values must not be null");
-        }
-
-        @Test
-        void ThenReturnsJwtClaims_GivenParametersAreValid() {
+        void ReturnsJwtClaims_ValidParameters() {
             // When
             var actual = JwtClaims.of("key1", "value1", "key2", "value2");
 
@@ -157,13 +133,53 @@ class JwtClaimsTests {
                                        .containsEntry("key2", "value2");
         }
 
+        @Test
+        void ThrowsIllegalArgumentException_NullFirstKey() {
+            // When
+            var actual = catchThrowable(() -> JwtClaims.of(null, "value1", "key2", "value2"));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Claim keys and values must not be null");
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_NullFirstValue() {
+            // When
+            var actual = catchThrowable(() -> JwtClaims.of("key1", null, "key2", "value2"));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Claim keys and values must not be null");
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_NullSecondKey() {
+            // When
+            var actual = catchThrowable(() -> JwtClaims.of("key1", "value1", null, "value2"));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Claim keys and values must not be null");
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_NullSecondValue() {
+            // When
+            var actual = catchThrowable(() -> JwtClaims.of("key1", "value1", "key2", null));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Claim keys and values must not be null");
+        }
+
     }
 
     @Nested
     class ModifyClaims {
 
         @Test
-        void ThenReturnsImmutableClaims_GivenOriginalClaimsAreModified() {
+        void ReturnsImmutableClaims_ModifiedOriginalClaims() {
             // Given
             var claims = new HashMap<String, Object>();
             claims.put("sub", "user");
@@ -179,16 +195,17 @@ class JwtClaimsTests {
         }
 
         @Test
-        void ThenThrowsException_GivenClaimsAreModified() {
+        void ThrowsUnsupportedOperationException_ModifiedClaims() {
             // Given
-            var jwtClaims = JwtClaims.of(claimsValue);
+            var claims = Map.<String, Object>of("sub", "user", "exp", 123456789L, "active", true);
+            var jwtClaims = JwtClaims.of(claims);
 
             // When
-            var thrown = catchThrowable(() -> jwtClaims.claims()
+            var actual = catchThrowable(() -> jwtClaims.claims()
                                                        .put("active", "true"));
 
             // Then
-            assertThat(thrown).isInstanceOf(UnsupportedOperationException.class);
+            assertThat(actual).isInstanceOf(UnsupportedOperationException.class);
         }
 
     }
@@ -197,45 +214,10 @@ class JwtClaimsTests {
     class GetClaim {
 
         @Test
-        void ThenReturnsEmpty_GivenClaimNameNotExist() {
+        void ReturnsClaimValue_ClaimMatchingTypeInClaims() {
             // Given
-            var jwtClaims = JwtClaims.of(claimsValue);
-
-            // When
-            var actual = jwtClaims.claim("not_exists_claim_name", String.class);
-
-            // Then
-            assertThat(actual).isEmpty();
-        }
-
-        @Test
-        void ThenReturnsEmpty_GivenClaimNameIsNull() {
-            // Given
-            var jwtClaims = JwtClaims.of(claimsValue);
-
-            // When
-            var actual = jwtClaims.claim(null, String.class);
-
-            // Then
-            assertThat(actual).isEmpty();
-        }
-
-        @Test
-        void ThenReturnsEmpty_GivenRequiredTypeNotMatch() {
-            // Given
-            var jwtClaims = JwtClaims.of(claimsValue);
-
-            // When
-            var actual = jwtClaims.claim("exp", String.class);
-
-            // Then
-            assertThat(actual).isEmpty();
-        }
-
-        @Test
-        void ThenReturnsClaimValue_GivenClaimExistsAndTypeMatches() {
-            // Given
-            var jwtClaims = JwtClaims.of(claimsValue);
+            var claims = Map.<String, Object>of("sub", "user", "exp", 123456789L, "active", true);
+            var jwtClaims = JwtClaims.of(claims);
 
             // When
             var actual = jwtClaims.claim("sub", String.class);
@@ -246,9 +228,10 @@ class JwtClaimsTests {
         }
 
         @Test
-        void ThenReturnsClaimValue_GivenMultipleClaimsWithDifferentTypes() {
+        void ReturnsClaimValue_MultipleClaimsDifferentTypes() {
             // Given
-            var jwtClaims = JwtClaims.of(claimsValue);
+            var claims = Map.<String, Object>of("sub", "user", "exp", 123456789L, "active", true);
+            var jwtClaims = JwtClaims.of(claims);
 
             // When
             var subClaim = jwtClaims.claim("sub", String.class);
@@ -264,21 +247,61 @@ class JwtClaimsTests {
                                    .contains(true);
         }
 
+        @Test
+        void ReturnsEmpty_ClaimNameNotExistsInClaims() {
+            // Given
+            var claims = Map.<String, Object>of("sub", "user", "exp", 123456789L, "active", true);
+            var jwtClaims = JwtClaims.of(claims);
+
+            // When
+            var actual = jwtClaims.claim("claim_name_not_exist", String.class);
+
+            // Then
+            assertThat(actual).isEmpty();
+        }
+
+        @Test
+        void ReturnsEmpty_NullClaimName() {
+            // Given
+            var claims = Map.<String, Object>of("sub", "user", "exp", 123456789L, "active", true);
+            var jwtClaims = JwtClaims.of(claims);
+
+            // When
+            var actual = jwtClaims.claim(null, String.class);
+
+            // Then
+            assertThat(actual).isEmpty();
+        }
+
+        @Test
+        void ReturnsEmpty_RequiredTypeMismatch() {
+            // Given
+            var claims = Map.<String, Object>of("sub", "user", "exp", 123456789L, "active", true);
+            var jwtClaims = JwtClaims.of(claims);
+
+            // When
+            var actual = jwtClaims.claim("exp", String.class);
+
+            // Then
+            assertThat(actual).isEmpty();
+        }
+
     }
 
     @Nested
     class GetValue {
 
         @Test
-        void ThenReturnsClaimsMap_GivenClaimsAreValid() {
+        void ReturnsClaimsMap_ValidClaims() {
             // Given
-            var jwtClaims = JwtClaims.of(claimsValue);
+            var claims = Map.<String, Object>of("sub", "user", "exp", 123456789L, "active", true);
+            var jwtClaims = JwtClaims.of(claims);
 
             // When
             var actual = jwtClaims.value();
 
             // Then
-            assertThat(actual).isEqualTo(claimsValue);
+            assertThat(actual).isEqualTo(claims);
         }
 
     }

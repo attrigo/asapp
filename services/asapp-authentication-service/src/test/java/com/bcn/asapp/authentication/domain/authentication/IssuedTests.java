@@ -27,30 +27,41 @@ import java.util.Date;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests {@link Issued} timestamp conversion, factory methods, and defensive copying.
+ * <p>
+ * Coverage:
+ * <li>Rejects null issued timestamp values</li>
+ * <li>Accepts valid inputs through constructor and factory methods (now, Instant, Date)</li>
+ * <li>Converts Instant to Date representation correctly</li>
+ * <li>Returns new Date instance on each call to prevent mutation</li>
+ * <li>Provides access to wrapped Instant value</li>
+ */
 class IssuedTests {
-
-    private final Instant issuedValue = Instant.parse("2025-01-01T10:00:00Z");
 
     @Nested
     class CreateIssuedWithConstructor {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIssuedIsNull() {
+        void ReturnsIssued_ValidIssued() {
+            // Given
+            var issued = Instant.parse("2025-01-01T10:00:00Z");
+
             // When
-            var thrown = catchThrowable(() -> new Issued(null));
+            var actual = new Issued(issued);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Issued must not be null");
+            assertThat(actual.issued()).isEqualTo(issued);
         }
 
         @Test
-        void ThenReturnsIssued_GivenIssuedIsValid() {
+        void ThrowsIllegalArgumentException_NullIssued() {
             // When
-            var actual = new Issued(issuedValue);
+            var actual = catchThrowable(() -> new Issued(null));
 
             // Then
-            assertThat(actual.issued()).isEqualTo(issuedValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Issued must not be null");
         }
 
     }
@@ -59,7 +70,7 @@ class IssuedTests {
     class CreateIssuedWithNowFactoryMethod {
 
         @Test
-        void ThenReturnsIssuedCloseToCurrentTime() {
+        void ReturnsIssued_CloseToCurrentTime() {
             // When
             var actual = Issued.now();
 
@@ -73,49 +84,53 @@ class IssuedTests {
     class CreateIssuedWithInstantFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIssuedInstantIsNull() {
+        void ReturnsIssued_ValidIssuedInstant() {
+            // Given
+            var issued = Instant.parse("2025-01-01T10:00:00Z");
+
             // When
-            var thrown = catchThrowable(() -> Issued.of((Instant) null));
+            var actual = Issued.of(issued);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Issued must not be null");
+            assertThat(actual.issued()).isEqualTo(issued);
         }
 
         @Test
-        void ThenReturnsIssued_GivenIssuedInstantIsValid() {
+        void ThrowsIllegalArgumentException_NullIssuedInstant() {
             // When
-            var actual = Issued.of(issuedValue);
+            var actual = catchThrowable(() -> Issued.of((Instant) null));
 
             // Then
-            assertThat(actual.issued()).isEqualTo(issuedValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Issued must not be null");
         }
 
     }
 
     @Nested
-    class CreateIssuedWithDateFactory {
+    class CreateIssuedWithDateFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIssuedDateIsNull() {
+        void ReturnsIssued_ValidIssuedDate() {
+            // Given
+            var issued = Instant.parse("2025-01-01T10:00:00Z");
+            var issuedDate = Date.from(issued);
+
             // When
-            var thrown = catchThrowable(() -> Issued.of((Date) null));
+            var actual = Issued.of(issuedDate);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Issued date must not be null");
+            assertThat(actual.issued()).isEqualTo(issued);
         }
 
         @Test
-        void ThenReturnsIssued_GivenIssuedDateIsValid() {
-            // Given
-            var date = Date.from(issuedValue);
-
+        void ThrowsIllegalArgumentException_NullIssuedDate() {
             // When
-            var actual = Issued.of(date);
+            var actual = catchThrowable(() -> Issued.of((Date) null));
 
             // Then
-            assertThat(actual.issued()).isEqualTo(issuedValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Issued date must not be null");
         }
 
     }
@@ -124,8 +139,9 @@ class IssuedTests {
     class GetValue {
 
         @Test
-        void ThenReturnsInstant_GivenIssuedIsValid() {
+        void ReturnsInstant_ValidIssued() {
             // Given
+            var issuedValue = Instant.parse("2025-01-01T10:00:00Z");
             var issued = Issued.of(issuedValue);
 
             // When
@@ -141,21 +157,25 @@ class IssuedTests {
     class GetAsDate {
 
         @Test
-        void ThenReturnsDateWithSameInstant_GivenIssuedIsValid() {
+        void ReturnsDateWithSameInstant_ValidIssued() {
             // Given
+            var issuedValue = Instant.parse("2025-01-01T10:00:00Z");
             var issued = Issued.of(issuedValue);
+            var issuedDate = Date.from(issuedValue);
+            var issuedTimeMillis = issuedValue.toEpochMilli();
 
             // When
             var actual = issued.asDate();
 
             // Then
-            assertThat(actual).isEqualTo(Date.from(issuedValue));
-            assertThat(actual.getTime()).isEqualTo(issuedValue.toEpochMilli());
+            assertThat(actual).isEqualTo(issuedDate);
+            assertThat(actual.getTime()).isEqualTo(issuedTimeMillis);
         }
 
         @Test
-        void ThenReturnsNewDateInstance_GivenIssuedIsValid() {
+        void ReturnsNewDateInstance_ValidIssued() {
             // Given
+            var issuedValue = Instant.parse("2025-01-01T10:00:00Z");
             var issued = Issued.of(issuedValue);
 
             // When

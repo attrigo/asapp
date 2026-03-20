@@ -20,79 +20,88 @@ import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.A
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ROLE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.ACCESS_TOKEN_TYPE;
-import static com.bcn.asapp.authentication.domain.user.Role.USER;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
+import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenFactory.encodedAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
 import java.util.Map;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.core.GrantedAuthority;
 
+/**
+ * Tests {@link JwtAuthenticationToken} construction from decoded JWT with authority mapping.
+ * <p>
+ * Coverage:
+ * <li>Rejects null decoded JWT at construction</li>
+ * <li>Constructs authenticated token without authorities when role claim missing</li>
+ * <li>Constructs authenticated token with principal, authorities, and encoded token</li>
+ * <li>Provides access to principal (subject), credentials (null), and JWT string</li>
+ */
 class JwtAuthenticationTokenTests {
-
-    private final String principal = "user@asapp.com";
-
-    private final String role = USER.name();
-
-    private final String token = defaultTestEncodedAccessToken();
-
-    private DecodedJwt decodedJwt;
-
-    @BeforeEach
-    void beforeEach() {
-        var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, role);
-        decodedJwt = new DecodedJwt(token, ACCESS_TOKEN_TYPE, principal, claims);
-    }
 
     @Nested
     class CreateJwtAuthenticatedToken {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenJwtIsNull() {
-            // When
-            var thrown = catchThrowable(() -> JwtAuthenticationToken.authenticated(null));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Decoded JWT must not be null");
-        }
-
-        @Test
-        void ThenCreatesJwtAuthenticatedTokenWithoutAuthorities_GivenJwtNotContainsRoleClaim() {
+        void ReturnsJwtAuthenticatedToken_ValidParameters() {
             // Given
-            var claimsWithoutRole = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE);
-            var decodedJwtWithoutRoleClaim = new DecodedJwt(token, ACCESS_TOKEN_TYPE, principal, claimsWithoutRole);
+            var encodedAccessToken = encodedAccessToken();
+            var principal = "user@asapp.com";
+            var role = "USER";
+            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, role);
+            var decodedJwt = new DecodedJwt(encodedAccessToken, ACCESS_TOKEN_TYPE, principal, claims);
 
-            // When
-            var actual = JwtAuthenticationToken.authenticated(decodedJwtWithoutRoleClaim);
-
-            // Then
-            assertThat(actual).isNotNull();
-            assertThat(actual.isAuthenticated()).isTrue();
-            assertThat(actual.getJwt()).isEqualTo(token);
-            assertThat(actual.getPrincipal()).isEqualTo(principal);
-            assertThat(actual.getCredentials()).isNull();
-            assertThat(actual.getAuthorities()).isEmpty();
-        }
-
-        @Test
-        void ThenCreatesJwtAuthenticatedToken_GivenParametersAreValid() {
             // When
             var actual = JwtAuthenticationToken.authenticated(decodedJwt);
 
             // Then
-            assertThat(actual).isNotNull();
-            assertThat(actual.isAuthenticated()).isTrue();
-            assertThat(actual.getJwt()).isEqualTo(token);
-            assertThat(actual.getPrincipal()).isEqualTo(principal);
-            assertThat(actual.getCredentials()).isNull();
-            assertThat(actual.getAuthorities()).hasSize(1)
-                                               .extracting(GrantedAuthority::getAuthority)
-                                               .containsExactly(role);
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual).as("JWT authentication token").isNotNull();
+                softly.assertThat(actual.isAuthenticated()).as("authenticated").isTrue();
+                softly.assertThat(actual.getJwt()).as("JWT").isEqualTo(encodedAccessToken);
+                softly.assertThat(actual.getPrincipal()).as("principal").isEqualTo(principal);
+                softly.assertThat(actual.getCredentials()).as("credentials").isNull();
+                softly.assertThat(actual.getAuthorities()).as("authorities").hasSize(1).extracting(GrantedAuthority::getAuthority).containsExactly(role);
+                // @formatter:on
+            });
+        }
+
+        @Test
+        void ReturnsJwtAuthenticatedTokenWithoutAuthorities_MissingRoleClaim() {
+            // Given
+            var encodedAccessToken = encodedAccessToken();
+            var principal = "user@asapp.com";
+            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE);
+            var decodedJwt = new DecodedJwt(encodedAccessToken, ACCESS_TOKEN_TYPE, principal, claims);
+
+            // When
+            var actual = JwtAuthenticationToken.authenticated(decodedJwt);
+
+            // Then
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual).as("JWT authentication token").isNotNull();
+                softly.assertThat(actual.isAuthenticated()).as("authenticated").isTrue();
+                softly.assertThat(actual.getJwt()).as("JWT").isEqualTo(encodedAccessToken);
+                softly.assertThat(actual.getPrincipal()).as("principal").isEqualTo(principal);
+                softly.assertThat(actual.getCredentials()).as("credentials").isNull();
+                softly.assertThat(actual.getAuthorities()).as("authorities").isEmpty();
+                // @formatter:on
+            });
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_NullJwt() {
+            // When
+            var actual = catchThrowable(() -> JwtAuthenticationToken.authenticated(null));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Decoded JWT must not be null");
         }
 
     }
@@ -101,8 +110,12 @@ class JwtAuthenticationTokenTests {
     class GetCredentials {
 
         @Test
-        void ThenReturnsNull_GivenJwtIsValid() {
+        void ReturnsNull_ValidJwt() {
             // Given
+            var encodedAccessToken = encodedAccessToken();
+            var principal = "user@asapp.com";
+            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
+            var decodedJwt = new DecodedJwt(encodedAccessToken, ACCESS_TOKEN_TYPE, principal, claims);
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
             // When
@@ -118,8 +131,12 @@ class JwtAuthenticationTokenTests {
     class GetPrincipal {
 
         @Test
-        void ThenReturnsPrincipalAsSubject_GivenJwtIsValid() {
+        void ReturnsPrincipalAsSubject_ValidJwt() {
             // Given
+            var encodedAccessToken = encodedAccessToken();
+            var principal = "user@asapp.com";
+            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
+            var decodedJwt = new DecodedJwt(encodedAccessToken, ACCESS_TOKEN_TYPE, principal, claims);
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
             // When
@@ -135,15 +152,18 @@ class JwtAuthenticationTokenTests {
     class GetJwt {
 
         @Test
-        void ThenReturnsJwt_GivenJwtIsValid() {
+        void ReturnsJwt_ValidJwt() {
             // Given
+            var encodedAccessToken = encodedAccessToken();
+            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
+            var decodedJwt = new DecodedJwt(encodedAccessToken, ACCESS_TOKEN_TYPE, "user@asapp.com", claims);
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
             // When
             var actual = jwtAuthenticationToken.getJwt();
 
             // Then
-            assertThat(actual).isEqualTo(token);
+            assertThat(actual).isEqualTo(encodedAccessToken);
         }
 
     }

@@ -38,16 +38,30 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import com.bcn.asapp.users.testutil.WebMvcTestContext;
 
+/**
+ * Tests {@link UserRestController} request validation and error responses.
+ * <p>
+ * Coverage:
+ * <li>Validates path parameter format (UUID required for user IDs)</li>
+ * <li>Validates request content type (JSON required for POST/PUT operations)</li>
+ * <li>Validates request body presence and structure</li>
+ * <li>Validates mandatory field constraints (first name, last name, email, phone number)</li>
+ * <li>Validates email format and phone number format patterns</li>
+ * <li>Returns RFC 7807 Problem Details for all validation failures</li>
+ * <li>Tests all HTTP endpoints (GET by ID, POST, PUT, DELETE)</li>
+ */
 @WithMockUser
-class UserControllerIT extends WebMvcTestContext {
+class UserRestControllerIT extends WebMvcTestContext {
 
     @Nested
     class GetUserById {
 
         @Test
-        void ReturnsStatusNotFoundAndBodyWithProblemDetail_UserIdPathIsNotPresent() {
-            // When & Then
+        void ReturnsStatusNotFoundAndBodyWithProblemDetail_MissingUserId() {
+            // Given
             var requestBuilder = get(USERS_ROOT_PATH + "/");
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.NOT_FOUND)
@@ -65,11 +79,12 @@ class UserControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_UserIdPathIsInvalid() {
-            // When & Then
-            var userIdPath = 1L;
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidUserId() {
+            // Given
+            var userId = 1L;
+            var requestBuilder = get(USERS_GET_BY_ID_FULL_PATH, userId);
 
-            var requestBuilder = get(USERS_GET_BY_ID_FULL_PATH, userIdPath);
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -92,12 +107,13 @@ class UserControllerIT extends WebMvcTestContext {
     class CreateUser {
 
         @Test
-        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyIsNotJson() {
-            // When & Then
+        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_NonJsonRequestBody() {
+            // Given
             var requestBody = "";
-
             var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.TEXT_PLAIN)
                                                              .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
@@ -115,12 +131,13 @@ class UserControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsNotPresent() {
-            // When & Then
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_MissingRequestBody() {
+            // Given
             var requestBody = "";
-
             var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                              .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -138,12 +155,13 @@ class UserControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsEmpty() {
-            // When & Then
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyRequestBody() {
+            // Given
             var requestBody = "{}";
-
             var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                              .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -176,8 +194,8 @@ class UserControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyMandatoryFieldsAreEmpty() {
-            // When & Then
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyMandatoryFields() {
+            // Given
             var requestBody = """
                     {
                     "first_name": "",
@@ -186,9 +204,10 @@ class UserControllerIT extends WebMvcTestContext {
                     "phone_number": ""
                     }
                     """;
-
             var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                              .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -225,8 +244,8 @@ class UserControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyEmailFieldIsInvalid() {
-            // When & Then
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidEmailField() {
+            // Given
             var requestBody = """
                     {
                     "first_name": "%s",
@@ -235,9 +254,10 @@ class UserControllerIT extends WebMvcTestContext {
                     "phone_number": "%s"
                     }
                     """.formatted("FirstName", "LastName", "555 555 555");
-
             var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                              .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -264,8 +284,8 @@ class UserControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyPhoneNumberFieldIsInvalid() {
-            // When & Then
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidPhoneNumberField() {
+            // Given
             var requestBody = """
                     {
                     "first_name": "%s",
@@ -274,9 +294,10 @@ class UserControllerIT extends WebMvcTestContext {
                     "phone_number": "invalid_phone_number"
                     }
                     """.formatted("FirstName", "LastName", "user@asapp.com");
-
             var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                              .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -308,8 +329,8 @@ class UserControllerIT extends WebMvcTestContext {
     class UpdateUserById {
 
         @Test
-        void ReturnsStatusNotFoundAndBodyWithProblemDetail_UserIdPathIsNotPresent() {
-            // When & Then
+        void ReturnsStatusNotFoundAndBodyWithProblemDetail_MissingUserId() {
+            // Given
             var requestBody = """
                     {
                     "first_name": "%s",
@@ -317,10 +338,11 @@ class UserControllerIT extends WebMvcTestContext {
                     "email": "%s",
                     "phone_number": "%s"
                     }
-                    """.formatted("NewFirstName", "NewLastName", "new_user@asapp.com", "555-555-555");
-
+                    """.formatted("New FirstName", "New LastName", "new_user@asapp.com", "666 666 666");
             var requestBuilder = put(USERS_ROOT_PATH + "/").contentType(MediaType.APPLICATION_JSON)
                                                            .content(requestBody);
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.NOT_FOUND)
@@ -338,9 +360,9 @@ class UserControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_UserIdPathIsInvalid() {
-            // When & Then
-            var userIdPath = 1L;
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidUserId() {
+            // Given
+            var userId = 1L;
             var requestBody = """
                     {
                     "first_name": "%s",
@@ -348,10 +370,11 @@ class UserControllerIT extends WebMvcTestContext {
                     "email": "%s",
                     "phone_number": "%s"
                     }
-                    """.formatted("NewFirstName", "NewLastName", "new_user@asapp.com", "555-555-555");
+                    """.formatted("New FirstName", "New LastName", "new_user@asapp.com", "666 666 666");
+            var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userId).contentType(MediaType.APPLICATION_JSON)
+                                                                          .content(requestBody);
 
-            var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
-                                                                              .content(requestBody);
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -369,13 +392,14 @@ class UserControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_RequestBodyIsNotJson() {
-            // When & Then
-            var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
+        void ReturnsStatusUnsupportedMediaTypeAndBodyWithProblemDetail_NonJsonRequestBody() {
+            // Given
+            var userId = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = "";
+            var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userId).contentType(MediaType.TEXT_PLAIN)
+                                                                          .content(requestBody);
 
-            var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.TEXT_PLAIN)
-                                                                              .content(requestBody);
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
@@ -388,18 +412,19 @@ class UserControllerIT extends WebMvcTestContext {
                                                   .containsEntry("title", "Unsupported Media Type")
                                                   .containsEntry("status", 415)
                                                   .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
-                                                  .containsEntry("instance", "/api/users/" + userIdPath);
+                                                  .containsEntry("instance", "/api/users/" + userId);
                    });
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsNotPresent() {
-            // When & Then
-            var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_MissingRequestBody() {
+            // Given
+            var userId = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = "";
+            var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userId).contentType(MediaType.APPLICATION_JSON)
+                                                                          .content(requestBody);
 
-            var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
-                                                                              .content(requestBody);
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -412,18 +437,19 @@ class UserControllerIT extends WebMvcTestContext {
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("detail", "Failed to read request")
-                                                  .containsEntry("instance", "/api/users/" + userIdPath);
+                                                  .containsEntry("instance", "/api/users/" + userId);
                    });
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyIsEmpty() {
-            // When & Then
-            var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyRequestBody() {
+            // Given
+            var userId = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = "{}";
+            var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userId).contentType(MediaType.APPLICATION_JSON)
+                                                                          .content(requestBody);
 
-            var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
-                                                                              .content(requestBody);
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -435,7 +461,7 @@ class UserControllerIT extends WebMvcTestContext {
                                                   .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/users/" + userIdPath);
+                                                  .containsEntry("instance", "/api/users/" + userId);
                        assertThatJson(jsonContent).inPath("detail")
                                                   .asString()
                                                   .contains("The first name must not be empty")
@@ -456,9 +482,9 @@ class UserControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyMandatoryFieldsAreEmpty() {
-            // When & Then
-            var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_EmptyMandatoryFields() {
+            // Given
+            var userId = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = """
                     {
                     "first_name": "",
@@ -467,9 +493,10 @@ class UserControllerIT extends WebMvcTestContext {
                     "phone_number": ""
                     }
                     """;
+            var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userId).contentType(MediaType.APPLICATION_JSON)
+                                                                          .content(requestBody);
 
-            var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
-                                                                              .content(requestBody);
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -481,7 +508,7 @@ class UserControllerIT extends WebMvcTestContext {
                                                   .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/users/" + userIdPath);
+                                                  .containsEntry("instance", "/api/users/" + userId);
                        assertThatJson(jsonContent).inPath("detail")
                                                   .asString()
                                                   .contains("The first name must not be empty")
@@ -506,9 +533,9 @@ class UserControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyEmailFieldIsInvalid() {
-            // When & Then
-            var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidEmailField() {
+            // Given
+            var userId = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = """
                     {
                     "first_name": "%s",
@@ -516,10 +543,11 @@ class UserControllerIT extends WebMvcTestContext {
                     "email": "invalid_email",
                     "phone_number": "%s"
                     }
-                    """.formatted("NewFirstName", "NewLastName", "555-555-555");
+                    """.formatted("New FirstName", "New LastName", "666 666 666");
+            var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userId).contentType(MediaType.APPLICATION_JSON)
+                                                                          .content(requestBody);
 
-            var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
-                                                                              .content(requestBody);
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -531,7 +559,7 @@ class UserControllerIT extends WebMvcTestContext {
                                                   .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/users/" + userIdPath);
+                                                  .containsEntry("instance", "/api/users/" + userId);
                        assertThatJson(jsonContent).inPath("detail")
                                                   .asString()
                                                   .contains("The email must be a valid email address");
@@ -546,9 +574,9 @@ class UserControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_RequestBodyPhoneNumberFieldIsInvalid() {
-            // When & Then
-            var userIdPath = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidPhoneNumberField() {
+            // Given
+            var userId = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = """
                     {
                     "first_name": "%s",
@@ -556,10 +584,11 @@ class UserControllerIT extends WebMvcTestContext {
                     "email": "%s",
                     "phone_number": "invalid_phone_number"
                     }
-                    """.formatted("NewFirstName", "NewLastName", "new_user@asapp.com");
+                    """.formatted("New FirstName", "New LastName", "new_user@asapp.com");
+            var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userId).contentType(MediaType.APPLICATION_JSON)
+                                                                          .content(requestBody);
 
-            var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userIdPath).contentType(MediaType.APPLICATION_JSON)
-                                                                              .content(requestBody);
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)
@@ -571,7 +600,7 @@ class UserControllerIT extends WebMvcTestContext {
                                                   .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/users/" + userIdPath);
+                                                  .containsEntry("instance", "/api/users/" + userId);
                        assertThatJson(jsonContent).inPath("detail")
                                                   .asString()
                                                   .contains("The phone number must be a valid phone number");
@@ -591,9 +620,11 @@ class UserControllerIT extends WebMvcTestContext {
     class DeleteUserById {
 
         @Test
-        void ReturnsStatusNotFoundAndBodyWithProblemDetail_UserIdPathIsNotPresent() {
-            // When & Then
+        void ReturnsStatusNotFoundAndBodyWithProblemDetail_MissingUserId() {
+            // Given
             var requestBuilder = delete(USERS_ROOT_PATH + "/");
+
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.NOT_FOUND)
@@ -611,11 +642,12 @@ class UserControllerIT extends WebMvcTestContext {
         }
 
         @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_UserIdPathIsInvalid() {
-            // When & Then
-            var userIdPath = 1L;
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidUserId() {
+            // Given
+            var userId = 1L;
+            var requestBuilder = delete(USERS_DELETE_BY_ID_FULL_PATH, userId);
 
-            var requestBuilder = delete(USERS_DELETE_BY_ID_FULL_PATH, userIdPath);
+            // When & Then
             mockMvc.perform(requestBuilder)
                    .assertThat()
                    .hasStatus(HttpStatus.BAD_REQUEST)

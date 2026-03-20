@@ -16,8 +16,8 @@
 
 package com.bcn.asapp.tasks.infrastructure.task.persistence;
 
-import static com.bcn.asapp.tasks.testutil.TestFactory.TestTaskFactory.defaultTestTask;
-import static com.bcn.asapp.tasks.testutil.TestFactory.TestTaskFactory.testTaskBuilder;
+import static com.bcn.asapp.tasks.testutil.fixture.TaskFactory.aJdbcTask;
+import static com.bcn.asapp.tasks.testutil.fixture.TaskFactory.aTaskBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;
@@ -32,6 +32,16 @@ import org.springframework.context.annotation.Import;
 
 import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
 
+/**
+ * Tests {@link JdbcTaskRepository} query and delete operations against PostgreSQL.
+ * <p>
+ * Coverage:
+ * <li>Queries tasks by user ownership returning empty when none found</li>
+ * <li>Queries tasks by user ownership returning all matching tasks</li>
+ * <li>Deletes task by identifier returning zero when not found</li>
+ * <li>Deletes task by identifier returning count when successfully deleted</li>
+ * <li>Tests actual database operations with TestContainers PostgreSQL</li>
+ */
 @DataJdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(TestContainerConfiguration.class)
@@ -49,40 +59,38 @@ class JdbcTaskRepositoryIT {
     class FindByUserId {
 
         @Test
-        void DoesNotFindTasksAndReturnsEmptyList_TasksNotExistsByUserId() {
-            // When
-            var userId = UUID.fromString("c8e5a2f9-4d7b-46af-9d8e-6b3f1c9a5e2d");
-
-            var actual = taskRepository.findByUserId(userId);
-
-            // Then
-            assertThat(actual).isEmpty();
-        }
-
-        @Test
-        void FindsTasksAndReturnsTasksFound_TasksExistsByUserId() {
+        void ReturnsFoundTasks_TasksExistForUserId() {
             // Given
             var userId = UUID.fromString("c8e5a2f9-4d7b-46af-9d8e-6b3f1c9a5e2d");
 
-            var task1 = testTaskBuilder().withUserId(userId)
-                                         .build();
-            var task2 = testTaskBuilder().withUserId(userId)
-                                         .build();
-            var task3 = testTaskBuilder().withUserId(userId)
-                                         .build();
-            var taskCreated1 = taskRepository.save(task1);
-            var taskCreated2 = taskRepository.save(task2);
-            var taskCreated3 = taskRepository.save(task3);
-            assertThat(taskCreated1).isNotNull();
-            assertThat(taskCreated2).isNotNull();
-            assertThat(taskCreated3).isNotNull();
+            var task1 = aTaskBuilder().withUserId(userId)
+                                      .buildJdbc();
+            var task2 = aTaskBuilder().withUserId(userId)
+                                      .buildJdbc();
+            var task3 = aTaskBuilder().withUserId(userId)
+                                      .buildJdbc();
+            var createdTask1 = createTask(task1);
+            var createdTask2 = createTask(task2);
+            var createdTask3 = createTask(task3);
 
             // When
             var actual = taskRepository.findByUserId(userId);
 
             // Then
             assertThat(actual).hasSize(3)
-                              .containsExactlyInAnyOrder(taskCreated1, taskCreated2, taskCreated3);
+                              .containsExactlyInAnyOrder(createdTask1, createdTask2, createdTask3);
+        }
+
+        @Test
+        void ReturnsEmptyList_TasksNotExistForUserId() {
+            // Given
+            var userId = UUID.fromString("c8e5a2f9-4d7b-46af-9d8e-6b3f1c9a5e2d");
+
+            // When
+            var actual = taskRepository.findByUserId(userId);
+
+            // Then
+            assertThat(actual).isEmpty();
         }
 
     }
@@ -91,32 +99,43 @@ class JdbcTaskRepositoryIT {
     class DeleteTaskById {
 
         @Test
-        void DoesNotDeleteTaskAndReturnsZero_TaskNotExists() {
-            // When
-            var taskId = UUID.fromString("e2a7c9f4-6b3d-48ab-9f1a-8d5b3e7c2a9f");
-
-            var actual = taskRepository.deleteTaskById(taskId);
-
-            // Then
-            assertThat(actual).isZero();
-        }
-
-        @Test
-        void DeletesTaskAndReturnsAmountOfTasksDeleted_TaskExists() {
+        void ReturnsDeletionCount_TaskExists() {
             // Given
-            var task = defaultTestTask();
-            var taskCreated = taskRepository.save(task);
-            assertThat(taskCreated).isNotNull();
+            var createdTask = createTask();
+            var taskId = createdTask.id();
 
             // When
-            var taskId = taskCreated.id();
-
             var actual = taskRepository.deleteTaskById(taskId);
 
             // Then
             assertThat(actual).isGreaterThan(0);
         }
 
+        @Test
+        void ReturnsZero_TaskNotExists() {
+            // Given
+            var taskId = UUID.fromString("e2a7c9f4-6b3d-48ab-9f1a-8d5b3e7c2a9f");
+
+            // When
+            var actual = taskRepository.deleteTaskById(taskId);
+
+            // Then
+            assertThat(actual).isZero();
+        }
+
+    }
+
+    // Test Data Creation Helpers
+
+    private JdbcTaskEntity createTask() {
+        var task = aJdbcTask();
+        return createTask(task);
+    }
+
+    private JdbcTaskEntity createTask(JdbcTaskEntity task) {
+        var createdTask = taskRepository.save(task);
+        assertThat(createdTask).isNotNull();
+        return createdTask;
     }
 
 }

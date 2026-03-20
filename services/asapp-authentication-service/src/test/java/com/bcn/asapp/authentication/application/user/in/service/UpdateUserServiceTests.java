@@ -17,15 +17,17 @@
 package com.bcn.asapp.authentication.application.user.in.service;
 
 import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
-import static com.bcn.asapp.authentication.domain.user.Role.USER;
+import static com.bcn.asapp.authentication.testutil.fixture.UserFactory.aUserBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.UserFactory.anActiveUser;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.never;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.times;
 import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -44,8 +46,16 @@ import com.bcn.asapp.authentication.domain.user.PasswordService;
 import com.bcn.asapp.authentication.domain.user.RawPassword;
 import com.bcn.asapp.authentication.domain.user.User;
 import com.bcn.asapp.authentication.domain.user.UserId;
-import com.bcn.asapp.authentication.domain.user.Username;
 
+/**
+ * Tests {@link UpdateUserService} two-phase fetch-then-persist with optional password re-encoding.
+ * <p>
+ * Coverage:
+ * <li>Retrieval failures propagate without executing update operations</li>
+ * <li>Password encoding failures propagate when password update requested</li>
+ * <li>Persistence failures propagate without completing update workflow</li>
+ * <li>Successful update retrieves user, re-encodes password if provided, updates data, and persists changes</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class UpdateUserServiceTests {
 
@@ -58,34 +68,97 @@ class UpdateUserServiceTests {
     @InjectMocks
     private UpdateUserService updateUserService;
 
-    private final UUID userIdValue = UUID.fromString("61c5064b-1906-4d11-a8ab-5bfd309e2631");
-
-    private final String usernameValue = "user@asapp.com";
-
-    private final String newUsernameValue = "newuser@asapp.com";
-
-    private final String newPasswordValue = "newPassword123";
-
-    private final String newRoleValue = "ADMIN";
-
     @Nested
     class UpdateUserById {
 
         @Test
-        void ThrowsRuntimeException_FetchUserFails() {
+        void ReturnsUpdatedUser_UserExists() {
             // Given
-            var command = new UpdateUserCommand(userIdValue, newUsernameValue, newPasswordValue, newRoleValue);
+            var existingUser = anActiveUser();
+            var existingUserId = existingUser.getId();
+            var newUser = aUserBuilder().active()
+                                        .withUsername("new_user@asapp.com")
+                                        .withRole(ADMIN)
+                                        .build();
+            var newUsername = newUser.getUsername();
+            var newPasswordValue = "newPassword123!";
+            var newRole = newUser.getRole();
+            var command = new UpdateUserCommand(existingUserId.value(), newUsername.value(), newPasswordValue, newRole.name());
+            var newRawPassword = RawPassword.of(newPasswordValue);
+            var newEncodedPassword = EncodedPassword.of("{bcrypt}$2a$10$newEncodedPassword");
+
+            given(userRepository.findById(existingUserId)).willReturn(Optional.of(existingUser));
+            given(passwordService.encode(newRawPassword)).willReturn(newEncodedPassword);
+            given(userRepository.save(existingUser)).willReturn(newUser);
+
+            // When
+            var actual = updateUserService.updateUserById(command);
+
+            // Then
+            assertThat(actual).as("updated user")
+                              .isPresent();
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual.get().getId()).as("ID").isEqualTo(existingUserId);
+                softly.assertThat(actual.get().getUsername()).as("username").isEqualTo(newUsername);
+                softly.assertThat(actual.get().getPassword()).as("password").isNull();
+                softly.assertThat(actual.get().getRole()).as("role").isEqualTo(newRole);
+                // @formatter:on
+            });
+
+            then(userRepository).should(times(1))
+                                .findById(existingUserId);
+            then(passwordService).should(times(1))
+                                 .encode(newRawPassword);
+            then(userRepository).should(times(1))
+                                .save(existingUser);
+        }
+
+        @Test
+        void ReturnsEmptyOptional_UserNotExists() {
+            // Given
+            var userIdValue = UUID.fromString("a1b2c3d4-e5f6-4789-a0b1-c2d3e4f5a6b7");
             var userId = UserId.of(userIdValue);
+            var username = "user@asapp.com";
+            var password = "TEST@09_password?!";
+            var role = "USER";
+            var command = new UpdateUserCommand(userIdValue, username, password, role);
+
+            given(userRepository.findById(userId)).willReturn(Optional.empty());
+
+            // When
+            var actual = updateUserService.updateUserById(command);
+
+            // Then
+            assertThat(actual).isEmpty();
+
+            then(userRepository).should(times(1))
+                                .findById(userId);
+            then(passwordService).should(never())
+                                 .encode(any(RawPassword.class));
+            then(userRepository).should(never())
+                                .save(any(User.class));
+        }
+
+        @Test
+        void ThrowsRuntimeException_UserRetrievalFails() {
+            // Given
+            var userIdValue = UUID.fromString("a1b2c3d4-e5f6-4789-a0b1-c2d3e4f5a6b7");
+            var userId = UserId.of(userIdValue);
+            var username = "user@asapp.com";
+            var password = "TEST@09_password?!";
+            var role = "USER";
+            var command = new UpdateUserCommand(userIdValue, username, password, role);
 
             willThrow(new RuntimeException("Database connection failed")).given(userRepository)
                                                                          .findById(userId);
 
             // When
-            var thrown = catchThrowable(() -> updateUserService.updateUserById(command));
+            var actual = catchThrowable(() -> updateUserService.updateUserById(command));
 
             // Then
-            assertThat(thrown).isInstanceOf(RuntimeException.class)
-                              .hasMessageContaining("Database connection failed");
+            assertThat(actual).isInstanceOf(RuntimeException.class)
+                              .hasMessage("Database connection failed");
 
             then(userRepository).should(times(1))
                                 .findById(userId);
@@ -98,117 +171,63 @@ class UpdateUserServiceTests {
         @Test
         void ThrowsRuntimeException_PasswordEncodingFails() {
             // Given
-            var command = new UpdateUserCommand(userIdValue, newUsernameValue, newPasswordValue, newRoleValue);
-            var userId = UserId.of(userIdValue);
-            var currentUser = User.activeUser(userId, Username.of(usernameValue), USER);
-            var newRawPassword = RawPassword.of(newPasswordValue);
+            var existingUser = anActiveUser();
+            var existingUserId = existingUser.getId();
+            var newUsername = "new_user@asapp.com";
+            var newPasswordValue = "newPassword123!";
+            var newRole = "ADMIN";
+            var command = new UpdateUserCommand(existingUserId.value(), newUsername, newPasswordValue, newRole);
+            var rawPassword = RawPassword.of(newPasswordValue);
 
-            given(userRepository.findById(userId)).willReturn(Optional.of(currentUser));
+            given(userRepository.findById(existingUserId)).willReturn(Optional.of(existingUser));
             willThrow(new RuntimeException("Password encoding failed")).given(passwordService)
-                                                                       .encode(newRawPassword);
+                                                                       .encode(rawPassword);
 
             // When
-            var thrown = catchThrowable(() -> updateUserService.updateUserById(command));
+            var actual = catchThrowable(() -> updateUserService.updateUserById(command));
 
             // Then
-            assertThat(thrown).isInstanceOf(RuntimeException.class)
-                              .hasMessageContaining("Password encoding failed");
+            assertThat(actual).isInstanceOf(RuntimeException.class)
+                              .hasMessage("Password encoding failed");
 
             then(userRepository).should(times(1))
-                                .findById(userId);
+                                .findById(existingUserId);
             then(passwordService).should(times(1))
-                                 .encode(newRawPassword);
+                                 .encode(rawPassword);
             then(userRepository).should(never())
                                 .save(any(User.class));
         }
 
         @Test
-        void ThrowsRuntimeException_SaveUserFails() {
+        void ThrowsRuntimeException_UserPersistenceFails() {
             // Given
-            var command = new UpdateUserCommand(userIdValue, newUsernameValue, newPasswordValue, newRoleValue);
-            var userId = UserId.of(userIdValue);
-            var currentUser = User.activeUser(userId, Username.of(usernameValue), USER);
-            var newRawPassword = RawPassword.of(newPasswordValue);
-            var newEncodedPassword = EncodedPassword.of("{bcrypt}$2a$10$newEncodedPassword");
+            var existingUser = anActiveUser();
+            var existingUserId = existingUser.getId();
+            var newUsername = "new_user@asapp.com";
+            var newPasswordValue = "newPassword123!";
+            var newRole = "ADMIN";
+            var command = new UpdateUserCommand(existingUserId.value(), newUsername, newPasswordValue, newRole);
+            var rawPassword = RawPassword.of(newPasswordValue);
+            var encodedPassword = EncodedPassword.of("{bcrypt}$2a$10$newEncodedPassword");
 
-            given(userRepository.findById(userId)).willReturn(Optional.of(currentUser));
-            given(passwordService.encode(newRawPassword)).willReturn(newEncodedPassword);
+            given(userRepository.findById(existingUserId)).willReturn(Optional.of(existingUser));
+            given(passwordService.encode(rawPassword)).willReturn(encodedPassword);
             willThrow(new RuntimeException("Database connection failed")).given(userRepository)
-                                                                         .save(currentUser);
+                                                                         .save(existingUser);
 
             // When
-            var thrown = catchThrowable(() -> updateUserService.updateUserById(command));
+            var actual = catchThrowable(() -> updateUserService.updateUserById(command));
 
             // Then
-            assertThat(thrown).isInstanceOf(RuntimeException.class)
-                              .hasMessageContaining("Database connection failed");
+            assertThat(actual).isInstanceOf(RuntimeException.class)
+                              .hasMessage("Database connection failed");
 
             then(userRepository).should(times(1))
-                                .findById(userId);
+                                .findById(existingUserId);
             then(passwordService).should(times(1))
-                                 .encode(newRawPassword);
+                                 .encode(rawPassword);
             then(userRepository).should(times(1))
-                                .save(currentUser);
-        }
-
-        @Test
-        void ReturnsEmptyOptional_UserNotExists() {
-            // Given
-            var command = new UpdateUserCommand(userIdValue, newUsernameValue, newPasswordValue, newRoleValue);
-            var userId = UserId.of(userIdValue);
-
-            given(userRepository.findById(userId)).willReturn(Optional.empty());
-
-            // When
-            var result = updateUserService.updateUserById(command);
-
-            // Then
-            assertThat(result).isEmpty();
-
-            then(userRepository).should(times(1))
-                                .findById(userId);
-            then(passwordService).should(never())
-                                 .encode(any(RawPassword.class));
-            then(userRepository).should(never())
-                                .save(any(User.class));
-        }
-
-        @Test
-        void ReturnsUpdatedUser_UpdateSucceed() {
-            // Given
-            var command = new UpdateUserCommand(userIdValue, newUsernameValue, newPasswordValue, newRoleValue);
-            var userId = UserId.of(userIdValue);
-            var currentUsername = Username.of(usernameValue);
-            var currentUser = User.activeUser(userId, currentUsername, USER);
-
-            var newUsername = Username.of(newUsernameValue);
-            var newRawPassword = RawPassword.of(newPasswordValue);
-            var newEncodedPassword = EncodedPassword.of("{bcrypt}$2a$10$newEncodedPassword");
-            var updatedUser = User.activeUser(userId, newUsername, ADMIN);
-
-            given(userRepository.findById(userId)).willReturn(Optional.of(currentUser));
-            given(passwordService.encode(newRawPassword)).willReturn(newEncodedPassword);
-            given(userRepository.save(currentUser)).willReturn(updatedUser);
-
-            // When
-            var result = updateUserService.updateUserById(command);
-
-            // Then
-            assertThat(result).isPresent();
-            assertThat(result.get()).isNotNull();
-            assertThat(result.get()
-                             .getId()).isEqualTo(userId);
-            assertThat(result.get()
-                             .getUsername()).isEqualTo(newUsername);
-            assertThat(result.get()
-                             .getRole()).isEqualTo(ADMIN);
-
-            then(userRepository).should(times(1))
-                                .findById(userId);
-            then(passwordService).should(times(1))
-                                 .encode(newRawPassword);
-            then(userRepository).should(times(1))
-                                .save(currentUser);
+                                .save(existingUser);
         }
 
     }

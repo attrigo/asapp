@@ -24,30 +24,40 @@ import java.time.Instant;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests {@link StartDate} validation, nullable factory, and value access.
+ * <p>
+ * Coverage:
+ * <li>Rejects null start date values</li>
+ * <li>Accepts valid inputs through constructor and factory method</li>
+ * <li>Returns null from nullable factory for null input</li>
+ * <li>Provides access to wrapped Instant value</li>
+ */
 class StartDateTests {
-
-    private final Instant startDateValue = Instant.parse("2025-01-01T10:00:00Z");
 
     @Nested
     class CreateStartDateWithConstructor {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenStartDateIsNull() {
+        void ReturnsStartDate_ValidStartDate() {
+            // Given
+            var startDate = Instant.parse("2025-01-01T10:00:00Z");
+
             // When
-            var thrown = catchThrowable(() -> new StartDate(null));
+            var actual = new StartDate(startDate);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Start date must not be null");
+            assertThat(actual.startDate()).isEqualTo(startDate);
         }
 
         @Test
-        void ThenReturnsStartDate_GivenStartDateIsValid() {
+        void ThrowsIllegalArgumentException_NullStartDate() {
             // When
-            var actual = new StartDate(startDateValue);
+            var actual = catchThrowable(() -> new StartDate(null));
 
             // Then
-            assertThat(actual.startDate()).isEqualTo(startDateValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Start date must not be null");
         }
 
     }
@@ -56,22 +66,25 @@ class StartDateTests {
     class CreateStartDateWithFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenStartDateIsNull() {
+        void ReturnsStartDate_ValidStartDate() {
+            // Given
+            var startDate = Instant.parse("2025-01-01T10:00:00Z");
+
             // When
-            var thrown = catchThrowable(() -> StartDate.of(null));
+            var actual = StartDate.of(startDate);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Start date must not be null");
+            assertThat(actual.startDate()).isEqualTo(startDate);
         }
 
         @Test
-        void ThenReturnsStartDate_GivenStartDateIsValid() {
+        void ThrowsIllegalArgumentException_NullStartDate() {
             // When
-            var actual = StartDate.of(startDateValue);
+            var actual = catchThrowable(() -> StartDate.of(null));
 
             // Then
-            assertThat(actual.startDate()).isEqualTo(startDateValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Start date must not be null");
         }
 
     }
@@ -80,21 +93,24 @@ class StartDateTests {
     class CreateStartDateWithNullableFactoryMethod {
 
         @Test
-        void ThenReturnsNull_GivenStartDateIsNull() {
+        void ReturnsStartDate_ValidStartDate() {
+            // Given
+            var startDate = Instant.parse("2025-01-01T10:00:00Z");
+
+            // When
+            var actual = StartDate.ofNullable(startDate);
+
+            // Then
+            assertThat(actual.startDate()).isEqualTo(startDate);
+        }
+
+        @Test
+        void ReturnsNull_NullStartDate() {
             // When
             var actual = StartDate.ofNullable(null);
 
             // Then
             assertThat(actual).isNull();
-        }
-
-        @Test
-        void ThenReturnsStartDate_GivenStartDateIsValid() {
-            // When
-            var actual = StartDate.ofNullable(startDateValue);
-
-            // Then
-            assertThat(actual.startDate()).isEqualTo(startDateValue);
         }
 
     }
@@ -103,8 +119,9 @@ class StartDateTests {
     class GetValue {
 
         @Test
-        void ThenReturnsStartDateValue_GivenStartDateIsValid() {
+        void ReturnsStartDateValue_ValidStartDate() {
             // Given
+            var startDateValue = Instant.parse("2025-01-01T10:00:00Z");
             var startDate = StartDate.of(startDateValue);
 
             // When

@@ -16,18 +16,18 @@
 
 package com.bcn.asapp.authentication.application.authentication.in.service;
 
-import static com.bcn.asapp.authentication.domain.user.Role.USER;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtAuthenticationFactory.anAuthenticatedJwtAuthentication;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtFactory.aJwtBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.UserAuthenticationFactory.anAuthenticatedUser;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.never;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.times;
 import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-
-import java.time.Instant;
-import java.util.UUID;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -43,22 +43,23 @@ import com.bcn.asapp.authentication.application.authentication.out.CredentialsAu
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.application.authentication.out.TokenIssuer;
-import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
-import com.bcn.asapp.authentication.domain.authentication.Expiration;
-import com.bcn.asapp.authentication.domain.authentication.Issued;
-import com.bcn.asapp.authentication.domain.authentication.Jwt;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
-import com.bcn.asapp.authentication.domain.authentication.JwtAuthenticationId;
-import com.bcn.asapp.authentication.domain.authentication.JwtClaims;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
-import com.bcn.asapp.authentication.domain.authentication.JwtType;
-import com.bcn.asapp.authentication.domain.authentication.Subject;
 import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
 import com.bcn.asapp.authentication.domain.user.RawPassword;
-import com.bcn.asapp.authentication.domain.user.Role;
-import com.bcn.asapp.authentication.domain.user.UserId;
 import com.bcn.asapp.authentication.domain.user.Username;
 
+/**
+ * Tests {@link AuthenticateService} credential validation, token generation, persistence, and compensation on failure.
+ * <p>
+ * Coverage:
+ * <li>Credential validation failures propagate without executing downstream steps</li>
+ * <li>Token generation failures prevent persistence and activation</li>
+ * <li>Persistence failures prevent token activation</li>
+ * <li>Token activation failures trigger compensation to delete persisted authentication</li>
+ * <li>Compensation failures wrap the original cause and propagate to the caller</li>
+ * <li>Successful authentication completes all orchestration steps</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class AuthenticateServiceTests {
 
@@ -77,20 +78,53 @@ class AuthenticateServiceTests {
     @InjectMocks
     private AuthenticateService authenticateService;
 
-    private final String usernameValue = "user@asapp.com";
-
-    private final String passwordValue = "TEST@09_password?!";
-
-    private final UUID userId = UUID.fromString("61c5064b-1906-4d11-a8ab-5bfd309e2631");
-
-    private final Role role = USER;
-
     @Nested
     class Authenticate {
 
         @Test
-        void ThrowsRuntimeException_AuthenticateCredentialsFails() {
+        void ReturnsAuthenticatedJwtAuthentication_ValidCredentials() {
             // Given
+            var usernameValue = "user@asapp.com";
+            var passwordValue = "TEST@09_password?!";
+            var command = new AuthenticateCommand(usernameValue, passwordValue);
+            var username = Username.of(usernameValue);
+            var password = RawPassword.of(passwordValue);
+            var user = anAuthenticatedUser();
+            var jwtAuthentication = anAuthenticatedJwtAuthentication();
+            var jwtPair = jwtAuthentication.getJwtPair();
+
+            given(credentialsAuthenticator.authenticate(username, password)).willReturn(user);
+            given(tokenIssuer.issueTokenPair(user)).willReturn(jwtPair);
+            given(jwtAuthenticationRepository.save(any(JwtAuthentication.class))).willReturn(jwtAuthentication);
+
+            // When
+            var actual = authenticateService.authenticate(command);
+
+            // Then
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual).as("JWT authentication").isNotNull();
+                softly.assertThat(actual.getId()).as("ID").isEqualTo(jwtAuthentication.getId());
+                softly.assertThat(actual.getUserId()).as("user ID").isEqualTo(jwtAuthentication.getUserId());
+                softly.assertThat(actual.getJwtPair()).as("JWT pair").isEqualTo(jwtPair);
+                // @formatter:on
+            });
+
+            then(credentialsAuthenticator).should(times(1))
+                                          .authenticate(username, password);
+            then(tokenIssuer).should(times(1))
+                             .issueTokenPair(user);
+            then(jwtAuthenticationRepository).should(times(1))
+                                             .save(any(JwtAuthentication.class));
+            then(jwtStore).should(times(1))
+                          .save(jwtPair);
+        }
+
+        @Test
+        void ThrowsRuntimeException_CredentialAuthenticationFails() {
+            // Given
+            var usernameValue = "user@asapp.com";
+            var passwordValue = "TEST@09_password?!";
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);
             var password = RawPassword.of(passwordValue);
@@ -99,11 +133,11 @@ class AuthenticateServiceTests {
                                                                     .authenticate(username, password);
 
             // When
-            var thrown = catchThrowable(() -> authenticateService.authenticate(command));
+            var actual = catchThrowable(() -> authenticateService.authenticate(command));
 
             // Then
-            assertThat(thrown).isInstanceOf(RuntimeException.class)
-                              .hasMessageContaining("Authentication failed");
+            assertThat(actual).isInstanceOf(RuntimeException.class)
+                              .hasMessage("Authentication failed");
 
             then(credentialsAuthenticator).should(times(1))
                                           .authenticate(username, password);
@@ -116,28 +150,30 @@ class AuthenticateServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_GenerateTokenPairFails() {
+        void ThrowsRuntimeException_TokenPairGenerationFails() {
             // Given
+            var usernameValue = "user@asapp.com";
+            var passwordValue = "TEST@09_password?!";
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);
             var password = RawPassword.of(passwordValue);
-            var userAuth = UserAuthentication.authenticated(UserId.of(userId), username, role);
+            var user = anAuthenticatedUser();
 
-            given(credentialsAuthenticator.authenticate(username, password)).willReturn(userAuth);
+            given(credentialsAuthenticator.authenticate(username, password)).willReturn(user);
             willThrow(new RuntimeException("Token issuance failed")).given(tokenIssuer)
-                                                                    .issueTokenPair(userAuth);
+                                                                    .issueTokenPair(user);
 
             // When
-            var thrown = catchThrowable(() -> authenticateService.authenticate(command));
+            var actual = catchThrowable(() -> authenticateService.authenticate(command));
 
             // Then
-            assertThat(thrown).isInstanceOf(RuntimeException.class)
-                              .hasMessageContaining("Token issuance failed");
+            assertThat(actual).isInstanceOf(RuntimeException.class)
+                              .hasMessage("Token issuance failed");
 
             then(credentialsAuthenticator).should(times(1))
                                           .authenticate(username, password);
             then(tokenIssuer).should(times(1))
-                             .issueTokenPair(userAuth);
+                             .issueTokenPair(user);
             then(jwtAuthenticationRepository).should(never())
                                              .save(any(JwtAuthentication.class));
             then(jwtStore).should(never())
@@ -145,32 +181,36 @@ class AuthenticateServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_SaveAuthenticationFails() {
+        void ThrowsRuntimeException_AuthenticationPersistenceFails() {
             // Given
+            var usernameValue = "user@asapp.com";
+            var passwordValue = "TEST@09_password?!";
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);
             var password = RawPassword.of(passwordValue);
-            var userAuth = UserAuthentication.authenticated(UserId.of(userId), username, role);
-            var accessToken = createJwt(JwtType.ACCESS_TOKEN);
-            var refreshToken = createJwt(JwtType.REFRESH_TOKEN);
+            var user = anAuthenticatedUser();
+            var accessToken = aJwtBuilder().accessToken()
+                                           .build();
+            var refreshToken = aJwtBuilder().refreshToken()
+                                            .build();
             var jwtPair = JwtPair.of(accessToken, refreshToken);
 
-            given(credentialsAuthenticator.authenticate(username, password)).willReturn(userAuth);
-            given(tokenIssuer.issueTokenPair(userAuth)).willReturn(jwtPair);
+            given(credentialsAuthenticator.authenticate(username, password)).willReturn(user);
+            given(tokenIssuer.issueTokenPair(user)).willReturn(jwtPair);
             willThrow(new RuntimeException("Repository save failed")).given(jwtAuthenticationRepository)
                                                                      .save(any(JwtAuthentication.class));
 
             // When
-            var thrown = catchThrowable(() -> authenticateService.authenticate(command));
+            var actual = catchThrowable(() -> authenticateService.authenticate(command));
 
             // Then
-            assertThat(thrown).isInstanceOf(RuntimeException.class)
-                              .hasMessageContaining("Repository save failed");
+            assertThat(actual).isInstanceOf(RuntimeException.class)
+                              .hasMessage("Repository save failed");
 
             then(credentialsAuthenticator).should(times(1))
                                           .authenticate(username, password);
             then(tokenIssuer).should(times(1))
-                             .issueTokenPair(userAuth);
+                             .issueTokenPair(user);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(any(JwtAuthentication.class));
             then(jwtStore).should(never())
@@ -178,130 +218,88 @@ class AuthenticateServiceTests {
         }
 
         @Test
-        void ThrowsCompensatingTransactionException_ActivateTokensFailsAndCompensationFails() {
+        void ThrowsCompensatingTransactionException_TokenActivationFailsAndCompensationFails() {
             // Given
+            var usernameValue = "user@asapp.com";
+            var passwordValue = "TEST@09_password?!";
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);
             var password = RawPassword.of(passwordValue);
-            var userAuth = UserAuthentication.authenticated(UserId.of(userId), username, role);
-            var accessToken = createJwt(JwtType.ACCESS_TOKEN);
-            var refreshToken = createJwt(JwtType.REFRESH_TOKEN);
-            var jwtPair = JwtPair.of(accessToken, refreshToken);
-            var savedAuthentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), jwtPair);
+            var user = anAuthenticatedUser();
+            var jwtAuthentication = anAuthenticatedJwtAuthentication();
+            var jwtAuthenticationId = jwtAuthentication.getId();
+            var jwtPair = jwtAuthentication.getJwtPair();
+            var tokenStoreException = new TokenStoreException("Could not store tokens in fast-access store",
+                    new RuntimeException("Token store connection failed"));
 
-            given(credentialsAuthenticator.authenticate(username, password)).willReturn(userAuth);
-            given(tokenIssuer.issueTokenPair(userAuth)).willReturn(jwtPair);
-            given(jwtAuthenticationRepository.save(any(JwtAuthentication.class))).willReturn(savedAuthentication);
-            willThrow(new TokenStoreException("Could not store tokens in fast-access store",
-                    new RuntimeException("Token store connection failed"))).given(jwtStore)
-                                                                           .save(jwtPair);
+            given(credentialsAuthenticator.authenticate(username, password)).willReturn(user);
+            given(tokenIssuer.issueTokenPair(user)).willReturn(jwtPair);
+            given(jwtAuthenticationRepository.save(any(JwtAuthentication.class))).willReturn(jwtAuthentication);
+            willThrow(tokenStoreException).given(jwtStore)
+                                          .save(jwtPair);
             willThrow(new RuntimeException("Compensation failed")).given(jwtAuthenticationRepository)
-                                                                  .deleteById(savedAuthentication.getId());
+                                                                  .deleteById(jwtAuthenticationId);
 
             // When
-            var thrown = catchThrowable(() -> authenticateService.authenticate(command));
+            var actual = catchThrowable(() -> authenticateService.authenticate(command));
 
             // Then
-            assertThat(thrown).isInstanceOf(CompensatingTransactionException.class)
-                              .hasMessageContaining("Failed to compensate repository persistence after token activation failure")
+            assertThat(actual).isInstanceOf(CompensatingTransactionException.class)
+                              .hasMessage("Failed to compensate repository persistence after token activation failure")
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(credentialsAuthenticator).should(times(1))
                                           .authenticate(username, password);
             then(tokenIssuer).should(times(1))
-                             .issueTokenPair(userAuth);
+                             .issueTokenPair(user);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(any(JwtAuthentication.class));
             then(jwtStore).should(times(1))
                           .save(jwtPair);
             then(jwtAuthenticationRepository).should(times(1))
-                                             .deleteById(savedAuthentication.getId());
+                                             .deleteById(jwtAuthenticationId);
         }
 
         @Test
-        void ThrowsTokenStoreException_ActivateTokensFailsAndCompensationSucceeds() {
+        void ThrowsTokenStoreException_TokenActivationFailsAndCompensationSucceeds() {
             // Given
+            var usernameValue = "user@asapp.com";
+            var passwordValue = "TEST@09_password?!";
             var command = new AuthenticateCommand(usernameValue, passwordValue);
             var username = Username.of(usernameValue);
             var password = RawPassword.of(passwordValue);
-            var userAuth = UserAuthentication.authenticated(UserId.of(userId), username, role);
-            var accessToken = createJwt(JwtType.ACCESS_TOKEN);
-            var refreshToken = createJwt(JwtType.REFRESH_TOKEN);
-            var jwtPair = JwtPair.of(accessToken, refreshToken);
-            var savedAuthentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), jwtPair);
+            var user = anAuthenticatedUser();
+            var jwtAuthentication = anAuthenticatedJwtAuthentication();
+            var jwtPair = jwtAuthentication.getJwtPair();
+            var tokenStoreException = new TokenStoreException("Could not store tokens in fast-access store",
+                    new RuntimeException("Token store connection failed"));
 
-            given(credentialsAuthenticator.authenticate(username, password)).willReturn(userAuth);
-            given(tokenIssuer.issueTokenPair(userAuth)).willReturn(jwtPair);
-            given(jwtAuthenticationRepository.save(any(JwtAuthentication.class))).willReturn(savedAuthentication);
-            willThrow(new TokenStoreException("Could not store tokens in fast-access store",
-                    new RuntimeException("Token store connection failed"))).given(jwtStore)
-                                                                           .save(jwtPair);
+            given(credentialsAuthenticator.authenticate(username, password)).willReturn(user);
+            given(tokenIssuer.issueTokenPair(user)).willReturn(jwtPair);
+            given(jwtAuthenticationRepository.save(any(JwtAuthentication.class))).willReturn(jwtAuthentication);
+            willThrow(tokenStoreException).given(jwtStore)
+                                          .save(jwtPair);
 
             // When
-            var thrown = catchThrowable(() -> authenticateService.authenticate(command));
+            var actual = catchThrowable(() -> authenticateService.authenticate(command));
 
             // Then
-            assertThat(thrown).isInstanceOf(TokenStoreException.class)
-                              .hasMessageContaining("Could not store tokens in fast-access store")
+            assertThat(actual).isInstanceOf(TokenStoreException.class)
+                              .hasMessage("Could not store tokens in fast-access store")
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(credentialsAuthenticator).should(times(1))
                                           .authenticate(username, password);
             then(tokenIssuer).should(times(1))
-                             .issueTokenPair(userAuth);
+                             .issueTokenPair(user);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(any(JwtAuthentication.class));
             then(jwtStore).should(times(1))
                           .save(jwtPair);
             then(jwtAuthenticationRepository).should(times(1))
-                                             .deleteById(savedAuthentication.getId());
+                                             .deleteById(jwtAuthentication.getId());
         }
 
-        @Test
-        void ReturnsAuthenticatedJwtAuthentication_AuthenticationSucceeds() {
-            // Given
-            var command = new AuthenticateCommand(usernameValue, passwordValue);
-            var username = Username.of(usernameValue);
-            var password = RawPassword.of(passwordValue);
-            var userAuth = UserAuthentication.authenticated(UserId.of(userId), username, role);
-            var accessToken = createJwt(JwtType.ACCESS_TOKEN);
-            var refreshToken = createJwt(JwtType.REFRESH_TOKEN);
-            var jwtPair = JwtPair.of(accessToken, refreshToken);
-            var savedAuthentication = JwtAuthentication.authenticated(JwtAuthenticationId.of(UUID.randomUUID()), UserId.of(userId), jwtPair);
-
-            given(credentialsAuthenticator.authenticate(username, password)).willReturn(userAuth);
-            given(tokenIssuer.issueTokenPair(userAuth)).willReturn(jwtPair);
-            given(jwtAuthenticationRepository.save(any(JwtAuthentication.class))).willReturn(savedAuthentication);
-
-            // When
-            var result = authenticateService.authenticate(command);
-
-            // Then
-            assertThat(result).isNotNull();
-            assertThat(result.getId()).isEqualTo(savedAuthentication.getId());
-            assertThat(result.getUserId()).isEqualTo(savedAuthentication.getUserId());
-            assertThat(result.getJwtPair()).isEqualTo(savedAuthentication.getJwtPair());
-
-            then(credentialsAuthenticator).should(times(1))
-                                          .authenticate(username, password);
-            then(tokenIssuer).should(times(1))
-                             .issueTokenPair(userAuth);
-            then(jwtAuthenticationRepository).should(times(1))
-                                             .save(any(JwtAuthentication.class));
-            then(jwtStore).should(times(1))
-                          .save(jwtPair);
-        }
-
-    }
-
-    private Jwt createJwt(JwtType type) {
-        var encodedToken = EncodedToken.of("test.token.value");
-        var subject = Subject.of(usernameValue);
-        var claims = JwtClaims.of("role", role.name(), "token_use", type == JwtType.ACCESS_TOKEN ? "access" : "refresh");
-        var issued = Issued.of(Instant.now());
-        var expiration = Expiration.of(issued, 300000L);
-
-        return Jwt.of(encodedToken, type, subject, claims, issued, expiration);
     }
 
 }

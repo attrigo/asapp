@@ -24,30 +24,40 @@ import java.time.Instant;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests {@link EndDate} validation, nullable factory, and value access.
+ * <p>
+ * Coverage:
+ * <li>Rejects null end date values</li>
+ * <li>Accepts valid inputs through constructor and factory method</li>
+ * <li>Returns null from nullable factory for null input</li>
+ * <li>Provides access to wrapped Instant value</li>
+ */
 class EndDateTests {
-
-    private final Instant endDateValue = Instant.parse("2025-01-02T10:00:00Z");
 
     @Nested
     class CreateEndDateWithConstructor {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenEndDateIsNull() {
+        void ReturnsEndDate_ValidEndDate() {
+            // Given
+            var endDate = Instant.parse("2025-01-02T10:00:00Z");
+
             // When
-            var thrown = catchThrowable(() -> new EndDate(null));
+            var actual = new EndDate(endDate);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("End date must not be null");
+            assertThat(actual.endDate()).isEqualTo(endDate);
         }
 
         @Test
-        void ThenReturnsEndDate_GivenEndDateIsValid() {
+        void ThrowsIllegalArgumentException_NullEndDate() {
             // When
-            var actual = new EndDate(endDateValue);
+            var actual = catchThrowable(() -> new EndDate(null));
 
             // Then
-            assertThat(actual.endDate()).isEqualTo(endDateValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("End date must not be null");
         }
 
     }
@@ -56,22 +66,25 @@ class EndDateTests {
     class CreateEndDateWithFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenEndDateIsNull() {
+        void ReturnsEndDate_ValidEndDate() {
+            // Given
+            var endDate = Instant.parse("2025-01-02T10:00:00Z");
+
             // When
-            var thrown = catchThrowable(() -> EndDate.of(null));
+            var actual = EndDate.of(endDate);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("End date must not be null");
+            assertThat(actual.endDate()).isEqualTo(endDate);
         }
 
         @Test
-        void ThenReturnsEndDate_GivenEndDateIsValid() {
+        void ThrowsIllegalArgumentException_NullEndDate() {
             // When
-            var actual = EndDate.of(endDateValue);
+            var actual = catchThrowable(() -> EndDate.of(null));
 
             // Then
-            assertThat(actual.endDate()).isEqualTo(endDateValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("End date must not be null");
         }
 
     }
@@ -80,21 +93,24 @@ class EndDateTests {
     class CreateEndDateWithNullableFactoryMethod {
 
         @Test
-        void ThenReturnsNull_GivenEndDateIsNull() {
+        void ReturnsEndDate_ValidEndDate() {
+            // Given
+            var endDate = Instant.parse("2025-01-02T10:00:00Z");
+
+            // When
+            var actual = EndDate.ofNullable(endDate);
+
+            // Then
+            assertThat(actual.endDate()).isEqualTo(endDate);
+        }
+
+        @Test
+        void ReturnsNull_NullEndDate() {
             // When
             var actual = EndDate.ofNullable(null);
 
             // Then
             assertThat(actual).isNull();
-        }
-
-        @Test
-        void ThenReturnsEndDate_GivenEndDateIsValid() {
-            // When
-            var actual = EndDate.ofNullable(endDateValue);
-
-            // Then
-            assertThat(actual.endDate()).isEqualTo(endDateValue);
         }
 
     }
@@ -103,8 +119,9 @@ class EndDateTests {
     class GetValue {
 
         @Test
-        void ThenReturnsEndDateValue_GivenEndDateIsValid() {
+        void ReturnsEndDateValue_ValidEndDate() {
             // Given
+            var endDateValue = Instant.parse("2025-01-02T10:00:00Z");
             var endDate = EndDate.of(endDateValue);
 
             // When

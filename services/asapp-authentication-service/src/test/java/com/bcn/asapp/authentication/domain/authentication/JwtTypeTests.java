@@ -28,13 +28,22 @@ import org.junit.jupiter.params.provider.EmptySource;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
+/**
+ * Tests {@link JwtType} type-string mapping and factory method validation.
+ * <p>
+ * Coverage:
+ * <li>Maps each token type to its corresponding type header string</li>
+ * <li>Creates JwtType from valid type strings</li>
+ * <li>Rejects null or invalid type strings</li>
+ * <li>Ensures all enum values have non-null type strings</li>
+ */
 class JwtTypeTests {
 
     @Nested
     class GetType {
 
         @Test
-        void ThenReturnsAtJwt_GivenAccessToken() {
+        void ReturnsAtJwt_AccessToken() {
             // When
             var actual = ACCESS_TOKEN.type();
 
@@ -43,7 +52,7 @@ class JwtTypeTests {
         }
 
         @Test
-        void ThenReturnsRtJwt_GivenRefreshToken() {
+        void ReturnsRtJwt_RefreshToken() {
             // When
             var actual = REFRESH_TOKEN.type();
 
@@ -53,7 +62,7 @@ class JwtTypeTests {
 
         @ParameterizedTest
         @EnumSource(JwtType.class)
-        void ThenReturnsNonNull_GivenAllJwtTypes(JwtType jwtType) {
+        void ReturnsNonNull_AllJwtTypes(JwtType jwtType) {
             // When
             var actual = jwtType.type();
 
@@ -68,7 +77,7 @@ class JwtTypeTests {
     class OfType {
 
         @Test
-        void ThenReturnsAccessToken_GivenAtJwt() {
+        void ReturnsAccessToken_AtJwt() {
             // When
             var actual = JwtType.ofType("at+jwt");
 
@@ -77,7 +86,7 @@ class JwtTypeTests {
         }
 
         @Test
-        void ThenReturnsRefreshToken_GivenRtJwt() {
+        void ReturnsRefreshToken_RtJwt() {
             // When
             var actual = JwtType.ofType("rt+jwt");
 
@@ -86,24 +95,24 @@ class JwtTypeTests {
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenTypeIsNull() {
+        void ThrowsIllegalArgumentException_NullType() {
             // When
-            var thrown = catchThrowable(() -> JwtType.ofType(null));
+            var actual = catchThrowable(() -> JwtType.ofType(null));
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
                               .hasMessage("Invalid JWT type: null");
         }
 
         @ParameterizedTest
         @EmptySource
         @ValueSource(strings = { "invalid", "jwt", "AT+JWT", "RT+JWT", "access_token", "refresh_token", "at jwt", "rt jwt" })
-        void ThrowsIllegalArgumentException_GivenTypeIsInvalid(String invalidType) {
+        void ThrowsIllegalArgumentException_InvalidType(String invalidType) {
             // When
-            var thrown = catchThrowable(() -> JwtType.ofType(invalidType));
+            var actual = catchThrowable(() -> JwtType.ofType(invalidType));
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
                               .hasMessageStartingWith("Invalid JWT type: ")
                               .hasMessageContaining(invalidType);
         }

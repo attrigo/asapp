@@ -23,32 +23,43 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
+/**
+ * Tests {@link Subject} validation and value access.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or blank subject values</li>
+ * <li>Accepts valid inputs through constructor and factory method</li>
+ * <li>Provides access to wrapped subject value</li>
+ */
 class SubjectTests {
-
-    private final String subjectValue = "user@asapp.com";
 
     @Nested
     class CreateSubjectWithConstructor {
 
-        @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenSubjectIsNullOrEmpty(String subject) {
+        @Test
+        void ReturnsSubject_ValidSubject() {
+            // Given
+            var subject = "user@asapp.com";
+
             // When
-            var thrown = catchThrowable(() -> new Subject(subject));
+            var actual = new Subject(subject);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Subject must not be null or empty");
+            assertThat(actual.subject()).isEqualTo(subject);
         }
 
-        @Test
-        void ThenReturnsSubject_GivenSubjectIsValid() {
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsIllegalArgumentException_NullOrBlankSubject(String subject) {
             // When
-            var actual = new Subject(subjectValue);
+            var actual = catchThrowable(() -> new Subject(subject));
 
             // Then
-            assertThat(actual.subject()).isEqualTo(subjectValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Subject must not be null or empty");
         }
 
     }
@@ -56,24 +67,28 @@ class SubjectTests {
     @Nested
     class CreateSubjectWithFactoryMethod {
 
-        @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenSubjectIsNullOrEmpty(String subject) {
+        @Test
+        void ReturnsSubject_ValidSubject() {
+            // Given
+            var subject = "user@asapp.com";
+
             // When
-            var thrown = catchThrowable(() -> Subject.of(subject));
+            var actual = Subject.of(subject);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Subject must not be null or empty");
+            assertThat(actual.subject()).isEqualTo(subject);
         }
 
-        @Test
-        void ThenReturnsSubject_GivenSubjectIsValid() {
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsIllegalArgumentException_NullOrBlankSubject(String subject) {
             // When
-            var actual = Subject.of(subjectValue);
+            var actual = catchThrowable(() -> Subject.of(subject));
 
             // Then
-            assertThat(actual.subject()).isEqualTo(subjectValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Subject must not be null or empty");
         }
 
     }
@@ -82,8 +97,9 @@ class SubjectTests {
     class GetValue {
 
         @Test
-        void ThenReturnsSubjectValue_GivenSubjectIsValid() {
+        void ReturnsSubjectValue_ValidSubject() {
             // Given
+            var subjectValue = "user@asapp.com";
             var subject = Subject.of(subjectValue);
 
             // When

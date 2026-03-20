@@ -25,30 +25,42 @@ import java.util.Date;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+/**
+ * Tests {@link Expiration} timestamp conversion, factory methods, and defensive copying.
+ * <p>
+ * Coverage:
+ * <li>Rejects null expiration timestamp values</li>
+ * <li>Accepts valid inputs through constructor and factory methods (Date, issued timestamp plus milliseconds)</li>
+ * <li>Calculates expiration from issued timestamp plus duration correctly</li>
+ * <li>Converts Instant to Date representation correctly</li>
+ * <li>Returns new Date instance on each call to prevent mutation</li>
+ * <li>Provides access to wrapped Instant value</li>
+ */
 class ExpirationTests {
-
-    private final Instant expirationValue = Instant.parse("2025-01-01T11:00:00Z");
 
     @Nested
     class CreateExpirationWithConstructor {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenExpirationIsNull() {
+        void ReturnsExpiration_ValidExpiration() {
+            // Given
+            var expiration = Instant.parse("2025-01-01T11:00:00Z");
+
             // When
-            var thrown = catchThrowable(() -> new Expiration(null));
+            var actual = new Expiration(expiration);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Expiration must not be null");
+            assertThat(actual.expiration()).isEqualTo(expiration);
         }
 
         @Test
-        void ThenReturnsExpiration_GivenExpirationIsValid() {
+        void ThrowsIllegalArgumentException_NullExpiration() {
             // When
-            var actual = new Expiration(expirationValue);
+            var actual = catchThrowable(() -> new Expiration(null));
 
             // Then
-            assertThat(actual.expiration()).isEqualTo(expirationValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Expiration must not be null");
         }
 
     }
@@ -57,59 +69,69 @@ class ExpirationTests {
     class CreateExpirationWithIssuedAndExpirationTimeFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenIssuedIsNull() {
+        void ReturnsExpiration_ValidIssuedAndExpirationTime() {
+            // Given
+            var issuedValue = Instant.parse("2025-01-01T11:00:00Z");
+            var issued = Issued.of(issuedValue);
+            var expiration = issuedValue.plusMillis(1000L);
+
             // When
-            var thrown = catchThrowable(() -> Expiration.of(null, 1000L));
+            var actual = Expiration.of(issued, 1000L);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
+            assertThat(actual.expiration()).isEqualTo(expiration);
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_NullIssued() {
+            // When
+            var actual = catchThrowable(() -> Expiration.of(null, 1000L));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
                               .hasMessage("Issued must not be null");
         }
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenExpirationTimeIsNull() {
+        void ThrowsIllegalArgumentException_NullExpirationTime() {
+            // Given
+            var issuedValue = Instant.parse("2025-01-01T11:00:00Z");
+            var issued = Issued.of(issuedValue);
+
             // When
-            var thrown = catchThrowable(() -> Expiration.of(Issued.of(expirationValue), null));
+            var actual = catchThrowable(() -> Expiration.of(issued, null));
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
                               .hasMessage("Expiration time in milliseconds must not be null");
-        }
-
-        @Test
-        void ThenReturnsExpiration_GivenIssuedAndExpirationTimeAreValid() {
-            // When
-            var actual = Expiration.of(Issued.of(expirationValue), 1000L);
-
-            // Then
-            assertThat(actual.expiration()).isEqualTo(expirationValue.plusMillis(1000L));
         }
 
     }
 
     @Nested
-    class CreateExpirationWithDateFactory {
+    class CreateExpirationWithDateFactoryMethod {
 
         @Test
-        void ThenThrowsIllegalArgumentException_GivenExpirationDateIsNull() {
+        void ReturnsExpiration_ValidExpirationDate() {
+            // Given
+            var expiration = Instant.parse("2025-01-01T11:00:00Z");
+            var expirationDate = Date.from(expiration);
+
             // When
-            var thrown = catchThrowable(() -> Expiration.of(null));
+            var actual = Expiration.of(expirationDate);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Expiration date must not be null");
+            assertThat(actual.expiration()).isEqualTo(expiration);
         }
 
         @Test
-        void ThenReturnsExpiration_GivenExpirationDateIsValid() {
-            // Given
-            var date = Date.from(expirationValue);
-
+        void ThrowsIllegalArgumentException_NullExpirationDate() {
             // When
-            var actual = Expiration.of(date);
+            var actual = catchThrowable(() -> Expiration.of(null));
 
             // Then
-            assertThat(actual.expiration()).isEqualTo(expirationValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Expiration date must not be null");
         }
 
     }
@@ -118,8 +140,9 @@ class ExpirationTests {
     class GetValue {
 
         @Test
-        void ThenReturnsInstant_GivenExpirationIsValid() {
+        void ReturnsInstant_ValidExpiration() {
             // Given
+            var expirationValue = Instant.parse("2025-01-01T11:00:00Z");
             var expiration = new Expiration(expirationValue);
 
             // When
@@ -135,21 +158,25 @@ class ExpirationTests {
     class GetAsDate {
 
         @Test
-        void ThenReturnsDateWithSameInstant_GivenExpirationIsValid() {
+        void ReturnsDateWithSameInstant_ValidExpiration() {
             // Given
+            var expirationValue = Instant.parse("2025-01-01T11:00:00Z");
             var expiration = new Expiration(expirationValue);
+            var expirationDate = Date.from(expirationValue);
+            var expirationTimeMillis = expirationValue.toEpochMilli();
 
             // When
             var actual = expiration.asDate();
 
             // Then
-            assertThat(actual).isEqualTo(Date.from(expirationValue));
-            assertThat(actual.getTime()).isEqualTo(expirationValue.toEpochMilli());
+            assertThat(actual).isEqualTo(expirationDate);
+            assertThat(actual.getTime()).isEqualTo(expirationTimeMillis);
         }
 
         @Test
-        void ThenReturnsNewDateInstance_GivenExpirationIsValid() {
+        void ReturnsNewDateInstance_ValidExpiration() {
             // Given
+            var expirationValue = Instant.parse("2025-01-01T11:00:00Z");
             var expiration = new Expiration(expirationValue);
 
             // When

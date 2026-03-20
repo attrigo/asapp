@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.authentication.infrastructure.user.persistence;
 
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestUserFactory.defaultTestJdbcUser;
+import static com.bcn.asapp.authentication.testutil.fixture.UserFactory.aJdbcUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;
@@ -33,6 +33,14 @@ import org.springframework.context.annotation.Import;
 import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationRepository;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 
+/**
+ * Tests {@link JdbcUserRepository} CRUD operations and cascading cleanup against PostgreSQL.
+ * <p>
+ * Coverage:
+ * <li>Persists and retrieves user credentials by multiple identifiers (ID, username)</li>
+ * <li>Deletes user with cascading cleanup to authentication records</li>
+ * <li>Tests actual database operations with TestContainers PostgreSQL</li>
+ */
 @DataJdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import({ TestContainerConfiguration.class, JacksonAutoConfiguration.class })
@@ -54,29 +62,29 @@ class JdbcUserRepositoryIT {
     class FindByUsername {
 
         @Test
-        void DoesNotFindUserAndReturnsEmptyOptional_UserNotExists() {
+        void ReturnsUser_UserExists() {
+            // Given
+            var createdUser = createUser();
+            var username = createdUser.username();
+
             // When
-            var actualUser = userRepository.findByUsername("not_exist_user@asapp.com");
+            var actual = userRepository.findByUsername(username);
 
             // Then
-            assertThat(actualUser).isEmpty();
+            assertThat(actual).get()
+                              .isEqualTo(createdUser);
         }
 
         @Test
-        void FindsUserAndReturnsTasksFound_UserExists() {
+        void ReturnsEmptyOptional_UserNotExists() {
             // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
+            var username = "user_not_exist@asapp.com";
 
             // When
-            var username = userCreated.username();
-
-            var actualUser = userRepository.findByUsername(username);
+            var actual = userRepository.findByUsername(username);
 
             // Then
-            assertThat(actualUser).get()
-                                  .isEqualTo(userCreated);
+            assertThat(actual).isEmpty();
         }
 
     }
@@ -85,32 +93,39 @@ class JdbcUserRepositoryIT {
     class DeleteUserById {
 
         @Test
-        void DoesNotDeleteUserAndReturnsZero_UserNotExists() {
-            // When
-            var userId = UUID.fromString("4a9d8f7e-3c2b-4e1f-a6d9-8e7f6c5d4b3a");
-
-            var actual = userRepository.deleteUserById(userId);
-
-            // Then
-            assertThat(actual).isZero();
-        }
-
-        @Test
-        void DeletesUserAndReturnsAmountOfUsersDeleted_UserExists() {
+        void ReturnsDeletionCount_UserExists() {
             // Given
-            var user = defaultTestJdbcUser();
-            var userCreated = userRepository.save(user);
-            assertThat(userCreated).isNotNull();
+            var createdUser = createUser();
+            var userId = createdUser.id();
 
             // When
-            var userId = userCreated.id();
-
             var actual = userRepository.deleteUserById(userId);
 
             // Then
             assertThat(actual).isGreaterThan(0);
         }
 
+        @Test
+        void ReturnsZero_UserNotExists() {
+            // Given
+            var userId = UUID.fromString("4a9d8f7e-3c2b-4e1f-a6d9-8e7f6c5d4b3a");
+
+            // When
+            var actual = userRepository.deleteUserById(userId);
+
+            // Then
+            assertThat(actual).isZero();
+        }
+
+    }
+
+    // Test Data Creation Helpers
+
+    private JdbcUserEntity createUser() {
+        var user = aJdbcUser();
+        var createdUser = userRepository.save(user);
+        assertThat(createdUser).isNotNull();
+        return createdUser;
     }
 
 }

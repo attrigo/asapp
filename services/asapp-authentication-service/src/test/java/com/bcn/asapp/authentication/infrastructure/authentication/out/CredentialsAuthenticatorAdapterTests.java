@@ -18,12 +18,13 @@ package com.bcn.asapp.authentication.infrastructure.authentication.out;
 
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.times;
 import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.times;
 
 import java.util.UUID;
 
@@ -39,13 +40,21 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.AuthorityUtils;
 
 import com.bcn.asapp.authentication.domain.user.RawPassword;
-import com.bcn.asapp.authentication.domain.user.Role;
 import com.bcn.asapp.authentication.domain.user.UserId;
 import com.bcn.asapp.authentication.domain.user.Username;
 import com.bcn.asapp.authentication.infrastructure.security.CustomUserDetails;
 import com.bcn.asapp.authentication.infrastructure.security.InvalidPrincipalException;
 import com.bcn.asapp.authentication.infrastructure.security.RoleNotFoundException;
 
+/**
+ * Tests {@link CredentialsAuthenticatorAdapter} Spring Security delegation and domain type translation.
+ * <p>
+ * Coverage:
+ * <li>Delegates authentication to Spring Security framework</li>
+ * <li>Translates authenticated principal to domain UserAuthentication</li>
+ * <li>Propagates authentication failures from Spring Security</li>
+ * <li>Handles invalid principal type with domain exception</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class CredentialsAuthenticatorAdapterTests {
 
@@ -55,28 +64,55 @@ class CredentialsAuthenticatorAdapterTests {
     @InjectMocks
     private CredentialsAuthenticatorAdapter credentialsAuthenticatorAdapter;
 
-    private final UUID userId = UUID.fromString("61c5064b-1906-4d11-a8ab-5bfd309e2631");
-
-    private final Username username = Username.of("user@asapp.com");
-
-    private final RawPassword password = RawPassword.of("TEST@09_password?!");
-
-    private final Role role = USER;
-
     @Nested
     class Authenticate {
 
         @Test
+        void ReturnsAuthenticatedUser_ValidCredentials() {
+            // Given
+            var username = Username.of("user@asapp.com");
+            var password = RawPassword.of("TEST@09_password?!");
+            var userIdValue = UUID.fromString("61c5064b-1906-4d11-a8ab-5bfd309e2631");
+            var authorities = AuthorityUtils.createAuthorityList(USER.name());
+            var userDetails = new CustomUserDetails(userIdValue, username.value(), password.value(), authorities);
+            var authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
+            var userId = UserId.of(userIdValue);
+
+            given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(authenticationToken);
+
+            // When
+            var actual = credentialsAuthenticatorAdapter.authenticate(username, password);
+
+            // Then
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual).as("authenticated user").isNotNull();
+                softly.assertThat(actual.isAuthenticated()).as("authenticated").isTrue();
+                softly.assertThat(actual.userId()).as("user ID").isEqualTo(userId);
+                softly.assertThat(actual.username()).as("username").isEqualTo(username);
+                softly.assertThat(actual.role()).as("role").isEqualTo(USER);
+                softly.assertThat(actual.password()).as("password").isNull();
+                // @formatter:on
+            });
+
+            then(authenticationManager).should(times(1))
+                                       .authenticate(any(UsernamePasswordAuthenticationToken.class));
+        }
+
+        @Test
         void ThrowsBadCredentialsException_AuthenticationFails() {
             // Given
+            var username = Username.of("user@asapp.com");
+            var password = RawPassword.of("TEST@09_password?!");
+
             willThrow(new BadCredentialsException("Invalid credentials")).given(authenticationManager)
                                                                          .authenticate(any(UsernamePasswordAuthenticationToken.class));
 
             // When
-            var thrown = catchThrowable(() -> credentialsAuthenticatorAdapter.authenticate(username, password));
+            var actual = catchThrowable(() -> credentialsAuthenticatorAdapter.authenticate(username, password));
 
             // Then
-            assertThat(thrown).isInstanceOf(BadCredentialsException.class)
+            assertThat(actual).isInstanceOf(BadCredentialsException.class)
                               .hasMessageContaining("Authentication failed due to")
                               .hasCauseInstanceOf(BadCredentialsException.class);
 
@@ -85,16 +121,20 @@ class CredentialsAuthenticatorAdapterTests {
         }
 
         @Test
-        void ThrowsBadCredentialsException_PrincipalIsNotCustomUserDetails() {
+        void ThrowsBadCredentialsException_PrincipalNotCustomUserDetails() {
             // Given
-            var authenticationToken = new UsernamePasswordAuthenticationToken("invalid_principal", null, AuthorityUtils.createAuthorityList(role.name()));
+            var username = Username.of("user@asapp.com");
+            var password = RawPassword.of("TEST@09_password?!");
+            var authorities = AuthorityUtils.createAuthorityList(USER.name());
+            var authenticationToken = new UsernamePasswordAuthenticationToken("invalid_principal", null, authorities);
+
             given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(authenticationToken);
 
             // When
-            var thrown = catchThrowable(() -> credentialsAuthenticatorAdapter.authenticate(username, password));
+            var actual = catchThrowable(() -> credentialsAuthenticatorAdapter.authenticate(username, password));
 
             // Then
-            assertThat(thrown).isInstanceOf(BadCredentialsException.class)
+            assertThat(actual).isInstanceOf(BadCredentialsException.class)
                               .hasMessageContaining("Authentication failed due to")
                               .hasCauseInstanceOf(InvalidPrincipalException.class);
 
@@ -103,45 +143,26 @@ class CredentialsAuthenticatorAdapterTests {
         }
 
         @Test
-        void ThrowsBadCredentialsException_AuthoritiesAreEmpty() {
+        void ThrowsBadCredentialsException_EmptyAuthorities() {
             // Given
+            var username = Username.of("user@asapp.com");
+            var password = RawPassword.of("TEST@09_password?!");
+            var userId = UUID.fromString("61c5064b-1906-4d11-a8ab-5bfd309e2631");
             var userDetails = new CustomUserDetails(userId, username.value(), password.value(), AuthorityUtils.NO_AUTHORITIES);
             var authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, AuthorityUtils.NO_AUTHORITIES);
+
             given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(authenticationToken);
 
             // When
-            var thrown = catchThrowable(() -> credentialsAuthenticatorAdapter.authenticate(username, password));
+            var actual = catchThrowable(() -> credentialsAuthenticatorAdapter.authenticate(username, password));
 
             // Then
-            assertThat(thrown).isInstanceOf(BadCredentialsException.class)
+            assertThat(actual).isInstanceOf(BadCredentialsException.class)
                               .hasMessageContaining("Authentication failed due to")
                               .hasCauseInstanceOf(RoleNotFoundException.class);
 
             then(authenticationManager).should(times(1))
                                        .authenticate(any(UsernamePasswordAuthenticationToken.class));
-        }
-
-        @Test
-        void ReturnsAuthenticatedUser_ValidCredentials() {
-            // Given
-            var userDetails = new CustomUserDetails(userId, username.value(), password.value(), AuthorityUtils.createAuthorityList(role.name()));
-            var authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, AuthorityUtils.createAuthorityList(role.name()));
-            given(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class))).willReturn(authenticationToken);
-
-            // When
-            var actual = credentialsAuthenticatorAdapter.authenticate(username, password);
-
-            // Then
-            assertThat(actual).isNotNull();
-            assertThat(actual.isAuthenticated()).isTrue();
-            assertThat(actual.userId()).isEqualTo(UserId.of(userId));
-            assertThat(actual.username()).isEqualTo(username);
-            assertThat(actual.role()).isEqualTo(role);
-            assertThat(actual.password()).isNull();
-
-            then(authenticationManager).should(times(1))
-                                       .authenticate(any(UsernamePasswordAuthenticationToken.class));
-
         }
 
     }

@@ -20,8 +20,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.times;
 import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.times;
 
 import java.util.UUID;
 
@@ -35,6 +35,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.bcn.asapp.users.application.user.out.UserRepository;
 import com.bcn.asapp.users.domain.user.UserId;
 
+/**
+ * Tests {@link DeleteUserService} user deletion and failure propagation.
+ * <p>
+ * Coverage:
+ * <li>Deletion failures propagate without completing workflow</li>
+ * <li>Returns false when user does not exist</li>
+ * <li>Returns true when user successfully deleted</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class DeleteUserServiceTests {
 
@@ -44,60 +52,63 @@ class DeleteUserServiceTests {
     @InjectMocks
     private DeleteUserService deleteUserService;
 
-    private final UUID userIdValue = UUID.randomUUID();
-
     @Nested
     class DeleteUserById {
 
         @Test
-        void ThrowsRuntimeException_DeleteUserFails() {
+        void ReturnsTrue_UserExists() {
             // Given
+            var userIdValue = UUID.fromString("d4e5f6a7-b8c9-4012-d3e4-f5a6b7c8d9e0");
+            var userId = UserId.of(userIdValue);
+
+            given(userRepository.deleteById(userId)).willReturn(true);
+
+            // When
+            var actual = deleteUserService.deleteUserById(userIdValue);
+
+            // Then
+            assertThat(actual).isTrue();
+
+            then(userRepository).should(times(1))
+                                .deleteById(userId);
+        }
+
+        @Test
+        void ReturnsFalse_UserNotExists() {
+            // Given
+            var userIdValue = UUID.fromString("d4e5f6a7-b8c9-4012-d3e4-f5a6b7c8d9e0");
+            var userId = UserId.of(userIdValue);
+
+            given(userRepository.deleteById(userId)).willReturn(false);
+
+            // When
+            var actual = deleteUserService.deleteUserById(userIdValue);
+
+            // Then
+            assertThat(actual).isFalse();
+
+            then(userRepository).should(times(1))
+                                .deleteById(userId);
+        }
+
+        @Test
+        void ThrowsRuntimeException_UserDeletionFails() {
+            // Given
+            var userIdValue = UUID.fromString("d4e5f6a7-b8c9-4012-d3e4-f5a6b7c8d9e0");
             var userId = UserId.of(userIdValue);
 
             willThrow(new RuntimeException("Database connection failed")).given(userRepository)
                                                                          .deleteById(userId);
 
             // When
-            var thrown = catchThrowable(() -> deleteUserService.deleteUserById(userIdValue));
+            var actual = catchThrowable(() -> deleteUserService.deleteUserById(userIdValue));
 
             // Then
-            assertThat(thrown).isInstanceOf(RuntimeException.class)
-                              .hasMessageContaining("Database connection failed");
+            assertThat(actual).isInstanceOf(RuntimeException.class)
+                              .hasMessage("Database connection failed");
 
             then(userRepository).should(times(1))
                                 .deleteById(userId);
-        }
-
-        @Test
-        void DoesNotDeleteUserReturnsFalse_UserNotExists() {
-            // Given
-            var userId = UserId.of(userIdValue);
-
-            given(userRepository.deleteById(userId)).willReturn(false);
-
-            // When
-            var result = deleteUserService.deleteUserById(userIdValue);
-
-            // Then
-            then(userRepository).should(times(1))
-                                .deleteById(userId);
-            assertThat(result).isFalse();
-        }
-
-        @Test
-        void DeletesUserAndReturnsTrue_UserExists() {
-            // Given
-            var userId = UserId.of(userIdValue);
-
-            given(userRepository.deleteById(userId)).willReturn(true);
-
-            // When
-            var result = deleteUserService.deleteUserById(userIdValue);
-
-            // Then
-            then(userRepository).should(times(1))
-                                .deleteById(userId);
-            assertThat(result).isTrue();
         }
 
     }

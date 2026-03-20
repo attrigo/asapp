@@ -19,6 +19,7 @@ package com.bcn.asapp.authentication.infrastructure.security;
 import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import java.util.UUID;
 
@@ -31,55 +32,68 @@ import org.springframework.security.core.authority.AuthorityUtils;
 
 import com.bcn.asapp.authentication.domain.user.Role;
 
+/**
+ * Tests {@link CustomUserDetails} authority assignment and account status defaults.
+ * <p>
+ * Coverage:
+ * <li>Creates user details with user ID, username, password, and variable authority count</li>
+ * <li>Provides default account status flags (non-expired, non-locked, enabled)</li>
+ * <li>Grants access to wrapped user identity and credentials</li>
+ */
 class CustomUserDetailsTests {
-
-    private final UUID userIdValue = UUID.fromString("ce1dd321-b023-4abf-8af9-eb4c69ebb4e0");
-
-    private final String usernameValue = "user@asapp.com";
-
-    private final String passwordValue = "{bcrypt}password";
 
     @Nested
     class CreateCustomUserDetails {
 
-        @Test
-        void ThenReturnsCustomUserDetailsWithEmptyAuthorities_GivenWithEmptyAuthorities() {
+        @ParameterizedTest
+        @EnumSource(value = Role.class)
+        void ReturnsCustomUserDetails_ValidParameters(Role role) {
             // Given
-            var emptyAuthorities = AuthorityUtils.NO_AUTHORITIES;
+            var userId = UUID.fromString("ce1dd321-b023-4abf-8af9-eb4c69ebb4e0");
+            var username = "user@asapp.com";
+            var password = "{bcrypt}password";
+            var authorities = AuthorityUtils.createAuthorityList(role.name());
 
             // When
-            var actual = new CustomUserDetails(userIdValue, usernameValue, passwordValue, emptyAuthorities);
+            var actual = new CustomUserDetails(userId, username, password, authorities);
+
+            // Then
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual).as("custom user details").isNotNull();
+                softly.assertThat(actual.getUserId()).as("user ID").isEqualTo(userId);
+                softly.assertThat(actual.getUsername()).as("username").isEqualTo(username);
+                softly.assertThat(actual.getPassword()).as("password").isEqualTo(password);
+                softly.assertThat(actual.getAuthorities()).as("authorities").hasSize(1).extracting(GrantedAuthority::getAuthority).containsExactly(role.name());
+                // @formatter:on
+            });
+        }
+
+        @Test
+        void ReturnsCustomUserDetailsWithEmptyAuthorities_EmptyAuthorities() {
+            // Given
+            var userId = UUID.fromString("ce1dd321-b023-4abf-8af9-eb4c69ebb4e0");
+            var username = "user@asapp.com";
+            var password = "{bcrypt}password";
+            var authorities = AuthorityUtils.NO_AUTHORITIES;
+
+            // When
+            var actual = new CustomUserDetails(userId, username, password, authorities);
 
             // Then
             assertThat(actual.getAuthorities()).isEmpty();
         }
 
-        @ParameterizedTest
-        @EnumSource(value = Role.class)
-        void ThenReturnsCustomUserDetails_GivenAllParametersAreValid(Role role) {
-            // Given
-            var authorities = AuthorityUtils.createAuthorityList(role.name());
-
-            // When
-            var actual = new CustomUserDetails(userIdValue, usernameValue, passwordValue, authorities);
-
-            // Then
-            assertThat(actual).isNotNull();
-            assertThat(actual.getUserId()).isEqualTo(userIdValue);
-            assertThat(actual.getUsername()).isEqualTo(usernameValue);
-            assertThat(actual.getPassword()).isEqualTo(passwordValue);
-            assertThat(actual.getAuthorities()).hasSize(1)
-                                               .extracting(GrantedAuthority::getAuthority)
-                                               .containsExactly(role.name());
-        }
-
         @Test
-        void ThenReturnsCustomUserDetailsWithMultipleAuthorities_GivenMultipleAuthorities() {
+        void ReturnsCustomUserDetailsWithMultipleAuthorities_MultipleAuthorities() {
             // Given
-            var multipleAuthorities = AuthorityUtils.createAuthorityList(USER.name(), ADMIN.name());
+            var userId = UUID.fromString("ce1dd321-b023-4abf-8af9-eb4c69ebb4e0");
+            var username = "user@asapp.com";
+            var password = "{bcrypt}password";
+            var authorities = AuthorityUtils.createAuthorityList(USER.name(), ADMIN.name());
 
             // When
-            var actual = new CustomUserDetails(userIdValue, usernameValue, passwordValue, multipleAuthorities);
+            var actual = new CustomUserDetails(userId, username, password, authorities);
 
             // Then
             assertThat(actual.getAuthorities()).hasSize(2)
@@ -93,16 +107,19 @@ class CustomUserDetailsTests {
     class GetUserId {
 
         @Test
-        void ThenReturnsUserId() {
+        void ReturnsUserId_ValidUserDetails() {
             // Given
+            var userId = UUID.fromString("ce1dd321-b023-4abf-8af9-eb4c69ebb4e0");
+            var username = "user@asapp.com";
+            var password = "{bcrypt}password";
             var authorities = AuthorityUtils.createAuthorityList(USER.name());
-            var userDetails = new CustomUserDetails(userIdValue, usernameValue, passwordValue, authorities);
+            var userDetails = new CustomUserDetails(userId, username, password, authorities);
 
             // When
             var actual = userDetails.getUserId();
 
             // Then
-            assertThat(actual).isEqualTo(userIdValue);
+            assertThat(actual).isEqualTo(userId);
         }
 
     }

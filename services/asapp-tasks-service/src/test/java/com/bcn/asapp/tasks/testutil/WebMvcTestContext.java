@@ -33,6 +33,15 @@ import com.bcn.asapp.tasks.infrastructure.security.web.JwtAuthenticationFilter;
 import com.bcn.asapp.tasks.infrastructure.task.in.TaskRestController;
 import com.bcn.asapp.tasks.infrastructure.task.mapper.TaskMapper;
 
+/**
+ * Configures web layer test context with mocked dependencies for REST controller integration tests.
+ * <p>
+ * This base class enables Spring test context reusing across multiple controller test classes. When test classes extend this base and share the same
+ * configuration, Spring reuses the same ApplicationContext instead of creating a new one per test class, significantly reducing test execution time. Uses
+ * {@code @WebMvcTest} to load only web layer components.
+ *
+ * @since 0.2.0
+ */
 @WebMvcTest(TaskRestController.class)
 @Import(value = { SecurityConfiguration.class, JwtAuthenticationFilter.class, JwtAuthenticationEntryPoint.class })
 public class WebMvcTestContext {

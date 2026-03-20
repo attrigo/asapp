@@ -16,15 +16,18 @@
 
 package com.bcn.asapp.authentication.application.user.in.service;
 
+import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
+import static com.bcn.asapp.authentication.testutil.fixture.UserFactory.aUserBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.UserFactory.anActiveUser;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.BDDMockito.times;
 import static org.mockito.BDDMockito.willThrow;
-import static org.mockito.Mockito.times;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -37,10 +40,17 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.bcn.asapp.authentication.application.user.out.UserRepository;
-import com.bcn.asapp.authentication.domain.user.User;
 import com.bcn.asapp.authentication.domain.user.UserId;
-import com.bcn.asapp.authentication.domain.user.Username;
 
+/**
+ * Tests {@link ReadUserService} single and collection retrieval with failure propagation.
+ * <p>
+ * Coverage:
+ * <li>Retrieval failures propagate for all query strategies (by ID, all users)</li>
+ * <li>Returns empty result when no users match query criteria</li>
+ * <li>Returns single user when queried by unique identifier</li>
+ * <li>Returns user collection when querying all users</li>
+ */
 @ExtendWith(MockitoExtension.class)
 class ReadUserServiceTests {
 
@@ -50,27 +60,31 @@ class ReadUserServiceTests {
     @InjectMocks
     private ReadUserService readUserService;
 
-    private final UUID userIdValue = UUID.fromString("61c5064b-1906-4d11-a8ab-5bfd309e2631");
-
-    private final String usernameValue = "user@asapp.com";
-
     @Nested
     class GetUserById {
 
         @Test
-        void ThrowsRuntimeException_FetchUserFails() {
+        void ReturnsUser_UserExists() {
             // Given
-            var userId = UserId.of(userIdValue);
+            var user = anActiveUser();
+            var userId = user.getId();
 
-            willThrow(new RuntimeException("Database connection failed")).given(userRepository)
-                                                                         .findById(userId);
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
 
             // When
-            var thrown = catchThrowable(() -> readUserService.getUserById(userIdValue));
+            var actual = readUserService.getUserById(userId.value());
 
             // Then
-            assertThat(thrown).isInstanceOf(RuntimeException.class)
-                              .hasMessageContaining("Database connection failed");
+            assertThat(actual).as("found user")
+                              .isPresent();
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual.get().getId()).as("ID").isEqualTo(userId);
+                softly.assertThat(actual.get().getUsername()).as("username").isEqualTo(user.getUsername());
+                softly.assertThat(actual.get().getPassword()).as("password").isNull();
+                softly.assertThat(actual.get().getRole()).as("role").isEqualTo(USER);
+                // @formatter:on
+            });
 
             then(userRepository).should(times(1))
                                 .findById(userId);
@@ -79,41 +93,36 @@ class ReadUserServiceTests {
         @Test
         void ReturnsEmptyOptional_UserNotExists() {
             // Given
+            var userIdValue = UUID.fromString("a1b2c3d4-e5f6-4789-a0b1-c2d3e4f5a6b7");
             var userId = UserId.of(userIdValue);
 
             given(userRepository.findById(userId)).willReturn(Optional.empty());
 
             // When
-            var result = readUserService.getUserById(userIdValue);
+            var actual = readUserService.getUserById(userIdValue);
 
             // Then
-            assertThat(result).isEmpty();
+            assertThat(actual).isEmpty();
 
             then(userRepository).should(times(1))
                                 .findById(userId);
         }
 
         @Test
-        void ReturnsUser_UserExists() {
+        void ThrowsRuntimeException_UserRetrievalFails() {
             // Given
+            var userIdValue = UUID.fromString("a1b2c3d4-e5f6-4789-a0b1-c2d3e4f5a6b7");
             var userId = UserId.of(userIdValue);
-            var username = Username.of(usernameValue);
-            var user = User.activeUser(userId, username, USER);
 
-            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            willThrow(new RuntimeException("Database connection failed")).given(userRepository)
+                                                                         .findById(userId);
 
             // When
-            var result = readUserService.getUserById(userIdValue);
+            var actual = catchThrowable(() -> readUserService.getUserById(userIdValue));
 
             // Then
-            assertThat(result).isPresent();
-            assertThat(result.get()).isNotNull();
-            assertThat(result.get()
-                             .getId()).isEqualTo(userId);
-            assertThat(result.get()
-                             .getUsername()).isEqualTo(username);
-            assertThat(result.get()
-                             .getRole()).isEqualTo(USER);
+            assertThat(actual).isInstanceOf(RuntimeException.class)
+                              .hasMessage("Database connection failed");
 
             then(userRepository).should(times(1))
                                 .findById(userId);
@@ -125,54 +134,56 @@ class ReadUserServiceTests {
     class GetAllUsers {
 
         @Test
-        void ThrowsRuntimeException_RepositoryFetchFails() {
+        void ReturnsUsers_UsersExist() {
             // Given
-            willThrow(new RuntimeException("Database connection failed")).given(userRepository)
-                                                                         .findAll();
-
-            // When
-            var thrown = catchThrowable(() -> readUserService.getAllUsers());
-
-            // Then
-            assertThat(thrown).isInstanceOf(RuntimeException.class)
-                              .hasMessageContaining("Database connection failed");
-
-            then(userRepository).should(times(1))
-                                .findAll();
-        }
-
-        @Test
-        void ReturnsEmptyList_NoUsersExists() {
-            // Given
-            given(userRepository.findAll()).willReturn(Collections.emptyList());
-
-            // When
-            var result = readUserService.getAllUsers();
-
-            // Then
-            assertThat(result).isNotNull();
-            assertThat(result).isEmpty();
-
-            then(userRepository).should(times(1))
-                                .findAll();
-        }
-
-        @Test
-        void ReturnsUsers_UsersExists() {
-            // Given
-            var user1 = User.activeUser(UserId.of(UUID.randomUUID()), Username.of("user1@asapp.com"), USER);
-            var user2 = User.activeUser(UserId.of(UUID.randomUUID()), Username.of("user2@asapp.com"), USER);
+            var user1 = anActiveUser();
+            var user2 = aUserBuilder().active()
+                                      .withUserId(UUID.fromString("a1b2c3d4-e5f6-4789-a0b1-c2d3e4f5a6b7"))
+                                      .withUsername("user2@asapp.com")
+                                      .withRole(ADMIN)
+                                      .build();
             var users = List.of(user1, user2);
 
             given(userRepository.findAll()).willReturn(users);
 
             // When
-            var result = readUserService.getAllUsers();
+            var actual = readUserService.getAllUsers();
 
             // Then
-            assertThat(result).isNotNull();
-            assertThat(result).hasSize(2);
-            assertThat(result).containsExactly(user1, user2);
+            assertThat(actual).hasSize(2);
+            assertThat(actual).containsExactly(user1, user2);
+
+            then(userRepository).should(times(1))
+                                .findAll();
+        }
+
+        @Test
+        void ReturnsEmptyList_UsersNotExist() {
+            // Given
+            given(userRepository.findAll()).willReturn(List.of());
+
+            // When
+            var actual = readUserService.getAllUsers();
+
+            // Then
+            assertThat(actual).isEmpty();
+
+            then(userRepository).should(times(1))
+                                .findAll();
+        }
+
+        @Test
+        void ThrowsRuntimeException_UsersRetrievalFails() {
+            // Given
+            willThrow(new RuntimeException("Database connection failed")).given(userRepository)
+                                                                         .findAll();
+
+            // When
+            var actual = catchThrowable(() -> readUserService.getAllUsers());
+
+            // Then
+            assertThat(actual).isInstanceOf(RuntimeException.class)
+                              .hasMessage("Database connection failed");
 
             then(userRepository).should(times(1))
                                 .findAll();

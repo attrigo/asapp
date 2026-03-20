@@ -23,32 +23,43 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.NullAndEmptySource;
+import org.junit.jupiter.params.provider.ValueSource;
 
+/**
+ * Tests {@link Title} validation and value access.
+ * <p>
+ * Coverage:
+ * <li>Rejects null or blank title values</li>
+ * <li>Accepts valid inputs through constructor and factory method</li>
+ * <li>Provides access to wrapped title value</li>
+ */
 class TitleTests {
-
-    private final String titleValue = "Title";
 
     @Nested
     class CreateTitleWithConstructor {
 
-        @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenTitleIsNullOrEmpty(String title) {
+        @Test
+        void ReturnsTitle_ValidTitle() {
+            // Given
+            var title = "Title";
+
             // When
-            var thrown = catchThrowable(() -> new Title(title));
+            var actual = new Title(title);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Title must not be null or empty");
+            assertThat(actual.title()).isEqualTo(title);
         }
 
-        @Test
-        void ThenReturnsTitle_GivenTitleIsValid() {
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsIllegalArgumentException_NullOrBlankTitle(String title) {
             // When
-            var actual = new Title(titleValue);
+            var actual = catchThrowable(() -> new Title(title));
 
             // Then
-            assertThat(actual.title()).isEqualTo(titleValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Title must not be null or empty");
         }
 
     }
@@ -56,24 +67,28 @@ class TitleTests {
     @Nested
     class CreateTitleWithFactoryMethod {
 
-        @ParameterizedTest
-        @NullAndEmptySource
-        void ThenThrowsIllegalArgumentException_GivenTitleIsNullOrEmpty(String title) {
+        @Test
+        void ReturnsTitle_ValidTitle() {
+            // Given
+            var title = "Title";
+
             // When
-            var thrown = catchThrowable(() -> Title.of(title));
+            var actual = Title.of(title);
 
             // Then
-            assertThat(thrown).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Title must not be null or empty");
+            assertThat(actual.title()).isEqualTo(title);
         }
 
-        @Test
-        void ThenReturnsTitle_GivenTitleIsValid() {
+        @ParameterizedTest
+        @NullAndEmptySource
+        @ValueSource(strings = { " ", "\t" })
+        void ThrowsIllegalArgumentException_NullOrBlankTitle(String title) {
             // When
-            var actual = Title.of(titleValue);
+            var actual = catchThrowable(() -> Title.of(title));
 
             // Then
-            assertThat(actual.title()).isEqualTo(titleValue);
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Title must not be null or empty");
         }
 
     }
@@ -82,8 +97,9 @@ class TitleTests {
     class GetValue {
 
         @Test
-        void ThenReturnsTitleValue_GivenTitleIsValid() {
+        void ReturnsTitleValue_ValidTitle() {
             // Given
+            var titleValue = "Title";
             var title = Title.of(titleValue);
 
             // When

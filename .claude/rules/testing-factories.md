@@ -1,0 +1,67 @@
+---
+paths:
+  - "**/testutil/**/*Factory.java"
+  - "**/testutil/**/Factory.java"
+---
+
+# Test Factory Maintenance
+
+Guidelines for creating and maintaining test data factories (Object Mother + Builder patterns).
+
+## 1. When to Create a New Factory
+
+Create a factory when ANY of these apply:
+- Domain aggregate or important entity
+- Used in 3+ test files
+- Complex construction (3+ parameters or multi-step creation)
+- Multiple test representations needed (domain + JDBC entity)
+
+## 2. Factory Structure
+
+### 2.1 Default Values
+
+All factory fields **MUST** have fixed default values for reproducibility. Use dynamic values only when a fixed value produces incorrect behaviour in any test type using the factory (e.g., a fixed past timestamp produces negative Redis TTL in integration tests).
+
+### 2.2 Dual Build Outputs
+
+Factories for persisted aggregates provide `buildJdbc()` for infrastructure entity output alongside `build()` for domain output.
+
+### 2.3 Factory Composition
+
+Complex factories delegate to simpler factories (e.g., `JwtFactory.build()` delegates to `EncodedTokenFactory`) rather than duplicating construction logic.
+
+## 3. Naming Conventions
+
+**Semantic methods**:
+- Use business language, not technical jargon
+- No verb prefixes (`create`, `make`, `build`)
+- Avoid artificial adjectives ("default", "valid", "standard") — use `a<Entity>()` instead
+- Use adjective prefixes when multiple representations of the same concept exist to prevent import collisions and maintain call-site clarity (`encodedToken`, `decodedToken`)
+
+**Wither methods**: Match domain attribute names exactly, no abbreviations
+
+## 4. Wither Parameter Types
+
+Prefer primitives — factory constructs value objects in `build()`. Never accept entities as parameters; use ID primitives instead.
+
+## 5. Method Addition Criteria
+
+### 5.1 When to Add Semantic Defaults
+
+**Pattern**: The builder's fluent API provides all the flexibility, don't create a new static method for every variation.
+
+**Rules** (ALL must be met):
+- Pattern appears **10+ times** across test files
+- Reduces **4+ builder calls** to 1 semantic method
+- Represents **fixed configuration** (not variable data)
+- Has **clear business meaning**
+
+**Evidence required**:
+```bash
+# Search for pattern BEFORE adding
+grep -r "aJwtBuilder().accessToken().expired().build()" src/test --include="*.java"
+```
+
+### 5.2 When to Add Wither Methods
+
+Withers map 1:1 with domain attributes (completeness); remove if redundant.

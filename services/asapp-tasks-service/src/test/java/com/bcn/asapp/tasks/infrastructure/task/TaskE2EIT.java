@@ -17,9 +17,9 @@
 package com.bcn.asapp.tasks.infrastructure.task;
 
 import static com.bcn.asapp.tasks.infrastructure.security.RedisJwtStore.ACCESS_TOKEN_PREFIX;
-import static com.bcn.asapp.tasks.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
-import static com.bcn.asapp.tasks.testutil.TestFactory.TestTaskFactory.defaultTestTask;
-import static com.bcn.asapp.tasks.testutil.TestFactory.TestTaskFactory.testTaskBuilder;
+import static com.bcn.asapp.tasks.testutil.fixture.EncodedTokenFactory.encodedAccessToken;
+import static com.bcn.asapp.tasks.testutil.fixture.TaskFactory.aJdbcTask;
+import static com.bcn.asapp.tasks.testutil.fixture.TaskFactory.aTaskBuilder;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_CREATE_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_DELETE_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_ALL_FULL_PATH;
@@ -27,6 +27,7 @@ import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_UPDATE_BY_ID_FULL_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
 import java.time.Instant;
@@ -51,9 +52,23 @@ import com.bcn.asapp.tasks.infrastructure.task.in.response.CreateTaskResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetAllTasksResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetTaskByIdResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.UpdateTaskResponse;
+import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskEntity;
 import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskRepository;
 import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
 
+/**
+ * Tests end-to-end task management workflows including CRUD operations and ownership queries.
+ * <p>
+ * Coverage:
+ * <li>Rejects all operations without valid JWT authentication</li>
+ * <li>Retrieves task by identifier returning 404 when not found, task when exists</li>
+ * <li>Retrieves tasks by user ownership returning empty or collection</li>
+ * <li>Retrieves all tasks across users returning empty or collection</li>
+ * <li>Creates task persisting to database and returning assigned identifier</li>
+ * <li>Updates existing task persisting changes and returning updated data</li>
+ * <li>Deletes existing task removing from database</li>
+ * <li>Tests complete flow: HTTP → Security → Controller → Service → Repository → Database</li>
+ */
 @SpringBootTest(classes = AsappTasksServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient(timeout = "30000")
 @Import(TestContainerConfiguration.class)
@@ -68,44 +83,57 @@ class TaskE2EIT {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
-    private final String accessToken = defaultTestEncodedAccessToken();
+    private final String encodedAccessToken = encodedAccessToken();
 
-    private final String bearerToken = "Bearer " + accessToken;
+    private final String bearerToken = "Bearer " + encodedAccessToken;
 
     @BeforeEach
     void beforeEach() {
         taskRepository.deleteAll();
 
-        redisTemplate.delete(ACCESS_TOKEN_PREFIX + accessToken);
+        assertThat(redisTemplate.getConnectionFactory()).isNotNull();
+        redisTemplate.delete(ACCESS_TOKEN_PREFIX + encodedAccessToken);
         redisTemplate.opsForValue()
-                     .set(ACCESS_TOKEN_PREFIX + accessToken, "");
+                     .set(ACCESS_TOKEN_PREFIX + encodedAccessToken, "");
     }
 
     @Nested
     class GetTaskById {
 
         @Test
-        void DoesNotGetTaskAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
-            // When & Then
-            var taskIdPath = UUID.fromString("a7f3e5d2-6b9c-4a81-9e3f-2d4b8c7e1a9f");
+        void ReturnsStatusOKAndBodyWithFoundTask_TaskExists() {
+            // Given
+            var createdTask = createTask();
+            var taskId = createdTask.id();
+            var response = new GetTaskByIdResponse(createdTask.id(), createdTask.userId(), createdTask.title(), createdTask.description(),
+                    createdTask.startDate(), createdTask.endDate());
 
-            webTestClient.get()
-                         .uri(TASKS_GET_BY_ID_FULL_PATH, taskIdPath)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            // When
+            var actual = webTestClient.get()
+                                      .uri(TASKS_GET_BY_ID_FULL_PATH, taskId)
+                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                      .exchange()
+                                      .expectStatus()
+                                      .isOk()
+                                      .expectHeader()
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .expectBody(GetTaskByIdResponse.class)
+                                      .returnResult()
+                                      .getResponseBody();
+
+            // Then
+            assertThat(actual).isEqualTo(response);
         }
 
         @Test
-        void DoesNotGetTaskAndReturnsStatusNotFoundAndEmptyBody_TaskNotExists() {
-            // When & Then
-            var taskIdPath = UUID.fromString("a7f3e5d2-6b9c-4a81-9e3f-2d4b8c7e1a9f");
+        void ReturnsStatusNotFoundAndEmptyBody_TaskNotExists() {
+            // Given
+            var taskId = UUID.fromString("a7f3e5d2-6b9c-4a81-9e3f-2d4b8c7e1a9f");
 
+            // When & Then
             webTestClient.get()
-                         .uri(TASKS_GET_BY_ID_FULL_PATH, taskIdPath)
+                         .uri(TASKS_GET_BY_ID_FULL_PATH, taskId)
                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                          .exchange()
@@ -116,47 +144,13 @@ class TaskE2EIT {
         }
 
         @Test
-        void GetsTaskAndReturnsStatusOKAndBodyWithFoundTask_TaskExists() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // Given
-            var task = defaultTestTask();
-            var taskCreated = taskRepository.save(task);
-            assertThat(taskCreated).isNotNull();
+            var taskId = UUID.fromString("a7f3e5d2-6b9c-4a81-9e3f-2d4b8c7e1a9f");
 
-            // When
-            var taskIdPath = taskCreated.id();
-
-            var response = webTestClient.get()
-                                        .uri(TASKS_GET_BY_ID_FULL_PATH, taskIdPath)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isOk()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBody(GetTaskByIdResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
-
-            // Then
-            // Assert API response
-            var expectedResponse = new GetTaskByIdResponse(taskCreated.id(), taskCreated.userId(), taskCreated.title(), taskCreated.description(),
-                    taskCreated.startDate(), taskCreated.endDate());
-            assertThat(response).isEqualTo(expectedResponse);
-        }
-
-    }
-
-    @Nested
-    class GetTasksByUserId {
-
-        @Test
-        void DoesNotGetTasksAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
             // When & Then
-            var userIdPath = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
-
             webTestClient.get()
-                         .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userIdPath)
+                         .uri(TASKS_GET_BY_ID_FULL_PATH, taskId)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                          .exchange()
                          .expectStatus()
@@ -165,70 +159,87 @@ class TaskE2EIT {
                          .isEmpty();
         }
 
+    }
+
+    @Nested
+    class GetTasksByUserId {
+
         @Test
-        void DoesNotGetTasksAndReturnsStatusOKAndEmptyBody_ThereAreNotTasksWithUserId() {
+        void ReturnsStatusOKAndBodyWithFoundTasks_TasksExistForUserId() {
             // Given
-            var userIdPath = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
+            var userId = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
+            var task1 = aTaskBuilder().withUserId(userId)
+                                      .buildJdbc();
+            var task2 = aTaskBuilder().withUserId(userId)
+                                      .buildJdbc();
+            var task3 = aTaskBuilder().withUserId(userId)
+                                      .buildJdbc();
+            var createdTask1 = createTask(task1);
+            var createdTask2 = createTask(task2);
+            var createdTask3 = createTask(task3);
+            var response1 = new GetAllTasksResponse(createdTask1.id(), createdTask1.userId(), createdTask1.title(), createdTask1.description(),
+                    createdTask1.startDate(), createdTask1.endDate());
+            var response2 = new GetAllTasksResponse(createdTask2.id(), createdTask2.userId(), createdTask2.title(), createdTask2.description(),
+                    createdTask2.startDate(), createdTask2.endDate());
+            var response3 = new GetAllTasksResponse(createdTask3.id(), createdTask3.userId(), createdTask3.title(), createdTask3.description(),
+                    createdTask3.startDate(), createdTask3.endDate());
 
             // When
-            var response = webTestClient.get()
-                                        .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userIdPath)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isOk()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBodyList(GetAllTasksResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
+            var actual = webTestClient.get()
+                                      .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userId)
+                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                      .exchange()
+                                      .expectStatus()
+                                      .isOk()
+                                      .expectHeader()
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .expectBodyList(GetAllTasksResponse.class)
+                                      .returnResult()
+                                      .getResponseBody();
+
             // Then
-            // Assert API response
-            assertThat(response).isEmpty();
+            assertThat(actual).hasSize(3)
+                              .containsExactlyInAnyOrder(response1, response2, response3);
         }
 
         @Test
-        void GetsTasksAndReturnsStatusOKAndBodyWithFoundTasks_ThereAreTasksWithUserId() {
+        void ReturnsStatusOKAndEmptyBody_TasksNotExistForUserId() {
             // Given
             var userId = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
 
-            var task1 = testTaskBuilder().withUserId(userId)
-                                         .build();
-            var task2 = testTaskBuilder().withUserId(userId)
-                                         .build();
-            var task3 = testTaskBuilder().withUserId(userId)
-                                         .build();
-            var taskCreated1 = taskRepository.save(task1);
-            var taskCreated2 = taskRepository.save(task2);
-            var taskCreated3 = taskRepository.save(task3);
-            assertThat(taskCreated1).isNotNull();
-            assertThat(taskCreated2).isNotNull();
-            assertThat(taskCreated3).isNotNull();
-
             // When
-            var response = webTestClient.get()
-                                        .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userId)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isOk()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBodyList(GetAllTasksResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
+            var actual = webTestClient.get()
+                                      .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userId)
+                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                      .exchange()
+                                      .expectStatus()
+                                      .isOk()
+                                      .expectHeader()
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .expectBodyList(GetAllTasksResponse.class)
+                                      .returnResult()
+                                      .getResponseBody();
+
             // Then
-            // Assert API response
-            var expectedResponse1 = new GetAllTasksResponse(taskCreated1.id(), taskCreated1.userId(), taskCreated1.title(), taskCreated1.description(),
-                    taskCreated1.startDate(), taskCreated1.endDate());
-            var expectedResponse2 = new GetAllTasksResponse(taskCreated2.id(), taskCreated2.userId(), taskCreated2.title(), taskCreated2.description(),
-                    taskCreated2.startDate(), taskCreated2.endDate());
-            var expectedResponse3 = new GetAllTasksResponse(taskCreated3.id(), taskCreated3.userId(), taskCreated3.title(), taskCreated3.description(),
-                    taskCreated3.startDate(), taskCreated3.endDate());
-            assertThat(response).hasSize(3)
-                                .containsExactlyInAnyOrder(expectedResponse1, expectedResponse2, expectedResponse3);
+            assertThat(actual).isEmpty();
+        }
+
+        @Test
+        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
+            // Given
+            var userId = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
+
+            // When & Then
+            webTestClient.get()
+                         .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userId)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .exchange()
+                         .expectStatus()
+                         .isUnauthorized()
+                         .expectBody()
+                         .isEmpty();
         }
 
     }
@@ -237,7 +248,65 @@ class TaskE2EIT {
     class GetAllTasks {
 
         @Test
-        void DoesNotGetTasksAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+        void ReturnsStatusOKAndBodyWithFoundTasks_TasksExist() {
+            // Given
+            var task1 = aTaskBuilder().withTitle("Title1")
+                                      .buildJdbc();
+            var task2 = aTaskBuilder().withTitle("Title2")
+                                      .buildJdbc();
+            var task3 = aTaskBuilder().withTitle("Title3")
+                                      .buildJdbc();
+            var createdTask1 = createTask(task1);
+            var createdTask2 = createTask(task2);
+            var createdTask3 = createTask(task3);
+            var response1 = new GetAllTasksResponse(createdTask1.id(), createdTask1.userId(), createdTask1.title(), createdTask1.description(),
+                    createdTask1.startDate(), createdTask1.endDate());
+            var response2 = new GetAllTasksResponse(createdTask2.id(), createdTask2.userId(), createdTask2.title(), createdTask2.description(),
+                    createdTask2.startDate(), createdTask2.endDate());
+            var response3 = new GetAllTasksResponse(createdTask3.id(), createdTask3.userId(), createdTask3.title(), createdTask3.description(),
+                    createdTask3.startDate(), createdTask3.endDate());
+
+            // When
+            var actual = webTestClient.get()
+                                      .uri(TASKS_GET_ALL_FULL_PATH)
+                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                      .exchange()
+                                      .expectStatus()
+                                      .isOk()
+                                      .expectHeader()
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .expectBodyList(GetAllTasksResponse.class)
+                                      .returnResult()
+                                      .getResponseBody();
+
+            // Then
+            assertThat(actual).hasSize(3)
+                              .containsExactlyInAnyOrder(response1, response2, response3);
+        }
+
+        @Test
+        void ReturnsStatusOKAndEmptyBody_TasksNotExist() {
+            // When
+            var actual = webTestClient.get()
+                                      .uri(TASKS_GET_ALL_FULL_PATH)
+                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                      .exchange()
+                                      .expectStatus()
+                                      .isOk()
+                                      .expectHeader()
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .expectBodyList(GetAllTasksResponse.class)
+                                      .returnResult()
+                                      .getResponseBody();
+
+            // Then
+            assertThat(actual).isEmpty();
+        }
+
+        @Test
+        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
             webTestClient.get()
                          .uri(TASKS_GET_ALL_FULL_PATH)
@@ -249,74 +318,59 @@ class TaskE2EIT {
                          .isEmpty();
         }
 
-        @Test
-        void DoesNotGetTasksAndReturnsStatusOKAndEmptyBody_ThereAreNotTasks() {
-            // When
-            var response = webTestClient.get()
-                                        .uri(TASKS_GET_ALL_FULL_PATH)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isOk()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBodyList(GetAllTasksResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
-            // Then
-            // Assert API response
-            assertThat(response).isEmpty();
-        }
-
-        @Test
-        void GetsAllTasksAndReturnsStatusOKAndBodyWithFoundTasks_ThereAreTasks() {
-            // Given
-            var task1 = testTaskBuilder().withTitle("Title1")
-                                         .build();
-            var task2 = testTaskBuilder().withTitle("Title2")
-                                         .build();
-            var task3 = testTaskBuilder().withTitle("Title3")
-                                         .build();
-            var taskCreated1 = taskRepository.save(task1);
-            var taskCreated2 = taskRepository.save(task2);
-            var taskCreated3 = taskRepository.save(task3);
-            assertThat(taskCreated1).isNotNull();
-            assertThat(taskCreated2).isNotNull();
-            assertThat(taskCreated3).isNotNull();
-
-            // When
-            var response = webTestClient.get()
-                                        .uri(TASKS_GET_ALL_FULL_PATH)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isOk()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBodyList(GetAllTasksResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
-            // Then
-            // Assert API response
-            var expectedResponse1 = new GetAllTasksResponse(taskCreated1.id(), taskCreated1.userId(), taskCreated1.title(), taskCreated1.description(),
-                    taskCreated1.startDate(), taskCreated1.endDate());
-            var expectedResponse2 = new GetAllTasksResponse(taskCreated2.id(), taskCreated2.userId(), taskCreated2.title(), taskCreated2.description(),
-                    taskCreated2.startDate(), taskCreated2.endDate());
-            var expectedResponse3 = new GetAllTasksResponse(taskCreated3.id(), taskCreated3.userId(), taskCreated3.title(), taskCreated3.description(),
-                    taskCreated3.startDate(), taskCreated3.endDate());
-            assertThat(response).hasSize(3)
-                                .containsExactlyInAnyOrder(expectedResponse1, expectedResponse2, expectedResponse3);
-        }
-
     }
 
     @Nested
     class CreateTask {
 
         @Test
-        void DoesNotCreateTaskAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
+        void ReturnsStatusCreatedAndBodyWithTaskCreated_ValidTask() {
+            // Given
+            var userId = UUID.fromString("f8b4d2e9-7c5a-4f36-8d9b-1e3a7f4c6b8d");
+            var startDate = Instant.parse("2025-01-01T11:00:00Z");
+            var endDate = Instant.parse("2025-02-02T12:00:00Z");
+            var createTaskRequestBody = new CreateTaskRequest(userId.toString(), "Title", "Description", startDate, endDate);
+
+            // When
+            var actual = webTestClient.post()
+                                      .uri(TASKS_CREATE_FULL_PATH)
+                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                      .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                      .bodyValue(createTaskRequestBody)
+                                      .exchange()
+                                      .expectStatus()
+                                      .isCreated()
+                                      .expectHeader()
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .expectBody(CreateTaskResponse.class)
+                                      .returnResult()
+                                      .getResponseBody();
+
+            // Then
+            assertThat(actual).isNotNull()
+                              .extracting(CreateTaskResponse::taskId)
+                              .isNotNull();
+
+            // Assert the task has been created
+            var createdTask = taskRepository.findById(actual.taskId());
+            assertThat(createdTask).as("task optional")
+                                   .isPresent();
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(createdTask.get().id()).as("id").isEqualTo(actual.taskId());
+                softly.assertThat(createdTask.get().userId()).as("userId").isEqualTo(UUID.fromString(createTaskRequestBody.userId()));
+                softly.assertThat(createdTask.get().title()).as("title").isEqualTo(createTaskRequestBody.title());
+                softly.assertThat(createdTask.get().description()).as("description").isEqualTo(createTaskRequestBody.description());
+                softly.assertThat(createdTask.get().startDate()).as("startDate").isEqualTo(createTaskRequestBody.startDate());
+                softly.assertThat(createdTask.get().endDate()).as("endDate").isEqualTo(createTaskRequestBody.endDate());
+                // @formatter:on
+            });
+        }
+
+        @Test
+        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
+            // Given
             var userId = UUID.fromString("f8b4d2e9-7c5a-4f36-8d9b-1e3a7f4c6b8d");
             var startDate = Instant.parse("2025-01-01T11:00:00Z");
             var endDate = Instant.parse("2025-02-02T12:00:00Z");
@@ -335,88 +389,70 @@ class TaskE2EIT {
                          .isEmpty();
         }
 
-        @Test
-        void CreatesTaskAndReturnsStatusCreatedAndBodyWithTaskCreated() {
-            // When
-            var userId = UUID.fromString("f8b4d2e9-7c5a-4f36-8d9b-1e3a7f4c6b8d");
-            var startDate = Instant.parse("2025-01-01T11:00:00Z");
-            var endDate = Instant.parse("2025-02-02T12:00:00Z");
-            var createTaskRequestBody = new CreateTaskRequest(userId.toString(), "Title", "Description", startDate, endDate);
-
-            var response = webTestClient.post()
-                                        .uri(TASKS_CREATE_FULL_PATH)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                                        .bodyValue(createTaskRequestBody)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isCreated()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBody(CreateTaskResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
-
-            // Then
-            // Assert API response
-            assertThat(response).isNotNull()
-                                .extracting(CreateTaskResponse::taskId)
-                                .isNotNull();
-
-            // Assert the task has been created
-            var optionalActualTask = taskRepository.findById(response.taskId());
-            assertThat(optionalActualTask).isNotEmpty()
-                                          .get()
-                                          .satisfies(actualTask -> {
-                                              assertThat(actualTask.id()).isEqualTo(response.taskId());
-                                              assertThat(actualTask.userId()).isEqualTo(UUID.fromString(createTaskRequestBody.userId()));
-                                              assertThat(actualTask.title()).isEqualTo(createTaskRequestBody.title());
-                                              assertThat(actualTask.description()).isEqualTo(createTaskRequestBody.description());
-                                              assertThat(actualTask.startDate()).isEqualTo(createTaskRequestBody.startDate());
-                                              assertThat(actualTask.endDate()).isEqualTo(createTaskRequestBody.endDate());
-                                          });
-        }
-
     }
 
     @Nested
     class UpdateTaskById {
 
         @Test
-        void DoesNotUpdateTaskAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
-            // When & Then
-            var taskIdPath = UUID.fromString("b7f3a8d1-4e9c-4118-8f2b-6d9e3a5c7b1f");
-
+        void ReturnsStatusOkAndBodyWithUpdatedTask_TaskExists() {
+            // Given
+            var createdTask = createTask();
+            var taskId = createdTask.id();
             var newUserId = UUID.fromString("c4d9e2f8-5a7b-4209-9a3c-8e1f7b4d6a2e");
             var newStartDate = Instant.parse("2025-03-03T13:00:00Z");
             var newEndDate = Instant.parse("2025-04-04T14:00:00Z");
-            var updateTaskRequest = new UpdateTaskRequest(newUserId.toString(), "NewTitle", "NewDescription", newStartDate, newEndDate);
+            var updateTaskRequest = new UpdateTaskRequest(newUserId.toString(), "New Title", "New Description", newStartDate, newEndDate);
 
-            webTestClient.put()
-                         .uri(TASKS_UPDATE_BY_ID_FULL_PATH, taskIdPath)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                         .bodyValue(updateTaskRequest)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            // When
+            var actual = webTestClient.put()
+                                      .uri(TASKS_UPDATE_BY_ID_FULL_PATH, taskId)
+                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                      .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                      .bodyValue(updateTaskRequest)
+                                      .exchange()
+                                      .expectStatus()
+                                      .isOk()
+                                      .expectHeader()
+                                      .contentType(MediaType.APPLICATION_JSON)
+                                      .expectBody(UpdateTaskResponse.class)
+                                      .returnResult()
+                                      .getResponseBody();
+
+            // Then
+            assertThat(actual).isNotNull()
+                              .extracting(UpdateTaskResponse::taskId)
+                              .isEqualTo(createdTask.id());
+
+            // Assert the task has been updated
+            var updatedTask = taskRepository.findById(actual.taskId());
+            assertThat(updatedTask).as("task optional")
+                                   .isPresent();
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(updatedTask.get().id()).as("id").isEqualTo(actual.taskId());
+                softly.assertThat(updatedTask.get().userId()).as("userId").isEqualTo(UUID.fromString(updateTaskRequest.userId()));
+                softly.assertThat(updatedTask.get().title()).as("title").isEqualTo(updateTaskRequest.title());
+                softly.assertThat(updatedTask.get().description()).as("description").isEqualTo(updateTaskRequest.description());
+                softly.assertThat(updatedTask.get().startDate()).as("startDate").isEqualTo(updateTaskRequest.startDate());
+                softly.assertThat(updatedTask.get().endDate()).as("endDate").isEqualTo(updateTaskRequest.endDate());
+                // @formatter:on
+            });
         }
 
         @Test
-        void DoesNotUpdateTaskAndReturnsStatusNotFoundAndEmptyBody_TaskNotExists() {
-            // When & Then
-            var taskIdPath = UUID.fromString("b7f3a8d1-4e9c-4118-8f2b-6d9e3a5c7b1f");
-
+        void ReturnsStatusNotFoundAndEmptyBody_TaskNotExists() {
+            // Given
+            var taskId = UUID.fromString("b7f3a8d1-4e9c-4118-8f2b-6d9e3a5c7b1f");
             var newUserId = UUID.fromString("c4d9e2f8-5a7b-4209-9a3c-8e1f7b4d6a2e");
             var newStartDate = Instant.parse("2025-03-03T13:00:00Z");
             var newEndDate = Instant.parse("2025-04-04T14:00:00Z");
-            var updateTaskRequest = new UpdateTaskRequest(newUserId.toString(), "NewTitle", "NewDescription", newStartDate, newEndDate);
+            var updateTaskRequest = new UpdateTaskRequest(newUserId.toString(), "New Title", "New Description", newStartDate, newEndDate);
 
+            // When & Then
             webTestClient.put()
-                         .uri(TASKS_UPDATE_BY_ID_FULL_PATH, taskIdPath)
+                         .uri(TASKS_UPDATE_BY_ID_FULL_PATH, taskId)
                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
@@ -429,53 +465,25 @@ class TaskE2EIT {
         }
 
         @Test
-        void UpdatesTaskAndReturnsStatusOkAndBodyWithUpdatedTask_TaskExists() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // Given
-            var task = defaultTestTask();
-            var taskCreated = taskRepository.save(task);
-            assertThat(taskCreated).isNotNull();
-
-            // When
-            var taskIdPath = taskCreated.id();
-
+            var taskId = UUID.fromString("b7f3a8d1-4e9c-4118-8f2b-6d9e3a5c7b1f");
             var newUserId = UUID.fromString("c4d9e2f8-5a7b-4209-9a3c-8e1f7b4d6a2e");
             var newStartDate = Instant.parse("2025-03-03T13:00:00Z");
             var newEndDate = Instant.parse("2025-04-04T14:00:00Z");
-            var updateTaskRequest = new UpdateTaskRequest(newUserId.toString(), "NewTitle", "NewDescription", newStartDate, newEndDate);
+            var updateTaskRequest = new UpdateTaskRequest(newUserId.toString(), "New Title", "New Description", newStartDate, newEndDate);
 
-            var response = webTestClient.put()
-                                        .uri(TASKS_UPDATE_BY_ID_FULL_PATH, taskIdPath)
-                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                        .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                                        .bodyValue(updateTaskRequest)
-                                        .exchange()
-                                        .expectStatus()
-                                        .isOk()
-                                        .expectHeader()
-                                        .contentType(MediaType.APPLICATION_JSON)
-                                        .expectBody(UpdateTaskResponse.class)
-                                        .returnResult()
-                                        .getResponseBody();
-
-            // Then
-            // Assert API response
-            assertThat(response).isNotNull()
-                                .extracting(UpdateTaskResponse::taskId)
-                                .isEqualTo(taskCreated.id());
-
-            // Assert the task has been updated
-            var optionalActualTask = taskRepository.findById(response.taskId());
-            assertThat(optionalActualTask).isNotEmpty()
-                                          .get()
-                                          .satisfies(actualTask -> {
-                                              assertThat(actualTask.id()).isEqualTo(response.taskId());
-                                              assertThat(actualTask.userId()).isEqualTo(UUID.fromString(updateTaskRequest.userId()));
-                                              assertThat(actualTask.title()).isEqualTo(updateTaskRequest.title());
-                                              assertThat(actualTask.description()).isEqualTo(updateTaskRequest.description());
-                                              assertThat(actualTask.startDate()).isEqualTo(updateTaskRequest.startDate());
-                                              assertThat(actualTask.endDate()).isEqualTo(updateTaskRequest.endDate());
-                                          });
+            // When & Then
+            webTestClient.put()
+                         .uri(TASKS_UPDATE_BY_ID_FULL_PATH, taskId)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                         .bodyValue(updateTaskRequest)
+                         .exchange()
+                         .expectStatus()
+                         .isUnauthorized()
+                         .expectBody()
+                         .isEmpty();
         }
 
     }
@@ -484,48 +492,14 @@ class TaskE2EIT {
     class DeleteTaskById {
 
         @Test
-        void DoesNotDeleteTaskAndReturnsStatusUnauthorizedAndEmptyBody_RequestNotHasAuthorizationHeader() {
-            // When & Then
-            var taskIdPath = UUID.fromString("a4e7f1c9-8b2d-464d-9e7a-5f3c8d1b6e4a");
-
-            webTestClient.delete()
-                         .uri(TASKS_DELETE_BY_ID_FULL_PATH, taskIdPath)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
-        }
-
-        @Test
-        void DoesNotDeleteTaskAndReturnsStatusNotFoundAndEmptyBody_TaskNotExists() {
-            // When & Then
-            var taskIdPath = UUID.fromString("a4e7f1c9-8b2d-464d-9e7a-5f3c8d1b6e4a");
-
-            webTestClient.delete()
-                         .uri(TASKS_DELETE_BY_ID_FULL_PATH, taskIdPath)
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .exchange()
-                         .expectStatus()
-                         .isNotFound()
-                         .expectBody()
-                         .isEmpty();
-        }
-
-        @Test
-        void DeletesTaskAndReturnsStatusNoContentAndEmptyBody_TaskExists() {
+        void ReturnsStatusNoContentAndEmptyBody_TaskExists() {
             // Given
-            var task = defaultTestTask();
-            var taskCreated = taskRepository.save(task);
-            assertThat(taskCreated).isNotNull();
+            var createdTask = createTask();
+            var taskId = createdTask.id();
 
             // When
-            var taskIdPath = taskCreated.id();
-
             webTestClient.delete()
-                         .uri(TASKS_DELETE_BY_ID_FULL_PATH, taskIdPath)
+                         .uri(TASKS_DELETE_BY_ID_FULL_PATH, taskId)
                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                          .exchange()
@@ -536,10 +510,56 @@ class TaskE2EIT {
 
             // Then
             // Assert the task has been deleted
-            var optionalActualTask = taskRepository.findById(taskCreated.id());
-            assertThat(optionalActualTask).isEmpty();
+            var deletedTask = taskRepository.findById(createdTask.id());
+            assertThat(deletedTask).isEmpty();
         }
 
+        @Test
+        void ReturnsStatusNotFoundAndEmptyBody_TaskNotExists() {
+            // Given
+            var taskId = UUID.fromString("a4e7f1c9-8b2d-464d-9e7a-5f3c8d1b6e4a");
+
+            // When & Then
+            webTestClient.delete()
+                         .uri(TASKS_DELETE_BY_ID_FULL_PATH, taskId)
+                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .exchange()
+                         .expectStatus()
+                         .isNotFound()
+                         .expectBody()
+                         .isEmpty();
+        }
+
+        @Test
+        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
+            // Given
+            var taskId = UUID.fromString("a4e7f1c9-8b2d-464d-9e7a-5f3c8d1b6e4a");
+
+            // When & Then
+            webTestClient.delete()
+                         .uri(TASKS_DELETE_BY_ID_FULL_PATH, taskId)
+                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                         .exchange()
+                         .expectStatus()
+                         .isUnauthorized()
+                         .expectBody()
+                         .isEmpty();
+        }
+
+    }
+
+    // Test Data Creation Helpers
+
+    private JdbcTaskEntity createTask() {
+        var task = aJdbcTask();
+        return createTask(task);
+    }
+
+    private JdbcTaskEntity createTask(JdbcTaskEntity task) {
+        var createdTask = taskRepository.save(task);
+        assertThat(createdTask).isNotNull();
+        return createdTask;
     }
 
 }

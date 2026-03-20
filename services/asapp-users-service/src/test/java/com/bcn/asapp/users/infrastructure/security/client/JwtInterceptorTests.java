@@ -20,18 +20,17 @@ import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.ACCESS_T
 import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.ROLE;
 import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.users.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
-import static com.bcn.asapp.users.testutil.TestFactory.TestEncodedTokenFactory.defaultTestEncodedAccessToken;
+import static com.bcn.asapp.users.testutil.fixture.EncodedTokenFactory.encodedAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.times;
+import static org.mockito.BDDMockito.times;
 
 import java.io.IOException;
 import java.util.Map;
 
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -48,8 +47,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import com.bcn.asapp.users.infrastructure.security.DecodedJwt;
 import com.bcn.asapp.users.infrastructure.security.JwtAuthenticationToken;
 
+/**
+ * Tests {@link JwtInterceptor} JWT propagation to outgoing requests.
+ * <p>
+ * Coverage:
+ * <li>Rejects requests when authentication missing from security context</li>
+ * <li>Rejects requests when authentication is not JWT-based</li>
+ * <li>Extracts JWT from authenticated security context</li>
+ * <li>Adds Authorization Bearer header to outgoing HTTP requests</li>
+ * <li>Delegates request execution to chain with enriched headers</li>
+ */
 @ExtendWith(MockitoExtension.class)
-public class JwtInterceptorTests {
+class JwtInterceptorTests {
 
     @Mock
     private HttpRequest request;
@@ -64,71 +73,66 @@ public class JwtInterceptorTests {
 
     @BeforeEach
     void beforeEach() {
-        SecurityContextHolder.setContext(securityContext);
-    }
-
-    @AfterEach
-    void afterEach() {
         SecurityContextHolder.clearContext();
+        SecurityContextHolder.setContext(securityContext);
     }
 
     @Nested
     class Intercept {
 
         @Test
-        void ThenThrowsIllegalStateException_GivenNoAuthenticationInSecurityContext() {
+        void ExecutesRequest_ValidAuthentication() throws IOException {
             // Given
-            given(securityContext.getAuthentication()).willReturn(null);
-
-            var body = new byte[0];
-
-            // When
-            var thrown = catchThrowable(() -> jwtInterceptor.intercept(request, body, execution));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalStateException.class)
-                              .hasMessage("No authentication found in SecurityContext");
-        }
-
-        @Test
-        void ThenThrowsIllegalStateException_GivenAuthenticationIsNotJwtAuthenticationToken() {
-            // Given
-            var authentication = new UsernamePasswordAuthenticationToken("username", "password");
-            given(securityContext.getAuthentication()).willReturn(authentication);
-
-            var body = new byte[0];
-
-            // When
-            var thrown = catchThrowable(() -> jwtInterceptor.intercept(request, body, execution));
-
-            // Then
-            assertThat(thrown).isInstanceOf(IllegalStateException.class)
-                              .hasMessageStartingWith("Expected JwtAuthenticationToken but found: ")
-                              .hasMessageContaining("UsernamePasswordAuthenticationToken");
-        }
-
-        @Test
-        void ThenAddsAuthorizationHeaderAndExecutesRequest_GivenAuthenticationIsValid() throws IOException {
-            // Given
-            var encodedToken = defaultTestEncodedAccessToken();
+            var encodedAccessToken = encodedAccessToken();
             var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
-            var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, "user@asapp.com", claims);
-            var authentication = JwtAuthenticationToken.authenticated(decodedJwt);
-            given(securityContext.getAuthentication()).willReturn(authentication);
-
+            var decodedJwt = new DecodedJwt(encodedAccessToken, ACCESS_TOKEN_TYPE, "user@asapp.com", claims);
+            var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
             var headers = new HttpHeaders();
-            given(request.getHeaders()).willReturn(headers);
-
             var body = new byte[0];
+
+            given(securityContext.getAuthentication()).willReturn(jwtAuthenticationToken);
+            given(request.getHeaders()).willReturn(headers);
 
             // When
             jwtInterceptor.intercept(request, body, execution);
 
             // Then
-            assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer " + decodedJwt.encodedToken());
+            assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer " + encodedAccessToken);
 
             then(execution).should(times(1))
                            .execute(eq(request), eq(body));
+        }
+
+        @Test
+        void ThrowsIllegalStateException_AuthenticationMissingInSecurityContext() {
+            // Given
+            var body = new byte[0];
+
+            given(securityContext.getAuthentication()).willReturn(null);
+
+            // When
+            var actual = catchThrowable(() -> jwtInterceptor.intercept(request, body, execution));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalStateException.class)
+                              .hasMessage("No authentication found in SecurityContext");
+        }
+
+        @Test
+        void ThrowsIllegalStateException_AuthenticationNotJwtAuthenticationToken() {
+            // Given
+            var authentication = new UsernamePasswordAuthenticationToken("username", "password");
+            var body = new byte[0];
+
+            given(securityContext.getAuthentication()).willReturn(authentication);
+
+            // When
+            var actual = catchThrowable(() -> jwtInterceptor.intercept(request, body, execution));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalStateException.class)
+                              .hasMessageStartingWith("Expected JwtAuthenticationToken but found: ")
+                              .hasMessageContaining("UsernamePasswordAuthenticationToken");
         }
 
     }

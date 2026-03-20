@@ -18,13 +18,15 @@ package com.bcn.asapp.authentication.infrastructure.authentication.out;
 
 import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtStore.ACCESS_TOKEN_PREFIX;
 import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtStore.REFRESH_TOKEN_PREFIX;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestJwtAuthenticationFactory.defaultTestDomainJwtAuthentication;
-import static com.bcn.asapp.authentication.testutil.TestFactory.TestJwtAuthenticationFactory.testJwtAuthenticationBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtAuthenticationFactory.aJwtAuthenticationBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtPairFactory.aJwtPair;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.awaitility.Awaitility.await;
 
+import java.time.Instant;
 import java.util.concurrent.TimeUnit;
 
-import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -36,13 +38,20 @@ import org.springframework.data.redis.core.RedisTemplate;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
 
+/**
+ * Tests {@link RedisJwtStore} token activation, existence checks, and TTL expiration against Redis.
+ * <p>
+ * Coverage:
+ * <li>Activates token pairs in Redis with calculated TTL from expiration timestamps</li>
+ * <li>Verifies token existence checks return correct status</li>
+ * <li>Deactivates token pairs removing them from Redis</li>
+ * <li>Tests actual Redis operations with TestContainers</li>
+ */
 @SpringBootTest
 @Import(TestContainerConfiguration.class)
 class RedisJwtStoreIT {
 
     private static final long EXPIRING_SOON_SECONDS = 5L;
-
-    private static final long OVERWRITE_WAIT_MILLIS = 2000L;
 
     @Autowired
     private RedisJwtStore redisJwtStore;
@@ -63,33 +72,30 @@ class RedisJwtStoreIT {
     class AccessTokenExists {
 
         @Test
-        void ReturnsFalse_AccessTokenNotExists() {
-            // Given
-            var accessToken = defaultTestDomainJwtAuthentication().getJwtPair()
-                                                                  .accessToken()
-                                                                  .encodedToken();
-
-            // When
-            var exists = redisJwtStore.accessTokenExists(accessToken);
-
-            // Then
-            assertThat(exists).isFalse();
-        }
-
-        @Test
         void ReturnsTrue_AccessTokenExists() {
             // Given
-            var jwtPair = defaultTestDomainJwtAuthentication().getJwtPair();
+            var jwtPair = createJwtPair();
             var accessToken = jwtPair.accessToken()
                                      .encodedToken();
 
-            redisJwtStore.save(jwtPair);
-
             // When
-            var exists = redisJwtStore.accessTokenExists(accessToken);
+            var actual = redisJwtStore.accessTokenExists(accessToken);
 
             // Then
-            assertThat(exists).isTrue();
+            assertThat(actual).isTrue();
+        }
+
+        @Test
+        void ReturnsFalse_AccessTokenNotExists() {
+            // Given
+            var accessToken = aJwtPair().accessToken()
+                                        .encodedToken();
+
+            // When
+            var actual = redisJwtStore.accessTokenExists(accessToken);
+
+            // Then
+            assertThat(actual).isFalse();
         }
 
     }
@@ -98,33 +104,30 @@ class RedisJwtStoreIT {
     class RefreshTokenExists {
 
         @Test
-        void ReturnsFalse_RefreshTokenNotExists() {
-            // Given
-            var refreshToken = defaultTestDomainJwtAuthentication().getJwtPair()
-                                                                   .refreshToken()
-                                                                   .encodedToken();
-
-            // When
-            var exists = redisJwtStore.refreshTokenExists(refreshToken);
-
-            // Then
-            assertThat(exists).isFalse();
-        }
-
-        @Test
         void ReturnsTrue_RefreshTokenExists() {
             // Given
-            var jwtPair = defaultTestDomainJwtAuthentication().getJwtPair();
+            var jwtPair = createJwtPair();
             var refreshToken = jwtPair.refreshToken()
                                       .encodedToken();
 
-            redisJwtStore.save(jwtPair);
-
             // When
-            var exists = redisJwtStore.refreshTokenExists(refreshToken);
+            var actual = redisJwtStore.refreshTokenExists(refreshToken);
 
             // Then
-            assertThat(exists).isTrue();
+            assertThat(actual).isTrue();
+        }
+
+        @Test
+        void ReturnsFalse_RefreshTokenNotExists() {
+            // Given
+            var refreshToken = aJwtPair().refreshToken()
+                                         .encodedToken();
+
+            // When
+            var actual = redisJwtStore.refreshTokenExists(refreshToken);
+
+            // Then
+            assertThat(actual).isFalse();
         }
 
     }
@@ -133,9 +136,9 @@ class RedisJwtStoreIT {
     class Save {
 
         @Test
-        void StoresJwtPairInRedis_JwtPairIsValid() {
+        void StoresJwtPair_ValidJwtPair() {
             // Given
-            var jwtPair = defaultTestDomainJwtAuthentication().getJwtPair();
+            var jwtPair = aJwtPair();
             var accessTokenKey = buildAccessTokenKey(jwtPair);
             var refreshTokenKey = buildRefreshTokenKey(jwtPair);
 
@@ -143,24 +146,26 @@ class RedisJwtStoreIT {
             redisJwtStore.save(jwtPair);
 
             // Then
-            var actualAccessTokenKeyExists = redisTemplate.hasKey(accessTokenKey);
-            var actualRefreshTokenKeyExists = redisTemplate.hasKey(refreshTokenKey);
-            var actualAccessTokenKeyValue = redisTemplate.opsForValue()
-                                                         .get(accessTokenKey);
-            var actualRefreshTokenKeyValue = redisTemplate.opsForValue()
-                                                          .get(refreshTokenKey);
-            SoftAssertions.assertSoftly(softAssertions -> {
-                assertThat(actualAccessTokenKeyExists).isTrue();
-                assertThat(actualRefreshTokenKeyExists).isTrue();
-                assertThat(actualAccessTokenKeyValue).isEmpty();
-                assertThat(actualRefreshTokenKeyValue).isEmpty();
+            var accessTokenKeyExists = redisTemplate.hasKey(accessTokenKey);
+            var refreshTokenKeyExists = redisTemplate.hasKey(refreshTokenKey);
+            var accessTokenKeyValue = redisTemplate.opsForValue()
+                                                   .get(accessTokenKey);
+            var refreshTokenKeyValue = redisTemplate.opsForValue()
+                                                    .get(refreshTokenKey);
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(accessTokenKeyExists).as("access token key exists").isTrue();
+                softly.assertThat(refreshTokenKeyExists).as("refresh token key exists").isTrue();
+                softly.assertThat(accessTokenKeyValue).as("access token key value").isEmpty();
+                softly.assertThat(refreshTokenKeyValue).as("refresh token key value").isEmpty();
+                // @formatter:on
             });
         }
 
         @Test
-        void StoresJwtPairWithCorrectTtl_JwtPairIsValid() {
+        void StoresJwtPairWithCorrectTtl_ValidJwtPair() {
             // Given
-            var jwtPair = defaultTestDomainJwtAuthentication().getJwtPair();
+            var jwtPair = aJwtPair();
             var accessTokenKey = buildAccessTokenKey(jwtPair);
             var refreshTokenKey = buildRefreshTokenKey(jwtPair);
 
@@ -168,27 +173,28 @@ class RedisJwtStoreIT {
             redisJwtStore.save(jwtPair);
 
             // Then
-            var actualAccessTokenTtl = redisTemplate.getExpire(accessTokenKey, TimeUnit.SECONDS);
-            var actualRefreshTokenTtl = redisTemplate.getExpire(refreshTokenKey, TimeUnit.SECONDS);
-
+            var accessTokenTtl = redisTemplate.getExpire(accessTokenKey, TimeUnit.SECONDS);
+            var refreshTokenTtl = redisTemplate.getExpire(refreshTokenKey, TimeUnit.SECONDS);
             // TTL range explanation:
             // - Maximum (300s): Token issued now expires in 5 minutes (300 seconds)
             // - Minimum (25s): Token issued 4.5 minutes ago has ~30 seconds remaining minus execution overhead
-            SoftAssertions.assertSoftly(softAssertions -> {
-                assertThat(actualAccessTokenTtl).isBetween(25L, 300L);
-                assertThat(actualRefreshTokenTtl).isBetween(25L, 300L);
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(accessTokenTtl).as("access token TTL").isBetween(25L, 300L);
+                softly.assertThat(refreshTokenTtl).as("refresh token TTL").isBetween(25L, 300L);
+                // @formatter:on
             });
         }
 
         @Test
-        void StoresJwtPairWithMinimumTtl_TokenIsExpiringSoon() {
+        void StoresJwtPairWithMinimumTtl_TokenExpiringSoon() {
             // Given
-            var now = java.time.Instant.now();
-            var expiringSoon = now.plusSeconds(EXPIRING_SOON_SECONDS);
-            var jwtPair = testJwtAuthenticationBuilder().withAccessTokenExpiration(expiringSoon)
-                                                        .withRefreshTokenExpiration(expiringSoon)
-                                                        .buildDomainEntity()
-                                                        .getJwtPair();
+            var now = Instant.now();
+            var expiration = now.plusSeconds(EXPIRING_SOON_SECONDS);
+            var jwtPair = aJwtAuthenticationBuilder().withAccessTokenExpiration(expiration)
+                                                     .withRefreshTokenExpiration(expiration)
+                                                     .build()
+                                                     .getJwtPair();
             var accessTokenKey = buildAccessTokenKey(jwtPair);
             var refreshTokenKey = buildRefreshTokenKey(jwtPair);
 
@@ -196,96 +202,89 @@ class RedisJwtStoreIT {
             redisJwtStore.save(jwtPair);
 
             // Then
-            var actualAccessTokenTtl = redisTemplate.getExpire(accessTokenKey, TimeUnit.SECONDS);
-            var actualRefreshTokenTtl = redisTemplate.getExpire(refreshTokenKey, TimeUnit.SECONDS);
-
+            var accessTokenTtl = redisTemplate.getExpire(accessTokenKey, TimeUnit.SECONDS);
+            var refreshTokenTtl = redisTemplate.getExpire(refreshTokenKey, TimeUnit.SECONDS);
             // Verify Math.max(ttl, 1), tokens expiring very soon get minimum TTL of 1 second
-            SoftAssertions.assertSoftly(softAssertions -> {
-                assertThat(actualAccessTokenTtl).isGreaterThanOrEqualTo(1L);
-                assertThat(actualRefreshTokenTtl).isGreaterThanOrEqualTo(1L);
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(accessTokenTtl).as("access token TTL").isGreaterThanOrEqualTo(1L);
+                softly.assertThat(refreshTokenTtl).as("refresh token TTL").isGreaterThanOrEqualTo(1L);
+                // @formatter:on
             });
         }
 
         @Test
-        void OverwritesExistingTokens_StoreSameJwtPair() throws InterruptedException {
+        void OverwritesExistingTokens_StoreSameJwtPair() {
             // Given
-            var jwtPair = defaultTestDomainJwtAuthentication().getJwtPair();
+            var jwtPair = createJwtPair();
             var accessTokenKey = buildAccessTokenKey(jwtPair);
             var refreshTokenKey = buildRefreshTokenKey(jwtPair);
-
-            redisJwtStore.save(jwtPair);
-            assertThat(redisTemplate.hasKey(accessTokenKey)).isTrue();
-            assertThat(redisTemplate.hasKey(refreshTokenKey)).isTrue();
             var initialAccessTokenTtl = redisTemplate.getExpire(accessTokenKey, TimeUnit.SECONDS);
             var initialRefreshTokenTtl = redisTemplate.getExpire(refreshTokenKey, TimeUnit.SECONDS);
 
             // Wait to allow TTL to decrease naturally over time
-            // (necessary to verify that re-saving recalculates TTL correctly based on expiration timestamp)
-            Thread.sleep(OVERWRITE_WAIT_MILLIS);
+            // This ensures that when we save the same JWT pair again, the TTLs are updated to new values rather than remaining unchanged.
+            await().atMost(5, TimeUnit.SECONDS)
+                   .until(() -> redisTemplate.getExpire(accessTokenKey, TimeUnit.SECONDS) < initialAccessTokenTtl);
 
             // When
             redisJwtStore.save(jwtPair);
 
             // Then
-            var actualAccessTokenKeyExists = redisTemplate.hasKey(accessTokenKey);
-            var actualRefreshTokenKeyExists = redisTemplate.hasKey(refreshTokenKey);
-            var actualAccessTokenTtl = redisTemplate.getExpire(accessTokenKey, TimeUnit.SECONDS);
-            var actualRefreshTokenTtl = redisTemplate.getExpire(refreshTokenKey, TimeUnit.SECONDS);
-
-            SoftAssertions.assertSoftly(softAssertions -> {
-                assertThat(actualAccessTokenKeyExists).isTrue();
-                assertThat(actualRefreshTokenKeyExists).isTrue();
-                assertThat(actualAccessTokenTtl).isLessThanOrEqualTo(initialAccessTokenTtl);
-                assertThat(actualRefreshTokenTtl).isLessThanOrEqualTo(initialRefreshTokenTtl);
-                assertThat(actualAccessTokenTtl).isGreaterThan(0L);
-                assertThat(actualRefreshTokenTtl).isGreaterThan(0L);
+            var accessTokenKeyExists = redisTemplate.hasKey(accessTokenKey);
+            var refreshTokenKeyExists = redisTemplate.hasKey(refreshTokenKey);
+            var accessTokenTtl = redisTemplate.getExpire(accessTokenKey, TimeUnit.SECONDS);
+            var refreshTokenTtl = redisTemplate.getExpire(refreshTokenKey, TimeUnit.SECONDS);
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(accessTokenKeyExists).as("access token key exists").isTrue();
+                softly.assertThat(refreshTokenKeyExists).as("refresh token key exists").isTrue();
+                softly.assertThat(accessTokenTtl).as("access token TTL").isLessThan(initialAccessTokenTtl);
+                softly.assertThat(refreshTokenTtl).as("refresh token TTL").isLessThan(initialRefreshTokenTtl);
+                softly.assertThat(accessTokenTtl).as("access token TTL positive").isGreaterThan(0L);
+                softly.assertThat(refreshTokenTtl).as("refresh token TTL positive").isGreaterThan(0L);
+                // @formatter:on
             });
         }
 
         @Test
-        void AutoDeletesAccessToken_AccessTokenHasExpired() throws InterruptedException {
+        void DeletesAccessToken_AccessTokenExpiredInRedis() {
             // Given
-            var now = java.time.Instant.now();
-            var expiringSoon = now.plusSeconds(1L);
-            var jwtPair = testJwtAuthenticationBuilder().withAccessTokenExpiration(expiringSoon)
-                                                        .withRefreshTokenExpiration(expiringSoon)
-                                                        .buildDomainEntity()
-                                                        .getJwtPair();
+            var now = Instant.now();
+            var expiration = now.plusSeconds(1L);
+            var jwtPair = aJwtAuthenticationBuilder().withAccessTokenExpiration(expiration)
+                                                     .withRefreshTokenExpiration(expiration)
+                                                     .build()
+                                                     .getJwtPair();
             var accessTokenKey = buildAccessTokenKey(jwtPair);
 
             // When
             redisJwtStore.save(jwtPair);
-            assertThat(redisTemplate.hasKey(accessTokenKey)).isTrue();
-
-            Thread.sleep(1500L); // Wait for TTL to expire
 
             // Then
-            var keyExists = redisTemplate.hasKey(accessTokenKey);
-
-            assertThat(keyExists).isFalse();
+            assertThat(redisTemplate.hasKey(accessTokenKey)).isTrue();
+            await().atMost(3, TimeUnit.SECONDS)
+                   .until(() -> Boolean.FALSE.equals(redisTemplate.hasKey(accessTokenKey)));
         }
 
         @Test
-        void AutoDeletesRefreshToken_RefreshTokenHasExpires() throws InterruptedException {
+        void DeletesRefreshToken_RefreshTokenExpiredInRedis() {
             // Given
-            var now = java.time.Instant.now();
-            var expiringSoon = now.plusSeconds(1L);
-            var jwtPair = testJwtAuthenticationBuilder().withAccessTokenExpiration(expiringSoon)
-                                                        .withRefreshTokenExpiration(expiringSoon)
-                                                        .buildDomainEntity()
-                                                        .getJwtPair();
+            var now = Instant.now();
+            var expiration = now.plusSeconds(1L);
+            var jwtPair = aJwtAuthenticationBuilder().withAccessTokenExpiration(expiration)
+                                                     .withRefreshTokenExpiration(expiration)
+                                                     .build()
+                                                     .getJwtPair();
             var refreshTokenKey = buildRefreshTokenKey(jwtPair);
 
             // When
             redisJwtStore.save(jwtPair);
-            assertThat(redisTemplate.hasKey(refreshTokenKey)).isTrue();
-
-            Thread.sleep(1500L); // Wait for TTL to expire
 
             // Then
-            var keyExists = redisTemplate.hasKey(refreshTokenKey);
-
-            assertThat(keyExists).isFalse();
+            assertThat(redisTemplate.hasKey(refreshTokenKey)).isTrue();
+            await().atMost(3, TimeUnit.SECONDS)
+                   .until(() -> Boolean.FALSE.equals(redisTemplate.hasKey(refreshTokenKey)));
         }
 
     }
@@ -294,52 +293,54 @@ class RedisJwtStoreIT {
     class Delete {
 
         @Test
-        void DeletesJwtPairFromRedis_JwtPairExists() {
+        void DeletesJwtPair_JwtPairExists() {
             // Given
-            var jwtPair = defaultTestDomainJwtAuthentication().getJwtPair();
-            var accessTokenKey = buildAccessTokenKey(jwtPair);
-            var refreshTokenKey = buildRefreshTokenKey(jwtPair);
-
-            redisJwtStore.save(jwtPair);
-            assertThat(redisTemplate.hasKey(accessTokenKey)).isTrue();
-            assertThat(redisTemplate.hasKey(refreshTokenKey)).isTrue();
+            var jwtPair = createJwtPair();
 
             // When
             redisJwtStore.delete(jwtPair);
 
             // Then
-            var actualAccessTokenKeyExists = redisTemplate.hasKey(accessTokenKey);
-            var actualRefreshTokenKeyExists = redisTemplate.hasKey(refreshTokenKey);
-
-            SoftAssertions.assertSoftly(softAssertions -> {
-                assertThat(actualAccessTokenKeyExists).isFalse();
-                assertThat(actualRefreshTokenKeyExists).isFalse();
-            });
+            assertJwtPairNotExistInRedis(jwtPair);
         }
 
         @Test
-        void DoesNotThrowException_JwtPairNotExists() {
+        void CompletesWithoutErrors_JwtPairNotExists() {
             // Given
-            var jwtPair = defaultTestDomainJwtAuthentication().getJwtPair();
-            var accessTokenKey = buildAccessTokenKey(jwtPair);
-            var refreshTokenKey = buildRefreshTokenKey(jwtPair);
-
-            assertThat(redisTemplate.hasKey(accessTokenKey)).isFalse();
-            assertThat(redisTemplate.hasKey(refreshTokenKey)).isFalse();
+            var jwtPair = aJwtPair();
 
             // When
             redisJwtStore.delete(jwtPair);
 
             // Then
-            var actualAccessTokenKeyExists = redisTemplate.hasKey(accessTokenKey);
-            var actualRefreshTokenKeyExists = redisTemplate.hasKey(refreshTokenKey);
-
-            SoftAssertions.assertSoftly(softAssertions -> {
-                assertThat(actualAccessTokenKeyExists).isFalse();
-                assertThat(actualRefreshTokenKeyExists).isFalse();
-            });
+            assertJwtPairNotExistInRedis(jwtPair);
         }
 
+    }
+
+    // Test Data Creation Helpers
+
+    private JwtPair createJwtPair() {
+        var jwtPair = aJwtPair();
+        redisJwtStore.save(jwtPair);
+        assertThat(redisTemplate.hasKey(buildAccessTokenKey(jwtPair))).isTrue();
+        assertThat(redisTemplate.hasKey(buildRefreshTokenKey(jwtPair))).isTrue();
+        return jwtPair;
+    }
+
+    // Assertions Helpers
+
+    private void assertJwtPairNotExistInRedis(JwtPair jwtPair) {
+        var accessTokenKey = buildAccessTokenKey(jwtPair);
+        var refreshTokenKey = buildRefreshTokenKey(jwtPair);
+        var accessTokenKeyExists = redisTemplate.hasKey(accessTokenKey);
+        var refreshTokenKeyExists = redisTemplate.hasKey(refreshTokenKey);
+        assertSoftly(softly -> {
+            // @formatter:off
+            softly.assertThat(accessTokenKeyExists).as("access token key exists").isFalse();
+            softly.assertThat(refreshTokenKeyExists).as("refresh token key exists").isFalse();
+            // @formatter:on
+        });
     }
 
     private String buildAccessTokenKey(JwtPair jwtPair) {
