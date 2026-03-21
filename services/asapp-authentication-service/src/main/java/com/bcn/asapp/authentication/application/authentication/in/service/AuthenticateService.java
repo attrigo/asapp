@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bcn.asapp.authentication.application.ApplicationService;
-import com.bcn.asapp.authentication.application.CompensatingTransactionException;
 import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
 import com.bcn.asapp.authentication.application.authentication.in.AuthenticateUseCase;
 import com.bcn.asapp.authentication.application.authentication.in.command.AuthenticateCommand;
@@ -91,15 +90,13 @@ public class AuthenticateService implements AuthenticateUseCase {
      * <p>
      * Orchestrates the complete authentication workflow: credential validation, token generation, and persistence.
      * <p>
-     * First saves to repository, then stores in fast-access store. If fast-access store fails, repository is rolled back via compensating transaction to
-     * maintain consistency.
+     * Saves to repository first, then stores in fast-access store. If fast-access store fails, the repository save is rolled back by the enclosing transaction.
      *
      * @param authenticateCommand the {@link AuthenticateCommand} containing user credentials
      * @return the {@link JwtAuthentication} containing access and refresh tokens with persistent ID
-     * @throws InvalidUsernameException         if the username is invalid (domain validation)
-     * @throws InvalidPasswordException         if the password is invalid (domain validation)
-     * @throws TokenStoreException              if token activation fails (after successful compensation)
-     * @throws CompensatingTransactionException if compensating transaction fails
+     * @throws InvalidUsernameException if the username is invalid (domain validation)
+     * @throws InvalidPasswordException if the password is invalid (domain validation)
+     * @throws TokenStoreException      if token activation fails
      */
     @Override
     @Transactional
@@ -112,18 +109,12 @@ public class AuthenticateService implements AuthenticateUseCase {
         var jwtAuthentication = createJwtAuthentication(userAuthentication, jwtPair);
 
         var savedAuthentication = persistAuthentication(jwtAuthentication);
-        try {
-            activateTokens(savedAuthentication.getJwtPair());
+        activateTokens(savedAuthentication.getJwtPair());
 
-            logger.debug("[AUTHENTICATE] Authentication successful for subject={}", userAuthentication.username()
-                                                                                                      .value());
+        logger.debug("[AUTHENTICATE] Authentication successful for subject={}", userAuthentication.username()
+                                                                                                  .value());
 
-            return savedAuthentication;
-
-        } catch (TokenStoreException e) {
-            compensateRepositoryPersistence(savedAuthentication);
-            throw e;
-        }
+        return savedAuthentication;
     }
 
     /**
@@ -182,26 +173,6 @@ public class AuthenticateService implements AuthenticateUseCase {
     private void activateTokens(JwtPair jwtPair) {
         logger.trace("[AUTHENTICATE] Step 5/5: Storing token pair in fast-access store");
         jwtStore.save(jwtPair);
-    }
-
-    /**
-     * Compensates for fast-access store failure by deleting the authentication from repository.
-     *
-     * @param jwtAuthentication the authentication that was saved to repository
-     * @throws CompensatingTransactionException if compensation fails
-     */
-    private void compensateRepositoryPersistence(JwtAuthentication jwtAuthentication) {
-        logger.warn("[AUTHENTICATE] Token activation failed, rolling back authenticationId={} from repository", jwtAuthentication.getId()
-                                                                                                                                 .value());
-
-        try {
-            jwtAuthenticationRepository.deleteById(jwtAuthentication.getId());
-
-            logger.debug("[AUTHENTICATE] Compensation complete, authentication deleted from repository");
-
-        } catch (Exception e) {
-            throw new CompensatingTransactionException("Failed to compensate repository persistence after token activation failure", e);
-        }
     }
 
 }

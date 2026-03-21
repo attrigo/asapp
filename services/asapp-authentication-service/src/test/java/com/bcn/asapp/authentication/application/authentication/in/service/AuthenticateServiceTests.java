@@ -36,7 +36,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.bcn.asapp.authentication.application.CompensatingTransactionException;
 import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
 import com.bcn.asapp.authentication.application.authentication.in.command.AuthenticateCommand;
 import com.bcn.asapp.authentication.application.authentication.out.CredentialsAuthenticator;
@@ -44,20 +43,20 @@ import com.bcn.asapp.authentication.application.authentication.out.JwtAuthentica
 import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.application.authentication.out.TokenIssuer;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
+import com.bcn.asapp.authentication.domain.authentication.JwtAuthenticationId;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
 import com.bcn.asapp.authentication.domain.user.RawPassword;
 import com.bcn.asapp.authentication.domain.user.Username;
 
 /**
- * Tests {@link AuthenticateService} credential validation, token generation, persistence, and compensation on failure.
+ * Tests {@link AuthenticateService} credential validation, token generation, and persistence.
  * <p>
  * Coverage:
  * <li>Credential validation failures propagate without executing downstream steps</li>
  * <li>Token generation failures prevent persistence and activation</li>
  * <li>Persistence failures prevent token activation</li>
- * <li>Token activation failures trigger compensation to delete persisted authentication</li>
- * <li>Compensation failures wrap the original cause and propagate to the caller</li>
+ * <li>Token activation failures propagate without executing compensation</li>
  * <li>Successful authentication completes all orchestration steps</li>
  */
 @ExtendWith(MockitoExtension.class)
@@ -218,50 +217,7 @@ class AuthenticateServiceTests {
         }
 
         @Test
-        void ThrowsCompensatingTransactionException_TokenActivationFailsAndCompensationFails() {
-            // Given
-            var usernameValue = "user@asapp.com";
-            var passwordValue = "TEST@09_password?!";
-            var command = new AuthenticateCommand(usernameValue, passwordValue);
-            var username = Username.of(usernameValue);
-            var password = RawPassword.of(passwordValue);
-            var user = anAuthenticatedUser();
-            var jwtAuthentication = anAuthenticatedJwtAuthentication();
-            var jwtAuthenticationId = jwtAuthentication.getId();
-            var jwtPair = jwtAuthentication.getJwtPair();
-            var tokenStoreException = new TokenStoreException("Could not store tokens in fast-access store",
-                    new RuntimeException("Token store connection failed"));
-
-            given(credentialsAuthenticator.authenticate(username, password)).willReturn(user);
-            given(tokenIssuer.issueTokenPair(user)).willReturn(jwtPair);
-            given(jwtAuthenticationRepository.save(any(JwtAuthentication.class))).willReturn(jwtAuthentication);
-            willThrow(tokenStoreException).given(jwtStore)
-                                          .save(jwtPair);
-            willThrow(new RuntimeException("Compensation failed")).given(jwtAuthenticationRepository)
-                                                                  .deleteById(jwtAuthenticationId);
-
-            // When
-            var actual = catchThrowable(() -> authenticateService.authenticate(command));
-
-            // Then
-            assertThat(actual).isInstanceOf(CompensatingTransactionException.class)
-                              .hasMessage("Failed to compensate repository persistence after token activation failure")
-                              .hasCauseInstanceOf(RuntimeException.class);
-
-            then(credentialsAuthenticator).should(times(1))
-                                          .authenticate(username, password);
-            then(tokenIssuer).should(times(1))
-                             .issueTokenPair(user);
-            then(jwtAuthenticationRepository).should(times(1))
-                                             .save(any(JwtAuthentication.class));
-            then(jwtStore).should(times(1))
-                          .save(jwtPair);
-            then(jwtAuthenticationRepository).should(times(1))
-                                             .deleteById(jwtAuthenticationId);
-        }
-
-        @Test
-        void ThrowsTokenStoreException_TokenActivationFailsAndCompensationSucceeds() {
+        void ThrowsTokenStoreException_TokenActivationFails() {
             // Given
             var usernameValue = "user@asapp.com";
             var passwordValue = "TEST@09_password?!";
@@ -296,8 +252,8 @@ class AuthenticateServiceTests {
                                              .save(any(JwtAuthentication.class));
             then(jwtStore).should(times(1))
                           .save(jwtPair);
-            then(jwtAuthenticationRepository).should(times(1))
-                                             .deleteById(jwtAuthentication.getId());
+            then(jwtAuthenticationRepository).should(never())
+                                             .deleteById(any(JwtAuthenticationId.class));
         }
 
     }
