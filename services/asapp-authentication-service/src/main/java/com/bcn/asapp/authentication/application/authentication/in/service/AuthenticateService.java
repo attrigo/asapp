@@ -133,7 +133,7 @@ public class AuthenticateService implements AuthenticateUseCase {
      * @return the authenticated {@link UserAuthentication} information
      */
     private UserAuthentication authenticateCredentials(AuthenticateCommand command) {
-        logger.trace("[AUTHENTICATE] Step 1/4: Authenticating credentials");
+        logger.trace("[AUTHENTICATE] Step 1/5: Authenticating credentials");
         var username = Username.of(command.username());
         var password = RawPassword.of(command.password());
 
@@ -147,7 +147,7 @@ public class AuthenticateService implements AuthenticateUseCase {
      * @return the generated {@link JwtPair}
      */
     private JwtPair generateTokenPair(UserAuthentication userAuthentication) {
-        logger.trace("[AUTHENTICATE] Step 2/4: Generating JWT pair");
+        logger.trace("[AUTHENTICATE] Step 2/5: Generating JWT pair");
         return tokenIssuer.issueTokenPair(userAuthentication);
     }
 
@@ -159,6 +159,7 @@ public class AuthenticateService implements AuthenticateUseCase {
      * @return the created {@link JwtAuthentication}
      */
     private JwtAuthentication createJwtAuthentication(UserAuthentication userAuthentication, JwtPair jwtPair) {
+        logger.trace("[AUTHENTICATE] Step 3/5: Creating JWT authentication aggregate");
         return JwtAuthentication.unAuthenticated(userAuthentication.userId(), jwtPair);
     }
 
@@ -169,7 +170,7 @@ public class AuthenticateService implements AuthenticateUseCase {
      * @return the persisted {@link JwtAuthentication} with assigned ID
      */
     private JwtAuthentication persistAuthentication(JwtAuthentication jwtAuthentication) {
-        logger.trace("[AUTHENTICATE] Step 3/4: Persisting authentication to repository");
+        logger.trace("[AUTHENTICATE] Step 4/5: Persisting authentication to repository");
         return jwtAuthenticationRepository.save(jwtAuthentication);
     }
 
@@ -179,7 +180,7 @@ public class AuthenticateService implements AuthenticateUseCase {
      * @param jwtPair the JWT pair to store
      */
     private void activateTokens(JwtPair jwtPair) {
-        logger.trace("[AUTHENTICATE] Step 4/4: Storing token pair in fast-access store");
+        logger.trace("[AUTHENTICATE] Step 5/5: Storing token pair in fast-access store");
         jwtStore.save(jwtPair);
     }
 
