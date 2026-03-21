@@ -5,47 +5,34 @@ paths:
 
 # Domain Design
 
-## Aggregate Factories (Two-State Pattern)
+## Aggregate Factories
 
-Aggregates have two distinct states created by specific factory methods — never use constructors directly.
-
-| Aggregate | Before Persistence | After Persistence |
-|---|---|---|
-| `User` (auth) | `inactiveUser(username, password, role)` | `activeUser(id, username, role)` |
-| `JwtAuthentication` | `unAuthenticated(userId, jwtPair)` | `authenticated(id, userId, jwtPair)` |
-| `User` (users) | `create(firstName, lastName, email, phone)` | `reconstitute(id, firstName, ...)` |
-| `Task` | `create(userId, title, ...)` | `reconstitute(id, userId, title, ...)` |
+Aggregate roots are always created via static factory methods — never instantiate directly; constructors are private.
 
 **Rules**:
-- Before-persistence state: no `id` field
-- After-persistence state: `id` required
-- `equals()` delegates to `id` when present, to natural key (e.g., `username`) when absent
+- Before persistence, the aggregate has no assigned identifier
+- No Spring annotations — domain classes are framework-free
+
+## Aggregate Behavior
+
+- Domain operations live on the aggregate as methods.
 
 ## Value Object Pattern
 
-```java
-public record Username(String username) {
-    public Username {                           // compact constructor = validation
-        validateNotBlank(username);
-        validateEmailPattern(username);
-    }
-
-    public static Username of(String username) { return new Username(username); }
-    public String value() { return this.username; }
-}
-```
-
 **Rules**:
-- Implement as Java `record` (immutable by default)
-- All validation in compact constructor — fail-fast
-- Factory method: `of(primitive)` — never call `new Username(...)` from outside the domain
-- Accessor: `value()` — never expose the raw record component directly
-- No Spring annotations — pure Java only
-- Some value objects have multiple factories: `Issued.now()` / `Issued.of(Instant)`, `StartDate.ofNullable(Instant)`
+- Factory: `of(...)` — never instantiate with `new` from outside the domain
+- Scalar VOs: single `value()` accessor — never expose raw record component directly
+- Compound VOs: named accessors or domain helpers instead of `value()`
+- Optional domain concepts: use `ofNullable()` factory
+- No Spring annotations — domain classes are framework-free
+
+## Bounded Context Isolation
+
+- Each service owns its own domain types, these could be intentionally duplicated. 
+- Do not extract shared types across services.
 
 ## Validation Strategy
 
-**Rules**:
-- Throw `IllegalArgumentException` for all domain validation failures — no custom exception types
-- Validate at construction time (compact constructor), not at call sites
-- State-based validation: check `id == null` (before persistence) vs `id != null` (after persistence) when invariants differ by state
+- Default: `IllegalArgumentException` for all domain validation failures
+- Custom domain exceptions are allowed for specific validation cases (e.g., invalid format)
+- Validate at construction time, not at call sites
