@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bcn.asapp.authentication.application.ApplicationService;
-import com.bcn.asapp.authentication.application.CompensatingTransactionException;
 import com.bcn.asapp.authentication.application.PersistenceException;
 import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
@@ -36,17 +35,17 @@ import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 /**
  * Application service responsible for orchestrating authentication revocation.
  * <p>
- * Coordinates the complete revocation workflow including token verification and removal from both fast-access store and persistent storage.
+ * Coordinates the complete revocation workflow including token verification and removal from persistent storage and fast-access store.
  * <p>
  * <strong>Orchestration Flow:</strong>
  * <ol>
  * <li>Verifies access token</li>
  * <li>Fetches authentication from repository</li>
- * <li>Deletes token pair from fast-access store</li>
  * <li>Deletes authentication from repository</li>
+ * <li>Deletes token pair from fast-access store</li>
  * </ol>
  * <p>
- * If repository deletion fails after fast-access store deletion, tokens are restored to fast-access store to maintain consistency.
+ * Token deactivation occurs after successful repository deletion, ensuring no compensation is needed if repository operations fail.
  *
  * @since 0.2.0
  * @author attrigo
@@ -84,11 +83,10 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
      * compensating transaction.
      *
      * @param accessToken the access token string
-     * @throws IllegalArgumentException         if the access token is invalid or blank
-     * @throws UnexpectedJwtTypeException       if the provided token is not an access token
-     * @throws AuthenticationNotFoundException  if the token is not found in active sessions or repository
-     * @throws PersistenceException             if authentication deletion fails (after compensation)
-     * @throws CompensatingTransactionException if compensating transaction fails
+     * @throws IllegalArgumentException        if the access token is invalid or blank
+     * @throws UnexpectedJwtTypeException      if the provided token is not an access token
+     * @throws AuthenticationNotFoundException if the token is not found in active sessions or repository
+     * @throws PersistenceException            if authentication deletion fails
      */
     @Override
     @Transactional
@@ -101,17 +99,11 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
         var authentication = retrieveAuthentication(encodedAccessToken);
         var jwtPairToDelete = authentication.getJwtPair();
 
+        deleteAuthentication(authentication);
         deactivateTokens(jwtPairToDelete);
-        try {
-            deleteAuthentication(authentication);
 
-            logger.debug("[REVOKE] Authentication revoked successfully for authenticationId={}", authentication.getId()
-                                                                                                               .value());
-
-        } catch (PersistenceException e) {
-            compensateTokenDeactivation(jwtPairToDelete);
-            throw e;
-        }
+        logger.debug("[REVOKE] Authentication revoked successfully for authenticationId={}", authentication.getId()
+                                                                                                           .value());
     }
 
     /**
@@ -144,7 +136,7 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
      * @param jwtPair the JWT pair to deactivate
      */
     private void deactivateTokens(JwtPair jwtPair) {
-        logger.trace("[REVOKE] Step 3/4: Deleting token pair from fast-access store");
+        logger.trace("[REVOKE] Step 4/4: Deleting token pair from fast-access store");
         jwtStore.delete(jwtPair);
     }
 
@@ -154,27 +146,8 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
      * @param jwtAuthentication the authentication to delete
      */
     private void deleteAuthentication(JwtAuthentication jwtAuthentication) {
-        logger.trace("[REVOKE] Step 4/4: Deleting authentication from repository");
+        logger.trace("[REVOKE] Step 3/4: Deleting authentication from repository");
         jwtAuthenticationRepository.deleteById(jwtAuthentication.getId());
-    }
-
-    /**
-     * Compensates for repository deletion failure by restoring tokens to fast-access store.
-     *
-     * @param jwtPair the JWT pair to restore
-     * @throws CompensatingTransactionException if compensation fails
-     */
-    private void compensateTokenDeactivation(JwtPair jwtPair) {
-        logger.warn("[REVOKE] Repository deletion failed, restoring tokens to fast-access store");
-
-        try {
-            jwtStore.save(jwtPair);
-
-            logger.debug("[REVOKE] Compensation complete, tokens restored to fast-access store");
-
-        } catch (Exception e) {
-            throw new CompensatingTransactionException("Failed to compensate token deactivation after repository deletion failure", e);
-        }
     }
 
 }
