@@ -22,7 +22,6 @@ import java.util.UUID;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.bcn.asapp.authentication.application.ApplicationService;
-import com.bcn.asapp.authentication.application.CompensatingTransactionException;
 import com.bcn.asapp.authentication.application.PersistenceException;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
@@ -35,17 +34,17 @@ import com.bcn.asapp.authentication.domain.user.UserId;
 /**
  * Application service responsible for orchestrating user deletion operations.
  * <p>
- * Coordinates the user deletion workflow including token revocation and removal from both fast-access store and persistent storage.
+ * Coordinates the user deletion workflow including removal from persistent storage and token revocation from fast-access store.
  * <p>
  * <strong>Orchestration Flow:</strong>
  * <ol>
  * <li>Retrieves all JWT pairs for the user</li>
- * <li>Deletes all token pairs from fast-access store (immediate revocation)</li>
  * <li>Deletes all JWT authentications from repository</li>
  * <li>Deletes user from repository</li>
+ * <li>Deletes all token pairs from fast-access store (immediate revocation)</li>
  * </ol>
  * <p>
- * If repository deletion fails after fast-access store deletion, all tokens are restored to fast-access store to maintain consistency.
+ * Token deactivation occurs after successful repository deletion, ensuring no compensation is needed if repository operations fail.
  *
  * @since 0.2.0
  * @author attrigo
@@ -75,16 +74,15 @@ public class DeleteUserService implements DeleteUserUseCase {
     /**
      * Deletes an existing user by its unique identifier.
      * <p>
-     * Orchestrates the user deletion workflow: token revocation and removal from both storage systems.
+     * Orchestrates the user deletion workflow: removal from repository, then token revocation from fast-access store.
      * <p>
-     * First deletes from fast-access store, then deletes from repository. If repository deletion fails, all tokens are restored to fast-access store via
-     * compensating transaction.
+     * Repository operations run first within the transaction. Token deactivation is performed only after successful deletion, so no compensation is required if
+     * repository operations fail.
      *
      * @param id the user's unique identifier
      * @return {@code true} if the user was deleted, {@code false} if not found
-     * @throws IllegalArgumentException         if the id is invalid
-     * @throws PersistenceException             if user or authentication deletion fails (after compensation)
-     * @throws CompensatingTransactionException if compensating transaction fails
+     * @throws IllegalArgumentException if the id is invalid
+     * @throws PersistenceException     if user or authentication deletion fails
      */
     @Override
     @Transactional
@@ -93,15 +91,14 @@ public class DeleteUserService implements DeleteUserUseCase {
 
         var jwtPairs = retrieveJwtPairs(userId);
 
-        deactivateAllTokens(jwtPairs);
-        try {
-            deleteUserAuthentications(userId);
-            return deleteUser(userId);
+        deleteUserAuthentications(userId);
+        var deleted = deleteUser(userId);
 
-        } catch (PersistenceException e) {
-            compensateTokenDeactivation(jwtPairs);
-            throw e;
+        if (deleted) {
+            deactivateAllTokens(jwtPairs);
         }
+
+        return deleted;
     }
 
     /**
@@ -143,21 +140,6 @@ public class DeleteUserService implements DeleteUserUseCase {
      */
     private Boolean deleteUser(UserId userId) {
         return userRepository.deleteById(userId);
-    }
-
-    /**
-     * Compensates for repository deletion failure by restoring all tokens to fast-access store.
-     *
-     * @param jwtPairs the {@link JwtPair} to restore
-     * @throws CompensatingTransactionException if compensation fails
-     */
-    private void compensateTokenDeactivation(List<JwtPair> jwtPairs) {
-        try {
-            jwtPairs.forEach(jwtStore::save);
-
-        } catch (Exception e) {
-            throw new CompensatingTransactionException("Failed to compensate token deactivation after repository deletion failure", e);
-        }
     }
 
 }
