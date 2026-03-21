@@ -16,7 +16,6 @@
 
 package com.bcn.asapp.authentication.application.authentication.in;
 
-import com.bcn.asapp.authentication.application.CompensatingTransactionException;
 import com.bcn.asapp.authentication.application.PersistenceException;
 import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
@@ -35,11 +34,10 @@ public interface RevokeAuthenticationUseCase {
      * Revokes an authentication using a valid access token.
      *
      * @param accessToken the access token string
-     * @throws IllegalArgumentException         if the access token is invalid or blank
-     * @throws UnexpectedJwtTypeException       if the provided token is not an access token
-     * @throws AuthenticationNotFoundException  if the token is not found in active sessions or repository
-     * @throws PersistenceException             if authentication deletion fails (after compensation)
-     * @throws CompensatingTransactionException if compensating transaction fails
+     * @throws IllegalArgumentException        if the access token is invalid or blank
+     * @throws UnexpectedJwtTypeException      if the provided token is not an access token
+     * @throws AuthenticationNotFoundException if the token is not found in active sessions or repository
+     * @throws PersistenceException            if authentication deletion fails
      */
     void revokeAuthentication(String accessToken);
 
