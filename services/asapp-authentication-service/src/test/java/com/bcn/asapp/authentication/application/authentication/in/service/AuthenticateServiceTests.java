@@ -40,8 +40,8 @@ import com.bcn.asapp.authentication.application.authentication.TokenStoreExcepti
 import com.bcn.asapp.authentication.application.authentication.in.command.AuthenticateCommand;
 import com.bcn.asapp.authentication.application.authentication.out.CredentialsAuthenticator;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
-import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.application.authentication.out.TokenIssuer;
+import com.bcn.asapp.authentication.application.authentication.out.TokenStore;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthenticationId;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
@@ -72,7 +72,7 @@ class AuthenticateServiceTests {
     private JwtAuthenticationRepository jwtAuthenticationRepository;
 
     @Mock
-    private JwtStore jwtStore;
+    private TokenStore tokenStore;
 
     @InjectMocks
     private AuthenticateService authenticateService;
@@ -115,8 +115,8 @@ class AuthenticateServiceTests {
                              .issueTokenPair(user);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(any(JwtAuthentication.class));
-            then(jwtStore).should(times(1))
-                          .save(jwtPair);
+            then(tokenStore).should(times(1))
+                            .save(jwtPair);
         }
 
         @Test
@@ -144,8 +144,8 @@ class AuthenticateServiceTests {
                              .issueTokenPair(any(UserAuthentication.class));
             then(jwtAuthenticationRepository).should(never())
                                              .save(any(JwtAuthentication.class));
-            then(jwtStore).should(never())
-                          .save(any(JwtPair.class));
+            then(tokenStore).should(never())
+                            .save(any(JwtPair.class));
         }
 
         @Test
@@ -175,8 +175,8 @@ class AuthenticateServiceTests {
                              .issueTokenPair(user);
             then(jwtAuthenticationRepository).should(never())
                                              .save(any(JwtAuthentication.class));
-            then(jwtStore).should(never())
-                          .save(any(JwtPair.class));
+            then(tokenStore).should(never())
+                            .save(any(JwtPair.class));
         }
 
         @Test
@@ -212,8 +212,8 @@ class AuthenticateServiceTests {
                              .issueTokenPair(user);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(any(JwtAuthentication.class));
-            then(jwtStore).should(never())
-                          .save(any(JwtPair.class));
+            then(tokenStore).should(never())
+                            .save(any(JwtPair.class));
         }
 
         @Test
@@ -233,7 +233,7 @@ class AuthenticateServiceTests {
             given(credentialsAuthenticator.authenticate(username, password)).willReturn(user);
             given(tokenIssuer.issueTokenPair(user)).willReturn(jwtPair);
             given(jwtAuthenticationRepository.save(any(JwtAuthentication.class))).willReturn(jwtAuthentication);
-            willThrow(tokenStoreException).given(jwtStore)
+            willThrow(tokenStoreException).given(tokenStore)
                                           .save(jwtPair);
 
             // When
@@ -250,8 +250,8 @@ class AuthenticateServiceTests {
                              .issueTokenPair(user);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(any(JwtAuthentication.class));
-            then(jwtStore).should(times(1))
-                          .save(jwtPair);
+            then(tokenStore).should(times(1))
+                            .save(jwtPair);
             then(jwtAuthenticationRepository).should(never())
                                              .deleteById(any(JwtAuthenticationId.class));
         }

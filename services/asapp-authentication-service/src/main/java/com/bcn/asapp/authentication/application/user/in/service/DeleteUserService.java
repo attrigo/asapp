@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.bcn.asapp.authentication.application.ApplicationService;
 import com.bcn.asapp.authentication.application.PersistenceException;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
-import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
+import com.bcn.asapp.authentication.application.authentication.out.TokenStore;
 import com.bcn.asapp.authentication.application.user.in.DeleteUserUseCase;
 import com.bcn.asapp.authentication.application.user.out.UserRepository;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
@@ -52,7 +52,7 @@ import com.bcn.asapp.authentication.domain.user.UserId;
 @ApplicationService
 public class DeleteUserService implements DeleteUserUseCase {
 
-    private final JwtStore jwtStore;
+    private final TokenStore tokenStore;
 
     private final UserRepository userRepository;
 
@@ -61,12 +61,12 @@ public class DeleteUserService implements DeleteUserUseCase {
     /**
      * Constructs a new {@code DeleteUserService} with required dependencies.
      *
-     * @param jwtStore                    the JWT store for fast-access store operations
+     * @param tokenStore                  the token store for fast-access store operations
      * @param userRepository              the repository for user data access
      * @param jwtAuthenticationRepository the repository for JWT authentications data access
      */
-    public DeleteUserService(JwtStore jwtStore, UserRepository userRepository, JwtAuthenticationRepository jwtAuthenticationRepository) {
-        this.jwtStore = jwtStore;
+    public DeleteUserService(TokenStore tokenStore, UserRepository userRepository, JwtAuthenticationRepository jwtAuthenticationRepository) {
+        this.tokenStore = tokenStore;
         this.userRepository = userRepository;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }
@@ -120,7 +120,7 @@ public class DeleteUserService implements DeleteUserUseCase {
      * @param jwtPairs the {@link JwtPair} to deactivate
      */
     private void deactivateAllTokens(List<JwtPair> jwtPairs) {
-        jwtPairs.forEach(jwtStore::delete);
+        jwtPairs.forEach(tokenStore::delete);
     }
 
     /**
