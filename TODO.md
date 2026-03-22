@@ -2,8 +2,6 @@
 
 ## Version 0.1.0
 
-***
-
 * [X] Create Monorepo (maven multi-module)
     * [X] Create services module
     * [X] Create libs module
@@ -57,21 +55,18 @@
         * [X] Update documentation
     * [X] Update parent docker-compose file
 
+---
+
 ## Version 0.2.0
 
-***
-
-* [ ] Refactor services to Hexagonal Architecture + DDD
+* [X] Refactor services to Hexagonal Architecture + DDD
     * [X] Move to Hexagonal packaging
     * [X] Define domain model following DDD
     * [X] Adapt Tests
     * [X] Adapt Javadoc
-    * [X] Adapt documentation
-    * [ ] Delete and update a user use case should delete authentications via events
 * [X] Set up Observability Metrics
     * [X] Use Prometheus and Grafana
     * [X] Add a JVM dashboard for each service
-    * [X] Update documentation
 * [ ] Add Spring Security
     * [X] Create an authentication service
         * [X] Add authenticate endpoint
@@ -80,17 +75,15 @@
         * [X] Add basic CRUD endpoints for user (to be able to manage users)
         * [X] Support for multiple authentications by user
         * [X] Add trace logging in all auth operations
-        * [ ] Change user's username or password must revoke all user authentications
-        * [ ] Create user must not create a user with the same username (email)
+        * [ ] Subject should validate is a valid email format
+        * [ ] EncodedToken should validate is a valid JWT format
     * [X] Adapt other services
         * [X] Protect business endpoints
         * [X] Propagate JWT when performing HTTP calls
-    * [ ] Use Redis to ensure JWT is still valid in the system
-        * (authentication-service) Move JwtVerifier to security package
-        * (authentication-service) Add DecodedToken
+    * [X] Use Redis to ensure JWT is still valid (source of truth)
     * [X] Protect management endpoints
-    * [ ] Update documentation
-* [ ] Create asapp-users-service
+    * [X] Create a background process (cron) to automatically delete expired JWT
+* [X] Create asapp-users-service
     * [X] Build project
     * [X] Add Liquibase
     * [X] Add basic CRUD endpoints
@@ -99,24 +92,22 @@
     * [X] Add a docker-compose file
     * [X] Add service to prometheus
     * [X] Add documentation as a README file
-    * [ ] Get endpoints should fetch tasks from asap-tasks-service
-    * [ ] Delete user must propagate deletion of user on authentication and tasks systems
-* [ ] Improvements on asapp-tasks-service
-    * [ ] Add the end date field to the task
-    * [ ] Remove gets tasks by project id endpoint
-    * [ ] Add endpoint to get tasks by user id
-    * [ ] Create and update a task must check user_id exists
+    * [X] Get user by id endpoint should fetch tasks from asap-tasks-service
+* [X] Improvements on asapp-tasks-service
+    * [X] Add the end date field to the task
+    * [X] Add endpoint to get tasks by user id
+    * [X] Remove gets tasks by project id endpoint
 * [ ] Testing
     * [X] Make PostgresQL TestContainer a singleton instance
     * [X] Create a test data fake factory to generate test data
+    * [X] Refactor test factories following Object Mother pattern
+        * [X] asapp-tasks-service
+        * [X] asapp-authentication-service
+        * [X] asapp-users-service
     * [X] Replace Hamcrest assertions by AssertJ assertions
     * [X] Add PiTest
-    * [-] Review test coverage
-    * [-] Create a specific test for OpenApi and Actuator content (split from SecurityConfigurationIT)?
-    * [-] Improve domain tests checking fields are not blank
-    * [-] Improve Test faker
-    * [ ] Update documentation
-* [ ] Improve management endpoints (Actuator)
+    * [ ] Add maven-surefire-junit5-tree-reporter
+* [X] Improve management endpoints (Actuator)
     * [X] Show more health details when authenticated
     * [X] Move management to a separate port
     * [X] Add management probes endpoints (including readyz and livez)
@@ -124,7 +115,6 @@
     * [X] Add git details to info endpoint (git-commit-id plugin)
     * [X] Add SBOM endpoint (cyclonedx-maven-plugin)
     * [X] Enable shutdown endpoint
-    * [ ] Update documentation
 * [X] Improve date / datetime formating
     * [X] Refactor LocalDateTime by Instance
     * [X] Update documentation
@@ -132,114 +122,138 @@
     * [X] Separate license from the package in all java files
     * [X] Not put empty lines before "try {" and after "}"
     * [X] Records
-    * [-] Wrap chained method invocations keeping two method calls
+    * [ ] Wrap chained method invocations keeping two method calls (a.c().d()) in the same line
     * [ ] Wrap if statements by control flow keywords (&& and ||)
-    * [ ] Update documentation
 * [ ] CI/CD
     * [X] Add a Unix (LF) line separator check to Git Hook
     * [ ] Add maven profiles to avoid some steps during local builds
     * [ ] Improve GitHub actions
         * [ ] Build tags
-    * [ ] Update documentation
 * [ ] Technical improvements
     * [X] Replace "/v1" with "/api" in the path of all endpoints
     * [X] Add "<relativePath>..</relativePath>" to libs and services poms
     * [X] Change the debug level of jdbc to info in application-docker.properties
     * [X] Rename database primary keys, from "*_id_pk" to "pk_"
     * [X] Improve data validation via Jakarta Annotations
-    * [-] Review console warnings
-    * [ ] Launch Openrewrite Spring Boot best practices
+    * [ ] Launch OpenRewrite Spring Boot best practices
     * [ ] Upgrade to Spring Boot 4
     * [ ] Upgrade all external dependencies
     * [ ] Upgrade to Java 25
     * [ ] Upgrade maven wrapper
+    * [ ] Review and fix console warnings
     * [ ] Launch Sonar analysis
     * [ ] Launch security analysis
-    * [ ] Improve README using AI
+    * [X] Enrich Javadocs
+    * [X] Enrich README
+    * [ ] Clean branches
+
+---
 
 ## Version 0.3.0
 
-***
+### Version 0.3.1
 
 * [ ] Add Spring Cloud Config
 * [ ] Add Spring Service discovery
-* [ ] Improvements to asapp-projects-service
-    * [ ] Remake asapp-projects-service to asapp-agenda-service
-* [ ] Improvements to asapp-authentication-service
-    * [ ] Support multiple roles for a user
-    * [ ] Put in place Spring's CompromisedPassword
-    * [ ] Add ArchUnit
-    * [ ] Add JMolecules
-    * [ ] Add Spring Modulith?
-        * [ ] Change @ApplicationService by @UseCase
-* [ ] Logging
-    * [ ] Console logs in plain text
-    * [ ] File logs in JSON format
-* [ ] Observability
-    * [ ] Update Grafana dashboard
-    * [ ] Add support for traces
-* [ ] Testing
-    * [ ] Add Spring Test Profiler
-* [ ] CI/CD
-    * Add Pitest to the CI pipeline
+* [ ] Add Spring Rest Docs
+
+### Version 0.3.2
+
+* [ ] Replace Liquibase by Flyway
 * [ ] Technical improvements
     * [ ] Improve GlobalExceptionHandler to return a sorted Map<Entity, List<FieldsError>>
     * [ ] Create @ConfiguratioProperties to manage custom REST and Security properties
 
+### Version 0.3.3
+
+* [ ] Change user's username or password must revoke all user authentications
+* [ ] Create user must not create a user with the same username (email)
+* [ ] Improve Hexagonal architecture with domain events
+    * [ ] Create domain events for user created, updated and deleted
+    * [ ] Create domain events for task created, updated and deleted
+    * [ ] Use CQRS pattern
+* [ ] Modularize asapp-authentication-service project
+    * [ ] Add Spring Modulith
+    * [ ] Add ArchUnit
+    * [ ] Add JMolecules
+
+### Version 0.3.4
+
+* [ ] Synchronize user creation, update and deletion across services using events
+    * [ ] Use RabbitMQ as event broker
+
+---
+
 ## Version 0.4.0
 
-***
+* [ ] Create custom architecture based on Spring starters
+    * [ ] Create custom starter for Web
+    * [ ] Create custom starter for Security
+    * [ ] Create custom starter for Data
+    * [ ] Create custom starter for Observability
+    * [ ] Create custom starter for Testing
 
-* [ ] Add business operation to the task service to generate a complete description of a task from a few words/fields
-    * [ ] Use Spring IA
+---
 
 ## Version x
 
-***
+### asapp-authentication-service
 
-## asapp-authentication-service
-
+* [ ] Support multiple roles for a user
+* [ ] Put in place Spring's CompromisedPassword
 * [ ] Change the endpoint that gets all users to return a page of users
+* [ ] Migrate passwords with .setEnableUpatePassword(true) to allow users to update their password when they try to authenticate with an old password format (Spring Security 6.2+)
+* [ ] Create custom DelegatingPasswordEncoder to support a set of modern and reliable password encoding formats
 
-## asapp-tasks-service
+
+### asapp-tasks-service
 
 * [ ] Change the endpoint that gets all tasks to return a page of tasks
 * [ ] Add more business to tasks service
     * [ ] Add more fields to task domain like: creation date, end date, estimation, status, subtasks, labels, user
     * [ ] Add operation to find tasks by list of ids
     * [ ] Add operation to update only certain fields
+* [ ] Create and update a task must check if user_id exists in user service
+* [ ] Add business operation to generate a complete tasks description from a few words/fields using AI
+    * [ ] Use Spring IA
 
-## asapp-users-service
+### asapp-users-service
 
 * [ ] Change the endpoint that gets all tasks to return a page of tasks
 
-# asapp-rest-clients
+### asapp-rest-clients
 
-* [ ] Define Spring Stereotype of type Client?
-* [ ] Add circuit breaker
-* [ ] Add Retries
+* [ ] Refactor current REST clients to use declarative HTTP clients instead of RestClient
+* [ ] Add circuit breaker pattern
+* [ ] Add retry pattern
 
 ### Tech
 
-* [ ] Create custom starters
-* [ ] Add Native support
+* [ ] Add AOP/Native support
 * [ ] Add Graceful shutdown
-* [ ] Improve how docker volumes are created, to only create volumes when needed
-* [ ] Add Spring Rest Docs
+* [ ] Improve Docker volumes definition and usage
 
 ### Observability
 
+* [ ] Logging
+    * [ ] Console logs in plain text
+    * [ ] File logs in JSON format
+* [ ] Update Grafana dashboard
+* [ ] Add support for traces
 * [ ] Add database metrics dashboard
 
 ### Security
 
-* [ ] Integrate Spring Oauth2 server
+* [ ] Add OAuth2 authentication
+    * [ ] Integrate Spring Authorization Server
 * [ ] Use public and private keys to encode the JWT
-* [ ] Create a background process to automatically revoke expired JWT
 * [ ] Add OTT authentication
 * [ ] Add email verification to the register process
 
 ### Tests
+
+* [ ] Add Spring Test Profiler
+* [ ] Review Spring test context usage
 
 ### Git
 
@@ -248,6 +262,7 @@
 * [ ] Publish jar packages and Docker images to GitHub packages
 * [ ] Automatize versioning process
 * [ ] Generate CHANGELOG.md file automatically from commits
+* [ ] Add Pitest to the CI pipeline
 
 ### Tools
 
