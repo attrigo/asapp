@@ -610,7 +610,7 @@ class AuthenticationE2EIT {
     class RevokeAuthentication {
 
         @Test
-        void ReturnsStatusOkAndEmptyBody_ValidAccessToken() {
+        void ReturnsStatusNoContentAndEmptyBody_ValidAccessToken() {
             // Given
             var createdUser = createUser();
             var createdJwtAuthentication = createJwtAuthenticationForUser(createdUser);
@@ -626,7 +626,7 @@ class AuthenticationE2EIT {
                          .bodyValue(revokeAuthenticationRequestBody)
                          .exchange()
                          .expectStatus()
-                         .isOk()
+                         .isNoContent()
                          .expectBody()
                          .isEmpty();
 
@@ -635,7 +635,7 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void ReturnsStatusOkAndEmptyBody_UserHasSeveralAuthentications() {
+        void ReturnsStatusNoContentAndEmptyBody_UserHasSeveralAuthentications() {
             // Given
             var createdUser = createUser();
             var createdJwtAuthentication1 = createJwtAuthenticationForUser(createdUser);
@@ -654,7 +654,7 @@ class AuthenticationE2EIT {
                          .bodyValue(revokeAuthenticationRequestBody)
                          .exchange()
                          .expectStatus()
-                         .isOk()
+                         .isNoContent()
                          .expectBody()
                          .isEmpty();
 

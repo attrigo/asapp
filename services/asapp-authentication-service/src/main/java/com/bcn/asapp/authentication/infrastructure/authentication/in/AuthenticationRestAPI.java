@@ -127,7 +127,7 @@ public interface AuthenticationRestAPI {
      * <p>
      * Response codes:
      * <ul>
-     * <li>200-OK: The JWT authentication has been revoked successfully.</li>
+     * <li>204-NO_CONTENT: The JWT authentication has been revoked successfully.</li>
      * <li>400-BAD_REQUEST: The request body is malformed or contains invalid data.</li>
      * <li>401-UNAUTHORIZED: The access token is invalid, expired, or does not belong to an authenticated user.</li>
      * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during the revocation process.</li>
@@ -137,10 +137,10 @@ public interface AuthenticationRestAPI {
      * @param request the {@link RevokeAuthenticationRequest} containing the access token
      */
     @PostMapping(value = AUTH_REVOKE_PATH, consumes = "application/json", produces = "application/json")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Revokes a JWT authentication using an access token", description = "Invalidates the current JWT authentication by revoking the provided access token. This effectively logs out the user and prevents further use of the token for accessing protected resources.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Revoke authentication request containing the access token to be invalidated", required = true, content = @Content(schema = @Schema(implementation = RevokeAuthenticationRequest.class)))
-    @ApiResponse(responseCode = "200", description = "The JWT authentication has been revoked successfully", content = { @Content })
+    @ApiResponse(responseCode = "204", description = "The JWT authentication has been revoked successfully", content = { @Content })
     @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "The access token is invalid, expired, or does not belong to an authenticated user", content = {
