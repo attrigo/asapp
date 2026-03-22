@@ -1,19 +1,25 @@
-# CLAUDE.md
+# ASAPP
 
-ASAPP is a Spring Boot 3.4.3 / Java 21 task management application.
-Three services: `asapp-authentication-service` (8080), `asapp-users-service` (8082), `asapp-tasks-service` (8081).
-Architecture: Hexagonal (Ports & Adapters) + DDD. Guidelines auto-load per file type — see `.claude/rules/`.
+Spring Boot 3.4.3 / Java 21 task management application.
+Architecture: Hexagonal (Ports & Adapters) + DDD.
+Stack: Spring MVC, Spring Data JDBC · Spring Security (JWT) · PostgreSQL · Redis · Liquibase · Prometheus (9090) · Grafana (3000).
+Services: `asapp-authentication-service` (8080/8090), `asapp-tasks-service` (8081/8091), `asapp-users-service` (8082/8092).
+Libs: `asapp-commons-url` (endpoint URL constants), `asapp-rest-clients` (service-to-service HTTP).
+Guidelines: see `.claude/rules/`.
 
 ## Build
-- Build + test: `mvn clean verify`
-- Run service: `cd services/<name> && mvn spring-boot:run`
-- Docker: `docker-compose up -d`
-- Fix formatting: `mvn spotless:apply`
+- Build: `mvn clean install`
+- Docker images: `mvn spring-boot:build-image`
+- Format: `mvn spotless:apply`
+
+## Run
+- Service: `cd services/<name> && mvn spring-boot:run`
+- Full stack: `docker-compose up -d` (services, PostgreSQL ×3, Redis, Prometheus, Grafana)
 
 ## Testing
-- Unit: `*Tests.java` | Integration: `*IT.java` | E2E: `*E2EIT.java`
-- Testing rules auto-load for test files. See `.claude/rules/testing-*.md`.
+- Test: `mvn clean verify`
+- Mutation testing: `mvn org.pitest:pitest-maven:mutationCoverage`
 
 ## Git
-- Commit format: `<type>(<scope>): <description>`
-- Types: `feat`, `fix`, `chore`, `docs`, `test`, `refactor`, `ci`, `build`, `perf`, `revert`, `style`
+- Follows Conventional Commits.
+- Pre-commit hooks validate format and formatting.
