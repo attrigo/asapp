@@ -39,7 +39,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.bcn.asapp.authentication.application.authentication.AuthenticationPersistenceException;
 import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
-import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
+import com.bcn.asapp.authentication.application.authentication.out.TokenStore;
 import com.bcn.asapp.authentication.application.user.UserPersistenceException;
 import com.bcn.asapp.authentication.application.user.out.UserRepository;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
@@ -57,7 +57,7 @@ import com.bcn.asapp.authentication.domain.user.UserId;
 class DeleteUserServiceTests {
 
     @Mock
-    private JwtStore jwtStore;
+    private TokenStore tokenStore;
 
     @Mock
     private UserRepository userRepository;
@@ -92,8 +92,8 @@ class DeleteUserServiceTests {
                                              .deleteAllByUserId(userId);
             then(userRepository).should(times(1))
                                 .deleteById(userId);
-            then(jwtStore).should(never())
-                          .delete(any(JwtPair.class));
+            then(tokenStore).should(never())
+                            .delete(any(JwtPair.class));
         }
 
         @Test
@@ -125,12 +125,12 @@ class DeleteUserServiceTests {
                                              .deleteAllByUserId(userId);
             then(userRepository).should(times(1))
                                 .deleteById(userId);
-            then(jwtStore).should(times(1))
-                          .delete(jwtPair1);
-            then(jwtStore).should(times(1))
-                          .delete(jwtPair2);
-            then(jwtStore).should(never())
-                          .save(any(JwtPair.class));
+            then(tokenStore).should(times(1))
+                            .delete(jwtPair1);
+            then(tokenStore).should(times(1))
+                            .delete(jwtPair2);
+            then(tokenStore).should(never())
+                            .save(any(JwtPair.class));
         }
 
         @Test
@@ -154,10 +154,10 @@ class DeleteUserServiceTests {
                                              .deleteAllByUserId(userId);
             then(userRepository).should(times(1))
                                 .deleteById(userId);
-            then(jwtStore).should(never())
-                          .delete(any(JwtPair.class));
-            then(jwtStore).should(never())
-                          .save(any(JwtPair.class));
+            then(tokenStore).should(never())
+                            .delete(any(JwtPair.class));
+            then(tokenStore).should(never())
+                            .save(any(JwtPair.class));
         }
 
         @Test
@@ -191,8 +191,8 @@ class DeleteUserServiceTests {
                                              .deleteAllByUserId(userId);
             then(userRepository).should(never())
                                 .deleteById(any(UserId.class));
-            then(jwtStore).should(never())
-                          .delete(any(JwtPair.class));
+            then(tokenStore).should(never())
+                            .delete(any(JwtPair.class));
         }
 
         @Test
@@ -226,8 +226,8 @@ class DeleteUserServiceTests {
                                              .deleteAllByUserId(userId);
             then(userRepository).should(times(1))
                                 .deleteById(userId);
-            then(jwtStore).should(never())
-                          .delete(any(JwtPair.class));
+            then(tokenStore).should(never())
+                            .delete(any(JwtPair.class));
         }
 
         @Test
@@ -247,7 +247,7 @@ class DeleteUserServiceTests {
 
             given(jwtAuthenticationRepository.findAllByUserId(userId)).willReturn(List.of(jwtAuthentication1, jwtAuthentication2));
             given(userRepository.deleteById(userId)).willReturn(true);
-            willThrow(tokenStoreException).given(jwtStore)
+            willThrow(tokenStoreException).given(tokenStore)
                                           .delete(jwtPair1);
 
             // When
@@ -264,10 +264,10 @@ class DeleteUserServiceTests {
                                              .deleteAllByUserId(userId);
             then(userRepository).should(times(1))
                                 .deleteById(userId);
-            then(jwtStore).should(times(1))
-                          .delete(jwtPair1);
-            then(jwtStore).should(never())
-                          .save(any(JwtPair.class));
+            then(tokenStore).should(times(1))
+                            .delete(jwtPair1);
+            then(tokenStore).should(never())
+                            .save(any(JwtPair.class));
         }
 
     }

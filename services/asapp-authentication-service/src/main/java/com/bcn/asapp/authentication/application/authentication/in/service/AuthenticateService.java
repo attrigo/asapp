@@ -26,8 +26,8 @@ import com.bcn.asapp.authentication.application.authentication.in.AuthenticateUs
 import com.bcn.asapp.authentication.application.authentication.in.command.AuthenticateCommand;
 import com.bcn.asapp.authentication.application.authentication.out.CredentialsAuthenticator;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
-import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.application.authentication.out.TokenIssuer;
+import com.bcn.asapp.authentication.application.authentication.out.TokenStore;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 import com.bcn.asapp.authentication.domain.authentication.UserAuthentication;
@@ -66,7 +66,7 @@ public class AuthenticateService implements AuthenticateUseCase {
 
     private final JwtAuthenticationRepository jwtAuthenticationRepository;
 
-    private final JwtStore jwtStore;
+    private final TokenStore tokenStore;
 
     /**
      * Constructs a new {@code AuthenticateService} with required dependencies.
@@ -74,15 +74,15 @@ public class AuthenticateService implements AuthenticateUseCase {
      * @param credentialsAuthenticator    the credentials authenticator for validating user credentials
      * @param tokenIssuer                 the token issuer for generating JWTs
      * @param jwtAuthenticationRepository the repository for JWT authentications data access
-     * @param jwtStore                    the store for fast token lookup and validation
+     * @param tokenStore                  the store for fast token lookup and validation
      */
     public AuthenticateService(CredentialsAuthenticator credentialsAuthenticator, TokenIssuer tokenIssuer,
-            JwtAuthenticationRepository jwtAuthenticationRepository, JwtStore jwtStore) {
+            JwtAuthenticationRepository jwtAuthenticationRepository, TokenStore tokenStore) {
 
         this.credentialsAuthenticator = credentialsAuthenticator;
         this.tokenIssuer = tokenIssuer;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
-        this.jwtStore = jwtStore;
+        this.tokenStore = tokenStore;
     }
 
     /**
@@ -172,7 +172,7 @@ public class AuthenticateService implements AuthenticateUseCase {
      */
     private void activateTokens(JwtPair jwtPair) {
         logger.trace("[AUTHENTICATE] Step 5/5: Storing token pair in fast-access store");
-        jwtStore.save(jwtPair);
+        tokenStore.save(jwtPair);
     }
 
 }

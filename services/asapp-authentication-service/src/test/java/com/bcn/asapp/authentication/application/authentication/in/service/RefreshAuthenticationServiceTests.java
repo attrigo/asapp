@@ -40,8 +40,8 @@ import com.bcn.asapp.authentication.application.authentication.AuthenticationNot
 import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
-import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.application.authentication.out.TokenIssuer;
+import com.bcn.asapp.authentication.application.authentication.out.TokenStore;
 import com.bcn.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
@@ -74,7 +74,7 @@ class RefreshAuthenticationServiceTests {
     private JwtAuthenticationRepository jwtAuthenticationRepository;
 
     @Mock
-    private JwtStore jwtStore;
+    private TokenStore tokenStore;
 
     @InjectMocks
     private RefreshAuthenticationService refreshAuthenticationService;
@@ -126,10 +126,10 @@ class RefreshAuthenticationServiceTests {
                              .issueTokenPair(oldRefreshTokenSubject, oldRefreshTokenRoleClaim);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(oldJwtAuthentication);
-            then(jwtStore).should(times(1))
-                          .delete(oldJwtPair);
-            then(jwtStore).should(times(1))
-                          .save(newJwtPair);
+            then(tokenStore).should(times(1))
+                            .delete(oldJwtPair);
+            then(tokenStore).should(times(1))
+                            .save(newJwtPair);
         }
 
         @Test
@@ -231,10 +231,10 @@ class RefreshAuthenticationServiceTests {
                              .issueTokenPair(oldRefreshTokenSubject, oldRefreshTokenRoleClaim);
             then(jwtAuthenticationRepository).should(never())
                                              .save(any(JwtAuthentication.class));
-            then(jwtStore).should(never())
-                          .delete(any(JwtPair.class));
-            then(jwtStore).should(never())
-                          .save(any(JwtPair.class));
+            then(tokenStore).should(never())
+                            .delete(any(JwtPair.class));
+            then(tokenStore).should(never())
+                            .save(any(JwtPair.class));
         }
 
         @Test
@@ -276,10 +276,10 @@ class RefreshAuthenticationServiceTests {
                              .issueTokenPair(oldRefreshTokenSubject, oldRefreshTokenRoleClaim);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(oldJwtAuthentication);
-            then(jwtStore).should(never())
-                          .delete(any(JwtPair.class));
-            then(jwtStore).should(never())
-                          .save(any(JwtPair.class));
+            then(tokenStore).should(never())
+                            .delete(any(JwtPair.class));
+            then(tokenStore).should(never())
+                            .save(any(JwtPair.class));
         }
 
         @Test
@@ -306,9 +306,9 @@ class RefreshAuthenticationServiceTests {
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(oldJwtAuthentication);
             given(tokenIssuer.issueTokenPair(oldRefreshTokenSubject, oldRefreshTokenRoleClaim)).willReturn(newJwtPair);
             given(jwtAuthenticationRepository.save(oldJwtAuthentication)).willReturn(oldJwtAuthentication);
-            willThrow(tokenStoreException).given(jwtStore)
+            willThrow(tokenStoreException).given(tokenStore)
                                           .delete(oldJwtPair);
-            willThrow(new RuntimeException("Compensation failed")).given(jwtStore)
+            willThrow(new RuntimeException("Compensation failed")).given(tokenStore)
                                                                   .save(oldJwtPair);
 
             // When
@@ -327,10 +327,10 @@ class RefreshAuthenticationServiceTests {
                              .issueTokenPair(oldRefreshTokenSubject, oldRefreshTokenRoleClaim);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(oldJwtAuthentication);
-            then(jwtStore).should(times(1))
-                          .delete(oldJwtPair);
-            then(jwtStore).should(times(1))
-                          .save(oldJwtPair);
+            then(tokenStore).should(times(1))
+                            .delete(oldJwtPair);
+            then(tokenStore).should(times(1))
+                            .save(oldJwtPair);
         }
 
         @Test
@@ -357,7 +357,7 @@ class RefreshAuthenticationServiceTests {
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(oldJwtAuthentication);
             given(tokenIssuer.issueTokenPair(oldRefreshTokenSubject, oldRefreshTokenRoleClaim)).willReturn(newJwtPair);
             given(jwtAuthenticationRepository.save(oldJwtAuthentication)).willReturn(oldJwtAuthentication);
-            willThrow(tokenStoreException).given(jwtStore)
+            willThrow(tokenStoreException).given(tokenStore)
                                           .delete(oldJwtPair);
 
             // When
@@ -376,10 +376,10 @@ class RefreshAuthenticationServiceTests {
                              .issueTokenPair(oldRefreshTokenSubject, oldRefreshTokenRoleClaim);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(oldJwtAuthentication);
-            then(jwtStore).should(times(1))
-                          .delete(oldJwtPair);
-            then(jwtStore).should(times(1))
-                          .save(oldJwtPair);
+            then(tokenStore).should(times(1))
+                            .delete(oldJwtPair);
+            then(tokenStore).should(times(1))
+                            .save(oldJwtPair);
         }
 
         @Test
@@ -406,9 +406,9 @@ class RefreshAuthenticationServiceTests {
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(oldJwtAuthentication);
             given(tokenIssuer.issueTokenPair(oldRefreshTokenSubject, oldRefreshTokenRoleClaim)).willReturn(newJwtPair);
             given(jwtAuthenticationRepository.save(oldJwtAuthentication)).willReturn(oldJwtAuthentication);
-            willThrow(tokenStoreException).given(jwtStore)
+            willThrow(tokenStoreException).given(tokenStore)
                                           .save(newJwtPair);
-            willThrow(new RuntimeException("Compensation failed")).given(jwtStore)
+            willThrow(new RuntimeException("Compensation failed")).given(tokenStore)
                                                                   .save(oldJwtPair);
 
             // When
@@ -427,12 +427,12 @@ class RefreshAuthenticationServiceTests {
                              .issueTokenPair(oldRefreshTokenSubject, oldRefreshTokenRoleClaim);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(oldJwtAuthentication);
-            then(jwtStore).should(times(1))
-                          .delete(oldJwtPair);
-            then(jwtStore).should(times(1))
-                          .save(newJwtPair);
-            then(jwtStore).should(times(1))
-                          .save(oldJwtPair);
+            then(tokenStore).should(times(1))
+                            .delete(oldJwtPair);
+            then(tokenStore).should(times(1))
+                            .save(newJwtPair);
+            then(tokenStore).should(times(1))
+                            .save(oldJwtPair);
         }
 
         @Test
@@ -459,7 +459,7 @@ class RefreshAuthenticationServiceTests {
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willReturn(oldJwtAuthentication);
             given(tokenIssuer.issueTokenPair(oldRefreshTokenSubject, oldRefreshTokenRoleClaim)).willReturn(newJwtPair);
             given(jwtAuthenticationRepository.save(oldJwtAuthentication)).willReturn(oldJwtAuthentication);
-            willThrow(tokenStoreException).given(jwtStore)
+            willThrow(tokenStoreException).given(tokenStore)
                                           .save(newJwtPair);
 
             // When
@@ -478,12 +478,12 @@ class RefreshAuthenticationServiceTests {
                              .issueTokenPair(oldRefreshTokenSubject, oldRefreshTokenRoleClaim);
             then(jwtAuthenticationRepository).should(times(1))
                                              .save(oldJwtAuthentication);
-            then(jwtStore).should(times(1))
-                          .delete(oldJwtPair);
-            then(jwtStore).should(times(1))
-                          .save(newJwtPair);
-            then(jwtStore).should(times(1))
-                          .save(oldJwtPair);
+            then(tokenStore).should(times(1))
+                            .delete(oldJwtPair);
+            then(tokenStore).should(times(1))
+                            .save(newJwtPair);
+            then(tokenStore).should(times(1))
+                            .save(oldJwtPair);
         }
 
     }

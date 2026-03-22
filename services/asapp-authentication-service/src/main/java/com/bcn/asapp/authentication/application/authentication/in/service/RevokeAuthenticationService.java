@@ -26,7 +26,7 @@ import com.bcn.asapp.authentication.application.authentication.AuthenticationNot
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.bcn.asapp.authentication.application.authentication.in.RevokeAuthenticationUseCase;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
-import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
+import com.bcn.asapp.authentication.application.authentication.out.TokenStore;
 import com.bcn.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
@@ -59,19 +59,19 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
 
     private final JwtAuthenticationRepository jwtAuthenticationRepository;
 
-    private final JwtStore jwtStore;
+    private final TokenStore tokenStore;
 
     /**
      * Constructs a new {@code RevokeAuthenticationService} with required dependencies.
      *
      * @param tokenVerifier               the token verifier for verifying access tokens
      * @param jwtAuthenticationRepository the repository for JWT authentications data access
-     * @param jwtStore                    the store for fast token lookup and validation
+     * @param tokenStore                  the store for fast token lookup and validation
      */
-    public RevokeAuthenticationService(TokenVerifier tokenVerifier, JwtAuthenticationRepository jwtAuthenticationRepository, JwtStore jwtStore) {
+    public RevokeAuthenticationService(TokenVerifier tokenVerifier, JwtAuthenticationRepository jwtAuthenticationRepository, TokenStore tokenStore) {
         this.tokenVerifier = tokenVerifier;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
-        this.jwtStore = jwtStore;
+        this.tokenStore = tokenStore;
     }
 
     /**
@@ -137,7 +137,7 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
      */
     private void deactivateTokens(JwtPair jwtPair) {
         logger.trace("[REVOKE] Step 4/4: Deleting token pair from fast-access store");
-        jwtStore.delete(jwtPair);
+        tokenStore.delete(jwtPair);
     }
 
     /**

@@ -27,8 +27,8 @@ import com.bcn.asapp.authentication.application.authentication.TokenStoreExcepti
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.bcn.asapp.authentication.application.authentication.in.RefreshAuthenticationUseCase;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
-import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
 import com.bcn.asapp.authentication.application.authentication.out.TokenIssuer;
+import com.bcn.asapp.authentication.application.authentication.out.TokenStore;
 import com.bcn.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.Jwt;
@@ -67,7 +67,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
 
     private final JwtAuthenticationRepository jwtAuthenticationRepository;
 
-    private final JwtStore jwtStore;
+    private final TokenStore tokenStore;
 
     /**
      * Constructs a new {@code RefreshAuthenticationService} with required dependencies.
@@ -75,15 +75,15 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      * @param tokenVerifier               the token verifier for verifying refresh tokens
      * @param tokenIssuer                 the token issuer for generating new JWTs
      * @param jwtAuthenticationRepository the repository for JWT authentications data access
-     * @param jwtStore                    the store for fast token lookup and validation
+     * @param tokenStore                  the store for fast token lookup and validation
      */
     public RefreshAuthenticationService(TokenVerifier tokenVerifier, TokenIssuer tokenIssuer, JwtAuthenticationRepository jwtAuthenticationRepository,
-            JwtStore jwtStore) {
+            TokenStore tokenStore) {
 
         this.tokenVerifier = tokenVerifier;
         this.tokenIssuer = tokenIssuer;
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
-        this.jwtStore = jwtStore;
+        this.tokenStore = tokenStore;
     }
 
     /**
@@ -194,10 +194,10 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      */
     private void rotateTokens(JwtPair oldJwtPair, JwtPair newJwtPair) {
         logger.trace("[REFRESH] Step 6/7: Deleting old token pair from fast-access store");
-        jwtStore.delete(oldJwtPair);
+        tokenStore.delete(oldJwtPair);
 
         logger.trace("[REFRESH] Step 7/7: Storing new token pair in fast-access store");
-        jwtStore.save(newJwtPair);
+        tokenStore.save(newJwtPair);
     }
 
     /**
@@ -210,7 +210,7 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
         logger.warn("[REFRESH] Token rotation failed, restoring old tokens in fast-access store");
 
         try {
-            jwtStore.save(jwtPair);
+            tokenStore.save(jwtPair);
 
             logger.debug("[REFRESH] Compensation complete, old tokens restored in fast-access store");
 

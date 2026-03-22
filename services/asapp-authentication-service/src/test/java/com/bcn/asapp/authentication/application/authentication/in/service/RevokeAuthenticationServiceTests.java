@@ -39,7 +39,7 @@ import com.bcn.asapp.authentication.application.authentication.AuthenticationPer
 import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.bcn.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
-import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
+import com.bcn.asapp.authentication.application.authentication.out.TokenStore;
 import com.bcn.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
@@ -65,7 +65,7 @@ class RevokeAuthenticationServiceTests {
     private JwtAuthenticationRepository jwtAuthenticationRepository;
 
     @Mock
-    private JwtStore jwtStore;
+    private TokenStore tokenStore;
 
     @InjectMocks
     private RevokeAuthenticationService revokeAuthenticationService;
@@ -93,8 +93,8 @@ class RevokeAuthenticationServiceTests {
                                              .findByAccessToken(encodedAccessToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .deleteById(jwtAuthentication.getId());
-            then(jwtStore).should(times(1))
-                          .delete(jwtPair);
+            then(tokenStore).should(times(1))
+                            .delete(jwtPair);
         }
 
         @Test
@@ -161,8 +161,8 @@ class RevokeAuthenticationServiceTests {
                                .verifyAccessToken(encodedAccessToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .findByAccessToken(encodedAccessToken);
-            then(jwtStore).should(never())
-                          .delete(any(JwtPair.class));
+            then(tokenStore).should(never())
+                            .delete(any(JwtPair.class));
         }
 
         @Test
@@ -193,8 +193,8 @@ class RevokeAuthenticationServiceTests {
                                              .findByAccessToken(encodedAccessToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .deleteById(jwtAuthenticationId);
-            then(jwtStore).should(never())
-                          .delete(any(JwtPair.class));
+            then(tokenStore).should(never())
+                            .delete(any(JwtPair.class));
         }
 
         @Test
@@ -209,7 +209,7 @@ class RevokeAuthenticationServiceTests {
                     new RuntimeException("Token store connection failed"));
 
             given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(jwtAuthentication);
-            willThrow(tokenStoreException).given(jwtStore)
+            willThrow(tokenStoreException).given(tokenStore)
                                           .delete(jwtPair);
 
             // When
@@ -226,10 +226,10 @@ class RevokeAuthenticationServiceTests {
                                              .findByAccessToken(encodedAccessToken);
             then(jwtAuthenticationRepository).should(times(1))
                                              .deleteById(jwtAuthentication.getId());
-            then(jwtStore).should(times(1))
-                          .delete(jwtPair);
-            then(jwtStore).should(never())
-                          .save(any(JwtPair.class));
+            then(tokenStore).should(times(1))
+                            .delete(jwtPair);
+            then(tokenStore).should(never())
+                            .save(any(JwtPair.class));
         }
 
     }

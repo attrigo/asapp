@@ -23,15 +23,15 @@ import org.springframework.stereotype.Component;
 import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
 import com.bcn.asapp.authentication.application.authentication.InvalidJwtException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
-import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
+import com.bcn.asapp.authentication.application.authentication.out.TokenStore;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 
 /**
  * Infrastructure component responsible for orchestrating JWT verification through a 3-step validation process.
  * <p>
- * Provides the infrastructure capability to verify JWTs using {@link JwtDecoder} and {@link JwtStore}.
+ * Provides the infrastructure capability to verify JWTs using {@link JwtDecoder} and {@link TokenStore}.
  * <p>
- * Performs three-step validation: cryptographic verification via {@link JwtDecoder}, token type check, and session validation via {@link JwtStore}.
+ * Performs three-step validation: cryptographic verification via {@link JwtDecoder}, token type check, and session validation via {@link TokenStore}.
  *
  * @since 0.2.0
  * @author attrigo
@@ -43,17 +43,17 @@ public class JwtVerifier {
 
     private final JwtDecoder jwtDecoder;
 
-    private final JwtStore jwtStore;
+    private final TokenStore tokenStore;
 
     /**
      * Constructs a new {@code JwtVerifier} with required dependencies.
      *
      * @param jwtDecoder the JWT decoder for decoding and validating tokens
-     * @param jwtStore   the JWT store for checking token revocation status
+     * @param tokenStore the token store for checking token revocation status
      */
-    public JwtVerifier(JwtDecoder jwtDecoder, JwtStore jwtStore) {
+    public JwtVerifier(JwtDecoder jwtDecoder, TokenStore tokenStore) {
         this.jwtDecoder = jwtDecoder;
-        this.jwtStore = jwtStore;
+        this.tokenStore = tokenStore;
     }
 
     /**
@@ -167,7 +167,7 @@ public class JwtVerifier {
      */
     private void checkAccessTokenInActiveStore(EncodedToken encodedToken) {
         logger.trace("[JWT_VERIFIER] Step 3/3: Checking access token exists in store");
-        var isTokenActive = jwtStore.accessTokenExists(encodedToken);
+        var isTokenActive = tokenStore.accessTokenExists(encodedToken);
         if (!isTokenActive) {
             throw new AuthenticationNotFoundException(String.format("Authentication session not found in store for access token: %s", encodedToken.token()));
         }
@@ -198,7 +198,7 @@ public class JwtVerifier {
      */
     private void checkRefreshTokenInActiveStore(EncodedToken encodedToken) {
         logger.trace("[JWT_VERIFIER] Step 3/3: Checking refresh token exists in store");
-        var isTokenActive = jwtStore.refreshTokenExists(encodedToken);
+        var isTokenActive = tokenStore.refreshTokenExists(encodedToken);
         if (!isTokenActive) {
             throw new AuthenticationNotFoundException(String.format("Authentication session not found in store for refresh token: %s", encodedToken.token()));
         }

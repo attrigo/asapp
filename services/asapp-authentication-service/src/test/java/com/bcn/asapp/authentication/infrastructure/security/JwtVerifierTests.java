@@ -43,7 +43,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
 import com.bcn.asapp.authentication.application.authentication.InvalidJwtException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
-import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
+import com.bcn.asapp.authentication.application.authentication.out.TokenStore;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 
 /**
@@ -62,7 +62,7 @@ class JwtVerifierTests {
     private JwtDecoder jwtDecoder;
 
     @Mock
-    private JwtStore jwtStore;
+    private TokenStore tokenStore;
 
     @InjectMocks
     private JwtVerifier jwtVerifier;
@@ -79,7 +79,7 @@ class JwtVerifierTests {
             var decodedJwt = new DecodedJwt(encodedAccessTokenValue, ACCESS_TOKEN_TYPE, "user@asapp.com", claims);
 
             given(jwtDecoder.decode(encodedAccessToken)).willReturn(decodedJwt);
-            given(jwtStore.accessTokenExists(encodedAccessToken)).willReturn(true);
+            given(tokenStore.accessTokenExists(encodedAccessToken)).willReturn(true);
 
             // When
             var actual = jwtVerifier.verifyAccessToken(encodedAccessToken);
@@ -90,8 +90,8 @@ class JwtVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedAccessToken);
-            then(jwtStore).should(times(1))
-                          .accessTokenExists(encodedAccessToken);
+            then(tokenStore).should(times(1))
+                            .accessTokenExists(encodedAccessToken);
         }
 
         @Test
@@ -145,7 +145,7 @@ class JwtVerifierTests {
             var decodedJwt = new DecodedJwt(encodedAccessTokenValue, ACCESS_TOKEN_TYPE, "user@asapp.com", claims);
 
             given(jwtDecoder.decode(encodedAccessToken)).willReturn(decodedJwt);
-            given(jwtStore.accessTokenExists(encodedAccessToken)).willReturn(false);
+            given(tokenStore.accessTokenExists(encodedAccessToken)).willReturn(false);
 
             // When
             var actual = catchThrowable(() -> jwtVerifier.verifyAccessToken(encodedAccessToken));
@@ -156,8 +156,8 @@ class JwtVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedAccessToken);
-            then(jwtStore).should(times(1))
-                          .accessTokenExists(encodedAccessToken);
+            then(tokenStore).should(times(1))
+                            .accessTokenExists(encodedAccessToken);
         }
 
     }
@@ -174,7 +174,7 @@ class JwtVerifierTests {
             var decodedJwt = new DecodedJwt(encodedRefreshTokenValue, REFRESH_TOKEN_TYPE, "user@asapp.com", claims);
 
             given(jwtDecoder.decode(encodedRefreshToken)).willReturn(decodedJwt);
-            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(tokenStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
 
             // When
             var actual = jwtVerifier.verifyRefreshToken(encodedRefreshToken);
@@ -185,8 +185,8 @@ class JwtVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedRefreshToken);
-            then(jwtStore).should(times(1))
-                          .refreshTokenExists(encodedRefreshToken);
+            then(tokenStore).should(times(1))
+                            .refreshTokenExists(encodedRefreshToken);
         }
 
         @Test
@@ -240,7 +240,7 @@ class JwtVerifierTests {
             var decodedJwt = new DecodedJwt(encodedRefreshTokenValue, REFRESH_TOKEN_TYPE, "user@asapp.com", claims);
 
             given(jwtDecoder.decode(encodedRefreshToken)).willReturn(decodedJwt);
-            given(jwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(false);
+            given(tokenStore.refreshTokenExists(encodedRefreshToken)).willReturn(false);
 
             // When
             var actual = catchThrowable(() -> jwtVerifier.verifyRefreshToken(encodedRefreshToken));
@@ -251,8 +251,8 @@ class JwtVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedRefreshToken);
-            then(jwtStore).should(times(1))
-                          .refreshTokenExists(encodedRefreshToken);
+            then(tokenStore).should(times(1))
+                            .refreshTokenExists(encodedRefreshToken);
         }
 
     }

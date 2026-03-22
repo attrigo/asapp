@@ -27,7 +27,7 @@ import com.bcn.asapp.authentication.domain.authentication.JwtPair;
  * @since 0.2.0
  * @author attrigo
  */
-public interface JwtStore {
+public interface TokenStore {
 
     /**
      * Checks if an access token exists in the fast-access store.

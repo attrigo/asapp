@@ -28,13 +28,13 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
 import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
-import com.bcn.asapp.authentication.application.authentication.out.JwtStore;
+import com.bcn.asapp.authentication.application.authentication.out.TokenStore;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
 import com.bcn.asapp.authentication.domain.authentication.Expiration;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 
 /**
- * Redis-based adapter implementation of {@link JwtStore}.
+ * Redis-based adapter implementation of {@link TokenStore}.
  * <p>
  * Bridges the application layer with the infrastructure layer by storing JWTs in Redis with automatic expiration based on token TTL (time-to-live). Tokens are
  * stored as Redis keys with empty values, as only their presence is validated during token lookup operations.
@@ -44,7 +44,7 @@ import com.bcn.asapp.authentication.domain.authentication.JwtPair;
  * @author attrigo
  */
 @Component
-public class RedisJwtStore implements JwtStore {
+public class RedisJwtStore implements TokenStore {
 
     private static final Logger logger = LoggerFactory.getLogger(RedisJwtStore.class);
 
