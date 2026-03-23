@@ -7,19 +7,16 @@ paths:
 
 ## Aggregate Factories
 
-Aggregate roots are always created via static factory methods — never instantiate directly; constructors are private.
-
-**Rules**:
+- Aggregate roots are always created via static factory methods — never instantiate directly; constructors are private
 - Before persistence, the aggregate has no assigned identifier
 - No Spring annotations — domain classes are framework-free
 
 ## Aggregate Behavior
 
-- Domain operations live on the aggregate as methods.
+- Domain operations live on the aggregate as methods
 
 ## Value Object Pattern
 
-**Rules**:
 - Factory: `of(...)` — never instantiate with `new` from outside the domain
 - Scalar VOs: single `value()` accessor — never expose raw record component directly
 - Compound VOs: named accessors or domain helpers instead of `value()`
@@ -28,8 +25,8 @@ Aggregate roots are always created via static factory methods — never instanti
 
 ## Bounded Context Isolation
 
-- Each service owns its own domain types, these could be intentionally duplicated. 
-- Do not extract shared types across services.
+- Each service owns its own domain types, these could be intentionally duplicated
+- Do not extract shared types across services
 
 ## Validation Strategy
 

@@ -6,7 +6,7 @@ paths:
 
 # Integration Test Patterns
 
-Infrastructure-specific patterns for integration tests with real database, containers, and external services.
+Infrastructure-specific patterns for integration tests with real database, containers, and external services
 
 ## 1. Test Slice Selection
 

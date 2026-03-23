@@ -6,7 +6,7 @@ paths:
 
 # Test Factory Maintenance
 
-Guidelines for creating and maintaining test data factories (Object Mother + Builder patterns).
+Guidelines for creating and maintaining test data factories (Object Mother + Builder patterns)
 
 ## 1. When to Create a New Factory
 
@@ -20,15 +20,15 @@ Create a factory when ANY of these apply:
 
 ### 2.1 Default Values
 
-All factory fields **MUST** have fixed default values for reproducibility. Use dynamic values only when a fixed value produces incorrect behaviour in any test type using the factory (e.g., a fixed past timestamp produces negative Redis TTL in integration tests).
+All factory fields **MUST** have fixed default values for reproducibility. Use dynamic values only when a fixed value produces incorrect behaviour in any test type using the factory (e.g., a fixed past timestamp produces negative Redis TTL in integration tests)
 
 ### 2.2 Dual Build Outputs
 
-Factories for persisted aggregates provide `buildJdbc()` for infrastructure entity output alongside `build()` for domain output.
+Factories for persisted aggregates provide `buildJdbc()` for infrastructure entity output alongside `build()` for domain output
 
 ### 2.3 Factory Composition
 
-Complex factories delegate to simpler factories (e.g., `JwtFactory.build()` delegates to `EncodedTokenFactory`) rather than duplicating construction logic.
+Complex factories delegate to simpler factories (e.g., `JwtFactory.build()` delegates to `EncodedTokenFactory`) rather than duplicating construction logic
 
 ## 3. Naming Conventions
 
@@ -42,13 +42,13 @@ Complex factories delegate to simpler factories (e.g., `JwtFactory.build()` dele
 
 ## 4. Wither Parameter Types
 
-Prefer primitives — factory constructs value objects in `build()`. Never accept entities as parameters; use ID primitives instead.
+Prefer primitives — factory constructs value objects in `build()`. Never accept entities as parameters; use ID primitives instead
 
 ## 5. Method Addition Criteria
 
 ### 5.1 When to Add Semantic Defaults
 
-**Pattern**: The builder's fluent API provides all the flexibility, don't create a new static method for every variation.
+**Pattern**: The builder's fluent API provides all the flexibility, don't create a new static method for every variation
 
 **Rules** (ALL must be met):
 - Pattern appears **10+ times** across test files
@@ -64,4 +64,4 @@ grep -r "aJwtBuilder().accessToken().expired().build()" src/test --include="*.ja
 
 ### 5.2 When to Add Wither Methods
 
-Withers map 1:1 with domain attributes (completeness); remove if redundant.
+Withers map 1:1 with domain attributes (completeness); remove if redundant

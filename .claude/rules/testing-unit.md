@@ -5,7 +5,7 @@ paths:
 
 # Unit Test Patterns
 
-Mocking-specific patterns for unit tests with mocked dependencies.
+Mocking-specific patterns for unit tests with mocked dependencies
 
 ## 1. Test Setup
 

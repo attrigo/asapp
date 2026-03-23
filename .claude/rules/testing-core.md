@@ -48,7 +48,7 @@ paths:
 
 #### @Nested Classes
 
-@Nested classes provide the "When" context.
+@Nested classes provide the "When" context
 
 **Rules**:
 - Group tests by method/behavior using PascalCase matching the method under test (e.g., `Authenticate`, `CreateInactiveUser`)
@@ -61,7 +61,7 @@ paths:
   1. Success cases FIRST — simplest scenario first, more complex variations after
   2. Failure cases LAST — ordered by execution flow (validation → logic → persistence)
 
-Tests must remain independent despite ordering.
+Tests must remain independent despite ordering
 
 #### @DisplayName Policy
 
@@ -189,7 +189,7 @@ Tests must remain independent despite ordering.
 | **TestFactory Aggregates**        | Need full aggregate with related entities    |
 | **Helper Methods**                | Testing constructor/validation edge cases    |
 
-**Note**: Patterns are composable. When extracting from aggregates, create the aggregate itself using the simplest sufficient pattern.
+**Note**: Patterns are composable. When extracting from aggregates, create the aggregate itself using the simplest sufficient pattern
 
 ### 3.3 Test Lifecycle
 
@@ -199,4 +199,4 @@ Tests must remain independent despite ordering.
 
 #### @AfterEach
 
-**Rules**: Use ONLY for external resources requiring explicit cleanup (file handles, network connections, locks). Database cleanup goes in @BeforeEach instead.
+**Rules**: Use ONLY for external resources requiring explicit cleanup (file handles, network connections, locks). Database cleanup goes in @BeforeEach instead
