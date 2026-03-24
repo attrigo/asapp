@@ -10,7 +10,7 @@ Guidelines: see `.claude/rules/`
 ## Build
 - Build: `mvn clean install`
 - Docker images: `mvn spring-boot:build-image`
-- Format: `mvn spotless:apply`
+- Format (Eclipse config: `asapp_formatter.xml`): `mvn spotless:apply`
 
 ## Run
 - Service: `cd services/<name> && mvn spring-boot:run`
