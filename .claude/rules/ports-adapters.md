@@ -59,6 +59,14 @@ com.bcn.asapp.<service>/
 - Always in the application service, never in adapters
 - See `AuthenticateService` for a reference implementation
 
+## Logging
+
+- `debug` = operation entry/exit and major milestones
+- `trace` = individual steps within an operation
+- Never log passwords, tokens, or PII, use safe placeholders (e.g., username only)
+- Controllers: let Spring handle HTTP logging; only log business context if necessary
+- Log errors **only** in `GlobalExceptionHandler`, never `logger.error()` inside service methods.
+
 ## Exception Handling
 
 - Only translate infrastructure exceptions into application exceptions when the application service needs to catch them (e.g., `TokenStoreException`). Everything else propagates to `GlobalExceptionHandler` or Spring Security filters

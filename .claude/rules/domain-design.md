@@ -5,11 +5,12 @@ paths:
 
 # Domain Design
 
+Domain classes are infrastructure-agnostic — no Spring annotations, no logging, no framework dependencies of any kind.
+
 ## Aggregate Factories
 
 - Aggregate roots are always created via static factory methods — never instantiate directly; constructors are private
 - Before persistence, the aggregate has no assigned identifier
-- No Spring annotations — domain classes are framework-free
 
 ## Aggregate Behavior
 
@@ -21,7 +22,6 @@ paths:
 - Scalar VOs: single `value()` accessor — never expose raw record component directly
 - Compound VOs: named accessors or domain helpers instead of `value()`
 - Optional domain concepts: use `ofNullable()` factory
-- No Spring annotations — domain classes are framework-free
 
 ## Bounded Context Isolation
 
