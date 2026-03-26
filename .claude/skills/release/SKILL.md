@@ -1,0 +1,160 @@
+---
+name: release
+description: Automate the full release cycle — remove SNAPSHOT, tag Liquibase changelogs, build, commit, tag, bump to next dev version, and optionally push.
+argument-hint: "[--push]"
+---
+
+# Release
+
+Automates the full ASAPP release cycle: version bump, Liquibase tagging, build verification, git commit + tag, next SNAPSHOT prep, and push.
+
+## Usage
+
+- `/release` — runs all steps, asks for confirmation before pushing
+- `/release --push` — runs all steps including atomic push without a separate prompt
+
+## Prerequisites
+
+- Must be on `main` branch
+- Working tree must be clean (no uncommitted changes)
+- Docker must be available if running integration tests
+
+## Instructions
+
+### Step 1: Validate Preconditions
+
+```bash
+git branch --show-current
+git status --porcelain
+```
+
+- If not on `main`: abort and tell the user to switch branches
+- If working tree is dirty: abort and list the uncommitted files
+
+### Step 2: Detect Versions
+
+Read the root `pom.xml` to extract the current version (e.g. `0.3.0-SNAPSHOT`).
+
+Derive:
+- **Release version**: strip `-SNAPSHOT` → `0.3.0`
+- **Version underscored**: replace `.` with `_` → `0_3_0` (used for file names)
+
+### Step 3: Remove SNAPSHOT
+
+```bash
+mvn versions:set -DremoveSnapshot=true -DprocessAllModules=true -DgenerateBackupPoms=false
+```
+
+Confirm the root `pom.xml` now reads `<version>X.Y.Z</version>` (no SNAPSHOT).
+
+### Step 4: Add Liquibase Database Tags
+
+For each service, locate the version changelog file:
+
+```
+services/<service>/src/main/resources/liquibase/db/changelog/v<X.Y.Z>/v<X_Y_Z>-changelog.xml
+```
+
+For example, for release `0.3.0`:
+- `services/asapp-authentication-service/src/main/resources/liquibase/db/changelog/v0.3.0/v0_3_0-changelog.xml`
+- `services/asapp-users-service/src/main/resources/liquibase/db/changelog/v0.3.0/v0_3_0-changelog.xml`
+- `services/asapp-tasks-service/src/main/resources/liquibase/db/changelog/v0.3.0/v0_3_0-changelog.xml`
+
+**For each file that exists**: check if it already contains `<tagDatabase tag="X.Y.Z"/>`. If not, insert the following changeset before the closing `</databaseChangeLog>` tag:
+
+```xml
+    <changeSet id="tag_version_X_Y_Z" author="attrigo">
+        <tagDatabase tag="X.Y.Z"/>
+    </changeSet>
+
+</databaseChangeLog>
+```
+
+Use the underscored version in the `id` attribute (e.g. `tag_version_0_3_0`) and the dotted version in the `tag` attribute (e.g. `0.3.0`).
+
+If a service has no changelog file for this version, skip it — that service had no schema changes in this release.
+
+### Step 5: Build and Verify
+
+```bash
+mvn clean install
+```
+
+**If the build fails**: stop immediately, report the failure, and do not proceed. The user must fix the build before the release can continue.
+
+### Step 6: Commit Release and Create Tag
+
+```bash
+RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+git add .
+git commit -m "chore: release version ${RELEASE_VERSION}"
+git tag ${RELEASE_VERSION}
+```
+
+Confirm the commit and tag were created successfully.
+
+### Step 7: Bump to Next SNAPSHOT
+
+```bash
+mvn versions:set -DnextSnapshot=true -DnextSnapshotIndexToIncrement=2 -DprocessAllModules=true -DgenerateBackupPoms=false
+```
+
+Confirm the root `pom.xml` now reads the next SNAPSHOT version (e.g. `0.4.0-SNAPSHOT`).
+
+### Step 8: Commit Next Development Version
+
+```bash
+NEXT_DEV_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+git add .
+git commit -m "chore: prepare next development version ${NEXT_DEV_VERSION}"
+```
+
+### Step 9: Push
+
+**If `--push` was specified**, push atomically:
+
+```bash
+git push --atomic origin main ${RELEASE_VERSION}
+```
+
+**If `--push` was NOT specified**, display the push command and ask for confirmation before running it:
+
+```
+Ready to push. Run the following command to publish the release:
+
+  git push --atomic origin main X.Y.Z
+
+Proceed? [y/N]
+```
+
+Only push if the user confirms.
+
+## Safety
+
+- **Abort if not on `main`** — releases must come from the main branch
+- **Abort if working tree is dirty** — prevents accidental inclusion of uncommitted changes
+- **Never skip `mvn clean install`** — the build must pass before any commits are made
+- **Never force push** — use `--atomic` only; never `--force` or `--force-with-lease`
+- **Never push without confirmation** unless `--push` was explicitly passed
+
+## Example Output
+
+```
+Detected version: 0.3.0-SNAPSHOT → releasing as 0.3.0
+
+[Step 3] Removing SNAPSHOT...  done (pom.xml → 0.3.0)
+[Step 4] Tagging Liquibase changelogs...
+  - asapp-authentication-service: added tag_version_0_3_0
+  - asapp-users-service: added tag_version_0_3_0
+  - asapp-tasks-service: no v0.3.0 changelog found, skipped
+[Step 5] Building...  done (BUILD SUCCESS)
+[Step 6] Committing release and tagging...  done (tag: 0.3.0)
+[Step 7] Bumping to next SNAPSHOT...  done (pom.xml → 0.4.0-SNAPSHOT)
+[Step 8] Committing next dev version...  done
+
+Ready to push. Run the following command to publish the release:
+
+  git push --atomic origin main 0.3.0
+
+Proceed? [y/N]
+```
