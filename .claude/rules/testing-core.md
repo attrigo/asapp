@@ -6,22 +6,6 @@ paths:
   - "**/*E2EIT.java"
 ---
 
-## Running Tests
-
-- All unit tests: `mvn test`
-- Single test class: `mvn test -Dtest=UsernameTests`
-- Integration tests: `mvn verify`
-- With coverage: `mvn clean verify` (includes JaCoCo)
-- Skip tests: `mvn install -DskipTests`
-
-## Testing Stack
-
-**Project Test Utilities** (`testutil` package):
-- `TestFactory` - Factory methods for creating domain objects and test data
-- `TestContainerConfiguration` - Shared TestContainers setup for integration tests
-- `WebMvcTestContext` - Configuration for WebMvc test slices
-- `JwtAssertions` - Custom assertions for JWT validation (authentication service)
-
 **Test file suffixes**: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-end)
 
 ## 1. Test Organization & Structure

@@ -47,18 +47,7 @@ Infrastructure-specific patterns for integration tests with real database, conta
 - Delete in order respecting foreign key constraints
 - Assert dependency is not null before cleanup when required (e.g. Redis connection factory)
 - Do NOT use `@Transactional` for automatic test rollback — use explicit `@BeforeEach` cleanup
-
-**Example**:
-```java
-@BeforeEach
-void beforeEach() {
-    assertThat(redisTemplate.getConnectionFactory()).isNotNull();
-    redisTemplate.getConnectionFactory().getConnection().serverCommands().flushDb();
-
-    taskRepository.deleteAll();  // Child first
-    userRepository.deleteAll();  // Parent last
-}
-```
+- For cleanup patterns, use the `integration-testing` skill
 
 ### 3.2 Test Data Persistence Helpers
 
