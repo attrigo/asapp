@@ -12,7 +12,6 @@ Suffixes: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-
 
 ### 1.1 Test Documentation (Javadoc)
 
-**Rules**:
 - Omit @since tags in test classes (`*Tests.java`, `*IT.java`, `*E2EIT.java`)
 - Include @since tags in test utility classes (`testutil` package: factories, `TestContainerConfiguration`, `WebMvcTestContext`, assertions)
 - Summary line MUST start with `Tests {@link ClassName}` followed by aspects in plain language (e.g., `Tests {@link Username} validation and value access.`)
@@ -22,7 +21,6 @@ Suffixes: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-
 
 ### 1.2 Annotation Ordering
 
-**Rules**:
 1. **Test Context**: `@SpringBootTest`, `@WebMvcTest`, `@DataJdbcTest`, `@Import`
 2. **Infrastructure**: `@Testcontainers`, `@Container`, `@AutoConfigureTestDatabase`
 3. **Mocking**: `@MockitoBean`, `@Mock`, `@InjectMocks`, `@Captor`
@@ -32,14 +30,11 @@ Suffixes: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-
 
 #### @Nested Classes
 
-@Nested classes provide the "When" context
-
-**Rules**:
+- @Nested classes provide the "When" context
 - Group tests by method/behavior using PascalCase matching the method under test (e.g., `Authenticate`, `CreateInactiveUser`)
 
 #### Test Ordering Rules
 
-**Rules**:
 - **@Nested class order**: Follow method declaration order in source
 - **Test method order** within @Nested classes:
   1. Success cases FIRST — simplest scenario first, more complex variations after
@@ -58,7 +53,6 @@ Suffixes: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-
 
 **DON'T**: Combine actions and returns (e.g., `DeletesAndReturnsUser_` - implies unclear responsibility)
 
-**Rules**:
 - Use underscore separator between behavior and condition
 - Avoid camelCase, articles ("a", "an", "the"), filler words ("should", "will")
 - Use concrete infrastructure names (Redis, PostgreSQL) ONLY in integration tests (`*IT.java`)
@@ -91,14 +85,12 @@ Suffixes: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-
 
 ### 2.1 Test Method Structure
 
-**Rules**:
 - Test methods MUST use explicit AAA comment blocks: `// Given`, `// When`, `// Then`
 - Skip `// Given` when no setup is needed
 - Use `// When & Then` when the assertion is fluently chained to the action (e.g., MockMvc, WebTestClient)
 
 ### 2.2 Given Block Structure
 
-**Rules**:
 - Given block: create all test data before configuring mocks that depend on it
 - Order Given block variables by where they are consumed: When variables first, stub-only second, assertion-only last
 - Expected values involving computation or transformation (`.of()`, `.value()`, `.fromString()`) MUST be prepared in Given block, not Then block
@@ -106,7 +98,6 @@ Suffixes: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-
 
 ### 2.3 Assertion Patterns
 
-**Rules**:
 - Use AssertJ assertions exclusively, NOT JUnit assertions
 - Use `catchThrowable()` for exception testing, NOT `assertThatThrownBy()` or `assertThrows()`
 - Chain `catchThrowable()` with `.isInstanceOf(Type.class).hasMessage()` — use `hasMessageContaining()` only when the message includes dynamic values
@@ -119,7 +110,6 @@ Suffixes: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-
 
 ### 2.4 Then Block Structure
 
-**Rules**:
 - Then block order: (1) Assert data/results first, (2) Verify mock interactions second
 - Use `inOrder()` when interaction sequence matters
 
@@ -135,7 +125,6 @@ Suffixes: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-
 | All other test data | Domain name | `expectedToken`, `testUser`, `userList` |
 | Mock fields | No "Mock" suffix | `repositoryMock`, `mockRepository` |
 
-**Rules**:
 - NEVER add "Mock" or "mockXxx" suffixes to mock field names
 - When multiple variables of the same type play different roles, use prefixes to disambiguate. When only one exists, use plain domain names
 - When a test has multiple result variables (e.g., primary SUT result + a verification query in `// Then` to assert side effects), use `actual` for the primary SUT result and a domain name for the secondary (e.g., `createdUser`, `updatedUser`)
@@ -144,13 +133,11 @@ Suffixes: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-
 
 #### 3.2.1 Value Strategy
 
-**Rules**:
 - Use fixed values by default; random values ONLY for property-based testing or integration tests with data variety (use fixed seed or document strategy)
 - Only specify values relevant to what you're testing; let factories provide defaults for unrelated fields
 
 #### 3.2.2 Scope Strategy (Where to Define Data)
 
-**Rules**:
 - **Inline test data**: Create test data directly in test methods for visibility and self-containment
 - **Class-level data**: Only for infrastructure config (secrets, base URLs, timeout values) that are NOT the test subject
 
@@ -170,14 +157,14 @@ Suffixes: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-
 | **TestFactory Aggregates**        | Need full aggregate with related entities    |
 | **Helper Methods**                | Testing constructor/validation edge cases    |
 
-**Note**: Patterns are composable. When extracting from aggregates, create the aggregate itself using the simplest sufficient pattern
+- Patterns are composable. When extracting from aggregates, create the aggregate itself using the simplest sufficient pattern
 
 ### 3.3 Test Lifecycle
 
 #### @BeforeEach
 
-**Rules**: Complex initialization, mock-dependent setup, dynamic/random data, conditional setup logic, mutable state, **database cleanup** (clean BEFORE test)
+- Complex initialization, mock-dependent setup, dynamic/random data, conditional setup logic, mutable state, database cleanup (clean before test)
 
 #### @AfterEach
 
-**Rules**: Use ONLY for external resources requiring explicit cleanup (file handles, network connections, locks). Database cleanup goes in @BeforeEach instead
+- Use ONLY for external resources requiring explicit cleanup (file handles, network connections, locks). Database cleanup goes in @BeforeEach instead

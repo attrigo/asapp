@@ -10,7 +10,7 @@ Guidelines for creating and maintaining test data factories (Object Mother + Bui
 
 ## 1. When to Create a New Factory
 
-Create a factory when ANY of these apply:
+Create a factory when all of these apply:
 - Domain aggregate or important entity
 - Used in 3+ test files
 - Complex construction (3+ parameters or multi-step creation)
@@ -20,15 +20,15 @@ Create a factory when ANY of these apply:
 
 ### 2.1 Default Values
 
-All factory fields must have fixed default values for reproducibility. Use dynamic values only when a fixed value produces incorrect behaviour in any test type using the factory (e.g., a fixed past timestamp produces negative Redis TTL in integration tests)
+- All factory fields must have fixed default values for reproducibility; use dynamic values only when a fixed value produces incorrect behaviour in any test type using the factory (e.g., a fixed past timestamp produces negative Redis TTL in integration tests)
 
 ### 2.2 Dual Build Outputs
 
-Factories for persisted aggregates provide `buildJdbc()` for infrastructure entity output alongside `build()` for domain output
+- Factories for persisted aggregates provide `buildJdbc()` for infrastructure entity output alongside `build()` for domain output
 
 ### 2.3 Factory Composition
 
-Complex factories delegate to simpler factories (e.g., `JwtFactory.build()` delegates to `EncodedTokenFactory`) rather than duplicating construction logic
+- Complex factories delegate to simpler factories (e.g., `JwtFactory.build()` delegates to `EncodedTokenFactory`) rather than duplicating construction logic
 
 ## 3. Naming Conventions
 
@@ -41,7 +41,7 @@ Complex factories delegate to simpler factories (e.g., `JwtFactory.build()` dele
 
 ## 4. Wither Parameter Types
 
-Never accept entities as parameters — use ID primitives instead; factory constructs value objects in `build()`
+- Never accept entities as parameters — use ID primitives instead; factory constructs value objects in `build()`
 
 ## 5. Method Addition Criteria
 
@@ -49,12 +49,12 @@ Never accept entities as parameters — use ID primitives instead; factory const
 
 **Pattern**: The builder's fluent API provides all the flexibility, don't create a new static method for every variation
 
-**Rules** (ALL must be met):
-- Pattern appears **10+ times** across test files
-- Reduces **4+ builder calls** to 1 semantic method
-- Represents **fixed configuration** (not variable data)
-- Has **clear business meaning**
+Add a semantic default method when all of these are met:
+- Pattern appears 10+ times across test files
+- Reduces 4+ builder calls to 1 semantic method
+- Represents fixed configuration (not variable data)
+- Has clear business meaning
 
 ### 5.2 When to Add Wither Methods
 
-Withers map 1:1 with domain attributes.
+- Withers map 1:1 with domain attributes
