@@ -1,17 +1,20 @@
 ---
 name: commit-msg
-description: Generate conventional commit messages from session changes or module-specific git changes. Use when you need to create a commit message that follows project conventions.
-argument-hint: "[module]"
+description: >
+  Generates a conventional commit message from session changes.
+  Use when the user wants to generate a commit message, write a commit, draft a git commit,
+  summarize changes for a commit, or asks what their commit message should say.
+  Triggers: /commit-msg, commit message, conventional commit, git message, summarize changes.
+  Do NOT use for actually committing, staging, or pushing code — this skill only generates message text.
 ---
 
 # Commit Message Generator
 
-Generate a conventional commit message based on changes made during this Claude Code session or from a specific module. **Does NOT commit** — only outputs the message.
+Generate a conventional commit message based on changes made during this Claude Code session.
 
 ## Usage
 
 - `/commit-msg` - Generate commit message from session changes
-- `/commit-msg <module>` - Generate commit message for specific module (e.g., "authentication", "users", "tasks")
 
 ## Conventional Commit Format
 
@@ -55,16 +58,6 @@ BREAKING CHANGE: `extends` key behavior changed
 
 ### Step 1: Gather Changes
 
-**If module argument provided (`$ARGUMENTS`):**
-- Map short name to full service path:
-  - "authentication" or "auth" → `services/asapp-authentication-service`
-  - "users" or "user" → `services/asapp-users-service`
-  - "tasks" or "task" → `services/asapp-tasks-service`
-  - "commons" → `libs/` (for shared libraries)
-- Run `git status` to see modified files in that module
-- Run `git diff` scoped to that module directory to see actual changes
-
-**If no argument (session-based):**
 - Analyze the conversation history for Edit/Write tool calls
 - Extract file paths that were modified during this session
 - Auto-detect affected module(s) from file paths:
@@ -89,7 +82,7 @@ git status --porcelain
 
 ### Step 2: Analyze Changes
 
-1. **Determine commit type** from the Commit Types table above based on what was changed
+1. **Determine commit type** based on what was changed.
 
 2. **Determine scope** (the module/feature affected):
    - If single module: use module name (authentication, users, tasks)
@@ -137,9 +130,7 @@ git status --porcelain
 
 ### Step 4: Output
 
-Display the generated commit message in a code block, along with:
-
-**Do NOT execute `git commit`** — only output the message for the user to review and use.
+Display the generated commit message in a code block. Briefly explain the chosen type and scope in one sentence.
 
 ## Examples
 
@@ -158,24 +149,7 @@ Reasoning: Changes are test-only (`*Tests.java` files), focused on authenticatio
 
 ---
 
-**Example 2: Module-specific (new feature)**
-
-Command: `/commit-msg users`
-
-Detected changes:
-- Added email validation to UserProfile domain class
-- Updated tests
-
-Generated commit message:
-```
-feat(users): add email validation to user profile
-```
-
-Reasoning: New functionality added to users service, enhances existing feature.
-
----
-
-**Example 3: Breaking change**
+**Example 2: Breaking change**
 
 Detected changes:
 - Removed deprecated `/api/auth/verify` endpoint
@@ -196,7 +170,7 @@ Reasoning: Endpoint removal is a breaking change; multi-line body explains migra
 
 ---
 
-**Example 4: Cross-module (refactoring)**
+**Example 3: Cross-module (refactoring)**
 
 Detected changes:
 - Modified error handling in all three services
