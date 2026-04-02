@@ -20,7 +20,7 @@ Create a factory when ANY of these apply:
 
 ### 2.1 Default Values
 
-All factory fields **MUST** have fixed default values for reproducibility. Use dynamic values only when a fixed value produces incorrect behaviour in any test type using the factory (e.g., a fixed past timestamp produces negative Redis TTL in integration tests)
+All factory fields must have fixed default values for reproducibility. Use dynamic values only when a fixed value produces incorrect behaviour in any test type using the factory (e.g., a fixed past timestamp produces negative Redis TTL in integration tests)
 
 ### 2.2 Dual Build Outputs
 
@@ -33,7 +33,6 @@ Complex factories delegate to simpler factories (e.g., `JwtFactory.build()` dele
 ## 3. Naming Conventions
 
 **Semantic methods**:
-- Use business language, not technical jargon
 - No verb prefixes (`create`, `make`, `build`)
 - Avoid artificial adjectives ("default", "valid", "standard") — use `a<Entity>()` instead
 - Use adjective prefixes when multiple representations of the same concept exist to prevent import collisions and maintain call-site clarity (`encodedToken`, `decodedToken`)
@@ -42,7 +41,7 @@ Complex factories delegate to simpler factories (e.g., `JwtFactory.build()` dele
 
 ## 4. Wither Parameter Types
 
-Prefer primitives — factory constructs value objects in `build()`. Never accept entities as parameters; use ID primitives instead
+Never accept entities as parameters — use ID primitives instead; factory constructs value objects in `build()`
 
 ## 5. Method Addition Criteria
 
@@ -56,12 +55,6 @@ Prefer primitives — factory constructs value objects in `build()`. Never accep
 - Represents **fixed configuration** (not variable data)
 - Has **clear business meaning**
 
-**Evidence required**:
-```bash
-# Search for pattern BEFORE adding
-grep -r "aJwtBuilder().accessToken().expired().build()" src/test --include="*.java"
-```
-
 ### 5.2 When to Add Wither Methods
 
-Withers map 1:1 with domain attributes (completeness); remove if redundant
+Withers map 1:1 with domain attributes.

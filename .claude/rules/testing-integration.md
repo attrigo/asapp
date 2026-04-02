@@ -16,15 +16,11 @@ Infrastructure-specific patterns for integration tests with real database, conta
 - Extend `WebMvcTestContext` (provides security config and MockMvc)
 - Mock service layer dependencies with `@MockitoBean`
 
-**DON'T**: Load database or full application context
-
 ### 1.2 @DataJdbcTest (Repository Layer)
 
 **Rules**:
 - Import `TestContainerConfiguration.class` for TestContainers setup
 - Use `@AutoConfigureTestDatabase(replace = NONE)` to use real database
-
-**DON'T**: Load web layer or full application context
 
 ### 1.3 @SpringBootTest (Full Application)
 
@@ -47,13 +43,11 @@ Infrastructure-specific patterns for integration tests with real database, conta
 - Delete in order respecting foreign key constraints
 - Assert dependency is not null before cleanup when required (e.g. Redis connection factory)
 - Do NOT use `@Transactional` for automatic test rollback — use explicit `@BeforeEach` cleanup
-- For cleanup patterns, use the `integration-testing` skill
 
 ### 3.2 Test Data Persistence Helpers
 
 **Rules**:
 - Always extract data creation in an external resource (DB, Redis, etc.) into a helper method
-- Assert data was created successfully whenever possible
 
 **Naming conventions**:
 

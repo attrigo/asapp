@@ -6,7 +6,7 @@ paths:
   - "**/*E2EIT.java"
 ---
 
-**Test file suffixes**: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-end)
+Suffixes: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-end)
 
 ## 1. Test Organization & Structure
 
@@ -40,12 +40,11 @@ paths:
 #### Test Ordering Rules
 
 **Rules**:
-- **@Nested class order**: Must strictly follow method declaration order in source
+- **@Nested class order**: Follow method declaration order in source
 - **Test method order** within @Nested classes:
   1. Success cases FIRST — simplest scenario first, more complex variations after
   2. Failure cases LAST — ordered by execution flow (validation → logic → persistence)
 
-Tests must remain independent despite ordering
 
 #### @DisplayName Policy
 
@@ -100,9 +99,7 @@ Tests must remain independent despite ordering
 ### 2.2 Given Block Structure
 
 **Rules**:
-- Given block MUST follow two-phase pattern:
-  1. Phase 1: Create all test data FIRST
-  2. Phase 2: Configure all mocks using prepared data
+- Given block: create all test data before configuring mocks that depend on it
 - Order Given block variables by where they are consumed: When variables first, stub-only second, assertion-only last
 - Expected values involving computation or transformation (`.of()`, `.value()`, `.fromString()`) MUST be prepared in Given block, not Then block
 - Inline single-use assertion values directly in the assertion. Extract to a variable only when used in multiple places, the expression is complex, or a descriptive name adds clarity
@@ -111,8 +108,8 @@ Tests must remain independent despite ordering
 
 **Rules**:
 - Use AssertJ assertions exclusively, NOT JUnit assertions
-- Use `catchThrowable()` for exception testing, NOT `assertThatThrownBy()` or `assertThrows()`. Chain with `.isInstanceOf(Type.class).hasMessage()` — use `hasMessageContaining()` only when the message includes dynamic values
-- Prefer semantic assertions: `isEmpty()` not `isEqualTo("")`, `isTrue()` not `isEqualTo(true)`, `hasSize(n)` not `isEqualTo(n)` on `.size()`
+- Use `catchThrowable()` for exception testing, NOT `assertThatThrownBy()` or `assertThrows()`
+- Chain `catchThrowable()` with `.isInstanceOf(Type.class).hasMessage()` — use `hasMessageContaining()` only when the message includes dynamic values
 - Use `assertSoftly()` when asserting 3 or more properties on the same result — navigating into nested properties still counts as asserting on the same root
 - Assertions on different root variables (e.g., `actual` vs `captor.getValue()`) are separate groups
 - When using `assertSoftly()`, `.as()` descriptions are MANDATORY for each assertion — `.as()` MUST be placed BEFORE the assertion method (silently ignored if placed after)
@@ -123,7 +120,7 @@ Tests must remain independent despite ordering
 ### 2.4 Then Block Structure
 
 **Rules**:
-- Then block order MUST be: (1) Assert data/results first, (2) Verify mock interactions second
+- Then block order: (1) Assert data/results first, (2) Verify mock interactions second
 - Use `inOrder()` when interaction sequence matters
 
 ## 3. Test Code Conventions

@@ -30,10 +30,9 @@ Mocking-specific patterns for unit tests with mocked dependencies
 ### 3.1 BDDMockito (Not Regular Mockito)
 
 **Rules**:
-- Use BDDMockito syntax exclusively, NEVER mix with Mockito syntax
+- Use BDDMockito syntax exclusively
 
 ### 3.2 Mock Precision with Specific Variables
 
 **Rules**:
-- Use specific variables instead of `any()` matchers for better test precision
-- Only use `any()` when exact value is irrelevant or testing generic error handling
+- Use specific variables instead of `any()` matchers; reserve `any()` only when the exact value is irrelevant or testing generic error handling
