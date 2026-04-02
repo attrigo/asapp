@@ -16,6 +16,44 @@ Generate a conventional commit message based on changes made during this Claude 
 
 - `/commit-msg` - Generate commit message from session changes
 
+## Conventional Commit Format
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+### Commit Types
+
+| Type | Purpose |
+|------|---------|
+| `feat` | New feature |
+| `fix` | Bug fix |
+| `docs` | Documentation only |
+| `style` | Formatting/style (no logic) |
+| `refactor` | Code refactor (no feature/fix) |
+| `perf` | Performance improvement |
+| `test` | Add/update tests |
+| `build` | Build system/dependencies |
+| `ci` | CI/config changes |
+| `chore` | Maintenance/misc |
+| `revert` | Revert commit |
+
+### Breaking Changes
+
+```
+# Exclamation mark after type/scope
+feat!: remove deprecated endpoint
+
+# BREAKING CHANGE footer
+feat: allow config to extend other configs
+
+BREAKING CHANGE: `extends` key behavior changed
+```
+
 ## Instructions
 
 ### Step 1: Gather Changes
@@ -44,7 +82,7 @@ git status --porcelain
 
 ### Step 2: Analyze Changes
 
-1. **Determine commit type** based on what was changed. For test changes mixed with production code, use the production code type.
+1. **Determine commit type** based on what was changed.
 
 2. **Determine scope** (the module/feature affected):
    - If single module: use module name (authentication, users, tasks)
@@ -151,3 +189,9 @@ Reasoning: Structural improvement affecting multiple services, API layer scope u
 - NEVER stage files or modify the working tree
 - If changes span multiple unrelated concerns, suggest splitting into multiple commits
 - Never commit secrets (.env, credentials.json, private keys) — warn if detected in diff
+
+## Important Notes
+
+- Always run git commands to see actual state, don't rely solely on conversation
+- If unsure between types, prefer the one that best describes the primary intent
+- For test changes mixed with production code, use the production code type
