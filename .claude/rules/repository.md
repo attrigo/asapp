@@ -1,19 +1,27 @@
 ---
 paths:
   - "**/*Repository.java"
+  - "**/*Entity.java"
 ---
 
 # Repository
 
-## Port Interface (`application/<aggregate>/out/`)
+## Port Interface
 
 - Plain Java interface — no Spring annotations
 - Parameters and return types use domain value objects only, never raw `UUID` or primitives
-- Return types: `Optional<Domain>` for single finds, `Collection<Domain>` or `List<Domain>` for multi-finds
-- Delete return types: `Boolean` when the caller needs to know if the entity existed, `void` for unconditional deletes, `Integer` for bulk deletes
+- Deletes return `Boolean` (caller checks existence), `void` (unconditional), or `Integer` (bulk)
 
-## JDBC Repository (`infrastructure/<aggregate>/persistence/`)
+## JDBC Entity
+
+- Raw types only — no domain value objects
+- Embedded components use `@Embedded.Nullable(prefix = "column_prefix_")`
+
+## JDBC Repository
 
 - Extends `ListCrudRepository<JdbcEntity, UUID>` — never `CrudRepository` or `JpaRepository`
-- Parameters use raw `UUID`, not domain value objects
-- Custom deletes: `@Modifying` + `@Query("DELETE FROM table WHERE column = :param")` returning `Long`
+- Custom deletes: `@Modifying` + `@Query` returning `Long`
+
+## Repository Adapter
+
+- Unwrap domain VOs via `.value()` before calling the JDBC repository

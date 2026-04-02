@@ -7,7 +7,7 @@ paths:
 
 ## Structure
 
-Three-level hierarchy — master includes version changelogs; version changelogs use `<includeAll>` for changesets and end with `<tagDatabase>`:
+Three-level hierarchy:
 
 ```
 liquibase/db/changelog/
@@ -20,17 +20,19 @@ liquibase/db/changelog/
 
 ## Changeset Rules
 
+- Version changelogs use `<includeAll>` to load changesets
 - File name: `YYYYMMDD_N_description.xml` (e.g., `20250818_1_create_users_table.xml`)
 - Changeset id: `YYYYMMDD_N-1` (e.g., `20250818_1-1`)
 - Every changeset MUST include `<preConditions>`, `<rollback>`, and `<comment>`
-- DDL changesets: `<preConditions onFail="MARK_RAN" onSqlOutput="TEST">`
-- DML-only changesets (seed data): add `context="docker"`
+- DDL changesets use `<preConditions onFail="MARK_RAN" onSqlOutput="TEST">`
+- DML-only changesets (seed data) use `context="docker"`
 
 ## Naming Conventions
 
 - Primary key: `pk_<tablename>`
 - Unique constraint: `uc_<tablename>_<columnname>`
 - Foreign key: `fk_<basetable>_<referencedtable>`
+- Index: `idx_<tablename>_<columnname>`
 
 ## Column Conventions
 
@@ -39,6 +41,5 @@ liquibase/db/changelog/
 
 ## Version Tagging
 
-End each version changelog with a tag changeset:
-- Changeset id: `tag_version_X_Y_Z`
-- Body: `<tagDatabase tag="X.Y.Z"/>`
+- Version changelogs end with a tag changeset (id: `tag_version_X_Y_Z`)
+- Tag changeset body: `<tagDatabase tag="X.Y.Z"/>`

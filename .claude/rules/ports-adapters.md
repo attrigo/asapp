@@ -6,31 +6,6 @@ paths:
 
 # Ports & Adapters
 
-## Package Structure
-
-```
-com.bcn.asapp.<service>/
-├── domain/<aggregate>/
-├── application/<aggregate>/
-│   ├── in/
-│   │   ├── UseCase interfaces            # input ports
-│   │   ├── command/                      # immutable command records
-│   │   ├── result/                       # result records (multi-port aggregation)
-│   │   └── service/                      # use case implementations
-│   └── out/                              # output port interfaces
-└── infrastructure/
-    ├── <aggregate>/
-    │   ├── in/                           # REST controllers, request/response DTOs
-    │   ├── mapper/                       # MapStruct mappers
-    │   ├── out/                          # port adapters
-    │   └── persistence/                  # JDBC entities, Spring Data repositories
-    ├── security/                         # security components (cross-cutting)
-    ├── error/                            # error management (cross-cutting)
-    └── config/                           # configuration (cross-cutting)
-```
-
-- **Dependency rule**: `infrastructure → application → domain`. Never reverse
-
 ## Naming
 
 - Port names must be framework-agnostic — no Spring, JWT, or Redis references
@@ -40,12 +15,13 @@ com.bcn.asapp.<service>/
 ## Application Service
 
 - To register services in Spring context always use `@ApplicationService` (a custom meta-annotation); never use `@Service` directly
+- Constructor injection only — never field injection
 - `@Transactional` when coordinating multiple ports or using compensation; omit for read-only or single-port operations
-- Logger only for critical multi-step orchestrations: `logger.debug()` at entry/exit, `logger.trace()` per step
+- Use logging only for critical multi-step orchestrations
 
-## Ports & Adapters
+## Adapter vs. Direct Implementation
 
-- **Create an adapter when** the adaptee can't implement the port directly, external libraries (Spring JDBC, Redis), protocol translation, or type translation needed (e.g., `UserRepositoryAdapter`)
+- **Create an adapter when** external libraries (Spring JDBC, Redis), protocol translation, or type translation needed (e.g., `UserRepositoryAdapter`)
 - **Implement port directly when** the adaptee can implement the port directly, internal code with no translation needed (e.g., `JwtIssuer implements TokenIssuer`)
 - Cross-cutting infrastructure (e.g., `security/`) can implement ports from any aggregate package
 
@@ -57,15 +33,14 @@ com.bcn.asapp.<service>/
 
 - Use when coordinating two non-transactional stores (e.g., PostgreSQL + Redis)
 - Always in the application service, never in adapters
-- See `AuthenticateService` for a reference implementation
 
 ## Logging
 
 - `debug` = operation entry/exit and major milestones
 - `trace` = individual steps within an operation
 - Never log passwords, tokens, or PII, use safe placeholders (e.g., username only)
-- Controllers: let Spring handle HTTP logging; only log business context if necessary
-- Log errors **only** in `GlobalExceptionHandler`, never `logger.error()` inside service methods.
+- Let Spring handle HTTP logging; log business context in Controllers only if necessary
+- In `GlobalExceptionHandler` use `logger.warn(...)` for 4xx errors (client mistakes); `logger.error(..., ex)` for 5xx errors (include stack trace)
 
 ## Exception Handling
 

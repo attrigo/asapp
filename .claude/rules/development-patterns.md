@@ -1,27 +1,16 @@
 ---
 paths:
-  - "**/application/**/*.java"
   - "**/infrastructure/**/*.java"
 ---
 
 # Development Patterns
 
-## Common Snippets
+## Extracting the Current User
 
-**Extract current user from JWT** (token already Redis-validated by `JwtAuthenticationFilter`):
-```java
-JwtAuthenticationToken auth = (JwtAuthenticationToken) SecurityContextHolder
-    .getContext().getAuthentication();
-String username = auth.getName();
-String role     = auth.getRole();
-```
+- Always cast to `JwtAuthenticationToken` when reading the current user — never use `UserDetails` or `UsernamePasswordAuthenticationToken`
+- `JwtAuthenticationFilter` has already validated the JWT via Redis and stored it as a `JwtAuthenticationToken` in the security context
 
-**Service-to-service calls** — JWT is auto-propagated via `JwtInterceptor`, no manual header needed:
-```java
-var response = restClient.get()
-                         .uri("/api/users/{id}", userId)
-                         .retrieve()
-                         .body(UserResponse.class);
-```
+## Service-to-Service Calls
 
-For full use-case, endpoint, and migration workflows, use the corresponding skills.
+- Use the injected `RestClient` bean directly — never construct a new `RestClient` or add an `Authorization` header manually
+- `JwtInterceptor` automatically propagates the current request's JWT to all outgoing service calls
