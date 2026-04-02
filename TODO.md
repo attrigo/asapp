@@ -106,7 +106,7 @@
         * [X] asapp-users-service
     * [X] Replace Hamcrest assertions by AssertJ assertions
     * [X] Add PiTest
-    * [ ] Add maven-surefire-junit5-tree-reporter
+    * [X] Add maven-surefire-junit5-tree-reporter
 * [X] Improve management endpoints (Actuator)
     * [X] Show more health details when authenticated
     * [X] Move management to a separate port
@@ -252,7 +252,7 @@
 
 ### Tests
 
-* [ ] Add Spring Test Profiler
+* [ ] Add spring-test-profiler
 * [ ] Review Spring test context usage
 
 ### Git
