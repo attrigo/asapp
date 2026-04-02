@@ -1,7 +1,11 @@
 ---
 name: release
-description: Automate the full release cycle — remove SNAPSHOT, tag Liquibase changelogs, build, commit, tag, bump to next dev version, and optionally push.
-argument-hint: "[--push]"
+description: >
+  Use this skill when the user wants to cut and publish a new release of ASAPP.
+  Automates the full release cycle: removes SNAPSHOT suffix, tags Liquibase changelogs,
+  builds and verifies, commits, creates a git tag, bumps to the next SNAPSHOT, and pushes.
+  Triggers include: release, publish, cut a release, ship a version, bump to release, tag and push.
+  Do NOT use for ad-hoc version bumps, hotfix cherry-picks, or SNAPSHOT-only changes.
 ---
 
 # Release
@@ -11,7 +15,6 @@ Automates the full ASAPP release cycle: version bump, Liquibase tagging, build v
 ## Usage
 
 - `/release` — runs all steps, asks for confirmation before pushing
-- `/release --push` — runs all steps including atomic push without a separate prompt
 
 ## Prerequisites
 
@@ -111,13 +114,7 @@ git commit -m "chore: prepare next development version ${NEXT_DEV_VERSION}"
 
 ### Step 9: Push
 
-**If `--push` was specified**, push atomically:
-
-```bash
-git push --atomic origin main ${RELEASE_VERSION}
-```
-
-**If `--push` was NOT specified**, display the push command and ask for confirmation before running it:
+Display the push command and ask for confirmation before running it:
 
 ```
 Ready to push. Run the following command to publish the release:
@@ -135,7 +132,7 @@ Only push if the user confirms.
 - **Abort if working tree is dirty** — prevents accidental inclusion of uncommitted changes
 - **Never skip `mvn clean install`** — the build must pass before any commits are made
 - **Never force push** — use `--atomic` only; never `--force` or `--force-with-lease`
-- **Never push without confirmation** unless `--push` was explicitly passed
+- **Never push without confirmation**
 
 ## Example Output
 
