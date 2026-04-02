@@ -1,29 +1,25 @@
-# CLAUDE.md
+# ASAPP
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Spring Boot 3.4.3 / Java 21 task management application
+Architecture: Hexagonal (Ports & Adapters) + DDD
+Stack: Spring MVC, Spring Data JDBC · Spring Security (JWT) · PostgreSQL · Redis · Liquibase · Prometheus (9090) · Grafana (3000)
+Services: `asapp-authentication-service` (8080/8090), `asapp-tasks-service` (8081/8091), `asapp-users-service` (8082/8092)
+Libs: `asapp-commons-url` (endpoint URL constants), `asapp-rest-clients` (service-to-service HTTP)
+Guidelines: see `.claude/rules/`
 
-## Project Overview
+## Build
+- Build: `mvn clean install`
+- Docker images: `mvn spring-boot:build-image`
+- Format (Eclipse config: `asapp_formatter.xml`): `mvn spotless:apply`
 
-ASAPP is a Spring Boot 3.4.3 microservices application for task management, built with Java 21. It follows Hexagonal Architecture principles and consists of three main services:
-- **asapp-authentication-service**: Manages user credentials and JWT token lifecycle
-- **asapp-users-service**: Manages user profile information
-- **asapp-tasks-service**: Manages tasks and projects
+## Run
+- Service: `cd services/<name> && mvn spring-boot:run`
+- Full stack: `docker-compose up -d` (services, PostgreSQL ×3, Redis, Prometheus, Grafana)
 
-## Documentation
+## Testing
+- Test: `mvn clean verify`
+- Mutation testing: `mvn org.pitest:pitest-maven:mutationCoverage`
 
-Essential guides for understanding and working with ASAPP:
-
-### Architecture
-@docs/guidelines/architecture.md
-
-### Testing
-Testing rules auto-load based on file type (*Tests.java, *IT.java). See `.claude/rules/testing-*.md` for details.
-
-### API Conventions
-@docs/guidelines/api-conventions.md
-
-### Code Style & Build
-@docs/guidelines/code-style.md
-
-### Development Workflows
-@docs/guidelines/development-patterns.md
+## Git
+- Follows Conventional Commits
+- Pre-commit hooks validate format and formatting
