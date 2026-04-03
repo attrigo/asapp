@@ -512,38 +512,47 @@ mvn git-build-hook:install
 
 ### Creating a Release
 
-```bash
-# 1. Checkout main
-git checkout main
+The release cycle is automated via the `/release` Claude Code skill. Run it from the `main` branch with a clean working tree:
 
-# 2. Remove SNAPSHOT version
-mvn versions:set -DremoveSnapshot=true -DprocessAllModules=true -DgenerateBackupPoms=false
-
-# 3. Add Liquibase database tags to all v<version>-changelog.xml files
-# (Manual step - add tagDatabase changeset)
-
-# 4. Build and verify
-mvn clean install
-
-# 5. Commit release
-RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-git add .
-git commit -m "chore: release version ${RELEASE_VERSION}"
-
-# 6. Create tag
-git tag ${RELEASE_VERSION}
-
-# 7. Prepare next development version
-mvn versions:set -DnextSnapshot=true -DnextSnapshotIndexToIncrement=2 -DprocessAllModules=true -DgenerateBackupPoms=false
-
-# 8. Commit next version
-NEXT_DEV_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-git add .
-git commit -m "chore: prepare next development version ${NEXT_DEV_VERSION}"
-
-# 9. Push atomically
-git push --atomic origin main ${RELEASE_VERSION}
 ```
+/release
+```
+
+The skill handles the full cycle and asks for confirmation before pushing:
+
+1. Validates preconditions (on `main`, clean working tree)
+2. Removes `-SNAPSHOT` suffix from all POM versions
+3. Adds Liquibase database tags to version changelog files
+4. Builds and verifies the project (`mvn clean install`)
+5. Commits the release and creates a git tag (`vX.Y.Z`)
+6. Bumps to the next development SNAPSHOT version
+7. Commits the next development version
+8. Pushes commits and tag atomically (`git push --atomic origin main vX.Y.Z`)
+
+Once the tag is pushed, the release pipeline runs automatically:
+
+**File**: `.github/workflows/release.yml`
+
+**Pipeline Steps**:
+1. Build and test the project
+2. Build and publish Docker images to `ghcr.io`
+3. Generate changelog from Conventional Commits
+4. Create a GitHub Release with changelog and JAR artifacts attached
+
+### Improving the Release Notes (Optional)
+
+Once the GitHub Release is published, the changelog can be polished via the `/improve-changelog` Claude Code skill:
+
+```
+/improve-changelog vX.Y.Z
+```
+
+The skill applies AI editorial judgment to the generated changelog and asks for confirmation before updating the GitHub Release:
+
+- Merges entries that cover the same feature across multiple commits
+- Removes low-value entries with no user-facing impact
+- Rewrites terse or unclear messages into plain language
+- Preserves commit links, section structure, and all breaking change entries
 
 ## Documentation
 
