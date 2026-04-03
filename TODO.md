@@ -122,8 +122,7 @@
     * [X] Separate license from the package in all java files
     * [X] Not put empty lines before "try {" and after "}"
     * [X] Records
-    * [ ] Wrap chained method invocations keeping two method calls (a.c().d()) in the same line
-    * [ ] Wrap if statements by control flow keywords (&& and ||)
+    * [X] Wrap if statement conditions at logical operators (&& and ||) one per line, only when line exceeds 160 chars
 * [ ] CI/CD
     * [X] Add a Unix (LF) line separator check to Git Hook
     * [ ] Add maven profiles to avoid some steps during local builds
@@ -268,6 +267,7 @@
 
 * [ ] Refactor Maven by Gradle
 * [ ] Improve code formatting
+    * [ ] Wrap chained method invocations keeping two method calls (a.c().d()) in the same line, only when line exceeds 160 chars (Not Supported by Eclipse formatter 4.35 - 2025-03)
     * [ ] Add code formatter for .xml files
     * [ ] Add code formatter for .yaml files
     * [ ] Add code formatter for .md files
