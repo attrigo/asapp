@@ -505,12 +505,37 @@ mvn git-build-hook:install
 3. Run `mvn clean verify` (all tests must pass)
 4. Commit with conventional commit messages
 5. Push and create PR to `main`
-6. CI pipeline runs automatically
+6. CI pipeline runs automatically (see [CI/CD](#cicd))
 7. Merge after review and CI success
 
-## Release Process
+## CI/CD
 
-### Creating a Release
+### Continuous Integration
+
+Builds and tests the project on every push and pull request to `main`.
+
+**File**: `.github/workflows/ci.yml`
+
+**Triggers**:
+- Push to `main` branch
+- Pull requests to `main`
+
+**Pipeline Steps**:
+1. Checkout code
+2. Setup JDK 21 (Temurin)
+3. Maven dependency caching
+4. Build and test (`mvn verify`)
+
+**Reports Generated**:
+- JaCoCo coverage (unit, integration, aggregate)
+- Surefire test results (unit tests)
+- Failsafe test results (integration tests)
+
+### Continuous Delivery
+
+Automates the full release cycle in three stages: generating the release, building and publishing artifacts, and optionally polishing the changelog.
+
+#### Release Generation
 
 The release cycle is automated via the `/release` Claude Code skill. Run it from the `main` branch with a clean working tree:
 
@@ -529,17 +554,26 @@ The skill handles the full cycle and asks for confirmation before pushing:
 7. Commits the next development version
 8. Pushes commits and tag atomically (`git push --atomic origin main vX.Y.Z`)
 
+#### Release Build
+
 Once the tag is pushed, the release pipeline runs automatically:
 
 **File**: `.github/workflows/release.yml`
 
+**Triggers**:
+- Push of a version tag (`v*`)
+
 **Pipeline Steps**:
 1. Build and test the project
-2. Build and publish Docker images to `ghcr.io`
+2. Build and publish Docker images
 3. Generate changelog from Conventional Commits
-4. Create a GitHub Release with changelog and JAR artifacts attached
+4. Create a GitHub Release
 
-### Improving the Release Notes (Optional)
+**Resources Published**:
+- Docker images → `ghcr.io`
+- GitHub Release with changelog and JAR artifacts
+
+#### Changelog Improvement (Optional)
 
 Once the GitHub Release is published, the changelog can be polished via the `/improve-changelog` Claude Code skill:
 
@@ -631,27 +665,6 @@ curl -X POST http://localhost:8080/asapp-authentication-service/api/auth/token \
 # 3. Check authentication container logs
 docker-compose logs asapp-prometheus-authentication
 ```
-
-## CI/CD
-
-### GitHub Actions Workflow
-
-**File**: `.github/workflows/ci.yml`
-
-**Triggers**:
-- Push to `main` branch
-- Pull requests to `main`
-
-**Pipeline Steps**:
-1. Checkout code
-2. Setup JDK 21 (Temurin)
-3. Maven dependency caching
-4. Build and test (`mvn verify`)
-
-**Reports Generated**:
-- JaCoCo coverage (unit, integration, aggregate)
-- Surefire test results (unit tests)
-- Failsafe test results (integration tests)
 
 ## Requirements
 
