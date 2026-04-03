@@ -30,6 +30,7 @@ import org.junit.jupiter.params.provider.ValueSource;
  * <p>
  * Coverage:
  * <li>Rejects null or blank subject values</li>
+ * <li>Validates subject must be a valid email address format</li>
  * <li>Accepts valid inputs through constructor and factory method</li>
  * <li>Provides access to wrapped subject value</li>
  */
@@ -62,6 +63,17 @@ class SubjectTests {
                               .hasMessage("Subject must not be null or empty");
         }
 
+        @ParameterizedTest
+        @ValueSource(strings = { "notanemail", "@nodomain.com", "user@", "user@@domain.com" })
+        void ThrowsIllegalArgumentException_SubjectNotEmail(String subject) {
+            // When
+            var actual = catchThrowable(() -> new Subject(subject));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Subject must be a valid email address");
+        }
+
     }
 
     @Nested
@@ -89,6 +101,17 @@ class SubjectTests {
             // Then
             assertThat(actual).isInstanceOf(IllegalArgumentException.class)
                               .hasMessage("Subject must not be null or empty");
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = { "notanemail", "@nodomain.com", "user@", "user@@domain.com" })
+        void ThrowsIllegalArgumentException_SubjectNotEmail(String subject) {
+            // When
+            var actual = catchThrowable(() -> Subject.of(subject));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Subject must be a valid email address");
         }
 
     }

@@ -75,7 +75,7 @@
         * [X] Add basic CRUD endpoints for user (to be able to manage users)
         * [X] Support for multiple authentications by user
         * [X] Add trace logging in all auth operations
-        * [ ] Subject should validate is a valid email format
+        * [X] Subject should validate is a valid email format
         * [ ] EncodedToken should validate is a valid JWT format
     * [X] Adapt other services
         * [X] Protect business endpoints
