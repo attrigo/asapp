@@ -67,7 +67,7 @@
 * [X] Set up Observability Metrics
     * [X] Use Prometheus and Grafana
     * [X] Add a JVM dashboard for each service
-* [ ] Add Spring Security
+* [X] Add Spring Security
     * [X] Create an authentication service
         * [X] Add authenticate endpoint
         * [X] Add refresh endpoint
@@ -76,7 +76,7 @@
         * [X] Support for multiple authentications by user
         * [X] Add trace logging in all auth operations
         * [X] Subject should validate is a valid email format
-        * [ ] EncodedToken should validate is a valid JWT format
+        * [X] EncodedToken should validate is a valid JWT format
     * [X] Adapt other services
         * [X] Protect business endpoints
         * [X] Propagate JWT when performing HTTP calls

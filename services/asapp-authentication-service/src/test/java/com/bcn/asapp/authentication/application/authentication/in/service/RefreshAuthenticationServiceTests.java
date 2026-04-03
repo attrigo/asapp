@@ -85,9 +85,9 @@ class RefreshAuthenticationServiceTests {
         @Test
         void ReturnsRefreshedJwtAuthentication_ValidRefreshToken() {
             // Given
-            var refreshTokenValue = "refresh.token";
+            var refreshTokenValue = "refresh.token.value";
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
-            var oldJwtAuthentication = aJwtAuthenticationBuilder().withTokenValues("access.token", refreshTokenValue)
+            var oldJwtAuthentication = aJwtAuthenticationBuilder().withTokenValues("access.token.value", refreshTokenValue)
                                                                   .build();
             var oldJwtPair = oldJwtAuthentication.getJwtPair();
             var oldRefreshToken = oldJwtPair.refreshToken();
@@ -135,7 +135,7 @@ class RefreshAuthenticationServiceTests {
         @Test
         void ThrowsUnexpectedJwtTypeException_TokenNotRefreshType() {
             // Given
-            var refreshTokenValue = "access.token";
+            var refreshTokenValue = "access.token.value";
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
 
             willThrow(new UnexpectedJwtTypeException("Token is not a refresh token")).given(tokenVerifier)
@@ -157,7 +157,7 @@ class RefreshAuthenticationServiceTests {
         @Test
         void ThrowsAuthenticationNotFoundException_TokenNotFoundInStore() {
             // Given
-            var refreshTokenValue = "refresh.token";
+            var refreshTokenValue = "refresh.token.value";
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
 
             willThrow(new AuthenticationNotFoundException("Refresh token not found in active sessions")).given(tokenVerifier)
@@ -179,7 +179,7 @@ class RefreshAuthenticationServiceTests {
         @Test
         void ThrowsAuthenticationNotFoundException_TokenNotFoundInRepository() {
             // Given
-            var refreshTokenValue = "refresh.token";
+            var refreshTokenValue = "refresh.token.value";
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
 
             given(jwtAuthenticationRepository.findByRefreshToken(encodedRefreshToken)).willThrow(
@@ -203,9 +203,9 @@ class RefreshAuthenticationServiceTests {
         @Test
         void ThrowsRuntimeException_TokenPairGenerationFails() {
             // Given
-            var refreshTokenValue = "refresh.token";
+            var refreshTokenValue = "refresh.token.value";
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
-            var oldJwtAuthentication = aJwtAuthenticationBuilder().withTokenValues("access.token", refreshTokenValue)
+            var oldJwtAuthentication = aJwtAuthenticationBuilder().withTokenValues("access.token.value", refreshTokenValue)
                                                                   .build();
             var oldJwtPair = oldJwtAuthentication.getJwtPair();
             var oldRefreshToken = oldJwtPair.refreshToken();
@@ -240,9 +240,9 @@ class RefreshAuthenticationServiceTests {
         @Test
         void ThrowsRuntimeException_AuthenticationPersistenceFails() {
             // Given
-            var refreshTokenValue = "refresh.token";
+            var refreshTokenValue = "refresh.token.value";
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
-            var oldJwtAuthentication = aJwtAuthenticationBuilder().withTokenValues("access.token", refreshTokenValue)
+            var oldJwtAuthentication = aJwtAuthenticationBuilder().withTokenValues("access.token.value", refreshTokenValue)
                                                                   .build();
             var oldJwtPair = oldJwtAuthentication.getJwtPair();
             var oldRefreshToken = oldJwtPair.refreshToken();
@@ -285,9 +285,9 @@ class RefreshAuthenticationServiceTests {
         @Test
         void ThrowsCompensatingTransactionException_TokenRotationFailsAndCompensationFails() {
             // Given
-            var refreshTokenValue = "refresh.token";
+            var refreshTokenValue = "refresh.token.value";
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
-            var oldJwtAuthentication = aJwtAuthenticationBuilder().withTokenValues("access.token", refreshTokenValue)
+            var oldJwtAuthentication = aJwtAuthenticationBuilder().withTokenValues("access.token.value", refreshTokenValue)
                                                                   .build();
             var oldJwtPair = oldJwtAuthentication.getJwtPair();
             var oldRefreshToken = oldJwtPair.refreshToken();
@@ -336,9 +336,9 @@ class RefreshAuthenticationServiceTests {
         @Test
         void ThrowsTokenStoreException_TokenRotationFailsAndCompensationSucceeds() {
             // Given
-            var refreshTokenValue = "refresh.token";
+            var refreshTokenValue = "refresh.token.value";
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
-            var oldJwtAuthentication = aJwtAuthenticationBuilder().withTokenValues("access.token", refreshTokenValue)
+            var oldJwtAuthentication = aJwtAuthenticationBuilder().withTokenValues("access.token.value", refreshTokenValue)
                                                                   .build();
             var oldJwtPair = oldJwtAuthentication.getJwtPair();
             var oldRefreshToken = oldJwtPair.refreshToken();
@@ -385,9 +385,9 @@ class RefreshAuthenticationServiceTests {
         @Test
         void ThrowsCompensatingTransactionException_TokenActivationFailsAndCompensationFails() {
             // Given
-            var refreshTokenValue = "refresh.token";
+            var refreshTokenValue = "refresh.token.value";
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
-            var oldJwtAuthentication = aJwtAuthenticationBuilder().withTokenValues("access.token", refreshTokenValue)
+            var oldJwtAuthentication = aJwtAuthenticationBuilder().withTokenValues("access.token.value", refreshTokenValue)
                                                                   .build();
             var oldJwtPair = oldJwtAuthentication.getJwtPair();
             var oldRefreshToken = oldJwtPair.refreshToken();
@@ -438,9 +438,9 @@ class RefreshAuthenticationServiceTests {
         @Test
         void ThrowsTokenStoreException_TokenActivationFailsAndCompensationSucceeds() {
             // Given
-            var refreshTokenValue = "refresh.token";
+            var refreshTokenValue = "refresh.token.value";
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
-            var oldJwtAuthentication = aJwtAuthenticationBuilder().withTokenValues("access.token", refreshTokenValue)
+            var oldJwtAuthentication = aJwtAuthenticationBuilder().withTokenValues("access.token.value", refreshTokenValue)
                                                                   .build();
             var oldJwtPair = oldJwtAuthentication.getJwtPair();
             var oldRefreshToken = oldJwtPair.refreshToken();

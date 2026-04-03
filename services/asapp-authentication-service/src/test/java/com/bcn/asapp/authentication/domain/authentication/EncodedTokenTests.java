@@ -53,13 +53,24 @@ class EncodedTokenTests {
         @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = { " ", "\t" })
-        void ThrowsIllegalArgumentException_NullOrBlankToken(String token) {
+        void ThrowsInvalidEncodedTokenException_NullOrBlankToken(String token) {
             // When
             var actual = catchThrowable(() -> new EncodedToken(token));
 
             // Then
-            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+            assertThat(actual).isInstanceOf(InvalidEncodedTokenException.class)
                               .hasMessage("Encoded token must not be null or empty");
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = { "notajwt", "only.two", "too.many.dots.here", ".empty.header", "empty..sig" })
+        void ThrowsInvalidEncodedTokenException_InvalidJwtFormat(String token) {
+            // When
+            var actual = catchThrowable(() -> new EncodedToken(token));
+
+            // Then
+            assertThat(actual).isInstanceOf(InvalidEncodedTokenException.class)
+                              .hasMessage("Encoded token must be a valid JWT format");
         }
 
     }
@@ -82,13 +93,24 @@ class EncodedTokenTests {
         @ParameterizedTest
         @NullAndEmptySource
         @ValueSource(strings = { " ", "\t" })
-        void ThrowsIllegalArgumentException_NullOrBlankToken(String token) {
+        void ThrowsInvalidEncodedTokenException_NullOrBlankToken(String token) {
             // When
             var actual = catchThrowable(() -> EncodedToken.of(token));
 
             // Then
-            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+            assertThat(actual).isInstanceOf(InvalidEncodedTokenException.class)
                               .hasMessage("Encoded token must not be null or empty");
+        }
+
+        @ParameterizedTest
+        @ValueSource(strings = { "notajwt", "only.two", "too.many.dots.here", ".empty.header", "empty..sig" })
+        void ThrowsInvalidEncodedTokenException_InvalidJwtFormat(String token) {
+            // When
+            var actual = catchThrowable(() -> EncodedToken.of(token));
+
+            // Then
+            assertThat(actual).isInstanceOf(InvalidEncodedTokenException.class)
+                              .hasMessage("Encoded token must be a valid JWT format");
         }
 
     }

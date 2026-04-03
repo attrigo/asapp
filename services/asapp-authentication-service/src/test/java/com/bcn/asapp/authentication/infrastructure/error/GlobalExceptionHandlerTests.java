@@ -33,6 +33,7 @@ import com.bcn.asapp.authentication.application.authentication.AuthenticationNot
 import com.bcn.asapp.authentication.application.authentication.InvalidJwtException;
 import com.bcn.asapp.authentication.application.authentication.TokenStoreException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
+import com.bcn.asapp.authentication.domain.authentication.InvalidEncodedTokenException;
 import com.bcn.asapp.authentication.domain.user.InvalidPasswordException;
 import com.bcn.asapp.authentication.domain.user.InvalidUsernameException;
 
@@ -117,6 +118,34 @@ class GlobalExceptionHandlerTests {
         void Returns401WithGenericMessage_InvalidPasswordFormat() {
             // Given
             var exception = new InvalidPasswordException("Raw password must be between 8 and 64 characters");
+
+            // When
+            var actual = globalExceptionHandler.handleInvalidCredentials(exception);
+
+            // Then
+            assertThat(actual.getStatusCode()).as("status code")
+                                              .isEqualTo(HttpStatus.UNAUTHORIZED);
+            assertThat(actual.getBody()).as("body")
+                                        .isNotNull();
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Authentication Failed");
+                softly.assertThat(actual.getBody().getStatus()).as("status").isEqualTo(401);
+                softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo("Invalid credentials");
+                softly.assertThat(actual.getBody().getProperties()).as("error code").containsEntry("error", "invalid_grant");
+                // @formatter:on
+            });
+        }
+
+    }
+
+    @Nested
+    class HandleInvalidEncodedTokenException {
+
+        @Test
+        void Returns401WithGenericMessage_InvalidEncodedTokenFormat() {
+            // Given
+            var exception = new InvalidEncodedTokenException("Encoded token must be a valid JWT format");
 
             // When
             var actual = globalExceptionHandler.handleInvalidCredentials(exception);

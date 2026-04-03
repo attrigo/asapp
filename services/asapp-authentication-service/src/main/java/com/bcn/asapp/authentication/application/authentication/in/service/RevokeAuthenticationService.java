@@ -29,6 +29,7 @@ import com.bcn.asapp.authentication.application.authentication.out.JwtAuthentica
 import com.bcn.asapp.authentication.application.authentication.out.TokenStore;
 import com.bcn.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
+import com.bcn.asapp.authentication.domain.authentication.InvalidEncodedTokenException;
 import com.bcn.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.bcn.asapp.authentication.domain.authentication.JwtPair;
 
@@ -83,7 +84,7 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
      * compensating transaction.
      *
      * @param accessToken the access token string
-     * @throws IllegalArgumentException        if the access token is invalid or blank
+     * @throws InvalidEncodedTokenException    if the access token does not conform to JWT format
      * @throws UnexpectedJwtTypeException      if the provided token is not an access token
      * @throws AuthenticationNotFoundException if the token is not found in active sessions or repository
      * @throws PersistenceException            if authentication deletion fails
