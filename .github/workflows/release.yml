@@ -1,0 +1,81 @@
+# This workflow builds, tests, publishes Docker images, and creates a GitHub Release.
+# It is triggered when a version tag matching v* is pushed.
+
+name: Build, publish and release the project
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout the project
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v5
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Build and test the project
+        run: mvn install -B --no-transfer-progress
+
+      - name: Log in to ghcr.io
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Build and push Docker images
+        run: |
+          mvn spring-boot:build-image \
+            -pl services/asapp-authentication-service,services/asapp-tasks-service,services/asapp-users-service \
+            -B --no-transfer-progress -DskipTests
+
+          for SERVICE in asapp-authentication-service asapp-tasks-service asapp-users-service; do
+            VERSIONED_IMAGE="ghcr.io/attrigo/${SERVICE}:${{ steps.version.outputs.VERSION }}"
+            LATEST_IMAGE="ghcr.io/attrigo/${SERVICE}:latest"
+            docker push "${VERSIONED_IMAGE}"
+            docker tag "${VERSIONED_IMAGE}" "${LATEST_IMAGE}"
+            docker push "${LATEST_IMAGE}"
+          done
+
+      - name: Generate changelog
+        uses: orhun/git-cliff-action@v4
+        id: changelog
+        with:
+          config: .github/cliff.toml
+          args: --verbose --latest --strip header
+        env:
+          OUTPUT: CHANGELOG_RELEASE.md
+          GITHUB_REPO: ${{ github.repository }}
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --title "Release ${{ github.ref_name }}" \
+            --notes-file CHANGELOG_RELEASE.md \
+            services/asapp-authentication-service/target/asapp-authentication-service-${{ steps.version.outputs.VERSION }}.jar \
+            services/asapp-tasks-service/target/asapp-tasks-service-${{ steps.version.outputs.VERSION }}.jar \
+            services/asapp-users-service/target/asapp-users-service-${{ steps.version.outputs.VERSION }}.jar \
+            libs/asapp-commons-url/target/asapp-commons-url-${{ steps.version.outputs.VERSION }}-sources.jar \
+            libs/asapp-rest-clients/target/asapp-rest-clients-${{ steps.version.outputs.VERSION }}-sources.jar

@@ -168,6 +168,7 @@
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <configuration>
                         <image>
+                            <name>ghcr.io/attrigo/${project.artifactId}:${project.version}</name>
                             <env>
                                 <BP_JVM_VERSION>${java.version}</BP_JVM_VERSION>
                             </env>

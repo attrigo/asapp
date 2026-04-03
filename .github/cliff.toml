@@ -1,0 +1,40 @@
+[changelog]
+header = """
+# Changelog\n
+"""
+body = """
+{% if version %}\
+## {{ version }}
+{% else %}\
+## [Unreleased]
+{% endif %}\
+{% for group, commits in commits | group_by(attribute="group") %}
+### {{ group }}
+{% for commit in commits %}\
+- {% if commit.scope %}**{{ commit.scope }}:** {% endif %}\
+{{ commit.message | upper_first }} \
+([`{{ commit.id | truncate(length=7, end="") }}`](https://github.com/attrigo/asapp/commit/{{ commit.id }}))\n
+{% endfor %}\
+{% endfor %}\n
+"""
+trim = true
+footer = ""
+
+[git]
+conventional_commits = true
+filter_unconventional = true
+split_commits = false
+commit_parsers = [
+    { breaking = true, group = "⚠️ Breaking Changes" },
+    { message = "^feat", group = "✨ New Features" },
+    { message = "^fix", group = "🐛 Bug Fixes" },
+    { message = "^docs", group = "📖 Documentation" },
+    { message = "^(build|chore).*\\b(upgrade|update|bump)\\b", group = "⬆️ Upgrades" },
+    { message = "^(ci|refactor|perf)", group = "🔨 Others" },
+    { message = ".*", skip = true },
+]
+protect_breaking_commits = false
+filter_commits = true
+tag_pattern = "v[0-9].*"
+topo_order = false
+sort_commits = "newest"
