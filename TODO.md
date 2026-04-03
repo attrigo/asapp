@@ -126,8 +126,8 @@
 * [ ] CI/CD
     * [X] Add a Unix (LF) line separator check to Git Hook
     * [ ] Add maven profiles to avoid some steps during local builds
-    * [ ] Improve GitHub actions
-        * [ ] Build tags
+    * [X] Improve GitHub actions
+        * [X] Build tags
 * [ ] Technical improvements
     * [X] Replace "/v1" with "/api" in the path of all endpoints
     * [X] Add "<relativePath>..</relativePath>" to libs and services poms
