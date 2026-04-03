@@ -21,7 +21,7 @@ package com.bcn.asapp.authentication.domain.authentication;
  * <p>
  * This value object encapsulates a subject value as {@link String}.
  * <p>
- * It enforces structural integrity by ensuring the subject is not blank.
+ * It enforces structural integrity by ensuring the subject is not blank and conform to the standard email structure.
  *
  * @param subject the subject identifier
  * @since 0.2.0
@@ -35,10 +35,11 @@ public record Subject(
      * Constructs a new {@code Subject} instance and validates its integrity.
      *
      * @param subject the subject value to validate and store
-     * @throws IllegalArgumentException if the subject is {@code null} or blank
+     * @throws IllegalArgumentException if the subject is {@code null}, blank, or does not match the email pattern
      */
     public Subject {
         validateSubjectIsNotBlank(subject);
+        validateSubjectIsEmail(subject);
     }
 
     /**
@@ -46,7 +47,7 @@ public record Subject(
      *
      * @param subject the subject value
      * @return a new {@code Subject} instance
-     * @throws IllegalArgumentException if the subject is {@code null} or blank
+     * @throws IllegalArgumentException if the subject is {@code null}, blank, or does not match the email pattern
      */
     public static Subject of(String subject) {
         return new Subject(subject);
@@ -70,6 +71,18 @@ public record Subject(
     private static void validateSubjectIsNotBlank(String subject) {
         if (subject == null || subject.isBlank()) {
             throw new IllegalArgumentException("Subject must not be null or empty");
+        }
+    }
+
+    /**
+     * Validates that the subject conforms to the email format.
+     *
+     * @param subject the subject to validate
+     * @throws IllegalArgumentException if the subject does not conform to the email format
+     */
+    private static void validateSubjectIsEmail(String subject) {
+        if (!subject.matches("^[a-zA-Z0-9_!#$%&'*+/=?`{|}~^.-]+@[a-zA-Z0-9.-]+$")) {
+            throw new IllegalArgumentException("Subject must be a valid email address");
         }
     }
 
