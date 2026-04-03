@@ -99,7 +99,7 @@ class JwtAuthenticationRepositoryAdapterTests {
         @Test
         void ThrowsAuthenticationNotFoundException_AccessTokenNotFound() {
             // Given
-            var accessToken = EncodedToken.of("access.token");
+            var accessToken = EncodedToken.of("access.token.value");
 
             given(jwtAuthenticationRepository.findByAccessTokenToken(accessToken.value())).willReturn(Optional.empty());
 
@@ -145,7 +145,7 @@ class JwtAuthenticationRepositoryAdapterTests {
         @Test
         void ThrowsAuthenticationNotFoundException_RefreshTokenNotFound() {
             // Given
-            var refreshToken = EncodedToken.of("refresh.token");
+            var refreshToken = EncodedToken.of("refresh.token.value");
 
             given(jwtAuthenticationRepository.findByRefreshTokenToken(refreshToken.value())).willReturn(Optional.empty());
 
