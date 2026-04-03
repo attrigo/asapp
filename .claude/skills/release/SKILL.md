@@ -91,7 +91,7 @@ mvn clean install
 RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
 git add .
 git commit -m "chore: release version ${RELEASE_VERSION}"
-git tag ${RELEASE_VERSION}
+git tag v${RELEASE_VERSION}
 ```
 
 Confirm the commit and tag were created successfully.
@@ -119,7 +119,7 @@ Display the push command and ask for confirmation before running it:
 ```
 Ready to push. Run the following command to publish the release:
 
-  git push --atomic origin main X.Y.Z
+  git push --atomic origin main vX.Y.Z
 
 Proceed? [y/N]
 ```
@@ -145,13 +145,13 @@ Detected version: 0.3.0-SNAPSHOT → releasing as 0.3.0
   - asapp-users-service: added tag_version_0_3_0
   - asapp-tasks-service: no v0.3.0 changelog found, skipped
 [Step 5] Building...  done (BUILD SUCCESS)
-[Step 6] Committing release and tagging...  done (tag: 0.3.0)
+[Step 6] Committing release and tagging...  done (tag: v0.3.0)
 [Step 7] Bumping to next SNAPSHOT...  done (pom.xml → 0.4.0-SNAPSHOT)
 [Step 8] Committing next dev version...  done
 
 Ready to push. Run the following command to publish the release:
 
-  git push --atomic origin main 0.3.0
+  git push --atomic origin main v0.3.0
 
 Proceed? [y/N]
 ```
