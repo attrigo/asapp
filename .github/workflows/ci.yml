@@ -1,5 +1,5 @@
-# This workflow builds and test asapp project.
-# It is triggered when there is a push to a repository branch, this includes when a commit is pushed, a commit tag is pushed, a branch is deleted, a tag is deleted, or when there is activity on a pull request.
+# This workflow builds and tests the asapp project.
+# It is triggered on push to main and on pull requests targeting main.
 
 name: Build and test the project
 
@@ -9,9 +9,17 @@ on:
   pull_request:
     branches: [ "main" ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout the project
         uses: actions/checkout@v4
@@ -23,5 +31,5 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      - name: Build and test the service
-        run: mvn verify
+      - name: Build and test the project
+        run: mvn verify -B --no-transfer-progress
