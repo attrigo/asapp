@@ -307,9 +307,6 @@ asapp/
 # Build all modules
 mvn clean install
 
-# Build with tests and coverage
-mvn clean verify
-
 # Skip tests (faster)
 mvn clean install -DskipTests
 
@@ -347,6 +344,19 @@ mvn spotless:apply
 
 # Install git hooks
 mvn git-build-hook:install
+```
+
+### Generate Documentation
+
+```bash
+# Generate reports
+mvn clean verify -Pfull
+
+# View test coverage
+open services/asapp-tasks-service/target/site/jacoco-aggregate/index.html
+
+# View Mutation Testing Report
+open services/asapp-tasks-service/target/pit-reports/<timestamp>/index.html
 ```
 
 ### Database Management
