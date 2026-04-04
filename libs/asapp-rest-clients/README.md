@@ -177,7 +177,20 @@ uriHandler.buildUri("/api", "tasks", "user", userId)
 
 ## Development
 
-### Code Formatting
+### Build and Test
+
+```bash
+# Build and install
+mvn clean install
+
+# Skip tests (faster)
+mvn clean install -DskipTests
+
+# Run tests
+mvn test
+```
+
+### Code Quality
 
 This library uses [Spotless](https://github.com/diffplug/spotless/tree/main/plugin-maven) with the ASAPP Eclipse formatter:
 
@@ -187,27 +200,20 @@ mvn spotless:check
 
 # Apply formatting
 mvn spotless:apply
+
+# Install git hooks (pre-commit, commit-msg)
+mvn git-build-hook:install
 ```
 
-### Generate Javadoc
+### Generate Documentation
 
 ```bash
-# Generate documentation
-mvn clean verify
+# Generate reports
+mvn clean verify -Pfull
 
 # View Javadoc
 open target/asapp-rest-clients-<version>-javadoc.jar
-# Or extract and open: target/site/apidocs/index.html
-```
-
-### Running Tests
-
-```bash
-# Run all tests
-mvn test
-
-# Run with coverage
-mvn clean verify
+# Or: target/site/apidocs/index.html
 ```
 
 ## Configuration Properties

@@ -229,11 +229,14 @@ management.endpoints.web.exposure.include=*
 # Build project
 mvn clean install
 
-# Run all tests (unit + integration)
-mvn clean verify
+# Skip tests (faster)
+mvn clean install -DskipTests
 
 # Run unit tests only
 mvn test
+
+# Run all tests (unit + integration)
+mvn clean verify
 
 # Run integration tests only
 mvn verify -DskipUnitTests
@@ -274,7 +277,7 @@ mvn liquibase:rollback -Dliquibase.rollbackCount=1
 ### Generate Documentation
 
 ```bash
-# Generate Javadoc
+# Generate reports
 mvn clean verify -Pfull
 
 # View Javadoc
