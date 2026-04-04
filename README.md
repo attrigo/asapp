@@ -502,7 +502,7 @@ mvn git-build-hook:install
 
 1. Create feature branch from `main`
 2. Make changes following code standards
-3. Run `mvn clean verify` (all tests must pass)
+3. Run `mvn clean verify -Pfull` (all tests and reports must pass)
 4. Commit with conventional commit messages
 5. Push and create PR to `main`
 6. CI pipeline runs automatically (see [CI/CD](#cicd))
@@ -524,7 +524,7 @@ Builds and tests the project on every push and pull request to `main`.
 1. Checkout code
 2. Setup JDK 21 (Temurin)
 3. Maven dependency caching
-4. Build and test (`mvn verify`)
+4. Build and test (`mvn verify -Pfull`)
 
 **Reports Generated**:
 - JaCoCo coverage (unit, integration, aggregate)

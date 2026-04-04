@@ -274,7 +274,7 @@ mvn liquibase:rollback -Dliquibase.rollbackCount=1
 
 ```bash
 # Generate Javadoc
-mvn clean verify
+mvn clean verify -Pfull
 
 # View Javadoc
 open target/asapp-users-service-<version>-javadoc.jar
