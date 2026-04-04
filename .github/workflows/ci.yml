@@ -32,4 +32,4 @@ jobs:
           cache: maven
 
       - name: Build and test the project
-        run: mvn verify -B --no-transfer-progress
+        run: mvn verify -B --no-transfer-progress -Pfull

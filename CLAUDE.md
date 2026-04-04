@@ -9,6 +9,7 @@ Guidelines: see `.claude/rules/`
 
 ## Build
 - Build: `mvn clean install`
+- Full build (coverage + javadoc + sources + style check): `mvn clean install -Pfull`
 - Docker images: `mvn spring-boot:build-image`
 - Format (Eclipse config: `asapp_formatter.xml`): `mvn spotless:apply`
 

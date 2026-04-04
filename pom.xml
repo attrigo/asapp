@@ -56,6 +56,12 @@
         <pitest-maven.version>1.20.4</pitest-maven.version>
         <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
         <spotless-maven-plugin.version>2.46.1</spotless-maven-plugin.version>
+
+        <!-- Build Profile Skip Flags (overridden by -Pfull) -->
+        <jacoco.skip>true</jacoco.skip>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+        <maven.source.skip>true</maven.source.skip>
+        <spotless.check.skip>true</spotless.check.skip>
     </properties>
 
     <dependencyManagement>
@@ -178,5 +184,17 @@
         <module>libs</module>
         <module>services</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>full</id>
+            <properties>
+                <jacoco.skip>false</jacoco.skip>
+                <maven.javadoc.skip>false</maven.javadoc.skip>
+                <maven.source.skip>false</maven.source.skip>
+                <spotless.check.skip>false</spotless.check.skip>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>

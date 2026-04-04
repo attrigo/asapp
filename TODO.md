@@ -123,9 +123,9 @@
     * [X] Not put empty lines before "try {" and after "}"
     * [X] Records
     * [X] Wrap if statement conditions at logical operators (&& and ||) one per line, only when line exceeds 160 chars
-* [ ] CI/CD
+* [X] CI/CD
     * [X] Add a Unix (LF) line separator check to Git Hook
-    * [ ] Add maven profiles to avoid some steps during local builds
+    * [X] Add maven profiles to avoid some steps during local builds
     * [X] Improve GitHub actions
         * [X] Build tags
 * [ ] Technical improvements
