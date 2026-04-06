@@ -24,6 +24,8 @@ import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.RE
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.util.Base64;
 import java.util.Properties;
 
 import org.assertj.core.api.AbstractAssert;
@@ -32,18 +34,17 @@ import org.assertj.core.api.InstanceOfAssertFactories;
 import org.assertj.core.api.SoftAssertions;
 import org.springframework.util.Assert;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.crypto.MACVerifier;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 
 /**
  * Provides custom AssertJ assertions for JWT token validation with fluent API.
  *
  * @since 0.2.0
  */
-public class JwtAssertions extends AbstractAssert<JwtAssertions, Jws<Claims>> {
+public class JwtAssertions extends AbstractAssert<JwtAssertions, SignedJWT> {
 
     private static final String JWT_SECRET;
 
@@ -62,28 +63,30 @@ public class JwtAssertions extends AbstractAssert<JwtAssertions, Jws<Claims>> {
         }
     }
 
-    JwtAssertions(Jws<Claims> actual) {
+    JwtAssertions(SignedJWT actual) {
         super(actual, JwtAssertions.class);
     }
 
     public static JwtAssertions assertThatJwt(String actualJwt) {
-        var jws = Jwts.parser()
-                      .verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(JWT_SECRET)))
-                      .build()
-                      .parseSignedClaims(actualJwt);
-
-        return new JwtAssertions(jws);
+        try {
+            var secretBytes = Base64.getDecoder()
+                                    .decode(JWT_SECRET);
+            var signedJwt = SignedJWT.parse(actualJwt);
+            if (!signedJwt.verify(new MACVerifier(secretBytes))) {
+                throw new AssertionError("JWT signature verification failed for token: " + actualJwt);
+            }
+            return new JwtAssertions(signedJwt);
+        } catch (ParseException | JOSEException e) {
+            throw new AssertionError("Failed to parse or verify JWT: " + actualJwt, e);
+        }
     }
 
     public JwtAssertions isAccessToken() {
         isNotNull();
-        hasHeader();
-        hasPayload();
-
         var actualHeaderType = actual.getHeader()
+                                     .getType()
                                      .getType();
-        var actualTokenUseClaim = actual.getPayload()
-                                        .get(TOKEN_USE);
+        var actualTokenUseClaim = claimsSet().getClaim(TOKEN_USE);
         SoftAssertions.assertSoftly(softAssertions -> {
             Assertions.assertThat(actualHeaderType)
                       .isNotNull()
@@ -94,19 +97,15 @@ public class JwtAssertions extends AbstractAssert<JwtAssertions, Jws<Claims>> {
                       .describedAs("token use claim")
                       .isEqualTo(ACCESS_TOKEN_USE);
         });
-
         return myself;
     }
 
     public JwtAssertions isRefreshToken() {
         isNotNull();
-        hasHeader();
-        hasPayload();
-
         var actualHeaderType = actual.getHeader()
+                                     .getType()
                                      .getType();
-        var actualTokenUseClaim = actual.getPayload()
-                                        .get(TOKEN_USE);
+        var actualTokenUseClaim = claimsSet().getClaim(TOKEN_USE);
         SoftAssertions.assertSoftly(softAssertions -> {
             Assertions.assertThat(actualHeaderType)
                       .isNotNull()
@@ -122,71 +121,49 @@ public class JwtAssertions extends AbstractAssert<JwtAssertions, Jws<Claims>> {
 
     public JwtAssertions hasSubject(String expectedSubject) {
         isNotNull();
-        hasPayload();
-
-        var actualSubject = actual.getPayload()
-                                  .getSubject();
+        var actualSubject = claimsSet().getSubject();
         Assertions.assertThat(actualSubject)
                   .isNotNull()
                   .describedAs("subject")
                   .isEqualTo(expectedSubject);
-
         return myself;
     }
 
     public JwtAssertions hasClaim(String expectedClaimName, Object expectedClaimValue, Class<?> expectedClaimValueType) {
         isNotNull();
-        hasPayload();
-
-        var actualClaimValue = actual.getPayload()
-                                     .get(expectedClaimName, expectedClaimValueType);
+        var actualClaimValue = claimsSet().getClaim(expectedClaimName);
         Assertions.assertThat(actualClaimValue)
                   .isNotNull()
                   .describedAs("claim")
                   .asInstanceOf(InstanceOfAssertFactories.type(expectedClaimValueType))
                   .isEqualTo(expectedClaimValue);
-
         return myself;
     }
 
     public JwtAssertions hasIssuedAt() {
         isNotNull();
-        hasPayload();
-
-        var actualIssuedAt = actual.getPayload()
-                                   .getIssuedAt();
+        var actualIssuedAt = claimsSet().getIssueTime();
         Assertions.assertThat(actualIssuedAt)
                   .describedAs("issued")
                   .isNotNull();
-
         return myself;
     }
 
     public JwtAssertions hasExpiration() {
         isNotNull();
-        hasPayload();
-
-        var actualExpiration = actual.getPayload()
-                                     .getExpiration();
+        var actualExpiration = claimsSet().getExpirationTime();
         Assertions.assertThat(actualExpiration)
                   .describedAs("expiration")
                   .isNotNull();
-
         return this;
     }
 
-    private void hasHeader() {
-        var actualHeader = actual.getHeader();
-        Assertions.assertThat(actualHeader)
-                  .describedAs("header")
-                  .isNotNull();
-    }
-
-    private void hasPayload() {
-        var actualPayload = actual.getPayload();
-        Assertions.assertThat(actualPayload)
-                  .describedAs("payload")
-                  .isNotNull();
+    private JWTClaimsSet claimsSet() {
+        try {
+            return actual.getJWTClaimsSet();
+        } catch (ParseException e) {
+            throw new AssertionError("Failed to extract JWT claims", e);
+        }
     }
 
 }

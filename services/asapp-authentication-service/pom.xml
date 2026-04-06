@@ -81,14 +81,13 @@
         </dependency>
         <!-- * Other Dependencies -->
         <dependency>
+            <groupId>com.nimbusds</groupId>
+            <artifactId>nimbus-jose-jwt</artifactId>
+        </dependency>
+        <dependency>
             <groupId>io.micrometer</groupId>
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-api</artifactId>
-        </dependency>
-
         <!-- Runtime Dependencies -->
         <!-- * Spring Dependencies -->
         <dependency>
@@ -97,18 +96,6 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-        <!-- * Other Dependencies -->
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-impl</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.jsonwebtoken</groupId>
-            <artifactId>jjwt-jackson</artifactId>
-            <scope>runtime</scope>
-        </dependency>
-
         <!-- Test Dependencies -->
         <!-- * Spring Dependencies -->
         <dependency>

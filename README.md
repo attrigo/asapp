@@ -268,7 +268,7 @@ asapp/
 
 ### Key Dependencies
 
-- **Security**: Spring Security 6.x, JJWT 0.12.x
+- **Security**: Spring Security 6.x, Nimbus JOSE+JWT 9.37.3
 - **Data Access**: Spring Data JDBC
 - **Migrations**: Liquibase 4.x
 - **Mapping**: MapStruct 1.6.3

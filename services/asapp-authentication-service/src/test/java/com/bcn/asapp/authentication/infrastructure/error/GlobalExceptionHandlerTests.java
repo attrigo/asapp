@@ -26,8 +26,6 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.HttpStatus;
 
-import io.jsonwebtoken.JwtException;
-
 import com.bcn.asapp.authentication.application.CompensatingTransactionException;
 import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
 import com.bcn.asapp.authentication.application.authentication.InvalidJwtException;
@@ -36,6 +34,7 @@ import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtType
 import com.bcn.asapp.authentication.domain.authentication.InvalidEncodedTokenException;
 import com.bcn.asapp.authentication.domain.user.InvalidPasswordException;
 import com.bcn.asapp.authentication.domain.user.InvalidUsernameException;
+import com.bcn.asapp.authentication.infrastructure.security.JwtIssuanceException;
 
 /**
  * Tests {@link GlobalExceptionHandler} exception-to-ProblemDetail translation and HTTP status mapping.
@@ -43,6 +42,7 @@ import com.bcn.asapp.authentication.domain.user.InvalidUsernameException;
  * Coverage:
  * <li>Translates domain validation failures to 400 Bad Request with specific messages</li>
  * <li>Translates authentication failures to 401 Unauthorized with generic messages (security best practice)</li>
+ * <li>Translates JWT signing failures to 500 Internal Server Error with generic messages</li>
  * <li>Translates database failures to 500 Internal Server Error with generic messages</li>
  * <li>Translates cache connection failures to 503 Service Unavailable</li>
  * <li>All responses follow RFC 7807 Problem Details structure with error codes</li>
@@ -282,15 +282,15 @@ class GlobalExceptionHandlerTests {
     }
 
     @Nested
-    class HandleJwtException {
+    class HandleJwtIssuanceException {
 
         @Test
-        void Returns500WithGenericMessage_JwtOperationFails() {
+        void Returns500WithGenericMessage_JwtIssuanceFails() {
             // Given
-            var exception = new JwtException("JWT signing failed");
+            var exception = new JwtIssuanceException("JWT signing failed", new RuntimeException("Signing error"));
 
             // When
-            var actual = globalExceptionHandler.handleJwtException(exception);
+            var actual = globalExceptionHandler.handleJwtIssuanceException(exception);
 
             // Then
             assertThat(actual.getStatusCode()).as("status code")

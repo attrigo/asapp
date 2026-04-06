@@ -37,8 +37,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import io.jsonwebtoken.JwtException;
-
 import com.bcn.asapp.authentication.application.CompensatingTransactionException;
 import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
 import com.bcn.asapp.authentication.application.authentication.InvalidJwtException;
@@ -47,6 +45,7 @@ import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtType
 import com.bcn.asapp.authentication.domain.authentication.InvalidEncodedTokenException;
 import com.bcn.asapp.authentication.domain.user.InvalidPasswordException;
 import com.bcn.asapp.authentication.domain.user.InvalidUsernameException;
+import com.bcn.asapp.authentication.infrastructure.security.JwtIssuanceException;
 
 /**
  * Global exception handler for REST API endpoints.
@@ -244,17 +243,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handles JJWT library failures during token operations.
+     * Handles JWT signing and issuance failures.
      * <p>
      * Thrown when JWT generation or cryptographic operations fail.
      * <p>
      * Returns HTTP 500 Internal Server Error with a generic message to avoid exposing cryptographic implementation details.
      *
-     * @param ex the {@link JwtException}
+     * @param ex the {@link JwtIssuanceException}
      * @return a {@link ResponseEntity} with status 500 and generic error message
      */
-    @ExceptionHandler(JwtException.class)
-    protected ResponseEntity<ProblemDetail> handleJwtException(JwtException ex) {
+    @ExceptionHandler(JwtIssuanceException.class)
+    protected ResponseEntity<ProblemDetail> handleJwtIssuanceException(JwtIssuanceException ex) {
         logger.error("JWT operation failed: {}", ex.getMessage(), ex);
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An internal error occurred");

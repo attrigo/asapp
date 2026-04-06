@@ -364,7 +364,7 @@ open target/pit-reports/<timestamp>/index.html
 - **Database**: PostgreSQL
 - **Cache/Store**: Redis
 - **Migrations**: Liquibase
-- **Security**: Spring Security + JJWT (JWT library)
+- **Security**: Spring Security + Nimbus JOSE+JWT
 - **Mapping**: MapStruct 1.6.3
 - **Testing**: JUnit 5, AssertJ, TestContainers, PITest
 - **Documentation**: SpringDoc OpenAPI 2.8.5
@@ -462,7 +462,7 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 - [Domain-Driven Design](https://martinfowler.com/bliki/DomainDrivenDesign.html)
 - [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
 - [Spring Security](https://docs.spring.io/spring-security/reference/)
-- [JJWT (Java JWT)](https://github.com/jwtk/jjwt)
+- [Nimbus JOSE+JWT](https://connect2id.com/products/nimbus-jose-jwt)
 - [Liquibase](https://docs.liquibase.com/)
 
 ## License

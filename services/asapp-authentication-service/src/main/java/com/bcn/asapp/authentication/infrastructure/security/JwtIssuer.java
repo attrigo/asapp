@@ -23,16 +23,18 @@ import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.T
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
 
-import javax.crypto.SecretKey;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JOSEObjectType;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 
 import com.bcn.asapp.authentication.application.authentication.out.TokenIssuer;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
@@ -49,7 +51,7 @@ import com.bcn.asapp.authentication.domain.user.Role;
 /**
  * Infrastructure component for issuing signed JWTs.
  * <p>
- * Implements {@link TokenIssuer} port, providing the infrastructure capability to generate JWTs using the JJWT library.
+ * Implements {@link TokenIssuer} port, providing the infrastructure capability to generate JWTs using the Nimbus JOSE+JWT library.
  * <p>
  * It can generate two types of tokens:
  * <ul>
@@ -57,16 +59,17 @@ import com.bcn.asapp.authentication.domain.user.Role;
  * <li>Refresh tokens - Longer-lived tokens used for obtaining new access tokens without re-authentication</li>
  * </ul>
  * <p>
- * Supports creation of both <em>access tokens</em> and <em>refresh tokens</em> with configurable expiration times and secret key, suitable for use in OAuth2 or
- * custom authentication flows.
+ * Supports creation of both <em>access tokens</em> and <em>refresh tokens</em> with configurable expiration times, suitable for use in OAuth2 or custom
+ * authentication flows.
  * <p>
- * Tokens are signed using HMAC-SHA algorithms with a Base64-decoded secret key.
+ * Tokens are signed using HMAC-SHA algorithms. The algorithm is selected automatically based on the injected {@link MACSigner} key bit-length: HS256 for keys
+ * shorter than 384 bits, HS384 for keys between 384 and 511 bits, HS512 for keys of 512 bits or more.
  * <p>
  * Generated tokens include standard headers like {@code typ} (token type: "at+jwt" or "rt+jwt") and claims such as {@code sub} (subject), {@code iat} (issued
  * at), {@code exp} (expiration), and custom claims for {@code role} and {@code token_use} ("access" or "refresh").
  *
  * @since 0.2.0
- * @see Jwts
+ * @see SignedJWT
  * @see <a href="https://datatracker.ietf.org/doc/html/rfc7519">RFC 7519 - JSON Web Token (JWT)</a>
  * @author attrigo
  */
@@ -75,7 +78,7 @@ public class JwtIssuer implements TokenIssuer {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtIssuer.class);
 
-    private final SecretKey secretKey;
+    private final MACSigner macSigner;
 
     private final Long accessTokenExpirationTime;
 
@@ -84,15 +87,14 @@ public class JwtIssuer implements TokenIssuer {
     /**
      * Constructs a new {@code JwtIssuer} with the configured secret key and expiration times.
      *
-     * @param jwtSecret                  the base64-encoded JWT secret from configuration
+     * @param macSigner                  the {@link MACSigner} used to sign tokens
      * @param accessTokenExpirationTime  the access token expiration time in milliseconds
      * @param refreshTokenExpirationTime the refresh token expiration time in milliseconds
      */
-    public JwtIssuer(@Value("${asapp.security.jwt-secret}") String jwtSecret,
-            @Value("${asapp.security.access-token.expiration-time}") Long accessTokenExpirationTime,
+    public JwtIssuer(MACSigner macSigner, @Value("${asapp.security.access-token.expiration-time}") Long accessTokenExpirationTime,
             @Value("${asapp.security.refresh-token.expiration-time}") Long refreshTokenExpirationTime) {
 
-        this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
+        this.macSigner = macSigner;
         this.accessTokenExpirationTime = accessTokenExpirationTime;
         this.refreshTokenExpirationTime = refreshTokenExpirationTime;
     }
@@ -145,8 +147,8 @@ public class JwtIssuer implements TokenIssuer {
         var issued = Issued.now();
         var expiration = Expiration.of(issued, expirationTimeMillis);
 
-        var issuedToken = issueToken(type, subject, claims, issued, expiration);
-        var encodedToken = EncodedToken.of(issuedToken);
+        var signedToken = signToken(type, subject, claims, issued, expiration);
+        var encodedToken = EncodedToken.of(signedToken);
 
         return Jwt.of(encodedToken, type, subject, claims, issued, expiration);
     }
@@ -160,19 +162,75 @@ public class JwtIssuer implements TokenIssuer {
      * @param issuedAt   the {@link Issued} timestamp
      * @param expiration the {@link Expiration} timestamp
      * @return the signed JWT string
+     * @throws JwtIssuanceException if the cryptographic signing operation fails
      */
-    private String issueToken(JwtType tokenType, Subject subject, JwtClaims claims, Issued issuedAt, Expiration expiration) {
-        logger.trace("[JWT_ISSUER] Building and signing {} token with expiration={}", tokenType, expiration.value());
-        return Jwts.builder()
-                   .header()
-                   .type(tokenType.type())
-                   .and()
-                   .subject(subject.value())
-                   .claims(claims.value())
-                   .issuedAt(issuedAt.asDate())
-                   .expiration(expiration.asDate())
-                   .signWith(secretKey)
-                   .compact();
+    private String signToken(JwtType tokenType, Subject subject, JwtClaims claims, Issued issuedAt, Expiration expiration) {
+        try {
+            logger.trace("[JWT_ISSUER] Building and signing {} token with expiration={}", tokenType, expiration.value());
+            var header = buildHeader(tokenType);
+            var claimsSet = buildClaimsSet(subject, claims, issuedAt, expiration);
+
+            var signedJwt = new SignedJWT(header, claimsSet);
+            signedJwt.sign(macSigner);
+
+            return signedJwt.serialize();
+
+        } catch (JOSEException e) {
+            throw new JwtIssuanceException("JWT signing failed for type " + tokenType, e);
+        }
+    }
+
+    /**
+     * Builds the JWS header for a JWT.
+     * <p>
+     * Sets the {@code typ} header to the token type string and selects the HMAC algorithm based on the configured secret key bit-length.
+     *
+     * @param tokenType the {@link JwtType} used to set the {@code typ} header
+     * @return the constructed {@link JWSHeader}
+     */
+    private JWSHeader buildHeader(JwtType tokenType) {
+        var algorithm = selectAlgorithm();
+
+        return new JWSHeader.Builder(algorithm).type(new JOSEObjectType(tokenType.type()))
+                                               .build();
+    }
+
+    /**
+     * Builds the JWT claims set from domain objects.
+     * <p>
+     * Populates standard claims ({@code sub}, {@code iat}, {@code exp}) and adds all custom claims from {@link JwtClaims}.
+     *
+     * @param subject    the {@link Subject} mapped to the {@code sub} claim
+     * @param claims     the {@link JwtClaims} providing custom claims
+     * @param issuedAt   the {@link Issued} timestamp mapped to the {@code iat} claim
+     * @param expiration the {@link Expiration} timestamp mapped to the {@code exp} claim
+     * @return the constructed {@link JWTClaimsSet}
+     */
+    private JWTClaimsSet buildClaimsSet(Subject subject, JwtClaims claims, Issued issuedAt, Expiration expiration) {
+        var claimsSetBuilder = new JWTClaimsSet.Builder().subject(subject.value())
+                                                         .issueTime(issuedAt.asDate())
+                                                         .expirationTime(expiration.asDate());
+        claims.value()
+              .forEach(claimsSetBuilder::claim);
+
+        return claimsSetBuilder.build();
+    }
+
+    /**
+     * Selects the HMAC algorithm based on the secret key bit-length.
+     * <p>
+     * HS512 for keys ≥512 bits, HS384 for keys ≥384 bits, HS256 otherwise.
+     *
+     * @return the {@link JWSAlgorithm} to use for signing
+     */
+    private JWSAlgorithm selectAlgorithm() {
+        // TODO: Refactor to primitive type pattern (Require Java 23+)
+        Integer bitLength = macSigner.getSecret().length * 8;
+        return switch (bitLength) {
+        case Integer length when length >= 512 -> JWSAlgorithm.HS512;
+        case Integer length when length >= 384 -> JWSAlgorithm.HS384;
+        default -> JWSAlgorithm.HS256;
+        };
     }
 
 }
