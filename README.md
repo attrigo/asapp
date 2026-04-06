@@ -36,7 +36,7 @@ ASAPP consists of three independent microservices:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                         Client                               │
+│                         Client                              │
 └────────────┬────────────────────────────────────────────────┘
              │ JWT Bearer Token
              ▼
