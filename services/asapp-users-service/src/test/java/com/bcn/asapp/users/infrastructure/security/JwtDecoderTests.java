@@ -21,18 +21,19 @@ import static com.bcn.asapp.users.testutil.fixture.EncodedTokenFactory.anEncoded
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
-import java.util.Base64;
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.crypto.MACVerifier;
 
 /**
  * Tests {@link JwtDecoder} token validation, signature verification, and claim extraction.
@@ -40,24 +41,24 @@ import io.jsonwebtoken.security.SignatureException;
  * Coverage:
  * <li>Rejects malformed token structure</li>
  * <li>Rejects tokens with invalid cryptographic signature</li>
+ * <li>Rejects tokens when signature verification throws a cryptographic error</li>
  * <li>Rejects expired tokens based on expiration timestamp</li>
+ * <li>Rejects tokens missing the expiration claim</li>
  * <li>Decodes valid tokens extracting type, subject, and claims</li>
  */
 class JwtDecoderTests {
 
-    private final SecretKey secretKey = Keys.hmacShaKeyFor(new byte[32]);
+    private final SecretKey secretKey = new SecretKeySpec(new byte[32], "HmacSHA256");
 
     private JwtDecoder jwtDecoder;
 
     @BeforeEach
-    void beforeEach() {
-        var jwtSecret = Base64.getEncoder()
-                              .encodeToString(secretKey.getEncoded());
-        jwtDecoder = new JwtDecoder(jwtSecret);
+    void beforeEach() throws JOSEException {
+        jwtDecoder = new JwtDecoder(new MACVerifier(secretKey));
     }
 
     @Nested
-    class DecodeToken {
+    class Decode {
 
         @Test
         void ReturnsDecodedJwt_ValidAccessToken() {
@@ -83,19 +84,19 @@ class JwtDecoderTests {
         }
 
         @Test
-        void ThrowsMalformedJwtException_MalformedToken() {
+        void ThrowsJwtDecodeException_MalformedToken() {
             // When
             var actual = catchThrowable(() -> jwtDecoder.decode("invalid_token"));
 
             // Then
-            assertThat(actual).isInstanceOf(MalformedJwtException.class)
-                              .hasMessageContaining("JWT");
+            assertThat(actual).isInstanceOf(JwtDecodeException.class)
+                              .hasMessage("Malformed JWT token");
         }
 
         @Test
-        void ThrowsSignatureException_InvalidSignatureToken() {
+        void ThrowsJwtDecodeException_InvalidSignatureToken() {
             // Given
-            var secretKey = Keys.hmacShaKeyFor("invalid-secret-key-with-at-least-32-bytes".getBytes());
+            var secretKey = new SecretKeySpec("invalid-secret-key-with-at-least-32-bytes".getBytes(), "HmacSHA256");
             var encodedAccessToken = anEncodedTokenBuilder().accessToken()
                                                             .withSecretKey(secretKey)
                                                             .build();
@@ -104,12 +105,31 @@ class JwtDecoderTests {
             var actual = catchThrowable(() -> jwtDecoder.decode(encodedAccessToken));
 
             // Then
-            assertThat(actual).isInstanceOf(SignatureException.class)
-                              .hasMessageContaining("signature");
+            assertThat(actual).isInstanceOf(JwtDecodeException.class)
+                              .hasMessage("JWT signature verification failed");
         }
 
         @Test
-        void ThrowsExpiredJwtException_ExpiredToken() {
+        void ThrowsJwtDecodeException_SignatureVerificationFails() throws JOSEException {
+            // Given
+            var macVerifier = mock(MACVerifier.class);
+            var decoder = new JwtDecoder(macVerifier);
+            var encodedAccessToken = anEncodedTokenBuilder().accessToken()
+                                                            .withSecretKey(secretKey)
+                                                            .build();
+
+            given(macVerifier.verify(any(), any(), any())).willThrow(new JOSEException("algorithm not supported"));
+
+            // When
+            var actual = catchThrowable(() -> decoder.decode(encodedAccessToken));
+
+            // Then
+            assertThat(actual).isInstanceOf(JwtDecodeException.class)
+                              .hasMessage("algorithm not supported");
+        }
+
+        @Test
+        void ThrowsJwtDecodeException_ExpiredToken() {
             // Given
             var encodedAccessToken = anEncodedTokenBuilder().accessToken()
                                                             .withSecretKey(secretKey)
@@ -120,8 +140,24 @@ class JwtDecoderTests {
             var actual = catchThrowable(() -> jwtDecoder.decode(encodedAccessToken));
 
             // Then
-            assertThat(actual).isInstanceOf(ExpiredJwtException.class)
-                              .hasMessageContaining("expired");
+            assertThat(actual).isInstanceOf(JwtDecodeException.class)
+                              .hasMessage("JWT has expired");
+        }
+
+        @Test
+        void ThrowsJwtDecodeException_TokenWithoutExpiration() {
+            // Given
+            var encodedAccessToken = anEncodedTokenBuilder().accessToken()
+                                                            .withSecretKey(secretKey)
+                                                            .withExpiration(null)
+                                                            .build();
+
+            // When
+            var actual = catchThrowable(() -> jwtDecoder.decode(encodedAccessToken));
+
+            // Then
+            assertThat(actual).isInstanceOf(JwtDecodeException.class)
+                              .hasMessage("JWT has expired");
         }
 
     }

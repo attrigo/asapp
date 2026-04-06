@@ -135,11 +135,11 @@ public class JwtVerifier {
      *
      * @param encodedToken the encoded token to decode
      * @return the {@link DecodedJwt} containing the decoded token data and claims
-     * @throws InvalidJwtException if the token signature is invalid or the token is expired
+     * @throws JwtDecodeException if the token is invalid, malformed, or expired
      */
     private DecodedJwt decodeToken(EncodedToken encodedToken) {
         logger.trace("[JWT_VERIFIER] Step 1/3: Decoding and validating token");
-        return jwtDecoder.decode(encodedToken);
+        return jwtDecoder.decode(encodedToken.value());
     }
 
     /**

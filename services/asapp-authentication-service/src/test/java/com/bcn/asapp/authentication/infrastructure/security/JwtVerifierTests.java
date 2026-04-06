@@ -78,7 +78,7 @@ class JwtVerifierTests {
             var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
             var decodedJwt = new DecodedJwt(encodedAccessTokenValue, ACCESS_TOKEN_TYPE, "user@asapp.com", claims);
 
-            given(jwtDecoder.decode(encodedAccessToken)).willReturn(decodedJwt);
+            given(jwtDecoder.decode(encodedAccessTokenValue)).willReturn(decodedJwt);
             given(tokenStore.accessTokenExists(encodedAccessToken)).willReturn(true);
 
             // When
@@ -89,7 +89,7 @@ class JwtVerifierTests {
             assertThat(actual.isAccessToken()).isTrue();
 
             then(jwtDecoder).should(times(1))
-                            .decode(encodedAccessToken);
+                            .decode(encodedAccessTokenValue);
             then(tokenStore).should(times(1))
                             .accessTokenExists(encodedAccessToken);
         }
@@ -101,7 +101,7 @@ class JwtVerifierTests {
             var encodedAccessToken = EncodedToken.of(encodedAccessTokenValue);
 
             willThrow(new RuntimeException("Decoder failed")).given(jwtDecoder)
-                                                             .decode(encodedAccessToken);
+                                                             .decode(encodedAccessTokenValue);
 
             // When
             var actual = catchThrowable(() -> jwtVerifier.verifyAccessToken(encodedAccessToken));
@@ -112,7 +112,7 @@ class JwtVerifierTests {
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(jwtDecoder).should(times(1))
-                            .decode(encodedAccessToken);
+                            .decode(encodedAccessTokenValue);
         }
 
         @Test
@@ -123,7 +123,7 @@ class JwtVerifierTests {
             var claims = Map.<String, Object>of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, "USER");
             var decodedJwt = new DecodedJwt(encodedRefreshTokenValue, REFRESH_TOKEN_TYPE, "user@asapp.com", claims);
 
-            given(jwtDecoder.decode(encodedRefreshToken)).willReturn(decodedJwt);
+            given(jwtDecoder.decode(encodedRefreshTokenValue)).willReturn(decodedJwt);
 
             // When
             var actual = catchThrowable(() -> jwtVerifier.verifyAccessToken(encodedRefreshToken));
@@ -133,7 +133,7 @@ class JwtVerifierTests {
                               .hasMessageContaining("is not an access token");
 
             then(jwtDecoder).should(times(1))
-                            .decode(encodedRefreshToken);
+                            .decode(encodedRefreshTokenValue);
         }
 
         @Test
@@ -144,7 +144,7 @@ class JwtVerifierTests {
             var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
             var decodedJwt = new DecodedJwt(encodedAccessTokenValue, ACCESS_TOKEN_TYPE, "user@asapp.com", claims);
 
-            given(jwtDecoder.decode(encodedAccessToken)).willReturn(decodedJwt);
+            given(jwtDecoder.decode(encodedAccessTokenValue)).willReturn(decodedJwt);
             given(tokenStore.accessTokenExists(encodedAccessToken)).willReturn(false);
 
             // When
@@ -155,7 +155,7 @@ class JwtVerifierTests {
                               .hasMessageContaining("Authentication session not found in store for access token");
 
             then(jwtDecoder).should(times(1))
-                            .decode(encodedAccessToken);
+                            .decode(encodedAccessTokenValue);
             then(tokenStore).should(times(1))
                             .accessTokenExists(encodedAccessToken);
         }
@@ -173,7 +173,7 @@ class JwtVerifierTests {
             var claims = Map.<String, Object>of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, "USER");
             var decodedJwt = new DecodedJwt(encodedRefreshTokenValue, REFRESH_TOKEN_TYPE, "user@asapp.com", claims);
 
-            given(jwtDecoder.decode(encodedRefreshToken)).willReturn(decodedJwt);
+            given(jwtDecoder.decode(encodedRefreshTokenValue)).willReturn(decodedJwt);
             given(tokenStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
 
             // When
@@ -184,7 +184,7 @@ class JwtVerifierTests {
             assertThat(actual.isRefreshToken()).isTrue();
 
             then(jwtDecoder).should(times(1))
-                            .decode(encodedRefreshToken);
+                            .decode(encodedRefreshTokenValue);
             then(tokenStore).should(times(1))
                             .refreshTokenExists(encodedRefreshToken);
         }
@@ -196,7 +196,7 @@ class JwtVerifierTests {
             var encodedRefreshToken = EncodedToken.of(encodedRefreshTokenValue);
 
             willThrow(new RuntimeException("Decoder failed")).given(jwtDecoder)
-                                                             .decode(encodedRefreshToken);
+                                                             .decode(encodedRefreshTokenValue);
 
             // When
             var actual = catchThrowable(() -> jwtVerifier.verifyRefreshToken(encodedRefreshToken));
@@ -207,7 +207,7 @@ class JwtVerifierTests {
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(jwtDecoder).should(times(1))
-                            .decode(encodedRefreshToken);
+                            .decode(encodedRefreshTokenValue);
         }
 
         @Test
@@ -218,7 +218,7 @@ class JwtVerifierTests {
             var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
             var decodedJwt = new DecodedJwt(encodedAccessTokenValue, ACCESS_TOKEN_TYPE, "user@asapp.com", claims);
 
-            given(jwtDecoder.decode(encodedAccessToken)).willReturn(decodedJwt);
+            given(jwtDecoder.decode(encodedAccessTokenValue)).willReturn(decodedJwt);
 
             // When
             var actual = catchThrowable(() -> jwtVerifier.verifyRefreshToken(encodedAccessToken));
@@ -228,7 +228,7 @@ class JwtVerifierTests {
                               .hasMessageContaining("is not a refresh token");
 
             then(jwtDecoder).should(times(1))
-                            .decode(encodedAccessToken);
+                            .decode(encodedAccessTokenValue);
         }
 
         @Test
@@ -239,7 +239,7 @@ class JwtVerifierTests {
             var claims = Map.<String, Object>of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, "USER");
             var decodedJwt = new DecodedJwt(encodedRefreshTokenValue, REFRESH_TOKEN_TYPE, "user@asapp.com", claims);
 
-            given(jwtDecoder.decode(encodedRefreshToken)).willReturn(decodedJwt);
+            given(jwtDecoder.decode(encodedRefreshTokenValue)).willReturn(decodedJwt);
             given(tokenStore.refreshTokenExists(encodedRefreshToken)).willReturn(false);
 
             // When
@@ -250,7 +250,7 @@ class JwtVerifierTests {
                               .hasMessageContaining("Authentication session not found in store for refresh token");
 
             then(jwtDecoder).should(times(1))
-                            .decode(encodedRefreshToken);
+                            .decode(encodedRefreshTokenValue);
             then(tokenStore).should(times(1))
                             .refreshTokenExists(encodedRefreshToken);
         }

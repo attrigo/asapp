@@ -22,18 +22,32 @@ import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.R
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 
-import java.util.Base64;
+import java.text.ParseException;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import io.jsonwebtoken.security.Keys;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.KeyLengthException;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.SignedJWT;
 
 import com.bcn.asapp.authentication.domain.authentication.JwtClaims;
 import com.bcn.asapp.authentication.domain.authentication.Subject;
@@ -50,19 +64,21 @@ import com.bcn.asapp.authentication.domain.user.Username;
  * <li>Includes mandatory claims (subject, role, token_use) in both token types</li>
  * <li>Signs tokens with configured secret key for cryptographic verification</li>
  * <li>Supports all role types in claim generation</li>
+ * <li>Selects HMAC algorithm (HS256/HS384/HS512) based on key bit-length</li>
+ * <li>Throws JwtIssuanceException when cryptographic signing fails</li>
  */
 class JwtIssuerTests {
+
+    private static final long ACCESS_TOKEN_EXPIRATION_TIME = 900000L; // 15 minutes
+
+    private static final long REFRESH_TOKEN_EXPIRATION_TIME = 604800000L; // 7 days
 
     private JwtIssuer jwtIssuer;
 
     @BeforeEach
-    void beforeEach() {
-        var secretKey = Keys.hmacShaKeyFor(new byte[32]);
-        var jwtSecret = Base64.getEncoder()
-                              .encodeToString(secretKey.getEncoded());
-        var accessTokenExpirationTime = 900000L; // 15 minutes
-        var refreshTokenExpirationTime = 604800000L; // 7 days
-        jwtIssuer = new JwtIssuer(jwtSecret, accessTokenExpirationTime, refreshTokenExpirationTime);
+    void beforeEach() throws KeyLengthException {
+        var macSigner = new MACSigner(new byte[32]);
+        jwtIssuer = new JwtIssuer(macSigner, ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME);
     }
 
     @Nested
@@ -99,6 +115,44 @@ class JwtIssuerTests {
             });
         }
 
+        @ParameterizedTest
+        @MethodSource("com.bcn.asapp.authentication.infrastructure.security.JwtIssuerTests#keySizeToAlgorithm")
+        void ReturnsTokenSignedWithMatchingAlgorithm_KeyBitLength(int keySize, JWSAlgorithm algorithm) throws KeyLengthException {
+            // Given
+            var issuer = new JwtIssuer(new MACSigner(new byte[keySize]), ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME);
+            var userId = UserId.of(UUID.fromString("184c3f38-0783-4b4e-a570-709416bd856b"));
+            var username = Username.of("user@asapp.com");
+            var userAuthentication = UserAuthentication.authenticated(userId, username, Role.USER);
+
+            // When
+            var actual = issuer.issueTokenPair(userAuthentication);
+
+            // Then
+            assertThat(algorithmOf(actual.accessToken()
+                                         .encodedTokenValue())).isEqualTo(algorithm);
+        }
+
+        @Test
+        void ThrowsJwtIssuanceException_SigningFails() throws JOSEException {
+            // Given
+            var macSigner = mock(MACSigner.class);
+            var issuer = new JwtIssuer(macSigner, ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME);
+            var userId = UserId.of(UUID.fromString("184c3f38-0783-4b4e-a570-709416bd856b"));
+            var username = Username.of("user@asapp.com");
+            var userAuthentication = UserAuthentication.authenticated(userId, username, Role.USER);
+
+            given(macSigner.getSecret()).willReturn(new byte[32]);
+            given(macSigner.supportedJWSAlgorithms()).willReturn(Set.of(JWSAlgorithm.HS256));
+            given(macSigner.sign(any(), any())).willThrow(new JOSEException("signing failed"));
+
+            // When
+            var actual = catchThrowable(() -> issuer.issueTokenPair(userAuthentication));
+
+            // Then
+            assertThat(actual).isInstanceOf(JwtIssuanceException.class)
+                              .hasMessageContaining("JWT signing failed for type");
+        }
+
     }
 
     @Nested
@@ -132,6 +186,54 @@ class JwtIssuerTests {
             });
         }
 
+        @ParameterizedTest
+        @MethodSource("com.bcn.asapp.authentication.infrastructure.security.JwtIssuerTests#keySizeToAlgorithm")
+        void ReturnsTokenSignedWithMatchingAlgorithm_KeyBitLength(int keySize, JWSAlgorithm algorithm) throws KeyLengthException {
+            // Given
+            var issuer = new JwtIssuer(new MACSigner(new byte[keySize]), ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME);
+            var subject = Subject.of("user@asapp.com");
+
+            // When
+            var actual = issuer.issueTokenPair(subject, Role.USER);
+
+            // Then
+            assertThat(algorithmOf(actual.accessToken()
+                                         .encodedTokenValue())).isEqualTo(algorithm);
+        }
+
+        @Test
+        void ThrowsJwtIssuanceException_SigningFails() throws JOSEException {
+            // Given
+            var macSigner = mock(MACSigner.class);
+            var issuer = new JwtIssuer(macSigner, ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME);
+            var subject = Subject.of("user@asapp.com");
+
+            given(macSigner.getSecret()).willReturn(new byte[32]);
+            given(macSigner.supportedJWSAlgorithms()).willReturn(Set.of(JWSAlgorithm.HS256));
+            given(macSigner.sign(any(), any())).willThrow(new JOSEException("signing failed"));
+
+            // When
+            var actual = catchThrowable(() -> issuer.issueTokenPair(subject, Role.USER));
+
+            // Then
+            assertThat(actual).isInstanceOf(JwtIssuanceException.class)
+                              .hasMessageContaining("JWT signing failed for type");
+        }
+
+    }
+
+    static Stream<Arguments> keySizeToAlgorithm() {
+        return Stream.of(Arguments.of(32, JWSAlgorithm.HS256), Arguments.of(48, JWSAlgorithm.HS384), Arguments.of(64, JWSAlgorithm.HS512));
+    }
+
+    static JWSAlgorithm algorithmOf(String encodedToken) {
+        try {
+            return SignedJWT.parse(encodedToken)
+                            .getHeader()
+                            .getAlgorithm();
+        } catch (ParseException e) {
+            throw new AssertionError("Failed to parse JWT", e);
+        }
     }
 
 }

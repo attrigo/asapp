@@ -28,6 +28,7 @@ import static com.bcn.asapp.users.testutil.fixture.TestFactoryConstants.generate
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
@@ -35,9 +36,15 @@ import javax.crypto.SecretKey;
 
 import org.springframework.util.Assert;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JOSEObjectType;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
+import com.nimbusds.jose.PlainHeader;
+import com.nimbusds.jose.crypto.MACSigner;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.PlainJWT;
+import com.nimbusds.jwt.SignedJWT;
 
 /**
  * Provides test data builders for JWT token strings with fluent API.
@@ -93,13 +100,15 @@ public final class EncodedTokenFactory {
 
         private boolean signed = true;
 
-        private SecretKey secretKey;
+        private byte[] secretBytes;
 
         Builder() {
             this.subject = DEFAULT_SUBJECT;
+            this.claims = Map.of();
             this.issuedAt = generateRandomIssueAt();
             this.expiration = issuedAt.plusMillis(EXPIRATION_TIME_MILLIS);
-            this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(JWT_SECRET));
+            this.secretBytes = Base64.getDecoder()
+                                     .decode(JWT_SECRET);
         }
 
         public Builder accessToken() {
@@ -136,12 +145,18 @@ public final class EncodedTokenFactory {
         }
 
         public Builder withSecretKey(SecretKey secretKey) {
-            this.secretKey = secretKey;
+            this.secretBytes = secretKey.getEncoded();
             return this;
         }
 
         public Builder withSecretKey(String key) {
-            this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(key));
+            this.secretBytes = Base64.getDecoder()
+                                     .decode(key);
+            return this;
+        }
+
+        public Builder notSigned() {
+            this.signed = false;
             return this;
         }
 
@@ -152,24 +167,41 @@ public final class EncodedTokenFactory {
             return withIssuedAt(issuedAt).withExpiration(expiration);
         }
 
-        public Builder notSigned() {
-            this.signed = false;
-            return this;
+        public String build() {
+            try {
+                var claimsSetBuilder = new JWTClaimsSet.Builder().subject(subject)
+                                                                 .issueTime(Date.from(issuedAt));
+                if (expiration != null) {
+                    claimsSetBuilder.expirationTime(Date.from(expiration));
+                }
+                claims.forEach(claimsSetBuilder::claim);
+                var claimsSet = claimsSetBuilder.build();
+
+                if (!signed) {
+                    var header = new PlainHeader.Builder().type(new JOSEObjectType(type))
+                                                          .build();
+                    return new PlainJWT(header, claimsSet).serialize();
+                }
+
+                var algorithm = selectAlgorithm(secretBytes);
+                var header = new JWSHeader.Builder(algorithm).type(new JOSEObjectType(type))
+                                                             .build();
+                var signedJwt = new SignedJWT(header, claimsSet);
+                signedJwt.sign(new MACSigner(secretBytes));
+                return signedJwt.serialize();
+            } catch (JOSEException e) {
+                throw new RuntimeException("Failed to build encoded token", e);
+            }
         }
 
-        public String build() {
-            var jwts = Jwts.builder()
-                           .header()
-                           .type(type)
-                           .and()
-                           .subject(subject)
-                           .claims(claims)
-                           .issuedAt(Date.from(issuedAt))
-                           .expiration(Date.from(expiration));
-            if (signed) {
-                jwts.signWith(secretKey);
-            }
-            return jwts.compact();
+        private static JWSAlgorithm selectAlgorithm(byte[] keyBytes) {
+            // TODO: Refactor to primitive type pattern (Require Java 23+)
+            Integer bitLength = keyBytes.length * 8;
+            return switch (bitLength) {
+            case Integer length when length >= 512 -> JWSAlgorithm.HS512;
+            case Integer length when length >= 384 -> JWSAlgorithm.HS384;
+            default -> JWSAlgorithm.HS256;
+            };
         }
 
     }
