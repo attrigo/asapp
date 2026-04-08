@@ -32,6 +32,7 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -126,7 +127,7 @@ public class SecurityConfiguration {
      */
     @Bean
     @Order(1)
-    public SecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
+    DefaultSecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
         http.securityMatcher(API_MATCHER)
             .authorizeHttpRequests(auth -> {
@@ -162,7 +163,7 @@ public class SecurityConfiguration {
      */
     @Bean
     @Order(2)
-    public SecurityFilterChain actuatorFilterChain(HttpSecurity http) throws Exception {
+    DefaultSecurityFilterChain actuatorFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
         http.cors(AbstractHttpConfigurer::disable);
         http.securityMatcher(EndpointRequest.toAnyEndpoint())
@@ -197,7 +198,7 @@ public class SecurityConfiguration {
      */
     @Bean
     @Order(3)
-    public SecurityFilterChain rootFilterChain(HttpSecurity http) throws Exception {
+    DefaultSecurityFilterChain rootFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
         http.securityMatcher(ROOT_MATCHER)
             .authorizeHttpRequests(auth -> {
@@ -226,7 +227,7 @@ public class SecurityConfiguration {
      * @throws Exception if an error occurs during configuration
      */
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
     }
 
@@ -241,7 +242,7 @@ public class SecurityConfiguration {
      * @return the {@link PasswordEncoder}
      */
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    PasswordEncoder passwordEncoder() {
         return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 

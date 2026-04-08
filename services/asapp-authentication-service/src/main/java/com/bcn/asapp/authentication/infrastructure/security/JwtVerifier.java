@@ -87,7 +87,7 @@ public class JwtVerifier {
         } catch (UnexpectedJwtTypeException | AuthenticationNotFoundException e) {
             throw e;
         } catch (Exception e) {
-            var message = String.format("Access token is not valid: %s", encodedToken.token());
+            var message = "Access token is not valid: %s".formatted(encodedToken.token());
             throw new InvalidJwtException(message, e);
         }
     }
@@ -123,7 +123,7 @@ public class JwtVerifier {
         } catch (UnexpectedJwtTypeException | AuthenticationNotFoundException e) {
             throw e;
         } catch (Exception e) {
-            var message = String.format("Refresh token is not valid: %s", encodedToken.token());
+            var message = "Refresh token is not valid: %s".formatted(encodedToken.token());
             throw new InvalidJwtException(message, e);
         }
     }
@@ -153,7 +153,7 @@ public class JwtVerifier {
     private void verifyAccessTokenType(DecodedJwt decodedJwt) {
         logger.trace("[JWT_VERIFIER] Step 2/3: Verifying token type is ACCESS");
         if (!decodedJwt.isAccessToken()) {
-            throw new UnexpectedJwtTypeException(String.format("JWT %s is not an access token", decodedJwt.encodedToken()));
+            throw new UnexpectedJwtTypeException("JWT %s is not an access token".formatted(decodedJwt.encodedToken()));
         }
     }
 
@@ -169,7 +169,7 @@ public class JwtVerifier {
         logger.trace("[JWT_VERIFIER] Step 3/3: Checking access token exists in store");
         var isTokenActive = tokenStore.accessTokenExists(encodedToken);
         if (!isTokenActive) {
-            throw new AuthenticationNotFoundException(String.format("Authentication session not found in store for access token: %s", encodedToken.token()));
+            throw new AuthenticationNotFoundException("Authentication session not found in store for access token: %s".formatted(encodedToken.token()));
         }
     }
 
@@ -184,7 +184,7 @@ public class JwtVerifier {
     private void verifyRefreshTokenType(DecodedJwt decodedJwt) {
         logger.trace("[JWT_VERIFIER] Step 2/3: Verifying token type is REFRESH");
         if (!decodedJwt.isRefreshToken()) {
-            throw new UnexpectedJwtTypeException(String.format("JWT %s is not a refresh token", decodedJwt.encodedToken()));
+            throw new UnexpectedJwtTypeException("JWT %s is not a refresh token".formatted(decodedJwt.encodedToken()));
         }
     }
 
@@ -200,7 +200,7 @@ public class JwtVerifier {
         logger.trace("[JWT_VERIFIER] Step 3/3: Checking refresh token exists in store");
         var isTokenActive = tokenStore.refreshTokenExists(encodedToken);
         if (!isTokenActive) {
-            throw new AuthenticationNotFoundException(String.format("Authentication session not found in store for refresh token: %s", encodedToken.token()));
+            throw new AuthenticationNotFoundException("Authentication session not found in store for refresh token: %s".formatted(encodedToken.token()));
         }
     }
 

@@ -81,7 +81,7 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
         return jwtAuthenticationRepository.findByAccessTokenToken(accessToken.value())
                                           .map(jwtAuthenticationMapper::toJwtAuthentication)
                                           .orElseThrow(() -> new AuthenticationNotFoundException(
-                                                  String.format("Authentication session not found in repository for access token: %s", accessToken.token())));
+                                                  "Authentication session not found in repository for access token: %s".formatted(accessToken.token())));
     }
 
     /**
@@ -97,7 +97,7 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
         return jwtAuthenticationRepository.findByRefreshTokenToken(refreshToken.value())
                                           .map(jwtAuthenticationMapper::toJwtAuthentication)
                                           .orElseThrow(() -> new AuthenticationNotFoundException(
-                                                  String.format("Authentication session not found in repository for refresh token: %s", refreshToken.token())));
+                                                  "Authentication session not found in repository for refresh token: %s".formatted(refreshToken.token())));
     }
 
     /**

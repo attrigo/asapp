@@ -49,7 +49,7 @@ public class JwtCryptoConfiguration {
      * @throws IllegalStateException if the decoded key is too short for any supported HMAC algorithm
      */
     @Bean
-    public MACSigner macSigner(@Value("${asapp.security.jwt-secret}") String jwtSecret) {
+    MACSigner macSigner(@Value("${asapp.security.jwt-secret}") String jwtSecret) {
         var secretBytes = Base64.getDecoder()
                                 .decode(jwtSecret);
         try {
@@ -67,7 +67,7 @@ public class JwtCryptoConfiguration {
      * @throws IllegalStateException if the decoded key is too short for any supported HMAC algorithm
      */
     @Bean
-    public MACVerifier macVerifier(@Value("${asapp.security.jwt-secret}") String jwtSecret) {
+    MACVerifier macVerifier(@Value("${asapp.security.jwt-secret}") String jwtSecret) {
         var secretBytes = Base64.getDecoder()
                                 .decode(jwtSecret);
         try {

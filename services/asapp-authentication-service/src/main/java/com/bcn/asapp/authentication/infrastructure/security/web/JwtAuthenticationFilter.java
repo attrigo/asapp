@@ -33,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -161,12 +161,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * @return a {@link Set} of {@link RequestMatcher} instances for excluded paths
      */
     private Set<RequestMatcher> buildExcludedMatchers() {
+        var path = PathPatternRequestMatcher.withDefaults();
         Set<RequestMatcher> excludedMatchers = Stream.of(API_WHITELIST_URLS, ROOT_WHITELIST_URLS, MANAGEMENT_WHITELIST_URLS)
                                                      .flatMap(Arrays::stream)
-                                                     .map(AntPathRequestMatcher::new)
+                                                     .map(path::matcher)
                                                      .collect(Collectors.toSet());
         Stream.of(API_WHITELIST_POST_URLS)
-              .map(url -> new AntPathRequestMatcher(url, HttpMethod.POST.name()))
+              .map(url -> path.matcher(HttpMethod.POST, url))
               .forEach(excludedMatchers::add);
         return excludedMatchers;
     }

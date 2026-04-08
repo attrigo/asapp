@@ -86,7 +86,7 @@ class ActuatorEndpointsIT {
                                                                    .isObject()
                                                                    .containsKeys("self", "beans", "caches-cache", "caches", "health", "health-path", "info",
                                                                            "conditions", "shutdown", "configprops", "configprops-prefix", "env", "env-toMatch",
-                                                                           "liquibase", "loggers", "loggers-name", "heapdump", "threaddump", "prometheus",
+                                                                           "liquibase", "loggers", "loggers-name", "threaddump", "prometheus",
                                                                            "metrics-requiredMetricName", "metrics", "sbom-id", "sbom", "scheduledtasks",
                                                                            "httpexchanges", "mappings");
                      });

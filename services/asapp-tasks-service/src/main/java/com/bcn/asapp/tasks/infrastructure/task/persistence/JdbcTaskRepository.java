@@ -22,7 +22,6 @@ import java.util.UUID;
 import org.springframework.data.jdbc.repository.query.Modifying;
 import org.springframework.data.jdbc.repository.query.Query;
 import org.springframework.data.repository.ListCrudRepository;
-import org.springframework.stereotype.Repository;
 
 /**
  * Spring Data JDBC repository for task persistence operations.
@@ -35,7 +34,6 @@ import org.springframework.stereotype.Repository;
  * @see ListCrudRepository
  * @author attrigo
  */
-@Repository
 public interface JdbcTaskRepository extends ListCrudRepository<JdbcTaskEntity, UUID> {
 
     /**

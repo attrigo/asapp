@@ -83,7 +83,7 @@
     * [X] Use Redis to ensure JWT is still valid (source of truth)
     * [X] Protect management endpoints
     * [X] Create a background process (cron) to automatically delete expired JWT
-* [X] Create asapp-users-service
+    * [ ] Create custom DelegatingPasswordEncoder to support a set of modern and reliable password encoding formats* [X] Create asapp-users-service
     * [X] Build project
     * [X] Add Liquibase
     * [X] Add basic CRUD endpoints
@@ -134,7 +134,7 @@
     * [X] Change the debug level of jdbc to info in application-docker.properties
     * [X] Rename database primary keys, from "*_id_pk" to "pk_"
     * [X] Improve data validation via Jakarta Annotations
-    * [ ] Launch OpenRewrite Spring Boot best practices
+    * [X] Launch OpenRewrite Spring Boot best practices
     * [ ] Upgrade to Spring Boot 4
     * [ ] Upgrade all external dependencies
     * [ ] Upgrade to Java 25
@@ -202,7 +202,6 @@
 * [ ] Put in place Spring's CompromisedPassword
 * [ ] Change the endpoint that gets all users to return a page of users
 * [ ] Migrate passwords with .setEnableUpatePassword(true) to allow users to update their password when they try to authenticate with an old password format (Spring Security 6.2+)
-* [ ] Create custom DelegatingPasswordEncoder to support a set of modern and reliable password encoding formats
 
 
 ### asapp-tasks-service
@@ -251,6 +250,7 @@
 
 ### Tests
 
+* [ ] Enable maven-surefire-junit5-tree-reporter once version 2.x.x is released (compatible with maven-surefire-plugin 3.5.4+). Removed during SB4 migration due to incompatibility with surefire 3.5.5 brought in by SB 3.5.13.
 * [ ] Add spring-test-profiler
 * [ ] Review Spring test context usage
 

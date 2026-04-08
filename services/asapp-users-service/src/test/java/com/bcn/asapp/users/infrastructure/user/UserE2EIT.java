@@ -567,7 +567,7 @@ class UserE2EIT {
     private void mockRequestToGetTasksByUserIdWithOkResponse(UUID userId, List<UUID> taskIds) {
         try {
             var responseBody = taskIds.stream()
-                                      .map(taskId -> String.format("{\"task_id\":\"%s\"}", taskId))
+                                      .map(taskId -> "{\"task_id\":\"%s\"}".formatted(taskId))
                                       .toList();
             var jsonResponse = "[" + String.join(",", responseBody) + "]";
 
