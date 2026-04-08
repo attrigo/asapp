@@ -8,7 +8,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.4.3</version>
+        <version>3.5.13</version>
         <relativePath/>
     </parent>
 
@@ -52,7 +52,6 @@
         <!-- Plugins Versions -->
         <git-build-hook-maven-plugin.version>3.5.0</git-build-hook-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-        <maven-surefire-junit5-tree-reporter.version>1.5.1</maven-surefire-junit5-tree-reporter.version>
         <pitest-maven.version>1.20.4</pitest-maven.version>
         <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
         <spotless-maven-plugin.version>2.46.1</spotless-maven-plugin.version>
@@ -134,7 +133,7 @@
                                 <include>src/test/java/**/*.java</include>
                             </includes>
                             <eclipse>
-                                <version>4.26</version>
+                                <version>4.35</version>
                                 <file>asapp_formatter.xml</file>
                             </eclipse>
                             <importOrder>

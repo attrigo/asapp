@@ -3,13 +3,13 @@
 > A Spring Boot microservices application for task management with JWT authentication
 
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/technologies/downloads/#java21)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.4.3-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.13-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![CI](https://img.shields.io/github/actions/workflow/status/attrigo/asapp/ci.yml?branch=main)](https://github.com/attrigo/asapp/actions)
 
 ## Overview
 
-ASAPP (Application for Task Management) is a production-ready microservices application built with Spring Boot 3.4.3 and Java 21. It demonstrates modern enterprise architecture patterns including Hexagonal Architecture, Domain-Driven Design, and comprehensive observability.
+ASAPP (Application for Task Management) is a production-ready microservices application built with Spring Boot 3.5.13 and Java 21. It demonstrates modern enterprise architecture patterns including Hexagonal Architecture, Domain-Driven Design, and comprehensive observability.
 
 **Key Features**:
 - 🏗️ **Hexagonal Architecture** - Clean separation of concerns with ports and adapters
@@ -261,7 +261,7 @@ asapp/
 ### Core Technologies
 
 - **Java**: 21 (LTS)
-- **Spring Boot**: 3.4.3
+- **Spring Boot**: 3.5.13
 - **Spring Framework**: 6.x
 - **Database**: PostgreSQL 15+
 - **Build Tool**: Apache Maven 3.9+
@@ -273,7 +273,7 @@ asapp/
 - **Migrations**: Liquibase 4.x
 - **Mapping**: MapStruct 1.6.3
 - **Validation**: Jakarta Validation
-- **Documentation**: SpringDoc OpenAPI 2.8.5
+- **Documentation**: SpringDoc OpenAPI 2.8.16
 
 ### Testing Stack
 

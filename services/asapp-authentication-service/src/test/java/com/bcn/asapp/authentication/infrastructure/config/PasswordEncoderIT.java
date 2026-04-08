@@ -178,10 +178,11 @@ class PasswordEncoderIT {
                          .expectBody(AuthenticateResponse.class);
         }
 
+        @SuppressWarnings("deprecation")
         @Test
         void ReturnsStatusOkAndBodyWithGeneratedAuthentication_NoopEncodedStoredUserPassword() {
             // Given
-            var noOpEncoder = NoOpPasswordEncoder.getInstance();
+            var noOpEncoder = NoOpPasswordEncoder.getInstance(); // NoOpPasswordEncoder is deprecated — used here to test backward compatibility.
             var user = aUserBuilder().withPasswordEncoder("{noop}", noOpEncoder)
                                      .buildJdbc();
             var createdUser = createUser(user);

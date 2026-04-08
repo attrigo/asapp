@@ -30,7 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.servlet.util.matcher.PathPatternRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -156,9 +156,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * @return a {@link Set} of {@link RequestMatcher} instances for excluded paths
      */
     private Set<RequestMatcher> buildExcludedMatchers() {
+        var path = PathPatternRequestMatcher.withDefaults();
         return Stream.of(ROOT_WHITELIST_URLS, MANAGEMENT_WHITELIST_URLS)
                      .flatMap(Arrays::stream)
-                     .map(AntPathRequestMatcher::new)
+                     .map(path::matcher)
                      .collect(Collectors.toSet());
     }
 

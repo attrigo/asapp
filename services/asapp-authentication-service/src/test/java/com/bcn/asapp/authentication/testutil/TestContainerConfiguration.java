@@ -58,13 +58,13 @@ public class TestContainerConfiguration {
 
     @Bean
     @ServiceConnection
-    public PostgreSQLContainer<?> postgresContainer() {
+    PostgreSQLContainer<?> postgresContainer() {
         return postgreSQLContainer;
     }
 
     @Bean
     @ServiceConnection
-    public RedisContainer redisContainer() {
+    RedisContainer redisContainer() {
         return redisContainer;
     }
 

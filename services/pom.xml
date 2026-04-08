@@ -23,7 +23,7 @@
         <!-- Compile Dependencies -->
         <!-- * Org Dependencies -->
         <mapstruct.version>1.6.3</mapstruct.version>
-        <springdoc-openapi-starter.version>2.8.5</springdoc-openapi-starter.version>
+        <springdoc-openapi-starter.version>2.8.16</springdoc-openapi-starter.version>
         <!-- * Other Dependencies -->
         <nimbus-jose-jwt.version>9.37.3</nimbus-jose-jwt.version>
 
@@ -105,8 +105,7 @@
                                 <version>${mapstruct.version}</version>
                             </path>
                         </annotationProcessorPaths>
-                        <source>${java.version}</source>
-                        <target>${java.version}</target>
+                        <release>${java.version}</release>
                     </configuration>
                 </plugin>
                 <plugin>
@@ -124,26 +123,6 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-surefire-plugin</artifactId>
-                    <dependencies>
-                        <dependency>
-                            <groupId>me.fabriciorby</groupId>
-                            <artifactId>maven-surefire-junit5-tree-reporter</artifactId>
-                            <version>${maven-surefire-junit5-tree-reporter.version}</version>
-                        </dependency>
-                    </dependencies>
-                    <configuration>
-                        <reportFormat>plain</reportFormat>
-                        <consoleOutputReporter>
-                            <disable>true</disable>
-                        </consoleOutputReporter>
-                        <statelessTestsetInfoReporter
-                            implementation="org.apache.maven.plugin.surefire.extensions.junit5.JUnit5StatelessTestsetInfoTreeReporter">
-                            <theme>UNICODE</theme>
-                            <printBlankLineBetweenTests>true</printBlankLineBetweenTests>
-                            <printStacktraceOnError>true</printStacktraceOnError>
-                            <printStacktraceOnFailure>true</printStacktraceOnFailure>
-                        </statelessTestsetInfoReporter>
-                    </configuration>
                 </plugin>
 
                 <!-- Spring Plugins -->

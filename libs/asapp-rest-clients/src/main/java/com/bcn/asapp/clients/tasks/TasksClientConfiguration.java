@@ -60,7 +60,7 @@ public class TasksClientConfiguration {
      */
     @Bean
     @ConditionalOnMissingBean(name = "tasksServiceUriHandler")
-    UriHandler tasksServiceUriHandler(@Value("${asapp.client.tasks.base-url}") String taskClientBaseUrl) {
+    DefaultUriHandler tasksServiceUriHandler(@Value("${asapp.client.tasks.base-url}") String taskClientBaseUrl) {
         return new DefaultUriHandler(taskClientBaseUrl);
     }
 
@@ -77,7 +77,7 @@ public class TasksClientConfiguration {
      * @return a configured {@link TasksClient} implementation
      */
     @Bean
-    TasksClient taskClient(UriHandler tasksServiceUriHandler, RestClient.Builder restClientBuilder) {
+    TasksRestClient taskClient(UriHandler tasksServiceUriHandler, RestClient.Builder restClientBuilder) {
         return new TasksRestClient(tasksServiceUriHandler, restClientBuilder.build());
     }
 

@@ -188,12 +188,12 @@ public record Jwt(
                                   .orElseThrow(() -> new IllegalArgumentException("Claims must contain the mandatory token use claim"));
 
         if (!ACCESS_TOKEN_USE.equals(tokenUseClaim) && !REFRESH_TOKEN_USE.equals(tokenUseClaim)) {
-            var message = String.format("Invalid JWT use claim, expected %s or %s but was %s", ACCESS_TOKEN_USE, REFRESH_TOKEN_USE, tokenUseClaim);
+            var message = "Invalid JWT use claim, expected %s or %s but was %s".formatted(ACCESS_TOKEN_USE, REFRESH_TOKEN_USE, tokenUseClaim);
             throw new IllegalArgumentException(message);
         }
 
         if (type == ACCESS_TOKEN && !ACCESS_TOKEN_USE.equals(tokenUseClaim) || type == REFRESH_TOKEN && !REFRESH_TOKEN_USE.equals(tokenUseClaim)) {
-            var message = String.format("Token type %s and token_use claim %s do not match", type, tokenUseClaim);
+            var message = "Token type %s and token_use claim %s do not match".formatted(type, tokenUseClaim);
             throw new IllegalArgumentException(message);
         }
     }
