@@ -3,7 +3,7 @@
 > Shared REST client infrastructure and inter-service communication for ASAPP microservices
 
 [![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://www.oracle.com/java/technologies/downloads/#java25)
-[![Maven](https://img.shields.io/badge/Maven-3.9+-blue.svg)](https://maven.apache.org/)
+[![Maven](https://img.shields.io/badge/Maven-3.9.14+-blue.svg)](https://maven.apache.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 ## Overview
@@ -231,7 +231,7 @@ asapp.client.tasks.base-url=http://asapp-tasks-service:8081/asapp-tasks-service
 ## Requirements
 
 - **Java**: 25 or higher
-- **Maven**: 3.9.0 or higher
+- **Maven**: 3.9.14 or higher
 - **Spring Framework**: 7.x (RestClient support)
 - **Dependencies**: `asapp-commons-url`
 
