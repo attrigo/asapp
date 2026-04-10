@@ -280,8 +280,8 @@ asapp/
 - **Framework**: JUnit 5
 - **Assertions**: AssertJ
 - **Mocking**: Mockito (BDDMockito style)
-- **Coverage**: JaCoCo 0.8.12
-- **Mutation Testing**: PITest 1.20.4
+- **Coverage**: JaCoCo 1.x
+- **Mutation Testing**: PITest 1.x
 - **Integration**: TestContainers 2.x (PostgreSQL)
 - **E2E Mocking**: MockServer 5.15.0
 

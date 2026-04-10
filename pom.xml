@@ -51,10 +51,10 @@
 
         <!-- Plugins Versions -->
         <git-build-hook-maven-plugin.version>3.5.0</git-build-hook-maven-plugin.version>
-        <jacoco-maven-plugin.version>0.8.12</jacoco-maven-plugin.version>
-        <pitest-maven.version>1.20.4</pitest-maven.version>
+        <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
+        <pitest-maven.version>1.23.0</pitest-maven.version>
         <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
-        <spotless-maven-plugin.version>2.46.1</spotless-maven-plugin.version>
+        <spotless-maven-plugin.version>3.4.0</spotless-maven-plugin.version>
 
         <!-- Build Profile Skip Flags (overridden by -Pfull) -->
         <jacoco.skip>true</jacoco.skip>

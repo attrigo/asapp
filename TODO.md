@@ -138,7 +138,7 @@
     * [X] Improve data validation via Jakarta Annotations
     * [X] Launch OpenRewrite Spring Boot best practices
     * [X] Upgrade to Spring Boot 4
-    * [ ] Upgrade all external dependencies
+    * [X] Upgrade all external dependencies
     * [ ] Upgrade to Java 25
     * [ ] Upgrade maven wrapper
     * [ ] Review and fix console warnings
