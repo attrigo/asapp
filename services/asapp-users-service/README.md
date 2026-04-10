@@ -119,7 +119,7 @@ The service implements **DDD patterns**:
 ### Prerequisites
 
 - Java 25+
-- Maven 3.9+
+- Maven 3.9.14+
 - Docker & Docker Compose
 - PostgreSQL (via Docker)
 - Authentication Service (for JWT validation)
@@ -391,7 +391,7 @@ src/main/java/com/bcn/asapp/users/
 ## Requirements
 
 - **Java**: 25 or higher
-- **Maven**: 3.9.0 or higher
+- **Maven**: 3.9.14 or higher
 - **Docker**: 20.10+
 - **Docker Compose**: 2.0+
 - **PostgreSQL**: 15+ (via Docker)
