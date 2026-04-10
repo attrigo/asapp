@@ -83,7 +83,8 @@
     * [X] Use Redis to ensure JWT is still valid (source of truth)
     * [X] Protect management endpoints
     * [X] Create a background process (cron) to automatically delete expired JWT
-    * [ ] Create custom DelegatingPasswordEncoder to support a set of modern and reliable password encoding formats* [X] Create asapp-users-service
+    * [X] Create custom DelegatingPasswordEncoder to support a set of modern and reliable password encoding formats
+* [X] Create asapp-users-service
     * [X] Build project
     * [X] Add Liquibase
     * [X] Add basic CRUD endpoints

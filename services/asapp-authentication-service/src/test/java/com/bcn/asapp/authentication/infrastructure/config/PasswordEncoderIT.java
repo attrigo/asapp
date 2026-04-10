@@ -33,7 +33,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 import org.springframework.test.web.reactive.server.WebTestClient;
@@ -50,7 +49,6 @@ import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
  * Tests {@link DelegatingPasswordEncoder} multi-format password authentication.
  * <p>
  * Coverage:
- * <li>Authenticates users with noop-encoded passwords</li>
  * <li>Authenticates users with bcrypt-encoded passwords</li>
  * <li>Authenticates users with argon2-encoded passwords</li>
  * <li>Authenticates users with scrypt-encoded passwords</li>
@@ -160,30 +158,6 @@ class PasswordEncoderIT {
             // Given
             var scryptEncoder = SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8();
             var user = aUserBuilder().withPasswordEncoder("{scrypt@SpringSecurity_v5_8}", scryptEncoder)
-                                     .buildJdbc();
-            var createdUser = createUser(user);
-            var authenticateRequestBody = new AuthenticateRequest(createdUser.username(), "TEST@09_password?!");
-
-            // When & Then
-            webTestClient.post()
-                         .uri(AUTH_TOKEN_FULL_PATH)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                         .bodyValue(authenticateRequestBody)
-                         .exchange()
-                         .expectStatus()
-                         .isOk()
-                         .expectHeader()
-                         .contentType(MediaType.APPLICATION_JSON)
-                         .expectBody(AuthenticateResponse.class);
-        }
-
-        @SuppressWarnings("deprecation")
-        @Test
-        void ReturnsStatusOkAndBodyWithGeneratedAuthentication_NoopEncodedStoredUserPassword() {
-            // Given
-            var noOpEncoder = NoOpPasswordEncoder.getInstance(); // NoOpPasswordEncoder is deprecated — used here to test backward compatibility.
-            var user = aUserBuilder().withPasswordEncoder("{noop}", noOpEncoder)
                                      .buildJdbc();
             var createdUser = createUser(user);
             var authenticateRequestBody = new AuthenticateRequest(createdUser.username(), "TEST@09_password?!");

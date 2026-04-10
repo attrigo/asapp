@@ -18,6 +18,8 @@ package com.bcn.asapp.authentication.infrastructure.config;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
+import java.util.HashMap;
+
 import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
@@ -29,9 +31,12 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
+import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -58,7 +63,6 @@ import com.bcn.asapp.authentication.infrastructure.security.web.JwtAuthenticatio
  * @see SecurityFilterChain
  * @see AuthenticationManager
  * @see PasswordEncoder
- * @see PasswordEncoderFactories
  * @author attrigo
  */
 @Configuration
@@ -236,14 +240,20 @@ public class SecurityConfiguration {
      * <p>
      * The PasswordEncoder is responsible for encoding passwords and verifying their validity during authentication by comparing encoded passwords.
      * <p>
-     * Uses {@link PasswordEncoderFactories#createDelegatingPasswordEncoder()} which creates a {@link DelegatingPasswordEncoder} that supports multiple encoding
-     * schemes.
+     * Uses a custom {@link DelegatingPasswordEncoder} with {@code bcrypt} as the default encoding algorithm. Additional encoders are registered for backward
+     * compatibility with existing password hashes: {@code argon2@SpringSecurity_v5_8}, {@code pbkdf2@SpringSecurity_v5_8}, and
+     * {@code scrypt@SpringSecurity_v5_8}.
      *
      * @return the {@link PasswordEncoder}
      */
     @Bean
     PasswordEncoder passwordEncoder() {
-        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        var encoders = new HashMap<String, PasswordEncoder>();
+        encoders.put("argon2@SpringSecurity_v5_8", Argon2PasswordEncoder.defaultsForSpringSecurity_v5_8());
+        encoders.put("bcrypt", new BCryptPasswordEncoder());
+        encoders.put("pbkdf2@SpringSecurity_v5_8", Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8());
+        encoders.put("scrypt@SpringSecurity_v5_8", SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8());
+        return new DelegatingPasswordEncoder("bcrypt", encoders);
     }
 
 }
