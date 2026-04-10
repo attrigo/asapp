@@ -81,7 +81,7 @@ ASAPP consists of three independent microservices:
 ### Prerequisites
 
 - **Java 25** or higher
-- **Maven 3.9+**
+- **Maven 3.9.14+**
 - **Docker** & **Docker Compose**
 - **Git**
 
@@ -264,7 +264,7 @@ asapp/
 - **Spring Boot**: 4.0.5
 - **Spring Framework**: 7.x
 - **Database**: PostgreSQL 15+
-- **Build Tool**: Apache Maven 3.9+
+- **Build Tool**: Apache Maven 3.9.14+
 
 ### Key Dependencies
 
@@ -687,7 +687,7 @@ docker-compose logs asapp-prometheus-authentication
 ### Development Requirements
 
 - **Java Development Kit**: JDK 25 (Temurin, Oracle, or OpenJDK)
-- **Build Tool**: Apache Maven 3.9.0+
+- **Build Tool**: Apache Maven 3.9.14+
 - **IDE**: IntelliJ IDEA, Eclipse, or VS Code with Java extensions
 - **Git**: 2.30+
 

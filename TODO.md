@@ -140,7 +140,7 @@
     * [X] Upgrade to Spring Boot 4
     * [X] Upgrade all external dependencies
     * [X] Upgrade to Java 25
-    * [ ] Upgrade maven wrapper
+    * [X] Upgrade maven wrapper
     * [ ] Review and fix console warnings
     * [ ] Launch Sonar analysis
     * [ ] Launch security analysis
