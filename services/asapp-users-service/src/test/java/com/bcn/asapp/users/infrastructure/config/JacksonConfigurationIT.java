@@ -31,13 +31,13 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureWebMvc;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.exc.InvalidFormatException;
 
 /**
  * Tests {@link ObjectMapper} JSON serialization configuration and temporal format handling.
@@ -115,7 +115,7 @@ class JacksonConfigurationIT {
     class DeserializeJsonToEntity {
 
         @Test
-        void ReturnsEntity_RawJsonWithValidDates() throws JsonProcessingException {
+        void ReturnsEntity_RawJsonWithValidDates() throws JacksonException {
             // Given
             var localDateAsJson = """
                     {"localDate":"2024-06-15","localDateTime":"2024-06-15T14:23:40","instant":"2024-06-15T15:14:40.123Z"}

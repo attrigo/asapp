@@ -62,7 +62,6 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Unsupported Media Type")
                                                   .containsEntry("status", 415)
                                                   .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
@@ -87,7 +86,6 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("detail", "Failed to read request")
@@ -111,7 +109,6 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("instance", "/api/auth/token");
@@ -150,7 +147,6 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("instance", "/api/auth/token");
@@ -189,7 +185,6 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Unsupported Media Type")
                                                   .containsEntry("status", 415)
                                                   .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
@@ -213,7 +208,6 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("detail", "Failed to read request")
@@ -237,7 +231,6 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("instance", "/api/auth/refresh");
@@ -274,7 +267,6 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("instance", "/api/auth/refresh");
@@ -312,7 +304,6 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Unsupported Media Type")
                                                   .containsEntry("status", 415)
                                                   .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
@@ -336,7 +327,6 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("detail", "Failed to read request")
@@ -360,7 +350,6 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("instance", "/api/auth/revoke");
@@ -397,7 +386,6 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("instance", "/api/auth/revoke");

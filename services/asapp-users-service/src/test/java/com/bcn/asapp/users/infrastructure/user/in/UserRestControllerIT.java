@@ -70,7 +70,6 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Not Found")
                                                   .containsEntry("status", 404)
                                                   .containsEntry("detail", "No static resource api/users.")
@@ -93,7 +92,6 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("detail", "Failed to convert 'id' with value: '1'")
@@ -122,7 +120,6 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Unsupported Media Type")
                                                   .containsEntry("status", 415)
                                                   .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
@@ -146,7 +143,6 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("detail", "Failed to read request")
@@ -170,7 +166,6 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("instance", "/api/users");
@@ -216,7 +211,6 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("instance", "/api/users");
@@ -266,7 +260,6 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("instance", "/api/users");
@@ -306,7 +299,6 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("instance", "/api/users");
@@ -351,7 +343,6 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Not Found")
                                                   .containsEntry("status", 404)
                                                   .containsEntry("detail", "No static resource api/users.")
@@ -383,7 +374,6 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("detail", "Failed to convert 'id' with value: '1'")
@@ -408,7 +398,6 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Unsupported Media Type")
                                                   .containsEntry("status", 415)
                                                   .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
@@ -433,7 +422,6 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("detail", "Failed to read request")
@@ -458,7 +446,6 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("instance", "/api/users/" + userId);
@@ -505,7 +492,6 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("instance", "/api/users/" + userId);
@@ -556,7 +542,6 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("instance", "/api/users/" + userId);
@@ -597,7 +582,6 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("instance", "/api/users/" + userId);
@@ -633,7 +617,6 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Not Found")
                                                   .containsEntry("status", 404)
                                                   .containsEntry("detail", "No static resource api/users.")
@@ -656,7 +639,6 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .convertTo(String.class)
                    .satisfies(jsonContent -> {
                        assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("type", "about:blank")
                                                   .containsEntry("title", "Bad Request")
                                                   .containsEntry("status", 400)
                                                   .containsEntry("detail", "Failed to convert 'id' with value: '1'")
