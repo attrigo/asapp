@@ -19,9 +19,9 @@ package com.bcn.asapp.tasks.testutil;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.context.annotation.Bean;
-import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import com.redis.testcontainers.RedisContainer;
@@ -51,14 +51,14 @@ public class TestContainerConfiguration {
     }
 
     @Container
-    public static final PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>(DockerImageName.parse("postgres:17.7"));
+    public static final PostgreSQLContainer postgreSQLContainer = new PostgreSQLContainer(DockerImageName.parse("postgres:17.7"));
 
     @Container
     public static final RedisContainer redisContainer = new RedisContainer(DockerImageName.parse("redis:8.4.0-alpine"));
 
     @Bean
     @ServiceConnection
-    PostgreSQLContainer<?> postgresContainer() {
+    PostgreSQLContainer postgresContainer() {
         return postgreSQLContainer;
     }
 

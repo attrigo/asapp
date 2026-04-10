@@ -3,7 +3,7 @@
 > Task management and lifecycle operations for the ASAPP microservices ecosystem
 
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/technologies/downloads/#java21)
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.13-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 ## Overview
@@ -318,13 +318,13 @@ open target/pit-reports/<timestamp>/index.html
 ## Technology Stack
 
 - **Java**: 21
-- **Spring Boot**: 3.5.13
+- **Spring Boot**: 4.0.5
 - **Database**: PostgreSQL
 - **Migrations**: Liquibase
 - **Security**: Spring Security + JWT validation
 - **Mapping**: MapStruct 1.6.3
-- **Testing**: JUnit 5, AssertJ, TestContainers, PITest
-- **Documentation**: SpringDoc OpenAPI 2.8.16
+- **Testing**: JUnit 5, AssertJ, TestContainers 2.x, PITest
+- **Documentation**: SpringDoc OpenAPI 3.x
 - **Observability**: Spring Boot Actuator, Micrometer
 
 ## Project Structure

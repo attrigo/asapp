@@ -232,7 +232,7 @@ asapp.client.tasks.base-url=http://asapp-tasks-service:8081/asapp-tasks-service
 
 - **Java**: 21 or higher
 - **Maven**: 3.9.0 or higher
-- **Spring Framework**: 6.x (RestClient support)
+- **Spring Framework**: 7.x (RestClient support)
 - **Dependencies**: `asapp-commons-url`
 
 ## Contributing

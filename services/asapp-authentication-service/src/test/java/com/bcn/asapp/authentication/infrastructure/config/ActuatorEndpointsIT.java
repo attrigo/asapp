@@ -24,8 +24,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
@@ -84,11 +84,10 @@ class ActuatorEndpointsIT {
                                                                    .containsKeys("_links")
                                                                    .node("_links")
                                                                    .isObject()
-                                                                   .containsKeys("self", "beans", "caches-cache", "caches", "health", "health-path", "info",
-                                                                           "conditions", "shutdown", "configprops", "configprops-prefix", "env", "env-toMatch",
-                                                                           "liquibase", "loggers", "loggers-name", "threaddump", "prometheus",
-                                                                           "metrics-requiredMetricName", "metrics", "sbom-id", "sbom", "scheduledtasks",
-                                                                           "httpexchanges", "mappings");
+                                                                   .containsKeys("self", "beans", "health", "health-path", "info", "conditions", "shutdown",
+                                                                           "configprops", "configprops-prefix", "env", "env-toMatch", "liquibase", "loggers",
+                                                                           "loggers-name", "threaddump", "prometheus", "metrics-requiredMetricName", "metrics",
+                                                                           "sbom-id", "sbom", "scheduledtasks", "httpexchanges", "mappings");
                      });
     }
 

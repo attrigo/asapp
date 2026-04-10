@@ -107,6 +107,7 @@
     * [X] Replace Hamcrest assertions by AssertJ assertions
     * [X] Add PiTest
     * [X] Add maven-surefire-junit5-tree-reporter
+    * [ ] Migrate integration tests from `WebTestClient` to `RestTestClient` (SB4 modern sync alternative based on `RestClient`; `spring-boot-webtestclient` added as a transitional dep during SB4 migration)
 * [X] Improve management endpoints (Actuator)
     * [X] Show more health details when authenticated
     * [X] Move management to a separate port
@@ -135,7 +136,7 @@
     * [X] Rename database primary keys, from "*_id_pk" to "pk_"
     * [X] Improve data validation via Jakarta Annotations
     * [X] Launch OpenRewrite Spring Boot best practices
-    * [ ] Upgrade to Spring Boot 4
+    * [X] Upgrade to Spring Boot 4
     * [ ] Upgrade all external dependencies
     * [ ] Upgrade to Java 25
     * [ ] Upgrade maven wrapper

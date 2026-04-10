@@ -30,8 +30,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.postgresql.util.PGobject;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtClaimsEntity;
 
@@ -50,7 +51,7 @@ class JdbcConversionsConfigurationTests {
     @Nested
     class ConvertPgObjectToClaims {
 
-        private final ObjectMapper objectMapper = new ObjectMapper();
+        private final ObjectMapper objectMapper = new JsonMapper();
 
         private final JdbcConversionsConfiguration.ClaimsReadingConverter converter = new JdbcConversionsConfiguration.ClaimsReadingConverter(objectMapper);
 
@@ -95,7 +96,7 @@ class JdbcConversionsConfigurationTests {
         @Test
         void ReturnsPgObject_ValidClaimsSource() {
             // Given
-            var realObjectMapper = new ObjectMapper();
+            var realObjectMapper = new JsonMapper();
             var converter = new JdbcConversionsConfiguration.ClaimsWritingConverter(realObjectMapper);
             var jwtClaims = new JdbcJwtClaimsEntity(Map.of("sub", "user@asapp.com"));
 
@@ -114,7 +115,7 @@ class JdbcConversionsConfigurationTests {
             var converter = new JdbcConversionsConfiguration.ClaimsWritingConverter(objectMapper);
             var claimsEntity = new JdbcJwtClaimsEntity(Map.of("sub", "user@asapp.com"));
 
-            given(objectMapper.writeValueAsString(any())).willThrow(new JsonProcessingException("Serialization failed") {});
+            given(objectMapper.writeValueAsString(any())).willThrow(new JacksonException("Serialization failed") {});
 
             // When
             var actual = catchThrowable(() -> converter.convert(claimsEntity));

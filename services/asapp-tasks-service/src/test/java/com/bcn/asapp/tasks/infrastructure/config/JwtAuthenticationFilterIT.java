@@ -30,8 +30,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
@@ -310,9 +310,9 @@ class JwtAuthenticationFilterIT {
         }
 
         private static Stream<String> protectedEndpoints() {
-            return Stream.of("/actuator", "/actuator/beans", "/actuator/caches", "/actuator/info", "/actuator/conditions", "/actuator/configprops",
-                    "/actuator/env", "/actuator/liquibase", "/actuator/loggers", "/actuator/threaddump", "/actuator/prometheus", "/actuator/metrics",
-                    "/actuator/sbom", "/actuator/scheduledtasks", "/actuator/httpexchanges", "/actuator/mappings");
+            return Stream.of("/actuator", "/actuator/beans", "/actuator/info", "/actuator/conditions", "/actuator/configprops", "/actuator/env",
+                    "/actuator/liquibase", "/actuator/loggers", "/actuator/threaddump", "/actuator/prometheus", "/actuator/metrics", "/actuator/sbom",
+                    "/actuator/scheduledtasks", "/actuator/httpexchanges", "/actuator/mappings");
         }
 
         private static Stream<String> publicEndpoints() {
