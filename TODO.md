@@ -139,7 +139,7 @@
     * [X] Launch OpenRewrite Spring Boot best practices
     * [X] Upgrade to Spring Boot 4
     * [X] Upgrade all external dependencies
-    * [ ] Upgrade to Java 25
+    * [X] Upgrade to Java 25
     * [ ] Upgrade maven wrapper
     * [ ] Review and fix console warnings
     * [ ] Launch Sonar analysis

@@ -2,7 +2,7 @@
 
 > User profile management and task aggregation for the ASAPP microservices ecosystem
 
-[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/technologies/downloads/#java21)
+[![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://www.oracle.com/java/technologies/downloads/#java25)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
@@ -118,7 +118,7 @@ The service implements **DDD patterns**:
 
 ### Prerequisites
 
-- Java 21+
+- Java 25+
 - Maven 3.9+
 - Docker & Docker Compose
 - PostgreSQL (via Docker)
@@ -315,7 +315,7 @@ open target/pit-reports/<timestamp>/index.html
 
 ## Technology Stack
 
-- **Java**: 21
+- **Java**: 25
 - **Spring Boot**: 4.0.5
 - **Database**: PostgreSQL
 - **Migrations**: Liquibase
@@ -390,7 +390,7 @@ src/main/java/com/bcn/asapp/users/
 
 ## Requirements
 
-- **Java**: 21 or higher
+- **Java**: 25 or higher
 - **Maven**: 3.9.0 or higher
 - **Docker**: 20.10+
 - **Docker Compose**: 2.0+
