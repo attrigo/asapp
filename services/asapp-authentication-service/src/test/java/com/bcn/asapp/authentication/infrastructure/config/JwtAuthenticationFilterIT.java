@@ -311,8 +311,8 @@ class JwtAuthenticationFilterIT {
 
         private static Stream<String> protectedEndpoints() {
             return Stream.of("/actuator", "/actuator/beans", "/actuator/info", "/actuator/conditions", "/actuator/configprops", "/actuator/env",
-                    "/actuator/liquibase", "/actuator/loggers", "/actuator/threaddump", "/actuator/prometheus", "/actuator/metrics", "/actuator/sbom",
-                    "/actuator/scheduledtasks", "/actuator/httpexchanges", "/actuator/mappings");
+                    "/actuator/liquibase", "/actuator/loggers", "/actuator/heapdump", "/actuator/threaddump", "/actuator/prometheus", "/actuator/metrics",
+                    "/actuator/sbom", "/actuator/scheduledtasks", "/actuator/httpexchanges", "/actuator/mappings");
         }
 
         private static Stream<String> publicEndpoints() {
