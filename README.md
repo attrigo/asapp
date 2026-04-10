@@ -2,14 +2,14 @@
 
 > A Spring Boot microservices application for task management with JWT authentication
 
-[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/technologies/downloads/#java21)
+[![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://www.oracle.com/java/technologies/downloads/#java25)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![CI](https://img.shields.io/github/actions/workflow/status/attrigo/asapp/ci.yml?branch=main)](https://github.com/attrigo/asapp/actions)
 
 ## Overview
 
-ASAPP (Application for Task Management) is a production-ready microservices application built with Spring Boot 4.0.5 and Java 21. It demonstrates modern enterprise architecture patterns including Hexagonal Architecture, Domain-Driven Design, and comprehensive observability.
+ASAPP (Application for Task Management) is a production-ready microservices application built with Spring Boot 4.0.5 and Java 25. It demonstrates modern enterprise architecture patterns including Hexagonal Architecture, Domain-Driven Design, and comprehensive observability.
 
 **Key Features**:
 - 🏗️ **Hexagonal Architecture** - Clean separation of concerns with ports and adapters
@@ -80,7 +80,7 @@ ASAPP consists of three independent microservices:
 
 ### Prerequisites
 
-- **Java 21** or higher
+- **Java 25** or higher
 - **Maven 3.9+**
 - **Docker** & **Docker Compose**
 - **Git**
@@ -260,7 +260,7 @@ asapp/
 
 ### Core Technologies
 
-- **Java**: 21 (LTS)
+- **Java**: 25 (LTS)
 - **Spring Boot**: 4.0.5
 - **Spring Framework**: 7.x
 - **Database**: PostgreSQL 15+
@@ -532,7 +532,7 @@ Builds and tests the project on every push and pull request to `main`.
 
 **Pipeline Steps**:
 1. Checkout code
-2. Setup JDK 21 (Temurin)
+2. Setup JDK 25 (Temurin)
 3. Maven dependency caching
 4. Build and test (`mvn verify -Pfull`)
 
@@ -680,13 +680,13 @@ docker-compose logs asapp-prometheus-authentication
 
 ### Runtime Requirements
 
-- **Java Runtime**: JDK 21 or higher
+- **Java Runtime**: JDK 25 or higher
 - **Database**: PostgreSQL 15+ (provided via Docker)
 - **Container Runtime**: Docker 20.10+ & Docker Compose 2.0+
 
 ### Development Requirements
 
-- **Java Development Kit**: JDK 21 (Temurin, Oracle, or OpenJDK)
+- **Java Development Kit**: JDK 25 (Temurin, Oracle, or OpenJDK)
 - **Build Tool**: Apache Maven 3.9.0+
 - **IDE**: IntelliJ IDEA, Eclipse, or VS Code with Java extensions
 - **Git**: 2.30+
