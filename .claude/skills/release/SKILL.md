@@ -20,7 +20,8 @@ Automates the full ASAPP release cycle: version bump, Liquibase tagging, build v
 
 - Must be on `main` branch
 - Working tree must be clean (no uncommitted changes)
-- Docker must be available if running integration tests
+- No unpushed commits on `main`
+- All TODO items for the release version must be completed
 
 ## Instructions
 
@@ -29,10 +30,27 @@ Automates the full ASAPP release cycle: version bump, Liquibase tagging, build v
 ```bash
 git branch --show-current
 git status --porcelain
+git log origin/main..HEAD --oneline
 ```
 
-- If not on `main`: abort and tell the user to switch branches
-- If working tree is dirty: abort and list the uncommitted files
+- If not on `main`: **abort** and tell the user to switch branches.
+- If working tree is dirty: **abort** and list the uncommitted files:
+
+  ```
+  Aborted: Working tree has uncommitted changes:
+    M <file>
+    ...
+  Commit or stash all changes before releasing.
+  ```
+
+- If there are unpushed commits: **abort** and list them:
+
+  ```
+  Aborted: There are unpushed commits on main:
+    <hash> <message>
+    ...
+  Push or review these commits before releasing.
+  ```
 
 ### Step 2: Detect Versions
 
@@ -42,7 +60,26 @@ Derive:
 - **Release version**: strip `-SNAPSHOT` → `0.3.0`
 - **Version underscored**: replace `.` with `_` → `0_3_0` (used for file names)
 
-### Step 3: Remove SNAPSHOT
+### Step 3: Check TODO Completeness
+
+Open `TODO.md` and locate the section `## Version X.Y.Z` that matches the release version from Step 2. The section spans from that header until the next `##` header or end of file.
+
+Scan every line in that section for unchecked items matching `[ ]`.
+
+- If any `[ ]` items are found: **abort**. List all pending tasks and recommend the user complete them before releasing:
+
+  ```
+  Aborted: Version X.Y.Z has pending TODO items:
+    - [ ] <task description>
+    - [ ] <task description>
+    ...
+  Complete all tasks for version X.Y.Z before releasing.
+  ```
+
+- If the version section is not found in TODO.md: **abort** with a warning that the version has no TODO section and ask the user to confirm whether to proceed.
+- If all items are checked (or the section has no checkboxes): continue.
+
+### Step 4: Remove SNAPSHOT
 
 #### Update pom version
 
@@ -64,7 +101,7 @@ services/asapp-users-service/src/main/java/com/bcn/asapp/users/infrastructure/co
 
 Replace `version = "OLD_VERSION"` → `version = "X.Y.Z"` in the `@OpenAPIDefinition` annotation.
 
-### Step 4: Add Liquibase Database Tags
+### Step 5: Add Liquibase Database Tags
 
 For each service, locate the version changelog file:
 
@@ -91,7 +128,7 @@ Use the underscored version in the `id` attribute (e.g. `tag_version_0_3_0`) and
 
 If a service has no changelog file for this version, skip it — that service had no schema changes in this release.
 
-### Step 5: Build and Verify
+### Step 6: Build and Verify
 
 ```bash
 mvn clean install
@@ -99,7 +136,7 @@ mvn clean install
 
 **If the build fails**: stop immediately, report the failure, and do not proceed. The user must fix the build before the release can continue.
 
-### Step 6: Commit Release and Create Tag
+### Step 7: Commit Release and Create Tag
 
 ```bash
 RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
@@ -110,7 +147,7 @@ git tag v${RELEASE_VERSION}
 
 Confirm the commit and tag were created successfully.
 
-### Step 7: Bump to Next SNAPSHOT
+### Step 8: Bump to Next SNAPSHOT
 
 #### Update pom version
 
@@ -132,7 +169,7 @@ services/asapp-users-service/src/main/java/com/bcn/asapp/users/infrastructure/co
 
 Replace `version = "X.Y.Z"` → `version = "X.Y+1.0-SNAPSHOT"` in the `@OpenAPIDefinition` annotation.
 
-### Step 8: Commit Next Development Version
+### Step 9: Commit Next Development Version
 
 ```bash
 NEXT_DEV_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
@@ -140,7 +177,7 @@ git add .
 git commit -m "chore: prepare next development version ${NEXT_DEV_VERSION}"
 ```
 
-### Step 9: Push
+### Step 10: Push
 
 Display the push command and ask for confirmation before running it:
 
@@ -158,6 +195,8 @@ Only push if the user confirms.
 
 - **Abort if not on `main`** — releases must come from the main branch
 - **Abort if working tree is dirty** — prevents accidental inclusion of uncommitted changes
+- **Abort if there are unpushed commits** — prevents releasing from a state that diverges from the remote
+- **Abort if TODO has unchecked items for the version** — ensures the release is feature-complete
 - **Never skip `mvn clean install`** — the build must pass before any commits are made
 - **Never force push** — use `--atomic` only; never `--force` or `--force-with-lease`
 - **Never push without confirmation**
@@ -165,21 +204,22 @@ Only push if the user confirms.
 ## Example Output
 
 ```
-Detected version: 0.3.0-SNAPSHOT → releasing as 0.3.0
-
-[Step 3] Removing SNAPSHOT...
+[Step 1] Validating preconditions...  done (branch: main, tree: clean, unpushed: none)
+[Step 2] Detected version: 0.3.0-SNAPSHOT → releasing as 0.3.0
+[Step 3] Checking TODO completeness for version 0.3.0...  done (all tasks completed)
+[Step 4] Removing SNAPSHOT...
   - pom.xml → 0.3.0
   - OpenAPI version → 0.3.0 (3 services)
-[Step 4] Tagging Liquibase changelogs...
+[Step 5] Tagging Liquibase changelogs...
   - asapp-authentication-service: added tag_version_0_3_0
   - asapp-users-service: added tag_version_0_3_0
   - asapp-tasks-service: no v0.3.0 changelog found, skipped
-[Step 5] Building...  done (BUILD SUCCESS)
-[Step 6] Committing release and tagging...  done (tag: v0.3.0)
-[Step 7] Bumping to next SNAPSHOT...
+[Step 6] Building...  done (BUILD SUCCESS)
+[Step 7] Committing release and tagging...  done (tag: v0.3.0)
+[Step 8] Bumping to next SNAPSHOT...
   - pom.xml → 0.4.0-SNAPSHOT
   - OpenAPI version → 0.4.0-SNAPSHOT (3 services)
-[Step 8] Committing next dev version...  done
+[Step 9] Committing next dev version...  done
 
 Ready to push. Run the following command to publish the release:
 
