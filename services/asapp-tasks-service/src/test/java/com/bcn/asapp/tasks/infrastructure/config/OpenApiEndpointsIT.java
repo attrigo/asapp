@@ -21,10 +21,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.client.RestTestClient;
 
 import com.bcn.asapp.tasks.AsappTasksServiceApplication;
 import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
@@ -39,82 +39,82 @@ import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
  * <li>OpenAPI documentation endpoint returns a valid non-empty API specification</li>
  */
 @SpringBootTest(classes = AsappTasksServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebTestClient(timeout = "30000")
+@AutoConfigureRestTestClient
 @Import(TestContainerConfiguration.class)
 class OpenApiEndpointsIT {
 
     @Autowired
-    private WebTestClient webTestClient;
+    private RestTestClient restTestClient;
 
     @Test
     void ReturnsStatusFoundAndHeaderLocationToSwaggerIndexAndEmptyBody_OnSwaggerEndpoint() {
         // When & Then
-        webTestClient.get()
-                     .uri("/swagger-ui.html")
-                     .exchange()
-                     .expectStatus()
-                     .isFound()
-                     .expectHeader()
-                     .location("/asapp-tasks-service/swagger-ui/index.html")
-                     .expectBody()
-                     .isEmpty();
+        restTestClient.get()
+                      .uri("/swagger-ui.html")
+                      .exchange()
+                      .expectStatus()
+                      .isFound()
+                      .expectHeader()
+                      .location("/asapp-tasks-service/swagger-ui/index.html")
+                      .expectBody()
+                      .isEmpty();
     }
 
     @Test
     void ReturnsStatusOkAndBodyWithHtmlContent_OnSwaggerIndexEndpoint() {
         // When & Then
-        webTestClient.get()
-                     .uri("/swagger-ui/index.html")
-                     .exchange()
-                     .expectStatus()
-                     .isOk()
-                     .expectBody(String.class)
-                     .consumeWith(response -> {
-                         assertThat(response.getResponseBody()).isNotBlank();
-                     });
+        restTestClient.get()
+                      .uri("/swagger-ui/index.html")
+                      .exchange()
+                      .expectStatus()
+                      .isOk()
+                      .expectBody(String.class)
+                      .consumeWith(response -> {
+                          assertThat(response.getResponseBody()).isNotBlank();
+                      });
     }
 
     @Test
     void ReturnsStatusOkAndBodyContainsApiInfoAndSecurityScheme_OnOpenApiDocs() {
         // When & Then
-        webTestClient.get()
-                     .uri("/v3/api-docs")
-                     .exchange()
-                     .expectStatus()
-                     .isOk()
-                     .expectBody(String.class)
-                     .consumeWith(response -> {
-                         String body = response.getResponseBody();
-                         assertThatJson(body).node("info")
-                                             .isObject()
-                                             .containsEntry("title", "Tasks Service API")
-                                             .containsEntry("description", "Provides tasks operations")
-                                             .node("license")
-                                             .isObject()
-                                             .containsEntry("name", "Apache-2.0");
-                         assertThatJson(body).node("components.securitySchemes")
-                                             .node("Bearer Authentication")
-                                             .isObject()
-                                             .containsEntry("type", "http")
-                                             .containsEntry("scheme", "bearer")
-                                             .containsEntry("bearerFormat", "JWT");
-                     });
+        restTestClient.get()
+                      .uri("/v3/api-docs")
+                      .exchange()
+                      .expectStatus()
+                      .isOk()
+                      .expectBody(String.class)
+                      .consumeWith(response -> {
+                          String body = response.getResponseBody();
+                          assertThatJson(body).node("info")
+                                              .isObject()
+                                              .containsEntry("title", "Tasks Service API")
+                                              .containsEntry("description", "Provides tasks operations")
+                                              .node("license")
+                                              .isObject()
+                                              .containsEntry("name", "Apache-2.0");
+                          assertThatJson(body).node("components.securitySchemes")
+                                              .node("Bearer Authentication")
+                                              .isObject()
+                                              .containsEntry("type", "http")
+                                              .containsEntry("scheme", "bearer")
+                                              .containsEntry("bearerFormat", "JWT");
+                      });
     }
 
     @Test
     void ReturnsStatusOkAndBodyWithApiSpec_OnOpenApiDocs() {
         // When & Then
-        webTestClient.get()
-                     .uri("/v3/api-docs")
-                     .exchange()
-                     .expectStatus()
-                     .isOk()
-                     .expectBody(String.class)
-                     .consumeWith(response -> {
-                         assertThatJson(response.getResponseBody()).isNotNull()
-                                                                   .isObject()
-                                                                   .isNotEmpty();
-                     });
+        restTestClient.get()
+                      .uri("/v3/api-docs")
+                      .exchange()
+                      .expectStatus()
+                      .isOk()
+                      .expectBody(String.class)
+                      .consumeWith(response -> {
+                          assertThatJson(response.getResponseBody()).isNotNull()
+                                                                    .isObject()
+                                                                    .isNotEmpty();
+                      });
     }
 
 }
