@@ -142,7 +142,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (AuthenticationNotFoundException e) {
             logger.warn("[JWT_FILTER] Authentication failed - reason=Session not found");
         } catch (InvalidJwtException e) {
-            logger.warn("[JWT_FILTER] Authentication failed - reason=Invalid token", e);
+            logger.warn("[JWT_FILTER] Authentication failed - reason=Invalid token: {}", e.getMessage());
         } catch (Exception e) {
             logger.warn("[JWT_FILTER] Authentication failed - reason=Unexpected error", e);
         }
