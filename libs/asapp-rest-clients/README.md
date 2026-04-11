@@ -17,6 +17,11 @@
 - ✅ Automatic JWT propagation for service-to-service calls
 - ✅ Type-safe response models
 
+## Requirements
+
+- **Java**: 25+
+- **Maven**: 3.9.14+
+
 ## Installation
 
 ### As a Maven Dependency
@@ -227,13 +232,6 @@ asapp.client.tasks.base-url=http://localhost:8081/asapp-tasks-service
 # For Docker environment (application-docker.properties)
 asapp.client.tasks.base-url=http://asapp-tasks-service:8081/asapp-tasks-service
 ```
-
-## Requirements
-
-- **Java**: 25 or higher
-- **Maven**: 3.9.14 or higher
-- **Spring Framework**: 7.x (RestClient support)
-- **Dependencies**: `asapp-commons-url`
 
 ## Contributing
 

@@ -9,7 +9,7 @@
 
 ## Overview
 
-ASAPP (Application for Task Management) is a production-ready microservices application built with Spring Boot 4.0.5 and Java 25. It demonstrates modern enterprise architecture patterns including Hexagonal Architecture, Domain-Driven Design, and comprehensive observability.
+ASAPP (Application for Task Management) is a production-ready microservices application built with Spring Boot and Java. It demonstrates modern enterprise architecture patterns including Hexagonal Architecture, Domain-Driven Design, and comprehensive observability.
 
 **Key Features**:
 - 🏗️ **Hexagonal Architecture** - Clean separation of concerns with ports and adapters
@@ -76,14 +76,17 @@ ASAPP consists of three independent microservices:
 - **Bounded Contexts**: Each service is an independent context
 - **Ubiquitous Language**: Consistent terminology across layers
 
+## Requirements
+
+- **Java**: 25+
+- **Maven**: 3.9.14+
+- **PostgreSQL**: 15+ (via Docker)
+- **Redis**: 7+ (via Docker)
+- **Docker**: 20.10+
+- **Docker Compose**: 2.0+
+- **Git**: 2.30+
+
 ## Quick Start
-
-### Prerequisites
-
-- **Java 25** or higher
-- **Maven 3.9.14+**
-- **Docker** & **Docker Compose**
-- **Git**
 
 ### Installation
 
@@ -258,24 +261,21 @@ asapp/
 
 ## Technology Stack
 
-### Core Technologies
+### Framework
 
-- **Java**: 25 (LTS)
 - **Spring Boot**: 4.0.5
 - **Spring Framework**: 7.x
-- **Database**: PostgreSQL 15+
-- **Build Tool**: Apache Maven 3.9.14+
 
 ### Key Dependencies
 
-- **Security**: Spring Security 7.x, Nimbus JOSE+JWT 9.37.3
+- **Security**: Spring Security 7.x, Nimbus JOSE+JWT 9.x
 - **Data Access**: Spring Data JDBC
 - **Migrations**: Liquibase 4.x
-- **Mapping**: MapStruct 1.6.3
+- **Mapping**: MapStruct 1.x
 - **Validation**: Jakarta Validation
 - **Documentation**: SpringDoc OpenAPI 3.x
 
-### Testing Stack
+### Testing
 
 - **Framework**: JUnit 5
 - **Assertions**: AssertJ
@@ -283,7 +283,7 @@ asapp/
 - **Coverage**: JaCoCo 1.x
 - **Mutation Testing**: PITest 1.x
 - **Integration**: TestContainers 2.x (PostgreSQL)
-- **E2E Mocking**: MockServer 5.15.0
+- **E2E Mocking**: MockServer 5.x
 
 ### Observability
 
@@ -532,7 +532,7 @@ Builds and tests the project on every push and pull request to `main`.
 
 **Pipeline Steps**:
 1. Checkout code
-2. Setup JDK 25 (Temurin)
+2. Setup JDK (Temurin)
 3. Maven dependency caching
 4. Build and test (`mvn verify -Pfull`)
 
@@ -675,21 +675,6 @@ curl -X POST http://localhost:8080/asapp-authentication-service/api/auth/token \
 # 3. Check authentication container logs
 docker-compose logs asapp-prometheus-authentication
 ```
-
-## Requirements
-
-### Runtime Requirements
-
-- **Java Runtime**: JDK 25 or higher
-- **Database**: PostgreSQL 15+ (provided via Docker)
-- **Container Runtime**: Docker 20.10+ & Docker Compose 2.0+
-
-### Development Requirements
-
-- **Java Development Kit**: JDK 25 (Temurin, Oracle, or OpenJDK)
-- **Build Tool**: Apache Maven 3.9.14+
-- **IDE**: IntelliJ IDEA, Eclipse, or VS Code with Java extensions
-- **Git**: 2.30+
 
 ## License
 
