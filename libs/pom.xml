@@ -26,7 +26,7 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!-- Maven Plugins -->
+                <!-- # Maven Plugins -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -36,7 +36,7 @@
                     </configuration>
                 </plugin>
 
-                <!-- Org Plugins -->
+                <!-- # Org Plugins -->
                 <plugin>
                     <groupId>org.pitest</groupId>
                     <artifactId>pitest-maven</artifactId>
@@ -45,7 +45,7 @@
                     </configuration>
                 </plugin>
 
-                <!-- Other Plugins -->
+                <!-- # Other plugins -->
                 <plugin>
                     <groupId>org.jacoco</groupId>
                     <artifactId>jacoco-maven-plugin</artifactId>

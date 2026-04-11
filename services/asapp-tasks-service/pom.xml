@@ -18,13 +18,13 @@
     <description>REST service to manage tasks operations</description>
 
     <dependencies>
-        <!-- Compile Dependencies -->
-        <!-- * ASAPP Dependencies -->
+        <!-- # Compile Dependencies -->
+        <!-- ## ASAPP Dependencies -->
         <dependency>
             <groupId>com.bcn.asapp</groupId>
             <artifactId>asapp-commons-url</artifactId>
         </dependency>
-        <!-- * Spring Dependencies -->
+        <!-- ## Spring Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -53,7 +53,7 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
-        <!-- * Org Dependencies -->
+        <!-- ## Org Dependencies -->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
@@ -62,7 +62,7 @@
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
         </dependency>
-        <!-- * Other Dependencies -->
+        <!-- ## Other Dependencies -->
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
@@ -72,23 +72,23 @@
             <artifactId>micrometer-registry-prometheus</artifactId>
         </dependency>
 
-        <!-- Runtime Dependencies -->
-        <!-- * Spring Dependencies -->
+        <!-- # Runtime Dependencies -->
+        <!-- ## Spring Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-        <!-- * Org Dependencies -->
+        <!-- ## Org Dependencies -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
 
-        <!-- Test Dependencies -->
-        <!-- * Spring Dependencies -->
+        <!-- # Test Dependencies -->
+        <!-- ## Spring Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator-test</artifactId>
@@ -134,7 +134,7 @@
             <artifactId>spring-boot-webtestclient</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- * Org Dependencies -->
+        <!-- ## Org Dependencies -->
         <dependency>
             <groupId>org.pitest</groupId>
             <artifactId>pitest-junit5-plugin</artifactId>
@@ -150,7 +150,7 @@
             <artifactId>testcontainers-postgresql</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- * Other Dependencies -->
+        <!-- ## Other Dependencies -->
         <dependency>
             <groupId>com.redis</groupId>
             <artifactId>testcontainers-redis</artifactId>
@@ -165,7 +165,7 @@
 
     <build>
         <plugins>
-            <!-- Maven Plugins -->
+            <!-- # Maven Plugins -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -187,13 +187,13 @@
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
 
-            <!-- Spring Plugins -->
+            <!-- # Spring Plugins -->
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
             </plugin>
 
-            <!-- Org Plugins -->
+            <!-- # Org Plugins -->
             <plugin>
                 <groupId>org.cyclonedx</groupId>
                 <artifactId>cyclonedx-maven-plugin</artifactId>
@@ -221,7 +221,7 @@
                 </configuration>
             </plugin>
 
-            <!-- Other plugins -->
+            <!-- # Other plugins -->
             <plugin>
                 <groupId>com.diffplug.spotless</groupId>
                 <artifactId>spotless-maven-plugin</artifactId>

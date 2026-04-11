@@ -20,26 +20,26 @@
 
     <properties>
         <!-- Dependencies Versions -->
-        <!-- Compile Dependencies -->
-        <!-- * Org Dependencies -->
+        <!-- # Compile Dependencies -->
+        <!-- ## Org Dependencies -->
         <mapstruct.version>1.6.3</mapstruct.version>
         <springdoc-openapi-starter.version>3.0.2</springdoc-openapi-starter.version>
-        <!-- * Other Dependencies -->
+        <!-- ## Other Dependencies -->
         <nimbus-jose-jwt.version>9.37.3</nimbus-jose-jwt.version>
 
-        <!-- Test Dependencies -->
-        <!-- * Org Dependencies -->
+        <!-- # Test Dependencies -->
+        <!-- ## Org Dependencies -->
         <mockserver-client-java.version>5.15.0</mockserver-client-java.version>
         <testcontainers.version>2.0.4</testcontainers.version>
-        <!-- * Other Dependencies -->
+        <!-- ## Other Dependencies -->
         <json-unit-assertj.version>4.1.1</json-unit-assertj.version>
         <testcontainers-redis.version>2.2.4</testcontainers-redis.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
-            <!-- Compile Dependencies -->
-            <!-- * ASAPP Dependencies -->
+            <!-- # Compile Dependencies -->
+            <!-- ## ASAPP Dependencies -->
             <dependency>
                 <groupId>com.bcn.asapp</groupId>
                 <artifactId>asapp-commons-url</artifactId>
@@ -50,7 +50,7 @@
                 <artifactId>asapp-rest-clients</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            <!-- * Org Dependencies -->
+            <!-- ## Org Dependencies -->
             <dependency>
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct</artifactId>
@@ -61,15 +61,15 @@
                 <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
                 <version>${springdoc-openapi-starter.version}</version>
             </dependency>
-            <!-- * Other Dependencies -->
+            <!-- ## Other Dependencies -->
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>
                 <version>${nimbus-jose-jwt.version}</version>
             </dependency>
 
-            <!-- Test Dependencies -->
-            <!-- * Org Dependencies -->
+            <!-- # Runtime Dependencies -->
+            <!-- ## Spring Dependencies -->
             <dependency>
                 <groupId>org.mock-server</groupId>
                 <artifactId>mockserver-client-java</artifactId>
@@ -94,7 +94,7 @@
                 <version>${testcontainers.version}</version>
                 <scope>test</scope>
             </dependency>
-            <!-- * Other Dependencies -->
+            <!-- ## Other Dependencies -->
             <dependency>
                 <groupId>com.redis</groupId>
                 <artifactId>testcontainers-redis</artifactId>
@@ -113,7 +113,7 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!-- Maven Plugins -->
+                <!-- # Maven Plugins -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
@@ -145,7 +145,7 @@
                     <artifactId>maven-surefire-plugin</artifactId>
                 </plugin>
 
-                <!-- Spring Plugins -->
+                <!-- # Spring Plugins -->
                 <plugin>
                     <groupId>org.springframework.boot</groupId>
                     <artifactId>spring-boot-maven-plugin</artifactId>
@@ -174,7 +174,7 @@
                     </executions>
                 </plugin>
 
-                <!-- Org Plugins -->
+                <!-- # Org Plugins -->
                 <plugin>
                     <groupId>org.cyclonedx</groupId>
                     <artifactId>cyclonedx-maven-plugin</artifactId>
@@ -274,7 +274,7 @@
                     </configuration>
                 </plugin>
 
-                <!-- Other Plugins -->
+                <!-- # Other plugins -->
                 <plugin>
                     <groupId>io.github.git-commit-id</groupId>
                     <artifactId>git-commit-id-maven-plugin</artifactId>
