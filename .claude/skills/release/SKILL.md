@@ -44,11 +44,25 @@ Derive:
 
 ### Step 3: Remove SNAPSHOT
 
+#### Update pom version
+
 ```bash
 mvn versions:set -DremoveSnapshot=true -DprocessAllModules=true -DgenerateBackupPoms=false
 ```
 
 Confirm the root `pom.xml` now reads `<version>X.Y.Z</version>` (no SNAPSHOT).
+
+#### Update OpenAPI Version
+
+In each of the three service `OpenApiConfiguration.java` files, update the `version` attribute in `@Info(...)` to the **release version**:
+
+```
+services/asapp-authentication-service/src/main/java/com/bcn/asapp/authentication/infrastructure/config/OpenApiConfiguration.java
+services/asapp-tasks-service/src/main/java/com/bcn/asapp/tasks/infrastructure/config/OpenApiConfiguration.java
+services/asapp-users-service/src/main/java/com/bcn/asapp/users/infrastructure/config/OpenApiConfiguration.java
+```
+
+Replace `version = "OLD_VERSION"` → `version = "X.Y.Z"` in the `@OpenAPIDefinition` annotation.
 
 ### Step 4: Add Liquibase Database Tags
 
@@ -98,11 +112,25 @@ Confirm the commit and tag were created successfully.
 
 ### Step 7: Bump to Next SNAPSHOT
 
+#### Update pom version
+
 ```bash
 mvn versions:set -DnextSnapshot=true -DnextSnapshotIndexToIncrement=2 -DprocessAllModules=true -DgenerateBackupPoms=false
 ```
 
 Confirm the root `pom.xml` now reads the next SNAPSHOT version (e.g. `0.4.0-SNAPSHOT`).
+
+#### Update OpenAPI Version
+
+In each of the three service `OpenApiConfiguration.java` files, update the `version` attribute in `@Info(...)` to the **next SNAPSHOT version**:
+
+```
+services/asapp-authentication-service/src/main/java/com/bcn/asapp/authentication/infrastructure/config/OpenApiConfiguration.java
+services/asapp-tasks-service/src/main/java/com/bcn/asapp/tasks/infrastructure/config/OpenApiConfiguration.java
+services/asapp-users-service/src/main/java/com/bcn/asapp/users/infrastructure/config/OpenApiConfiguration.java
+```
+
+Replace `version = "X.Y.Z"` → `version = "X.Y+1.0-SNAPSHOT"` in the `@OpenAPIDefinition` annotation.
 
 ### Step 8: Commit Next Development Version
 
@@ -139,14 +167,18 @@ Only push if the user confirms.
 ```
 Detected version: 0.3.0-SNAPSHOT → releasing as 0.3.0
 
-[Step 3] Removing SNAPSHOT...  done (pom.xml → 0.3.0)
+[Step 3] Removing SNAPSHOT...
+  - pom.xml → 0.3.0
+  - OpenAPI version → 0.3.0 (3 services)
 [Step 4] Tagging Liquibase changelogs...
   - asapp-authentication-service: added tag_version_0_3_0
   - asapp-users-service: added tag_version_0_3_0
   - asapp-tasks-service: no v0.3.0 changelog found, skipped
 [Step 5] Building...  done (BUILD SUCCESS)
 [Step 6] Committing release and tagging...  done (tag: v0.3.0)
-[Step 7] Bumping to next SNAPSHOT...  done (pom.xml → 0.4.0-SNAPSHOT)
+[Step 7] Bumping to next SNAPSHOT...
+  - pom.xml → 0.4.0-SNAPSHOT
+  - OpenAPI version → 0.4.0-SNAPSHOT (3 services)
 [Step 8] Committing next dev version...  done
 
 Ready to push. Run the following command to publish the release:
