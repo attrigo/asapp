@@ -116,15 +116,15 @@ The service implements **DDD patterns**:
 - `JwtAuthenticationFilter` - Intercepts and validates requests
 - `RedisJwtStore` - Fast token existence checks for revocation
 
+## Requirements
+
+- **Java**: 25+
+- **Maven**: 3.9.14+
+- **Docker**: 20.10+
+- **Docker Compose**: 2.0+
+- **PostgreSQL**: 15+ (via Docker)
+
 ## Quick Start
-
-### Prerequisites
-
-- Java 25+
-- Maven 3.9.14+
-- Docker & Docker Compose
-- PostgreSQL (via Docker)
-- Authentication Service (for JWT validation)
 
 ### Run Locally (Development Mode)
 
@@ -317,14 +317,13 @@ open target/pit-reports/<timestamp>/index.html
 
 ## Technology Stack
 
-- **Java**: 25
 - **Spring Boot**: 4.0.5
-- **Database**: PostgreSQL
+- **Spring Framework**: 7.x
+- **Security**: Spring Security + Nimbus JOSE+JWT
 - **Migrations**: Liquibase
-- **Security**: Spring Security + JWT validation
-- **Mapping**: MapStruct 1.6.3
-- **Testing**: JUnit 5, AssertJ, TestContainers 2.x, PITest
-- **Documentation**: SpringDoc OpenAPI 3.x
+- **Mapping**: MapStruct
+- **Testing**: JUnit 5, AssertJ, TestContainers, PITest
+- **Documentation**: SpringDoc OpenAPI
 - **Observability**: Spring Boot Actuator, Micrometer
 
 ## Project Structure
@@ -387,14 +386,6 @@ src/main/java/com/bcn/asapp/tasks/
 
 **External Dependencies**:
 - Authentication Service (for JWT validation)
-
-## Requirements
-
-- **Java**: 25 or higher
-- **Maven**: 3.9.14 or higher
-- **Docker**: 20.10+
-- **Docker Compose**: 2.0+
-- **PostgreSQL**: 15+ (via Docker)
 
 ## Contributing
 

@@ -17,6 +17,11 @@
 - ✅ Supports both relative paths and full paths
 - ✅ Easy to maintain and version
 
+## Requirements
+
+- **Java**: 25+
+- **Maven**: 3.9.14+
+
 ## Installation
 
 ### As a Maven Dependency
@@ -164,12 +169,6 @@ mvn clean verify -Pfull
 open target/asapp-commons-url-<version>-javadoc.jar
 # Or: target/site/apidocs/index.html
 ```
-
-## Requirements
-
-- **Java**: 25 or higher
-- **Maven**: 3.9.14 or higher
-- **Build Tool**: Apache Maven
 
 ## Contributing
 

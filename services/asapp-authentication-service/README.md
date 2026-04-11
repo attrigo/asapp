@@ -150,15 +150,16 @@ The service implements **DDD patterns**:
 - Values: Empty strings (existence only)
 - Consistency: Best-effort (Redis and DB operations not atomic)
 
+## Requirements
+
+- **Java**: 25+
+- **Maven**: 3.9.14+
+- **Docker**: 20.10+
+- **Docker Compose**: 2.0+
+- **PostgreSQL**: 15+ (via Docker)
+- **Redis**: 7+ (via Docker)
+
 ## Quick Start
-
-### Prerequisites
-
-- Java 25+
-- Maven 3.9.14+
-- Docker & Docker Compose
-- PostgreSQL (via Docker)
-- Redis (via Docker)
 
 ### Run Locally (Development Mode)
 
@@ -359,15 +360,13 @@ open target/pit-reports/<timestamp>/index.html
 
 ## Technology Stack
 
-- **Java**: 25
 - **Spring Boot**: 4.0.5
-- **Database**: PostgreSQL
-- **Cache/Store**: Redis
-- **Migrations**: Liquibase
+- **Spring Framework**: 7.x
 - **Security**: Spring Security + Nimbus JOSE+JWT
-- **Mapping**: MapStruct 1.6.3
-- **Testing**: JUnit 5, AssertJ, TestContainers 2.x, PITest
-- **Documentation**: SpringDoc OpenAPI 3.x
+- **Migrations**: Liquibase
+- **Mapping**: MapStruct
+- **Testing**: JUnit 5, AssertJ, TestContainers, PITest
+- **Documentation**: SpringDoc OpenAPI
 - **Observability**: Spring Boot Actuator, Micrometer
 
 ## Project Structure
@@ -427,15 +426,6 @@ src/main/java/com/bcn/asapp/authentication/
 - HTTP request metrics (rate, duration, errors)
 - Database connection pool metrics
 - Custom business metrics
-
-## Requirements
-
-- **Java**: 25 or higher
-- **Maven**: 3.9.14 or higher
-- **Docker**: 20.10+
-- **Docker Compose**: 2.0+
-- **PostgreSQL**: 15+ (via Docker)
-- **Redis**: 7+ (via Docker)
 
 ## Contributing
 
