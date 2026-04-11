@@ -56,7 +56,7 @@
         <pitest-junit5-plugin.version>1.2.3</pitest-junit5-plugin.version>
         <spotless-maven-plugin.version>3.4.0</spotless-maven-plugin.version>
 
-        <!-- Build Profile Skip Flags (overridden by -Pfull) -->
+        <!-- Profiles Flags -->
         <jacoco.skip>true</jacoco.skip>
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <maven.source.skip>true</maven.source.skip>
@@ -65,8 +65,8 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Test Dependencies -->
-            <!-- * Org Dependencies -->
+            <!-- # Test Dependencies -->
+            <!-- ## Org Dependencies -->
             <dependency>
                 <groupId>org.pitest</groupId>
                 <artifactId>pitest-junit5-plugin</artifactId>
@@ -79,7 +79,7 @@
     <build>
         <pluginManagement>
             <plugins>
-                <!-- Maven Plugins -->
+                <!-- # Maven Plugins -->
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-javadoc-plugin</artifactId>
@@ -110,7 +110,7 @@
                     </executions>
                 </plugin>
 
-                <!-- Org Plugins -->
+                <!-- # Org Plugins -->
                 <plugin>
                     <groupId>org.pitest</groupId>
                     <artifactId>pitest-maven</artifactId>
@@ -120,7 +120,7 @@
                     </configuration>
                 </plugin>
 
-                <!-- Other Plugins -->
+                <!-- # Other plugins -->
                 <plugin>
                     <groupId>com.diffplug.spotless</groupId>
                     <artifactId>spotless-maven-plugin</artifactId>

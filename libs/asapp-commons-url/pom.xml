@@ -20,7 +20,7 @@
 
     <build>
         <plugins>
-            <!-- Maven Plugins -->
+            <!-- # Maven Plugins -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -34,7 +34,7 @@
                 <artifactId>maven-source-plugin</artifactId>
             </plugin>
 
-            <!-- Other Plugins -->
+            <!-- # Other plugins -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>

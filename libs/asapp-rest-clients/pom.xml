@@ -20,20 +20,20 @@
 
     <properties>
         <!-- Dependencies Versions -->
-        <!-- Test Dependencies -->
-        <!-- * Other Dependencies -->
+        <!-- # Test Dependencies -->
+        <!-- ## Other Dependencies -->
         <jackson-databind.version>3.0.4</jackson-databind.version>
     </properties>
 
     <dependencies>
-        <!-- Compile Dependencies-->
-        <!-- * ASAPP Dependencies -->
+        <!-- # Compile Dependencies-->
+        <!-- ## ASAPP Dependencies -->
         <dependency>
             <groupId>com.bcn.asapp</groupId>
             <artifactId>asapp-commons-url</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- * Spring Dependencies -->
+        <!-- ## Spring Dependencies -->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
@@ -49,25 +49,25 @@
             <artifactId>spring-boot-autoconfigure</artifactId>
             <optional>true</optional>
         </dependency>
-        <!-- * Org Dependencies -->
+        <!-- ## Org Dependencies -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
         </dependency>
-        <!-- * Other Dependencies -->
+        <!-- ## Other Dependencies -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-annotations</artifactId>
         </dependency>
 
-        <!-- Test Dependencies -->
-        <!-- * Spring Dependencies -->
+        <!-- # Test Dependencies -->
+        <!-- ## Spring Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- * Other Dependencies -->
+        <!-- ## Other Dependencies -->
         <dependency>
             <groupId>tools.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
@@ -78,7 +78,7 @@
 
     <build>
         <plugins>
-            <!-- Maven Plugins -->
+            <!-- # Maven Plugins -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -96,7 +96,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
             </plugin>
 
-            <!-- Other Plugins -->
+            <!-- # Other plugins -->
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
