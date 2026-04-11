@@ -24,12 +24,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.client.RestTestClient;
 
 import com.bcn.asapp.authentication.AsappAuthenticationServiceApplication;
 import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
@@ -46,12 +46,12 @@ import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
  * <li>Liquibase endpoint returns executed changesets</li>
  */
 @SpringBootTest(classes = AsappAuthenticationServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebTestClient(timeout = "30000")
+@AutoConfigureRestTestClient
 @Import(TestContainerConfiguration.class)
 class ActuatorEndpointsIT {
 
     @Autowired
-    private WebTestClient webTestClient;
+    private RestTestClient restTestClient;
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
@@ -71,119 +71,120 @@ class ActuatorEndpointsIT {
     @Test
     void ReturnsStatusOkAndBodyContainsAllActuatorLinks_OnActuatorEndpoint() {
         // When & Then
-        webTestClient.get()
-                     .uri("/actuator")
-                     .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                     .exchange()
-                     .expectStatus()
-                     .isOk()
-                     .expectBody(String.class)
-                     .consumeWith(response -> {
-                         assertThatJson(response.getResponseBody()).isNotNull()
-                                                                   .isObject()
-                                                                   .containsKeys("_links")
-                                                                   .node("_links")
-                                                                   .isObject()
-                                                                   .containsKeys("self", "beans", "health", "health-path", "info", "conditions", "shutdown",
-                                                                           "configprops", "configprops-prefix", "env", "env-toMatch", "liquibase", "loggers",
-                                                                           "loggers-name", "heapdump", "threaddump", "prometheus", "metrics-requiredMetricName",
-                                                                           "metrics", "sbom-id", "sbom", "scheduledtasks", "httpexchanges", "mappings");
-                     });
+        restTestClient.get()
+                      .uri("/actuator")
+                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                      .exchange()
+                      .expectStatus()
+                      .isOk()
+                      .expectBody(String.class)
+                      .consumeWith(response -> {
+                          assertThatJson(response.getResponseBody()).isNotNull()
+                                                                    .isObject()
+                                                                    .containsKeys("_links")
+                                                                    .node("_links")
+                                                                    .isObject()
+                                                                    .containsKeys("self", "beans", "health", "health-path", "info", "conditions", "shutdown",
+                                                                            "configprops", "configprops-prefix", "env", "env-toMatch", "liquibase", "loggers",
+                                                                            "loggers-name", "heapdump", "threaddump", "prometheus",
+                                                                            "metrics-requiredMetricName", "metrics", "sbom-id", "sbom", "scheduledtasks",
+                                                                            "httpexchanges", "mappings");
+                      });
     }
 
     @Test
     void ReturnsStatusOkAndBodyContainsStatusAndGroups_OnHealthEndpointWithoutAuthentication() {
         // When & Then
-        webTestClient.get()
-                     .uri("/actuator/health")
-                     .exchange()
-                     .expectStatus()
-                     .isOk()
-                     .expectBody(String.class)
-                     .consumeWith(response -> {
-                         assertThatJson(response.getResponseBody()).isNotNull()
-                                                                   .isObject()
-                                                                   .containsKeys("status", "groups")
-                                                                   .node("groups")
-                                                                   .isArray()
-                                                                   .contains("liveness", "readiness");
-                     });
+        restTestClient.get()
+                      .uri("/actuator/health")
+                      .exchange()
+                      .expectStatus()
+                      .isOk()
+                      .expectBody(String.class)
+                      .consumeWith(response -> {
+                          assertThatJson(response.getResponseBody()).isNotNull()
+                                                                    .isObject()
+                                                                    .containsKeys("status", "groups")
+                                                                    .node("groups")
+                                                                    .isArray()
+                                                                    .contains("liveness", "readiness");
+                      });
     }
 
     @Test
     void ReturnsStatusOkAndBodyContainsStatusGroupsAndComponents_OnHealthEndpointWithAuthentication() {
         // When & Then
-        webTestClient.get()
-                     .uri("/actuator/health")
-                     .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                     .exchange()
-                     .expectStatus()
-                     .isOk()
-                     .expectBody(String.class)
-                     .consumeWith(response -> {
-                         assertThatJson(response.getResponseBody()).isNotNull()
-                                                                   .isObject()
-                                                                   .containsKeys("status", "groups", "components")
-                                                                   .node("components")
-                                                                   .isObject()
-                                                                   .containsKeys("db", "diskSpace", "livenessState", "ping", "readinessState", "ssl");
-                     });
+        restTestClient.get()
+                      .uri("/actuator/health")
+                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                      .exchange()
+                      .expectStatus()
+                      .isOk()
+                      .expectBody(String.class)
+                      .consumeWith(response -> {
+                          assertThatJson(response.getResponseBody()).isNotNull()
+                                                                    .isObject()
+                                                                    .containsKeys("status", "groups", "components")
+                                                                    .node("components")
+                                                                    .isObject()
+                                                                    .containsKeys("db", "diskSpace", "livenessState", "ping", "readinessState", "ssl");
+                      });
     }
 
     @Test
     void ReturnsStatusOkAndBodyContainsGitBuildJavaOsProcessDetails_OnInfoEndpoint() {
         // When & Then
-        webTestClient.get()
-                     .uri("/actuator/info")
-                     .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                     .exchange()
-                     .expectStatus()
-                     .isOk()
-                     .expectBody(String.class)
-                     .consumeWith(response -> {
-                         assertThatJson(response.getResponseBody()).isNotNull()
-                                                                   .isObject()
-                                                                   .containsKeys("git", "build", "java", "os", "process");
-                     });
+        restTestClient.get()
+                      .uri("/actuator/info")
+                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                      .exchange()
+                      .expectStatus()
+                      .isOk()
+                      .expectBody(String.class)
+                      .consumeWith(response -> {
+                          assertThatJson(response.getResponseBody()).isNotNull()
+                                                                    .isObject()
+                                                                    .containsKeys("git", "build", "java", "os", "process");
+                      });
     }
 
     @Test
     void ReturnsStatusOkAndBodyContainsSBOMIds_OnSBOMEndpoint() {
         // When & Then
-        webTestClient.get()
-                     .uri("/actuator/sbom")
-                     .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                     .exchange()
-                     .expectStatus()
-                     .isOk()
-                     .expectBody(String.class)
-                     .consumeWith(response -> {
-                         assertThatJson(response.getResponseBody()).isNotNull()
-                                                                   .isObject()
-                                                                   .containsKeys("ids")
-                                                                   .node("ids")
-                                                                   .isArray();
-                     });
+        restTestClient.get()
+                      .uri("/actuator/sbom")
+                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                      .exchange()
+                      .expectStatus()
+                      .isOk()
+                      .expectBody(String.class)
+                      .consumeWith(response -> {
+                          assertThatJson(response.getResponseBody()).isNotNull()
+                                                                    .isObject()
+                                                                    .containsKeys("ids")
+                                                                    .node("ids")
+                                                                    .isArray();
+                      });
     }
 
     @Test
     void ReturnsStatusOkAndBodyContainsChangesets_OnLiquibaseEndpoint() {
         // When & Then
-        webTestClient.get()
-                     .uri("/actuator/liquibase")
-                     .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                     .exchange()
-                     .expectStatus()
-                     .isOk()
-                     .expectBody(String.class)
-                     .consumeWith(response -> {
-                         assertThatJson(response.getResponseBody()).isNotNull()
-                                                                   .isObject()
-                                                                   .containsKeys("contexts")
-                                                                   .node("contexts")
-                                                                   .isObject()
-                                                                   .isNotEmpty();
-                     });
+        restTestClient.get()
+                      .uri("/actuator/liquibase")
+                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                      .exchange()
+                      .expectStatus()
+                      .isOk()
+                      .expectBody(String.class)
+                      .consumeWith(response -> {
+                          assertThatJson(response.getResponseBody()).isNotNull()
+                                                                    .isObject()
+                                                                    .containsKeys("contexts")
+                                                                    .node("contexts")
+                                                                    .isObject()
+                                                                    .isNotEmpty();
+                      });
     }
 
 }

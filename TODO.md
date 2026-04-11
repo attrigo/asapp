@@ -108,7 +108,7 @@
     * [X] Replace Hamcrest assertions by AssertJ assertions
     * [X] Add PiTest
     * [X] Add maven-surefire-junit5-tree-reporter
-    * [ ] Migrate integration tests from `WebTestClient` to `RestTestClient` (SB4 modern sync alternative based on `RestClient`; `spring-boot-webtestclient` added as a transitional dep during SB4 migration)
+    * [X] Migrate integration tests from `WebTestClient` to `RestTestClient` (SB4 modern sync alternative based on `RestClient`; `spring-boot-webtestclient` added as a transitional dep during SB4 migration)
 * [X] Improve management endpoints (Actuator)
     * [X] Show more health details when authenticated
     * [X] Move management to a separate port

@@ -30,12 +30,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.client.RestTestClient;
 
 import com.bcn.asapp.tasks.AsappTasksServiceApplication;
 import com.bcn.asapp.tasks.infrastructure.security.web.JwtAuthenticationFilter;
@@ -54,12 +54,12 @@ import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
  * <li>Allows public access to health, liveness, readiness, Swagger UI and OpenAPI documentation endpoints</li>
  */
 @SpringBootTest(classes = AsappTasksServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebTestClient(timeout = "30000")
+@AutoConfigureRestTestClient
 @Import(TestContainerConfiguration.class)
 class JwtAuthenticationFilterIT {
 
     @Autowired
-    private WebTestClient webTestClient;
+    private RestTestClient restTestClient;
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
@@ -79,13 +79,13 @@ class JwtAuthenticationFilterIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
-            webTestClient.get()
-                         .uri("/actuator")
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.get()
+                          .uri("/actuator")
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
         @Test
@@ -94,14 +94,14 @@ class JwtAuthenticationFilterIT {
             var bearerToken = "invalid_bearer_token";
 
             // When & Then
-            webTestClient.get()
-                         .uri("/actuator")
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.get()
+                          .uri("/actuator")
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
         @Test
@@ -110,14 +110,14 @@ class JwtAuthenticationFilterIT {
             var bearerToken = "Bearer ";
 
             // When & Then
-            webTestClient.get()
-                         .uri("/actuator")
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.get()
+                          .uri("/actuator")
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
         @Test
@@ -126,14 +126,14 @@ class JwtAuthenticationFilterIT {
             var bearerToken = "Bearer " + "invalid_bearer_token";
 
             // When & Then
-            webTestClient.get()
-                         .uri("/actuator")
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.get()
+                          .uri("/actuator")
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
         @Test
@@ -144,14 +144,14 @@ class JwtAuthenticationFilterIT {
                                                                  .build();
 
             // When & Then
-            webTestClient.get()
-                         .uri("/actuator")
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.get()
+                          .uri("/actuator")
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
         @Test
@@ -162,14 +162,14 @@ class JwtAuthenticationFilterIT {
                                                                  .build();
 
             // When & Then
-            webTestClient.get()
-                         .uri("/actuator")
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.get()
+                          .uri("/actuator")
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
         @Test
@@ -180,14 +180,14 @@ class JwtAuthenticationFilterIT {
                                                                  .build();
 
             // When & Then
-            webTestClient.get()
-                         .uri("/actuator")
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.get()
+                          .uri("/actuator")
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
         @Test
@@ -198,14 +198,14 @@ class JwtAuthenticationFilterIT {
                                                                  .build();
 
             // When & Then
-            webTestClient.get()
-                         .uri("/actuator")
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.get()
+                          .uri("/actuator")
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
         @Test
@@ -216,14 +216,14 @@ class JwtAuthenticationFilterIT {
                                                                  .build();
 
             // When & Then
-            webTestClient.get()
-                         .uri("/actuator")
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.get()
+                          .uri("/actuator")
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
         @Test
@@ -232,14 +232,14 @@ class JwtAuthenticationFilterIT {
             var bearerToken = "Bearer " + encodedRefreshToken();
 
             // When & Then
-            webTestClient.get()
-                         .uri("/actuator")
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.get()
+                          .uri("/actuator")
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
         @Test
@@ -248,14 +248,14 @@ class JwtAuthenticationFilterIT {
             var bearerToken = "Bearer " + encodedAccessToken();
 
             // When & Then
-            webTestClient.get()
-                         .uri("/actuator")
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.get()
+                          .uri("/actuator")
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
     }
@@ -277,36 +277,36 @@ class JwtAuthenticationFilterIT {
         @MethodSource("protectedEndpoints")
         void ReturnsStatusOk_AuthorizationHeaderOnEndpoint(String endpoint) {
             // When & Then
-            webTestClient.get()
-                         .uri(endpoint)
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .exchange()
-                         .expectStatus()
-                         .isOk();
+            restTestClient.get()
+                          .uri(endpoint)
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .exchange()
+                          .expectStatus()
+                          .isOk();
         }
 
         @ParameterizedTest
         @MethodSource("protectedEndpoints")
         void ReturnsStatusUnauthorizedAndEmptyBody_NoAuthorizationHeaderOnEndpoint(String endpoint) {
             // When & Then
-            webTestClient.get()
-                         .uri(endpoint)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.get()
+                          .uri(endpoint)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
         @ParameterizedTest
         @MethodSource("publicEndpoints")
         void ReturnsStatusOk_NoAuthorizationHeaderOnEndpoint(String endpoint) {
             // When & Then
-            webTestClient.get()
-                         .uri(endpoint)
-                         .exchange()
-                         .expectStatus()
-                         .isOk();
+            restTestClient.get()
+                          .uri(endpoint)
+                          .exchange()
+                          .expectStatus()
+                          .isOk();
         }
 
         private static Stream<String> protectedEndpoints() {
@@ -327,11 +327,11 @@ class JwtAuthenticationFilterIT {
         @Test
         void ReturnsStatusOk_NoAuthorizationHeaderOnSwaggerIndexEndpoint() {
             // When & Then
-            webTestClient.get()
-                         .uri("/swagger-ui/index.html")
-                         .exchange()
-                         .expectStatus()
-                         .isOk();
+            restTestClient.get()
+                          .uri("/swagger-ui/index.html")
+                          .exchange()
+                          .expectStatus()
+                          .isOk();
         }
 
     }
@@ -342,11 +342,11 @@ class JwtAuthenticationFilterIT {
         @Test
         void ReturnsStatusOk_NoAuthorizationHeaderOnApiDocsEndpoint() {
             // When & Then
-            webTestClient.get()
-                         .uri("/v3/api-docs")
-                         .exchange()
-                         .expectStatus()
-                         .isOk();
+            restTestClient.get()
+                          .uri("/v3/api-docs")
+                          .exchange()
+                          .expectStatus()
+                          .isOk();
         }
 
     }

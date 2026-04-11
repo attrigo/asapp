@@ -33,19 +33,21 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.client.RestTestClient;
 
 import com.bcn.asapp.authentication.AsappAuthenticationServiceApplication;
 import com.bcn.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationEntity;
@@ -77,7 +79,7 @@ import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
  * <li>Validates password never returned in responses</li>
  */
 @SpringBootTest(classes = AsappAuthenticationServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebTestClient(timeout = "30000")
+@AutoConfigureRestTestClient
 @Import(TestContainerConfiguration.class)
 class UserE2EIT {
 
@@ -91,7 +93,7 @@ class UserE2EIT {
     private RedisTemplate<String, String> redisTemplate;
 
     @Autowired
-    private WebTestClient webTestClient;
+    private RestTestClient restTestClient;
 
     private final String encodedAccessToken = encodedAccessToken();
 
@@ -119,18 +121,18 @@ class UserE2EIT {
             var response = new GetUserByIdResponse(createdUser.id(), createdUser.username(), "*****", createdUser.role());
 
             // When
-            var actual = webTestClient.get()
-                                      .uri(USERS_GET_BY_ID_FULL_PATH, userId)
-                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                      .exchange()
-                                      .expectStatus()
-                                      .isOk()
-                                      .expectHeader()
-                                      .contentType(MediaType.APPLICATION_JSON)
-                                      .expectBody(GetUserByIdResponse.class)
-                                      .returnResult()
-                                      .getResponseBody();
+            var actual = restTestClient.get()
+                                       .uri(USERS_GET_BY_ID_FULL_PATH, userId)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(GetUserByIdResponse.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
             assertThat(actual).isEqualTo(response);
@@ -142,15 +144,15 @@ class UserE2EIT {
             var userId = UUID.fromString("b9e4d3c2-5c7f-4ba0-c3e9-8f4d6b2a0c5e");
 
             // When & Then
-            webTestClient.get()
-                         .uri(USERS_GET_BY_ID_FULL_PATH, userId)
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .exchange()
-                         .expectStatus()
-                         .isNotFound()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.get()
+                          .uri(USERS_GET_BY_ID_FULL_PATH, userId)
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .exchange()
+                          .expectStatus()
+                          .isNotFound()
+                          .expectBody()
+                          .isEmpty();
         }
 
         @Test
@@ -159,14 +161,14 @@ class UserE2EIT {
             var userId = UUID.fromString("b9e4d3c2-5c7f-4ba0-c3e9-8f4d6b2a0c5e");
 
             // When & Then
-            webTestClient.get()
-                         .uri(USERS_GET_BY_ID_FULL_PATH, userId)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.get()
+                          .uri(USERS_GET_BY_ID_FULL_PATH, userId)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
     }
@@ -191,18 +193,18 @@ class UserE2EIT {
             var response3 = new GetAllUsersResponse(createdUser3.id(), createdUser3.username(), "*****", createdUser3.role());
 
             // When
-            var actual = webTestClient.get()
-                                      .uri(USERS_GET_ALL_FULL_PATH)
-                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                      .exchange()
-                                      .expectStatus()
-                                      .isOk()
-                                      .expectHeader()
-                                      .contentType(MediaType.APPLICATION_JSON)
-                                      .expectBodyList(GetAllUsersResponse.class)
-                                      .returnResult()
-                                      .getResponseBody();
+            var actual = restTestClient.get()
+                                       .uri(USERS_GET_ALL_FULL_PATH)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(new ParameterizedTypeReference<List<GetAllUsersResponse>>() {})
+                                       .returnResult()
+                                       .getResponseBody();
             // Then
             assertThat(actual).hasSize(3)
                               .containsExactlyInAnyOrder(response1, response2, response3);
@@ -211,18 +213,18 @@ class UserE2EIT {
         @Test
         void ReturnsStatusOKAndEmptyBody_UsersNotExist() {
             // When
-            var actual = webTestClient.get()
-                                      .uri(USERS_GET_ALL_FULL_PATH)
-                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                      .exchange()
-                                      .expectStatus()
-                                      .isOk()
-                                      .expectHeader()
-                                      .contentType(MediaType.APPLICATION_JSON)
-                                      .expectBodyList(GetAllUsersResponse.class)
-                                      .returnResult()
-                                      .getResponseBody();
+            var actual = restTestClient.get()
+                                       .uri(USERS_GET_ALL_FULL_PATH)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(new ParameterizedTypeReference<List<GetAllUsersResponse>>() {})
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
             assertThat(actual).isEmpty();
@@ -231,14 +233,14 @@ class UserE2EIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
-            webTestClient.get()
-                         .uri(USERS_GET_ALL_FULL_PATH)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.get()
+                          .uri(USERS_GET_ALL_FULL_PATH)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
     }
@@ -252,19 +254,19 @@ class UserE2EIT {
             var createUserRequestBody = new CreateUserRequest("user@asapp.com", "TEST@09_password?!", USER.name());
 
             // When
-            var actual = webTestClient.post()
-                                      .uri(USERS_CREATE_FULL_PATH)
-                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                      .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                                      .bodyValue(createUserRequestBody)
-                                      .exchange()
-                                      .expectStatus()
-                                      .isCreated()
-                                      .expectHeader()
-                                      .contentType(MediaType.APPLICATION_JSON)
-                                      .expectBody(CreateUserResponse.class)
-                                      .returnResult()
-                                      .getResponseBody();
+            var actual = restTestClient.post()
+                                       .uri(USERS_CREATE_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(createUserRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isCreated()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(CreateUserResponse.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
             assertThat(actual).isNotNull()
@@ -298,20 +300,20 @@ class UserE2EIT {
             var updateUserRequest = new UpdateUserRequest("new_user@asapp.com", "newPassword123!", ADMIN.name());
 
             // When
-            var actual = webTestClient.put()
-                                      .uri(USERS_UPDATE_BY_ID_FULL_PATH, userId)
-                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                      .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                                      .bodyValue(updateUserRequest)
-                                      .exchange()
-                                      .expectStatus()
-                                      .isOk()
-                                      .expectHeader()
-                                      .contentType(MediaType.APPLICATION_JSON)
-                                      .expectBody(UpdateUserResponse.class)
-                                      .returnResult()
-                                      .getResponseBody();
+            var actual = restTestClient.put()
+                                       .uri(USERS_UPDATE_BY_ID_FULL_PATH, userId)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(updateUserRequest)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(UpdateUserResponse.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
             assertThat(actual).isNotNull()
@@ -339,17 +341,17 @@ class UserE2EIT {
             var updateUserRequest = new UpdateUserRequest("new_user@asapp.com", "newPassword123!", ADMIN.name());
 
             // When & Then
-            webTestClient.put()
-                         .uri(USERS_UPDATE_BY_ID_FULL_PATH, userId)
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                         .bodyValue(updateUserRequest)
-                         .exchange()
-                         .expectStatus()
-                         .isNotFound()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.put()
+                          .uri(USERS_UPDATE_BY_ID_FULL_PATH, userId)
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                          .body(updateUserRequest)
+                          .exchange()
+                          .expectStatus()
+                          .isNotFound()
+                          .expectBody()
+                          .isEmpty();
         }
 
         @Test
@@ -359,16 +361,16 @@ class UserE2EIT {
             var updateUserRequest = new UpdateUserRequest("new_user@asapp.com", "newPassword123!", ADMIN.name());
 
             // When & Then
-            webTestClient.put()
-                         .uri(USERS_UPDATE_BY_ID_FULL_PATH, userId)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                         .bodyValue(updateUserRequest)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.put()
+                          .uri(USERS_UPDATE_BY_ID_FULL_PATH, userId)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                          .body(updateUserRequest)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
     }
@@ -383,15 +385,15 @@ class UserE2EIT {
             var userId = createdUser.id();
 
             // When
-            webTestClient.delete()
-                         .uri(USERS_DELETE_BY_ID_FULL_PATH, userId)
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .exchange()
-                         .expectStatus()
-                         .isNoContent()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.delete()
+                          .uri(USERS_DELETE_BY_ID_FULL_PATH, userId)
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .exchange()
+                          .expectStatus()
+                          .isNoContent()
+                          .expectBody()
+                          .isEmpty();
 
             // Then
             // Assert the user has been deleted
@@ -408,15 +410,15 @@ class UserE2EIT {
             var jwtAuthentication2 = createJwtAuthenticationForUser(createdUser);
 
             // When
-            webTestClient.delete()
-                         .uri(USERS_DELETE_BY_ID_FULL_PATH, userId)
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .exchange()
-                         .expectStatus()
-                         .isNoContent()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.delete()
+                          .uri(USERS_DELETE_BY_ID_FULL_PATH, userId)
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .exchange()
+                          .expectStatus()
+                          .isNoContent()
+                          .expectBody()
+                          .isEmpty();
 
             // Then
             // Assert the authentications have been revoked
@@ -434,15 +436,15 @@ class UserE2EIT {
             var userId = UUID.fromString("f3c8b7a6-9ebc-4fe4-a7bd-2c8b0f6e4a9c");
 
             // When & Then
-            webTestClient.delete()
-                         .uri(USERS_DELETE_BY_ID_FULL_PATH, userId)
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .exchange()
-                         .expectStatus()
-                         .isNotFound()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.delete()
+                          .uri(USERS_DELETE_BY_ID_FULL_PATH, userId)
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .exchange()
+                          .expectStatus()
+                          .isNotFound()
+                          .expectBody()
+                          .isEmpty();
         }
 
         @Test
@@ -451,14 +453,14 @@ class UserE2EIT {
             var userId = UUID.fromString("f3c8b7a6-9ebc-4fe4-a7bd-2c8b0f6e4a9c");
 
             // When & Then
-            webTestClient.delete()
-                         .uri(USERS_DELETE_BY_ID_FULL_PATH, userId)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.delete()
+                          .uri(USERS_DELETE_BY_ID_FULL_PATH, userId)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
     }

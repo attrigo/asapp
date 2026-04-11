@@ -23,7 +23,7 @@ Infrastructure-specific patterns for integration tests with real database, conta
 ### 1.3 @SpringBootTest (Full Application)
 
 - Import `TestContainerConfiguration.class` for TestContainers setup
-- When testing web layer: use `webEnvironment = RANDOM_PORT` with `@AutoConfigureWebTestClient`
+- When testing web layer: use `webEnvironment = RANDOM_PORT` with `@AutoConfigureRestTestClient`
 
 ## 2. TestContainers
 

@@ -25,8 +25,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
@@ -35,7 +35,7 @@ import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.client.RestTestClient;
 
 import com.bcn.asapp.authentication.AsappAuthenticationServiceApplication;
 import com.bcn.asapp.authentication.infrastructure.authentication.in.request.AuthenticateRequest;
@@ -56,7 +56,7 @@ import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
  * <li>Returns valid JWT token pair for all encoding types</li>
  */
 @SpringBootTest(classes = AsappAuthenticationServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebTestClient(timeout = "30000")
+@AutoConfigureRestTestClient
 @Import(TestContainerConfiguration.class)
 class PasswordEncoderIT {
 
@@ -70,7 +70,7 @@ class PasswordEncoderIT {
     private RedisTemplate<String, String> redisTemplate;
 
     @Autowired
-    private WebTestClient webTestClient;
+    private RestTestClient restTestClient;
 
     @BeforeEach
     void beforeEach() {
@@ -94,17 +94,17 @@ class PasswordEncoderIT {
             var authenticateRequestBody = new AuthenticateRequest(createdUser.username(), "TEST@09_password?!");
 
             // When & Then
-            webTestClient.post()
-                         .uri(AUTH_TOKEN_FULL_PATH)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                         .bodyValue(authenticateRequestBody)
-                         .exchange()
-                         .expectStatus()
-                         .isOk()
-                         .expectHeader()
-                         .contentType(MediaType.APPLICATION_JSON)
-                         .expectBody(AuthenticateResponse.class);
+            restTestClient.post()
+                          .uri(AUTH_TOKEN_FULL_PATH)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                          .body(authenticateRequestBody)
+                          .exchange()
+                          .expectStatus()
+                          .isOk()
+                          .expectHeader()
+                          .contentType(MediaType.APPLICATION_JSON)
+                          .expectBody(AuthenticateResponse.class);
         }
 
         @Test
@@ -117,17 +117,17 @@ class PasswordEncoderIT {
             var authenticateRequestBody = new AuthenticateRequest(createdUser.username(), "TEST@09_password?!");
 
             // When & Then
-            webTestClient.post()
-                         .uri(AUTH_TOKEN_FULL_PATH)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                         .bodyValue(authenticateRequestBody)
-                         .exchange()
-                         .expectStatus()
-                         .isOk()
-                         .expectHeader()
-                         .contentType(MediaType.APPLICATION_JSON)
-                         .expectBody(AuthenticateResponse.class);
+            restTestClient.post()
+                          .uri(AUTH_TOKEN_FULL_PATH)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                          .body(authenticateRequestBody)
+                          .exchange()
+                          .expectStatus()
+                          .isOk()
+                          .expectHeader()
+                          .contentType(MediaType.APPLICATION_JSON)
+                          .expectBody(AuthenticateResponse.class);
         }
 
         @Test
@@ -140,17 +140,17 @@ class PasswordEncoderIT {
             var authenticateRequestBody = new AuthenticateRequest(createdUser.username(), "TEST@09_password?!");
 
             // When & Then
-            webTestClient.post()
-                         .uri(AUTH_TOKEN_FULL_PATH)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                         .bodyValue(authenticateRequestBody)
-                         .exchange()
-                         .expectStatus()
-                         .isOk()
-                         .expectHeader()
-                         .contentType(MediaType.APPLICATION_JSON)
-                         .expectBody(AuthenticateResponse.class);
+            restTestClient.post()
+                          .uri(AUTH_TOKEN_FULL_PATH)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                          .body(authenticateRequestBody)
+                          .exchange()
+                          .expectStatus()
+                          .isOk()
+                          .expectHeader()
+                          .contentType(MediaType.APPLICATION_JSON)
+                          .expectBody(AuthenticateResponse.class);
         }
 
         @Test
@@ -163,17 +163,17 @@ class PasswordEncoderIT {
             var authenticateRequestBody = new AuthenticateRequest(createdUser.username(), "TEST@09_password?!");
 
             // When & Then
-            webTestClient.post()
-                         .uri(AUTH_TOKEN_FULL_PATH)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                         .bodyValue(authenticateRequestBody)
-                         .exchange()
-                         .expectStatus()
-                         .isOk()
-                         .expectHeader()
-                         .contentType(MediaType.APPLICATION_JSON)
-                         .expectBody(AuthenticateResponse.class);
+            restTestClient.post()
+                          .uri(AUTH_TOKEN_FULL_PATH)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                          .body(authenticateRequestBody)
+                          .exchange()
+                          .expectStatus()
+                          .isOk()
+                          .expectHeader()
+                          .contentType(MediaType.APPLICATION_JSON)
+                          .expectBody(AuthenticateResponse.class);
         }
 
     }
