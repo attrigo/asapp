@@ -31,19 +31,21 @@ import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.test.web.servlet.client.RestTestClient;
 
 import com.bcn.asapp.tasks.AsappTasksServiceApplication;
 import com.bcn.asapp.tasks.infrastructure.task.in.request.CreateTaskRequest;
@@ -70,7 +72,7 @@ import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
  * <li>Tests complete flow: HTTP → Security → Controller → Service → Repository → Database</li>
  */
 @SpringBootTest(classes = AsappTasksServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebTestClient(timeout = "30000")
+@AutoConfigureRestTestClient
 @Import(TestContainerConfiguration.class)
 class TaskE2EIT {
 
@@ -78,7 +80,7 @@ class TaskE2EIT {
     private JdbcTaskRepository taskRepository;
 
     @Autowired
-    private WebTestClient webTestClient;
+    private RestTestClient restTestClient;
 
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
@@ -109,18 +111,18 @@ class TaskE2EIT {
                     createdTask.startDate(), createdTask.endDate());
 
             // When
-            var actual = webTestClient.get()
-                                      .uri(TASKS_GET_BY_ID_FULL_PATH, taskId)
-                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                      .exchange()
-                                      .expectStatus()
-                                      .isOk()
-                                      .expectHeader()
-                                      .contentType(MediaType.APPLICATION_JSON)
-                                      .expectBody(GetTaskByIdResponse.class)
-                                      .returnResult()
-                                      .getResponseBody();
+            var actual = restTestClient.get()
+                                       .uri(TASKS_GET_BY_ID_FULL_PATH, taskId)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(GetTaskByIdResponse.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
             assertThat(actual).isEqualTo(response);
@@ -132,15 +134,15 @@ class TaskE2EIT {
             var taskId = UUID.fromString("a7f3e5d2-6b9c-4a81-9e3f-2d4b8c7e1a9f");
 
             // When & Then
-            webTestClient.get()
-                         .uri(TASKS_GET_BY_ID_FULL_PATH, taskId)
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .exchange()
-                         .expectStatus()
-                         .isNotFound()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.get()
+                          .uri(TASKS_GET_BY_ID_FULL_PATH, taskId)
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .exchange()
+                          .expectStatus()
+                          .isNotFound()
+                          .expectBody()
+                          .isEmpty();
         }
 
         @Test
@@ -149,14 +151,14 @@ class TaskE2EIT {
             var taskId = UUID.fromString("a7f3e5d2-6b9c-4a81-9e3f-2d4b8c7e1a9f");
 
             // When & Then
-            webTestClient.get()
-                         .uri(TASKS_GET_BY_ID_FULL_PATH, taskId)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.get()
+                          .uri(TASKS_GET_BY_ID_FULL_PATH, taskId)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
     }
@@ -185,18 +187,18 @@ class TaskE2EIT {
                     createdTask3.startDate(), createdTask3.endDate());
 
             // When
-            var actual = webTestClient.get()
-                                      .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userId)
-                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                      .exchange()
-                                      .expectStatus()
-                                      .isOk()
-                                      .expectHeader()
-                                      .contentType(MediaType.APPLICATION_JSON)
-                                      .expectBodyList(GetAllTasksResponse.class)
-                                      .returnResult()
-                                      .getResponseBody();
+            var actual = restTestClient.get()
+                                       .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userId)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(new ParameterizedTypeReference<List<GetAllTasksResponse>>() {})
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
             assertThat(actual).hasSize(3)
@@ -209,18 +211,18 @@ class TaskE2EIT {
             var userId = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
 
             // When
-            var actual = webTestClient.get()
-                                      .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userId)
-                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                      .exchange()
-                                      .expectStatus()
-                                      .isOk()
-                                      .expectHeader()
-                                      .contentType(MediaType.APPLICATION_JSON)
-                                      .expectBodyList(GetAllTasksResponse.class)
-                                      .returnResult()
-                                      .getResponseBody();
+            var actual = restTestClient.get()
+                                       .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userId)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(new ParameterizedTypeReference<List<GetAllTasksResponse>>() {})
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
             assertThat(actual).isEmpty();
@@ -232,14 +234,14 @@ class TaskE2EIT {
             var userId = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
 
             // When & Then
-            webTestClient.get()
-                         .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userId)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.get()
+                          .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userId)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
     }
@@ -267,18 +269,18 @@ class TaskE2EIT {
                     createdTask3.startDate(), createdTask3.endDate());
 
             // When
-            var actual = webTestClient.get()
-                                      .uri(TASKS_GET_ALL_FULL_PATH)
-                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                      .exchange()
-                                      .expectStatus()
-                                      .isOk()
-                                      .expectHeader()
-                                      .contentType(MediaType.APPLICATION_JSON)
-                                      .expectBodyList(GetAllTasksResponse.class)
-                                      .returnResult()
-                                      .getResponseBody();
+            var actual = restTestClient.get()
+                                       .uri(TASKS_GET_ALL_FULL_PATH)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(new ParameterizedTypeReference<List<GetAllTasksResponse>>() {})
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
             assertThat(actual).hasSize(3)
@@ -288,18 +290,18 @@ class TaskE2EIT {
         @Test
         void ReturnsStatusOKAndEmptyBody_TasksNotExist() {
             // When
-            var actual = webTestClient.get()
-                                      .uri(TASKS_GET_ALL_FULL_PATH)
-                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                      .exchange()
-                                      .expectStatus()
-                                      .isOk()
-                                      .expectHeader()
-                                      .contentType(MediaType.APPLICATION_JSON)
-                                      .expectBodyList(GetAllTasksResponse.class)
-                                      .returnResult()
-                                      .getResponseBody();
+            var actual = restTestClient.get()
+                                       .uri(TASKS_GET_ALL_FULL_PATH)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(new ParameterizedTypeReference<List<GetAllTasksResponse>>() {})
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
             assertThat(actual).isEmpty();
@@ -308,14 +310,14 @@ class TaskE2EIT {
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
-            webTestClient.get()
-                         .uri(TASKS_GET_ALL_FULL_PATH)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.get()
+                          .uri(TASKS_GET_ALL_FULL_PATH)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
     }
@@ -332,20 +334,20 @@ class TaskE2EIT {
             var createTaskRequestBody = new CreateTaskRequest(userId.toString(), "Title", "Description", startDate, endDate);
 
             // When
-            var actual = webTestClient.post()
-                                      .uri(TASKS_CREATE_FULL_PATH)
-                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                      .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                                      .bodyValue(createTaskRequestBody)
-                                      .exchange()
-                                      .expectStatus()
-                                      .isCreated()
-                                      .expectHeader()
-                                      .contentType(MediaType.APPLICATION_JSON)
-                                      .expectBody(CreateTaskResponse.class)
-                                      .returnResult()
-                                      .getResponseBody();
+            var actual = restTestClient.post()
+                                       .uri(TASKS_CREATE_FULL_PATH)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(createTaskRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isCreated()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(CreateTaskResponse.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
             assertThat(actual).isNotNull()
@@ -377,16 +379,16 @@ class TaskE2EIT {
             var createTaskRequestBody = new CreateTaskRequest(userId.toString(), "Title", "Description", startDate, endDate);
 
             // When & Then
-            webTestClient.post()
-                         .uri(TASKS_CREATE_FULL_PATH)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                         .bodyValue(createTaskRequestBody)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.post()
+                          .uri(TASKS_CREATE_FULL_PATH)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                          .body(createTaskRequestBody)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
     }
@@ -405,20 +407,20 @@ class TaskE2EIT {
             var updateTaskRequest = new UpdateTaskRequest(newUserId.toString(), "New Title", "New Description", newStartDate, newEndDate);
 
             // When
-            var actual = webTestClient.put()
-                                      .uri(TASKS_UPDATE_BY_ID_FULL_PATH, taskId)
-                                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                      .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                      .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                                      .bodyValue(updateTaskRequest)
-                                      .exchange()
-                                      .expectStatus()
-                                      .isOk()
-                                      .expectHeader()
-                                      .contentType(MediaType.APPLICATION_JSON)
-                                      .expectBody(UpdateTaskResponse.class)
-                                      .returnResult()
-                                      .getResponseBody();
+            var actual = restTestClient.put()
+                                       .uri(TASKS_UPDATE_BY_ID_FULL_PATH, taskId)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(updateTaskRequest)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(UpdateTaskResponse.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
             assertThat(actual).isNotNull()
@@ -451,17 +453,17 @@ class TaskE2EIT {
             var updateTaskRequest = new UpdateTaskRequest(newUserId.toString(), "New Title", "New Description", newStartDate, newEndDate);
 
             // When & Then
-            webTestClient.put()
-                         .uri(TASKS_UPDATE_BY_ID_FULL_PATH, taskId)
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                         .bodyValue(updateTaskRequest)
-                         .exchange()
-                         .expectStatus()
-                         .isNotFound()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.put()
+                          .uri(TASKS_UPDATE_BY_ID_FULL_PATH, taskId)
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                          .body(updateTaskRequest)
+                          .exchange()
+                          .expectStatus()
+                          .isNotFound()
+                          .expectBody()
+                          .isEmpty();
         }
 
         @Test
@@ -474,16 +476,16 @@ class TaskE2EIT {
             var updateTaskRequest = new UpdateTaskRequest(newUserId.toString(), "New Title", "New Description", newStartDate, newEndDate);
 
             // When & Then
-            webTestClient.put()
-                         .uri(TASKS_UPDATE_BY_ID_FULL_PATH, taskId)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                         .bodyValue(updateTaskRequest)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.put()
+                          .uri(TASKS_UPDATE_BY_ID_FULL_PATH, taskId)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                          .body(updateTaskRequest)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
     }
@@ -498,15 +500,15 @@ class TaskE2EIT {
             var taskId = createdTask.id();
 
             // When
-            webTestClient.delete()
-                         .uri(TASKS_DELETE_BY_ID_FULL_PATH, taskId)
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .exchange()
-                         .expectStatus()
-                         .isNoContent()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.delete()
+                          .uri(TASKS_DELETE_BY_ID_FULL_PATH, taskId)
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .exchange()
+                          .expectStatus()
+                          .isNoContent()
+                          .expectBody()
+                          .isEmpty();
 
             // Then
             // Assert the task has been deleted
@@ -520,15 +522,15 @@ class TaskE2EIT {
             var taskId = UUID.fromString("a4e7f1c9-8b2d-464d-9e7a-5f3c8d1b6e4a");
 
             // When & Then
-            webTestClient.delete()
-                         .uri(TASKS_DELETE_BY_ID_FULL_PATH, taskId)
-                         .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .exchange()
-                         .expectStatus()
-                         .isNotFound()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.delete()
+                          .uri(TASKS_DELETE_BY_ID_FULL_PATH, taskId)
+                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .exchange()
+                          .expectStatus()
+                          .isNotFound()
+                          .expectBody()
+                          .isEmpty();
         }
 
         @Test
@@ -537,14 +539,14 @@ class TaskE2EIT {
             var taskId = UUID.fromString("a4e7f1c9-8b2d-464d-9e7a-5f3c8d1b6e4a");
 
             // When & Then
-            webTestClient.delete()
-                         .uri(TASKS_DELETE_BY_ID_FULL_PATH, taskId)
-                         .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                         .exchange()
-                         .expectStatus()
-                         .isUnauthorized()
-                         .expectBody()
-                         .isEmpty();
+            restTestClient.delete()
+                          .uri(TASKS_DELETE_BY_ID_FULL_PATH, taskId)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
     }

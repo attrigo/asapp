@@ -87,7 +87,7 @@ Suffixes: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-
 
 - Test methods MUST use explicit AAA comment blocks: `// Given`, `// When`, `// Then`
 - Skip `// Given` when no setup is needed
-- Use `// When & Then` when the assertion is fluently chained to the action (e.g., MockMvc, WebTestClient)
+- Use `// When & Then` when the assertion is fluently chained to the action (e.g., MockMvc, RestTestClient)
 
 ### 2.2 Given Block Structure
 
