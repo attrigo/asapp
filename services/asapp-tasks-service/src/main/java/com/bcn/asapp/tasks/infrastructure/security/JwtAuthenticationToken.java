@@ -77,7 +77,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
         var principal = decodedJwt.subject();
         var token = decodedJwt.encodedToken();
         var role = decodedJwt.roleClaim();
-        var authorities = role == null ? AuthorityUtils.NO_AUTHORITIES : AuthorityUtils.createAuthorityList(decodedJwt.roleClaim());
+        var authorities = role == null ? AuthorityUtils.NO_AUTHORITIES : AuthorityUtils.createAuthorityList(role);
 
         return new JwtAuthenticationToken(principal, token, authorities);
     }

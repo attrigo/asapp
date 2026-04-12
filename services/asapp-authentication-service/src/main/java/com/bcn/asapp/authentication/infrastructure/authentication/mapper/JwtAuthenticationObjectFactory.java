@@ -74,26 +74,22 @@ public class JwtAuthenticationObjectFactory {
     }
 
     /**
-     * Creates a domain {@link JwtAuthentication} from a database {@link JdbcJwtAuthenticationEntity} entity.
+     * Creates an authenticated domain {@link JwtAuthentication} from a database {@link JdbcJwtAuthenticationEntity} entity.
      * <p>
-     * Maps entity fields to value objects and constructs either an authenticated or unauthenticated JWT authentication using the domain's factory methods.
+     * Maps entity fields to value objects and constructs an authenticated JWT authentication using the domain's factory method.
      *
      * @param source the {@link JdbcJwtAuthenticationEntity} database entity
-     * @return the {@link JwtAuthentication} domain entity
+     * @return the authenticated {@link JwtAuthentication} domain entity
      */
     @ObjectFactory
     public JwtAuthentication toJwtAuthentication(JdbcJwtAuthenticationEntity source) {
+        var id = idMapper.toJwtAuthenticationId(source.id());
         var userId = userIdMapper.toUserId(source.userId());
         var accessToken = jwtMapper.toJwt(source.accessToken());
         var refreshToken = jwtMapper.toJwt(source.refreshToken());
         var jwtPair = JwtPair.of(accessToken, refreshToken);
 
-        if (source.id() == null) {
-            return JwtAuthentication.unAuthenticated(userId, jwtPair);
-        } else {
-            var id = idMapper.toJwtAuthenticationId(source.id());
-            return JwtAuthentication.authenticated(id, userId, jwtPair);
-        }
+        return JwtAuthentication.authenticated(id, userId, jwtPair);
     }
 
 }
