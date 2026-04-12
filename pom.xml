@@ -49,6 +49,10 @@
         <java.version>25</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
+        <!-- Dependencies Versions -->
+        <!-- # CVE Dependencies (Overrides SB4 BOM) -->
+        <jackson-bom.version>3.1.1</jackson-bom.version>
+
         <!-- Plugins Versions -->
         <git-build-hook-maven-plugin.version>3.5.0</git-build-hook-maven-plugin.version>
         <jacoco-maven-plugin.version>0.8.13</jacoco-maven-plugin.version>
