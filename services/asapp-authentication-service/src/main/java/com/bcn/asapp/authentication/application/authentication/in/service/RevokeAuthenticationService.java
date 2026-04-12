@@ -16,6 +16,8 @@
 
 package com.bcn.asapp.authentication.application.authentication.in.service;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
@@ -99,12 +101,13 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
 
         var authentication = retrieveAuthentication(encodedAccessToken);
         var jwtPairToDelete = authentication.getJwtPair();
+        var authenticationId = Objects.requireNonNull(authentication.getId(), "Retrieved authentication has no ID")
+                                      .value();
 
         deleteAuthentication(authentication);
         deactivateTokens(jwtPairToDelete);
 
-        logger.debug("[REVOKE] Authentication revoked successfully for authenticationId={}", authentication.getId()
-                                                                                                           .value());
+        logger.debug("[REVOKE] Authentication revoked successfully for authenticationId={}", authenticationId);
     }
 
     /**
