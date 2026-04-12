@@ -69,9 +69,7 @@ class OpenApiEndpointsIT {
                       .expectStatus()
                       .isOk()
                       .expectBody(String.class)
-                      .consumeWith(response -> {
-                          assertThat(response.getResponseBody()).isNotBlank();
-                      });
+                      .consumeWith(response -> assertThat(response.getResponseBody()).isNotBlank());
     }
 
     @Test
@@ -110,11 +108,9 @@ class OpenApiEndpointsIT {
                       .expectStatus()
                       .isOk()
                       .expectBody(String.class)
-                      .consumeWith(response -> {
-                          assertThatJson(response.getResponseBody()).isNotNull()
-                                                                    .isObject()
-                                                                    .isNotEmpty();
-                      });
+                      .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
+                                                                                         .isObject()
+                                                                                         .isNotEmpty());
     }
 
 }

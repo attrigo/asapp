@@ -18,6 +18,7 @@ package com.bcn.asapp.users.infrastructure.security.client;
 
 import java.io.IOException;
 
+import org.jspecify.annotations.NonNull;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.client.ClientHttpRequestExecution;
@@ -66,7 +67,8 @@ public class JwtInterceptor implements ClientHttpRequestInterceptor {
      * @throws IllegalStateException if authentication is not present in the {@link SecurityContextHolder} or is not a {@link JwtAuthenticationToken}
      */
     @Override
-    public ClientHttpResponse intercept(HttpRequest request, byte[] body, ClientHttpRequestExecution execution) throws IOException {
+    @NonNull
+    public ClientHttpResponse intercept(@NonNull HttpRequest request, byte @NonNull [] body, @NonNull ClientHttpRequestExecution execution) throws IOException {
         var token = extractTokenFromAuthentication();
 
         var bearerToken = "Bearer " + token;

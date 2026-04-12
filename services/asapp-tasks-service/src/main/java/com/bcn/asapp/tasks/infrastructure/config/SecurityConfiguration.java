@@ -114,10 +114,8 @@ public class SecurityConfiguration {
     DefaultSecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
         http.securityMatcher(API_MATCHER)
-            .authorizeHttpRequests(auth -> {
-                auth.anyRequest()
-                    .authenticated();
-            });
+            .authorizeHttpRequests(auth -> auth.anyRequest()
+                                               .authenticated());
         http.sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         http.exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint));

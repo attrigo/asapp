@@ -16,6 +16,7 @@
 
 package com.bcn.asapp.authentication.infrastructure.security;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -61,7 +62,8 @@ public class CustomUserDetailsService implements UserDetailsService {
      * @throws UsernameNotFoundException if no user is found with the given username
      */
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    @NonNull
+    public UserDetails loadUserByUsername(@NonNull String username) throws UsernameNotFoundException {
         logger.debug("Loading user with username {}", username);
 
         var user = userRepository.findByUsername(username)

@@ -94,7 +94,7 @@ public interface TaskRestAPI {
     @ApiResponse(responseCode = "404", description = "Task not found", content = { @Content })
     @ApiResponse(responseCode = "500", description = "An internal error occurred during retrieval", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    ResponseEntity<GetTaskByIdResponse> getTaskById(@PathVariable("id") @Parameter(description = "Identifier of the task to get") UUID id);
+    ResponseEntity<GetTaskByIdResponse> getTaskById(@PathVariable @Parameter(description = "Identifier of the task to get") UUID id);
 
     /**
      * Gets all tasks for a specific user by their unique identifier.
@@ -107,7 +107,7 @@ public interface TaskRestAPI {
      * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during retrieval.</li>
      * </ul>
      *
-     * @param userId the user's unique identifier
+     * @param id the user's unique identifier
      * @return a {@link List} of {@link GetTasksByUserIdResponse} containing all tasks for the user, or an empty list if no tasks exist
      */
     @GetMapping(value = TASKS_GET_BY_USER_ID_PATH, produces = "application/json")
@@ -121,7 +121,7 @@ public interface TaskRestAPI {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "500", description = "An internal error occurred during retrieval", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    List<GetTasksByUserIdResponse> getTasksByUserId(@PathVariable("id") @Parameter(description = "Identifier of the user whose tasks to retrieve") UUID userId);
+    List<GetTasksByUserIdResponse> getTasksByUserId(@PathVariable @Parameter(description = "Identifier of the user whose tasks to retrieve") UUID id);
 
     /**
      * Gets all tasks.
@@ -202,7 +202,7 @@ public interface TaskRestAPI {
     @ApiResponse(responseCode = "404", description = "Task not found", content = { @Content })
     @ApiResponse(responseCode = "500", description = "An internal error occurred during task update", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    ResponseEntity<UpdateTaskResponse> updateTaskById(@PathVariable("id") @Parameter(description = "Identifier of the task to update") UUID id,
+    ResponseEntity<UpdateTaskResponse> updateTaskById(@PathVariable @Parameter(description = "Identifier of the task to update") UUID id,
             @RequestBody @Valid UpdateTaskRequest request);
 
     /**
@@ -230,6 +230,6 @@ public interface TaskRestAPI {
     @ApiResponse(responseCode = "404", description = "Task not found", content = { @Content })
     @ApiResponse(responseCode = "500", description = "An internal error occurred during task deletion", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    ResponseEntity<Void> deleteTaskById(@PathVariable("id") @Parameter(description = "Identifier of the task to delete") UUID id);
+    ResponseEntity<Void> deleteTaskById(@PathVariable @Parameter(description = "Identifier of the task to delete") UUID id);
 
 }

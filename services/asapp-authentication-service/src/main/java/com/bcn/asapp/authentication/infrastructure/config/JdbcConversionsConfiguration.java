@@ -20,6 +20,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
+import org.jspecify.annotations.NonNull;
 import org.postgresql.util.PGobject;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
@@ -62,6 +63,7 @@ public class JdbcConversionsConfiguration extends AbstractJdbcConfiguration {
      * @return a {@link List} of custom converters for JWT claims
      */
     @Override
+    @NonNull
     protected List<?> userConverters() {
         return Arrays.asList(new ClaimsReadingConverter(objectMapper), new ClaimsWritingConverter(objectMapper));
     }
@@ -96,7 +98,7 @@ public class JdbcConversionsConfiguration extends AbstractJdbcConfiguration {
          * @throws IllegalArgumentException if JSON parsing fails
          */
         @Override
-        public JdbcJwtClaimsEntity convert(PGobject source) {
+        public JdbcJwtClaimsEntity convert(@NonNull PGobject source) {
             try {
                 var claimsMap = objectMapper.readValue(source.getValue(), new TypeReference<HashMap<String, Object>>() {});
                 return new JdbcJwtClaimsEntity(claimsMap);
@@ -137,7 +139,7 @@ public class JdbcConversionsConfiguration extends AbstractJdbcConfiguration {
          * @throws IllegalArgumentException if JSON serialization fails
          */
         @Override
-        public PGobject convert(JdbcJwtClaimsEntity source) {
+        public PGobject convert(@NonNull JdbcJwtClaimsEntity source) {
             try {
                 String json = objectMapper.writeValueAsString(source.claims());
                 var jsonObject = new PGobject();

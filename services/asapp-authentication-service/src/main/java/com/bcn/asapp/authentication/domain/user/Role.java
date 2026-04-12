@@ -34,6 +34,6 @@ public enum Role {
     /**
      * Standard user role with basic privileges.
      */
-    USER;
+    USER
 
 }

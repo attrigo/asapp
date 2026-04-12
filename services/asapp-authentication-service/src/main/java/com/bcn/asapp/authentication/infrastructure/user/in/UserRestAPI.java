@@ -92,7 +92,7 @@ public interface UserRestAPI {
     @ApiResponse(responseCode = "404", description = "User not found", content = { @Content })
     @ApiResponse(responseCode = "500", description = "An internal error occurred during retrieval", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    ResponseEntity<GetUserByIdResponse> getUserById(@PathVariable("id") @Parameter(description = "Identifier of the user to get") UUID id);
+    ResponseEntity<GetUserByIdResponse> getUserById(@PathVariable @Parameter(description = "Identifier of the user to get") UUID id);
 
     /**
      * Gets all users.
@@ -175,7 +175,7 @@ public interface UserRestAPI {
     @ApiResponse(responseCode = "404", description = "User not found", content = { @Content })
     @ApiResponse(responseCode = "500", description = "An internal error occurred during user update", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    ResponseEntity<UpdateUserResponse> updateUserById(@PathVariable("id") @Parameter(description = "Identifier of the user to update") UUID id,
+    ResponseEntity<UpdateUserResponse> updateUserById(@PathVariable @Parameter(description = "Identifier of the user to update") UUID id,
             @RequestBody @Valid UpdateUserRequest request);
 
     /**
@@ -209,6 +209,6 @@ public interface UserRestAPI {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "503", description = "The token store service is temporarily unavailable", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    ResponseEntity<Void> deleteUserById(@PathVariable("id") @Parameter(description = "Identifier of the user to delete") UUID id);
+    ResponseEntity<Void> deleteUserById(@PathVariable @Parameter(description = "Identifier of the user to delete") UUID id);
 
 }

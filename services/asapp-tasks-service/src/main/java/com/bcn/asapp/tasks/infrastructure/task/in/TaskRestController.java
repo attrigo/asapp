@@ -94,12 +94,12 @@ public class TaskRestController implements TaskRestAPI {
     /**
      * Gets all tasks for a specific user by their unique identifier.
      *
-     * @param userId the user's unique identifier
+     * @param id the user's unique identifier
      * @return a {@link List} of {@link GetTasksByUserIdResponse} containing all tasks for the user, or an empty list if no tasks exist
      */
     @Override
-    public List<GetTasksByUserIdResponse> getTasksByUserId(UUID userId) {
-        return readTaskUseCase.getTasksByUserId(userId)
+    public List<GetTasksByUserIdResponse> getTasksByUserId(UUID id) {
+        return readTaskUseCase.getTasksByUserId(id)
                               .stream()
                               .map(taskMapper::toGetTasksByUserIdResponse)
                               .toList();
