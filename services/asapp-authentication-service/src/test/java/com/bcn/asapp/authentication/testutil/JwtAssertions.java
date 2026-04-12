@@ -87,7 +87,7 @@ public class JwtAssertions extends AbstractAssert<JwtAssertions, SignedJWT> {
                                      .getType()
                                      .getType();
         var actualTokenUseClaim = claimsSet().getClaim(TOKEN_USE);
-        SoftAssertions.assertSoftly(softAssertions -> {
+        SoftAssertions.assertSoftly(_ -> {
             Assertions.assertThat(actualHeaderType)
                       .isNotNull()
                       .describedAs("type")
@@ -106,7 +106,7 @@ public class JwtAssertions extends AbstractAssert<JwtAssertions, SignedJWT> {
                                      .getType()
                                      .getType();
         var actualTokenUseClaim = claimsSet().getClaim(TOKEN_USE);
-        SoftAssertions.assertSoftly(softAssertions -> {
+        SoftAssertions.assertSoftly(_ -> {
             Assertions.assertThat(actualHeaderType)
                       .isNotNull()
                       .describedAs("type")

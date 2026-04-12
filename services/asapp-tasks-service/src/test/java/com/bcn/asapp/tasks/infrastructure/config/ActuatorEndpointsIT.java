@@ -78,18 +78,17 @@ class ActuatorEndpointsIT {
                       .expectStatus()
                       .isOk()
                       .expectBody(String.class)
-                      .consumeWith(response -> {
-                          assertThatJson(response.getResponseBody()).isNotNull()
-                                                                    .isObject()
-                                                                    .containsKeys("_links")
-                                                                    .node("_links")
-                                                                    .isObject()
-                                                                    .containsKeys("self", "beans", "health", "health-path", "info", "conditions", "shutdown",
-                                                                            "configprops", "configprops-prefix", "env", "env-toMatch", "liquibase", "loggers",
-                                                                            "loggers-name", "heapdump", "threaddump", "prometheus",
-                                                                            "metrics-requiredMetricName", "metrics", "sbom-id", "sbom", "scheduledtasks",
-                                                                            "httpexchanges", "mappings");
-                      });
+                      .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
+                                                                                         .isObject()
+                                                                                         .containsKeys("_links")
+                                                                                         .node("_links")
+                                                                                         .isObject()
+                                                                                         .containsKeys("self", "beans", "health", "health-path", "info",
+                                                                                                 "conditions", "shutdown", "configprops", "configprops-prefix",
+                                                                                                 "env", "env-toMatch", "liquibase", "loggers", "loggers-name",
+                                                                                                 "heapdump", "threaddump", "prometheus",
+                                                                                                 "metrics-requiredMetricName", "metrics", "sbom-id", "sbom",
+                                                                                                 "scheduledtasks", "httpexchanges", "mappings"));
     }
 
     @Test
@@ -101,14 +100,12 @@ class ActuatorEndpointsIT {
                       .expectStatus()
                       .isOk()
                       .expectBody(String.class)
-                      .consumeWith(response -> {
-                          assertThatJson(response.getResponseBody()).isNotNull()
-                                                                    .isObject()
-                                                                    .containsKeys("status", "groups")
-                                                                    .node("groups")
-                                                                    .isArray()
-                                                                    .contains("liveness", "readiness");
-                      });
+                      .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
+                                                                                         .isObject()
+                                                                                         .containsKeys("status", "groups")
+                                                                                         .node("groups")
+                                                                                         .isArray()
+                                                                                         .contains("liveness", "readiness"));
     }
 
     @Test
@@ -121,14 +118,13 @@ class ActuatorEndpointsIT {
                       .expectStatus()
                       .isOk()
                       .expectBody(String.class)
-                      .consumeWith(response -> {
-                          assertThatJson(response.getResponseBody()).isNotNull()
-                                                                    .isObject()
-                                                                    .containsKeys("status", "groups", "components")
-                                                                    .node("components")
-                                                                    .isObject()
-                                                                    .containsKeys("db", "diskSpace", "livenessState", "ping", "readinessState", "ssl");
-                      });
+                      .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
+                                                                                         .isObject()
+                                                                                         .containsKeys("status", "groups", "components")
+                                                                                         .node("components")
+                                                                                         .isObject()
+                                                                                         .containsKeys("db", "diskSpace", "livenessState", "ping",
+                                                                                                 "readinessState", "ssl"));
     }
 
     @Test
@@ -141,11 +137,9 @@ class ActuatorEndpointsIT {
                       .expectStatus()
                       .isOk()
                       .expectBody(String.class)
-                      .consumeWith(response -> {
-                          assertThatJson(response.getResponseBody()).isNotNull()
-                                                                    .isObject()
-                                                                    .containsKeys("git", "build", "java", "os", "process");
-                      });
+                      .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
+                                                                                         .isObject()
+                                                                                         .containsKeys("git", "build", "java", "os", "process"));
     }
 
     @Test
@@ -158,13 +152,11 @@ class ActuatorEndpointsIT {
                       .expectStatus()
                       .isOk()
                       .expectBody(String.class)
-                      .consumeWith(response -> {
-                          assertThatJson(response.getResponseBody()).isNotNull()
-                                                                    .isObject()
-                                                                    .containsKeys("ids")
-                                                                    .node("ids")
-                                                                    .isArray();
-                      });
+                      .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
+                                                                                         .isObject()
+                                                                                         .containsKeys("ids")
+                                                                                         .node("ids")
+                                                                                         .isArray());
     }
 
     @Test
@@ -177,14 +169,12 @@ class ActuatorEndpointsIT {
                       .expectStatus()
                       .isOk()
                       .expectBody(String.class)
-                      .consumeWith(response -> {
-                          assertThatJson(response.getResponseBody()).isNotNull()
-                                                                    .isObject()
-                                                                    .containsKeys("contexts")
-                                                                    .node("contexts")
-                                                                    .isObject()
-                                                                    .isNotEmpty();
-                      });
+                      .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
+                                                                                         .isObject()
+                                                                                         .containsKeys("contexts")
+                                                                                         .node("contexts")
+                                                                                         .isObject()
+                                                                                         .isNotEmpty());
     }
 
 }

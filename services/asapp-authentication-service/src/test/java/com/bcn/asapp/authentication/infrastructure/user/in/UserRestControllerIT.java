@@ -71,13 +71,11 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Not Found")
-                                                  .containsEntry("status", 404)
-                                                  .containsEntry("detail", "No static resource api/users.")
-                                                  .containsEntry("instance", "/api/users/");
-                   });
+                   .satisfies(json -> assertThatJson(json).isObject()
+                                                          .containsEntry("title", "Not Found")
+                                                          .containsEntry("status", 404)
+                                                          .containsEntry("detail", "No static resource api/users.")
+                                                          .containsEntry("instance", "/api/users/"));
         }
 
         @Test
@@ -93,13 +91,11 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Bad Request")
-                                                  .containsEntry("status", 400)
-                                                  .containsEntry("detail", "Failed to convert 'id' with value: '1'")
-                                                  .containsEntry("instance", "/api/users/1");
-                   });
+                   .satisfies(json -> assertThatJson(json).isObject()
+                                                          .containsEntry("title", "Bad Request")
+                                                          .containsEntry("status", 400)
+                                                          .containsEntry("detail", "Failed to convert 'id' with value: '1'")
+                                                          .containsEntry("instance", "/api/users/1"));
         }
 
     }
@@ -122,13 +118,11 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Unsupported Media Type")
-                                                  .containsEntry("status", 415)
-                                                  .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
-                                                  .containsEntry("instance", "/api/users");
-                   });
+                   .satisfies(json -> assertThatJson(json).isObject()
+                                                          .containsEntry("title", "Unsupported Media Type")
+                                                          .containsEntry("status", 415)
+                                                          .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
+                                                          .containsEntry("instance", "/api/users"));
         }
 
         @Test
@@ -145,13 +139,11 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Bad Request")
-                                                  .containsEntry("status", 400)
-                                                  .containsEntry("detail", "Failed to read request")
-                                                  .containsEntry("instance", "/api/users");
-                   });
+                   .satisfies(json -> assertThatJson(json).isObject()
+                                                          .containsEntry("title", "Bad Request")
+                                                          .containsEntry("status", 400)
+                                                          .containsEntry("detail", "Failed to read request")
+                                                          .containsEntry("instance", "/api/users"));
         }
 
         @Test
@@ -168,24 +160,24 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Bad Request")
-                                                  .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/users");
-                       assertThatJson(jsonContent).inPath("detail")
-                                                  .asString()
-                                                  .contains("The username must not be empty")
-                                                  .contains("The password must not be empty")
-                                                  .contains("The role must be a valid Role");
+                   .satisfies(json -> {
+                       assertThatJson(json).isObject()
+                                           .containsEntry("title", "Bad Request")
+                                           .containsEntry("status", 400)
+                                           .containsEntry("instance", "/api/users");
+                       assertThatJson(json).inPath("detail")
+                                           .asString()
+                                           .contains("The username must not be empty")
+                                           .contains("The password must not be empty")
+                                           .contains("The role must be a valid Role");
                    //@formatter:off
-                       assertThatJson(jsonContent).inPath("errors")
-                                                  .isArray()
-                                                  .containsOnly(
-                                                          Map.of("entity", "createUserRequest", "field", "username", "message", "The username must not be empty"),
-                                                          Map.of("entity", "createUserRequest", "field", "password", "message", "The password must not be empty"),
-                                                          Map.of("entity", "createUserRequest", "field", "role", "message", "The role must be a valid Role")
-                                                  );
+                       assertThatJson(json).inPath("errors")
+                                          .isArray()
+                                          .containsOnly(
+                                                  Map.of("entity", "createUserRequest", "field", "username", "message", "The username must not be empty"),
+                                                  Map.of("entity", "createUserRequest", "field", "password", "message", "The password must not be empty"),
+                                                  Map.of("entity", "createUserRequest", "field", "role", "message", "The role must be a valid Role")
+                                          );
                        //@formatter:on
                    });
         }
@@ -210,28 +202,28 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Bad Request")
-                                                  .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/users");
-                       assertThatJson(jsonContent).inPath("detail")
-                                                  .asString()
-                                                  .contains("The username must not be empty")
-                                                  .contains("The username must be a valid email address")
-                                                  .contains("The password must not be empty")
-                                                  .contains("The password must be between 8 and 64 characters")
-                                                  .contains("The role must be a valid Role");
+                   .satisfies(json -> {
+                       assertThatJson(json).isObject()
+                                           .containsEntry("title", "Bad Request")
+                                           .containsEntry("status", 400)
+                                           .containsEntry("instance", "/api/users");
+                       assertThatJson(json).inPath("detail")
+                                           .asString()
+                                           .contains("The username must not be empty")
+                                           .contains("The username must be a valid email address")
+                                           .contains("The password must not be empty")
+                                           .contains("The password must be between 8 and 64 characters")
+                                           .contains("The role must be a valid Role");
                    //@formatter:off
-                       assertThatJson(jsonContent).inPath("errors")
-                                                  .isArray()
-                                                  .containsOnly(
-                                                          Map.of("entity", "createUserRequest", "field", "username", "message", "The username must not be empty"),
-                                                          Map.of("entity", "createUserRequest", "field", "username", "message","The username must be a valid email address"),
-                                                          Map.of("entity", "createUserRequest", "field", "password", "message","The password must not be empty"),
-                                                          Map.of("entity", "createUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters"),
-                                                          Map.of("entity", "createUserRequest", "field", "role", "message", "The role must be a valid Role")
-                                                  );
+                       assertThatJson(json).inPath("errors")
+                                          .isArray()
+                                          .containsOnly(
+                                                  Map.of("entity", "createUserRequest", "field", "username", "message", "The username must not be empty"),
+                                                  Map.of("entity", "createUserRequest", "field", "username", "message","The username must be a valid email address"),
+                                                  Map.of("entity", "createUserRequest", "field", "password", "message","The password must not be empty"),
+                                                  Map.of("entity", "createUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters"),
+                                                  Map.of("entity", "createUserRequest", "field", "role", "message", "The role must be a valid Role")
+                                          );
                        //@formatter:on
                    });
         }
@@ -256,20 +248,20 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Bad Request")
-                                                  .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/users");
-                       assertThatJson(jsonContent).inPath("detail")
-                                                  .asString()
-                                                  .contains("The username must be a valid email address");
+                   .satisfies(json -> {
+                       assertThatJson(json).isObject()
+                                           .containsEntry("title", "Bad Request")
+                                           .containsEntry("status", 400)
+                                           .containsEntry("instance", "/api/users");
+                       assertThatJson(json).inPath("detail")
+                                           .asString()
+                                           .contains("The username must be a valid email address");
                    //@formatter:off
-                       assertThatJson(jsonContent).inPath("errors")
-                                                  .isArray()
-                                                  .containsOnly(
-                                                          Map.of("entity", "createUserRequest", "field", "username", "message", "The username must be a valid email address")
-                                                  );
+                       assertThatJson(json).inPath("errors")
+                                          .isArray()
+                                          .containsOnly(
+                                                  Map.of("entity", "createUserRequest", "field", "username", "message", "The username must be a valid email address")
+                                          );
                        //@formatter:on
                    });
         }
@@ -295,20 +287,20 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Bad Request")
-                                                  .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/users");
-                       assertThatJson(jsonContent).inPath("detail")
-                                                  .asString()
-                                                  .contains("The password must be between 8 and 64 characters");
+                   .satisfies(json -> {
+                       assertThatJson(json).isObject()
+                                           .containsEntry("title", "Bad Request")
+                                           .containsEntry("status", 400)
+                                           .containsEntry("instance", "/api/users");
+                       assertThatJson(json).inPath("detail")
+                                           .asString()
+                                           .contains("The password must be between 8 and 64 characters");
                    //@formatter:off
-                       assertThatJson(jsonContent).inPath("errors")
-                                                  .isArray()
-                                                  .containsOnly(
-                                                          Map.of("entity", "createUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters")
-                                                  );
+                       assertThatJson(json).inPath("errors")
+                                          .isArray()
+                                          .containsOnly(
+                                                  Map.of("entity", "createUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters")
+                                          );
                        //@formatter:on
                    });
         }
@@ -334,20 +326,20 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Bad Request")
-                                                  .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/users");
-                       assertThatJson(jsonContent).inPath("detail")
-                                                  .asString()
-                                                  .contains("The password must be between 8 and 64 characters");
+                   .satisfies(json -> {
+                       assertThatJson(json).isObject()
+                                           .containsEntry("title", "Bad Request")
+                                           .containsEntry("status", 400)
+                                           .containsEntry("instance", "/api/users");
+                       assertThatJson(json).inPath("detail")
+                                           .asString()
+                                           .contains("The password must be between 8 and 64 characters");
                    //@formatter:off
-                       assertThatJson(jsonContent).inPath("errors")
-                                                  .isArray()
-                                                  .containsOnly(
-                                                          Map.of("entity", "createUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters")
-                                                  );
+                       assertThatJson(json).inPath("errors")
+                                          .isArray()
+                                          .containsOnly(
+                                                  Map.of("entity", "createUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters")
+                                          );
                        //@formatter:on
                    });
         }
@@ -372,20 +364,20 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Bad Request")
-                                                  .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/users");
-                       assertThatJson(jsonContent).inPath("detail")
-                                                  .asString()
-                                                  .contains("The role must be a valid Role");
+                   .satisfies(json -> {
+                       assertThatJson(json).isObject()
+                                           .containsEntry("title", "Bad Request")
+                                           .containsEntry("status", 400)
+                                           .containsEntry("instance", "/api/users");
+                       assertThatJson(json).inPath("detail")
+                                           .asString()
+                                           .contains("The role must be a valid Role");
                    //@formatter:off
-                       assertThatJson(jsonContent).inPath("errors")
-                                                  .isArray()
-                                                  .containsOnly(
-                                                          Map.of("entity", "createUserRequest", "field", "role", "message", "The role must be a valid Role")
-                                                  );
+                       assertThatJson(json).inPath("errors")
+                                          .isArray()
+                                          .containsOnly(
+                                                  Map.of("entity", "createUserRequest", "field", "role", "message", "The role must be a valid Role")
+                                          );
                        //@formatter:on
                    });
         }
@@ -415,13 +407,11 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Not Found")
-                                                  .containsEntry("status", 404)
-                                                  .containsEntry("detail", "No static resource api/users.")
-                                                  .containsEntry("instance", "/api/users/");
-                   });
+                   .satisfies(json -> assertThatJson(json).isObject()
+                                                          .containsEntry("title", "Not Found")
+                                                          .containsEntry("status", 404)
+                                                          .containsEntry("detail", "No static resource api/users.")
+                                                          .containsEntry("instance", "/api/users/"));
         }
 
         @Test
@@ -445,13 +435,11 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Bad Request")
-                                                  .containsEntry("status", 400)
-                                                  .containsEntry("detail", "Failed to convert 'id' with value: '1'")
-                                                  .containsEntry("instance", "/api/users/1");
-                   });
+                   .satisfies(json -> assertThatJson(json).isObject()
+                                                          .containsEntry("title", "Bad Request")
+                                                          .containsEntry("status", 400)
+                                                          .containsEntry("detail", "Failed to convert 'id' with value: '1'")
+                                                          .containsEntry("instance", "/api/users/1"));
         }
 
         @Test
@@ -469,13 +457,11 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Unsupported Media Type")
-                                                  .containsEntry("status", 415)
-                                                  .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
-                                                  .containsEntry("instance", "/api/users/" + userId);
-                   });
+                   .satisfies(json -> assertThatJson(json).isObject()
+                                                          .containsEntry("title", "Unsupported Media Type")
+                                                          .containsEntry("status", 415)
+                                                          .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
+                                                          .containsEntry("instance", "/api/users/" + userId));
         }
 
         @Test
@@ -493,13 +479,11 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Bad Request")
-                                                  .containsEntry("status", 400)
-                                                  .containsEntry("detail", "Failed to read request")
-                                                  .containsEntry("instance", "/api/users/" + userId);
-                   });
+                   .satisfies(json -> assertThatJson(json).isObject()
+                                                          .containsEntry("title", "Bad Request")
+                                                          .containsEntry("status", 400)
+                                                          .containsEntry("detail", "Failed to read request")
+                                                          .containsEntry("instance", "/api/users/" + userId));
         }
 
         @Test
@@ -517,24 +501,24 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Bad Request")
-                                                  .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/users/" + userId);
-                       assertThatJson(jsonContent).inPath("detail")
-                                                  .asString()
-                                                  .contains("The username must not be empty")
-                                                  .contains("The password must not be empty")
-                                                  .contains("The role must be a valid Role");
+                   .satisfies(json -> {
+                       assertThatJson(json).isObject()
+                                           .containsEntry("title", "Bad Request")
+                                           .containsEntry("status", 400)
+                                           .containsEntry("instance", "/api/users/" + userId);
+                       assertThatJson(json).inPath("detail")
+                                           .asString()
+                                           .contains("The username must not be empty")
+                                           .contains("The password must not be empty")
+                                           .contains("The role must be a valid Role");
                    //@formatter:off
-                       assertThatJson(jsonContent).inPath("errors")
-                                                  .isArray()
-                                                  .containsOnly(
-                                                          Map.of("entity", "updateUserRequest", "field", "username", "message", "The username must not be empty"),
-                                                          Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must not be empty"),
-                                                          Map.of("entity", "updateUserRequest", "field", "role", "message", "The role must be a valid Role")
-                                                  );
+                       assertThatJson(json).inPath("errors")
+                                          .isArray()
+                                          .containsOnly(
+                                                  Map.of("entity", "updateUserRequest", "field", "username", "message", "The username must not be empty"),
+                                                  Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must not be empty"),
+                                                  Map.of("entity", "updateUserRequest", "field", "role", "message", "The role must be a valid Role")
+                                          );
                        //@formatter:on
                    });
         }
@@ -560,28 +544,28 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Bad Request")
-                                                  .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/users/" + userId);
-                       assertThatJson(jsonContent).inPath("detail")
-                                                  .asString()
-                                                  .contains("The username must not be empty")
-                                                  .contains("The username must be a valid email address")
-                                                  .contains("The password must not be empty")
-                                                  .contains("The password must be between 8 and 64 characters")
-                                                  .contains("The role must be a valid Role");
+                   .satisfies(json -> {
+                       assertThatJson(json).isObject()
+                                           .containsEntry("title", "Bad Request")
+                                           .containsEntry("status", 400)
+                                           .containsEntry("instance", "/api/users/" + userId);
+                       assertThatJson(json).inPath("detail")
+                                           .asString()
+                                           .contains("The username must not be empty")
+                                           .contains("The username must be a valid email address")
+                                           .contains("The password must not be empty")
+                                           .contains("The password must be between 8 and 64 characters")
+                                           .contains("The role must be a valid Role");
                    //@formatter:off
-                       assertThatJson(jsonContent).inPath("errors")
-                                                  .isArray()
-                                                  .containsOnly(
-                                                          Map.of("entity", "updateUserRequest", "field", "username", "message", "The username must not be empty"),
-                                                          Map.of("entity", "updateUserRequest", "field", "username", "message", "The username must be a valid email address"),
-                                                          Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must not be empty"),
-                                                          Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters"),
-                                                          Map.of("entity", "updateUserRequest", "field", "role", "message", "The role must be a valid Role")
-                                                  );
+                       assertThatJson(json).inPath("errors")
+                                          .isArray()
+                                          .containsOnly(
+                                                  Map.of("entity", "updateUserRequest", "field", "username", "message", "The username must not be empty"),
+                                                  Map.of("entity", "updateUserRequest", "field", "username", "message", "The username must be a valid email address"),
+                                                  Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must not be empty"),
+                                                  Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters"),
+                                                  Map.of("entity", "updateUserRequest", "field", "role", "message", "The role must be a valid Role")
+                                          );
                        //@formatter:on
                    });
         }
@@ -607,20 +591,20 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Bad Request")
-                                                  .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/users/" + userId);
-                       assertThatJson(jsonContent).inPath("detail")
-                                                  .asString()
-                                                  .contains("The username must be a valid email address");
+                   .satisfies(json -> {
+                       assertThatJson(json).isObject()
+                                           .containsEntry("title", "Bad Request")
+                                           .containsEntry("status", 400)
+                                           .containsEntry("instance", "/api/users/" + userId);
+                       assertThatJson(json).inPath("detail")
+                                           .asString()
+                                           .contains("The username must be a valid email address");
                    //@formatter:off
-                       assertThatJson(jsonContent).inPath("errors")
-                                                  .isArray()
-                                                  .containsOnly(
-                                                          Map.of("entity", "updateUserRequest", "field", "username", "message", "The username must be a valid email address")
-                                                  );
+                       assertThatJson(json).inPath("errors")
+                                          .isArray()
+                                          .containsOnly(
+                                                  Map.of("entity", "updateUserRequest", "field", "username", "message", "The username must be a valid email address")
+                                          );
                        //@formatter:on
                    });
         }
@@ -647,20 +631,20 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Bad Request")
-                                                  .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/users/" + userId);
-                       assertThatJson(jsonContent).inPath("detail")
-                                                  .asString()
-                                                  .contains("The password must be between 8 and 64 characters");
+                   .satisfies(json -> {
+                       assertThatJson(json).isObject()
+                                           .containsEntry("title", "Bad Request")
+                                           .containsEntry("status", 400)
+                                           .containsEntry("instance", "/api/users/" + userId);
+                       assertThatJson(json).inPath("detail")
+                                           .asString()
+                                           .contains("The password must be between 8 and 64 characters");
                    //@formatter:off
-                       assertThatJson(jsonContent).inPath("errors")
-                                                  .isArray()
-                                                  .containsOnly(
-                                                          Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters")
-                                                  );
+                       assertThatJson(json).inPath("errors")
+                                          .isArray()
+                                          .containsOnly(
+                                                  Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters")
+                                          );
                        //@formatter:on
                    });
         }
@@ -687,20 +671,20 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Bad Request")
-                                                  .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/users/" + userId);
-                       assertThatJson(jsonContent).inPath("detail")
-                                                  .asString()
-                                                  .contains("The password must be between 8 and 64 characters");
+                   .satisfies(json -> {
+                       assertThatJson(json).isObject()
+                                           .containsEntry("title", "Bad Request")
+                                           .containsEntry("status", 400)
+                                           .containsEntry("instance", "/api/users/" + userId);
+                       assertThatJson(json).inPath("detail")
+                                           .asString()
+                                           .contains("The password must be between 8 and 64 characters");
                    //@formatter:off
-                       assertThatJson(jsonContent).inPath("errors")
-                                                  .isArray()
-                                                  .containsOnly(
-                                                          Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters")
-                                                  );
+                       assertThatJson(json).inPath("errors")
+                                          .isArray()
+                                          .containsOnly(
+                                                  Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters")
+                                          );
                        //@formatter:on
                    });
         }
@@ -726,20 +710,20 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Bad Request")
-                                                  .containsEntry("status", 400)
-                                                  .containsEntry("instance", "/api/users/" + userId);
-                       assertThatJson(jsonContent).inPath("detail")
-                                                  .asString()
-                                                  .contains("The role must be a valid Role");
+                   .satisfies(json -> {
+                       assertThatJson(json).isObject()
+                                           .containsEntry("title", "Bad Request")
+                                           .containsEntry("status", 400)
+                                           .containsEntry("instance", "/api/users/" + userId);
+                       assertThatJson(json).inPath("detail")
+                                           .asString()
+                                           .contains("The role must be a valid Role");
                    //@formatter:off
-                       assertThatJson(jsonContent).inPath("errors")
-                                                  .isArray()
-                                                  .containsOnly(
-                                                          Map.of("entity", "updateUserRequest", "field", "role", "message", "The role must be a valid Role")
-                                                  );
+                       assertThatJson(json).inPath("errors")
+                                          .isArray()
+                                          .containsOnly(
+                                                  Map.of("entity", "updateUserRequest", "field", "role", "message", "The role must be a valid Role")
+                                          );
                        //@formatter:on
                    });
         }
@@ -761,13 +745,11 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Not Found")
-                                                  .containsEntry("status", 404)
-                                                  .containsEntry("detail", "No static resource api/users.")
-                                                  .containsEntry("instance", "/api/users/");
-                   });
+                   .satisfies(json -> assertThatJson(json).isObject()
+                                                          .containsEntry("title", "Not Found")
+                                                          .containsEntry("status", 404)
+                                                          .containsEntry("detail", "No static resource api/users.")
+                                                          .containsEntry("instance", "/api/users/"));
         }
 
         @Test
@@ -783,13 +765,11 @@ class UserRestControllerIT extends WebMvcTestContext {
                    .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
                    .bodyJson()
                    .convertTo(String.class)
-                   .satisfies(jsonContent -> {
-                       assertThatJson(jsonContent).isObject()
-                                                  .containsEntry("title", "Bad Request")
-                                                  .containsEntry("status", 400)
-                                                  .containsEntry("detail", "Failed to convert 'id' with value: '1'")
-                                                  .containsEntry("instance", "/api/users/1");
-                   });
+                   .satisfies(json -> assertThatJson(json).isObject()
+                                                          .containsEntry("title", "Bad Request")
+                                                          .containsEntry("status", 400)
+                                                          .containsEntry("detail", "Failed to convert 'id' with value: '1'")
+                                                          .containsEntry("instance", "/api/users/1"));
         }
 
     }

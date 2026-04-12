@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.commons.lang3.StringUtils;
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpMethod;
@@ -95,7 +96,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * @return {@code true} if the filter should be skipped, {@code false} otherwise
      */
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) {
+    protected boolean shouldNotFilter(@NonNull HttpServletRequest request) {
         return excludedMatchers.stream()
                                .anyMatch(matcher -> matcher.matches(request));
     }
@@ -114,7 +115,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      * @throws IOException      if an I/O error occurs
      */
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
+            throws ServletException, IOException {
         logger.debug("[JWT_FILTER] Processing authentication for request: {} {}", request.getMethod(), request.getRequestURI());
 
         logger.trace("[JWT_FILTER] Step 1/4: Extracting token from Authorization header");

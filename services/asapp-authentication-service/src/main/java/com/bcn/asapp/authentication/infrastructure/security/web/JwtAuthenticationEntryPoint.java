@@ -18,6 +18,7 @@ package com.bcn.asapp.authentication.infrastructure.security.web;
 
 import java.io.IOException;
 
+import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.AuthenticationException;
@@ -50,7 +51,8 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
      * @throws IOException if an I/O error occurs while sending the error response
      */
     @Override
-    public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
+    public void commence(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull AuthenticationException authException)
+            throws IOException {
         logger.error("Unauthorized error {}", authException.getMessage());
 
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED, authException.getMessage());
