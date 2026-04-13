@@ -39,39 +39,6 @@ import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskEntity;
 @Component
 public class TaskObjectFactory {
 
-    private final TaskIdMapper taskIdMapper;
-
-    private final UserIdMapper userIdMapper;
-
-    private final TitleMapper titleMapper;
-
-    private final DescriptionMapper descriptionMapper;
-
-    private final StartDateMapper startDateMapper;
-
-    private final EndDateMapper endDateMapper;
-
-    /**
-     * Constructs a new {@code TaskObjectFactory} with required mappers.
-     *
-     * @param taskIdMapper      the mapper for task IDs
-     * @param userIdMapper      the mapper for user IDs
-     * @param titleMapper       the mapper for titles
-     * @param descriptionMapper the mapper for descriptions
-     * @param startDateMapper   the mapper start date
-     * @param endDateMapper     the mapper for end dates
-     */
-    public TaskObjectFactory(TaskIdMapper taskIdMapper, UserIdMapper userIdMapper, TitleMapper titleMapper, DescriptionMapper descriptionMapper,
-            StartDateMapper startDateMapper, EndDateMapper endDateMapper) {
-
-        this.taskIdMapper = taskIdMapper;
-        this.userIdMapper = userIdMapper;
-        this.titleMapper = titleMapper;
-        this.descriptionMapper = descriptionMapper;
-        this.startDateMapper = startDateMapper;
-        this.endDateMapper = endDateMapper;
-    }
-
     /**
      * Creates a domain {@link Task} from a database {@link JdbcTaskEntity} entity.
      * <p>

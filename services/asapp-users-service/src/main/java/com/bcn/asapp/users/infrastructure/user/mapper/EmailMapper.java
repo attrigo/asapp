@@ -30,14 +30,6 @@ import com.bcn.asapp.users.domain.user.Email;
 public interface EmailMapper {
 
     /**
-     * Maps a {@link String} email value to a {@link Email} value object.
-     *
-     * @param email the email value
-     * @return the {@link Email}
-     */
-    Email toEmail(String email);
-
-    /**
      * Maps a {@link Email} value object to a {@link String} email value.
      *
      * @param email the {@link Email}

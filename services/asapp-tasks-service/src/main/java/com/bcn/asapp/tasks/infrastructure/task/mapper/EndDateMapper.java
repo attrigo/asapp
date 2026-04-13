@@ -32,14 +32,6 @@ import com.bcn.asapp.tasks.domain.task.EndDate;
 public interface EndDateMapper {
 
     /**
-     * Maps a {@link Instant} end date value to an {@link EndDate} value object.
-     *
-     * @param endDate the end date instant value
-     * @return the {@link EndDate}
-     */
-    EndDate toEndDate(Instant endDate);
-
-    /**
      * Maps a {@link EndDate} value object to a {@link Instant} end date value.
      *
      * @param endDate date the {@link EndDate}

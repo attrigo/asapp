@@ -232,6 +232,7 @@
 
 ### Tech
 
+* [ ] Refactor `JwtIssuer` and `EncodedTokenFactory` algorithm selection to use primitive type patterns in `switch` once primitive patterns are no longer preview in Java
 * [ ] Add AOP/Native support
 * [ ] Add Graceful shutdown
 * [ ] Improve Docker volumes definition and usage

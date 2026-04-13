@@ -30,14 +30,6 @@ import com.bcn.asapp.authentication.domain.user.Username;
 public interface UsernameMapper {
 
     /**
-     * Maps a {@link String} username value to a {@link Username} value object.
-     *
-     * @param username the username value
-     * @return the {@link Username}
-     */
-    Username toUsername(String username);
-
-    /**
      * Maps a {@link Username} value object to a {@link String} username value.
      *
      * @param username the {@link Username}

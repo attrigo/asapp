@@ -127,11 +127,10 @@ public class SecurityConfiguration {
      *
      * @param http the {@link HttpSecurity} object used to configure HTTP security
      * @return the configured {@link SecurityFilterChain}
-     * @throws Exception if an error occurs during configuration
      */
     @Bean
     @Order(1)
-    DefaultSecurityFilterChain apiFilterChain(HttpSecurity http) throws Exception {
+    DefaultSecurityFilterChain apiFilterChain(HttpSecurity http) {
         http.csrf(AbstractHttpConfigurer::disable);
         http.securityMatcher(API_MATCHER)
             .authorizeHttpRequests(auth -> {
@@ -163,11 +162,10 @@ public class SecurityConfiguration {
      *
      * @param http the {@link HttpSecurity} object used to configure HTTP security
      * @return the configured {@link SecurityFilterChain}
-     * @throws Exception if an error occurs during configuration
      */
     @Bean
     @Order(2)
-    DefaultSecurityFilterChain actuatorFilterChain(HttpSecurity http) throws Exception {
+    DefaultSecurityFilterChain actuatorFilterChain(HttpSecurity http) {
         http.csrf(AbstractHttpConfigurer::disable);
         http.cors(AbstractHttpConfigurer::disable);
         http.securityMatcher(EndpointRequest.toAnyEndpoint())
@@ -198,11 +196,10 @@ public class SecurityConfiguration {
      *
      * @param http the {@link HttpSecurity} object used to configure HTTP security.
      * @return the configured {@link SecurityFilterChain}.
-     * @throws Exception if an error occurs during configuration.
      */
     @Bean
     @Order(3)
-    DefaultSecurityFilterChain rootFilterChain(HttpSecurity http) throws Exception {
+    DefaultSecurityFilterChain rootFilterChain(HttpSecurity http) {
         http.csrf(AbstractHttpConfigurer::disable);
         http.securityMatcher(ROOT_MATCHER)
             .authorizeHttpRequests(auth -> {
@@ -228,10 +225,9 @@ public class SecurityConfiguration {
      *
      * @param authenticationConfiguration the configuration used to build the authentication manager
      * @return the {@link AuthenticationManager}
-     * @throws Exception if an error occurs during configuration
      */
     @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) {
         return authenticationConfiguration.getAuthenticationManager();
     }
 

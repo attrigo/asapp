@@ -110,7 +110,7 @@ class JdbcConversionsConfigurationTests {
         }
 
         @Test
-        void ThrowsIllegalArgumentException_SerializationFails() throws Exception {
+        void ThrowsIllegalArgumentException_SerializationFails() {
             // Given
             var converter = new JdbcConversionsConfiguration.ClaimsWritingConverter(objectMapper);
             var claimsEntity = new JdbcJwtClaimsEntity(Map.of("sub", "user@asapp.com"));

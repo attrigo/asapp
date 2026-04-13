@@ -61,7 +61,7 @@ class JacksonConfigurationIT {
     class SerializeEntityToJson {
 
         @Test
-        void ReturnsJsonWithoutNullValues_EntityWithNullValues() throws Exception {
+        void ReturnsJsonWithoutNullValues_EntityWithNullValues() {
             // Given
             var uuid = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
             var testEntity = new TestEntity(uuid, "Test", null);
@@ -76,7 +76,7 @@ class JacksonConfigurationIT {
         }
 
         @Test
-        void ReturnsJsonWithEmptyList_EntityWithEmptyList() throws Exception {
+        void ReturnsJsonWithEmptyList_EntityWithEmptyList() {
             // Given
             var uuid = UUID.fromString("f47ac10b-58cc-4372-a567-0e02b2c3d479");
             var testEntity = new TestEntity(uuid, "Test", Collections.emptyList());
@@ -92,7 +92,7 @@ class JacksonConfigurationIT {
         }
 
         @Test
-        void ReturnsJsonDatesInISO8601Format_EntityWithDates() throws Exception {
+        void ReturnsJsonDatesInISO8601Format_EntityWithDates() {
             // Given
             var localDate = LocalDate.of(2024, 6, 15);
             var localDateTime = LocalDateTime.of(2024, 6, 15, 14, 23, 40);

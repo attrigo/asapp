@@ -32,14 +32,6 @@ import com.bcn.asapp.tasks.domain.task.TaskId;
 public interface TaskIdMapper {
 
     /**
-     * Maps a {@link UUID} to a {@link TaskId} value object.
-     *
-     * @param id the {@link UUID}
-     * @return the {@link TaskId}
-     */
-    TaskId toTaskId(UUID id);
-
-    /**
      * Maps a {@link TaskId} value object to a {@link UUID}.
      *
      * @param taskId the {@link TaskId}

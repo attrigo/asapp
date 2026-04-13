@@ -30,14 +30,6 @@ import com.bcn.asapp.users.domain.user.PhoneNumber;
 public interface PhoneNumberMapper {
 
     /**
-     * Maps a {@link String} phone number value to a {@link PhoneNumber} value object.
-     *
-     * @param phoneNumber the phone number value
-     * @return the {@link PhoneNumber}
-     */
-    PhoneNumber toPhoneNumber(String phoneNumber);
-
-    /**
      * Maps a {@link PhoneNumber} value object to a {@link String} phone number value.
      *
      * @param phoneNumber the {@link PhoneNumber}

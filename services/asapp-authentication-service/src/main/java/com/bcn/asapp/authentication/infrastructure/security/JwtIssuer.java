@@ -224,13 +224,14 @@ public class JwtIssuer implements TokenIssuer {
      * @return the {@link JWSAlgorithm} to use for signing
      */
     private JWSAlgorithm selectAlgorithm() {
-        // TODO: Refactor to primitive type pattern (Require Java 23+)
-        Integer bitLength = macSigner.getSecret().length * 8;
-        return switch (bitLength) {
-        case Integer length when length >= 512 -> JWSAlgorithm.HS512;
-        case Integer length when length >= 384 -> JWSAlgorithm.HS384;
-        default -> JWSAlgorithm.HS256;
-        };
+        int bitLength = macSigner.getSecret().length * 8;
+        if (bitLength >= 512) {
+            return JWSAlgorithm.HS512;
+        }
+        if (bitLength >= 384) {
+            return JWSAlgorithm.HS384;
+        }
+        return JWSAlgorithm.HS256;
     }
 
 }

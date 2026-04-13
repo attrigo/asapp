@@ -42,7 +42,7 @@ import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserEnti
  * @since 0.2.0
  * @author attrigo
  */
-@Mapper(componentModel = "spring", uses = { UserObjectFactory.class, UserIdMapper.class, UsernameMapper.class, EncodedPasswordMapper.class, RoleMapper.class })
+@Mapper(componentModel = "spring", uses = { UserObjectFactory.class, UserIdMapper.class, UsernameMapper.class, EncodedPasswordMapper.class })
 public interface UserMapper {
 
     /**
