@@ -1,0 +1,31 @@
+{
+  "properties": [
+    {
+      "name": "asapp.security.jwt-secret",
+      "type": "java.lang.String",
+      "description": "Base64-encoded secret key for JWT signing and verification."
+    },
+    {
+      "name": "asapp.security.access-token.expiration-time",
+      "type": "java.lang.Long",
+      "description": "Access token expiration time in milliseconds."
+    },
+    {
+      "name": "asapp.security.refresh-token.expiration-time",
+      "type": "java.lang.Long",
+      "description": "Refresh token expiration time in milliseconds."
+    },
+    {
+      "name": "asapp.security.jwt.cleanup.enabled",
+      "type": "java.lang.Boolean",
+      "description": "Enables the JWT cleanup scheduled task.",
+      "defaultValue": true
+    },
+    {
+      "name": "asapp.security.jwt.cleanup.cron-expression",
+      "type": "java.lang.String",
+      "description": "Cron expression for the JWT cleanup scheduled task.",
+      "defaultValue": "0 0 2 * * ?"
+    }
+  ]
+}
