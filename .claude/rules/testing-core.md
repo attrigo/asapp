@@ -94,7 +94,7 @@ Suffixes: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-
 - Given block: create all test data before configuring mocks that depend on it
 - Order Given block variables by where they are consumed: When variables first, stub-only second, assertion-only last
 - Expected values involving computation or transformation (`.of()`, `.value()`, `.fromString()`) MUST be prepared in Given block, not Then block
-- Inline single-use assertion values directly in the assertion. Extract to a variable only when used in multiple places, the expression is complex, or a descriptive name adds clarity
+- Inline values used in only one place (Given or Then blocks). Declare a named variable in Given block only when referenced in multiple places, the construction is non-trivial, or a descriptive name adds clarity.
 
 ### 2.3 Assertion Patterns
 

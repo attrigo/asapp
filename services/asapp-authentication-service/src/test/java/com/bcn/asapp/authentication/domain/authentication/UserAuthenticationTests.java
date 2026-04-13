@@ -118,10 +118,9 @@ class UserAuthenticationTests {
             // Given
             var userId = UserId.of(UUID.fromString("7f3d8e2a-91c4-4b6f-a8d2-5e9f1c3b7a4d"));
             var username = Username.of("user@asapp.com");
-            var role = USER;
 
             // When
-            var actual = catchThrowable(() -> new UserAuthentication(userId, username, null, role, false));
+            var actual = catchThrowable(() -> new UserAuthentication(userId, username, null, USER, false));
 
             // Then
             assertThat(actual).isInstanceOf(IllegalArgumentException.class)
@@ -133,10 +132,9 @@ class UserAuthenticationTests {
             // Given
             var userId = UserId.of(UUID.fromString("7f3d8e2a-91c4-4b6f-a8d2-5e9f1c3b7a4d"));
             var password = RawPassword.of("TEST@09_password?!");
-            var role = USER;
 
             // When
-            var actual = catchThrowable(() -> new UserAuthentication(userId, null, password, role, false));
+            var actual = catchThrowable(() -> new UserAuthentication(userId, null, password, USER, false));
 
             // Then
             assertThat(actual).isInstanceOf(IllegalArgumentException.class)
@@ -198,10 +196,9 @@ class UserAuthenticationTests {
             // Given
             var username = Username.of("user@asapp.com");
             var password = RawPassword.of("TEST@09_password?!");
-            var role = USER;
 
             // When
-            var actual = catchThrowable(() -> new UserAuthentication(null, username, password, role, true));
+            var actual = catchThrowable(() -> new UserAuthentication(null, username, password, USER, true));
 
             // Then
             assertThat(actual).isInstanceOf(IllegalArgumentException.class)
@@ -228,10 +225,9 @@ class UserAuthenticationTests {
             // Given
             var userId = UserId.of(UUID.fromString("7f3d8e2a-91c4-4b6f-a8d2-5e9f1c3b7a4d"));
             var password = RawPassword.of("TEST@09_password?!");
-            var role = USER;
 
             // When
-            var actual = catchThrowable(() -> new UserAuthentication(userId, null, password, role, true));
+            var actual = catchThrowable(() -> new UserAuthentication(userId, null, password, USER, true));
 
             // Then
             assertThat(actual).isInstanceOf(IllegalArgumentException.class)
@@ -321,10 +317,9 @@ class UserAuthenticationTests {
         void ThrowsIllegalArgumentException_NullId() {
             // Given
             var username = Username.of("user@asapp.com");
-            var role = USER;
 
             // When
-            var actual = catchThrowable(() -> UserAuthentication.authenticated(null, username, role));
+            var actual = catchThrowable(() -> UserAuthentication.authenticated(null, username, USER));
 
             // Then
             assertThat(actual).isInstanceOf(IllegalArgumentException.class)
@@ -349,10 +344,9 @@ class UserAuthenticationTests {
         void ThrowsIllegalArgumentException_NullUsername() {
             // Given
             var userId = UserId.of(UUID.fromString("7f3d8e2a-91c4-4b6f-a8d2-5e9f1c3b7a4d"));
-            var role = USER;
 
             // When
-            var actual = catchThrowable(() -> UserAuthentication.authenticated(userId, null, role));
+            var actual = catchThrowable(() -> UserAuthentication.authenticated(userId, null, USER));
 
             // Then
             assertThat(actual).isInstanceOf(IllegalArgumentException.class)

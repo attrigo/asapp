@@ -94,7 +94,7 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 class UserE2EIT {
 
     @Container
-    static MockServerContainer mockServerContainer = new MockServerContainer(DockerImageName.parse("mockserver/mockserver:5.15.0"));
+    static final MockServerContainer mockServerContainer = new MockServerContainer(DockerImageName.parse("mockserver/mockserver:5.15.0"));
 
     static MockServerClient mockServerClient;
 
