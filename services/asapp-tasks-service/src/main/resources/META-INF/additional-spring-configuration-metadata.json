@@ -1,0 +1,9 @@
+{
+  "properties": [
+    {
+      "name": "asapp.security.jwt-secret",
+      "type": "java.lang.String",
+      "description": "Base64-encoded secret key for JWT signing and verification."
+    }
+  ]
+}
