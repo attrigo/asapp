@@ -19,7 +19,10 @@ package com.bcn.asapp.authentication.infrastructure.user.mapper;
 import org.mapstruct.ObjectFactory;
 import org.springframework.stereotype.Component;
 
+import com.bcn.asapp.authentication.domain.user.Role;
 import com.bcn.asapp.authentication.domain.user.User;
+import com.bcn.asapp.authentication.domain.user.UserId;
+import com.bcn.asapp.authentication.domain.user.Username;
 import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserEntity;
 
 /**
@@ -33,25 +36,6 @@ import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserEnti
 @Component
 public class UserObjectFactory {
 
-    private final UserIdMapper userIdMapper;
-
-    private final UsernameMapper usernameMapper;
-
-    private final RoleMapper roleMapper;
-
-    /**
-     * Constructs a new {@code UserObjectFactory} with required mappers.
-     *
-     * @param userIdMapper   the mapper for user IDs
-     * @param usernameMapper the mapper for usernames
-     * @param roleMapper     the mapper for roles
-     */
-    public UserObjectFactory(UserIdMapper userIdMapper, UsernameMapper usernameMapper, RoleMapper roleMapper) {
-        this.userIdMapper = userIdMapper;
-        this.usernameMapper = usernameMapper;
-        this.roleMapper = roleMapper;
-    }
-
     /**
      * Creates a domain {@link User} from a database {@link JdbcUserEntity} entity.
      * <p>
@@ -62,9 +46,9 @@ public class UserObjectFactory {
      */
     @ObjectFactory
     public User toUser(JdbcUserEntity source) {
-        var userId = userIdMapper.toUserId(source.id());
-        var username = usernameMapper.toUsername(source.username());
-        var role = roleMapper.toRole(source.role());
+        var userId = UserId.of(source.id());
+        var username = Username.of(source.username());
+        var role = Role.valueOf(source.role());
 
         return User.activeUser(userId, username, role);
     }

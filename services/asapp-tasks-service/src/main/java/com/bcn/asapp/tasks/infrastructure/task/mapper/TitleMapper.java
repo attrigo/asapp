@@ -30,14 +30,6 @@ import com.bcn.asapp.tasks.domain.task.Title;
 public interface TitleMapper {
 
     /**
-     * Maps a {@link String} title value to a {@link Title} value object.
-     *
-     * @param title the title value
-     * @return the {@link Title}
-     */
-    Title toTitle(String title);
-
-    /**
      * Maps a {@link Title} value object to a {@link String} title value.
      *
      * @param title the {@link Title}

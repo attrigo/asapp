@@ -32,14 +32,6 @@ import com.bcn.asapp.tasks.domain.task.StartDate;
 public interface StartDateMapper {
 
     /**
-     * Maps a {@link Instant} start date value to an {@link StartDate} value object.
-     *
-     * @param startDate the start date instant value
-     * @return the {@link StartDate}
-     */
-    StartDate toStartDate(Instant startDate);
-
-    /**
      * Maps a {@link StartDate} value object to a {@link Instant} start date value.
      *
      * @param startDate date the {@link StartDate}

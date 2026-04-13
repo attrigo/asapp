@@ -19,7 +19,12 @@ package com.bcn.asapp.users.infrastructure.user.mapper;
 import org.mapstruct.ObjectFactory;
 import org.springframework.stereotype.Component;
 
+import com.bcn.asapp.users.domain.user.Email;
+import com.bcn.asapp.users.domain.user.FirstName;
+import com.bcn.asapp.users.domain.user.LastName;
+import com.bcn.asapp.users.domain.user.PhoneNumber;
 import com.bcn.asapp.users.domain.user.User;
+import com.bcn.asapp.users.domain.user.UserId;
 import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserEntity;
 
 /**
@@ -33,35 +38,6 @@ import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserEntity;
 @Component
 public class UserObjectFactory {
 
-    private final UserIdMapper userIdMapper;
-
-    private final FirstNameMapper firstNameMapper;
-
-    private final LastNameMapper lastNameMapper;
-
-    private final EmailMapper emailMapper;
-
-    private final PhoneNumberMapper phoneNumberMapper;
-
-    /**
-     * Constructs a new {@code UserObjectFactory} with required mappers.
-     *
-     * @param userIdMapper      the mapper for user IDs
-     * @param firstNameMapper   the mapper for first names
-     * @param lastNameMapper    the mapper for last names
-     * @param emailMapper       the mapper for emails
-     * @param phoneNumberMapper the mapper for phone numbers
-     */
-    public UserObjectFactory(UserIdMapper userIdMapper, FirstNameMapper firstNameMapper, LastNameMapper lastNameMapper, EmailMapper emailMapper,
-            PhoneNumberMapper phoneNumberMapper) {
-
-        this.userIdMapper = userIdMapper;
-        this.firstNameMapper = firstNameMapper;
-        this.lastNameMapper = lastNameMapper;
-        this.emailMapper = emailMapper;
-        this.phoneNumberMapper = phoneNumberMapper;
-    }
-
     /**
      * Creates a domain {@link User} from a database {@link JdbcUserEntity} entity.
      * <p>
@@ -72,11 +48,11 @@ public class UserObjectFactory {
      */
     @ObjectFactory
     public User toUser(JdbcUserEntity source) {
-        var userId = userIdMapper.toUserId(source.id());
-        var firstName = firstNameMapper.toFirstName(source.firstName());
-        var lastName = lastNameMapper.toLastName(source.lastName());
-        var email = emailMapper.toEmail(source.email());
-        var phoneNumber = phoneNumberMapper.toPhoneNumber(source.phoneNumber());
+        var userId = UserId.of(source.id());
+        var firstName = FirstName.of(source.firstName());
+        var lastName = LastName.of(source.lastName());
+        var email = Email.of(source.email());
+        var phoneNumber = PhoneNumber.of(source.phoneNumber());
 
         return User.reconstitute(userId, firstName, lastName, email, phoneNumber);
     }

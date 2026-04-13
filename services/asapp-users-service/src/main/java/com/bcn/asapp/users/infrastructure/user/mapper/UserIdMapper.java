@@ -32,14 +32,6 @@ import com.bcn.asapp.users.domain.user.UserId;
 public interface UserIdMapper {
 
     /**
-     * Maps a {@link UUID} to a {@link UserId} value object.
-     *
-     * @param id the {@link UUID}
-     * @return the {@link UserId}
-     */
-    UserId toUserId(UUID id);
-
-    /**
      * Maps a {@link UserId} value object to a {@link UUID}.
      *
      * @param userId the {@link UserId}

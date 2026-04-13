@@ -30,14 +30,6 @@ import com.bcn.asapp.tasks.domain.task.Description;
 public interface DescriptionMapper {
 
     /**
-     * Maps a {@link String} description value to a {@link Description} value object.
-     *
-     * @param description the description value
-     * @return the {@link Description}
-     */
-    Description toDescription(String description);
-
-    /**
      * Maps a {@link Description} value object to a {@link String} description value.
      *
      * @param description the {@link Description}

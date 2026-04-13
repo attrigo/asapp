@@ -30,14 +30,6 @@ import com.bcn.asapp.users.domain.user.FirstName;
 public interface FirstNameMapper {
 
     /**
-     * Maps a {@link String} first name value to a {@link FirstName} value object.
-     *
-     * @param firstName the first name value
-     * @return the {@link FirstName}
-     */
-    FirstName toFirstName(String firstName);
-
-    /**
      * Maps a {@link FirstName} value object to a {@link String} first name value.
      *
      * @param firstName the {@link FirstName}

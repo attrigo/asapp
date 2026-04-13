@@ -30,14 +30,6 @@ import com.bcn.asapp.users.domain.user.LastName;
 public interface LastNameMapper {
 
     /**
-     * Maps a {@link String} last name value to a {@link LastName} value object.
-     *
-     * @param lastName the last name value
-     * @return the {@link LastName}
-     */
-    LastName toLastName(String lastName);
-
-    /**
      * Maps a {@link LastName} value object to a {@link String} last name value.
      *
      * @param lastName the {@link LastName}

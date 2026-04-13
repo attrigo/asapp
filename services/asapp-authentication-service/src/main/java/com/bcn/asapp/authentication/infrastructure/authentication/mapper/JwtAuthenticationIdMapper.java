@@ -32,14 +32,6 @@ import com.bcn.asapp.authentication.domain.authentication.JwtAuthenticationId;
 public interface JwtAuthenticationIdMapper {
 
     /**
-     * Maps a {@link UUID} to a {@link JwtAuthenticationId} value object.
-     *
-     * @param id the {@link UUID}
-     * @return the {@link JwtAuthenticationId}
-     */
-    JwtAuthenticationId toJwtAuthenticationId(UUID id);
-
-    /**
      * Maps a {@link JwtAuthenticationId} value object to a {@link UUID}.
      *
      * @param id the {@link JwtAuthenticationId}
