@@ -68,10 +68,9 @@ class UserTests {
         void ThrowsIllegalArgumentException_NullUsername() {
             // Given
             var password = EncodedPassword.of("{noop}password");
-            var role = USER;
 
             // When
-            var actual = catchThrowable(() -> User.inactiveUser(null, password, role));
+            var actual = catchThrowable(() -> User.inactiveUser(null, password, USER));
 
             // Then
             assertThat(actual).isInstanceOf(IllegalArgumentException.class)
@@ -82,10 +81,9 @@ class UserTests {
         void ThrowsIllegalArgumentException_NullPassword() {
             // Given
             var username = Username.of("user@asapp.com");
-            var role = USER;
 
             // When
-            var actual = catchThrowable(() -> User.inactiveUser(username, null, role));
+            var actual = catchThrowable(() -> User.inactiveUser(username, null, USER));
 
             // Then
             assertThat(actual).isInstanceOf(IllegalArgumentException.class)
@@ -136,10 +134,9 @@ class UserTests {
         void ThrowsIllegalArgumentException_NullId() {
             // Given
             var username = Username.of("user@asapp.com");
-            var role = USER;
 
             // When
-            var actual = catchThrowable(() -> User.activeUser(null, username, role));
+            var actual = catchThrowable(() -> User.activeUser(null, username, USER));
 
             // Then
             assertThat(actual).isInstanceOf(IllegalArgumentException.class)
@@ -150,10 +147,9 @@ class UserTests {
         void ThrowsIllegalArgumentException_NullUsername() {
             // Given
             var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
-            var role = USER;
 
             // When
-            var actual = catchThrowable(() -> User.activeUser(userId, null, role));
+            var actual = catchThrowable(() -> User.activeUser(userId, null, USER));
 
             // Then
             assertThat(actual).isInstanceOf(IllegalArgumentException.class)
@@ -261,10 +257,9 @@ class UserTests {
             var user = User.inactiveUser(username, password, USER);
 
             var newPassword = EncodedPassword.of("{noop}new_password");
-            var newRole = ADMIN;
 
             // When
-            var actual = catchThrowable(() -> user.update(null, newPassword, newRole));
+            var actual = catchThrowable(() -> user.update(null, newPassword, ADMIN));
 
             // Then
             assertThat(actual).isInstanceOf(IllegalArgumentException.class)
@@ -297,10 +292,9 @@ class UserTests {
             var user = User.activeUser(userId, username, USER);
 
             var newPassword = EncodedPassword.of("{noop}new_password");
-            var newRole = ADMIN;
 
             // When
-            var actual = catchThrowable(() -> user.update(null, newPassword, newRole));
+            var actual = catchThrowable(() -> user.update(null, newPassword, ADMIN));
 
             // Then
             assertThat(actual).isInstanceOf(IllegalArgumentException.class)
@@ -333,10 +327,9 @@ class UserTests {
             var user = User.activeUser(userId, username, USER);
 
             var newUsername = Username.of("new_user@asapp.com");
-            var newRole = ADMIN;
 
             // When
-            var actual = catchThrowable(() -> user.update(newUsername, null, newRole));
+            var actual = catchThrowable(() -> user.update(newUsername, null, ADMIN));
 
             // Then
             assertThat(actual).isInstanceOf(IllegalArgumentException.class)

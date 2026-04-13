@@ -35,7 +35,6 @@ import org.springframework.dao.DataRetrievalFailureException;
 
 import com.bcn.asapp.authentication.application.user.UserPersistenceException;
 import com.bcn.asapp.authentication.domain.user.UserId;
-import com.bcn.asapp.authentication.infrastructure.user.mapper.UserMapper;
 import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserRepository;
 
 /**
@@ -51,9 +50,6 @@ class UserRepositoryAdapterTests {
 
     @Mock
     private JdbcUserRepository userRepository;
-
-    @Mock
-    private UserMapper userMapper;
 
     @InjectMocks
     private UserRepositoryAdapter userRepositoryAdapter;
