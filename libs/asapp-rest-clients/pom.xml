@@ -13,7 +13,6 @@
     </parent>
 
     <artifactId>asapp-rest-clients</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
     <name>asapp-rest-clients</name>
     <description>ASAPP REST clients library</description>
     <packaging>jar</packaging>

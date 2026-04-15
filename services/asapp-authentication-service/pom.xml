@@ -13,7 +13,6 @@
     </parent>
 
     <artifactId>asapp-authentication-service</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
     <name>asapp-authentication-service</name>
     <description>REST service to manage authentication operations</description>
 
