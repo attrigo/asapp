@@ -294,22 +294,22 @@ open target/pit-reports/<timestamp>/index.html
 
 ### User Endpoints
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/users` | Create user profile | ✅ |
-| GET | `/api/users` | Get all users | ✅ |
-| GET | `/api/users/{id}` | Get user by ID (with tasks) | ✅ |
-| PUT | `/api/users/{id}` | Update user profile | ✅ |
-| DELETE | `/api/users/{id}` | Delete user | ✅ |
+| Method | Endpoint          | Description                 | Auth Required |
+|--------|-------------------|-----------------------------|---------------|
+| POST   | `/api/users`      | Create user profile         | ✅             |
+| GET    | `/api/users`      | Get all users               | ✅             |
+| GET    | `/api/users/{id}` | Get user by ID (with tasks) | ✅             |
+| PUT    | `/api/users/{id}` | Update user profile         | ✅             |
+| DELETE | `/api/users/{id}` | Delete user                 | ✅             |
 
 ### Actuator Endpoints (Protected)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/actuator/health` | Health status |
-| GET | `/actuator/prometheus` | Prometheus metrics |
-| GET | `/actuator/metrics` | Available metrics list |
-| GET | `/actuator/info` | Application info |
+| Method | Endpoint               | Description            |
+|--------|------------------------|------------------------|
+| GET    | `/actuator/health`     | Health status          |
+| GET    | `/actuator/prometheus` | Prometheus metrics     |
+| GET    | `/actuator/metrics`    | Available metrics list |
+| GET    | `/actuator/info`       | Application info       |
 
 **Actuator Port**: `8092` (separate from application port `8082`)
 

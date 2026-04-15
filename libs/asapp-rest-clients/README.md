@@ -119,7 +119,7 @@ private RestClient.Builder restClientBuilder;
 public void makeHttpCall() {
     var response = restClientBuilder.build()
                                     .get()
-                                    .uri("http://example.com/api/data")
+                                    .uri("https://example.com/api/data")
                                     .retrieve()
                                     .body(String.class);
 }
