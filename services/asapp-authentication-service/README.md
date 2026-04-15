@@ -331,30 +331,30 @@ open target/pit-reports/<timestamp>/index.html
 
 ### Authentication Endpoints (Public)
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/auth/token` | Authenticate user | ❌ |
-| POST | `/api/auth/refresh` | Refresh tokens | ❌ |
-| POST | `/api/auth/revoke` | Revoke tokens | ✅ |
+| Method | Endpoint            | Description       | Auth Required |
+|--------|---------------------|-------------------|---------------|
+| POST   | `/api/auth/token`   | Authenticate user | ❌             |
+| POST   | `/api/auth/refresh` | Refresh tokens    | ❌             |
+| POST   | `/api/auth/revoke`  | Revoke tokens     | ✅             |
 
 ### User Management Endpoints (Protected)
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/users` | Create user | ❌ |
-| GET | `/api/users` | Get all users | ✅ |
-| GET | `/api/users/{id}` | Get user by ID | ✅ |
-| PUT | `/api/users/{id}` | Update user | ✅ |
-| DELETE | `/api/users/{id}` | Delete user | ✅ |
+| Method | Endpoint          | Description    | Auth Required |
+|--------|-------------------|----------------|---------------|
+| POST   | `/api/users`      | Create user    | ❌             |
+| GET    | `/api/users`      | Get all users  | ✅             |
+| GET    | `/api/users/{id}` | Get user by ID | ✅             |
+| PUT    | `/api/users/{id}` | Update user    | ✅             |
+| DELETE | `/api/users/{id}` | Delete user    | ✅             |
 
 ### Actuator Endpoints (Protected)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/actuator/health` | Health status |
-| GET | `/actuator/prometheus` | Prometheus metrics |
-| GET | `/actuator/metrics` | Available metrics list |
-| GET | `/actuator/info` | Application info |
+| Method | Endpoint                | Description            |
+|--------|-------------------------|------------------------|
+| GET    | `/actuator/health`      | Health status          |
+| GET    | `/actuator/prometheus`  | Prometheus metrics     |
+| GET    | `/actuator/metrics`     | Available metrics list |
+| GET    | `/actuator/info`        | Application info       |
 
 **Actuator Port**: `8090` (separate from application port `8080`)
 

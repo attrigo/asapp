@@ -5,7 +5,7 @@
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
 *
-*     http://www.apache.org/licenses/LICENSE-2.0
+*     https://www.apache.org/licenses/LICENSE-2.0
 *
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
@@ -35,15 +35,17 @@ import io.micrometer.common.util.StringUtils;
  * fresh, preventing any shared mutable state.
  * <p>
  * <b>Usage Example:</b>
- *
+ * 
  * <pre>
- *
+ * {@code
+ * 
  * UriHandler handler = new DefaultUriHandler("http://localhost:8080/api");
  *
  * URI uri = handler.newInstance()
  *                  .path("/users/{id}")
  *                  .build("123");
  * // Results in: http://localhost:8080/api/users/123
+ * }
  * </pre>
  *
  * @since 0.1.0
@@ -88,34 +90,6 @@ public class DefaultUriHandler implements UriHandler {
      * <p>
      * The returned builder delegates to Spring's {@link UriComponentsBuilder}, providing full support for URI templates, path expansion, query parameters, and
      * URI encoding.
-     * <p>
-     * <b>Example Usage:</b>
-     *
-     * <pre>
-     *
-     * // Simple path appending
-     * URI uri1 = handler.newInstance()
-     *                   .path("/users")
-     *                   .build();
-     * // Result: http://localhost:8080/api/users
-     *
-     * // Path variables and query parameters
-     * URI uri2 = handler.newInstance()
-     *                   .path("/users/{id}")
-     *                   .queryParam("format", "json")
-     *                   .build("123");
-     * // Result: http://localhost:8080/api/users/123?format=json
-     *
-     * // Concurrent usage (safe)
-     * CompletableFuture&lt;URI&gt; future1 = CompletableFuture.supplyAsync(() -&gt; handler.newInstance()
-     *                                                                             .path("/endpoint1")
-     *                                                                             .build());
-     *
-     * CompletableFuture&lt;URI&gt; future2 = CompletableFuture.supplyAsync(() -&gt; handler.newInstance()
-     *                                                                             .path("/endpoint2")
-     *                                                                             .build());
-     * // Both futures complete safely without interference
-     * </pre>
      *
      * @return a new, independent {@link UriBuilder} initialized with the base URI
      */

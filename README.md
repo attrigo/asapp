@@ -26,11 +26,11 @@ ASAPP (Application for Task Management) is a production-ready microservices appl
 
 ASAPP consists of three independent microservices:
 
-| Service | Port | Purpose | Database | Cache/Store |
-|---------|------|---------|----------|-------------|
+| Service            | Port | Purpose                       | Database         | Cache/Store         |
+|--------------------|------|-------------------------------|------------------|---------------------|
 | **Authentication** | 8080 | User credentials & JWT tokens | authenticationdb | Redis (token store) |
-| **Users** | 8082 | User profile management | usersdb | - |
-| **Tasks** | 8081 | Task CRUD operations | tasksdb | - |
+| **Users**          | 8082 | User profile management       | usersdb          | -                   |
+| **Tasks**          | 8081 | Task CRUD operations          | tasksdb          | -                   |
 
 ### System Architecture
 
@@ -392,13 +392,13 @@ mvn spring-boot:run
 
 ### Accessing Monitoring Tools
 
-| Tool | URL | Credentials | Purpose |
-|------|-----|-------------|---------|
-| **Grafana** | http://localhost:3000 | admin/secret | Metrics visualization |
-| **Prometheus** | http://localhost:9090 | - | Metrics database |
-| **Authentication Actuator** | http://localhost:8090/asapp-authentication-service/actuator | JWT | Health & metrics |
-| **Users Actuator** | http://localhost:8092/asapp-users-service/actuator | JWT | Health & metrics |
-| **Tasks Actuator** | http://localhost:8091/asapp-tasks-service/actuator | JWT | Health & metrics |
+| Tool                         | URL                                                          | Credentials  | Purpose               |
+|------------------------------|--------------------------------------------------------------|--------------|-----------------------|
+| **Grafana**                  | http://localhost:3000                                        | admin/secret | Metrics visualization |
+| **Prometheus**               | http://localhost:9090                                        | -            | Metrics database      |
+| **Authentication Actuator**  | http://localhost:8090/asapp-authentication-service/actuator  | JWT          | Health & metrics      |
+| **Users Actuator**           | http://localhost:8092/asapp-users-service/actuator           | JWT          | Health & metrics      |
+| **Tasks Actuator**           | http://localhost:8091/asapp-tasks-service/actuator           | JWT          | Health & metrics      |
 
 ### Pre-configured Dashboards
 
@@ -687,7 +687,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+    https://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,

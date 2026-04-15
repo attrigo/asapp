@@ -5,7 +5,7 @@
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
 *
-*     http://www.apache.org/licenses/LICENSE-2.0
+*     https://www.apache.org/licenses/LICENSE-2.0
 *
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
@@ -32,36 +32,6 @@ import org.springframework.web.util.UriBuilder;
  * <li>Support thread-safe, stateless URI building in concurrent environments</li>
  * <li>Facilitate testing by allowing easy mocking or test-specific implementations</li>
  * </ul>
- * <p>
- * <b>Typical Usage Pattern:</b>
- *
- * <pre>
- * public class SomeServiceClient {
- *
- *     private final RestClient restClient;
- *
- *     private final UriHandler uriHandler;
- *
- *     public void callService(String param) {
- *         URI uri = uriHandler.newInstance()
- *                             .path("/api/endpoint/{id}")
- *                             .build(param);
- *
- *         restClient.get()
- *                   .uri(uri)
- *                   .retrieve()
- *                   .body(ResponseType.class);
- *     }
- *
- * }
- * </pre>
- * <p>
- * <b>Implementation Notes:</b>
- * <ul>
- * <li>Each call to {@link #newInstance()} should return a fresh builder to avoid shared state issues</li>
- * <li>Implementations are typically created as Spring beans and injected into REST clients</li>
- * <li>The builder should be preconfigured with the target service's base URL</li>
- * </ul>
  *
  * @since 0.1.0
  * @see UriBuilder
@@ -74,22 +44,9 @@ public interface UriHandler {
      * Creates a new instance of {@link UriBuilder}.
      * <p>
      * Each invocation should return a fresh, independent builder instance to ensure thread-safety and prevent unintended state sharing between concurrent
-     * requests. The returned builder is typically preconfigured with a base URI, allowing callers to append paths and parameters as needed.
+     * requests.
      * <p>
-     * Implementations must ensure that each returned builder is a new instance, not a shared singleton, to support concurrent usage without synchronization.
-     * <p>
-     * <b>Example:</b>
-     *
-     * <pre>
-     *
-     * UriHandler handler = new DefaultUriHandler("http://localhost:8080/api");
-     *
-     * URI uri = handler.newInstance()
-     *                  .path("/users/{id}")
-     *                  .queryParam("format", "json")
-     *                  .build("123");
-     * // Results in: http://localhost:8080/api/users/123?format=json
-     * </pre>
+     * The returned builder is typically preconfigured with a base URI, allowing callers to append paths and parameters as needed.
      *
      * @return a new, independent instance of {@link UriBuilder} preconfigured for the target service
      */

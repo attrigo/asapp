@@ -295,23 +295,23 @@ open target/pit-reports/<timestamp>/index.html
 
 ### Task Endpoints (All Protected)
 
-| Method | Endpoint | Description | Auth Required |
-|--------|----------|-------------|---------------|
-| POST | `/api/tasks` | Create task | ✅ |
-| GET | `/api/tasks` | Get all tasks | ✅ |
-| GET | `/api/tasks/{id}` | Get task by ID | ✅ |
-| GET | `/api/tasks/user/{id}` | Get tasks by user ID | ✅ |
-| PUT | `/api/tasks/{id}` | Update task | ✅ |
-| DELETE | `/api/tasks/{id}` | Delete task | ✅ |
+| Method | Endpoint               | Description          | Auth Required |
+|--------|------------------------|----------------------|---------------|
+| POST   | `/api/tasks`           | Create task          | ✅             |
+| GET    | `/api/tasks`           | Get all tasks        | ✅             |
+| GET    | `/api/tasks/{id}`      | Get task by ID       | ✅             |
+| GET    | `/api/tasks/user/{id}` | Get tasks by user ID | ✅             |
+| PUT    | `/api/tasks/{id}`      | Update task          | ✅             |
+| DELETE | `/api/tasks/{id}`      | Delete task          | ✅             |
 
 ### Actuator Endpoints (Protected)
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/actuator/health` | Health status |
-| GET | `/actuator/prometheus` | Prometheus metrics |
-| GET | `/actuator/metrics` | Available metrics list |
-| GET | `/actuator/info` | Application info |
+| Method | Endpoint               | Description            |
+|--------|------------------------|------------------------|
+| GET    | `/actuator/health`     | Health status          |
+| GET    | `/actuator/prometheus` | Prometheus metrics     |
+| GET    | `/actuator/metrics`    | Available metrics list |
+| GET    | `/actuator/info`       | Application info       |
 
 **Actuator Port**: `8091` (separate from application port `8081`)
 
