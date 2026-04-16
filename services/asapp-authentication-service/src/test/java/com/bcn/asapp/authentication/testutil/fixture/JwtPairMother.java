@@ -26,13 +26,13 @@ import com.bcn.asapp.authentication.domain.authentication.JwtPair;
  * pairs and customizable builders.
  * <p>
  * Note: Wither methods accept {@link Jwt} value objects instead of primitives. This is an intentional trade-off where factory composition (delegating to
- * {@link JwtFactory}), avoiding duplication of all JwtFactory builder fields.
+ * {@link JwtMother}), avoiding duplication of all JwtFactory builder fields.
  *
  * @since 0.2.0
  */
-public final class JwtPairFactory {
+public final class JwtPairMother {
 
-    private JwtPairFactory() {}
+    private JwtPairMother() {}
 
     public static JwtPair aJwtPair() {
         return aJwtPairBuilder().build();
@@ -49,8 +49,8 @@ public final class JwtPairFactory {
         private Jwt refreshToken;
 
         Builder() {
-            this.accessToken = JwtFactory.anAccessToken();
-            this.refreshToken = JwtFactory.aRefreshToken();
+            this.accessToken = JwtMother.anAccessToken();
+            this.refreshToken = JwtMother.aRefreshToken();
         }
 
         public Builder withTokens(Jwt accessToken, Jwt refreshToken) {
@@ -70,14 +70,14 @@ public final class JwtPairFactory {
         }
 
         public Builder expired() {
-            this.accessToken = JwtFactory.aJwtBuilder()
-                                         .accessToken()
+            this.accessToken = JwtMother.aJwtBuilder()
+                                        .accessToken()
+                                        .expired()
+                                        .build();
+            this.refreshToken = JwtMother.aJwtBuilder()
+                                         .refreshToken()
                                          .expired()
                                          .build();
-            this.refreshToken = JwtFactory.aJwtBuilder()
-                                          .refreshToken()
-                                          .expired()
-                                          .build();
             return this;
         }
 

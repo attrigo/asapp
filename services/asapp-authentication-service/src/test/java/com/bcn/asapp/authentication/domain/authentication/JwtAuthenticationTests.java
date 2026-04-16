@@ -21,11 +21,11 @@ import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.R
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ROLE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.authentication.domain.user.Role.ADMIN;
-import static com.bcn.asapp.authentication.testutil.fixture.JwtFactory.aJwtBuilder;
-import static com.bcn.asapp.authentication.testutil.fixture.JwtFactory.aRefreshToken;
-import static com.bcn.asapp.authentication.testutil.fixture.JwtFactory.anAccessToken;
-import static com.bcn.asapp.authentication.testutil.fixture.JwtPairFactory.aJwtPair;
-import static com.bcn.asapp.authentication.testutil.fixture.JwtPairFactory.aJwtPairBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtMother.aJwtBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtMother.aRefreshToken;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtMother.anAccessToken;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtPairMother.aJwtPair;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtPairMother.aJwtPairBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;

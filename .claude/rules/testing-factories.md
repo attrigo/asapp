@@ -1,7 +1,7 @@
 ---
 paths:
-  - "**/testutil/**/*Factory.java"
-  - "**/testutil/**/Factory.java"
+  - "**/testutil/**/*Mother.java"
+  - "**/testutil/**/Mother.java"
 ---
 
 # Test Factory Maintenance
@@ -28,7 +28,7 @@ Create a factory when all of these apply:
 
 ### 2.3 Factory Composition
 
-- Complex factories delegate to simpler factories (e.g., `JwtFactory.build()` delegates to `EncodedTokenFactory`) rather than duplicating construction logic
+- Complex factories delegate to simpler factories (e.g., `JwtMother.build()` delegates to `EncodedTokenMother`) rather than duplicating construction logic
 
 ## 3. Naming Conventions
 

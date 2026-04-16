@@ -17,7 +17,7 @@
 package com.bcn.asapp.authentication.application.user.in.service;
 
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
-import static com.bcn.asapp.authentication.testutil.fixture.UserFactory.anActiveUser;
+import static com.bcn.asapp.authentication.testutil.fixture.UserMother.anActiveUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;

@@ -17,9 +17,9 @@
 package com.bcn.asapp.tasks.infrastructure.task;
 
 import static com.bcn.asapp.tasks.infrastructure.security.RedisJwtStore.ACCESS_TOKEN_PREFIX;
-import static com.bcn.asapp.tasks.testutil.fixture.EncodedTokenFactory.encodedAccessToken;
-import static com.bcn.asapp.tasks.testutil.fixture.TaskFactory.aJdbcTask;
-import static com.bcn.asapp.tasks.testutil.fixture.TaskFactory.aTaskBuilder;
+import static com.bcn.asapp.tasks.testutil.fixture.EncodedTokenMother.encodedAccessToken;
+import static com.bcn.asapp.tasks.testutil.fixture.TaskMother.aJdbcTask;
+import static com.bcn.asapp.tasks.testutil.fixture.TaskMother.aTaskBuilder;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_CREATE_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_DELETE_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_ALL_FULL_PATH;

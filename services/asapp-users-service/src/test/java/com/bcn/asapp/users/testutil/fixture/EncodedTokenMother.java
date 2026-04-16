@@ -14,16 +14,16 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.tasks.testutil.fixture;
+package com.bcn.asapp.users.testutil.fixture;
 
-import static com.bcn.asapp.tasks.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
-import static com.bcn.asapp.tasks.infrastructure.security.JwtTypeNames.REFRESH_TOKEN_TYPE;
-import static com.bcn.asapp.tasks.testutil.fixture.TestFactoryConstants.DEFAULT_ACCESS_TOKEN_CLAIMS;
-import static com.bcn.asapp.tasks.testutil.fixture.TestFactoryConstants.DEFAULT_REFRESH_TOKEN_CLAIMS;
-import static com.bcn.asapp.tasks.testutil.fixture.TestFactoryConstants.DEFAULT_SUBJECT;
-import static com.bcn.asapp.tasks.testutil.fixture.TestFactoryConstants.EXPIRATION_TIME_MILLIS;
-import static com.bcn.asapp.tasks.testutil.fixture.TestFactoryConstants.TOKEN_EXPIRED_OFFSET_MILLIS;
-import static com.bcn.asapp.tasks.testutil.fixture.TestFactoryConstants.generateRandomIssueAt;
+import static com.bcn.asapp.users.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
+import static com.bcn.asapp.users.infrastructure.security.JwtTypeNames.REFRESH_TOKEN_TYPE;
+import static com.bcn.asapp.users.testutil.fixture.TestFactoryConstants.DEFAULT_ACCESS_TOKEN_CLAIMS;
+import static com.bcn.asapp.users.testutil.fixture.TestFactoryConstants.DEFAULT_REFRESH_TOKEN_CLAIMS;
+import static com.bcn.asapp.users.testutil.fixture.TestFactoryConstants.DEFAULT_SUBJECT;
+import static com.bcn.asapp.users.testutil.fixture.TestFactoryConstants.EXPIRATION_TIME_MILLIS;
+import static com.bcn.asapp.users.testutil.fixture.TestFactoryConstants.TOKEN_EXPIRED_OFFSET_MILLIS;
+import static com.bcn.asapp.users.testutil.fixture.TestFactoryConstants.generateRandomIssueAt;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -51,13 +51,13 @@ import com.nimbusds.jwt.SignedJWT;
  *
  * @since 0.2.0
  */
-public final class EncodedTokenFactory {
+public final class EncodedTokenMother {
 
     private static final String JWT_SECRET;
 
     static {
-        try (InputStream input = EncodedTokenFactory.class.getClassLoader()
-                                                          .getResourceAsStream("application.properties")) {
+        try (InputStream input = EncodedTokenMother.class.getClassLoader()
+                                                         .getResourceAsStream("application.properties")) {
             if (input == null) {
                 throw new IllegalStateException("application.properties not found in classpath");
             }
@@ -70,7 +70,7 @@ public final class EncodedTokenFactory {
         }
     }
 
-    private EncodedTokenFactory() {}
+    private EncodedTokenMother() {}
 
     public static String encodedAccessToken() {
         return anEncodedTokenBuilder().accessToken()

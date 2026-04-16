@@ -16,8 +16,8 @@
 
 package com.bcn.asapp.authentication.domain.authentication;
 
-import static com.bcn.asapp.authentication.testutil.fixture.JwtFactory.aRefreshToken;
-import static com.bcn.asapp.authentication.testutil.fixture.JwtFactory.anAccessToken;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtMother.aRefreshToken;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtMother.anAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 

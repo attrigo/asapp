@@ -16,8 +16,8 @@
 
 package com.bcn.asapp.tasks.application.task.in.service;
 
-import static com.bcn.asapp.tasks.testutil.fixture.TaskFactory.aTask;
-import static com.bcn.asapp.tasks.testutil.fixture.TaskFactory.aTaskBuilder;
+import static com.bcn.asapp.tasks.testutil.fixture.TaskMother.aTask;
+import static com.bcn.asapp.tasks.testutil.fixture.TaskMother.aTaskBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.BDDMockito.given;

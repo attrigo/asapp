@@ -16,9 +16,9 @@
 
 package com.bcn.asapp.authentication.application.authentication.in.service;
 
-import static com.bcn.asapp.authentication.testutil.fixture.JwtAuthenticationFactory.anAuthenticatedJwtAuthentication;
-import static com.bcn.asapp.authentication.testutil.fixture.JwtFactory.aJwtBuilder;
-import static com.bcn.asapp.authentication.testutil.fixture.UserAuthenticationFactory.anAuthenticatedUser;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtAuthenticationMother.anAuthenticatedJwtAuthentication;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtMother.aJwtBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.UserAuthenticationMother.anAuthenticatedUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;

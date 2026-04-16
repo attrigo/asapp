@@ -153,8 +153,8 @@ Suffixes: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-
 |-----------------------------------|-----------------------------------------------|
 | **Inline Value Objects**          | One-off simple value (userId, username)      |
 | **Extract from Aggregates**       | Need one or two fields from existing object  |
-| **TestFactory Nested Entities**   | Need reusable complex object (JWT, User)     |
-| **TestFactory Aggregates**        | Need full aggregate with related entities    |
+| **Object Mother Nested Entities** | Need reusable complex object (JWT, User)     |
+| **Object Mother Aggregates**      | Need full aggregate with related entities    |
 | **Helper Methods**                | Testing constructor/validation edge cases    |
 
 - Patterns are composable. When extracting from aggregates, create the aggregate itself using the simplest sufficient pattern

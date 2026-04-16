@@ -23,9 +23,9 @@ import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.T
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.ACCESS_TOKEN;
 import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH_TOKEN;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
-import static com.bcn.asapp.authentication.testutil.fixture.JwtFactory.aJwtBuilder;
-import static com.bcn.asapp.authentication.testutil.fixture.JwtFactory.aRefreshToken;
-import static com.bcn.asapp.authentication.testutil.fixture.JwtFactory.anAccessToken;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtMother.aJwtBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtMother.aRefreshToken;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtMother.anAccessToken;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;

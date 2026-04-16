@@ -16,8 +16,8 @@
 
 package com.bcn.asapp.tasks.infrastructure.task.persistence;
 
-import static com.bcn.asapp.tasks.testutil.fixture.TaskFactory.aJdbcTask;
-import static com.bcn.asapp.tasks.testutil.fixture.TaskFactory.aTaskBuilder;
+import static com.bcn.asapp.tasks.testutil.fixture.TaskMother.aJdbcTask;
+import static com.bcn.asapp.tasks.testutil.fixture.TaskMother.aTaskBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;

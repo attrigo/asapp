@@ -17,7 +17,7 @@
 package com.bcn.asapp.tasks.infrastructure.config;
 
 import static com.bcn.asapp.tasks.infrastructure.security.RedisJwtStore.ACCESS_TOKEN_PREFIX;
-import static com.bcn.asapp.tasks.testutil.fixture.EncodedTokenFactory.encodedAccessToken;
+import static com.bcn.asapp.tasks.testutil.fixture.EncodedTokenMother.encodedAccessToken;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
