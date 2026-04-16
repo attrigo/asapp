@@ -98,7 +98,7 @@ public final class User {
      * @return a new {@code User} instance
      * @throws IllegalArgumentException if any parameter is {@code null}
      */
-    public static User create(FirstName firstName, LastName lastName, Email email, PhoneNumber phoneNumber) {
+    static User create(FirstName firstName, LastName lastName, Email email, PhoneNumber phoneNumber) {
         return new User(firstName, lastName, email, phoneNumber);
     }
 
@@ -115,7 +115,7 @@ public final class User {
      * @return a reconstituted {@code User} instance
      * @throws IllegalArgumentException if any parameter is {@code null}
      */
-    public static User reconstitute(UserId id, FirstName firstName, LastName lastName, Email email, PhoneNumber phoneNumber) {
+    static User reconstitute(UserId id, FirstName firstName, LastName lastName, Email email, PhoneNumber phoneNumber) {
         return new User(id, firstName, lastName, email, phoneNumber);
     }
 

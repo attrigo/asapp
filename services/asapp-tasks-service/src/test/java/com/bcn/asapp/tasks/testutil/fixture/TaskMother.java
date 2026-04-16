@@ -26,13 +26,8 @@ import static com.bcn.asapp.tasks.testutil.fixture.TestFactoryConstants.DEFAULT_
 import java.time.Instant;
 import java.util.UUID;
 
-import com.bcn.asapp.tasks.domain.task.Description;
-import com.bcn.asapp.tasks.domain.task.EndDate;
-import com.bcn.asapp.tasks.domain.task.StartDate;
 import com.bcn.asapp.tasks.domain.task.Task;
-import com.bcn.asapp.tasks.domain.task.TaskId;
-import com.bcn.asapp.tasks.domain.task.Title;
-import com.bcn.asapp.tasks.domain.task.UserId;
+import com.bcn.asapp.tasks.domain.task.TaskFactory;
 import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskEntity;
 
 /**
@@ -110,17 +105,10 @@ public final class TaskMother {
         }
 
         public Task build() {
-            var userIdVO = UserId.of(userId);
-            var titleVO = Title.of(title);
-            var descriptionVO = Description.of(description);
-            var startDateVO = StartDate.of(startDate);
-            var endDateVO = EndDate.of(endDate);
-
             if (taskId == null) {
-                return Task.create(userIdVO, titleVO, descriptionVO, startDateVO, endDateVO);
+                return TaskFactory.create(userId, title, description, startDate, endDate);
             } else {
-                var taskIdVO = TaskId.of(taskId);
-                return Task.reconstitute(taskIdVO, userIdVO, titleVO, descriptionVO, startDateVO, endDateVO);
+                return TaskFactory.reconstitute(taskId, userId, title, description, startDate, endDate);
             }
         }
 

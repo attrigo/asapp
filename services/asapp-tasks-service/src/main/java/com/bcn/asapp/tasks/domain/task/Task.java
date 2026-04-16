@@ -101,7 +101,7 @@ public final class Task {
      * @return a new {@code Task} instance
      * @throws IllegalArgumentException if any parameter is {@code null}
      */
-    public static Task create(UserId userId, Title title, Description description, StartDate startDate, EndDate endDate) {
+    static Task create(UserId userId, Title title, Description description, StartDate startDate, EndDate endDate) {
         return new Task(userId, title, description, startDate, endDate);
     }
 
@@ -119,7 +119,7 @@ public final class Task {
      * @return a reconstituted {@code Task} instance
      * @throws IllegalArgumentException if any parameter is {@code null}
      */
-    public static Task reconstitute(TaskId id, UserId userId, Title title, Description description, StartDate startDate, EndDate endDate) {
+    static Task reconstitute(TaskId id, UserId userId, Title title, Description description, StartDate startDate, EndDate endDate) {
         return new Task(id, userId, title, description, startDate, endDate);
     }
 

@@ -19,13 +19,8 @@ package com.bcn.asapp.tasks.infrastructure.task.mapper;
 import org.mapstruct.ObjectFactory;
 import org.springframework.stereotype.Component;
 
-import com.bcn.asapp.tasks.domain.task.Description;
-import com.bcn.asapp.tasks.domain.task.EndDate;
-import com.bcn.asapp.tasks.domain.task.StartDate;
 import com.bcn.asapp.tasks.domain.task.Task;
-import com.bcn.asapp.tasks.domain.task.TaskId;
-import com.bcn.asapp.tasks.domain.task.Title;
-import com.bcn.asapp.tasks.domain.task.UserId;
+import com.bcn.asapp.tasks.domain.task.TaskFactory;
 import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskEntity;
 
 /**
@@ -49,14 +44,7 @@ public class TaskObjectFactory {
      */
     @ObjectFactory
     public Task toTask(JdbcTaskEntity source) {
-        var taskId = TaskId.of(source.id());
-        var userId = UserId.of(source.userId());
-        var title = Title.of(source.title());
-        var description = Description.ofNullable(source.description());
-        var startDate = StartDate.ofNullable(source.startDate());
-        var endDate = EndDate.ofNullable(source.endDate());
-
-        return Task.reconstitute(taskId, userId, title, description, startDate, endDate);
+        return TaskFactory.reconstitute(source.id(), source.userId(), source.title(), source.description(), source.startDate(), source.endDate());
     }
 
 }

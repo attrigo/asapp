@@ -24,12 +24,8 @@ import static com.bcn.asapp.users.testutil.fixture.TestFactoryConstants.DEFAULT_
 
 import java.util.UUID;
 
-import com.bcn.asapp.users.domain.user.Email;
-import com.bcn.asapp.users.domain.user.FirstName;
-import com.bcn.asapp.users.domain.user.LastName;
-import com.bcn.asapp.users.domain.user.PhoneNumber;
 import com.bcn.asapp.users.domain.user.User;
-import com.bcn.asapp.users.domain.user.UserId;
+import com.bcn.asapp.users.domain.user.UserFactory;
 import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserEntity;
 
 /**
@@ -99,16 +95,10 @@ public final class UserMother {
         }
 
         public User build() {
-            var firstNameVO = FirstName.of(firstName);
-            var lastNameVO = LastName.of(lastName);
-            var emailVO = Email.of(email);
-            var phoneNumberVO = PhoneNumber.of(phoneNumber);
-
             if (userId == null) {
-                return User.create(firstNameVO, lastNameVO, emailVO, phoneNumberVO);
+                return UserFactory.create(firstName, lastName, email, phoneNumber);
             } else {
-                var userIdVO = UserId.of(userId);
-                return User.reconstitute(userIdVO, firstNameVO, lastNameVO, emailVO, phoneNumberVO);
+                return UserFactory.reconstitute(userId, firstName, lastName, email, phoneNumber);
             }
         }
 
