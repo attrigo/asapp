@@ -22,21 +22,17 @@ import com.bcn.asapp.users.application.ApplicationService;
 import com.bcn.asapp.users.application.user.in.CreateUserUseCase;
 import com.bcn.asapp.users.application.user.in.command.CreateUserCommand;
 import com.bcn.asapp.users.application.user.out.UserRepository;
-import com.bcn.asapp.users.domain.user.Email;
-import com.bcn.asapp.users.domain.user.FirstName;
-import com.bcn.asapp.users.domain.user.LastName;
-import com.bcn.asapp.users.domain.user.PhoneNumber;
 import com.bcn.asapp.users.domain.user.User;
+import com.bcn.asapp.users.domain.user.UserFactory;
 
 /**
  * Application service responsible for orchestrating user creation operations.
  * <p>
- * Coordinates the user creation workflow including command transformation, domain object creation, and persistence to the repository.
+ * Coordinates the user creation workflow including domain object creation and persistence to the repository.
  * <p>
  * <strong>Orchestration Flow:</strong>
  * <ol>
- * <li>Transforms command parameters into domain value objects</li>
- * <li>Creates {@link User} domain object</li>
+ * <li>Creates {@link User} domain object via {@link UserFactory}</li>
  * <li>Persists user to repository</li>
  * </ol>
  *
@@ -60,7 +56,7 @@ public class CreateUserService implements CreateUserUseCase {
     /**
      * Creates a new user based on the provided command.
      * <p>
-     * Orchestrates the complete user creation workflow: parameter transformation, domain object creation, and persistence.
+     * Orchestrates the complete user creation workflow: domain object creation and persistence.
      *
      * @param command the {@link CreateUserCommand} containing user registration data
      * @return the created {@link User} with a generated persistent ID
@@ -69,27 +65,9 @@ public class CreateUserService implements CreateUserUseCase {
     @Override
     @Transactional
     public User createUser(CreateUserCommand command) {
-        var user = mapCommandToDomain(command);
+        var user = UserFactory.create(command.firstName(), command.lastName(), command.email(), command.phoneNumber());
 
         return persistUser(user);
-    }
-
-    /**
-     * Creates a user domain object from command data.
-     * <p>
-     * Maps command parameters into domain value objects and invokes the user factory method.
-     *
-     * @param command the create user command containing raw data
-     * @return the created {@link User} domain object without persistence ID
-     * @throws IllegalArgumentException if any value object validation fails
-     */
-    private User mapCommandToDomain(CreateUserCommand command) {
-        var firstName = FirstName.of(command.firstName());
-        var lastName = LastName.of(command.lastName());
-        var email = Email.of(command.email());
-        var phoneNumber = PhoneNumber.of(command.phoneNumber());
-
-        return User.create(firstName, lastName, email, phoneNumber);
     }
 
     /**

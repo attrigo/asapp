@@ -19,12 +19,8 @@ package com.bcn.asapp.users.infrastructure.user.mapper;
 import org.mapstruct.ObjectFactory;
 import org.springframework.stereotype.Component;
 
-import com.bcn.asapp.users.domain.user.Email;
-import com.bcn.asapp.users.domain.user.FirstName;
-import com.bcn.asapp.users.domain.user.LastName;
-import com.bcn.asapp.users.domain.user.PhoneNumber;
 import com.bcn.asapp.users.domain.user.User;
-import com.bcn.asapp.users.domain.user.UserId;
+import com.bcn.asapp.users.domain.user.UserFactory;
 import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserEntity;
 
 /**
@@ -48,13 +44,7 @@ public class UserObjectFactory {
      */
     @ObjectFactory
     public User toUser(JdbcUserEntity source) {
-        var userId = UserId.of(source.id());
-        var firstName = FirstName.of(source.firstName());
-        var lastName = LastName.of(source.lastName());
-        var email = Email.of(source.email());
-        var phoneNumber = PhoneNumber.of(source.phoneNumber());
-
-        return User.reconstitute(userId, firstName, lastName, email, phoneNumber);
+        return UserFactory.reconstitute(source.id(), source.firstName(), source.lastName(), source.email(), source.phoneNumber());
     }
 
 }
