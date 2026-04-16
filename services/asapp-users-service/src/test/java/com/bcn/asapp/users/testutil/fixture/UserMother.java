@@ -37,9 +37,9 @@ import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserEntity;
  *
  * @since 0.2.0
  */
-public final class UserFactory {
+public final class UserMother {
 
-    private UserFactory() {}
+    private UserMother() {}
 
     public static User aUser() {
         return aUserBuilder().build();

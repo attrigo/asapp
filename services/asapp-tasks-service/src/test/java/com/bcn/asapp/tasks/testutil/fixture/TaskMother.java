@@ -40,9 +40,9 @@ import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskEntity;
  *
  * @since 0.2.0
  */
-public final class TaskFactory {
+public final class TaskMother {
 
-    private TaskFactory() {}
+    private TaskMother() {}
 
     public static Task aTask() {
         return aTaskBuilder().build();

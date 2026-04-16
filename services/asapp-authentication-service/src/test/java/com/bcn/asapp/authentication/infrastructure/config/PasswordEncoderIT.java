@@ -16,8 +16,8 @@
 
 package com.bcn.asapp.authentication.infrastructure.config;
 
-import static com.bcn.asapp.authentication.testutil.fixture.UserFactory.aJdbcUser;
-import static com.bcn.asapp.authentication.testutil.fixture.UserFactory.aUserBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.UserMother.aJdbcUser;
+import static com.bcn.asapp.authentication.testutil.fixture.UserMother.aUserBuilder;
 import static com.bcn.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_TOKEN_FULL_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
 

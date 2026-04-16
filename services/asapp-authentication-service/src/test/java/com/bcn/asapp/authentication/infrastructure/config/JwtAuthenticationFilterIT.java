@@ -17,9 +17,9 @@
 package com.bcn.asapp.authentication.infrastructure.config;
 
 import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtStore.ACCESS_TOKEN_PREFIX;
-import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenFactory.anEncodedTokenBuilder;
-import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenFactory.encodedAccessToken;
-import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenFactory.encodedRefreshToken;
+import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenMother.anEncodedTokenBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenMother.encodedAccessToken;
+import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenMother.encodedRefreshToken;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.stream.Stream;

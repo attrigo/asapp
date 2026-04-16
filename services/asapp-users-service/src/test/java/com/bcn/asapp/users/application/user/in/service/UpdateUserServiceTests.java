@@ -16,8 +16,8 @@
 
 package com.bcn.asapp.users.application.user.in.service;
 
-import static com.bcn.asapp.users.testutil.fixture.UserFactory.aUser;
-import static com.bcn.asapp.users.testutil.fixture.UserFactory.aUserBuilder;
+import static com.bcn.asapp.users.testutil.fixture.UserMother.aUser;
+import static com.bcn.asapp.users.testutil.fixture.UserMother.aUserBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;

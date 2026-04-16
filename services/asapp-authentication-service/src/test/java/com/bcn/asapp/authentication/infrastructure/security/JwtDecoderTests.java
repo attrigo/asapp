@@ -19,7 +19,7 @@ package com.bcn.asapp.authentication.infrastructure.security;
 import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.ACCESS_TOKEN_TYPE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.REFRESH_TOKEN_TYPE;
 import static com.bcn.asapp.authentication.domain.user.Role.USER;
-import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenFactory.anEncodedTokenBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenMother.anEncodedTokenBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;

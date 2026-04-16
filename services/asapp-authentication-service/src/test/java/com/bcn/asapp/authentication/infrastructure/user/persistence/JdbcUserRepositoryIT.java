@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.authentication.infrastructure.user.persistence;
 
-import static com.bcn.asapp.authentication.testutil.fixture.UserFactory.aJdbcUser;
+import static com.bcn.asapp.authentication.testutil.fixture.UserMother.aJdbcUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.UUID;

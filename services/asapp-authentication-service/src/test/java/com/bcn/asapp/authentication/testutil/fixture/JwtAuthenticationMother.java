@@ -52,9 +52,9 @@ import com.bcn.asapp.authentication.infrastructure.authentication.persistence.Jd
  *
  * @since 0.2.0
  */
-public final class JwtAuthenticationFactory {
+public final class JwtAuthenticationMother {
 
-    private JwtAuthenticationFactory() {}
+    private JwtAuthenticationMother() {}
 
     public static JwtAuthentication anAuthenticatedJwtAuthentication() {
         return aJwtAuthenticationBuilder().build();
@@ -198,13 +198,13 @@ public final class JwtAuthenticationFactory {
 
         // Builders
         public JwtAuthentication build() {
-            atEncodedToken = EncodedTokenFactory.anEncodedTokenBuilder()
-                                                .withType(ACCESS_TOKEN.type())
-                                                .withSubject(atSubject)
-                                                .withClaims(atClaims)
-                                                .withIssuedAt(atIssued)
-                                                .withExpiration(atExpiration)
-                                                .build();
+            atEncodedToken = EncodedTokenMother.anEncodedTokenBuilder()
+                                               .withType(ACCESS_TOKEN.type())
+                                               .withSubject(atSubject)
+                                               .withClaims(atClaims)
+                                               .withIssuedAt(atIssued)
+                                               .withExpiration(atExpiration)
+                                               .build();
             var atEncodedTokenVO = EncodedToken.of(atEncodedToken);
             var atSubjectVO = Subject.of(atSubject);
             var atClaimsVO = JwtClaims.of(atClaims);
@@ -212,13 +212,13 @@ public final class JwtAuthenticationFactory {
             var atExpirationVO = new Expiration(atExpiration);
             var accessTokenVO = Jwt.of(atEncodedTokenVO, ACCESS_TOKEN, atSubjectVO, atClaimsVO, atIssuedVO, atExpirationVO);
 
-            rtEncodedToken = EncodedTokenFactory.anEncodedTokenBuilder()
-                                                .withType(REFRESH_TOKEN.type())
-                                                .withSubject(rtSubject)
-                                                .withClaims(rtClaims)
-                                                .withIssuedAt(rtIssued)
-                                                .withExpiration(rtExpiration)
-                                                .build();
+            rtEncodedToken = EncodedTokenMother.anEncodedTokenBuilder()
+                                               .withType(REFRESH_TOKEN.type())
+                                               .withSubject(rtSubject)
+                                               .withClaims(rtClaims)
+                                               .withIssuedAt(rtIssued)
+                                               .withExpiration(rtExpiration)
+                                               .build();
             var rtEncodedTokenVO = EncodedToken.of(rtEncodedToken);
             var rtSubjectVO = Subject.of(rtSubject);
             var rtClaimsVO = JwtClaims.of(rtClaims);
@@ -238,23 +238,23 @@ public final class JwtAuthenticationFactory {
         }
 
         public JdbcJwtAuthenticationEntity buildJdbc() {
-            atEncodedToken = EncodedTokenFactory.anEncodedTokenBuilder()
-                                                .withType(ACCESS_TOKEN_TYPE)
-                                                .withSubject(atSubject)
-                                                .withClaims(atClaims)
-                                                .withIssuedAt(atIssued)
-                                                .withExpiration(atExpiration)
-                                                .build();
+            atEncodedToken = EncodedTokenMother.anEncodedTokenBuilder()
+                                               .withType(ACCESS_TOKEN_TYPE)
+                                               .withSubject(atSubject)
+                                               .withClaims(atClaims)
+                                               .withIssuedAt(atIssued)
+                                               .withExpiration(atExpiration)
+                                               .build();
             var atClaimsEntity = new JdbcJwtClaimsEntity(atClaims);
             var accessTokenEntity = new JdbcJwtEntity(atEncodedToken, ACCESS_TOKEN_TYPE, atSubject, atClaimsEntity, atIssued, atExpiration);
 
-            rtEncodedToken = EncodedTokenFactory.anEncodedTokenBuilder()
-                                                .withType(REFRESH_TOKEN_TYPE)
-                                                .withSubject(rtSubject)
-                                                .withClaims(rtClaims)
-                                                .withIssuedAt(rtIssued)
-                                                .withExpiration(rtExpiration)
-                                                .build();
+            rtEncodedToken = EncodedTokenMother.anEncodedTokenBuilder()
+                                               .withType(REFRESH_TOKEN_TYPE)
+                                               .withSubject(rtSubject)
+                                               .withClaims(rtClaims)
+                                               .withIssuedAt(rtIssued)
+                                               .withExpiration(rtExpiration)
+                                               .build();
             var rtClaimsEntity = new JdbcJwtClaimsEntity(rtClaims);
             var refreshTokenEntity = new JdbcJwtEntity(rtEncodedToken, REFRESH_TOKEN_TYPE, rtSubject, rtClaimsEntity, rtIssued, rtExpiration);
 

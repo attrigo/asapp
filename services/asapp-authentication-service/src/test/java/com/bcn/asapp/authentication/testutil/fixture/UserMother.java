@@ -38,9 +38,9 @@ import com.bcn.asapp.authentication.infrastructure.user.persistence.JdbcUserEnti
  *
  * @since 0.2.0
  */
-public final class UserFactory {
+public final class UserMother {
 
-    private UserFactory() {}
+    private UserMother() {}
 
     public static User anActiveUser() {
         return aUserBuilder().active()

@@ -44,9 +44,9 @@ import com.bcn.asapp.authentication.domain.authentication.Subject;
  *
  * @since 0.2.0
  */
-public final class JwtFactory {
+public final class JwtMother {
 
-    private JwtFactory() {}
+    private JwtMother() {}
 
     public static Jwt anAccessToken() {
         return aJwtBuilder().accessToken()
@@ -133,13 +133,13 @@ public final class JwtFactory {
 
         public Jwt build() {
             if (encodedToken == null) {
-                encodedToken = EncodedTokenFactory.anEncodedTokenBuilder()
-                                                  .withType(type.type())
-                                                  .withSubject(subject)
-                                                  .withClaims(claims)
-                                                  .withIssuedAt(issued)
-                                                  .withExpiration(expiration)
-                                                  .build();
+                encodedToken = EncodedTokenMother.anEncodedTokenBuilder()
+                                                 .withType(type.type())
+                                                 .withSubject(subject)
+                                                 .withClaims(claims)
+                                                 .withIssuedAt(issued)
+                                                 .withExpiration(expiration)
+                                                 .build();
             }
 
             var encodedTokenVO = EncodedToken.of(encodedToken);

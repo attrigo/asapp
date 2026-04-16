@@ -20,7 +20,7 @@ import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.ACCESS_T
 import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.ROLE;
 import static com.bcn.asapp.tasks.infrastructure.security.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.tasks.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
-import static com.bcn.asapp.tasks.testutil.fixture.EncodedTokenFactory.encodedAccessToken;
+import static com.bcn.asapp.tasks.testutil.fixture.EncodedTokenMother.encodedAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;

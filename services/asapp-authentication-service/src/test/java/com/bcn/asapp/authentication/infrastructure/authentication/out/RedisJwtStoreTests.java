@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.authentication.infrastructure.authentication.out;
 
-import static com.bcn.asapp.authentication.testutil.fixture.JwtPairFactory.aJwtPair;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtPairMother.aJwtPair;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.any;

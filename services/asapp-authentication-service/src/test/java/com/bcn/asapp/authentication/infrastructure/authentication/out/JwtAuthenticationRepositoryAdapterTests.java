@@ -16,8 +16,8 @@
 
 package com.bcn.asapp.authentication.infrastructure.authentication.out;
 
-import static com.bcn.asapp.authentication.testutil.fixture.JwtAuthenticationFactory.aJdbcJwtAuthentication;
-import static com.bcn.asapp.authentication.testutil.fixture.JwtAuthenticationFactory.anAuthenticatedJwtAuthentication;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtAuthenticationMother.aJdbcJwtAuthentication;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtAuthenticationMother.anAuthenticatedJwtAuthentication;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
 import static org.assertj.core.api.Assertions.catchThrowable;

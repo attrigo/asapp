@@ -18,10 +18,10 @@ package com.bcn.asapp.authentication.infrastructure.authentication.persistence;
 
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ROLE;
 import static com.bcn.asapp.authentication.testutil.JwtAssertions.assertThatJwt;
-import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenFactory.encodedAccessToken;
-import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenFactory.encodedRefreshToken;
-import static com.bcn.asapp.authentication.testutil.fixture.JwtAuthenticationFactory.aJwtAuthenticationBuilder;
-import static com.bcn.asapp.authentication.testutil.fixture.UserFactory.aJdbcUser;
+import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenMother.encodedAccessToken;
+import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenMother.encodedRefreshToken;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtAuthenticationMother.aJwtAuthenticationBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.UserMother.aJdbcUser;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Instant;

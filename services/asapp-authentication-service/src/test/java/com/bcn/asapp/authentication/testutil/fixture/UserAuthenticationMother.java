@@ -35,9 +35,9 @@ import com.bcn.asapp.authentication.domain.user.Username;
  *
  * @since 0.2.0
  */
-public final class UserAuthenticationFactory {
+public final class UserAuthenticationMother {
 
-    private UserAuthenticationFactory() {}
+    private UserAuthenticationMother() {}
 
     public static UserAuthentication anAuthenticatedUser() {
         return aUserAuthenticationBuilder().build();

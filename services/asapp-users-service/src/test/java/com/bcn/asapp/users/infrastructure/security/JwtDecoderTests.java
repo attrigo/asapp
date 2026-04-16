@@ -17,7 +17,7 @@
 package com.bcn.asapp.users.infrastructure.security;
 
 import static com.bcn.asapp.users.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
-import static com.bcn.asapp.users.testutil.fixture.EncodedTokenFactory.anEncodedTokenBuilder;
+import static com.bcn.asapp.users.testutil.fixture.EncodedTokenMother.anEncodedTokenBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;

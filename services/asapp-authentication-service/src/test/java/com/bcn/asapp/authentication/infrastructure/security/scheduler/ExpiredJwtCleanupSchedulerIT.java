@@ -16,9 +16,9 @@
 
 package com.bcn.asapp.authentication.infrastructure.security.scheduler;
 
-import static com.bcn.asapp.authentication.testutil.fixture.JwtAuthenticationFactory.aJwtAuthenticationBuilder;
-import static com.bcn.asapp.authentication.testutil.fixture.UserFactory.aJdbcUser;
-import static com.bcn.asapp.authentication.testutil.fixture.UserFactory.aUserBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.JwtAuthenticationMother.aJwtAuthenticationBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.UserMother.aJdbcUser;
+import static com.bcn.asapp.authentication.testutil.fixture.UserMother.aUserBuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
