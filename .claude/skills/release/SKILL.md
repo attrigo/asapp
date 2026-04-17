@@ -16,13 +16,6 @@ Automates the full ASAPP release cycle: version bump, Liquibase tagging, build v
 
 - `/release` — runs all steps, asks for confirmation before pushing
 
-## Prerequisites
-
-- Must be on `main` branch
-- Working tree must be clean (no uncommitted changes)
-- No unpushed commits on `main`
-- All TODO items for the release version must be completed
-
 ## Instructions
 
 ### Step 1: Validate Preconditions
@@ -31,6 +24,7 @@ Automates the full ASAPP release cycle: version bump, Liquibase tagging, build v
 git branch --show-current
 git status --porcelain
 git log origin/main..HEAD --oneline
+gh run list --branch main --workflow ci.yml --limit 1 --json status,conclusion,headBranch,createdAt
 ```
 
 - If not on `main`: **abort** and tell the user to switch branches.
@@ -51,6 +45,15 @@ git log origin/main..HEAD --oneline
     ...
   Push or review these commits before releasing.
   ```
+
+- If the last CI run on `main` did not succeed: **abort** and report its status:
+
+  ```
+  Aborted: Last CI run on main did not succeed (status: <status>, conclusion: <conclusion>).
+  Fix the build before releasing.
+  ```
+
+  A run is acceptable only when `status` is `completed` and `conclusion` is `success`. If the run is still `in_progress` or `queued`, abort and ask the user to wait.
 
 ### Step 2: Detect Versions
 
@@ -196,6 +199,7 @@ Only push if the user confirms.
 - **Abort if not on `main`** — releases must come from the main branch
 - **Abort if working tree is dirty** — prevents accidental inclusion of uncommitted changes
 - **Abort if there are unpushed commits** — prevents releasing from a state that diverges from the remote
+- **Abort if last CI run on `main` did not succeed** — prevents releasing from a broken build
 - **Abort if TODO has unchecked items for the version** — ensures the release is feature-complete
 - **Never skip `mvn clean install`** — the build must pass before any commits are made
 - **Never force push** — use `--atomic` only; never `--force` or `--force-with-lease`
@@ -204,7 +208,7 @@ Only push if the user confirms.
 ## Example Output
 
 ```
-[Step 1] Validating preconditions...  done (branch: main, tree: clean, unpushed: none)
+[Step 1] Validating preconditions...  done (branch: main, tree: clean, unpushed: none, CI: success)
 [Step 2] Detected version: 0.3.0-SNAPSHOT → releasing as 0.3.0
 [Step 3] Checking TODO completeness for version 0.3.0...  done (all tasks completed)
 [Step 4] Removing SNAPSHOT...
