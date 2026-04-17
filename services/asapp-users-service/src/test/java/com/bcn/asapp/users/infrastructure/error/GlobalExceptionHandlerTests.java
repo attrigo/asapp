@@ -19,7 +19,6 @@ package com.bcn.asapp.users.infrastructure.error;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataAccessException;
@@ -42,12 +41,7 @@ import com.bcn.asapp.users.infrastructure.security.UnexpectedJwtTypeException;
  */
 class GlobalExceptionHandlerTests {
 
-    private GlobalExceptionHandler globalExceptionHandler;
-
-    @BeforeEach
-    void setUp() {
-        globalExceptionHandler = new GlobalExceptionHandler();
-    }
+    private final GlobalExceptionHandler globalExceptionHandler = new GlobalExceptionHandler();
 
     @Nested
     class HandleIllegalArgumentException {

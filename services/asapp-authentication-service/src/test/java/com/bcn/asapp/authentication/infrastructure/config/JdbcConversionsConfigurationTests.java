@@ -51,9 +51,7 @@ class JdbcConversionsConfigurationTests {
     @Nested
     class ConvertPgObjectToClaims {
 
-        private final ObjectMapper objectMapper = new JsonMapper();
-
-        private final JdbcConversionsConfiguration.ClaimsReadingConverter converter = new JdbcConversionsConfiguration.ClaimsReadingConverter(objectMapper);
+        private final JdbcConversionsConfiguration.ClaimsReadingConverter converter = new JdbcConversionsConfiguration.ClaimsReadingConverter(new JsonMapper());
 
         @Test
         void ReturnsClaims_ValidJsonbSource() throws Exception {
