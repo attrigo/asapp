@@ -67,7 +67,27 @@ import com.bcn.asapp.authentication.infrastructure.security.JwtIssuanceException
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
+    private static final String AUTHENTICATION_FAILED_TITLE = "Authentication Failed";
+
+    private static final String ERROR_PROPERTY = "error";
+
+    private static final String INVALID_GRANT_ERROR = "invalid_grant";
+
+    private static final String INVALID_CREDENTIALS_DETAIL = "Invalid credentials";
+
+    private static final String INTERNAL_ERROR_DETAIL = "An internal error occurred";
+
+    private static final String INTERNAL_SERVER_ERROR_TITLE = "Internal Server Error";
+
+    private static final String SERVER_ERROR = "server_error";
+
+    private static final String SERVICE_UNAVAILABLE_DETAIL = "Service temporarily unavailable";
+
+    private static final String SERVICE_UNAVAILABLE_TITLE = "Service Unavailable";
+
+    private static final String TEMPORARILY_UNAVAILABLE_ERROR = "temporarily_unavailable";
 
     // ============================================================================
     // 400 BAD REQUEST - Validation Errors
@@ -88,11 +108,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, @NonNull HttpHeaders headers,
             @NonNull HttpStatusCode status, @NonNull WebRequest request) {
 
-        logger.warn("Validation failed: {}", ex.getBindingResult()
-                                               .getFieldErrors()
-                                               .stream()
-                                               .map(FieldError::getDefaultMessage)
-                                               .collect(Collectors.joining(", ")));
+        log.atWarn()
+           .log(() -> "Validation failed: " + buildValidationErrorMessage(ex));
 
         var invalidParameters = buildInvalidParameters(ex.getBindingResult()
                                                          .getFieldErrors());
@@ -114,7 +131,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     protected ResponseEntity<ProblemDetail> handleIllegalArgumentException(IllegalArgumentException ex) {
-        logger.warn("Invalid argument: {}", ex.getMessage());
+        log.warn("Invalid argument: {}", ex.getMessage());
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
         problemDetail.setTitle("Invalid Argument");
@@ -139,12 +156,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler({ InvalidUsernameException.class, InvalidPasswordException.class, InvalidEncodedTokenException.class })
     protected ResponseEntity<ProblemDetail> handleInvalidCredentials(RuntimeException ex) {
-        logger.warn("Authentication failed due to invalid credential format: {}", ex.getMessage());
+        log.warn("Authentication failed due to invalid credential format: {}", ex.getMessage());
 
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Invalid credentials");
-        problemDetail.setTitle("Authentication Failed");
-        problemDetail.setProperty("error", "invalid_grant");
-
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, INVALID_CREDENTIALS_DETAIL);
+        problemDetail.setTitle(AUTHENTICATION_FAILED_TITLE);
+        problemDetail.setProperty(ERROR_PROPERTY, INVALID_GRANT_ERROR);
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                              .body(problemDetail);
     }
@@ -161,11 +177,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(AuthenticationNotFoundException.class)
     protected ResponseEntity<ProblemDetail> handleAuthenticationNotFoundException(AuthenticationNotFoundException ex) {
-        logger.warn("Authentication not found: {}", ex.getMessage());
+        log.warn("Authentication not found: {}", ex.getMessage());
 
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Invalid credentials");
-        problemDetail.setTitle("Authentication Failed");
-        problemDetail.setProperty("error", "invalid_grant");
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, INVALID_CREDENTIALS_DETAIL);
+        problemDetail.setTitle(AUTHENTICATION_FAILED_TITLE);
+        problemDetail.setProperty(ERROR_PROPERTY, INVALID_GRANT_ERROR);
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                              .body(problemDetail);
@@ -183,11 +199,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(UnexpectedJwtTypeException.class)
     protected ResponseEntity<ProblemDetail> handleUnexpectedJwtTypeException(UnexpectedJwtTypeException ex) {
-        logger.warn("Invalid token type: {}", ex.getMessage());
+        log.warn("Invalid token type: {}", ex.getMessage());
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Invalid token");
-        problemDetail.setTitle("Authentication Failed");
-        problemDetail.setProperty("error", "invalid_grant");
+        problemDetail.setTitle(AUTHENTICATION_FAILED_TITLE);
+        problemDetail.setProperty(ERROR_PROPERTY, INVALID_GRANT_ERROR);
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                              .body(problemDetail);
@@ -205,11 +221,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(InvalidJwtException.class)
     protected ResponseEntity<ProblemDetail> handleInvalidJwtException(InvalidJwtException ex) {
-        logger.warn("Invalid JWT: {}", ex.getMessage());
+        log.warn("Invalid JWT: {}", ex.getMessage());
 
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Invalid credentials");
-        problemDetail.setTitle("Authentication Failed");
-        problemDetail.setProperty("error", "invalid_grant");
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, INVALID_CREDENTIALS_DETAIL);
+        problemDetail.setTitle(AUTHENTICATION_FAILED_TITLE);
+        problemDetail.setProperty(ERROR_PROPERTY, INVALID_GRANT_ERROR);
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                              .body(problemDetail);
@@ -231,11 +247,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(CompensatingTransactionException.class)
     protected ResponseEntity<ProblemDetail> handleCompensatingTransactionException(CompensatingTransactionException ex) {
-        logger.error("CRITICAL: Compensating transaction failed: {}", ex.getMessage(), ex);
+        log.error("CRITICAL: Compensating transaction failed: {}", ex.getMessage(), ex);
 
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An internal error occurred");
-        problemDetail.setTitle("Internal Server Error");
-        problemDetail.setProperty("error", "server_error");
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR_DETAIL);
+        problemDetail.setTitle(INTERNAL_SERVER_ERROR_TITLE);
+        problemDetail.setProperty(ERROR_PROPERTY, SERVER_ERROR);
         problemDetail.setProperty("critical", true);
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -254,11 +270,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(JwtIssuanceException.class)
     protected ResponseEntity<ProblemDetail> handleJwtIssuanceException(JwtIssuanceException ex) {
-        logger.error("JWT operation failed: {}", ex.getMessage(), ex);
+        log.error("JWT operation failed: {}", ex.getMessage(), ex);
 
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An internal error occurred");
-        problemDetail.setTitle("Internal Server Error");
-        problemDetail.setProperty("error", "server_error");
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR_DETAIL);
+        problemDetail.setTitle(INTERNAL_SERVER_ERROR_TITLE);
+        problemDetail.setProperty(ERROR_PROPERTY, SERVER_ERROR);
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                              .body(problemDetail);
@@ -276,11 +292,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(DataAccessException.class)
     protected ResponseEntity<ProblemDetail> handleDataAccessException(DataAccessException ex) {
-        logger.error("Database operation failed: {}", ex.getMessage(), ex);
+        log.error("Database operation failed: {}", ex.getMessage(), ex);
 
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, "An internal error occurred");
-        problemDetail.setTitle("Internal Server Error");
-        problemDetail.setProperty("error", "server_error");
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR_DETAIL);
+        problemDetail.setTitle(INTERNAL_SERVER_ERROR_TITLE);
+        problemDetail.setProperty(ERROR_PROPERTY, SERVER_ERROR);
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                              .body(problemDetail);
@@ -302,11 +318,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(TokenStoreException.class)
     protected ResponseEntity<ProblemDetail> handleTokenStoreException(TokenStoreException ex) {
-        logger.error("Token store operation failed: {}", ex.getMessage(), ex);
+        log.error("Token store operation failed: {}", ex.getMessage(), ex);
 
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, "Service temporarily unavailable");
-        problemDetail.setTitle("Service Unavailable");
-        problemDetail.setProperty("error", "temporarily_unavailable");
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE_DETAIL);
+        problemDetail.setTitle(SERVICE_UNAVAILABLE_TITLE);
+        problemDetail.setProperty(ERROR_PROPERTY, TEMPORARILY_UNAVAILABLE_ERROR);
 
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                              .body(problemDetail);
@@ -324,11 +340,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(RedisConnectionFailureException.class)
     protected ResponseEntity<ProblemDetail> handleRedisException(RedisConnectionFailureException ex) {
-        logger.error("Redis operation failed: {}", ex.getMessage(), ex);
+        log.error("Redis operation failed: {}", ex.getMessage(), ex);
 
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, "Service temporarily unavailable");
-        problemDetail.setTitle("Service Unavailable");
-        problemDetail.setProperty("error", "temporarily_unavailable");
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE_DETAIL);
+        problemDetail.setTitle(SERVICE_UNAVAILABLE_TITLE);
+        problemDetail.setProperty(ERROR_PROPERTY, TEMPORARILY_UNAVAILABLE_ERROR);
 
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                              .body(problemDetail);
@@ -337,6 +353,20 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // ============================================================================
     // HELPER METHODS
     // ============================================================================
+
+    /**
+     * Builds a comma-separated string of validation error messages from field errors.
+     *
+     * @param ex the {@link MethodArgumentNotValidException} containing validation errors
+     * @return a comma-separated string of field error messages
+     */
+    private String buildValidationErrorMessage(MethodArgumentNotValidException ex) {
+        return ex.getBindingResult()
+                 .getFieldErrors()
+                 .stream()
+                 .map(FieldError::getDefaultMessage)
+                 .collect(Collectors.joining(", "));
+    }
 
     /**
      * Builds a list of invalid parameter details from field errors.

@@ -16,6 +16,8 @@
 
 package com.bcn.asapp.authentication.infrastructure.user.in.request;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang3.StringUtils;
 
 import jakarta.validation.ConstraintValidator;
@@ -49,12 +51,9 @@ public class ValidRoleValidator implements ConstraintValidator<ValidRole, String
             return false;
         }
 
-        try {
-            Role.valueOf(value);
-            return true;
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
+        return Arrays.stream(Role.values())
+                     .anyMatch(role -> role.name()
+                                           .equals(value));
     }
 
 }

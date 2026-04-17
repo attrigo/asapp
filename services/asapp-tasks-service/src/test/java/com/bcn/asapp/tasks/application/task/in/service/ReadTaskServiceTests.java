@@ -143,8 +143,7 @@ class ReadTaskServiceTests {
             var actual = readTaskService.getTasksByUserId(userId.value());
 
             // Then
-            assertThat(actual).hasSize(2);
-            assertThat(actual).contains(task1, task2);
+            assertThat(actual).containsExactlyInAnyOrder(task1, task2);
 
             then(taskRepository).should(times(1))
                                 .findByUserId(userId);
@@ -210,8 +209,7 @@ class ReadTaskServiceTests {
             var actual = readTaskService.getAllTasks();
 
             // Then
-            assertThat(actual).hasSize(2);
-            assertThat(actual).contains(task1, task2);
+            assertThat(actual).containsExactlyInAnyOrder(task1, task2);
 
             then(taskRepository).should(times(1))
                                 .findAll();

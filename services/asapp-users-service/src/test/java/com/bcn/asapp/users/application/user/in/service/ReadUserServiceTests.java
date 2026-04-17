@@ -211,8 +211,7 @@ class ReadUserServiceTests {
             var actual = readUserService.getAllUsers();
 
             // Then
-            assertThat(actual).hasSize(2);
-            assertThat(actual).contains(user1, user2);
+            assertThat(actual).containsExactlyInAnyOrder(user1, user2);
 
             then(userRepository).should(times(1))
                                 .findAll();
