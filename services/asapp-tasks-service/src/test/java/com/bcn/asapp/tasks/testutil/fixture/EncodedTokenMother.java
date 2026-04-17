@@ -162,9 +162,9 @@ public final class EncodedTokenMother {
 
         public Builder expired() {
             var now = Instant.now();
-            var issuedAt = now.minusMillis(EXPIRATION_TIME_MILLIS + TOKEN_EXPIRED_OFFSET_MILLIS);
-            var expiration = now.minusMillis(TOKEN_EXPIRED_OFFSET_MILLIS);
-            return withIssuedAt(issuedAt).withExpiration(expiration);
+            var issuedAtInstant = now.minusMillis(EXPIRATION_TIME_MILLIS + TOKEN_EXPIRED_OFFSET_MILLIS);
+            var expirationInstant = now.minusMillis(TOKEN_EXPIRED_OFFSET_MILLIS);
+            return withIssuedAt(issuedAtInstant).withExpiration(expirationInstant);
         }
 
         public String build() {

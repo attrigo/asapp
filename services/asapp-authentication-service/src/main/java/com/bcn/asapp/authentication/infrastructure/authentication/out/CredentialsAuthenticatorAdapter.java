@@ -84,7 +84,6 @@ public class CredentialsAuthenticatorAdapter implements CredentialsAuthenticator
             return buildUserAuthentication(authenticationToken);
         } catch (Exception e) {
             var message = "Authentication failed due to: %s".formatted(e.getMessage());
-            logger.warn("[CREDENTIALS_AUTH] {}", message, e);
             throw new BadCredentialsException(message, e);
         }
     }

@@ -145,8 +145,9 @@
         * Known warning: `javax.annotation.meta.When.MAYBE` (compile) — Spring 7 JSR-305 ref, will self-resolve when Spring drops `@Nullable`
         * Known warning: `sun.misc.Unsafe::objectFieldOffset` (test) — Byte Buddy + Java 25, tracked in [mockito/mockito#3754](https://github.com/mockito/mockito/issues/3754), will self-resolve on next Spring Boot BOM update
         * Known warning: `Unknown keyword meta:enum / deprecated` (build, CycloneDX) — non-standard JSON Schema keywords in CycloneDX schema not recognized by NetworkNT validator, tracked in [CycloneDX/cyclonedx-maven-plugin#564](https://github.com/CycloneDX/cyclonedx-maven-plugin/issues/564), BOM output is unaffected
-    * [ ] Launch Sonar analysis
-    * [ ] Launch security analysis
+    * [X] Perform IntelliJ problems analysis
+    * [X] Perform security analysis
+    * [X] Perform Sonar code smell analysis
     * [X] Enrich Javadocs
     * [X] Enrich README
     * [ ] Clean branches

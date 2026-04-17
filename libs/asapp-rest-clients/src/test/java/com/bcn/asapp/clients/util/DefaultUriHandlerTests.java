@@ -56,18 +56,8 @@ class DefaultUriHandlerTests {
 
         @ParameterizedTest
         @NullAndEmptySource
-        void ThrowsIllegalArgumentException_NullOrEmptyBaseUri(String baseUri) {
-            // When
-            var actual = catchThrowable(() -> new DefaultUriHandler(baseUri));
-
-            // Then
-            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Base URI must not be null or blank");
-        }
-
-        @ParameterizedTest
         @MethodSource("com.bcn.asapp.clients.util.DefaultUriHandlerTests#provideBlankStrings")
-        void ThrowsIllegalArgumentException_BlankBaseUri(String baseUri) {
+        void ThrowsIllegalArgumentException_NullEmptyOrBlankBaseUri(String baseUri) {
             // When
             var actual = catchThrowable(() -> new DefaultUriHandler(baseUri));
 

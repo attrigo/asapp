@@ -18,6 +18,8 @@ package com.bcn.asapp.users.infrastructure.config;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
+import java.util.Set;
+
 import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
@@ -70,14 +72,14 @@ public class SecurityConfiguration {
     private static final String ROOT_MATCHER = "/**";
 
     /**
-     * Array of root URL patterns that are excluded from authentication checks.
+     * Set of root URL patterns that are excluded from authentication checks.
      */
-    public static final String[] ROOT_WHITELIST_URLS = { "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html" };
+    public static final Set<String> ROOT_WHITELIST_URLS = Set.of("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html");
 
     /**
-     * Array of management (Actuator) URL patterns that are excluded from authentication checks.
+     * Set of management (Actuator) URL patterns that are excluded from authentication checks.
      */
-    public static final String[] MANAGEMENT_WHITELIST_URLS = { "/readyz", "/livez" };
+    public static final Set<String> MANAGEMENT_WHITELIST_URLS = Set.of("/readyz", "/livez");
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
@@ -177,9 +179,9 @@ public class SecurityConfiguration {
         http.csrf(AbstractHttpConfigurer::disable);
         http.securityMatcher(ROOT_MATCHER)
             .authorizeHttpRequests(auth -> {
-                auth.requestMatchers(ROOT_WHITELIST_URLS)
+                auth.requestMatchers(ROOT_WHITELIST_URLS.toArray(String[]::new))
                     .permitAll();
-                auth.requestMatchers(MANAGEMENT_WHITELIST_URLS)
+                auth.requestMatchers(MANAGEMENT_WHITELIST_URLS.toArray(String[]::new))
                     .permitAll();
                 auth.anyRequest()
                     .authenticated();

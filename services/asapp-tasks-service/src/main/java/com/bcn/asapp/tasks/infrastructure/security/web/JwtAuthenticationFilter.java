@@ -20,7 +20,7 @@ import static com.bcn.asapp.tasks.infrastructure.config.SecurityConfiguration.MA
 import static com.bcn.asapp.tasks.infrastructure.config.SecurityConfiguration.ROOT_WHITELIST_URLS;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -66,7 +66,7 @@ import com.bcn.asapp.tasks.infrastructure.security.UnexpectedJwtTypeException;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final JwtVerifier jwtVerifier;
 
@@ -113,40 +113,40 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
-        logger.debug("[JWT_FILTER] Processing authentication for request: {} {}", request.getMethod(), request.getRequestURI());
+        log.debug("[JWT_FILTER] Processing authentication for request: {} {}", request.getMethod(), request.getRequestURI());
 
-        logger.trace("[JWT_FILTER] Step 1/4: Extracting token from Authorization header");
+        log.trace("[JWT_FILTER] Step 1/4: Extracting token from Authorization header");
         Optional<String> optionalBearerToken = getBearerToken(request);
 
         if (optionalBearerToken.isEmpty()) {
-            logger.warn("[JWT_FILTER] Authentication failed - reason=Bearer token not found");
+            log.warn("[JWT_FILTER] Authentication failed - reason=Bearer token not found");
             filterChain.doFilter(request, response);
             return;
         }
 
         var bearerToken = optionalBearerToken.get();
         try {
-            logger.trace("[JWT_FILTER] Step 2/4: Decoding and verifying token: {}", bearerToken);
+            log.trace("[JWT_FILTER] Step 2/4: Decoding and verifying token: {}", bearerToken);
             var decodedJwt = jwtVerifier.verifyAccessToken(bearerToken);
 
-            logger.trace("[JWT_FILTER] Step 3/4: Creating authentication token for user: {}", decodedJwt.subject());
+            log.trace("[JWT_FILTER] Step 3/4: Creating authentication token for user: {}", decodedJwt.subject());
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
-            logger.trace("[JWT_FILTER] Step 4/4: Setting SecurityContext");
+            log.trace("[JWT_FILTER] Step 4/4: Setting SecurityContext");
             var newContext = SecurityContextHolder.createEmptyContext();
             newContext.setAuthentication(jwtAuthenticationToken);
             SecurityContextHolder.setContext(newContext);
 
-            logger.debug("[JWT_FILTER] Authentication successful for user: {}", decodedJwt.subject());
+            log.debug("[JWT_FILTER] Authentication successful for user: {}", decodedJwt.subject());
 
         } catch (UnexpectedJwtTypeException e) {
-            logger.warn("[JWT_FILTER] Authentication failed - reason=Invalid token type");
+            log.warn("[JWT_FILTER] Authentication failed - reason=Invalid token type: {}", e.getMessage());
         } catch (AuthenticationNotFoundException e) {
-            logger.warn("[JWT_FILTER] Authentication failed - reason=Session not found");
+            log.warn("[JWT_FILTER] Authentication failed - reason=Session not found: {}", e.getMessage());
         } catch (InvalidJwtException e) {
-            logger.warn("[JWT_FILTER] Authentication failed - reason=Invalid token: {}", e.getMessage());
+            log.warn("[JWT_FILTER] Authentication failed - reason=Invalid token: {}", e.getMessage());
         } catch (Exception e) {
-            logger.warn("[JWT_FILTER] Authentication failed - reason=Unexpected error", e);
+            log.warn("[JWT_FILTER] Authentication failed - reason=Unexpected error", e);
         }
 
         filterChain.doFilter(request, response);
@@ -160,7 +160,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private Set<RequestMatcher> buildExcludedMatchers() {
         var path = PathPatternRequestMatcher.withDefaults();
         return Stream.of(ROOT_WHITELIST_URLS, MANAGEMENT_WHITELIST_URLS)
-                     .flatMap(Arrays::stream)
+                     .flatMap(Collection::stream)
                      .map(path::matcher)
                      .collect(Collectors.toSet());
     }

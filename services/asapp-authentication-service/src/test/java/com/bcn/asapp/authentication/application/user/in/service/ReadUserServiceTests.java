@@ -150,7 +150,6 @@ class ReadUserServiceTests {
             var actual = readUserService.getAllUsers();
 
             // Then
-            assertThat(actual).hasSize(2);
             assertThat(actual).containsExactly(user1, user2);
 
             then(userRepository).should(times(1))
