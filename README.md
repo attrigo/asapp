@@ -547,13 +547,13 @@ Automates the full release cycle in three stages: generating the release, buildi
 
 #### Release Generation
 
-The release cycle is automated via the `/release` Claude Code skill. Run it from the `main` branch with a clean working tree:
+The release cycle is automated via the `/release` Claude Code command. Run it from the `main` branch with a clean working tree:
 
 ```
 /release
 ```
 
-The skill handles the full cycle and asks for confirmation before pushing:
+The command handles the full cycle and asks for confirmation before pushing:
 
 1. Validates preconditions (on `main`, clean working tree)
 2. Removes `-SNAPSHOT` suffix from all POM versions
@@ -585,13 +585,13 @@ Once the tag is pushed, the release pipeline runs automatically:
 
 #### Changelog Improvement (Optional)
 
-Once the GitHub Release is published, the changelog can be polished via the `/improve-changelog` Claude Code skill:
+Once the GitHub Release is published, the changelog can be polished via the `/improve-changelog` Claude Code command:
 
 ```
 /improve-changelog vX.Y.Z
 ```
 
-The skill applies AI editorial judgment to the generated changelog and asks for confirmation before updating the GitHub Release:
+The command applies AI editorial judgment to the generated changelog and asks for confirmation before updating the GitHub Release:
 
 - Merges entries that cover the same feature across multiple commits
 - Removes low-value entries with no user-facing impact
