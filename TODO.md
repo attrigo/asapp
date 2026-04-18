@@ -158,34 +158,52 @@
 
 ### Version 0.3.1
 
-* [ ] Add Spring Cloud Config
+* [ ] Add Spring Cloud Config for centralized configuration management
 * [ ] Add Spring Service discovery
-* [ ] Add Spring Rest Docs
+* [ ] Add Spring Rest Docs for API documentation
 
 ### Version 0.3.2
 
 * [ ] Replace Liquibase by Flyway
 * [ ] Technical improvements
     * [ ] Improve GlobalExceptionHandler to return a sorted Map<Entity, List<FieldsError>>
-    * [ ] Create @ConfiguratioProperties to manage custom REST and Security properties
+    * [ ] Create @ConfigurationProperties to manage custom REST and Security properties
 
 ### Version 0.3.3
 
-* [ ] Change user's username or password must revoke all user authentications
-* [ ] Create user must not create a user with the same username (email)
-* [ ] Improve Hexagonal architecture with domain events
-    * [ ] Create domain events for user created, updated and deleted
-    * [ ] Create domain events for task created, updated and deleted
-    * [ ] Use CQRS pattern
-* [ ] Modularize asapp-authentication-service project
-    * [ ] Add Spring Modulith
-    * [ ] Add ArchUnit
-    * [ ] Add JMolecules
+* [ ] Introduce event-driven architecture with asapp-notifications-service (RabbitMQ)
+    * [ ] Create asapp-notifications-service
+        * [ ] Build project
+        * [ ] Add RabbitMQ consumer for user registration events
+        * [ ] Configure Dead Letter Queue for failed message handling
+        * [ ] Add email sending support (MailHog for local development)
+        * [ ] Add tests
+        * [ ] Add docker-compose file
+        * [ ] Add service to Prometheus
+        * [ ] Add JVM Grafana dashboard
+        * [ ] Add README file
+    * [ ] asapp-authentication-service: publish UserRegisteredEvent to RabbitMQ on user creation
+    * [ ] Add RabbitMQ to parent docker-compose file
 
 ### Version 0.3.4
 
-* [ ] Synchronize user creation, update and deletion across services using events
-    * [ ] Use RabbitMQ as event broker
+* [ ] Change user's username or password must revoke all user authentications
+* [ ] Create user must not create a user with the same username (email)
+* [ ] Modularize asapp-authentication-service with Spring Modulith
+    * [ ] Add Spring Modulith
+    * [ ] Add ArchUnit
+    * [ ] Add JMolecules
+* [ ] Adopt domain events following DDD
+    * [ ] Create domain events for user created, updated and deleted
+    * [ ] Create domain events for task created, updated and deleted
+    * [ ] Use CQRS pattern
+
+### Version 0.3.5
+
+* [ ] Externalize domain events to RabbitMQ for cross-service synchronization
+    * [ ] Replace direct RabbitTemplate publishing with Spring Modulith @Externalized events
+    * [ ] Synchronize user lifecycle events (created, updated, deleted) across services
+    * [ ] Update asapp-notifications-service to consume Modulith integration events
 
 ---
 
@@ -237,15 +255,21 @@
 * [ ] Add AOP/Native support
 * [ ] Add Graceful shutdown
 * [ ] Improve Docker volumes definition and usage
+* [ ] Add JVM Options Xmx, ExitOnOutOfMemoryError, HeapDumpOnOutOfMemoryError, HeapDumpPath
 
 ### Observability
 
-* [ ] Logging
+* [ ] Tracing
     * [ ] Console logs in plain text
-    * [ ] File logs in JSON format
-* [ ] Update Grafana dashboard
-* [ ] Add support for traces
-* [ ] Add database metrics dashboard
+    * [ ] File logs in structured JSON format (ECS) — use `logging.structured.format.file=ecs` with a `logging.file.name` pointing to a log file; console stays plain text
+    * [ ] Reduce logs verbosity in test executions
+    * [ ] Add distributed traces
+* [ ] Metrics
+    * [ ] Bump version of Grafana dashboard
+    * [ ] Add Hikari Grafana dashboard
+    * [ ] Add Spring Boot Observability Grafana dashboard
+    * [ ] Add Redis Grafana dashboard (requires redis-exporter in docker-compose)
+    * [ ] Add RabbitMQ Grafana dashboard
 
 ### Security
 
@@ -253,6 +277,7 @@
     * [ ] Integrate Spring Authorization Server
 * [ ] Use public and private keys to encode the JWT
 * [ ] Add OTT authentication
+* [ ] Add MFA via OTP using asapp-notifications-service (email or SMS)
 * [ ] Add email verification to the register process
 
 ### Tests
@@ -260,6 +285,7 @@
 * [ ] Enable maven-surefire-junit5-tree-reporter once version 2.x.x is released (compatible with maven-surefire-plugin 3.5.4+). Removed during SB4 migration due to incompatibility with surefire 3.5.5 brought in by SB 3.5.13.
 * [ ] Add spring-test-profiler
 * [ ] Review Spring test context usage
+* [ ] Add load test with Gatling
 
 ### Git
 
@@ -284,3 +310,8 @@
 ### Doc
 
 * [ ] Add Javadoc to mapper implementations requires version 1.6.0 of mapstruct ([ref](https://github.com/mapstruct/mapstruct/pull/3219))
+
+### AI Code Assistant
+
+* [ ] Create Claude code custom command to review code coverage of all modules and generate a report
+* [ ] Create Claude code custom command to perform static code analysis and generate a report
