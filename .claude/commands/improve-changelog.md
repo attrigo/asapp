@@ -1,93 +1,44 @@
----
-name: improve-changelog
-description: >
-  Improves the release notes of a GitHub Release using AI editorial judgment.
-  Use when the user wants to polish, clean up, refine, or improve a changelog or release notes.
-  Triggers: /improve-changelog, improve changelog, improve release notes, polish release,
-  clean up changelog, refine release notes, edit release notes, fix changelog.
-  Do NOT use for generating changelogs from scratch, modifying git history, or editing CHANGELOG.md files.
----
-
 # Improve Changelog
 
 Fetches the release notes of a GitHub Release, applies AI editorial improvements (merge duplicates, remove noise, improve phrasing), and updates the release after confirmation.
-
-Supports two modes depending on whether the `gh` CLI is available.
 
 ## Usage
 
 - `/improve-changelog` — improves the latest release
 - `/improve-changelog v0.2.0` — improves a specific release
 
-## Quick Reference
+## Steps
 
-| Situation | Mode |
-|---|---|
-| `gh` CLI available | Automatic: fetch, improve, update via `gh` |
-| `gh` CLI not available | Manual: user pastes into draft file, skill improves, user copies back |
-
-## Core Workflow
-
-### Step 1: Check `gh` Availability
+### Step 1: Check gh availability
 
 ```bash
 gh --version
 ```
 
-If the command succeeds → proceed with **Automatic mode**.
-If it fails or is not found → proceed with **Manual mode**.
+If the command succeeds → `gh` is available. If it fails or is not found → `gh` is not available.
+This determines which path to take in steps 3 and 5.
 
----
-
-### Automatic Mode
-
-#### Step 2A: Detect Version
+### Step 2: Detect version
 
 If a version argument was provided (e.g. `v0.2.0`), use it directly.
 
-Otherwise, fetch the latest release tag:
+If `gh` is available and no argument was provided, fetch the latest release tag:
 
 ```bash
 gh release list --limit 1 --json tagName -q '.[0].tagName'
 ```
 
-#### Step 3A: Fetch Release Notes
+If `gh` is not available and no argument was provided, ask the user which version they are working on.
+
+### Step 3: Get release notes
+
+**If `gh` is available:**
 
 ```bash
 gh release view <tag> --json body -q '.body'
 ```
 
-#### Step 4A: Improve and Confirm
-
-Apply editorial improvements (see [Improvement Rules](#improvement-rules)).
-
-Display the improved changelog and summarize changes. Ask for confirmation:
-
-```
-Proceed to update the GitHub Release? [y/N]
-```
-
-#### Step 5A: Update the GitHub Release
-
-Only if the user confirms:
-
-```bash
-gh release edit <tag> --notes-file /tmp/improved-changelog.md
-```
-
-Confirm success and print the release URL.
-
----
-
-### Manual Mode
-
-#### Step 2M: Detect Version
-
-If a version argument was provided (e.g. `v0.2.0`), use it directly.
-
-Otherwise, ask the user which version they are working on.
-
-#### Step 3M: Instruct User to Create Draft File
+**If `gh` is not available:**
 
 Tell the user:
 
@@ -97,23 +48,39 @@ gh CLI is not available. To proceed manually:
 1. Open the GitHub Release page for <tag>
 2. Copy the release notes
 3. Paste them into: .github/changelog-draft.md
-4. Come back and confirm when ready
+4. Confirm when ready
 ```
 
-Wait for the user to confirm the file is ready before continuing.
+Wait for the user to confirm the file is ready, then read `.github/changelog-draft.md`.
 
-#### Step 4M: Read and Improve Draft File
+### Step 4: Apply improvements
 
-Read `.github/changelog-draft.md` and apply editorial improvements (see [Improvement Rules](#improvement-rules)).
+Apply the [Improvement Rules](#improvement-rules) to the fetched content.
 
-Write the improved content back to `.github/changelog-draft.md`.
+### Step 5: Confirm and apply
 
-Display the improved changelog and summarize changes.
-
-#### Step 5M: Instruct User to Apply Changes
+Display the improved changelog and summarize what changed. Ask for confirmation:
 
 ```
-Done. Once the content looks good, you can follow these steps to publish it:
+Proceed to update the GitHub Release? [y/N]
+```
+
+Only continue if the user confirms.
+
+**If `gh` is available:**
+
+```bash
+gh release edit <tag> --notes-file /tmp/improved-changelog.md
+```
+
+Confirm success and print the release URL.
+
+**If `gh` is not available:**
+
+Write the improved content back to `.github/changelog-draft.md`, then tell the user:
+
+```
+Done. To publish the changes:
 
 1. Open the GitHub Release page for <tag>
 2. Click Edit
@@ -126,8 +93,6 @@ You can delete .github/changelog-draft.md afterwards — it is listed in .gitign
 ---
 
 ## Improvement Rules
-
-Apply these rules in both modes:
 
 **Merge** — combine entries that cover the same change or topic across multiple commits into a single clearer entry, regardless of section. Preserve all commit links from the merged entries, listed together at the end: `([`abc1234`](url1), [`def5678`](url2))`.
 

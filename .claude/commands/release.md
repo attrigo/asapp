@@ -1,13 +1,3 @@
----
-name: release
-description: >
-  Use this skill when the user wants to cut and publish a new release of ASAPP.
-  Automates the full release cycle: removes SNAPSHOT suffix, tags Liquibase changelogs,
-  builds and verifies, commits, creates a git tag, bumps to the next SNAPSHOT, and pushes.
-  Triggers include: release, publish, cut a release, ship a version, bump to release, tag and push.
-  Do NOT use for ad-hoc version bumps, hotfix cherry-picks, or SNAPSHOT-only changes.
----
-
 # Release
 
 Automates the full ASAPP release cycle: version bump, Liquibase tagging, build verification, git commit + tag, next SNAPSHOT prep, and push.
@@ -28,6 +18,12 @@ gh run list --branch main --workflow ci.yml --limit 1 --json status,conclusion,h
 ```
 
 - If not on `main`: **abort** and tell the user to switch branches.
+
+  ```
+  Aborted: You are on branch '<branch-name>'. Releases must be made from main.
+  Switch to main before releasing.
+  ```
+
 - If working tree is dirty: **abort** and list the uncommitted files:
 
   ```
