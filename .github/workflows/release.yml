@@ -1,5 +1,9 @@
 # This workflow builds, tests, publishes Docker images, and creates a GitHub Release.
-# It is triggered when a version tag matching v* is pushed.
+# It is triggered when a version tag matching v* is pushed (e.g. v0.3.0).
+#
+# Permissions required:
+#   - contents: write  — to create the GitHub Release
+#   - packages: write  — to push Docker images to ghcr.io
 
 name: Build, publish and release the project
 
@@ -29,6 +33,8 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
+      # Runs the full build profile: unit + integration tests, JaCoCo coverage,
+      # Javadoc, sources JARs, and Spotless style check.
       - name: Build and test the project
         run: mvn install -B --no-transfer-progress -Pfull
 
@@ -43,20 +49,22 @@ jobs:
         id: version
         run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
 
+      # Builds and pushes a versioned Docker image for every module under services/.
+      # Lib modules are automatically skipped.
+      # Images are published to ghcr.io/attrigo/<service-name>:<version>.
       - name: Build and push Docker images
         run: |
-          mvn spring-boot:build-image \
-            -pl services/asapp-authentication-service,services/asapp-tasks-service,services/asapp-users-service \
-            -B --no-transfer-progress -DskipTests
+          mvn spring-boot:build-image -B --no-transfer-progress -DskipTests
 
-          for SERVICE in asapp-authentication-service asapp-tasks-service asapp-users-service; do
-            VERSIONED_IMAGE="ghcr.io/attrigo/${SERVICE}:${{ steps.version.outputs.VERSION }}"
-            LATEST_IMAGE="ghcr.io/attrigo/${SERVICE}:latest"
-            docker push "${VERSIONED_IMAGE}"
-            docker tag "${VERSIONED_IMAGE}" "${LATEST_IMAGE}"
-            docker push "${LATEST_IMAGE}"
+          for SERVICE_DIR in services/*/; do
+            SERVICE=$(basename "$SERVICE_DIR")
+            docker push "ghcr.io/attrigo/${SERVICE}:${{ steps.version.outputs.VERSION }}"
           done
 
+      # Generates release notes from commits since the previous tag using git-cliff.
+      # --latest   : only includes commits reachable from the current tag back to the previous one
+      # --strip header : removes the changelog file header, keeping only the entry body
+      # The output is written to CHANGELOG_RELEASE.md and used as the release description.
       - name: Generate changelog
         uses: orhun/git-cliff-action@v4
         id: changelog
@@ -67,6 +75,9 @@ jobs:
           OUTPUT: CHANGELOG_RELEASE.md
           GITHUB_REPO: ${{ github.repository }}
 
+      # Creates the GitHub Release for the pushed tag.
+      # GitHub automatically attaches two source code archives (.zip and .tar.gz).
+      # In addition, the three runnable service JARs are explicitly attached.
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -76,6 +87,4 @@ jobs:
             --notes-file CHANGELOG_RELEASE.md \
             services/asapp-authentication-service/target/asapp-authentication-service-${{ steps.version.outputs.VERSION }}.jar \
             services/asapp-tasks-service/target/asapp-tasks-service-${{ steps.version.outputs.VERSION }}.jar \
-            services/asapp-users-service/target/asapp-users-service-${{ steps.version.outputs.VERSION }}.jar \
-            libs/asapp-commons-url/target/asapp-commons-url-${{ steps.version.outputs.VERSION }}-sources.jar \
-            libs/asapp-rest-clients/target/asapp-rest-clients-${{ steps.version.outputs.VERSION }}-sources.jar
+            services/asapp-users-service/target/asapp-users-service-${{ steps.version.outputs.VERSION }}.jar
