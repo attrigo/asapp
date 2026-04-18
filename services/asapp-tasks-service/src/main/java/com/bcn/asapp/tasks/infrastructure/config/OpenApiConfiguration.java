@@ -36,6 +36,6 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
  * @author attrigo
  */
 @Configuration
-@OpenAPIDefinition(info = @Info(title = "Tasks Service API", version = "0.2.0-SNAPSHOT", description = "Provides tasks operations", license = @License(name = "Apache-2.0", url = "https://www.apache.org/licenses/LICENSE-2.0")))
+@OpenAPIDefinition(info = @Info(title = "Tasks Service API", version = "0.2.0", description = "Provides tasks operations", license = @License(name = "Apache-2.0", url = "https://www.apache.org/licenses/LICENSE-2.0")))
 @SecurityScheme(type = SecuritySchemeType.HTTP, name = "Bearer Authentication", scheme = "bearer", bearerFormat = "JWT")
 public class OpenApiConfiguration {}
