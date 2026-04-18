@@ -98,7 +98,7 @@
     * [X] Add the end date field to the task
     * [X] Add endpoint to get tasks by user id
     * [X] Remove gets tasks by project id endpoint
-* [ ] Testing
+* [X] Testing
     * [X] Make PostgresQL TestContainer a singleton instance
     * [X] Create a test data fake factory to generate test data
     * [X] Refactor test factories following Object Mother pattern
@@ -130,12 +130,16 @@
     * [X] Add maven profiles to avoid some steps during local builds
     * [X] Improve GitHub actions
         * [X] Build tags
-* [ ] Technical improvements
+* [X] Technical improvements
     * [X] Replace "/v1" with "/api" in the path of all endpoints
     * [X] Add "<relativePath>..</relativePath>" to libs and services poms
     * [X] Change the debug level of jdbc to info in application-docker.properties
     * [X] Rename database primary keys, from "*_id_pk" to "pk_"
     * [X] Improve data validation via Jakarta Annotations
+    * [X] Configure Claude Code
+        * [X] Add CLAUDE.md with project documentation
+        * [X] Add coding rules (architecture, DDD, testing, REST, Maven, etc.)
+        * [X] Add skills (release, commit-msg, improve-changelog)
     * [X] Launch OpenRewrite Spring Boot best practices
     * [X] Upgrade to Spring Boot 4
     * [X] Upgrade all external dependencies
@@ -147,10 +151,10 @@
         * Known warning: `Unknown keyword meta:enum / deprecated` (build, CycloneDX) — non-standard JSON Schema keywords in CycloneDX schema not recognized by NetworkNT validator, tracked in [CycloneDX/cyclonedx-maven-plugin#564](https://github.com/CycloneDX/cyclonedx-maven-plugin/issues/564), BOM output is unaffected
     * [X] Perform IntelliJ problems analysis
     * [X] Perform security analysis
-    * [X] Perform Sonar code smell analysis
+    * [X] Perform SonarLint analysis
     * [X] Enrich Javadocs
     * [X] Enrich README
-    * [ ] Clean branches
+    * [X] Clean branches
 
 ---
 
