@@ -92,6 +92,18 @@ services:
       - asapp-prometheus
 
   # Services
+  asapp-config-service:
+    image: 'ghcr.io/attrigo/asapp-config-service:0.3.0-SNAPSHOT'
+    container_name: asapp-config-service
+    restart: unless-stopped
+    ports:
+      - '8888:8888'
+    environment:
+      - SPRING_PROFILES_ACTIVE=native,docker
+      - SERVER_PORT=8888
+      - MANAGEMENT_PORT=8898
+    volumes:
+      - ./central-config:/central-config:ro
   asapp-authentication-service:
     image: 'ghcr.io/attrigo/asapp-authentication-service:0.2.0-SNAPSHOT'
     container_name: asapp-authentication-service
@@ -117,6 +129,7 @@ services:
       - ASAPP_SECURITY_JWT_CLEANUP_CRON_EXPRESSION=0 0 2 * * ?  # Daily at 2:00 AM
     depends_on:
       - asapp-authentication-postgres-db
+      - asapp-config-service
   asapp-tasks-service:
     image: 'ghcr.io/attrigo/asapp-tasks-service:0.2.0-SNAPSHOT'
     container_name: asapp-tasks-service
@@ -138,6 +151,7 @@ services:
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
     depends_on:
       - asapp-tasks-postgres-db
+      - asapp-config-service
   asapp-users-service:
     image: 'ghcr.io/attrigo/asapp-users-service:0.2.0-SNAPSHOT'
     container_name: asapp-users-service
@@ -160,6 +174,7 @@ services:
       - ASAPP_CLIENT_TASKS_BASE_URL=http://asapp-tasks-service:8081/asapp-tasks-service
     depends_on:
       - asapp-users-postgres-db
+      - asapp-config-service
 
 volumes:
   prometheus_auth:
