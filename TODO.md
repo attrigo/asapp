@@ -160,20 +160,69 @@
 
 ## Version 0.3.0
 
-### Version 0.3.1
-
-* [ ] Add Spring Cloud Config for centralized configuration management
+* [] Add Spring Cloud Config for centralized configuration management
+    * [ ] Create `asapp-config-service` Spring Cloud Config Server module
+    * [ ] Create a git-backed config repository with per-service property files
+    * [ ] Add Spring Cloud Config Client dependency to all services
+    * [ ] Configure each service to fetch configuration from the config server at startup
+    * [ ] Add config server container to `docker-compose.yml`
+    * [ ] Update `CLAUDE.md` with the new service details
+    * [ ] Update README files of each service to reference the config server setup
+	* [ ] Test Spring Config refresh endpoint is present in actuator endpoints in three business service
+	* [ ] Test Spring Config endpoints are present in Spring Config service
+    * [ ] Sort all application properties alphabetically 
+    * [ ] Add Swagger 
+    * [ ] Secure `asapp-config-service` with HTTP Basic authentication
+    * [ ] Register `asapp-config-service` in Prometheus and Grafana
+    * [ ] Add `asapp-config-service` JAR to the release workflow artifacts (`release.yml`)
 * [ ] Add Spring Service discovery
+    * [ ] Create `asapp-discovery-service` Eureka Server module
+    * [ ] Add Eureka Client dependency to all services
+    * [ ] Configure service self-registration (service name, instance metadata) in each service
+    * [ ] Update `asapp-rest-clients` to resolve service URLs via Eureka instead of hardcoded hosts
+    * [ ] Add discovery server container to `docker-compose.yml`
+    * [ ] Update `CLAUDE.md` with the new service details
+    * [ ] Update README files of each service to reference the discovery setup
 * [ ] Add Spring Rest Docs for API documentation
+    * [ ] Add Spring REST Docs dependency and AsciiDoctor Maven plugin to each service
+    * [ ] Configure `RestDocumentationExtension` in the test setup of each service
+    * [ ] Document all REST endpoints (request params, request/response body fields, headers) in controller tests
+    * [ ] Write AsciiDoc index templates per service
+    * [ ] Configure the Maven build to generate and package HTML documentation from the snippets
+    * [ ] Update README files of each service to reference the generated documentation
+* [ ] CI/CD
+    * [ ] Rename release GitHub Actions workflow name from "Build, publish and release the project" to something release-focused (e.g. "Release")
+    * [ ] Refactor release GitHub Actions workflow to split into multiple jobs (build-and-test → publish-docker → create-release) for better UI clarity and failure isolation
+    * [ ] Simplify release skill Step 6 from `mvn clean install` to `mvn clean compile` — CI already validates tests pass before release
+    * [ ] Upgrade GitHub Actions to Node.js 24 compatible versions (`docker/login-action@v3` deprecated; forced migration by June 2nd, 2026)
+    * [ ] Create a dedicated `ci` Maven profile (Spotless check only) and replace `-Pfull` in the CI workflow to avoid building release-only artifacts (Javadoc, sources JARs, coverage) on every push
+* [ ] AI Code Assistant
+    * [ ] Remove manual mode — require `gh` CLI; abort with a clear message if not available
+    * [ ] Use `.github/changelog-draft.md` as the working file instead of `/tmp` (cross-platform, no `gh` path resolution issues on Windows)
+    * [ ] Delete `.github/changelog-draft.md` automatically after updating the release
+* [ ] Test
+    * [ ] Create Test fixture for Decoded DecodedJwt
+* [ ] Doc
+    * [ ] Improve READMEs
+        * [ ] Clean docs/claude
+        * [ ] Format tables to make them human-readable
+        * [ ] Clean previous versions in TODO (they are now in changelog in github)?
+        * [ ] Remove ### Protected vs Public Endpoints (hard to maintain)_
+        * [ ] Rename ## Related Documentation by ## Documentation?
+        * [ ] Move ## Project Structure inside ## Architecture?
+        * [ ] Move ## Services Overview before ## Requirements? join with ### Microservices?
+        * [ ] Move ## Technology Stack just after ## Requirements? or inside ## Architecture?
+        * [ ] Move ## Configuration before ## Quick Start (understand how configuration works before we start)?
 
-### Version 0.3.2
+
+### Version 0.4.0
 
 * [ ] Replace Liquibase by Flyway
 * [ ] Technical improvements
     * [ ] Improve GlobalExceptionHandler to return a sorted Map<Entity, List<FieldsError>>
     * [ ] Create @ConfigurationProperties to manage custom REST and Security properties
 
-### Version 0.3.3
+### Version 0.5.0
 
 * [ ] Introduce event-driven architecture with asapp-notifications-service (RabbitMQ)
     * [ ] Create asapp-notifications-service
@@ -189,7 +238,7 @@
     * [ ] asapp-authentication-service: publish UserRegisteredEvent to RabbitMQ on user creation
     * [ ] Add RabbitMQ to parent docker-compose file
 
-### Version 0.3.4
+### Version 0.6.0
 
 * [ ] Change user's username or password must revoke all user authentications
 * [ ] Create user must not create a user with the same username (email)
@@ -202,7 +251,7 @@
     * [ ] Create domain events for task created, updated and deleted
     * [ ] Use CQRS pattern
 
-### Version 0.3.5
+### Version 0.7.0
 
 * [ ] Externalize domain events to RabbitMQ for cross-service synchronization
     * [ ] Replace direct RabbitTemplate publishing with Spring Modulith @Externalized events
@@ -211,7 +260,7 @@
 
 ---
 
-## Version 0.4.0
+## Version 0.8.0
 
 * [ ] Create custom architecture based on Spring starters
     * [ ] Create custom starter for Web
@@ -299,6 +348,7 @@
 * [ ] Automatize versioning process
 * [ ] Generate CHANGELOG.md file automatically from commits
 * [ ] Add Pitest to the CI pipeline
+* [ ] Improve release skill to support patch version releases (e.g. 0.2.1)
 
 ### Tools
 
