@@ -15,6 +15,7 @@ The Config Service is a Spring Cloud Config Server that centralises configuratio
 - 📦 Serve shared configuration (actuator settings, MVC format, Jackson, Redis, JWT secret) to all services
 - 🔧 Serve per-service configuration (logging levels, service-specific tuning)
 - 🔄 Enable runtime configuration refresh via `/actuator/refresh` on each client service
+- 🔒 Protect all configuration endpoints with HTTP Basic authentication
 
 ## Features
 
@@ -70,6 +71,12 @@ When a client requests its configuration, the server merges property sources in 
 | `application-{profile}.properties` | shared, profile-specific |
 | `application.properties` | shared, all profiles |
 
+### Security Model
+
+All config server endpoints are protected with **HTTP Basic authentication**. Credentials are configured via `spring.security.user.name` and `spring.security.user.password` (locally) or `CONFIG_USERNAME` / `CONFIG_PASSWORD` environment variables (Docker).
+
+Client services supply credentials through `spring.cloud.config.username` and `spring.cloud.config.password`, which are resolved before the application context starts — they cannot be fetched from the config server itself.
+
 ## Requirements
 
 - **Java**: 25+
@@ -87,7 +94,7 @@ cd services/asapp-config-service
 mvn spring-boot:run
 
 # 2. Verify configuration is served
-curl http://localhost:8888/asapp-config-service/asapp-tasks-service/default
+curl -u config-user:config-secret http://localhost:8888/asapp-config-service/asapp-tasks-service/default
 ```
 
 ### Run with Docker
@@ -129,8 +136,10 @@ curl -X POST http://localhost:8092/asapp-users-service/actuator/refresh
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `SERVER_PORT` | HTTP server port | `8888` |
+| `CONFIG_PASSWORD` | HTTP Basic password | `config-secret` |
+| `CONFIG_USERNAME` | HTTP Basic username | `config-user` |
 | `MANAGEMENT_PORT` | Actuator management port | `8898` |
+| `SERVER_PORT` | HTTP server port | `8888` |
 
 ## Development
 
@@ -162,23 +171,23 @@ mvn git-build-hook:install
 
 ## API Endpoints
 
-### Spring Cloud Config Endpoints (Public)
+### Spring Cloud Config Endpoints (Protected)
 
-| Method | Endpoint | Description |
-|--------|---|---|
-| GET | `/{application}/{profile}` | Get merged configuration for a service |
-| GET | `/{application}/{profile}/{label}` | Get configuration for a specific label |
-| GET | `/{application}-{profile}.properties` | Get raw properties file |
+| Method | Endpoint | Description | Auth Required |
+|--------|---|---|---|
+| GET | `/{application}/{profile}` | Get merged configuration for a service | ✅ |
+| GET | `/{application}/{profile}/{label}` | Get configuration for a specific label | ✅ |
+| GET | `/{application}-{profile}.properties` | Get raw properties file | ✅ |
 
-### Actuator Endpoints
+### Actuator Endpoints (Protected)
 
-| Method | Endpoint | Description |
-|--------|---|---|
-| GET | `/actuator/health` | Health status |
-| GET | `/actuator/prometheus` | Prometheus metrics |
-| GET | `/actuator/metrics` | Available metrics list |
-| GET | `/actuator/info` | Application info |
-| POST | `/actuator/refresh` | Reload configuration |
+| Method | Endpoint | Description | Auth Required |
+|--------|---|---|---|
+| GET | `/actuator/health` | Health status | ✅ |
+| GET | `/actuator/prometheus` | Prometheus metrics | ✅ |
+| GET | `/actuator/metrics` | Available metrics list | ✅ |
+| GET | `/actuator/info` | Application info | ✅ |
+| POST | `/actuator/refresh` | Reload configuration | ✅ |
 
 **Actuator Port**: `8898` (separate from application port `8888`)
 
@@ -194,9 +203,13 @@ Services consuming configuration from this server declare:
 
 ```properties
 # application.properties (local dev)
+spring.cloud.config.password=config-secret
+spring.cloud.config.username=config-user
 spring.config.import=configserver:http://localhost:8888/asapp-config-service
 
 # application-docker.properties (Docker)
+spring.cloud.config.password=${CONFIG_PASSWORD:config-secret}
+spring.cloud.config.username=${CONFIG_USERNAME:config-user}
 spring.config.import=configserver:http://asapp-config-service:8888/asapp-config-service
 ```
 

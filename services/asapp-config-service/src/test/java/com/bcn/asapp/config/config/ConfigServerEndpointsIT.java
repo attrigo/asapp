@@ -14,12 +14,13 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.config.infrastructure.config;
+package com.bcn.asapp.config.config;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.client.RestTestClient;
@@ -36,6 +37,12 @@ import com.bcn.asapp.config.AsappConfigServiceApplication;
 @AutoConfigureRestTestClient
 class ConfigServerEndpointsIT {
 
+    @Value("${spring.security.user.name}")
+    private String configUsername;
+
+    @Value("${spring.security.user.password}")
+    private String configPassword;
+
     @Autowired
     private RestTestClient restTestClient;
 
@@ -44,6 +51,7 @@ class ConfigServerEndpointsIT {
         // When & Then
         restTestClient.get()
                       .uri("/asapp-tasks-service/default")
+                      .headers(h -> h.setBasicAuth(configUsername, configPassword))
                       .exchange()
                       .expectStatus()
                       .isOk()

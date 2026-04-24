@@ -171,7 +171,7 @@
 	* [X] Test Spring Config refresh endpoint is present in actuator endpoints in three business service
 	* [X] Test Spring Config endpoints are present in Spring Config service
     * [X] Sort all application properties alphabetically 
-    * [ ] Secure `asapp-config-service` with HTTP Basic authentication
+    * [X] Secure `asapp-config-service` with HTTP Basic authentication
     * [ ] Register `asapp-config-service` in Prometheus and Grafana
     * [ ] Add `asapp-config-service` JAR to the release workflow artifacts (`release.yml`)
 * [ ] Add Spring Service discovery

@@ -102,6 +102,8 @@ services:
       - SPRING_PROFILES_ACTIVE=native,docker
       - SERVER_PORT=8888
       - MANAGEMENT_PORT=8898
+      - CONFIG_USERNAME=config-user
+      - CONFIG_PASSWORD=config-secret
     volumes:
       - ./central-config:/central-config:ro
   asapp-authentication-service:
@@ -122,6 +124,8 @@ services:
       - REDIS_HOST=asapp-redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=secret
+      - CONFIG_USERNAME=config-user
+      - CONFIG_PASSWORD=config-secret
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
       - ASAPP_SECURITY_ACCESS_TOKEN_EXPIRATION_TIME=300000
       - ASAPP_SECURITY_REFRESH_TOKEN_EXPIRATION_TIME=3600000
@@ -148,6 +152,8 @@ services:
       - REDIS_HOST=asapp-redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=secret
+      - CONFIG_USERNAME=config-user
+      - CONFIG_PASSWORD=config-secret
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
     depends_on:
       - asapp-tasks-postgres-db
@@ -170,6 +176,8 @@ services:
       - REDIS_HOST=asapp-redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=secret
+      - CONFIG_USERNAME=config-user
+      - CONFIG_PASSWORD=config-secret
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
       - ASAPP_CLIENT_TASKS_BASE_URL=http://asapp-tasks-service:8081/asapp-tasks-service
     depends_on:
