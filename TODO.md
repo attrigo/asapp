@@ -173,7 +173,7 @@
     * [X] Sort all application properties alphabetically 
     * [X] Secure `asapp-config-service` with HTTP Basic authentication
     * [X] Register `asapp-config-service` in Prometheus and Grafana
-    * [ ] Add `asapp-config-service` JAR to the release workflow artifacts (`release.yml`)
+    * [X] Add `asapp-config-service` the release workflow
 * [ ] Add Spring Service discovery
     * [ ] Create `asapp-discovery-service` Eureka Server module
     * [ ] Add Eureka Client dependency to all services

@@ -77,7 +77,7 @@ jobs:
 
       # Creates the GitHub Release for the pushed tag.
       # GitHub automatically attaches two source code archives (.zip and .tar.gz).
-      # In addition, the three runnable service JARs are explicitly attached.
+      # In addition, the four runnable service JARs are explicitly attached.
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -86,5 +86,6 @@ jobs:
             --title "${{ github.ref_name }}" \
             --notes-file CHANGELOG_RELEASE.md \
             services/asapp-authentication-service/target/asapp-authentication-service-${{ steps.version.outputs.VERSION }}.jar \
+            services/asapp-config-service/target/asapp-config-service-${{ steps.version.outputs.VERSION }}.jar \
             services/asapp-tasks-service/target/asapp-tasks-service-${{ steps.version.outputs.VERSION }}.jar \
             services/asapp-users-service/target/asapp-users-service-${{ steps.version.outputs.VERSION }}.jar
