@@ -172,7 +172,7 @@
 	* [X] Test Spring Config endpoints are present in Spring Config service
     * [X] Sort all application properties alphabetically 
     * [X] Secure `asapp-config-service` with HTTP Basic authentication
-    * [ ] Register `asapp-config-service` in Prometheus and Grafana
+    * [X] Register `asapp-config-service` in Prometheus and Grafana
     * [ ] Add `asapp-config-service` JAR to the release workflow artifacts (`release.yml`)
 * [ ] Add Spring Service discovery
     * [ ] Create `asapp-discovery-service` Eureka Server module

@@ -215,6 +215,16 @@ spring.config.import=configserver:http://asapp-config-service:8888/asapp-config-
 
 The config server is a **required** dependency — services will refuse to start if it is unreachable. Start `asapp-config-service` before starting any other service.
 
+## Monitoring
+
+**Actuator Endpoints**: `http://localhost:8898/asapp-config-service/actuator`
+
+**Prometheus Integration**: Metrics scraped every 15s for monitoring
+
+**Available Metrics**:
+- JVM metrics (memory, GC, threads)
+- HTTP request metrics (rate, duration, errors)
+
 ## Contributing
 
 This service is part of the ASAPP monorepo. See the [main repository](../../README.md) for contribution guidelines.
