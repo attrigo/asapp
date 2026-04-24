@@ -14,7 +14,7 @@ The Config Service is a Spring Cloud Config Server that centralises configuratio
 **Key Responsibilities**:
 - 📦 Serve shared configuration (actuator settings, MVC format, Jackson, Redis, JWT secret) to all services
 - 🔧 Serve per-service configuration (logging levels, service-specific tuning)
-- 🔄 Enable runtime configuration refresh via `/actuator/refresh` on each client service
+- 🔄 Enable runtime configuration refresh on client services without redeploying
 - 🔒 Protect all configuration endpoints with HTTP Basic authentication
 
 ## Features
@@ -187,7 +187,6 @@ mvn git-build-hook:install
 | GET | `/actuator/prometheus` | Prometheus metrics | ✅ |
 | GET | `/actuator/metrics` | Available metrics list | ✅ |
 | GET | `/actuator/info` | Application info | ✅ |
-| POST | `/actuator/refresh` | Reload configuration | ✅ |
 
 **Actuator Port**: `8898` (separate from application port `8888`)
 
