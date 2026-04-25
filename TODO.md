@@ -193,7 +193,7 @@
     * [ ] Configure the Maven build to generate and package HTML documentation from the snippets
     * [ ] Update README files of each service to reference the generated documentation
 * [ ] Test Improvements
-    * [ ] Rename `JwtAuthenticationFilterIT` to `SecurityConfigurationIT` — the class covers broader security config (not just the JWT filter)
+    * [X] Rename `JwtAuthenticationFilterIT` to `SecurityConfigurationIT` — the class covers broader security config (not just the JWT filter)
     * [X] Test Actuator endpoints under management port — verify `/actuator/refresh` requires HTTP Basic auth (401 without credentials), `/actuator/health` returns 200, `/actuator/prometheus` is accessible
     * [X] Test `livez` and `readyz` endpoints are served on the main port and are publicly accessible (no auth required)
     * [ ] Create test fixture for `DecodedJwt` to reduce boilerplate in JWT-related unit tests
