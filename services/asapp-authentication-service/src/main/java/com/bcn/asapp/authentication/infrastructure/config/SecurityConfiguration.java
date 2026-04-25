@@ -21,6 +21,7 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 import java.util.HashMap;
 import java.util.Set;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
@@ -28,16 +29,20 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.argon2.Argon2PasswordEncoder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.crypto.password.Pbkdf2PasswordEncoder;
 import org.springframework.security.crypto.scrypt.SCryptPasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -46,14 +51,12 @@ import com.bcn.asapp.authentication.infrastructure.security.web.JwtAuthenticatio
 import com.bcn.asapp.authentication.infrastructure.security.web.JwtAuthenticationFilter;
 
 /**
- * Configuration class for Spring Security.
- * <p>
  * Sets up security for the application using Spring Security.
  * <p>
  * Defines security filters and specifies the behavior of authentication and authorization across the application.
  * <p>
- * The class creates three Security Filter Chain, one to protect the API endpoints, one to protect the Actuator endpoints, and another one to protect the root
- * path; the declaration order of the filter chains is important, the first one to match will be used.
+ * The class creates three Security Filter Chains, one to protect the API endpoints, one to protect the management (Actuator) endpoints, and another one to
+ * protect the root path; the declaration order of the filter chains is important, the first one to match will be used.
  * <p>
  * The purpose of the Spring Security Filter Chain is to provide a series of security filters that are executed in a specific order during each HTTP request.
  * These filters handle various security concerns such as authentication, authorization, session management, and CSRF protection. The filter chain ensures that
@@ -62,8 +65,6 @@ import com.bcn.asapp.authentication.infrastructure.security.web.JwtAuthenticatio
  *
  * @since 0.2.0
  * @see SecurityFilterChain
- * @see AuthenticationManager
- * @see PasswordEncoder
  * @author attrigo
  */
 @Configuration
@@ -104,15 +105,25 @@ public class SecurityConfiguration {
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
+    private final String managementUsername;
+
+    private final String managementPassword;
+
     /**
      * Constructs a new {@code SecurityConfiguration} with required dependencies.
      *
      * @param jwtAuthenticationFilter     the JWT authentication filter
      * @param jwtAuthenticationEntryPoint the JWT authentication entry point
+     * @param managementUsername          the management user username
+     * @param managementPassword          the management user password
      */
-    public SecurityConfiguration(JwtAuthenticationFilter jwtAuthenticationFilter, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint) {
+    public SecurityConfiguration(JwtAuthenticationFilter jwtAuthenticationFilter, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+            @Value("${spring.security.user.name}") String managementUsername, @Value("${spring.security.user.password}") String managementPassword) {
+
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.jwtAuthenticationEntryPoint = jwtAuthenticationEntryPoint;
+        this.managementUsername = managementUsername;
+        this.managementPassword = managementPassword;
     }
 
     /**
@@ -121,7 +132,7 @@ public class SecurityConfiguration {
      * Applies the following configurations to the filter chain:
      * <ul>
      * <li>Disables CSRF.</li>
-     * <li>Configures the authentication requirements for the incoming requests that matches {@literal /api/**}.</li>
+     * <li>Configures JWT authentication for the incoming requests that matches {@literal /api/**}.</li>
      * <li>Adds the exception handler, which is invoked when any authentication fails.</li>
      * <li>Adds the JWT authentication filter.</li>
      * </ul>
@@ -156,9 +167,8 @@ public class SecurityConfiguration {
      * <ul>
      * <li>Disables CSRF.</li>
      * <li>Disables CORS.</li>
-     * <li>Configures the authentication requirements for the incoming requests that matches {@literal /actuator/**}.</li>
-     * <li>Adds the exception handler, which is invoked when any authentication fails.</li>
-     * <li>Adds the JWT authentication filter.</li>
+     * <li>Configures no authentication for the incoming requests that matches the {@literal /actuator/health}.</li>
+     * <li>Configures HTTP Basic authentication for the incoming requests that matches {@literal /actuator/**}.</li>
      * </ul>
      *
      * @param http the {@link HttpSecurity} object used to configure HTTP security
@@ -176,9 +186,9 @@ public class SecurityConfiguration {
                 auth.anyRequest()
                     .authenticated();
             });
+        http.httpBasic(Customizer.withDefaults());
+        http.userDetailsService(managementUserDetailsManager());
         http.sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-        http.exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
         return http.build();
     }
@@ -190,7 +200,9 @@ public class SecurityConfiguration {
      * Applies the following configurations to the filter chain:
      * <ul>
      * <li>Disables CSRF.</li>
-     * <li>Configures the authentication requirements for the incoming requests that matches {@literal /**}.</li>
+     * <li>Configures no authentication for the incoming requests that matches the public API documentation endpoints {@code ROOT_WHITELIST_URLS}.</li>
+     * <li>Configures no authentication for the incoming requests that matches the public management endpoints {@code MANAGEMENT_WHITELIST_URLS}.</li>
+     * <li>Configures JWT authentication for the incoming requests that matches {@literal /**}.</li>
      * <li>Adds the exception handler, which is invoked when any authentication fails.</li>
      * <li>Adds the JWT authentication filter.</li>
      * </ul>
@@ -251,6 +263,20 @@ public class SecurityConfiguration {
         encoders.put("pbkdf2@SpringSecurity_v5_8", Pbkdf2PasswordEncoder.defaultsForSpringSecurity_v5_8());
         encoders.put("scrypt@SpringSecurity_v5_8", SCryptPasswordEncoder.defaultsForSpringSecurity_v5_8());
         return new DelegatingPasswordEncoder("bcrypt", encoders);
+    }
+
+    /**
+     * Creates an {@link InMemoryUserDetailsManager} with the management user credentials.
+     * <p>
+     * Used by {@link #actuatorFilterChain} to authenticate actuator requests independently of the application's main {@link UserDetailsService}.
+     *
+     * @return the {@link InMemoryUserDetailsManager} holding the management user
+     */
+    private InMemoryUserDetailsManager managementUserDetailsManager() {
+        var user = User.withUsername(managementUsername)
+                       .password(passwordEncoder().encode(managementPassword))
+                       .build();
+        return new InMemoryUserDetailsManager(user);
     }
 
 }

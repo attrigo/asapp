@@ -16,7 +16,6 @@
 
 package com.bcn.asapp.authentication.infrastructure.config;
 
-import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtStore.ACCESS_TOKEN_PREFIX;
 import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenMother.anEncodedTokenBuilder;
 import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenMother.encodedAccessToken;
 import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenMother.encodedRefreshToken;
@@ -30,8 +29,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalManagementPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
@@ -45,13 +46,17 @@ import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
  * Tests {@link JwtAuthenticationFilter} JWT authentication and endpoint access control.
  * <p>
  * Coverage:
- * <li>Rejects requests without Authorization header</li>
- * <li>Rejects malformed, expired, unsigned, or invalid signature tokens</li>
- * <li>Rejects refresh tokens for access token endpoints</li>
- * <li>Rejects valid tokens not present in session store</li>
- * <li>Grants access to protected endpoints with valid authenticated token</li>
- * <li>Restricts access to protected endpoints without authentication</li>
- * <li>Allows public access to health, liveness, readiness, Swagger UI and OpenAPI documentation endpoints</li>
+ * <li>Rejects API requests without Authorization header</li>
+ * <li>Rejects API requests with malformed, expired, unsigned, or invalid signature tokens</li>
+ * <li>Rejects API requests with refresh tokens</li>
+ * <li>Rejects API requests with valid tokens not present in session store</li>
+ * <li>Allows access to protected actuator endpoints with valid credentials</li>
+ * <li>Rejects protected actuator endpoint requests with invalid credentials</li>
+ * <li>Rejects protected actuator endpoint requests without credentials</li>
+ * <li>Allows public access to health actuator endpoint without credentials</li>
+ * <li>Allows public access to liveness and readiness endpoints without credentials</li>
+ * <li>Allows public access to Swagger UI without credentials</li>
+ * <li>Allows public access to OpenAPI documentation without credentials</li>
  */
 @SpringBootTest(classes = AsappAuthenticationServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
@@ -74,13 +79,13 @@ class JwtAuthenticationFilterIT {
     }
 
     @Nested
-    class HttpBasicAuthentication {
+    class ApiAuthentication {
 
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
             restTestClient.get()
-                          .uri("/actuator")
+                          .uri("/api/users")
                           .exchange()
                           .expectStatus()
                           .isUnauthorized()
@@ -95,7 +100,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/actuator")
+                          .uri("/api/users")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
@@ -111,7 +116,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/actuator")
+                          .uri("/api/users")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
@@ -127,7 +132,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/actuator")
+                          .uri("/api/users")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
@@ -145,7 +150,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/actuator")
+                          .uri("/api/users")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
@@ -163,7 +168,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/actuator")
+                          .uri("/api/users")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
@@ -181,7 +186,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/actuator")
+                          .uri("/api/users")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
@@ -199,7 +204,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/actuator")
+                          .uri("/api/users")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
@@ -217,7 +222,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/actuator")
+                          .uri("/api/users")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
@@ -233,7 +238,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/actuator")
+                          .uri("/api/users")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
@@ -249,7 +254,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/actuator")
+                          .uri("/api/users")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
@@ -263,60 +268,139 @@ class JwtAuthenticationFilterIT {
     @Nested
     class ActuatorAuthentication {
 
-        private final String encodedAccessToken = encodedAccessToken();
+        @LocalManagementPort
+        private int managementPort;
 
-        private final String bearerToken = "Bearer " + encodedAccessToken;
+        @Value("${server.servlet.context-path}")
+        private String contextPath;
+
+        @Value("${spring.security.user.name}")
+        private String managementUsername;
+
+        @Value("${spring.security.user.password}")
+        private String managementPassword;
+
+        private RestTestClient managementRestTestClient;
 
         @BeforeEach
-        void beforeEach() {
-            redisTemplate.opsForValue()
-                         .set(ACCESS_TOKEN_PREFIX + encodedAccessToken, "");
+        void setUp() {
+            managementRestTestClient = RestTestClient.bindToServer()
+                                                     .baseUrl("http://localhost:" + managementPort + contextPath)
+                                                     .build();
         }
 
         @ParameterizedTest
-        @MethodSource("protectedEndpoints")
-        void ReturnsStatusOk_AuthorizationHeaderOnEndpoint(String endpoint) {
+        @MethodSource("protectedGetEndpoints")
+        void ReturnsStatusOk_ValidCredentialsOnProtectedGetEndpoint(String endpoint) {
+            // When & Then
+            managementRestTestClient.get()
+                                    .uri(endpoint)
+                                    .headers(h -> h.setBasicAuth(managementUsername, managementPassword))
+                                    .exchange()
+                                    .expectStatus()
+                                    .isOk();
+        }
+
+        @ParameterizedTest
+        @MethodSource("protectedGetEndpoints")
+        void ReturnsStatusUnauthorizedAndEmptyBody_InvalidCredentialsOnProtectedGetEndpoint(String endpoint) {
+            // When & Then
+            managementRestTestClient.get()
+                                    .uri(endpoint)
+                                    .headers(h -> h.setBasicAuth(managementUsername, managementPassword))
+                                    .exchange()
+                                    .expectStatus()
+                                    .isOk();
+        }
+
+        @ParameterizedTest
+        @MethodSource("protectedGetEndpoints")
+        void ReturnsStatusUnauthorizedAndEmptyBody_NoAuthorizationHeaderOnProtectedGetEndpoint(String endpoint) {
+            // When & Then
+            managementRestTestClient.get()
+                                    .uri(endpoint)
+                                    .exchange()
+                                    .expectStatus()
+                                    .isUnauthorized()
+                                    .expectBody()
+                                    .isEmpty();
+        }
+
+        @ParameterizedTest
+        @MethodSource("publicGetEndpoints")
+        void ReturnsStatusOk_NoAuthorizationHeaderOnPublicGetEndpoint(String endpoint) {
+            // When & Then
+            managementRestTestClient.get()
+                                    .uri(endpoint)
+                                    .exchange()
+                                    .expectStatus()
+                                    .isOk();
+        }
+
+        @ParameterizedTest
+        @MethodSource("serverPortPublicGetEndpoints")
+        void ReturnsStatusOk_NoAuthorizationHeaderOnSererPortPublicGetEndpoint(String endpoint) {
             // When & Then
             restTestClient.get()
                           .uri(endpoint)
-                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
                           .isOk();
         }
 
         @ParameterizedTest
-        @MethodSource("protectedEndpoints")
-        void ReturnsStatusUnauthorizedAndEmptyBody_NoAuthorizationHeaderOnEndpoint(String endpoint) {
+        @MethodSource("protectedPostEndpoints")
+        void ReturnsStatusOk_ValidCredentialsOnProtectedPostEndpoint(String endpoint) {
             // When & Then
-            restTestClient.get()
-                          .uri(endpoint)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            managementRestTestClient.post()
+                                    .uri(endpoint)
+                                    .headers(h -> h.setBasicAuth(managementUsername, managementPassword))
+                                    .exchange()
+                                    .expectStatus()
+                                    .isOk();
         }
 
         @ParameterizedTest
-        @MethodSource("publicEndpoints")
-        void ReturnsStatusOk_NoAuthorizationHeaderOnEndpoint(String endpoint) {
+        @MethodSource("protectedPostEndpoints")
+        void ReturnsStatusUnauthorizedAndEmptyBody_InvalidCredentialsOnProtectedPostEndpoint(String endpoint) {
             // When & Then
-            restTestClient.get()
-                          .uri(endpoint)
-                          .exchange()
-                          .expectStatus()
-                          .isOk();
+            managementRestTestClient.post()
+                                    .uri(endpoint)
+                                    .headers(h -> h.setBasicAuth(managementUsername, managementPassword))
+                                    .exchange()
+                                    .expectStatus()
+                                    .isOk();
         }
 
-        private static Stream<String> protectedEndpoints() {
+        @ParameterizedTest
+        @MethodSource("protectedPostEndpoints")
+        void ReturnsStatusUnauthorizedAndEmptyBody_NoAuthorizationHeaderOnProtectedPostEndpoint(String endpoint) {
+            // When & Then
+            managementRestTestClient.post()
+                                    .uri(endpoint)
+                                    .exchange()
+                                    .expectStatus()
+                                    .isUnauthorized()
+                                    .expectBody()
+                                    .isEmpty();
+        }
+
+        private static Stream<String> protectedGetEndpoints() {
             return Stream.of("/actuator", "/actuator/beans", "/actuator/info", "/actuator/conditions", "/actuator/configprops", "/actuator/env",
                     "/actuator/liquibase", "/actuator/loggers", "/actuator/heapdump", "/actuator/threaddump", "/actuator/prometheus", "/actuator/metrics",
                     "/actuator/sbom", "/actuator/scheduledtasks", "/actuator/httpexchanges", "/actuator/mappings");
         }
 
-        private static Stream<String> publicEndpoints() {
-            return Stream.of("/actuator/health", "/livez", "/readyz");
+        private static Stream<String> publicGetEndpoints() {
+            return Stream.of("/actuator/health");
+        }
+
+        private static Stream<String> serverPortPublicGetEndpoints() {
+            return Stream.of("/livez", "/readyz");
+        }
+
+        private static Stream<String> protectedPostEndpoints() {
+            return Stream.of("/actuator/refresh");
         }
 
     }

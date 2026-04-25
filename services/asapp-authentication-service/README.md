@@ -340,17 +340,15 @@ open target/pit-reports/<timestamp>/index.html
 | PUT    | `/api/users/{id}` | Update user    | ✅             |
 | DELETE | `/api/users/{id}` | Delete user    | ✅             |
 
-### Actuator Endpoints (Protected)
+### Management Endpoints
 
-| Method | Endpoint                | Description            |
-|--------|-------------------------|------------------------|
-| GET    | `/actuator/health`      | Health status          |
-| GET    | `/actuator/prometheus`  | Prometheus metrics     |
-| GET    | `/actuator/metrics`     | Available metrics list |
-| GET    | `/actuator/info`        | Application info       |
-| POST   | `/actuator/refresh`     | Reload configuration from config server |
+Management endpoints are available on port `8090` at `/asapp-authentication-service/actuator`.
 
-**Actuator Port**: `8090` (separate from application port `8080`)
+`/actuator/health` is public; all other endpoints require HTTP Basic authentication (`auth-user` / `auth-secret`).
+
+Use `GET /actuator` to see the full list of available endpoints.
+
+**Actuator Port**: `8090`
 
 ## Technology Stack
 
