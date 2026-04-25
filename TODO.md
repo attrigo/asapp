@@ -160,7 +160,7 @@
 
 ## Version 0.3.0
 
-* [] Add Spring Cloud Config for centralized configuration management
+* [X] Add Spring Cloud Config for centralized configuration management
     * [X] Create `asapp-config-service` Spring Cloud Config Server module
     * [X] Create a git-backed config repository with per-service property files
     * [X] Add Spring Cloud Config Client dependency to all services
@@ -175,6 +175,8 @@
     * [X] Register `asapp-config-service` in Prometheus and Grafana
     * [X] Add `asapp-config-service` the release workflow
     * [X] Use readyz/livez in business service to ensure config service is up
+* [ ] Security Improvements
+    * [ ] Secure `/actuator/refresh` endpoints on business services (tasks, users, authentication) — verify the management port (8090/8091/8092) enforces HTTP Basic auth; write integration tests to confirm unauthenticated requests are rejected with 401
 * [ ] Add Spring Service discovery
     * [ ] Create `asapp-discovery-service` Eureka Server module
     * [ ] Add Eureka Client dependency to all services
@@ -190,18 +192,28 @@
     * [ ] Write AsciiDoc index templates per service
     * [ ] Configure the Maven build to generate and package HTML documentation from the snippets
     * [ ] Update README files of each service to reference the generated documentation
+* [ ] Test Improvements
+    * [ ] Rename `JwtAuthenticationFilterIT` to `SecurityConfigurationIT` — the class covers broader security config (not just the JWT filter)
+    * [ ] Test Actuator endpoints under management port — verify `/actuator/refresh` requires HTTP Basic auth (401 without credentials), `/actuator/health` returns 200, `/actuator/prometheus` is accessible
+    * [ ] Test `livez` and `readyz` endpoints are served on the main port and are publicly accessible (no auth required)
+    * [ ] Create test fixture for `DecodedJwt` to reduce boilerplate in JWT-related unit tests
 * [ ] CI/CD
     * [ ] Rename release GitHub Actions workflow name from "Build, publish and release the project" to something release-focused (e.g. "Release")
     * [ ] Refactor release GitHub Actions workflow to split into multiple jobs (build-and-test → publish-docker → create-release) for better UI clarity and failure isolation
     * [ ] Simplify release skill Step 6 from `mvn clean install` to `mvn clean compile` — CI already validates tests pass before release
     * [ ] Upgrade GitHub Actions to Node.js 24 compatible versions (`docker/login-action@v3` deprecated; forced migration by June 2nd, 2026)
     * [ ] Create a dedicated `ci` Maven profile (Spotless check only) and replace `-Pfull` in the CI workflow to avoid building release-only artifacts (Javadoc, sources JARs, coverage) on every push
+    * [ ] Automate the upgrade of `asapp-*` service image tags in `docker-compose.yml` as part of the release workflow
+* [ ] Infrastructure improvements
+    * [ ] Remove obsolete top-level `version` attribute from `docker-compose.yml` (deprecated and ignored in Compose v2+)
+    * [ ] Expose management ports (8090, 8091, 8092, 8898) in `docker-compose.yml` to allow local access to actuator endpoints
+    * [ ] Add healthchecks to PostgreSQL containers (`pg_isready`) and Redis (`redis-cli ping`) in `docker-compose.yml`
+    * [ ] Add `depends_on` with healthcheck condition for Redis in services that use it (authentication-service for token blacklist)
+    * [ ] Add JVM tuning options (`-Xmx`, `-XX:+ExitOnOutOfMemoryError`, `-XX:+HeapDumpOnOutOfMemoryError`, `-XX:HeapDumpPath`) via `JAVA_OPTS` env var in `docker-compose.yml`
 * [ ] AI Code Assistant
     * [ ] Remove manual mode — require `gh` CLI; abort with a clear message if not available
     * [ ] Use `.github/changelog-draft.md` as the working file instead of `/tmp` (cross-platform, no `gh` path resolution issues on Windows)
     * [ ] Delete `.github/changelog-draft.md` automatically after updating the release
-* [ ] Test
-    * [ ] Create Test fixture for Decoded DecodedJwt
 * [ ] Doc
     * [ ] Improve READMEs
         * [ ] Clean docs/claude
@@ -213,7 +225,6 @@
         * [ ] Move ## Services Overview before ## Requirements? join with ### Microservices?
         * [ ] Move ## Technology Stack just after ## Requirements? or inside ## Architecture?
         * [ ] Move ## Configuration before ## Quick Start (understand how configuration works before we start)?
-
 
 ### Version 0.4.0
 
@@ -307,8 +318,7 @@
 * [ ] Refactor `JwtIssuer` and `EncodedTokenFactory` algorithm selection to use primitive type patterns in `switch` once primitive patterns are no longer preview in Java
 * [ ] Add AOP/Native support
 * [ ] Add Graceful shutdown
-* [ ] Improve Docker volumes definition and usage
-* [ ] Add JVM Options Xmx, ExitOnOutOfMemoryError, HeapDumpOnOutOfMemoryError, HeapDumpPath
+* [ ] Make `ExpiredJwtCleanupScheduler` dynamically refreshable via `/actuator/refresh`
 
 ### Observability
 
@@ -342,13 +352,17 @@
 
 ### Git
 
-### CI
+### CI/CD
 
 * [ ] Publish jar packages and Docker images to GitHub packages
 * [ ] Automatize versioning process
 * [ ] Generate CHANGELOG.md file automatically from commits
 * [ ] Add Pitest to the CI pipeline
 * [ ] Improve release skill to support patch version releases (e.g. 0.2.1)
+
+### Infrastructure
+
+* [ ] Improve Docker volumes definition and usage
 
 ### Tools
 
