@@ -123,19 +123,23 @@ The service implements **DDD patterns**:
 - **Docker**: 20.10+
 - **Docker Compose**: 2.0+
 - **PostgreSQL**: 15+ (via Docker)
+- **Redis**: 7+ (via Docker)
 
 ## Quick Start
 
 ### Run Locally (Development Mode)
 
 ```bash
-# 1. Start PostgreSQL database
+# 1. Start the config service (in a separate terminal, from project root)
+cd services/asapp-config-service && mvn spring-boot:run
+
+# 2. Start PostgreSQL database
 docker-compose up -d asapp-tasks-postgres-db
 
-# 2. Run the service
+# 3. Run the service
 mvn spring-boot:run
 
-# 3. Access Swagger UI
+# 4. Access Swagger UI
 open http://localhost:8081/asapp-tasks-service/swagger-ui.html
 ```
 
@@ -194,32 +198,27 @@ curl -X PUT http://localhost:8081/asapp-tasks-service/api/tasks/{id} \
 
 ## Configuration
 
-### Application Properties
+### Property Sources
 
-**Key Configuration** (`application.properties`):
+Merged at startup via `spring.config.import`; local files take precedence over centralized ones.
 
-```properties
-# Server
-server.port=8081
-server.servlet.context-path=/asapp-tasks-service
+| File | Source | Scope |
+|------|--------|-------|
+| `application-docker.properties` | Local | docker profile |
+| `application.properties` | Local | all profiles |
+| `asapp-tasks-service.properties` | Centralized | service-specific |
+| `application-docker.properties` | Centralized | shared, docker profile |
+| `application.properties` | Centralized | shared |
 
-# Database
-spring.datasource.url=jdbc:postgresql://localhost:5433/tasksdb
-spring.datasource.username=user
-spring.datasource.password=secret
+### Docker Environment Variables
 
-# JWT Security
-asapp.security.jwt-secret=<base64-encoded-secret>
-
-# Actuator (management port)
-management.server.port=8091
-management.endpoints.web.exposure.include=*
-```
-
-### Environment-Specific Configuration
-
-- `application.properties` - Default (local development)
-- `application-docker.properties` - Docker Compose environment
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `SERVER_PORT` | HTTP server port | `8081` |
+| `MANAGEMENT_PORT` | Actuator management port | `8091` |
+| `SPRING_DATASOURCE_URL` | PostgreSQL JDBC URL | `jdbc:postgresql://localhost:5433/tasksdb` |
+| `SPRING_DATASOURCE_USERNAME` | Database username | `user` |
+| `SPRING_DATASOURCE_PASSWORD` | Database password | `secret` |
 
 ## Development
 
@@ -312,6 +311,7 @@ open target/pit-reports/<timestamp>/index.html
 | GET    | `/actuator/prometheus` | Prometheus metrics     |
 | GET    | `/actuator/metrics`    | Available metrics list |
 | GET    | `/actuator/info`       | Application info       |
+| POST   | `/actuator/refresh`    | Reload configuration from config server |
 
 **Actuator Port**: `8091` (separate from application port `8081`)
 
@@ -319,6 +319,7 @@ open target/pit-reports/<timestamp>/index.html
 
 - **Spring Boot**: 4.0.5
 - **Spring Framework**: 7.x
+- **Configuration**: Spring Cloud Config 5.x
 - **Security**: Spring Security + Nimbus JOSE+JWT
 - **Migrations**: Liquibase
 - **Mapping**: MapStruct

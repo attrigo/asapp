@@ -27,7 +27,7 @@
             <groupId>com.bcn.asapp</groupId>
             <artifactId>asapp-rest-clients</artifactId>
         </dependency>
-        <!-- ## Spring Dependencies -->
+        <!-- ## Spring Boot Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -60,6 +60,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>
         </dependency>
+        <!-- ## Spring Cloud Dependencies -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
         <!-- ## Org Dependencies -->
         <dependency>
             <groupId>org.mapstruct</groupId>
@@ -80,7 +85,7 @@
         </dependency>
 
         <!-- # Runtime Dependencies -->
-        <!-- ## Spring Dependencies -->
+        <!-- ## Spring Boot Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -95,7 +100,7 @@
         </dependency>
 
         <!-- # Test Dependencies -->
-        <!-- ## Spring Dependencies -->
+        <!-- ## Spring Boot Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator-test</artifactId>

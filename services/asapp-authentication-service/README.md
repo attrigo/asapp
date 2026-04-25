@@ -164,13 +164,16 @@ The service implements **DDD patterns**:
 ### Run Locally (Development Mode)
 
 ```bash
-# 1. Start PostgreSQL and Redis
+# 1. Start the config service (in a separate terminal, from project root)
+cd services/asapp-config-service && mvn spring-boot:run
+
+# 2. Start PostgreSQL and Redis
 docker-compose up -d asapp-authentication-postgres-db asapp-redis
 
-# 2. Run the service
+# 3. Run the service
 mvn spring-boot:run
 
-# 3. Access Swagger UI
+# 4. Access Swagger UI
 open http://localhost:8080/asapp-authentication-service/swagger-ui.html
 ```
 
@@ -223,39 +226,29 @@ curl -X GET http://localhost:8080/asapp-authentication-service/api/users \
 
 ## Configuration
 
-### Application Properties
+### Property Sources
 
-**Key Configuration** (`application.properties`):
+Merged at startup via `spring.config.import`; local files take precedence over centralized ones.
 
-```properties
-# Server
-server.port=8080
-server.servlet.context-path=/asapp-authentication-service
+| File | Source | Scope |
+|------|--------|-------|
+| `application-docker.properties` | Local | docker profile |
+| `application.properties` | Local | all profiles |
+| `asapp-authentication-service.properties` | Centralized | service-specific |
+| `application-docker.properties` | Centralized | shared, docker profile |
+| `application.properties` | Centralized | shared |
 
-# Database
-spring.datasource.url=jdbc:postgresql://localhost:5432/authenticationdb
-spring.datasource.username=user
-spring.datasource.password=secret
+### Docker Environment Variables
 
-# JWT Security
-asapp.security.jwt-secret=<base64-encoded-secret>
-asapp.security.access-token.expiration-time=300000    # 5 minutes
-asapp.security.refresh-token.expiration-time=3600000  # 1 hour
-
-# Redis
-spring.data.redis.host=localhost
-spring.data.redis.port=6379
-spring.data.redis.password=secret
-
-# Actuator (management port)
-management.server.port=8090
-management.endpoints.web.exposure.include=*
-```
-
-### Environment-Specific Configuration
-
-- `application.properties` - Default (local development)
-- `application-docker.properties` - Docker Compose environment
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `SERVER_PORT` | HTTP server port | `8080` |
+| `MANAGEMENT_PORT` | Actuator management port | `8090` |
+| `SPRING_DATASOURCE_URL` | PostgreSQL JDBC URL | `jdbc:postgresql://localhost:5432/authenticationdb` |
+| `SPRING_DATASOURCE_USERNAME` | Database username | `user` |
+| `SPRING_DATASOURCE_PASSWORD` | Database password | `secret` |
+| `SPRING_DATA_REDIS_HOST` | Redis hostname | `localhost` |
+| `SPRING_DATA_REDIS_PASSWORD` | Redis password | `secret` |
 
 ## Development
 
@@ -355,6 +348,7 @@ open target/pit-reports/<timestamp>/index.html
 | GET    | `/actuator/prometheus`  | Prometheus metrics     |
 | GET    | `/actuator/metrics`     | Available metrics list |
 | GET    | `/actuator/info`        | Application info       |
+| POST   | `/actuator/refresh`     | Reload configuration from config server |
 
 **Actuator Port**: `8090` (separate from application port `8080`)
 
@@ -362,6 +356,7 @@ open target/pit-reports/<timestamp>/index.html
 
 - **Spring Boot**: 4.0.5
 - **Spring Framework**: 7.x
+- **Configuration**: Spring Cloud Config 5.x
 - **Security**: Spring Security + Nimbus JOSE+JWT
 - **Migrations**: Liquibase
 - **Mapping**: MapStruct
@@ -442,7 +437,6 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 
 - [ASAPP Main Repository](../../README.md)
 - [Architecture Guide](../../docs/claude/architecture.md)
-- [Domain-Driven Design Patterns](../../docs/claude/domain-driven-design.md)
 - [Testing Strategy](../../docs/claude/testing.md)
 - [API Conventions](../../docs/claude/api-conventions.md)
 

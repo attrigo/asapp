@@ -88,7 +88,7 @@ class ActuatorEndpointsIT {
                                                                                                  "env", "env-toMatch", "liquibase", "loggers", "loggers-name",
                                                                                                  "heapdump", "threaddump", "prometheus",
                                                                                                  "metrics-requiredMetricName", "metrics", "sbom-id", "sbom",
-                                                                                                 "scheduledtasks", "httpexchanges", "mappings"));
+                                                                                                 "scheduledtasks", "httpexchanges", "mappings", "refresh"));
     }
 
     @Test

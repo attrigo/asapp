@@ -13,7 +13,6 @@
 **Key Features**:
 - ✅ URI building utilities for dynamic service URLs
 - ✅ Pre-configured REST clients for Tasks service
-- ✅ Fallback configuration for Spring RestClient
 - ✅ Automatic JWT propagation for service-to-service calls
 - ✅ Type-safe response models
 
@@ -107,32 +106,10 @@ public UriHandler uriHandler(@Value("${asapp.client.users.base-url}") String bas
 }
 ```
 
-### Fallback RestClient Configuration
-
-Provides default `RestClient.Builder` bean if services don't define custom configuration:
-
-```java
-// Automatically available in Spring context
-@Autowired
-private RestClient.Builder restClientBuilder;
-
-public void makeHttpCall() {
-    var response = restClientBuilder.build()
-                                    .get()
-                                    .uri("https://example.com/api/data")
-                                    .retrieve()
-                                    .body(String.class);
-}
-```
-
-**Can be overridden** in individual services for custom interceptors (e.g., JWT propagation).
-
 ## Library Structure
 
 ```
 src/main/java/com/bcn/asapp/clients/
-├── config/
-│   └── FallbackRestClientConfiguration.java  # Default RestClient.Builder bean
 ├── tasks/
 │   ├── TasksClient.java                      # High-level Tasks service client
 │   ├── TasksRestClient.java                  # Low-level REST implementation
@@ -171,14 +148,6 @@ src/main/java/com/bcn/asapp/clients/
 uriHandler.buildUri("/api", "tasks", "user", userId)
 // → http://localhost:8081/asapp-tasks-service/api/tasks/user/{userId}
 ```
-
-### FallbackRestClientConfiguration
-
-**Purpose**: Provides default `RestClient.Builder` bean
-
-**Condition**: Only activated if no other `RestClient.Builder` bean exists (`@ConditionalOnMissingBean`)
-
-**Usage**: Allows services to override with custom configuration (interceptors, error handlers)
 
 ## Development
 

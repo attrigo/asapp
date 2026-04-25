@@ -16,37 +16,46 @@
 
 package com.bcn.asapp.users.infrastructure.config;
 
+import java.net.http.HttpClient;
+
+import org.springframework.boot.restclient.RestClientCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.web.client.RestClient;
+import org.springframework.http.client.JdkClientHttpRequestFactory;
 
 import com.bcn.asapp.users.infrastructure.security.client.JwtInterceptor;
 
 /**
  * Configuration class for HTTP REST clients.
  * <p>
- * Configures a {@link RestClient.Builder} bean with interceptors for outgoing HTTP requests, enabling automatic JWT authentication propagation.
+ * Registers a {@link RestClientCustomizer} bean that Spring Boot applies to the shared {@link org.springframework.web.client.RestClient.Builder}, configuring
+ * it for service-to-service HTTP communication with redirect disabled and automatic JWT authentication propagation.
  *
  * @since 0.2.0
- * @see RestClient.Builder
- * @see JwtInterceptor
+ * @see RestClientCustomizer
  * @author attrigo
  */
 @Configuration
 public class RestClientConfiguration {
 
     /**
-     * Creates a {@link RestClient.Builder} bean with JWT authentication support.
+     * Creates a {@link RestClientCustomizer} bean that configures the shared {@link org.springframework.web.client.RestClient.Builder} for service-to-service
+     * HTTP communication.
      * <p>
-     * Configures the builder with a {@link JwtInterceptor} that automatically injects JWT Bearer tokens into the Authorization header of all outgoing HTTP
-     * requests.
+     * Applies a redirect-disabled {@link JdkClientHttpRequestFactory} and a {@link JwtInterceptor} that automatically injects JWT Bearer tokens into the
+     * Authorization header of all outgoing HTTP requests.
      *
-     * @return the configured {@link RestClient.Builder}
+     * @return the {@link RestClientCustomizer}
      */
     @Bean
-    RestClient.Builder restClientBuilder() {
-        return RestClient.builder()
-                         .requestInterceptor(new JwtInterceptor());
+    RestClientCustomizer restClientCustomizer() {
+        HttpClient httpClient = HttpClient.newBuilder()
+                                          .followRedirects(HttpClient.Redirect.NEVER)
+                                          .build();
+        var requestFactory = new JdkClientHttpRequestFactory(httpClient);
+
+        return builder -> builder.requestFactory(requestFactory)
+                                 .requestInterceptor(new JwtInterceptor());
     }
 
 }

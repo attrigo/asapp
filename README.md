@@ -19,22 +19,34 @@ ASAPP (Application for Task Management) is a production-ready microservices appl
 - 🧪 **Test Coverage** - JaCoCo coverage reports and PITest mutation testing
 - 🐳 **Docker Support** - Full Docker Compose setup for local development
 - 📝 **OpenAPI Documentation** - Interactive Swagger UI for all services
+- ⚙️ **Centralized Configuration** - Spring Cloud Config Server for unified configuration management across all services
 
 ## Architecture
 
 ### Microservices
 
-ASAPP consists of three independent microservices:
+ASAPP consists of four microservices:
 
-| Service            | Port | Purpose                       | Database         | Cache/Store         |
-|--------------------|------|-------------------------------|------------------|---------------------|
-| **Authentication** | 8080 | User credentials & JWT tokens | authenticationdb | Redis (token store) |
-| **Users**          | 8082 | User profile management       | usersdb          | -                   |
-| **Tasks**          | 8081 | Task CRUD operations          | tasksdb          | -                   |
+| Service            | Port      | Purpose                          | Database         | Cache/Store               |
+|--------------------|-----------|----------------------------------|------------------|---------------------------|
+| **Authentication** | 8080/8090 | User credentials & JWT tokens    | authenticationdb | Redis (token store)       |
+| **Config**         | 8888/8898 | Centralized configuration server | -                | native (`central-config`) |
+| **Tasks**          | 8081/8091 | Task CRUD operations             | tasksdb          | -                         |
+| **Users**          | 8082/8092 | User profile management          | usersdb          | -                         |
 
 ### System Architecture
 
 ```
+    Startup:
+    ┌───────────────────────────────────────────────────────────┐
+    │                  Config Service  :8888                    │
+    │               (native: central-config/)                   │
+    └──────────┬──────────────────┬──────────────────┬──────────┘
+               │ cfg              │ cfg              │ cfg
+               ▼                  ▼                  ▼
+         Authentication         Tasks              Users
+
+    Runtime:
 ┌─────────────────────────────────────────────────────────────┐
 │                         Client                              │
 └────────────┬────────────────────────────────────────────────┘
@@ -176,10 +188,12 @@ docker-compose down -v
 
 ```
 asapp/
+├── central-config/                          # Centralized configuration (Spring Cloud Config native backend)
 ├── libs/                                    # Shared libraries
 │   ├── asapp-commons-url/                   # API endpoint constants
 │   └── asapp-rest-clients/                  # REST client infrastructure
 ├── services/                                # Microservices
+│   ├── asapp-config-service/                # Centralized configuration server
 │   ├── asapp-authentication-service/        # JWT & credentials
 │   ├── asapp-users-service/                 # User profiles
 │   └── asapp-tasks-service/                 # Task management
@@ -217,27 +231,27 @@ asapp/
 - `POST /api/auth/refresh` - Refresh tokens
 - `POST /api/auth/revoke` - Revoke tokens
 - `/api/users/*` - User CRUD
+- `POST /actuator/refresh` - Reload configuration from config server
 
 [View README](services/asapp-authentication-service/README.md)
 
-### Users Service
+### Config Service
 
-**Port**: 8082 (app), 8092 (actuator)
+**Port**: 8888 (app), 8898 (actuator)
 
 **Responsibilities**:
-- User profile management (firstName, lastName, email, phoneNumber)
-- Task aggregation via Tasks service integration
-- User queries and searches
-
-**Database**: `usersdb` (port 5434)
+- Serve centralized configuration to all services at startup
+- Enable runtime configuration refresh without redeployment (`/actuator/refresh`)
+- Read property files from `central-config/` using the native filesystem backend
 
 **API Endpoints**:
-- `POST /api/users` - Create profile
-- `GET /api/users/{id}` - Get profile (with tasks)
-- `PUT /api/users/{id}` - Update profile
-- `DELETE /api/users/{id}` - Delete profile
+- `GET /{application}/{profile}` - Fetch merged configuration for a service
+- `GET /{application}/{profile}/{label}` - Fetch configuration for a specific label
+- `GET /{application}-{profile}.properties` - Fetch raw properties file
 
-[View README](services/asapp-users-service/README.md)
+**Must be started before all other services.**
+
+[View README](services/asapp-config-service/README.md)
 
 ### Tasks Service
 
@@ -256,18 +270,41 @@ asapp/
 - `GET /api/tasks/user/{id}` - Get user's tasks
 - `PUT /api/tasks/{id}` - Update task
 - `DELETE /api/tasks/{id}` - Delete task
+- `POST /actuator/refresh` - Reload configuration from config server
 
 [View README](services/asapp-tasks-service/README.md)
+
+### Users Service
+
+**Port**: 8082 (app), 8092 (actuator)
+
+**Responsibilities**:
+- User profile management (firstName, lastName, email, phoneNumber)
+- Task aggregation via Tasks service integration
+- User queries and searches
+
+**Database**: `usersdb` (port 5434)
+
+**API Endpoints**:
+- `POST /api/users` - Create profile
+- `GET /api/users/{id}` - Get profile (with tasks)
+- `PUT /api/users/{id}` - Update profile
+- `DELETE /api/users/{id}` - Delete profile
+- `POST /actuator/refresh` - Reload configuration from config server
+
+[View README](services/asapp-users-service/README.md)
 
 ## Technology Stack
 
 ### Framework
 
 - **Spring Boot**: 4.0.5
+- **Spring Cloud**: 2025.1.1 (Oakwood)
 - **Spring Framework**: 7.x
 
 ### Key Dependencies
 
+- **Configuration**: Spring Cloud Config 5.x
 - **Security**: Spring Security 7.x, Nimbus JOSE+JWT 9.x
 - **Data Access**: Spring Data JDBC
 - **Migrations**: Liquibase 4.x
@@ -378,14 +415,24 @@ mvn liquibase:rollback -Dliquibase.rollbackCount=1
 ### Running Services Locally
 
 ```bash
-# Start specific database
-docker-compose up -d asapp-authentication-postgres-db
+# 1. Start the config service first (terminal 1)
+cd services/asapp-config-service
+mvn spring-boot:run
 
-# Run service
+# 2. Start all required infrastructure (terminal 2)
+docker-compose up -d asapp-authentication-postgres-db asapp-tasks-postgres-db asapp-users-postgres-db asapp-redis
+
+# 3. Start the authentication service (terminal 3)
 cd services/asapp-authentication-service
 mvn spring-boot:run
 
-# Or run specific service via IDE (main class: AsappAuthenticationServiceApplication)
+# 4. Start the tasks service (terminal 4)
+cd services/asapp-tasks-service
+mvn spring-boot:run
+
+# 5. Start the users service (terminal 5)
+cd services/asapp-users-service
+mvn spring-boot:run
 ```
 
 ## Monitoring and Observability
@@ -396,9 +443,10 @@ mvn spring-boot:run
 |------------------------------|--------------------------------------------------------------|--------------|-----------------------|
 | **Grafana**                  | http://localhost:3000                                        | admin/secret | Metrics visualization |
 | **Prometheus**               | http://localhost:9090                                        | -            | Metrics database      |
+| **Config Actuator**          | http://localhost:8898/asapp-config-service/actuator          | -            | Health & metrics      |
 | **Authentication Actuator**  | http://localhost:8090/asapp-authentication-service/actuator  | JWT          | Health & metrics      |
-| **Users Actuator**           | http://localhost:8092/asapp-users-service/actuator           | JWT          | Health & metrics      |
 | **Tasks Actuator**           | http://localhost:8091/asapp-tasks-service/actuator           | JWT          | Health & metrics      |
+| **Users Actuator**           | http://localhost:8092/asapp-users-service/actuator           | JWT          | Health & metrics      |
 
 ### Pre-configured Dashboards
 
@@ -616,6 +664,7 @@ Comprehensive guides for working with ASAPP:
 
 ### Service-Specific
 
+- [Config Service](services/asapp-config-service/README.md)
 - [Authentication Service](services/asapp-authentication-service/README.md)
 - [Users Service](services/asapp-users-service/README.md)
 - [Tasks Service](services/asapp-tasks-service/README.md)
@@ -626,6 +675,20 @@ Comprehensive guides for working with ASAPP:
 - [REST Clients](libs/asapp-rest-clients/README.md)
 
 ## Troubleshooting
+
+### Config Service Not Reachable
+
+```bash
+# Verify the config service is up
+curl http://localhost:8888/asapp-config-service/actuator/health
+
+# Verify configuration is being served correctly
+curl http://localhost:8888/asapp-config-service/asapp-tasks-service/default
+```
+
+**Issue**: Services fail to start with `ConfigClientFailFastException`
+
+**Solution**: Start `asapp-config-service` before any other service. See [Running Services Locally](#running-services-locally).
 
 ### Services Not Starting
 

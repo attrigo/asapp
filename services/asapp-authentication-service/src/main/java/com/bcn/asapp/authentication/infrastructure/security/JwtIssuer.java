@@ -26,6 +26,7 @@ import static com.bcn.asapp.authentication.domain.authentication.JwtType.REFRESH
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
 
 import com.nimbusds.jose.JOSEException;
@@ -74,6 +75,7 @@ import com.bcn.asapp.authentication.domain.user.Role;
  * @author attrigo
  */
 @Component
+@RefreshScope
 public class JwtIssuer implements TokenIssuer {
 
     private static final Logger logger = LoggerFactory.getLogger(JwtIssuer.class);

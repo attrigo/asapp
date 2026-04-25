@@ -121,19 +121,23 @@ The service implements **DDD patterns**:
 - **Docker**: 20.10+
 - **Docker Compose**: 2.0+
 - **PostgreSQL**: 15+ (via Docker)
+- **Redis**: 7+ (via Docker)
 
 ## Quick Start
 
 ### Run Locally (Development Mode)
 
 ```bash
-# 1. Start PostgreSQL database
+# 1. Start the config service (in a separate terminal, from project root)
+cd services/asapp-config-service && mvn spring-boot:run
+
+# 2. Start PostgreSQL database
 docker-compose up -d asapp-users-postgres-db
 
-# 2. Run the service
+# 3. Run the service
 mvn spring-boot:run
 
-# 3. Access Swagger UI
+# 4. Access Swagger UI
 open http://localhost:8082/asapp-users-service/swagger-ui.html
 ```
 
@@ -190,35 +194,28 @@ curl -X GET http://localhost:8082/asapp-users-service/api/users/{id} \
 
 ## Configuration
 
-### Application Properties
+### Property Sources
 
-**Key Configuration** (`application.properties`):
+Merged at startup via `spring.config.import`; local files take precedence over centralized ones.
 
-```properties
-# Server
-server.port=8082
-server.servlet.context-path=/asapp-users-service
+| File | Source | Scope |
+|------|--------|-------|
+| `application-docker.properties` | Local | docker profile |
+| `application.properties` | Local | all profiles |
+| `asapp-users-service.properties` | Centralized | service-specific |
+| `application-docker.properties` | Centralized | shared, docker profile |
+| `application.properties` | Centralized | shared |
 
-# Database
-spring.datasource.url=jdbc:postgresql://localhost:5434/usersdb
-spring.datasource.username=user
-spring.datasource.password=secret
+### Docker Environment Variables
 
-# JWT Security
-asapp.security.jwt-secret=<base64-encoded-secret>
-
-# Tasks Service Client
-asapp.client.tasks.base-url=http://localhost:8081/asapp-tasks-service
-
-# Actuator (management port)
-management.server.port=8092
-management.endpoints.web.exposure.include=*
-```
-
-### Environment-Specific Configuration
-
-- `application.properties` - Default (local development)
-- `application-docker.properties` - Docker Compose environment
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `SERVER_PORT` | HTTP server port | `8082` |
+| `MANAGEMENT_PORT` | Actuator management port | `8092` |
+| `SPRING_DATASOURCE_URL` | PostgreSQL JDBC URL | `jdbc:postgresql://localhost:5434/usersdb` |
+| `SPRING_DATASOURCE_USERNAME` | Database username | `user` |
+| `SPRING_DATASOURCE_PASSWORD` | Database password | `secret` |
+| `ASAPP_CLIENT_TASKS_BASE_URL` | Tasks service base URL | `http://localhost:8081/asapp-tasks-service` |
 
 ## Development
 
@@ -310,6 +307,7 @@ open target/pit-reports/<timestamp>/index.html
 | GET    | `/actuator/prometheus` | Prometheus metrics     |
 | GET    | `/actuator/metrics`    | Available metrics list |
 | GET    | `/actuator/info`       | Application info       |
+| POST   | `/actuator/refresh`    | Reload configuration from config server |
 
 **Actuator Port**: `8092` (separate from application port `8082`)
 
@@ -317,6 +315,7 @@ open target/pit-reports/<timestamp>/index.html
 
 - **Spring Boot**: 4.0.5
 - **Spring Framework**: 7.x
+- **Configuration**: Spring Cloud Config 5.x
 - **Security**: Spring Security + Nimbus JOSE+JWT
 - **Migrations**: Liquibase
 - **Mapping**: MapStruct

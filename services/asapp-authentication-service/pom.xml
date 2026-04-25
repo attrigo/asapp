@@ -30,7 +30,7 @@
             <groupId>com.bcn.asapp</groupId>
             <artifactId>asapp-commons-url</artifactId>
         </dependency>
-        <!-- ## Spring Dependencies -->
+        <!-- ## Spring Boot Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
@@ -58,6 +58,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webmvc</artifactId>
+        </dependency>
+        <!-- ## Spring Cloud Dependencies -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
         </dependency>
         <!-- ## Org Dependencies -->
         <dependency> <!-- Required by Spring Security PasswordEncoderFactories -->
@@ -88,7 +93,7 @@
         </dependency>
 
         <!-- # Runtime Dependencies -->
-        <!-- ## Spring Dependencies -->
+        <!-- ## Spring Boot Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -98,7 +103,7 @@
         <!-- ## Org Dependencies -->
 
         <!-- # Test Dependencies -->
-        <!-- ## Spring Dependencies -->
+        <!-- ## Spring Boot Dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator-test</artifactId>
