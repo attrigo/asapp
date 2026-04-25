@@ -208,8 +208,13 @@
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <configuration>
                         <image>
+                            <buildpacks>
+                                <buildpack>urn:cnb:builder:paketo-buildpacks/java</buildpack>
+                                <buildpack>docker.io/paketobuildpacks/health-checker</buildpack>
+                            </buildpacks>
                             <name>ghcr.io/attrigo/${project.artifactId}:${project.version}</name>
                             <env>
+                                <BP_HEALTH_CHECKER_ENABLED>true</BP_HEALTH_CHECKER_ENABLED>
                                 <BP_JVM_VERSION>${java.version}</BP_JVM_VERSION>
                             </env>
                             <createdDate>${maven.build.timestamp}</createdDate>

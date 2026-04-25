@@ -174,6 +174,7 @@
     * [X] Secure `asapp-config-service` with HTTP Basic authentication
     * [X] Register `asapp-config-service` in Prometheus and Grafana
     * [X] Add `asapp-config-service` the release workflow
+    * [X] Use readyz/livez in business service to ensure config service is up
 * [ ] Add Spring Service discovery
     * [ ] Create `asapp-discovery-service` Eureka Server module
     * [ ] Add Eureka Client dependency to all services
