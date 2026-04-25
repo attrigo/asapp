@@ -303,17 +303,15 @@ open target/pit-reports/<timestamp>/index.html
 | PUT    | `/api/tasks/{id}`      | Update task          | ✅             |
 | DELETE | `/api/tasks/{id}`      | Delete task          | ✅             |
 
-### Actuator Endpoints (Protected)
+### Management Endpoints
 
-| Method | Endpoint               | Description            |
-|--------|------------------------|------------------------|
-| GET    | `/actuator/health`     | Health status          |
-| GET    | `/actuator/prometheus` | Prometheus metrics     |
-| GET    | `/actuator/metrics`    | Available metrics list |
-| GET    | `/actuator/info`       | Application info       |
-| POST   | `/actuator/refresh`    | Reload configuration from config server |
+Management endpoints are available on port `8091` at `/asapp-tasks-service/actuator`.
 
-**Actuator Port**: `8091` (separate from application port `8081`)
+`/actuator/health` is public; all other endpoints require HTTP Basic authentication (`tasks-user` / `tasks-secret`).
+
+Use `GET /actuator` to see the full list of available endpoints.
+
+**Actuator Port**: `8091`
 
 ## Technology Stack
 

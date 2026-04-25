@@ -48,21 +48,6 @@ services:
       - redis-data:/data
 
   # Tools
-  asapp-prometheus-authentication:
-    image: curlimages/curl:8.11.1
-    container_name: asapp-prometheus-authentication
-    user: "root"
-    command: [ "/bin/sh", "/prometheus_authentication.sh" ]
-    environment:
-      - AUTHENTICATION_SERVICE_BASE_URL=http://asapp-authentication-service:8080/asapp-authentication-service
-      - PROMETHEUS_USER=sa.prometheus@asapp.com
-      - PROMETHEUS_PASSWORD=sa-secret
-      - ACCESS_TOKEN_EXPIRATION_TIME=300000
-    volumes:
-      - ./tools/prometheus/prometheus_authentication.sh:/prometheus_authentication.sh:ro
-      - prometheus_auth:/etc/prometheus/auth:rw
-    depends_on:
-      - asapp-authentication-service
   asapp-prometheus:
     image: prom/prometheus:v3.8.0
     container_name: asapp-prometheus
@@ -73,9 +58,6 @@ services:
       - --config.file=/etc/prometheus/prometheus.yml
     volumes:
       - ./tools/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus_auth:/etc/prometheus/auth:ro
-    depends_on:
-      - asapp-prometheus-authentication
   asapp-grafana:
     image: grafana/grafana:12.3.1
     container_name: asapp-grafana
@@ -112,6 +94,8 @@ services:
       - REDIS_PASSWORD=secret
       - CONFIG_USERNAME=config-user
       - CONFIG_PASSWORD=config-secret
+      - MANAGEMENT_USERNAME=auth-user
+      - MANAGEMENT_PASSWORD=auth-secret
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
       - ASAPP_SECURITY_ACCESS_TOKEN_EXPIRATION_TIME=300000
       - ASAPP_SECURITY_REFRESH_TOKEN_EXPIRATION_TIME=3600000
@@ -165,6 +149,8 @@ services:
       - REDIS_PASSWORD=secret
       - CONFIG_USERNAME=config-user
       - CONFIG_PASSWORD=config-secret
+      - MANAGEMENT_USERNAME=tasks-user
+      - MANAGEMENT_PASSWORD=tasks-secret
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
     depends_on:
       asapp-tasks-postgres-db:
@@ -191,6 +177,8 @@ services:
       - REDIS_PASSWORD=secret
       - CONFIG_USERNAME=config-user
       - CONFIG_PASSWORD=config-secret
+      - MANAGEMENT_USERNAME=users-user
+      - MANAGEMENT_PASSWORD=users-secret
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
       - ASAPP_CLIENT_TASKS_BASE_URL=http://asapp-tasks-service:8081/asapp-tasks-service
     depends_on:
@@ -200,7 +188,6 @@ services:
         condition: service_healthy
 
 volumes:
-  prometheus_auth:
   authentication-postgres-db-data:
   tasks-postgres-db-data:
   users-postgres-db-data:

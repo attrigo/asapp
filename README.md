@@ -444,9 +444,9 @@ mvn spring-boot:run
 | **Grafana**                  | http://localhost:3000                                        | admin/secret | Metrics visualization |
 | **Prometheus**               | http://localhost:9090                                        | -            | Metrics database      |
 | **Config Actuator**          | http://localhost:8898/asapp-config-service/actuator          | -            | Health & metrics      |
-| **Authentication Actuator**  | http://localhost:8090/asapp-authentication-service/actuator  | JWT          | Health & metrics      |
-| **Tasks Actuator**           | http://localhost:8091/asapp-tasks-service/actuator           | JWT          | Health & metrics      |
-| **Users Actuator**           | http://localhost:8092/asapp-users-service/actuator           | JWT          | Health & metrics      |
+| **Authentication Actuator**  | http://localhost:8090/asapp-authentication-service/actuator  | HTTP Basic   | Health & metrics      |
+| **Tasks Actuator**           | http://localhost:8091/asapp-tasks-service/actuator           | HTTP Basic   | Health & metrics      |
+| **Users Actuator**           | http://localhost:8092/asapp-users-service/actuator           | HTTP Basic   | Health & metrics      |
 
 ### Pre-configured Dashboards
 
@@ -457,20 +457,6 @@ mvn spring-boot:run
 - HTTP request rates and response times
 - Database connection pool usage
 - Custom business metrics
-
-### Prometheus Service Account
-
-Create this user for Prometheus to scrape metrics:
-
-```bash
-curl -X POST http://localhost:8080/asapp-authentication-service/api/users \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "sa.prometheus@asapp.com",
-    "password": "sa-secret",
-    "role": "ADMIN"
-  }'
-```
 
 ## API Documentation
 
@@ -515,8 +501,10 @@ Each service provides interactive Swagger UI:
 
 **Protected** (requires JWT):
 - All other `/api/*` endpoints
+
+**Protected** (requires HTTP Basic):
 - `/actuator/prometheus` - Detailed metrics
-- `/actuator/*` - Most actuator endpoints
+- `/actuator/*` - Most management endpoints
 
 ## Contributing
 
@@ -730,13 +718,11 @@ docker exec -it asapp-authentication-postgres-db psql -U user -d authenticationd
 # 1. Check Prometheus targets
 open http://localhost:9090/targets
 
-# 2. Verify Prometheus service account exists
-curl -X POST http://localhost:8080/asapp-authentication-service/api/auth/token \
-  -H "Content-Type: application/json" \
-  -d '{"username":"sa.prometheus@asapp.com","password":"sa-secret"}'
+# 2. Verify management credentials work (example for the tasks service)
+curl -u tasks-user:tasks-secret http://localhost:8091/asapp-tasks-service/actuator/prometheus
 
-# 3. Check authentication container logs
-docker-compose logs asapp-prometheus-authentication
+# 3. Check Prometheus container logs
+docker-compose logs asapp-prometheus
 ```
 
 ## License

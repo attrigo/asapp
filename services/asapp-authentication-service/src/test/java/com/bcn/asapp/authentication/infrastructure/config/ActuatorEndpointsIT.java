@@ -16,19 +16,14 @@
 
 package com.bcn.asapp.authentication.infrastructure.config;
 
-import static com.bcn.asapp.authentication.infrastructure.authentication.out.RedisJwtStore.ACCESS_TOKEN_PREFIX;
-import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenMother.encodedAccessToken;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
-import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalManagementPort;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 import com.bcn.asapp.authentication.AsappAuthenticationServiceApplication;
@@ -46,135 +41,139 @@ import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
  * <li>Liquibase endpoint returns executed changesets</li>
  */
 @SpringBootTest(classes = AsappAuthenticationServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureRestTestClient
 @Import(TestContainerConfiguration.class)
 class ActuatorEndpointsIT {
 
-    @Autowired
-    private RestTestClient restTestClient;
+    @LocalManagementPort
+    private int managementPort;
 
-    @Autowired
-    private RedisTemplate<String, String> redisTemplate;
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
 
-    private final String encodedAccessToken = encodedAccessToken();
+    @Value("${spring.security.user.name}")
+    private String managementUsername;
 
-    private final String bearerToken = "Bearer " + encodedAccessToken;
+    @Value("${spring.security.user.password}")
+    private String managementPassword;
+
+    private RestTestClient managementRestTestClient;
 
     @BeforeEach
-    void beforeEach() {
-        assertThat(redisTemplate.getConnectionFactory()).isNotNull();
-        redisTemplate.delete(ACCESS_TOKEN_PREFIX + encodedAccessToken);
-        redisTemplate.opsForValue()
-                     .set(ACCESS_TOKEN_PREFIX + encodedAccessToken, "");
+    void setUp() {
+        managementRestTestClient = RestTestClient.bindToServer()
+                                                 .baseUrl("http://localhost:" + managementPort + contextPath)
+                                                 .build();
     }
 
     @Test
     void ReturnsStatusOkAndBodyContainsAllActuatorLinks_OnActuatorEndpoint() {
         // When & Then
-        restTestClient.get()
-                      .uri("/actuator")
-                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                      .exchange()
-                      .expectStatus()
-                      .isOk()
-                      .expectBody(String.class)
-                      .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
-                                                                                         .isObject()
-                                                                                         .containsKeys("_links")
-                                                                                         .node("_links")
-                                                                                         .isObject()
-                                                                                         .containsKeys("self", "beans", "health", "health-path", "info",
-                                                                                                 "conditions", "shutdown", "configprops", "configprops-prefix",
-                                                                                                 "env", "env-toMatch", "liquibase", "loggers", "loggers-name",
-                                                                                                 "heapdump", "threaddump", "prometheus",
-                                                                                                 "metrics-requiredMetricName", "metrics", "sbom-id", "sbom",
-                                                                                                 "scheduledtasks", "httpexchanges", "mappings", "refresh"));
+        managementRestTestClient.get()
+                                .uri("/actuator")
+                                .headers(h -> h.setBasicAuth(managementUsername, managementPassword))
+                                .exchange()
+                                .expectStatus()
+                                .isOk()
+                                .expectBody(String.class)
+                                .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
+                                                                                                   .isObject()
+                                                                                                   .containsKeys("_links")
+                                                                                                   .node("_links")
+                                                                                                   .isObject()
+                                                                                                   .containsKeys("self", "beans", "health", "health-path",
+                                                                                                           "info", "conditions", "shutdown", "configprops",
+                                                                                                           "configprops-prefix", "env", "env-toMatch",
+                                                                                                           "liquibase", "loggers", "loggers-name", "heapdump",
+                                                                                                           "threaddump", "prometheus",
+                                                                                                           "metrics-requiredMetricName", "metrics", "sbom-id",
+                                                                                                           "sbom", "scheduledtasks", "httpexchanges",
+                                                                                                           "mappings", "refresh"));
     }
 
     @Test
     void ReturnsStatusOkAndBodyContainsStatusAndGroups_OnHealthEndpointWithoutAuthentication() {
         // When & Then
-        restTestClient.get()
-                      .uri("/actuator/health")
-                      .exchange()
-                      .expectStatus()
-                      .isOk()
-                      .expectBody(String.class)
-                      .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
-                                                                                         .isObject()
-                                                                                         .containsKeys("status", "groups")
-                                                                                         .node("groups")
-                                                                                         .isArray()
-                                                                                         .contains("liveness", "readiness"));
+        managementRestTestClient.get()
+                                .uri("/actuator/health")
+                                .exchange()
+                                .expectStatus()
+                                .isOk()
+                                .expectBody(String.class)
+                                .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
+                                                                                                   .isObject()
+                                                                                                   .containsKeys("status", "groups")
+                                                                                                   .node("groups")
+                                                                                                   .isArray()
+                                                                                                   .contains("liveness", "readiness"));
     }
 
     @Test
     void ReturnsStatusOkAndBodyContainsStatusGroupsAndComponents_OnHealthEndpointWithAuthentication() {
         // When & Then
-        restTestClient.get()
-                      .uri("/actuator/health")
-                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                      .exchange()
-                      .expectStatus()
-                      .isOk()
-                      .expectBody(String.class)
-                      .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
-                                                                                         .isObject()
-                                                                                         .containsKeys("status", "groups", "components")
-                                                                                         .node("components")
-                                                                                         .isObject()
-                                                                                         .containsKeys("db", "diskSpace", "livenessState", "ping",
-                                                                                                 "readinessState", "ssl"));
+        managementRestTestClient.get()
+                                .uri("/actuator/health")
+                                .headers(h -> h.setBasicAuth(managementUsername, managementPassword))
+                                .exchange()
+                                .expectStatus()
+                                .isOk()
+                                .expectBody(String.class)
+                                .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
+                                                                                                   .isObject()
+                                                                                                   .containsKeys("status", "groups", "components")
+                                                                                                   .node("components")
+                                                                                                   .isObject()
+                                                                                                   .containsKeys("db", "diskSpace", "livenessState", "ping",
+                                                                                                           "readinessState", "ssl"));
     }
 
     @Test
     void ReturnsStatusOkAndBodyContainsGitBuildJavaOsProcessDetails_OnInfoEndpoint() {
         // When & Then
-        restTestClient.get()
-                      .uri("/actuator/info")
-                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                      .exchange()
-                      .expectStatus()
-                      .isOk()
-                      .expectBody(String.class)
-                      .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
-                                                                                         .isObject()
-                                                                                         .containsKeys("git", "build", "java", "os", "process"));
+        managementRestTestClient.get()
+                                .uri("/actuator/info")
+                                .headers(h -> h.setBasicAuth(managementUsername, managementPassword))
+                                .exchange()
+                                .expectStatus()
+                                .isOk()
+                                .expectBody(String.class)
+                                .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
+                                                                                                   .isObject()
+                                                                                                   .containsKeys("git", "build", "java", "os", "process"));
     }
 
     @Test
     void ReturnsStatusOkAndBodyContainsSBOMIds_OnSBOMEndpoint() {
         // When & Then
-        restTestClient.get()
-                      .uri("/actuator/sbom")
-                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                      .exchange()
-                      .expectStatus()
-                      .isOk()
-                      .expectBody(String.class)
-                      .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
-                                                                                         .isObject()
-                                                                                         .containsKeys("ids")
-                                                                                         .node("ids")
-                                                                                         .isArray());
+        managementRestTestClient.get()
+                                .uri("/actuator/sbom")
+                                .headers(h -> h.setBasicAuth(managementUsername, managementPassword))
+                                .exchange()
+                                .expectStatus()
+                                .isOk()
+                                .expectBody(String.class)
+                                .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
+                                                                                                   .isObject()
+                                                                                                   .containsKeys("ids")
+                                                                                                   .node("ids")
+                                                                                                   .isArray());
     }
 
     @Test
     void ReturnsStatusOkAndBodyContainsChangesets_OnLiquibaseEndpoint() {
         // When & Then
-        restTestClient.get()
-                      .uri("/actuator/liquibase")
-                      .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                      .exchange()
-                      .expectStatus()
-                      .isOk()
-                      .expectBody(String.class)
-                      .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
-                                                                                         .isObject()
-                                                                                         .containsKeys("contexts")
-                                                                                         .node("contexts")
-                                                                                         .isObject()
-                                                                                         .isNotEmpty());
+        managementRestTestClient.get()
+                                .uri("/actuator/liquibase")
+                                .headers(h -> h.setBasicAuth(managementUsername, managementPassword))
+                                .exchange()
+                                .expectStatus()
+                                .isOk()
+                                .expectBody(String.class)
+                                .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
+                                                                                                   .isObject()
+                                                                                                   .containsKeys("contexts")
+                                                                                                   .node("contexts")
+                                                                                                   .isObject()
+                                                                                                   .isNotEmpty());
     }
 
 }

@@ -175,8 +175,8 @@
     * [X] Register `asapp-config-service` in Prometheus and Grafana
     * [X] Add `asapp-config-service` the release workflow
     * [X] Use readyz/livez in business service to ensure config service is up
-* [ ] Security Improvements
-    * [ ] Secure `/actuator/refresh` endpoints on business services (tasks, users, authentication) — verify the management port (8090/8091/8092) enforces HTTP Basic auth; write integration tests to confirm unauthenticated requests are rejected with 401
+* [X] Security Improvements
+    * [X] Secure `/actuator/refresh` endpoints on business services (tasks, users, authentication)
 * [ ] Add Spring Service discovery
     * [ ] Create `asapp-discovery-service` Eureka Server module
     * [ ] Add Eureka Client dependency to all services
@@ -194,8 +194,8 @@
     * [ ] Update README files of each service to reference the generated documentation
 * [ ] Test Improvements
     * [ ] Rename `JwtAuthenticationFilterIT` to `SecurityConfigurationIT` — the class covers broader security config (not just the JWT filter)
-    * [ ] Test Actuator endpoints under management port — verify `/actuator/refresh` requires HTTP Basic auth (401 without credentials), `/actuator/health` returns 200, `/actuator/prometheus` is accessible
-    * [ ] Test `livez` and `readyz` endpoints are served on the main port and are publicly accessible (no auth required)
+    * [X] Test Actuator endpoints under management port — verify `/actuator/refresh` requires HTTP Basic auth (401 without credentials), `/actuator/health` returns 200, `/actuator/prometheus` is accessible
+    * [X] Test `livez` and `readyz` endpoints are served on the main port and are publicly accessible (no auth required)
     * [ ] Create test fixture for `DecodedJwt` to reduce boilerplate in JWT-related unit tests
 * [ ] CI/CD
     * [ ] Rename release GitHub Actions workflow name from "Build, publish and release the project" to something release-focused (e.g. "Release")
