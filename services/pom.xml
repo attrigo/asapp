@@ -19,6 +19,10 @@
 
     <properties>
         <!-- Dependencies Versions -->
+        <!-- # BOM Dependencies -->
+        <!-- ## Spring Cloud Dependencies -->
+        <spring-cloud.version>2025.1.1</spring-cloud.version>
+
         <!-- # Compile Dependencies -->
         <!-- ## Org Dependencies -->
         <mapstruct.version>1.6.3</mapstruct.version>
@@ -31,7 +35,7 @@
         <mockserver-client-java.version>5.15.0</mockserver-client-java.version>
         <testcontainers.version>2.0.4</testcontainers.version>
         <!-- ## Other Dependencies -->
-        <json-unit-assertj.version>4.1.1</json-unit-assertj.version>
+        <json-unit-assertj.version>5.1.1</json-unit-assertj.version>
         <testcontainers-redis.version>2.2.4</testcontainers-redis.version>
 
         <!-- # CVE Dependencies -->
@@ -47,6 +51,16 @@
 
     <dependencyManagement>
         <dependencies>
+            <!-- # BOM Dependencies -->
+            <!-- ## Spring Cloud Dependencies -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
             <!-- # Compile Dependencies -->
             <!-- ## ASAPP Dependencies -->
             <dependency>
@@ -78,7 +92,7 @@
             </dependency>
 
             <!-- # Runtime Dependencies -->
-            <!-- ## Spring Dependencies -->
+            <!-- ## Org Dependencies -->
             <dependency>
                 <groupId>org.mock-server</groupId>
                 <artifactId>mockserver-client-java</artifactId>
@@ -194,8 +208,13 @@
                     <artifactId>spring-boot-maven-plugin</artifactId>
                     <configuration>
                         <image>
+                            <buildpacks>
+                                <buildpack>urn:cnb:builder:paketo-buildpacks/java</buildpack>
+                                <buildpack>docker.io/paketobuildpacks/health-checker</buildpack>
+                            </buildpacks>
                             <name>ghcr.io/attrigo/${project.artifactId}:${project.version}</name>
                             <env>
+                                <BP_HEALTH_CHECKER_ENABLED>true</BP_HEALTH_CHECKER_ENABLED>
                                 <BP_JVM_VERSION>${java.version}</BP_JVM_VERSION>
                             </env>
                             <createdDate>${maven.build.timestamp}</createdDate>
@@ -334,6 +353,7 @@
 
     <modules>
         <module>asapp-authentication-service</module>
+        <module>asapp-config-service</module>
         <module>asapp-tasks-service</module>
         <module>asapp-users-service</module>
     </modules>

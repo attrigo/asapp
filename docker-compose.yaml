@@ -93,7 +93,7 @@ services:
 
   # Services
   asapp-authentication-service:
-    image: 'ghcr.io/attrigo/asapp-authentication-service:0.2.0-SNAPSHOT'
+    image: 'ghcr.io/attrigo/asapp-authentication-service:0.3.0-SNAPSHOT'
     container_name: asapp-authentication-service
     restart: unless-stopped
     ports:
@@ -110,15 +110,43 @@ services:
       - REDIS_HOST=asapp-redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=secret
+      - CONFIG_USERNAME=config-user
+      - CONFIG_PASSWORD=config-secret
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
       - ASAPP_SECURITY_ACCESS_TOKEN_EXPIRATION_TIME=300000
       - ASAPP_SECURITY_REFRESH_TOKEN_EXPIRATION_TIME=3600000
       - ASAPP_SECURITY_JWT_CLEANUP_ENABLED=true
       - ASAPP_SECURITY_JWT_CLEANUP_CRON_EXPRESSION=0 0 2 * * ?  # Daily at 2:00 AM
     depends_on:
-      - asapp-authentication-postgres-db
+      asapp-authentication-postgres-db:
+        condition: service_started
+      asapp-config-service:
+        condition: service_healthy
+  asapp-config-service:
+    image: 'ghcr.io/attrigo/asapp-config-service:0.3.0-SNAPSHOT'
+    container_name: asapp-config-service
+    restart: unless-stopped
+    ports:
+      - '8888:8888'
+      - '8898:8898'
+    environment:
+      - SPRING_PROFILES_ACTIVE=native,docker
+      - SERVER_PORT=8888
+      - MANAGEMENT_PORT=8898
+      - CONFIG_USERNAME=config-user
+      - CONFIG_PASSWORD=config-secret
+      - THC_PORT=8888
+      - THC_PATH=/asapp-config-service/readyz
+    volumes:
+      - ./central-config:/central-config:ro
+    healthcheck:
+      test: ["CMD", "/workspace/health-check"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
   asapp-tasks-service:
-    image: 'ghcr.io/attrigo/asapp-tasks-service:0.2.0-SNAPSHOT'
+    image: 'ghcr.io/attrigo/asapp-tasks-service:0.3.0-SNAPSHOT'
     container_name: asapp-tasks-service
     restart: unless-stopped
     ports:
@@ -135,11 +163,16 @@ services:
       - REDIS_HOST=asapp-redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=secret
+      - CONFIG_USERNAME=config-user
+      - CONFIG_PASSWORD=config-secret
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
     depends_on:
-      - asapp-tasks-postgres-db
+      asapp-tasks-postgres-db:
+        condition: service_started
+      asapp-config-service:
+        condition: service_healthy
   asapp-users-service:
-    image: 'ghcr.io/attrigo/asapp-users-service:0.2.0-SNAPSHOT'
+    image: 'ghcr.io/attrigo/asapp-users-service:0.3.0-SNAPSHOT'
     container_name: asapp-users-service
     restart: unless-stopped
     ports:
@@ -156,10 +189,15 @@ services:
       - REDIS_HOST=asapp-redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=secret
+      - CONFIG_USERNAME=config-user
+      - CONFIG_PASSWORD=config-secret
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
       - ASAPP_CLIENT_TASKS_BASE_URL=http://asapp-tasks-service:8081/asapp-tasks-service
     depends_on:
-      - asapp-users-postgres-db
+      asapp-users-postgres-db:
+        condition: service_started
+      asapp-config-service:
+        condition: service_healthy
 
 volumes:
   prometheus_auth:

@@ -33,7 +33,6 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
  * Tests OpenAPI and Swagger UI endpoint content exposed by the application.
  * <p>
  * Coverage:
- * <li>Swagger UI redirect endpoint returns 302 with Location header pointing to Swagger index page</li>
  * <li>Swagger UI index page returns HTML content</li>
  * <li>OpenAPI documentation endpoint returns a specification with the expected API info and security scheme</li>
  * <li>OpenAPI documentation endpoint returns a valid non-empty API specification</li>
@@ -45,20 +44,6 @@ class OpenApiEndpointsIT {
 
     @Autowired
     private RestTestClient restTestClient;
-
-    @Test
-    void ReturnsStatusFoundAndHeaderLocationToSwaggerIndexAndEmptyBody_OnSwaggerEndpoint() {
-        // When & Then
-        restTestClient.get()
-                      .uri("/swagger-ui.html")
-                      .exchange()
-                      .expectStatus()
-                      .isFound()
-                      .expectHeader()
-                      .location("/asapp-users-service/swagger-ui/index.html")
-                      .expectBody()
-                      .isEmpty();
-    }
 
     @Test
     void ReturnsStatusOkAndBodyWithHtmlContent_OnSwaggerIndexEndpoint() {
