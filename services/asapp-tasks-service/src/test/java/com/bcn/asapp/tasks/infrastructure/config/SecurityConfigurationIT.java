@@ -14,11 +14,11 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.authentication.infrastructure.config;
+package com.bcn.asapp.tasks.infrastructure.config;
 
-import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenMother.anEncodedTokenBuilder;
-import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenMother.encodedAccessToken;
-import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenMother.encodedRefreshToken;
+import static com.bcn.asapp.tasks.testutil.fixture.EncodedTokenMother.anEncodedTokenBuilder;
+import static com.bcn.asapp.tasks.testutil.fixture.EncodedTokenMother.encodedAccessToken;
+import static com.bcn.asapp.tasks.testutil.fixture.EncodedTokenMother.encodedRefreshToken;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.stream.Stream;
@@ -38,12 +38,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
-import com.bcn.asapp.authentication.AsappAuthenticationServiceApplication;
-import com.bcn.asapp.authentication.infrastructure.security.web.JwtAuthenticationFilter;
-import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
+import com.bcn.asapp.tasks.AsappTasksServiceApplication;
+import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
 
 /**
- * Tests {@link JwtAuthenticationFilter} JWT authentication and endpoint access control.
+ * Tests {@link SecurityConfiguration} JWT API authentication and actuator, Swagger and OpenAPI endpoint access control.
  * <p>
  * Coverage:
  * <li>Rejects API requests without Authorization header</li>
@@ -58,10 +57,10 @@ import com.bcn.asapp.authentication.testutil.TestContainerConfiguration;
  * <li>Allows public access to Swagger UI without credentials</li>
  * <li>Allows public access to OpenAPI documentation without credentials</li>
  */
-@SpringBootTest(classes = AsappAuthenticationServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = AsappTasksServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
 @Import(TestContainerConfiguration.class)
-class JwtAuthenticationFilterIT {
+class SecurityConfigurationIT {
 
     @Autowired
     private RestTestClient restTestClient;
@@ -85,7 +84,7 @@ class JwtAuthenticationFilterIT {
         void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // When & Then
             restTestClient.get()
-                          .uri("/api/users")
+                          .uri("/api/tasks")
                           .exchange()
                           .expectStatus()
                           .isUnauthorized()
@@ -100,7 +99,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/api/users")
+                          .uri("/api/tasks")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
@@ -116,7 +115,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/api/users")
+                          .uri("/api/tasks")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
@@ -132,7 +131,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/api/users")
+                          .uri("/api/tasks")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
@@ -150,7 +149,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/api/users")
+                          .uri("/api/tasks")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
@@ -168,7 +167,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/api/users")
+                          .uri("/api/tasks")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
@@ -186,7 +185,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/api/users")
+                          .uri("/api/tasks")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
@@ -204,7 +203,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/api/users")
+                          .uri("/api/tasks")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
@@ -222,7 +221,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/api/users")
+                          .uri("/api/tasks")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
@@ -238,7 +237,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/api/users")
+                          .uri("/api/tasks")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()
@@ -254,7 +253,7 @@ class JwtAuthenticationFilterIT {
 
             // When & Then
             restTestClient.get()
-                          .uri("/api/users")
+                          .uri("/api/tasks")
                           .header(HttpHeaders.AUTHORIZATION, bearerToken)
                           .exchange()
                           .expectStatus()

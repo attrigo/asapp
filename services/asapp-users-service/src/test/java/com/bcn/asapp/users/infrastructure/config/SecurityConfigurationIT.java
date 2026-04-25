@@ -39,11 +39,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 import com.bcn.asapp.users.AsappUsersServiceApplication;
-import com.bcn.asapp.users.infrastructure.security.web.JwtAuthenticationFilter;
 import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 
 /**
- * Tests {@link JwtAuthenticationFilter} JWT authentication and endpoint access control.
+ * Tests {@link SecurityConfiguration} JWT API authentication and actuator, Swagger and OpenAPI endpoint access control.
  * <p>
  * Coverage:
  * <li>Rejects API requests without Authorization header</li>
@@ -61,7 +60,7 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 @SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
 @Import(TestContainerConfiguration.class)
-class JwtAuthenticationFilterIT {
+class SecurityConfigurationIT {
 
     @Autowired
     private RestTestClient restTestClient;
