@@ -123,6 +123,9 @@ curl -X POST http://localhost:8091/asapp-tasks-service/actuator/refresh
 curl -X POST http://localhost:8092/asapp-users-service/actuator/refresh
 ```
 
+> **Note:** Only properties consumed by `@RefreshScope` beans or `@ConfigurationProperties` classes are applied at runtime.
+> Properties that drive Spring Boot auto-configuration decisions are evaluated once at startup and require a service restart to take effect.
+
 ## Configuration
 
 ### Property Sources
