@@ -203,16 +203,13 @@ Use `GET /actuator` to see the full list of available endpoints.
 Services consuming configuration from this server declare:
 
 ```properties
-# application.properties (local dev)
+# application.properties
 spring.cloud.config.password=config-secret
 spring.cloud.config.username=config-user
-spring.config.import=configserver:http://localhost:8888/asapp-config-service
-
-# application-docker.properties (Docker)
-spring.cloud.config.password=${CONFIG_PASSWORD:config-secret}
-spring.cloud.config.username=${CONFIG_USERNAME:config-user}
-spring.config.import=configserver:http://asapp-config-service:8888/asapp-config-service
+spring.config.import=configserver:${CONFIG_URI:http://localhost:8888/asapp-config-service}
 ```
+
+The `CONFIG_URI` placeholder defaults to `localhost:8888` for local development. In Docker, `docker-compose.yaml` sets `CONFIG_URI=http://asapp-config-service:8888/asapp-config-service` so the correct container hostname is used without any profile-specific override.
 
 The config server is a **required** dependency — services will refuse to start if it is unreachable. Start `asapp-config-service` before starting any other service.
 
