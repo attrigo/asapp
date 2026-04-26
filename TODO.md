@@ -204,12 +204,14 @@
     * [ ] Upgrade GitHub Actions to Node.js 24 compatible versions (`docker/login-action@v3` deprecated; forced migration by June 2nd, 2026)
     * [ ] Create a dedicated `ci` Maven profile (Spotless check only) and replace `-Pfull` in the CI workflow to avoid building release-only artifacts (Javadoc, sources JARs, coverage) on every push
     * [ ] Automate the upgrade of `asapp-*` service image tags in `docker-compose.yml` as part of the release workflow
-* [ ] Infrastructure improvements
-    * [ ] Remove obsolete top-level `version` attribute from `docker-compose.yml` (deprecated and ignored in Compose v2+)
-    * [ ] Expose management ports (8090, 8091, 8092, 8898) in `docker-compose.yml` to allow local access to actuator endpoints
-    * [ ] Add healthchecks to PostgreSQL containers (`pg_isready`) and Redis (`redis-cli ping`) in `docker-compose.yml`
-    * [ ] Add `depends_on` with healthcheck condition for Redis in services that use it (authentication-service for token blacklist)
-    * [ ] Add JVM tuning options (`-Xmx`, `-XX:+ExitOnOutOfMemoryError`, `-XX:+HeapDumpOnOutOfMemoryError`, `-XX:HeapDumpPath`) via `JAVA_OPTS` env var in `docker-compose.yml`
+* [X] Infrastructure improvements
+    * [X] Remove obsolete top-level `version` attribute from `docker-compose.yml` (deprecated and ignored in Compose v2+)
+    * [X] Expose management ports (8090, 8091, 8092, 8898) in `docker-compose.yml` to allow local access to actuator endpoints
+    * [X] Add healthchecks to PostgreSQL containers (`pg_isready`) and Redis (`redis-cli ping`) in `docker-compose.yml`
+    * [X] Add `depends_on` with healthcheck condition for Redis in services that use it (authentication-service for token blacklist)
+    * [X] Add JVM tuning options (`-Xmx`, `-XX:+ExitOnOutOfMemoryError`, `-XX:+HeapDumpOnOutOfMemoryError`, `-XX:HeapDumpPath`) via `JAVA_OPTS` env var in `docker-compose.yml`
+    * [X] Improve Docker volumes definition and usage
+    * [X] Replace `restart: unless-stopped` with `restart: on-failure:3` on business services to cap infinite restart loops
 * [ ] AI Code Assistant
     * [ ] Remove manual mode — require `gh` CLI; abort with a clear message if not available
     * [ ] Use `.github/changelog-draft.md` as the working file instead of `/tmp` (cross-platform, no `gh` path resolution issues on Windows)
@@ -361,8 +363,6 @@
 * [ ] Improve release skill to support patch version releases (e.g. 0.2.1)
 
 ### Infrastructure
-
-* [ ] Improve Docker volumes definition and usage
 
 ### Tools
 
