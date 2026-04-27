@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.config.config;
+package com.bcn.asapp.discovery.config;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
@@ -25,19 +25,20 @@ import org.springframework.boot.security.autoconfigure.actuate.web.servlet.Endpo
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 
+import com.bcn.asapp.discovery.security.web.HttpBasicAuthenticationEntryPoint;
+
 /**
  * Sets up security for the application using Spring Security.
  * <p>
  * Defines security filters and specifies the behavior of authentication and authorization across the application.
  * <p>
- * The class creates two Security Filter Chains, one to protect the management (Actuator) endpoints, and another to protect the config server endpoints; the
+ * The class creates two Security Filter Chains, one to protect the management (Actuator) endpoints, and another to protect the Eureka server endpoints; the
  * declaration order of the filter chains is important, the first one to match will be used.
  * <p>
  * The purpose of the Spring Security Filter Chain is to provide a series of security filters that are executed in a specific order during each HTTP request.
@@ -58,6 +59,17 @@ public class SecurityConfiguration {
      */
     public static final Set<String> MANAGEMENT_WHITELIST_URLS = Set.of("/readyz", "/livez");
 
+    private final HttpBasicAuthenticationEntryPoint httpBasicAuthenticationEntryPoint;
+
+    /**
+     * Constructs a new {@code SecurityConfiguration} with required dependencies.
+     *
+     * @param httpBasicAuthenticationEntryPoint the authentication entry point
+     */
+    public SecurityConfiguration(HttpBasicAuthenticationEntryPoint httpBasicAuthenticationEntryPoint) {
+        this.httpBasicAuthenticationEntryPoint = httpBasicAuthenticationEntryPoint;
+    }
+
     /**
      * Creates a {@link SecurityFilterChain} bean to protect any management (Actuator) endpoints.
      * <p>
@@ -67,6 +79,7 @@ public class SecurityConfiguration {
      * <li>Disables CORS.</li>
      * <li>Configures no authentication for the incoming requests that matches the {@literal /actuator/health}.</li>
      * <li>Configures HTTP Basic authentication for the incoming requests that matches {@literal /actuator/**}.</li>
+     * <li>Configures a custom {@link HttpBasicAuthenticationEntryPoint} that returns HTTP 401 with an empty body on authentication failure.</li>
      * <li>Enforces stateless session management.</li>
      * </ul>
      *
@@ -85,7 +98,7 @@ public class SecurityConfiguration {
                 auth.anyRequest()
                     .authenticated();
             });
-        http.httpBasic(Customizer.withDefaults());
+        http.httpBasic(basic -> basic.authenticationEntryPoint(httpBasicAuthenticationEntryPoint));
         http.sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
 
         return http.build();
@@ -100,6 +113,7 @@ public class SecurityConfiguration {
      * <li>Disables CSRF.</li>
      * <li>Configures no authentication for the incoming requests that matches the public management endpoints {@code MANAGEMENT_WHITELIST_URLS}.</li>
      * <li>Configures HTTP Basic authentication requirements for the incoming requests that matches {@literal /**}.</li>
+     * <li>Configures a custom {@link HttpBasicAuthenticationEntryPoint} that returns HTTP 401 with an empty body on authentication failure.</li>
      * <li>Enforces stateless session management.</li>
      * </ul>
      *
@@ -116,7 +130,7 @@ public class SecurityConfiguration {
             auth.anyRequest()
                 .authenticated();
         });
-        http.httpBasic(Customizer.withDefaults());
+        http.httpBasic(basic -> basic.authenticationEntryPoint(httpBasicAuthenticationEntryPoint));
         http.sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
 
         return http.build();

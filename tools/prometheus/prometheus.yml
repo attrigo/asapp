@@ -20,6 +20,13 @@ scrape_configs:
       password: config-secret
     static_configs:
       - targets: [ 'asapp-config-service:8898' ]
+  - job_name: 'asapp-discovery-service'
+    metrics_path: '/asapp-discovery-service/actuator/prometheus'
+    basic_auth:
+      username: discovery-user
+      password: discovery-secret
+    static_configs:
+      - targets: [ 'asapp-discovery-service:8791' ]
   - job_name: 'asapp-tasks-service'
     metrics_path: '/asapp-tasks-service/actuator/prometheus'
     basic_auth:

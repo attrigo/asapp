@@ -338,7 +338,7 @@ class SecurityConfigurationIT {
 
         @ParameterizedTest
         @MethodSource("serverPortPublicGetEndpoints")
-        void ReturnsStatusOk_NoAuthorizationHeaderOnSererPortPublicGetEndpoint(String endpoint) {
+        void ReturnsStatusOk_NoAuthorizationHeaderOnServerPortPublicGetEndpoint(String endpoint) {
             // When & Then
             restTestClient.get()
                           .uri(endpoint)

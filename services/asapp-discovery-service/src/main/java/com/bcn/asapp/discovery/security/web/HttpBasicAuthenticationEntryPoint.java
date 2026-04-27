@@ -1,0 +1,61 @@
+/**
+* Copyright 2023 the original author or authors.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     https://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+package com.bcn.asapp.discovery.security.web;
+
+import org.jspecify.annotations.NonNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+/**
+ * Authentication entry point for handling unauthorized access attempts.
+ * <p>
+ * Returns an HTTP 401 response with an empty body when authentication fails or is missing. Uses {@link HttpServletResponse#setStatus} rather than
+ * {@link HttpServletResponse#sendError} to prevent Spring Boot's error controller from adding a response body.
+ *
+ * @since 0.3.0
+ * @see AuthenticationEntryPoint
+ * @author attrigo
+ */
+@Component
+public class HttpBasicAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+    private static final Logger logger = LoggerFactory.getLogger(HttpBasicAuthenticationEntryPoint.class);
+
+    /**
+     * Commences an authentication scheme by sending an HTTP 401 Unauthorized response and logging the authentication exception.
+     *
+     * @param request       the HTTP request that resulted in an {@code AuthenticationException}
+     * @param response      the HTTP response to which the error response is sent
+     * @param authException the authentication exception that triggered this entry point
+     */
+    @Override
+    public void commence(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull AuthenticationException authException) {
+        logger.error("Unauthorized error {}", authException.getMessage());
+
+        response.addHeader(HttpHeaders.WWW_AUTHENTICATE, "Basic realm=\"Realm\"");
+        response.setStatus(HttpStatus.UNAUTHORIZED.value());
+    }
+
+}
