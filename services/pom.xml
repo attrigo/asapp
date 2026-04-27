@@ -354,6 +354,7 @@
     <modules>
         <module>asapp-authentication-service</module>
         <module>asapp-config-service</module>
+        <module>asapp-discovery-service</module>
         <module>asapp-tasks-service</module>
         <module>asapp-users-service</module>
     </modules>

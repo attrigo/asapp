@@ -22,18 +22,36 @@ import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.TOKEN_US
 import static com.bcn.asapp.users.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
 import static com.bcn.asapp.users.testutil.fixture.EncodedTokenMother.encodedAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.then;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.restclient.autoconfigure.RestClientBuilderConfigurer;
+import org.springframework.cloud.client.DefaultServiceInstance;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerInterceptor;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerRestClientBuilderBeanPostProcessor;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.web.client.RestClient;
 
 import com.sun.net.httpserver.HttpServer;
@@ -45,68 +63,128 @@ import com.bcn.asapp.users.infrastructure.security.JwtAuthenticationToken;
  * Tests {@link RestClientConfiguration} HTTP client configuration.
  * <p>
  * Coverage:
+ * <li>Load balancer client is invoked for each outgoing request (protects against accidental {@code @LoadBalanced} removal)</li>
  * <li>Redirect responses from downstream services are returned as-is without being followed</li>
  */
+@SpringJUnitConfig
+@SuppressWarnings("unchecked")
 class RestClientConfigurationTests {
 
-    @Nested
-    class RestClientCustomizer {
+    /**
+     * Provides the minimal Spring Cloud load-balancer beans needed to test {@link RestClientConfiguration} in isolation.
+     */
+    @Configuration
+    @Import(RestClientConfiguration.class)
+    static class TestConfiguration {
 
-        private HttpServer server;
-
-        private int port;
-
-        @BeforeEach
-        void beforeEach() throws IOException {
-            var encodedToken = encodedAccessToken();
-            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
-            var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, "user@asapp.com", claims);
-            SecurityContextHolder.getContext()
-                                 .setAuthentication(JwtAuthenticationToken.authenticated(decodedJwt));
-
-            server = HttpServer.create(new InetSocketAddress(0), 0);
-            port = server.getAddress()
-                         .getPort();
+        @Bean
+        RestClientBuilderConfigurer restClientBuilderConfigurer() {
+            return new RestClientBuilderConfigurer();
         }
 
-        @AfterEach
-        void afterEach() {
-            SecurityContextHolder.clearContext();
-            server.stop(0);
+        @Bean
+        LoadBalancerClient loadBalancerClient() {
+            return Mockito.mock(LoadBalancerClient.class);
         }
 
-        @Test
-        void ReturnsStatusFound_ServerReturnsRedirect() {
-            // Given
-            var redirectCalled = new AtomicBoolean();
-            server.createContext("/original", exchange -> {
-                exchange.getResponseHeaders()
-                        .set("Location", "http://localhost:" + port + "/redirected");
-                exchange.sendResponseHeaders(302, -1);
-                exchange.close();
-            });
-            server.createContext("/redirected", exchange -> {
-                redirectCalled.set(true);
-                exchange.sendResponseHeaders(200, -1);
-                exchange.close();
-            });
-            server.start();
-
-            var restClientBuilder = RestClient.builder();
-            new RestClientConfiguration().restClientCustomizer()
-                                         .customize(restClientBuilder);
-            var restClient = restClientBuilder.build();
-
-            // When
-            var actual = restClient.get()
-                                   .uri("http://localhost:" + port + "/original")
-                                   .exchange((_, response) -> response.getStatusCode());
-
-            // Then
-            assertThat(actual).isEqualTo(HttpStatus.FOUND);
-            assertThat(redirectCalled.get()).isFalse();
+        @Bean
+        LoadBalancerInterceptor loadBalancerInterceptor(LoadBalancerClient loadBalancerClient) {
+            return new LoadBalancerInterceptor(loadBalancerClient);
         }
 
+        @Bean
+        static LoadBalancerRestClientBuilderBeanPostProcessor<LoadBalancerInterceptor> loadBalancerBeanPostProcessor(
+                ObjectProvider<LoadBalancerInterceptor> loadBalancerInterceptor, ApplicationContext ctx) {
+            return new LoadBalancerRestClientBuilderBeanPostProcessor<>(loadBalancerInterceptor, ctx);
+        }
+
+    }
+
+    @Autowired
+    private RestClient restClient;
+
+    @Autowired
+    private LoadBalancerClient loadBalancerClient;
+
+    private HttpServer server;
+
+    private int port;
+
+    @BeforeEach
+    void beforeEach() throws IOException {
+        var encodedToken = encodedAccessToken();
+        var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
+        var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, "user@asapp.com", claims);
+        SecurityContextHolder.getContext()
+                             .setAuthentication(JwtAuthenticationToken.authenticated(decodedJwt));
+
+        // Port 0 lets the OS assign an available ephemeral port, avoiding conflicts between test runs.
+        server = HttpServer.create(new InetSocketAddress(0), 0);
+        port = server.getAddress()
+                     .getPort();
+
+        Mockito.reset(loadBalancerClient);
+        // Delegate each load-balanced call to the real HTTP execution by applying the request against a
+        // synthetic service instance pointing at the in-process test server, so the actual HttpServer is reached.
+        given(loadBalancerClient.execute(anyString(), any(LoadBalancerRequest.class))).willAnswer(inv -> {
+            LoadBalancerRequest<?> request = inv.getArgument(1);
+            return request.apply(new DefaultServiceInstance("", "", "localhost", port, false));
+        });
+        // The URI already targets localhost, so return it unchanged — no host/port rewrite needed.
+        given(loadBalancerClient.reconstructURI(any(), any())).willAnswer(inv -> inv.getArgument(1, URI.class));
+    }
+
+    @AfterEach
+    void afterEach() {
+        // Prevents the seeded JWT from leaking to subsequent tests via the thread-local SecurityContextHolder.
+        SecurityContextHolder.clearContext();
+        server.stop(0);
+    }
+
+    @Test
+    void InvokesLoadBalancerClient_OnRequest() throws IOException {
+        // Given
+        server.createContext("/some-path", exchange -> {
+            exchange.sendResponseHeaders(200, -1);
+            exchange.close();
+        });
+        server.start();
+
+        // When
+        restClient.get()
+                  .uri("http://localhost:" + port + "/some-path")
+                  .exchange((_, response) -> response.getStatusCode());
+
+        // Then
+        then(loadBalancerClient).should()
+                                .execute(anyString(), any(LoadBalancerRequest.class));
+    }
+
+    @Test
+    void ReturnsStatusFound_ServerReturnsRedirect() {
+        // Given
+        var redirectCalled = new AtomicBoolean();
+        server.createContext("/original", exchange -> {
+            exchange.getResponseHeaders()
+                    .set("Location", "http://localhost:" + port + "/redirected");
+            exchange.sendResponseHeaders(302, -1);
+            exchange.close();
+        });
+        server.createContext("/redirected", exchange -> {
+            redirectCalled.set(true);
+            exchange.sendResponseHeaders(200, -1);
+            exchange.close();
+        });
+        server.start();
+
+        // When
+        var actual = restClient.get()
+                               .uri("http://localhost:" + port + "/original")
+                               .exchange((_, response) -> response.getStatusCode());
+
+        // Then
+        assertThat(actual).isEqualTo(HttpStatus.FOUND);
+        assertThat(redirectCalled.get()).isFalse();
     }
 
 }
