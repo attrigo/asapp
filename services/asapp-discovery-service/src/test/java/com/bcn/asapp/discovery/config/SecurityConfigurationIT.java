@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.config.config;
+package com.bcn.asapp.discovery.config;
 
 import java.util.stream.Stream;
 
@@ -30,21 +30,21 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalManagementPort;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
-import com.bcn.asapp.config.AsappConfigServiceApplication;
+import com.bcn.asapp.discovery.AsappDiscoveryServiceApplication;
 
 /**
  * Tests {@link SecurityConfiguration} HTTP Basic authentication rules enforced by the application.
  * <p>
  * Coverage:
- * <li>Rejects config endpoint requests without credentials</li>
- * <li>Rejects config endpoint requests with invalid credentials</li>
+ * <li>Rejects Eureka endpoint requests without credentials</li>
+ * <li>Rejects Eureka endpoint requests with invalid credentials</li>
  * <li>Allows access to protected actuator endpoints with valid credentials</li>
  * <li>Rejects protected actuator endpoint requests with invalid credentials</li>
  * <li>Rejects protected actuator endpoint requests without credentials</li>
  * <li>Allows public access to health actuator endpoint without credentials</li>
  * <li>Allows public access to liveness and readiness endpoints without credentials</li>
  */
-@SpringBootTest(classes = AsappConfigServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = AsappDiscoveryServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
 class SecurityConfigurationIT {
 
@@ -52,13 +52,13 @@ class SecurityConfigurationIT {
     private RestTestClient restTestClient;
 
     @Nested
-    class ConfigEndpointsAuthentication {
+    class EurekaEndpoints {
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_NoAuthorizationHeaderOnConfigEndpoint() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_NoAuthorizationHeaderOnEurekaEndpoint() {
             // When & Then
             restTestClient.get()
-                          .uri("/asapp-tasks-service/default")
+                          .uri("/eureka/apps")
                           .exchange()
                           .expectStatus()
                           .isUnauthorized()
@@ -67,10 +67,10 @@ class SecurityConfigurationIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_InvalidCredentialsOnConfigEndpoint() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_InvalidCredentialsOnEurekaEndpoint() {
             // When & Then
             restTestClient.get()
-                          .uri("/asapp-tasks-service/default")
+                          .uri("/eureka/apps")
                           .headers(h -> h.setBasicAuth("wrong-user", "wrong-password"))
                           .exchange()
                           .expectStatus()
@@ -91,10 +91,10 @@ class SecurityConfigurationIT {
         private String contextPath;
 
         @Value("${spring.security.user.name}")
-        private String configUsername;
+        private String discoveryUsername;
 
         @Value("${spring.security.user.password}")
-        private String configPassword;
+        private String discoveryPassword;
 
         private RestTestClient managementRestTestClient;
 
@@ -111,7 +111,7 @@ class SecurityConfigurationIT {
             // When & Then
             managementRestTestClient.get()
                                     .uri(endpoint)
-                                    .headers(h -> h.setBasicAuth(configUsername, configPassword))
+                                    .headers(h -> h.setBasicAuth(discoveryUsername, discoveryPassword))
                                     .exchange()
                                     .expectStatus()
                                     .isOk();
@@ -123,10 +123,12 @@ class SecurityConfigurationIT {
             // When & Then
             managementRestTestClient.get()
                                     .uri(endpoint)
-                                    .headers(h -> h.setBasicAuth(configUsername, configPassword))
+                                    .headers(h -> h.setBasicAuth("wrong-user", "wrong-password"))
                                     .exchange()
                                     .expectStatus()
-                                    .isOk();
+                                    .isUnauthorized()
+                                    .expectBody()
+                                    .isEmpty();
         }
 
         @ParameterizedTest

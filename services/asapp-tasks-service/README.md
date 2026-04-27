@@ -133,13 +133,16 @@ The service implements **DDD patterns**:
 # 1. Start the config service (in a separate terminal, from project root)
 cd services/asapp-config-service && mvn spring-boot:run
 
-# 2. Start PostgreSQL database
+# 2. Start the discovery service (in a separate terminal, from project root)
+cd services/asapp-discovery-service && mvn spring-boot:run
+
+# 3. Start PostgreSQL database
 docker-compose up -d asapp-tasks-postgres-db
 
-# 3. Run the service
+# 4. Run the service
 mvn spring-boot:run
 
-# 4. Access Swagger UI
+# 5. Access Swagger UI
 open http://localhost:8081/asapp-tasks-service/swagger-ui.html
 ```
 
@@ -214,11 +217,14 @@ Merged at startup via `spring.config.import`; local files take precedence over c
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `SERVER_PORT` | HTTP server port | `8081` |
+| `DISCOVERY_HOST` | Eureka server hostname | `asapp-discovery-service:8761/asapp-discovery-service` |
+| `DISCOVERY_PASSWORD` | Eureka server password | `discovery-secret` |
+| `DISCOVERY_USERNAME` | Eureka server username | `discovery-user` |
 | `MANAGEMENT_PORT` | Actuator management port | `8091` |
+| `SERVER_PORT` | HTTP server port | `8081` |
+| `SPRING_DATASOURCE_PASSWORD` | Database password | `secret` |
 | `SPRING_DATASOURCE_URL` | PostgreSQL JDBC URL | `jdbc:postgresql://localhost:5433/tasksdb` |
 | `SPRING_DATASOURCE_USERNAME` | Database username | `user` |
-| `SPRING_DATASOURCE_PASSWORD` | Database password | `secret` |
 
 ## Development
 
@@ -318,6 +324,7 @@ Use `GET /actuator` to see the full list of available endpoints.
 - **Spring Boot**: 4.0.5
 - **Spring Framework**: 7.x
 - **Configuration**: Spring Cloud Config 5.x
+- **Service Discovery**: Spring Cloud Netflix Eureka Client 5.x
 - **Security**: Spring Security + Nimbus JOSE+JWT
 - **Migrations**: Liquibase
 - **Mapping**: MapStruct
@@ -400,6 +407,7 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 ## Related Documentation
 
 - [ASAPP Main Repository](../../README.md)
+- [Discovery Service](../asapp-discovery-service/README.md)
 - [Architecture Guide](../../docs/claude/architecture.md)
 - [Testing Strategy](../../docs/claude/testing.md)
 - [API Conventions](../../docs/claude/api-conventions.md)

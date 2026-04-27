@@ -38,12 +38,12 @@ import com.bcn.asapp.clients.util.UriHandler;
  * <li>A {@link TasksClient} implementation for communicating with the service</li>
  * </ul>
  * <p>
- * The {@link RestClient.Builder} is expected to be provided by the consuming service and should include the necessary configuration such as JWT authentication.
+ * The {@link RestClient} is expected to be provided by the consuming service and should include the necessary configuration such as JWT authentication.
  *
  * @since 0.2.0
  * @see ConditionalOnProperty
  * @see ConditionalOnMissingBean
- * @see RestClient.Builder
+ * @see RestClient
  * @author attrigo
  */
 @Configuration
@@ -67,18 +67,18 @@ public class TasksClientConfiguration {
     /**
      * Creates a {@link TasksClient} bean for interacting with the Tasks Service.
      * <p>
-     * The client uses the provided {@link RestClient.Builder} to create a REST client instance. The builder should be pre-configured by the consuming service
-     * with necessary configuration (e.g., {@code JwtInterceptor}).
+     * The client uses the provided {@link RestClient} to make HTTP requests. The client should be pre-configured by the consuming service with necessary
+     * configuration (e.g., {@code JwtInterceptor}).
      * <p>
      * The {@link UriHandler} specific to the Tasks Service is used to build request URIs.
      *
      * @param tasksServiceUriHandler the URI handler configured with the Tasks Service base URL
-     * @param restClientBuilder      the REST client builder provided by the consuming service
+     * @param restClient             the REST client provided by the consuming service
      * @return a configured {@link TasksClient} implementation
      */
     @Bean
-    TasksRestClient taskClient(UriHandler tasksServiceUriHandler, RestClient.Builder restClientBuilder) {
-        return new TasksRestClient(tasksServiceUriHandler, restClientBuilder.build());
+    TasksRestClient taskClient(UriHandler tasksServiceUriHandler, RestClient restClient) {
+        return new TasksRestClient(tasksServiceUriHandler, restClient);
     }
 
 }
