@@ -99,7 +99,7 @@ public class SecurityConfiguration {
      * <ul>
      * <li>Disables CSRF.</li>
      * <li>Configures no authentication for the incoming requests that matches the public management endpoints {@code MANAGEMENT_WHITELIST_URLS}.</li>
-     * <li>Configures HTTP basic authentication requirements for the incoming requests that matches {@literal /**}.</li>
+     * <li>Configures HTTP Basic authentication requirements for the incoming requests that matches {@literal /**}.</li>
      * <li>Enforces stateless session management.</li>
      * </ul>
      *
@@ -108,7 +108,7 @@ public class SecurityConfiguration {
      */
     @Bean
     @Order(2)
-    DefaultSecurityFilterChain rootServerFilterChain(HttpSecurity http) {
+    DefaultSecurityFilterChain rootFilterChain(HttpSecurity http) {
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(auth -> {
             auth.requestMatchers(MANAGEMENT_WHITELIST_URLS.toArray(String[]::new))
