@@ -41,7 +41,8 @@ import com.bcn.asapp.users.infrastructure.security.client.JwtInterceptor;
  * </ul>
  * Both builders apply Boot's auto-configured defaults via {@link RestClientBuilderConfigurer}.
  * <p>
- * A {@link DefaultEurekaClientHttpRequestFactorySupplier} bean gives Eureka its own isolated HTTP factory, independent of any {@link RestClient.Builder} beans in the context.
+ * A {@link DefaultEurekaClientHttpRequestFactorySupplier} bean gives Eureka its own isolated HTTP factory, independent of any {@link RestClient.Builder} beans
+ * in the context.
  *
  * @since 0.2.0
  * @see RestClient

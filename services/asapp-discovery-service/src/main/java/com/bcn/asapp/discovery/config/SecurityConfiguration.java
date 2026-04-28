@@ -18,6 +18,8 @@ package com.bcn.asapp.discovery.config;
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
+import java.util.Set;
+
 import org.springframework.boot.health.actuate.endpoint.HealthEndpoint;
 import org.springframework.boot.security.autoconfigure.actuate.web.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
@@ -36,8 +38,8 @@ import com.bcn.asapp.discovery.security.web.HttpBasicAuthenticationEntryPoint;
  * <p>
  * Defines security filters and specifies the behavior of authentication and authorization across the application.
  * <p>
- * The class creates two Security Filter Chains, one to protect the management (Actuator) endpoints, and another to configure the Eureka server and probe
- * endpoints; the declaration order of the filter chains is important, the first one to match will be used.
+ * The class creates two Security Filter Chains, one to protect the management (Actuator) endpoints, and another to protect the Eureka server endpoints; the
+ * declaration order of the filter chains is important, the first one to match will be used.
  * <p>
  * The purpose of the Spring Security Filter Chain is to provide a series of security filters that are executed in a specific order during each HTTP request.
  * These filters handle various security concerns such as authentication, authorization, session management, and CSRF protection. The filter chain ensures that
@@ -51,6 +53,11 @@ import com.bcn.asapp.discovery.security.web.HttpBasicAuthenticationEntryPoint;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
+
+    /**
+     * Set of management (Actuator) URL patterns that are excluded from authentication checks.
+     */
+    public static final Set<String> MANAGEMENT_WHITELIST_URLS = Set.of("/readyz", "/livez");
 
     private final HttpBasicAuthenticationEntryPoint httpBasicAuthenticationEntryPoint;
 
@@ -98,13 +105,15 @@ public class SecurityConfiguration {
     }
 
     /**
-     * Creates a {@link SecurityFilterChain} bean to configure the root path of the application, in other words secures any endpoint that does not match any of
+     * Creates a {@link SecurityFilterChain} bean to protect the root path of the application, in other words secures any endpoint that does not match any of
      * the previous filter chains.
      * <p>
      * Applies the following configurations to the filter chain:
      * <ul>
      * <li>Disables CSRF.</li>
-     * <li>Configures no authentication for all incoming requests (Eureka server and probe endpoints are publicly accessible).</li>
+     * <li>Configures no authentication for the incoming requests that matches the public management endpoints {@code MANAGEMENT_WHITELIST_URLS}.</li>
+     * <li>Configures HTTP Basic authentication requirements for the incoming requests that matches {@literal /**}.</li>
+     * <li>Configures a custom {@link HttpBasicAuthenticationEntryPoint} that returns HTTP 401 with an empty body on authentication failure.</li>
      * <li>Enforces stateless session management.</li>
      * </ul>
      *
@@ -115,8 +124,13 @@ public class SecurityConfiguration {
     @Order(2)
     DefaultSecurityFilterChain rootFilterChain(HttpSecurity http) {
         http.csrf(AbstractHttpConfigurer::disable);
-        http.authorizeHttpRequests(auth -> auth.anyRequest()
-                                               .permitAll());
+        http.authorizeHttpRequests(auth -> {
+            auth.requestMatchers(MANAGEMENT_WHITELIST_URLS.toArray(String[]::new))
+                .permitAll();
+            auth.anyRequest()
+                .authenticated();
+        });
+        http.httpBasic(basic -> basic.authenticationEntryPoint(httpBasicAuthenticationEntryPoint));
         http.sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
 
         return http.build();

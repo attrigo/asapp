@@ -36,7 +36,8 @@ import com.bcn.asapp.discovery.AsappDiscoveryServiceApplication;
  * Tests {@link SecurityConfiguration} HTTP Basic authentication rules enforced by the application.
  * <p>
  * Coverage:
- * <li>Allows public access to Eureka endpoints without credentials</li>
+ * <li>Rejects Eureka endpoint requests without credentials</li>
+ * <li>Rejects Eureka endpoint requests with invalid credentials</li>
  * <li>Allows access to protected actuator endpoints with valid credentials</li>
  * <li>Rejects protected actuator endpoint requests with invalid credentials</li>
  * <li>Rejects protected actuator endpoint requests without credentials</li>
@@ -54,13 +55,28 @@ class SecurityConfigurationIT {
     class EurekaEndpoints {
 
         @Test
-        void ReturnsStatusOk_NoAuthorizationHeaderOnEurekaEndpoint() {
+        void ReturnsStatusUnauthorizedAndEmptyBody_NoAuthorizationHeaderOnEurekaEndpoint() {
             // When & Then
             restTestClient.get()
                           .uri("/eureka/apps")
                           .exchange()
                           .expectStatus()
-                          .isOk();
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
+        }
+
+        @Test
+        void ReturnsStatusUnauthorizedAndEmptyBody_InvalidCredentialsOnEurekaEndpoint() {
+            // When & Then
+            restTestClient.get()
+                          .uri("/eureka/apps")
+                          .headers(h -> h.setBasicAuth("wrong-user", "wrong-password"))
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
         }
 
     }

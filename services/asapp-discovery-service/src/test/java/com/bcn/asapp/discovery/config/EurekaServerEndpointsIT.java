@@ -20,6 +20,7 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
@@ -31,7 +32,7 @@ import com.bcn.asapp.discovery.AsappDiscoveryServiceApplication;
  * Tests Eureka server endpoints exposed by the application.
  * <p>
  * Coverage:
- * <li>Eureka apps endpoint returns a valid response with an applications registry</li>
+ * <li>Eureka apps endpoint returns a valid response with an applications registry when valid credentials are provided</li>
  */
 @SpringBootTest(classes = AsappDiscoveryServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
@@ -40,21 +41,27 @@ class EurekaServerEndpointsIT {
     @Autowired
     private RestTestClient restTestClient;
 
+    @Value("${spring.security.user.name}")
+    private String discoveryUsername;
+
+    @Value("${spring.security.user.password}")
+    private String discoveryPassword;
+
     @Test
-    void ReturnsStatusOkAndBodyContainsApplications_OnEurekaAppsEndpoint() {
+    void ReturnsStatusOkAndBodyContainsApplications_ValidCredentialsOnEurekaAppsEndpoint() {
         // When & Then
         restTestClient.get()
                       .uri("/eureka/apps")
                       .accept(MediaType.APPLICATION_JSON)
+                      .headers(h -> h.setBasicAuth(discoveryUsername, discoveryPassword))
                       .exchange()
                       .expectStatus()
                       .isOk()
                       .expectBody(String.class)
                       .consumeWith(response -> {
-                          var body = response.getResponseBody();
-                          assertThatJson(body).isNotNull()
-                                              .node("applications")
-                                              .isPresent();
+                          assertThatJson(response.getResponseBody()).isNotNull()
+                                                                    .node("applications")
+                                                                    .isPresent();
                       });
     }
 

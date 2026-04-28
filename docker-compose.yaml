@@ -122,7 +122,9 @@ services:
       - CONFIG_URI=http://asapp-config-service:8888/asapp-config-service
       - CONFIG_USERNAME=config-user
       - CONFIG_PASSWORD=config-secret
-      - DISCOVERY_URI=http://asapp-discovery-service:8761/asapp-discovery-service
+      - DISCOVERY_HOST=asapp-discovery-service:8761/asapp-discovery-service
+      - DISCOVERY_USERNAME=discovery-user
+      - DISCOVERY_PASSWORD=discovery-secret
       - MANAGEMENT_USERNAME=auth-user
       - MANAGEMENT_PASSWORD=auth-secret
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
@@ -176,7 +178,9 @@ services:
     environment:
       - JAVA_OPTS=-Xmx256m -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/heap-dumps
       - SPRING_PROFILES_ACTIVE=docker
-      - DISCOVERY_URI=http://asapp-discovery-service:8761/asapp-discovery-service
+      - DISCOVERY_HOST=asapp-discovery-service:8761/asapp-discovery-service
+      - DISCOVERY_USERNAME=discovery-user
+      - DISCOVERY_PASSWORD=discovery-secret
       - SERVER_PORT=8761
       - MANAGEMENT_PORT=8791
       - MANAGEMENT_USERNAME=discovery-user
@@ -214,7 +218,9 @@ services:
       - CONFIG_URI=http://asapp-config-service:8888/asapp-config-service
       - CONFIG_USERNAME=config-user
       - CONFIG_PASSWORD=config-secret
-      - DISCOVERY_URI=http://asapp-discovery-service:8761/asapp-discovery-service
+      - DISCOVERY_HOST=asapp-discovery-service:8761/asapp-discovery-service
+      - DISCOVERY_USERNAME=discovery-user
+      - DISCOVERY_PASSWORD=discovery-secret
       - MANAGEMENT_USERNAME=tasks-user
       - MANAGEMENT_PASSWORD=tasks-secret
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
@@ -251,7 +257,9 @@ services:
       - CONFIG_URI=http://asapp-config-service:8888/asapp-config-service
       - CONFIG_USERNAME=config-user
       - CONFIG_PASSWORD=config-secret
-      - DISCOVERY_URI=http://asapp-discovery-service:8761/asapp-discovery-service
+      - DISCOVERY_HOST=asapp-discovery-service:8761/asapp-discovery-service
+      - DISCOVERY_USERNAME=discovery-user
+      - DISCOVERY_PASSWORD=discovery-secret
       - MANAGEMENT_USERNAME=users-user
       - MANAGEMENT_PASSWORD=users-secret
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
