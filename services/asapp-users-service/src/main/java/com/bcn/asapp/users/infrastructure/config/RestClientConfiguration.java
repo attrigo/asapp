@@ -50,7 +50,7 @@ import com.bcn.asapp.users.infrastructure.security.client.JwtInterceptor;
  * @see DefaultEurekaClientHttpRequestFactorySupplier
  * @author attrigo
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class RestClientConfiguration {
 
     /**

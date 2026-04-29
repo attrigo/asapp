@@ -32,7 +32,7 @@ import com.bcn.asapp.authentication.application.ApplicationService;
  * @see ComponentScan
  * @author attrigo
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @ComponentScan(basePackages = "com.bcn.asapp.authentication.application", includeFilters = {
         @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = { ApplicationService.class }) })
 public class ApplicationConfiguration {

@@ -43,7 +43,7 @@ import com.bcn.asapp.authentication.infrastructure.authentication.persistence.Jd
  * @see AbstractJdbcConfiguration
  * @author attrigo
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class JdbcConversionsConfiguration extends AbstractJdbcConfiguration {
 
     private final ObjectMapper objectMapper;

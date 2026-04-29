@@ -35,7 +35,7 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
  * @see License
  * @author attrigo
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @OpenAPIDefinition(info = @Info(title = "Authentication Service API", version = "0.3.0-SNAPSHOT", description = "Provides authentication operations", license = @License(name = "Apache-2.0", url = "https://www.apache.org/licenses/LICENSE-2.0")))
 @SecurityScheme(type = SecuritySchemeType.HTTP, name = "Bearer Authentication", scheme = "bearer", bearerFormat = "JWT")
 public class OpenApiConfiguration {}

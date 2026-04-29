@@ -36,7 +36,7 @@ import com.nimbusds.jose.crypto.MACVerifier;
  * @since 0.2.0
  * @author attrigo
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class JwtCryptoConfiguration {
 
     /**
