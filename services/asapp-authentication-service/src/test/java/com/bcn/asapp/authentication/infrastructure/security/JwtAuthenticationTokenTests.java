@@ -17,10 +17,9 @@
 package com.bcn.asapp.authentication.infrastructure.security;
 
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ACCESS_TOKEN_USE;
-import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.ROLE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
-import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.ACCESS_TOKEN_TYPE;
-import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenMother.encodedAccessToken;
+import static com.bcn.asapp.authentication.testutil.fixture.DecodedJwtMother.aDecodedJwtBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.DecodedJwtMother.decodedAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
@@ -48,11 +47,7 @@ class JwtAuthenticationTokenTests {
         @Test
         void ReturnsJwtAuthenticatedToken_ValidParameters() {
             // Given
-            var encodedAccessToken = encodedAccessToken();
-            var principal = "user@asapp.com";
-            var role = "USER";
-            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, role);
-            var decodedJwt = new DecodedJwt(encodedAccessToken, ACCESS_TOKEN_TYPE, principal, claims);
+            var decodedJwt = decodedAccessToken();
 
             // When
             var actual = JwtAuthenticationToken.authenticated(decodedJwt);
@@ -62,10 +57,10 @@ class JwtAuthenticationTokenTests {
                 // @formatter:off
                 softly.assertThat(actual).as("JWT authentication token").isNotNull();
                 softly.assertThat(actual.isAuthenticated()).as("authenticated").isTrue();
-                softly.assertThat(actual.getJwt()).as("JWT").isEqualTo(encodedAccessToken);
-                softly.assertThat(actual.getPrincipal()).as("principal").isEqualTo(principal);
+                softly.assertThat(actual.getJwt()).as("JWT").isEqualTo(decodedJwt.encodedToken());
+                softly.assertThat(actual.getPrincipal()).as("principal").isEqualTo(decodedJwt.subject());
                 softly.assertThat(actual.getCredentials()).as("credentials").isNull();
-                softly.assertThat(actual.getAuthorities()).as("authorities").hasSize(1).extracting(GrantedAuthority::getAuthority).containsExactly(role);
+                softly.assertThat(actual.getAuthorities()).as("authorities").hasSize(1).extracting(GrantedAuthority::getAuthority).containsExactly("USER");
                 // @formatter:on
             });
         }
@@ -73,10 +68,8 @@ class JwtAuthenticationTokenTests {
         @Test
         void ReturnsJwtAuthenticatedTokenWithoutAuthorities_MissingRoleClaim() {
             // Given
-            var encodedAccessToken = encodedAccessToken();
-            var principal = "user@asapp.com";
-            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE);
-            var decodedJwt = new DecodedJwt(encodedAccessToken, ACCESS_TOKEN_TYPE, principal, claims);
+            var decodedJwt = aDecodedJwtBuilder().withClaims(Map.of(TOKEN_USE, ACCESS_TOKEN_USE))
+                                                 .build();
 
             // When
             var actual = JwtAuthenticationToken.authenticated(decodedJwt);
@@ -86,8 +79,8 @@ class JwtAuthenticationTokenTests {
                 // @formatter:off
                 softly.assertThat(actual).as("JWT authentication token").isNotNull();
                 softly.assertThat(actual.isAuthenticated()).as("authenticated").isTrue();
-                softly.assertThat(actual.getJwt()).as("JWT").isEqualTo(encodedAccessToken);
-                softly.assertThat(actual.getPrincipal()).as("principal").isEqualTo(principal);
+                softly.assertThat(actual.getJwt()).as("JWT").isEqualTo(decodedJwt.encodedToken());
+                softly.assertThat(actual.getPrincipal()).as("principal").isEqualTo(decodedJwt.subject());
                 softly.assertThat(actual.getCredentials()).as("credentials").isNull();
                 softly.assertThat(actual.getAuthorities()).as("authorities").isEmpty();
                 // @formatter:on
@@ -112,10 +105,7 @@ class JwtAuthenticationTokenTests {
         @Test
         void ReturnsNull_ValidJwt() {
             // Given
-            var encodedAccessToken = encodedAccessToken();
-            var principal = "user@asapp.com";
-            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
-            var decodedJwt = new DecodedJwt(encodedAccessToken, ACCESS_TOKEN_TYPE, principal, claims);
+            var decodedJwt = decodedAccessToken();
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
             // When
@@ -133,17 +123,14 @@ class JwtAuthenticationTokenTests {
         @Test
         void ReturnsPrincipalAsSubject_ValidJwt() {
             // Given
-            var encodedAccessToken = encodedAccessToken();
-            var principal = "user@asapp.com";
-            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
-            var decodedJwt = new DecodedJwt(encodedAccessToken, ACCESS_TOKEN_TYPE, principal, claims);
+            var decodedJwt = decodedAccessToken();
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
             // When
             var actual = jwtAuthenticationToken.getPrincipal();
 
             // Then
-            assertThat(actual).isEqualTo(principal);
+            assertThat(actual).isEqualTo(decodedJwt.subject());
         }
 
     }
@@ -154,16 +141,14 @@ class JwtAuthenticationTokenTests {
         @Test
         void ReturnsJwt_ValidJwt() {
             // Given
-            var encodedAccessToken = encodedAccessToken();
-            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
-            var decodedJwt = new DecodedJwt(encodedAccessToken, ACCESS_TOKEN_TYPE, "user@asapp.com", claims);
+            var decodedJwt = decodedAccessToken();
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
             // When
             var actual = jwtAuthenticationToken.getJwt();
 
             // Then
-            assertThat(actual).isEqualTo(encodedAccessToken);
+            assertThat(actual).isEqualTo(decodedJwt.encodedToken());
         }
 
     }

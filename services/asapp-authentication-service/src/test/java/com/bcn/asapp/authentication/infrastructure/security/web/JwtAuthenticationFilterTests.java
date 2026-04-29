@@ -16,7 +16,7 @@
 
 package com.bcn.asapp.authentication.infrastructure.security.web;
 
-import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.ACCESS_TOKEN_TYPE;
+import static com.bcn.asapp.authentication.testutil.fixture.DecodedJwtMother.decodedAccessToken;
 import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenMother.anEncodedTokenBuilder;
 import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenMother.encodedAccessToken;
 import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenMother.encodedRefreshToken;
@@ -51,10 +51,8 @@ import com.bcn.asapp.authentication.application.authentication.AuthenticationNot
 import com.bcn.asapp.authentication.application.authentication.InvalidJwtException;
 import com.bcn.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.bcn.asapp.authentication.domain.authentication.EncodedToken;
-import com.bcn.asapp.authentication.infrastructure.security.DecodedJwt;
 import com.bcn.asapp.authentication.infrastructure.security.JwtAuthenticationToken;
 import com.bcn.asapp.authentication.infrastructure.security.JwtVerifier;
-import com.bcn.asapp.authentication.testutil.fixture.JwtMother;
 
 /**
  * Tests {@link JwtAuthenticationFilter} request exclusion and JWT authentication processing.
@@ -161,15 +159,9 @@ class JwtAuthenticationFilterTests {
         @Test
         void SetsAuthenticationAndContinuesFilterChain_ValidBearerToken() throws Exception {
             // Given
-            var jwt = JwtMother.anAccessToken();
-            var encodedAccessToken = jwt.encodedTokenValue();
-            var subject = jwt.subject()
-                             .value();
-            var claims = jwt.claims()
-                            .value();
-            var decodedJwt = new DecodedJwt(encodedAccessToken, ACCESS_TOKEN_TYPE, subject, claims);
+            var decodedJwt = decodedAccessToken();
 
-            given(request.getHeader("Authorization")).willReturn("Bearer " + encodedAccessToken);
+            given(request.getHeader("Authorization")).willReturn("Bearer " + decodedJwt.encodedToken());
             given(jwtVerifier.verifyAccessToken(any(EncodedToken.class))).willReturn(decodedJwt);
 
             // When
@@ -184,7 +176,7 @@ class JwtAuthenticationFilterTests {
             assertSoftly(softly -> {
             // @formatter:off
                 softly.assertThat(authentication).as("authentication type").isInstanceOf(JwtAuthenticationToken.class);
-                softly.assertThat(authentication.getName()).as("authenticated subject").isEqualTo(subject);
+                softly.assertThat(authentication.getName()).as("authenticated subject").isEqualTo(decodedJwt.subject());
             // @formatter:on
             });
 
