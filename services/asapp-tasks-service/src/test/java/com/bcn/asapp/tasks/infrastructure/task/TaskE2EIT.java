@@ -356,8 +356,7 @@ class TaskE2EIT {
 
             // Assert the task has been created
             var createdTask = taskRepository.findById(actual.taskId());
-            assertThat(createdTask).as("task optional")
-                                   .isPresent();
+            assertThat(createdTask).isPresent();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(createdTask.get().id()).as("id").isEqualTo(actual.taskId());
@@ -429,8 +428,7 @@ class TaskE2EIT {
 
             // Assert the task has been updated
             var updatedTask = taskRepository.findById(actual.taskId());
-            assertThat(updatedTask).as("task optional")
-                                   .isPresent();
+            assertThat(updatedTask).isPresent();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(updatedTask.get().id()).as("id").isEqualTo(actual.taskId());

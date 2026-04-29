@@ -90,8 +90,7 @@ class UpdateTaskServiceTests {
             var actual = updateTaskService.updateTaskById(command);
 
             // Then
-            assertThat(actual).as("updated task")
-                              .isPresent();
+            assertThat(actual).isPresent();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.get().getId()).as("ID").isEqualTo(existingTaskId);

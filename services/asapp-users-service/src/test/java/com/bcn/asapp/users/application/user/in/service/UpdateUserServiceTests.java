@@ -87,8 +87,7 @@ class UpdateUserServiceTests {
             var actual = updateUserService.updateUserById(command);
 
             // Then
-            assertThat(actual).as("updated user")
-                              .isPresent();
+            assertThat(actual).isPresent();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.get().getId()).as("ID").isEqualTo(existingUserId);

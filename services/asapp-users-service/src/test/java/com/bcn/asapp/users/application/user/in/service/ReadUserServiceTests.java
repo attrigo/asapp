@@ -80,8 +80,7 @@ class ReadUserServiceTests {
             var actual = readUserService.getUserById(userId.value());
 
             // Then
-            assertThat(actual).as("found user with tasks")
-                              .isPresent();
+            assertThat(actual).isPresent();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.get().user()).as("user").isEqualTo(user);
@@ -111,8 +110,7 @@ class ReadUserServiceTests {
             var actual = readUserService.getUserById(userId.value());
 
             // Then
-            assertThat(actual).as("found user with tasks")
-                              .isPresent();
+            assertThat(actual).isPresent();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.get().user()).as("user").isEqualTo(user);

@@ -180,10 +180,8 @@ class RestClientConfigurationTests {
                                .exchange((_, response) -> response.getStatusCode());
 
         // Then
-        assertThat(actual).as("response status")
-                          .isEqualTo(HttpStatus.FOUND);
-        assertThat(redirectCalled.get()).as("redirect not followed")
-                                        .isFalse();
+        assertThat(actual).isEqualTo(HttpStatus.FOUND);
+        assertThat(redirectCalled.get()).isFalse();
     }
 
     @Test
@@ -204,8 +202,7 @@ class RestClientConfigurationTests {
                   .exchange((_, response) -> response.getStatusCode());
 
         // Then
-        assertThat(authorizationHeader.get()).as("Authorization header")
-                                             .isEqualTo("Bearer " + encodedToken);
+        assertThat(authorizationHeader.get()).isEqualTo("Bearer " + encodedToken);
     }
 
 }

@@ -275,8 +275,7 @@ class UserE2EIT {
 
             // Assert the user has been created
             var createdUser = userRepository.findById(actual.userId());
-            assertThat(createdUser).as("user optional")
-                                   .isPresent();
+            assertThat(createdUser).isPresent();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(createdUser.get().id()).as("id").isEqualTo(actual.userId());
@@ -322,8 +321,7 @@ class UserE2EIT {
 
             // Assert the user has been updated
             var updatedUser = userRepository.findById(actual.userId());
-            assertThat(updatedUser).as("user optional")
-                                   .isPresent();
+            assertThat(updatedUser).isPresent();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(updatedUser.get().id()).as("id").isEqualTo(actual.userId());
