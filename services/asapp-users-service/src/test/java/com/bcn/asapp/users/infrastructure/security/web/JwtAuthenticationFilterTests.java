@@ -16,10 +16,7 @@
 
 package com.bcn.asapp.users.infrastructure.security.web;
 
-import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.ACCESS_TOKEN_USE;
-import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.ROLE;
-import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.TOKEN_USE;
-import static com.bcn.asapp.users.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
+import static com.bcn.asapp.users.testutil.fixture.DecodedJwtMother.decodedAccessToken;
 import static com.bcn.asapp.users.testutil.fixture.EncodedTokenMother.anEncodedTokenBuilder;
 import static com.bcn.asapp.users.testutil.fixture.EncodedTokenMother.encodedAccessToken;
 import static com.bcn.asapp.users.testutil.fixture.EncodedTokenMother.encodedRefreshToken;
@@ -31,7 +28,6 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.times;
 import static org.mockito.BDDMockito.willThrow;
 
-import java.util.Map;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -52,7 +48,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import com.bcn.asapp.users.infrastructure.security.AuthenticationNotFoundException;
-import com.bcn.asapp.users.infrastructure.security.DecodedJwt;
 import com.bcn.asapp.users.infrastructure.security.InvalidJwtException;
 import com.bcn.asapp.users.infrastructure.security.JwtAuthenticationToken;
 import com.bcn.asapp.users.infrastructure.security.JwtVerifier;
@@ -137,11 +132,9 @@ class JwtAuthenticationFilterTests {
         @Test
         void SetsAuthenticationAndContinuesFilterChain_ValidBearerToken() throws Exception {
             // Given
-            var encodedAccessToken = encodedAccessToken();
-            var subject = "user@asapp.com";
-            var decodedJwt = new DecodedJwt(encodedAccessToken, ACCESS_TOKEN_TYPE, subject, Map.of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER"));
+            var decodedJwt = decodedAccessToken();
 
-            given(request.getHeader("Authorization")).willReturn("Bearer " + encodedAccessToken);
+            given(request.getHeader("Authorization")).willReturn("Bearer " + decodedJwt.encodedToken());
             given(jwtVerifier.verifyAccessToken(any(String.class))).willReturn(decodedJwt);
 
             // When
@@ -156,7 +149,7 @@ class JwtAuthenticationFilterTests {
             assertSoftly(softly -> {
             // @formatter:off
                 softly.assertThat(authentication).as("authentication type").isInstanceOf(JwtAuthenticationToken.class);
-                softly.assertThat(authentication.getName()).as("authenticated subject").isEqualTo(subject);
+                softly.assertThat(authentication.getName()).as("authenticated subject").isEqualTo(decodedJwt.subject());
             // @formatter:on
             });
 

@@ -22,8 +22,10 @@ import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.R
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.ACCESS_TOKEN_TYPE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.REFRESH_TOKEN_TYPE;
+import static com.bcn.asapp.authentication.testutil.fixture.DecodedJwtMother.aDecodedJwtBuilder;
+import static com.bcn.asapp.authentication.testutil.fixture.DecodedJwtMother.decodedAccessToken;
+import static com.bcn.asapp.authentication.testutil.fixture.DecodedJwtMother.decodedRefreshToken;
 import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenMother.encodedAccessToken;
-import static com.bcn.asapp.authentication.testutil.fixture.EncodedTokenMother.encodedRefreshToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
@@ -140,10 +142,7 @@ class DecodedJwtTests {
         @Test
         void ReturnsTrue_AccessTokenTypeAndClaims() {
             // Given
-            var encodedAccessToken = encodedAccessToken();
-            var subject = "user@asapp.com";
-            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
-            var decodedJwt = new DecodedJwt(encodedAccessToken, ACCESS_TOKEN_TYPE, subject, claims);
+            var decodedJwt = decodedAccessToken();
 
             // When
             var actual = decodedJwt.isAccessToken();
@@ -155,10 +154,8 @@ class DecodedJwtTests {
         @Test
         void ReturnsFalse_TokenTypeNotAccess() {
             // Given
-            var encodedAccessToken = encodedAccessToken();
-            var subject = "user@asapp.com";
-            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
-            var decodedJwt = new DecodedJwt(encodedAccessToken, REFRESH_TOKEN_TYPE, subject, claims);
+            var decodedJwt = aDecodedJwtBuilder().withType(REFRESH_TOKEN_TYPE)
+                                                 .build();
 
             // When
             var actual = decodedJwt.isAccessToken();
@@ -185,10 +182,7 @@ class DecodedJwtTests {
         @Test
         void ReturnsFalse_TokenTypeNotAccessAndTokenUseClaimNotAccess() {
             // Given
-            var encodedAccessToken = encodedAccessToken();
-            var subject = "user@asapp.com";
-            var claims = Map.<String, Object>of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, "USER");
-            var decodedJwt = new DecodedJwt(encodedAccessToken, REFRESH_TOKEN_TYPE, subject, claims);
+            var decodedJwt = decodedRefreshToken();
 
             // When
             var actual = decodedJwt.isAccessToken();
@@ -205,10 +199,7 @@ class DecodedJwtTests {
         @Test
         void ReturnsTrue_RefreshTokenTypeAndClaims() {
             // Given
-            var encodedRefreshToken = encodedRefreshToken();
-            var subject = "user@asapp.com";
-            var claims = Map.<String, Object>of(TOKEN_USE, REFRESH_TOKEN_USE, ROLE, "USER");
-            var decodedJwt = new DecodedJwt(encodedRefreshToken, REFRESH_TOKEN_TYPE, subject, claims);
+            var decodedJwt = decodedRefreshToken();
 
             // When
             var actual = decodedJwt.isRefreshToken();
@@ -220,10 +211,7 @@ class DecodedJwtTests {
         @Test
         void ReturnsFalse_TokenTypeNotRefresh() {
             // Given
-            var encodedRefreshToken = encodedRefreshToken();
-            var subject = "user@asapp.com";
-            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
-            var decodedJwt = new DecodedJwt(encodedRefreshToken, ACCESS_TOKEN_TYPE, subject, claims);
+            var decodedJwt = decodedAccessToken();
 
             // When
             var actual = decodedJwt.isRefreshToken();
@@ -235,10 +223,8 @@ class DecodedJwtTests {
         @Test
         void ReturnsFalse_TokenUseClaimNotRefresh() {
             // Given
-            var encodedRefreshToken = encodedRefreshToken();
-            var subject = "user@asapp.com";
-            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
-            var decodedJwt = new DecodedJwt(encodedRefreshToken, REFRESH_TOKEN_TYPE, subject, claims);
+            var decodedJwt = aDecodedJwtBuilder().withType(REFRESH_TOKEN_TYPE)
+                                                 .build();
 
             // When
             var actual = decodedJwt.isRefreshToken();
@@ -250,10 +236,7 @@ class DecodedJwtTests {
         @Test
         void ReturnsFalse_TokenTypeNotRefreshAndTokenUseClaimNotRefresh() {
             // Given
-            var encodedRefreshToken = encodedRefreshToken();
-            var subject = "user@asapp.com";
-            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
-            var decodedJwt = new DecodedJwt(encodedRefreshToken, ACCESS_TOKEN_TYPE, subject, claims);
+            var decodedJwt = decodedAccessToken();
 
             // When
             var actual = decodedJwt.isRefreshToken();
@@ -270,17 +253,13 @@ class DecodedJwtTests {
         @Test
         void ReturnsRoleClaim_PresentRoleClaim() {
             // Given
-            var encodedAccessToken = encodedAccessToken();
-            var subject = "user@asapp.com";
-            var roleClaim = "USER";
-            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, roleClaim);
-            var decodedJwt = new DecodedJwt(encodedAccessToken, ACCESS_TOKEN_TYPE, subject, claims);
+            var decodedJwt = decodedAccessToken();
 
             // When
             var actual = decodedJwt.roleClaim();
 
             // Then
-            assertThat(actual).isEqualTo(roleClaim);
+            assertThat(actual).isEqualTo("USER");
         }
 
         @Test

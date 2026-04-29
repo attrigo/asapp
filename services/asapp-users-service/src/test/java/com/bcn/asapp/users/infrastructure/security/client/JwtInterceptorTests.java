@@ -16,11 +16,7 @@
 
 package com.bcn.asapp.users.infrastructure.security.client;
 
-import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.ACCESS_TOKEN_USE;
-import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.ROLE;
-import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.TOKEN_USE;
-import static com.bcn.asapp.users.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
-import static com.bcn.asapp.users.testutil.fixture.EncodedTokenMother.encodedAccessToken;
+import static com.bcn.asapp.users.testutil.fixture.DecodedJwtMother.decodedAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.ArgumentMatchers.eq;
@@ -29,7 +25,6 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.times;
 
 import java.io.IOException;
-import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -44,7 +39,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import com.bcn.asapp.users.infrastructure.security.DecodedJwt;
 import com.bcn.asapp.users.infrastructure.security.JwtAuthenticationToken;
 
 /**
@@ -83,9 +77,7 @@ class JwtInterceptorTests {
         @Test
         void ExecutesRequest_ValidAuthentication() throws IOException {
             // Given
-            var encodedAccessToken = encodedAccessToken();
-            var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
-            var decodedJwt = new DecodedJwt(encodedAccessToken, ACCESS_TOKEN_TYPE, "user@asapp.com", claims);
+            var decodedJwt = decodedAccessToken();
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
             var headers = new HttpHeaders();
             var body = new byte[0];
@@ -97,7 +89,7 @@ class JwtInterceptorTests {
             jwtInterceptor.intercept(request, body, execution);
 
             // Then
-            assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer " + encodedAccessToken);
+            assertThat(headers.getFirst(HttpHeaders.AUTHORIZATION)).isEqualTo("Bearer " + decodedJwt.encodedToken());
 
             then(execution).should(times(1))
                            .execute(eq(request), eq(body));
