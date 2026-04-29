@@ -203,6 +203,10 @@
     * [X] Add .as to all assertThat (if not present add a guideline to appropriate Claude rule file)
     * [X] Remove `{ }` in lambdas with only one line (if not present add a guideline to appropriate Claude rule file)
     * [X] Replace SoftAssertions.assertSoftly by static imports
+* [ ] Technical Improvements
+    * [ ] Change constructor of configuration classes to package visibility
+    * [ ] Refactor `String body` by `var body` in test classes
+    * [X] Review WARN log `Unable to start LiveReload server` shown at start up
 * [ ] CI/CD
     * [ ] Rename release GitHub Actions workflow name from "Build, publish and release the project" to something release-focused (e.g. "Release")
     * [ ] Refactor release GitHub Actions workflow to split into multiple jobs (build-and-test → publish-docker → create-release) for better UI clarity and failure isolation
