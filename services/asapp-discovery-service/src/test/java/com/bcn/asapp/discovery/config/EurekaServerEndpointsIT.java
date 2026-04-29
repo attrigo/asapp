@@ -58,11 +58,9 @@ class EurekaServerEndpointsIT {
                       .expectStatus()
                       .isOk()
                       .expectBody(String.class)
-                      .consumeWith(response -> {
-                          assertThatJson(response.getResponseBody()).isNotNull()
-                                                                    .node("applications")
-                                                                    .isPresent();
-                      });
+                      .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
+                                                                                         .node("applications")
+                                                                                         .isPresent());
     }
 
 }
