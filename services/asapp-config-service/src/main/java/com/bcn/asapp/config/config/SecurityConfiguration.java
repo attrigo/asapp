@@ -49,7 +49,7 @@ import org.springframework.security.web.SecurityFilterChain;
  * @see SecurityFilterChain
  * @author attrigo
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableWebSecurity
 public class SecurityConfiguration {
 

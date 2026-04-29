@@ -29,7 +29,7 @@ import org.springframework.context.annotation.Configuration;
  * @see InMemoryHttpExchangeRepository
  * @author attrigo
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 public class HttpTraceActuatorConfiguration {
 
     /**

@@ -207,6 +207,7 @@
     * [X] Change constructor of configuration classes to package visibility
     * [X] Refactor `String body` by `var body` in test classes
     * [X] Review WARN log `Unable to start LiveReload server` shown at start up
+    * [X] Add `proxyBeanMethods = false` to all `@Configuration` classes; refactor inter-`@Bean` method calls to parameter injection
 * [ ] CI/CD
     * [ ] Rename release GitHub Actions workflow name from "Build, publish and release the project" to something release-focused (e.g. "Release")
     * [ ] Refactor release GitHub Actions workflow to split into multiple jobs (build-and-test → publish-docker → create-release) for better UI clarity and failure isolation

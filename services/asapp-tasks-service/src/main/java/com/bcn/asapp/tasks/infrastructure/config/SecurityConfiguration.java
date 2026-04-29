@@ -59,7 +59,7 @@ import com.bcn.asapp.tasks.infrastructure.security.web.JwtAuthenticationFilter;
  * @see SecurityFilterChain
  * @author attrigo
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableWebSecurity
 public class SecurityConfiguration {
 

@@ -28,7 +28,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * @see EnableScheduling
  * @author attrigo
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableScheduling
 public class SchedulingConfiguration {
 
