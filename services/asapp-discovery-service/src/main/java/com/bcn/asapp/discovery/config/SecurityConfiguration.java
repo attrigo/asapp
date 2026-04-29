@@ -50,7 +50,7 @@ import com.bcn.asapp.discovery.security.web.HttpBasicAuthenticationEntryPoint;
  * @see SecurityFilterChain
  * @author attrigo
  */
-@Configuration
+@Configuration(proxyBeanMethods = false)
 @EnableWebSecurity
 public class SecurityConfiguration {
 
