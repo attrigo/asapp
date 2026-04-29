@@ -19,6 +19,18 @@ Group annotations strictly in this order (semantic role):
 
 Manual conventions — Spotless does not enforce them automatically
 
+- Use expression lambdas (no `{ }`) when the body is a single statement:
+
+```java
+// prefer
+list.forEach(item -> process(item));
+list.stream().map(item -> item.getName());
+
+// avoid
+list.forEach(item -> { process(item); });
+list.stream().map(item -> { return item.getName(); });
+```
+
 - Add a blank line after the opening `{` of any `if` condition that wraps across multiple lines:
 
 ```java
