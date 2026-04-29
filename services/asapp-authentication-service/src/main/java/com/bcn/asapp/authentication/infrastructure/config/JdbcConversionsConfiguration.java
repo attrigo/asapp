@@ -53,7 +53,7 @@ public class JdbcConversionsConfiguration extends AbstractJdbcConfiguration {
      *
      * @param objectMapper the Jackson ObjectMapper for JSON serialization
      */
-    public JdbcConversionsConfiguration(ObjectMapper objectMapper) {
+    JdbcConversionsConfiguration(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
@@ -86,7 +86,7 @@ public class JdbcConversionsConfiguration extends AbstractJdbcConfiguration {
          *
          * @param objectMapper the Jackson ObjectMapper for JSON deserialization
          */
-        public ClaimsReadingConverter(ObjectMapper objectMapper) {
+        ClaimsReadingConverter(ObjectMapper objectMapper) {
             this.objectMapper = objectMapper;
         }
 
@@ -127,7 +127,7 @@ public class JdbcConversionsConfiguration extends AbstractJdbcConfiguration {
          *
          * @param objectMapper the Jackson ObjectMapper for JSON serialization
          */
-        public ClaimsWritingConverter(ObjectMapper objectMapper) {
+        ClaimsWritingConverter(ObjectMapper objectMapper) {
             this.objectMapper = objectMapper;
         }
 
