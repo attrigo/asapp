@@ -186,7 +186,7 @@
     * [X] Update `CLAUDE.md` with the new service details
     * [X] Add HTTP Basic Authentication to eureka endpoints
     * [X] Review startup warning "Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath."
-    * [ ] Update README files of each service to reference the discovery setup
+    * [X] Update README files of each service to reference the discovery setup
 * [ ] Add Spring Rest Docs for API documentation
     * [ ] Add Spring REST Docs dependency and AsciiDoctor Maven plugin to each service
     * [ ] Configure `RestDocumentationExtension` in the test setup of each service
