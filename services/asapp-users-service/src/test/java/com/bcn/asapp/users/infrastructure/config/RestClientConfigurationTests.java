@@ -16,11 +16,7 @@
 
 package com.bcn.asapp.users.infrastructure.config;
 
-import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.ACCESS_TOKEN_USE;
-import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.ROLE;
-import static com.bcn.asapp.users.infrastructure.security.JwtClaimNames.TOKEN_USE;
-import static com.bcn.asapp.users.infrastructure.security.JwtTypeNames.ACCESS_TOKEN_TYPE;
-import static com.bcn.asapp.users.testutil.fixture.EncodedTokenMother.encodedAccessToken;
+import static com.bcn.asapp.users.testutil.fixture.DecodedJwtMother.decodedAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -30,8 +26,8 @@ import static org.mockito.BDDMockito.then;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.URI;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -56,7 +52,6 @@ import org.springframework.web.client.RestClient;
 
 import com.sun.net.httpserver.HttpServer;
 
-import com.bcn.asapp.users.infrastructure.security.DecodedJwt;
 import com.bcn.asapp.users.infrastructure.security.JwtAuthenticationToken;
 
 /**
@@ -65,6 +60,7 @@ import com.bcn.asapp.users.infrastructure.security.JwtAuthenticationToken;
  * Coverage:
  * <li>Load balancer client is invoked for each outgoing request (protects against accidental {@code @LoadBalanced} removal)</li>
  * <li>Redirect responses from downstream services are returned as-is without being followed</li>
+ * <li>JWT from the authenticated security context is propagated as {@code Authorization: Bearer} header to downstream requests</li>
  */
 @SpringJUnitConfig
 @SuppressWarnings("unchecked")
@@ -110,11 +106,12 @@ class RestClientConfigurationTests {
 
     private int port;
 
+    private String encodedToken;
+
     @BeforeEach
     void beforeEach() throws IOException {
-        var encodedToken = encodedAccessToken();
-        var claims = Map.<String, Object>of(TOKEN_USE, ACCESS_TOKEN_USE, ROLE, "USER");
-        var decodedJwt = new DecodedJwt(encodedToken, ACCESS_TOKEN_TYPE, "user@asapp.com", claims);
+        var decodedJwt = decodedAccessToken();
+        encodedToken = decodedJwt.encodedToken();
         SecurityContextHolder.getContext()
                              .setAuthentication(JwtAuthenticationToken.authenticated(decodedJwt));
 
@@ -183,8 +180,32 @@ class RestClientConfigurationTests {
                                .exchange((_, response) -> response.getStatusCode());
 
         // Then
-        assertThat(actual).isEqualTo(HttpStatus.FOUND);
-        assertThat(redirectCalled.get()).isFalse();
+        assertThat(actual).as("response status")
+                          .isEqualTo(HttpStatus.FOUND);
+        assertThat(redirectCalled.get()).as("redirect not followed")
+                                        .isFalse();
+    }
+
+    @Test
+    void PropagatesAuthorizationHeader_ValidSecurityContext() {
+        // Given
+        var authorizationHeader = new AtomicReference<String>();
+        server.createContext("/some-path", exchange -> {
+            authorizationHeader.set(exchange.getRequestHeaders()
+                                            .getFirst("Authorization"));
+            exchange.sendResponseHeaders(200, -1);
+            exchange.close();
+        });
+        server.start();
+
+        // When
+        restClient.get()
+                  .uri("http://localhost:" + port + "/some-path")
+                  .exchange((_, response) -> response.getStatusCode());
+
+        // Then
+        assertThat(authorizationHeader.get()).as("Authorization header")
+                                             .isEqualTo("Bearer " + encodedToken);
     }
 
 }

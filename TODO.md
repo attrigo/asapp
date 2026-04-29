@@ -198,7 +198,7 @@
     * [X] Rename `JwtAuthenticationFilterIT` to `SecurityConfigurationIT` — the class covers broader security config (not just the JWT filter)
     * [X] Test Actuator endpoints under management port — verify `/actuator/refresh` requires HTTP Basic auth (401 without credentials), `/actuator/health` returns 200, `/actuator/prometheus` is accessible
     * [X] Test `livez` and `readyz` endpoints are served on the main port and are publicly accessible (no auth required)
-    * [ ] Create test fixture for `DecodedJwt` to reduce boilerplate in JWT-related unit tests
+    * [X] Create test in `RestClientConfigurationTests` to validate JWT propagation
 * [ ] CI/CD
     * [ ] Rename release GitHub Actions workflow name from "Build, publish and release the project" to something release-focused (e.g. "Release")
     * [ ] Refactor release GitHub Actions workflow to split into multiple jobs (build-and-test → publish-docker → create-release) for better UI clarity and failure isolation
