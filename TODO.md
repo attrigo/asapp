@@ -200,7 +200,7 @@
     * [X] Test `livez` and `readyz` endpoints are served on the main port and are publicly accessible (no auth required)
     * [ ] Create test fixture for `DecodedJwt` to reduce boilerplate in JWT-related unit tests
 * [ ] Technical Improvements
-    * [ ] Change constructor of configuration classes to package visibility
+    * [X] Change constructor of configuration classes to package visibility
     * [ ] Refactor `String body` by `var body` in test classes
     * [X] Review WARN log `Unable to start LiveReload server` shown at start up
 * [ ] CI/CD
