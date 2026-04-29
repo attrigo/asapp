@@ -62,10 +62,8 @@ class GlobalExceptionHandlerTests {
             var actual = globalExceptionHandler.handleIllegalArgumentException(exception);
 
             // Then
-            assertThat(actual.getStatusCode()).as("status code")
-                                              .isEqualTo(HttpStatus.BAD_REQUEST);
-            assertThat(actual.getBody()).as("body")
-                                        .isNotNull();
+            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            assertThat(actual.getBody()).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Invalid Argument");
@@ -89,10 +87,8 @@ class GlobalExceptionHandlerTests {
             var actual = globalExceptionHandler.handleInvalidCredentials(exception);
 
             // Then
-            assertThat(actual.getStatusCode()).as("status code")
-                                              .isEqualTo(HttpStatus.UNAUTHORIZED);
-            assertThat(actual.getBody()).as("body")
-                                        .isNotNull();
+            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+            assertThat(actual.getBody()).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Authentication Failed");
@@ -117,10 +113,8 @@ class GlobalExceptionHandlerTests {
             var actual = globalExceptionHandler.handleInvalidCredentials(exception);
 
             // Then
-            assertThat(actual.getStatusCode()).as("status code")
-                                              .isEqualTo(HttpStatus.UNAUTHORIZED);
-            assertThat(actual.getBody()).as("body")
-                                        .isNotNull();
+            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+            assertThat(actual.getBody()).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Authentication Failed");
@@ -145,10 +139,8 @@ class GlobalExceptionHandlerTests {
             var actual = globalExceptionHandler.handleInvalidCredentials(exception);
 
             // Then
-            assertThat(actual.getStatusCode()).as("status code")
-                                              .isEqualTo(HttpStatus.UNAUTHORIZED);
-            assertThat(actual.getBody()).as("body")
-                                        .isNotNull();
+            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+            assertThat(actual.getBody()).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Authentication Failed");
@@ -173,10 +165,8 @@ class GlobalExceptionHandlerTests {
             var actual = globalExceptionHandler.handleAuthenticationNotFoundException(exception);
 
             // Then
-            assertThat(actual.getStatusCode()).as("status code")
-                                              .isEqualTo(HttpStatus.UNAUTHORIZED);
-            assertThat(actual.getBody()).as("body")
-                                        .isNotNull();
+            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+            assertThat(actual.getBody()).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Authentication Failed");
@@ -201,10 +191,8 @@ class GlobalExceptionHandlerTests {
             var actual = globalExceptionHandler.handleUnexpectedJwtTypeException(exception);
 
             // Then
-            assertThat(actual.getStatusCode()).as("status code")
-                                              .isEqualTo(HttpStatus.UNAUTHORIZED);
-            assertThat(actual.getBody()).as("body")
-                                        .isNotNull();
+            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+            assertThat(actual.getBody()).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Authentication Failed");
@@ -229,10 +217,8 @@ class GlobalExceptionHandlerTests {
             var actual = globalExceptionHandler.handleInvalidJwtException(exception);
 
             // Then
-            assertThat(actual.getStatusCode()).as("status code")
-                                              .isEqualTo(HttpStatus.UNAUTHORIZED);
-            assertThat(actual.getBody()).as("body")
-                                        .isNotNull();
+            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
+            assertThat(actual.getBody()).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Authentication Failed");
@@ -258,10 +244,8 @@ class GlobalExceptionHandlerTests {
             var actual = globalExceptionHandler.handleCompensatingTransactionException(exception);
 
             // Then
-            assertThat(actual.getStatusCode()).as("status code")
-                                              .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-            assertThat(actual.getBody()).as("body")
-                                        .isNotNull();
+            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+            assertThat(actual.getBody()).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Internal Server Error");
@@ -287,10 +271,8 @@ class GlobalExceptionHandlerTests {
             var actual = globalExceptionHandler.handleJwtIssuanceException(exception);
 
             // Then
-            assertThat(actual.getStatusCode()).as("status code")
-                                              .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-            assertThat(actual.getBody()).as("body")
-                                        .isNotNull();
+            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+            assertThat(actual.getBody()).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Internal Server Error");
@@ -315,10 +297,8 @@ class GlobalExceptionHandlerTests {
             var actual = globalExceptionHandler.handleDataAccessException(exception);
 
             // Then
-            assertThat(actual.getStatusCode()).as("status code")
-                                              .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-            assertThat(actual.getBody()).as("body")
-                                        .isNotNull();
+            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+            assertThat(actual.getBody()).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Internal Server Error");
@@ -343,10 +323,8 @@ class GlobalExceptionHandlerTests {
             var actual = globalExceptionHandler.handleTokenStoreException(exception);
 
             // Then
-            assertThat(actual.getStatusCode()).as("status code")
-                                              .isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
-            assertThat(actual.getBody()).as("body")
-                                        .isNotNull();
+            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+            assertThat(actual.getBody()).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Service Unavailable");
@@ -371,10 +349,8 @@ class GlobalExceptionHandlerTests {
             var actual = globalExceptionHandler.handleRedisException(exception);
 
             // Then
-            assertThat(actual.getStatusCode()).as("status code")
-                                              .isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
-            assertThat(actual.getBody()).as("body")
-                                        .isNotNull();
+            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+            assertThat(actual.getBody()).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Service Unavailable");

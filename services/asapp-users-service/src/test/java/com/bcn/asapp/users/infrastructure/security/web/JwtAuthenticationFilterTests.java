@@ -144,8 +144,7 @@ class JwtAuthenticationFilterTests {
             var authentication = SecurityContextHolder.getContext()
                                                       .getAuthentication();
 
-            assertThat(authentication).as("authentication")
-                                      .isNotNull();
+            assertThat(authentication).isNotNull();
             assertSoftly(softly -> {
             // @formatter:off
                 softly.assertThat(authentication).as("authentication type").isInstanceOf(JwtAuthenticationToken.class);

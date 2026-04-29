@@ -194,12 +194,13 @@
     * [ ] Write AsciiDoc index templates per service
     * [ ] Configure the Maven build to generate and package HTML documentation from the snippets
     * [ ] Update README files of each service to reference the generated documentation
-* [ ] Test Improvements
+* [X] Test Improvements
     * [X] Rename `JwtAuthenticationFilterIT` to `SecurityConfigurationIT` — the class covers broader security config (not just the JWT filter)
     * [X] Test Actuator endpoints under management port — verify `/actuator/refresh` requires HTTP Basic auth (401 without credentials), `/actuator/health` returns 200, `/actuator/prometheus` is accessible
     * [X] Test `livez` and `readyz` endpoints are served on the main port and are publicly accessible (no auth required)
     * [X] Create test fixture for `DecodedJwt` to reduce boilerplate in JWT-related unit tests and use it where appropiate
     * [X] Create test in `RestClientConfigurationTests` to validate JWT propagation
+    * [X] Add .as to all assertThat (if not present add a guideline to appropriate Claude rule file)
     * [X] Remove `{ }` in lambdas with only one line (if not present add a guideline to appropriate Claude rule file)
     * [X] Replace SoftAssertions.assertSoftly by static imports
 * [ ] CI/CD

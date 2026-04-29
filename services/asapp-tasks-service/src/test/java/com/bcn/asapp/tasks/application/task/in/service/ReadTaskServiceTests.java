@@ -74,10 +74,8 @@ class ReadTaskServiceTests {
             var actual = readTaskService.getTaskById(taskId.value());
 
             // Then
-            assertThat(actual).as("found task")
-                              .isPresent();
-            assertThat(actual.get()).as("found task")
-                                    .isEqualTo(task);
+            assertThat(actual).isPresent();
+            assertThat(actual.get()).isEqualTo(task);
 
             then(taskRepository).should(times(1))
                                 .findById(taskId);
