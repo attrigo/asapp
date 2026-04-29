@@ -21,6 +21,7 @@ import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.R
 import static com.bcn.asapp.authentication.domain.authentication.JwtClaimNames.TOKEN_USE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.ACCESS_TOKEN_TYPE;
 import static com.bcn.asapp.authentication.domain.authentication.JwtTypeNames.REFRESH_TOKEN_TYPE;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +32,6 @@ import java.util.Properties;
 import org.assertj.core.api.AbstractAssert;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.api.InstanceOfAssertFactories;
-import org.assertj.core.api.SoftAssertions;
 import org.springframework.util.Assert;
 
 import com.nimbusds.jose.JOSEException;
@@ -87,7 +87,7 @@ public class JwtAssertions extends AbstractAssert<JwtAssertions, SignedJWT> {
                                      .getType()
                                      .getType();
         var actualTokenUseClaim = claimsSet().getClaim(TOKEN_USE);
-        SoftAssertions.assertSoftly(_ -> {
+        assertSoftly(_ -> {
             Assertions.assertThat(actualHeaderType)
                       .isNotNull()
                       .describedAs("type")
@@ -106,7 +106,7 @@ public class JwtAssertions extends AbstractAssert<JwtAssertions, SignedJWT> {
                                      .getType()
                                      .getType();
         var actualTokenUseClaim = claimsSet().getClaim(TOKEN_USE);
-        SoftAssertions.assertSoftly(_ -> {
+        assertSoftly(_ -> {
             Assertions.assertThat(actualHeaderType)
                       .isNotNull()
                       .describedAs("type")

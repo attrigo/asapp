@@ -201,6 +201,7 @@
     * [X] Create test fixture for `DecodedJwt` to reduce boilerplate in JWT-related unit tests and use it where appropiate
     * [X] Create test in `RestClientConfigurationTests` to validate JWT propagation
     * [X] Remove `{ }` in lambdas with only one line (if not present add a guideline to appropriate Claude rule file)
+    * [X] Replace SoftAssertions.assertSoftly by static imports
 * [ ] CI/CD
     * [ ] Rename release GitHub Actions workflow name from "Build, publish and release the project" to something release-focused (e.g. "Release")
     * [ ] Refactor release GitHub Actions workflow to split into multiple jobs (build-and-test → publish-docker → create-release) for better UI clarity and failure isolation
