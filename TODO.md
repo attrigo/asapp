@@ -204,7 +204,7 @@
     * [X] Remove `{ }` in lambdas with only one line (if not present add a guideline to appropriate Claude rule file)
     * [X] Replace SoftAssertions.assertSoftly by static imports
 * [ ] Technical Improvements
-    * [ ] Change constructor of configuration classes to package visibility
+    * [X] Change constructor of configuration classes to package visibility
     * [ ] Refactor `String body` by `var body` in test classes
     * [X] Review WARN log `Unable to start LiveReload server` shown at start up
 * [ ] CI/CD

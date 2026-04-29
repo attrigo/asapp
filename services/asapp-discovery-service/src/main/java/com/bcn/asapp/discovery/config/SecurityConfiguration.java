@@ -66,7 +66,7 @@ public class SecurityConfiguration {
      *
      * @param httpBasicAuthenticationEntryPoint the authentication entry point
      */
-    public SecurityConfiguration(HttpBasicAuthenticationEntryPoint httpBasicAuthenticationEntryPoint) {
+    SecurityConfiguration(HttpBasicAuthenticationEntryPoint httpBasicAuthenticationEntryPoint) {
         this.httpBasicAuthenticationEntryPoint = httpBasicAuthenticationEntryPoint;
     }
 

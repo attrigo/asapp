@@ -99,7 +99,7 @@ public class SecurityConfiguration {
      * @param managementUsername          the management user username
      * @param managementPassword          the management user password
      */
-    public SecurityConfiguration(JwtAuthenticationFilter jwtAuthenticationFilter, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+    SecurityConfiguration(JwtAuthenticationFilter jwtAuthenticationFilter, JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
             @Value("${spring.security.user.name}") String managementUsername, @Value("${spring.security.user.password}") String managementPassword) {
 
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
