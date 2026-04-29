@@ -67,7 +67,7 @@ class OpenApiEndpointsIT {
                       .isOk()
                       .expectBody(String.class)
                       .consumeWith(response -> {
-                          String body = response.getResponseBody();
+                          var body = response.getResponseBody();
                           assertThatJson(body).node("info")
                                               .isObject()
                                               .containsEntry("title", "Tasks Service API")

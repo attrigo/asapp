@@ -199,9 +199,9 @@
     * [X] Test Actuator endpoints under management port — verify `/actuator/refresh` requires HTTP Basic auth (401 without credentials), `/actuator/health` returns 200, `/actuator/prometheus` is accessible
     * [X] Test `livez` and `readyz` endpoints are served on the main port and are publicly accessible (no auth required)
     * [ ] Create test fixture for `DecodedJwt` to reduce boilerplate in JWT-related unit tests
-* [ ] Technical Improvements
+* [X] Technical Improvements
     * [X] Change constructor of configuration classes to package visibility
-    * [ ] Refactor `String body` by `var body` in test classes
+    * [X] Refactor `String body` by `var body` in test classes
     * [X] Review WARN log `Unable to start LiveReload server` shown at start up
 * [ ] CI/CD
     * [ ] Rename release GitHub Actions workflow name from "Build, publish and release the project" to something release-focused (e.g. "Release")
