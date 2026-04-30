@@ -210,13 +210,13 @@
     * [X] Refactor `String body` by `var body` in test classes
     * [X] Review WARN log `Unable to start LiveReload server` shown at start up
     * [X] Add `proxyBeanMethods = false` to all `@Configuration` classes; refactor inter-`@Bean` method calls to parameter injection
-* [ ] CI/CD
-    * [ ] Rename release GitHub Actions workflow name from "Build, publish and release the project" to something release-focused (e.g. "Release")
-    * [ ] Refactor release GitHub Actions workflow to split into multiple jobs (build-and-test → publish-docker → create-release) for better UI clarity and failure isolation
-    * [ ] Simplify release skill Step 6 from `mvn clean install` to `mvn clean compile` — CI already validates tests pass before release
-    * [ ] Upgrade GitHub Actions to Node.js 24 compatible versions (`docker/login-action@v3` deprecated; forced migration by June 2nd, 2026)
-    * [ ] Create a dedicated `ci` Maven profile (Spotless check only) and replace `-Pfull` in the CI workflow to avoid building release-only artifacts (Javadoc, sources JARs, coverage) on every push
-    * [ ] Automate the upgrade of `asapp-*` service image tags in `docker-compose.yml` as part of the release workflow
+* [X] CI/CD
+    * [X] Rename release GitHub Actions workflow name from "Build, publish and release the project" to something release-focused (e.g. "Release")
+    * [X] Refactor release GitHub Actions workflow to split into multiple jobs (build-and-test → publish-docker → create-release) for better UI clarity and failure isolation
+    * [X] Simplify release command Step 6 from `mvn clean install` to `mvn clean compile` — CI already validates tests pass before release
+    * [X] Upgrade GitHub Actions to Node.js 24 compatible versions (`docker/login-action@v3` deprecated; forced migration by June 2nd, 2026)
+    * [X] Create a dedicated `ci` Maven profile (Spotless check only) and replace `-Pfull` in the CI workflow to avoid building release-only artifacts (Javadoc, sources JARs, coverage) on every push
+    * [X] Automate the upgrade of `asapp-*` service image tags in `docker-compose.yml` as part of the release workflow
 * [X] Infrastructure improvements
     * [X] Remove obsolete top-level `version` attribute from `docker-compose.yml` (deprecated and ignored in Compose v2+)
     * [X] Expose management ports (8090, 8091, 8092, 8898) in `docker-compose.yml` to allow local access to actuator endpoints
