@@ -131,7 +131,8 @@ public class SecurityConfiguration {
      * <p>
      * Applies the following configurations to the filter chain:
      * <ul>
-     * <li>Disables CSRF.</li>
+     * <li>Disables CSRF: authentication is stateless (JWT Bearer header); no session cookies exist to hijack.</li>
+     * <li>No CORS configuration: endpoints are consumed server-to-server; CORS is a browser-only enforcement mechanism.</li>
      * <li>Configures JWT authentication for the incoming requests that matches {@literal /api/**}.</li>
      * <li>Adds the exception handler, which is invoked when any authentication fails.</li>
      * <li>Adds the JWT authentication filter.</li>
@@ -165,8 +166,8 @@ public class SecurityConfiguration {
      * <p>
      * Applies the following configurations to the filter chain:
      * <ul>
-     * <li>Disables CSRF.</li>
-     * <li>Disables CORS.</li>
+     * <li>Disables CSRF: authentication is stateless (JWT Bearer header); no session cookies exist to hijack.</li>
+     * <li>Disables CORS: actuator endpoints are internal only; cross-origin browser access is not supported.</li>
      * <li>Configures no authentication for the incoming requests that matches the {@literal /actuator/health}.</li>
      * <li>Configures HTTP Basic authentication for the incoming requests that matches {@literal /actuator/**}.</li>
      * </ul>
@@ -200,7 +201,8 @@ public class SecurityConfiguration {
      * <p>
      * Applies the following configurations to the filter chain:
      * <ul>
-     * <li>Disables CSRF.</li>
+     * <li>Disables CSRF: authentication is stateless (JWT Bearer header); no session cookies exist to hijack.</li>
+     * <li>No CORS configuration: endpoints are consumed server-to-server; CORS is a browser-only enforcement mechanism.</li>
      * <li>Configures no authentication for the incoming requests that matches the public API documentation endpoints {@code ROOT_WHITELIST_URLS}.</li>
      * <li>Configures no authentication for the incoming requests that matches the public management endpoints {@code MANAGEMENT_WHITELIST_URLS}.</li>
      * <li>Configures JWT authentication for the incoming requests that matches {@literal /**}.</li>

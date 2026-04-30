@@ -177,6 +177,7 @@
     * [X] Use readyz/livez in business service to ensure config service is up
 * [X] Security Improvements
     * [X] Secure `/actuator/refresh` endpoints on business services (tasks, users, authentication)
+    * [X] Review CSRF and CORS configuration
 * [X] Add Spring Service discovery
     * [X] Create `asapp-discovery-service` Eureka Server module
     * [X] Add Eureka Client dependency to all services
