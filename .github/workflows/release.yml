@@ -1,11 +1,11 @@
-# This workflow builds, tests, publishes Docker images, and creates a GitHub Release.
-# It is triggered when a version tag matching v* is pushed (e.g. v0.3.0).
+# This workflow is triggered when a version tag matching v* is pushed (e.g. v0.3.0).
+# It builds and tests the project, publishes Docker images to ghcr.io, and creates a GitHub Release.
 #
 # Permissions required:
 #   - contents: write  — to create the GitHub Release
 #   - packages: write  — to push Docker images to ghcr.io
 
-name: Build, publish and release the project
+name: Release
 
 on:
   push:
