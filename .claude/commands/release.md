@@ -136,7 +136,7 @@ If a service has no changelog file for this version, skip it — that service ha
 ### Step 6: Build and Verify
 
 ```bash
-mvn clean install
+mvn clean compile
 ```
 
 **If the build fails**: stop immediately, report the failure, and do not proceed. The user must fix the build before the release can continue.
@@ -209,7 +209,7 @@ Only push if the user confirms.
 - **Abort if there are unpushed commits** — prevents releasing from a state that diverges from the remote
 - **Abort if last CI run on `main` did not succeed** — prevents releasing from a broken build
 - **Abort if TODO has unchecked items for the version** — ensures the release is feature-complete
-- **Never skip `mvn clean install`** — the build must pass before any commits are made
+- **Never skip `mvn clean compile`** — the build must compile cleanly before any commits are made
 - **Never force push** — use `--atomic` only; never `--force` or `--force-with-lease`
 - **Never push without confirmation**
 
@@ -227,7 +227,7 @@ Only push if the user confirms.
   - asapp-authentication-service: added tag_version_0_3_0
   - asapp-users-service: added tag_version_0_3_0
   - asapp-tasks-service: no v0.3.0 changelog found, skipped
-[Step 6] Building...  done (BUILD SUCCESS)
+[Step 6] Compiling...  done (BUILD SUCCESS)
 [Step 7] Committing release and tagging...  done (tag: v0.3.0)
 [Step 8] Bumping to next SNAPSHOT...
   - pom.xml → 0.4.0-SNAPSHOT
