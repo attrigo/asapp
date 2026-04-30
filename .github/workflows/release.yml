@@ -20,6 +20,8 @@ permissions:
   packages: write
 
 jobs:
+  # Runs the full build profile
+  # Uploads service JARs as an artifact for use by the create-release job.
   build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -34,13 +36,9 @@ jobs:
           distribution: 'temurin'
           cache: maven
 
-      # Runs the full build profile: unit + integration tests, JaCoCo coverage,
-      # Javadoc, sources JARs, and Spotless style check.
       - name: Build and test the project
         run: mvn install -B --no-transfer-progress -Pfull
 
-      # Uploads the four runnable service JARs so the create-release job can attach
-      # them to the GitHub Release without rebuilding the project.
       - name: Upload service JARs
         uses: actions/upload-artifact@v4
         with:
@@ -48,6 +46,8 @@ jobs:
           path: services/*/target/*.jar
           retention-days: 1
 
+  # Builds a versioned Docker image for every service (lib modules are skipped)
+  # Pushes images to ghcr.io/attrigo/<service-name>:<version>.
   publish-docker:
     needs: [build-and-test]
     runs-on: ubuntu-latest
@@ -76,9 +76,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Builds and pushes a versioned Docker image for every module under services/.
-      # Lib modules are automatically skipped.
-      # Images are published to ghcr.io/attrigo/<service-name>:<version>.
       - name: Build and push Docker images
         run: |
           mvn spring-boot:build-image -B --no-transfer-progress -DskipTests
@@ -88,6 +85,9 @@ jobs:
             docker push "ghcr.io/attrigo/${SERVICE}:${{ steps.version.outputs.VERSION }}"
           done
 
+  # Downloads the service JARs built in build-and-test
+  # Generates release notes from conventional commits using git-cliff
+  # Publishes the GitHub Release.
   create-release:
     needs: [publish-docker]
     runs-on: ubuntu-latest
@@ -104,10 +104,8 @@ jobs:
           name: service-jars
           path: release-artifacts
 
-      # Generates release notes from commits since the previous tag using git-cliff.
-      # --latest   : only includes commits reachable from the current tag back to the previous one
+      # --latest      : only includes commits reachable from the current tag back to the previous one
       # --strip header : removes the changelog file header, keeping only the entry body
-      # The output is written to CHANGELOG_RELEASE.md and used as the release description.
       - name: Generate changelog
         uses: orhun/git-cliff-action@v4
         id: changelog
@@ -117,10 +115,9 @@ jobs:
         env:
           OUTPUT: CHANGELOG_RELEASE.md
           GITHUB_REPO: ${{ github.repository }}
-
-      # Creates the GitHub Release for the pushed tag.
-      # GitHub automatically attaches two source code archives (.zip and .tar.gz).
-      # In addition, the four runnable service JARs are explicitly attached.
+      
+      # GitHub automatically attaches two source code archives (.zip and .tar.gz)
+      # The five runnable service JARs are attached explicitly.
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
