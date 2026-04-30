@@ -15,43 +15,28 @@ Fetches the release notes of a GitHub Release, applies AI editorial improvements
 gh --version
 ```
 
-If the command succeeds → `gh` is available. If it fails or is not found → `gh` is not available.
-This determines which path to take in steps 3 and 5.
+If the command fails or `gh` is not found, abort immediately with:
+
+```
+Error: This command requires the GitHub CLI (gh).
+Install it from https://cli.github.com, authenticate with `gh auth login`, and re-run.
+```
 
 ### Step 2: Detect version
 
 If a version argument was provided (e.g. `v0.2.0`), use it directly.
 
-If `gh` is available and no argument was provided, fetch the latest release tag:
+Otherwise, fetch the latest release tag:
 
 ```bash
 gh release list --limit 1 --json tagName -q '.[0].tagName'
 ```
 
-If `gh` is not available and no argument was provided, ask the user which version they are working on.
-
 ### Step 3: Get release notes
-
-**If `gh` is available:**
 
 ```bash
 gh release view <tag> --json body -q '.body'
 ```
-
-**If `gh` is not available:**
-
-Tell the user:
-
-```
-gh CLI is not available. To proceed manually:
-
-1. Open the GitHub Release page for <tag>
-2. Copy the release notes
-3. Paste them into: .github/changelog-draft.md
-4. Confirm when ready
-```
-
-Wait for the user to confirm the file is ready, then read `.github/changelog-draft.md`.
 
 ### Step 4: Apply improvements
 
@@ -67,28 +52,19 @@ Proceed to update the GitHub Release? [y/N]
 
 Only continue if the user confirms.
 
-**If `gh` is available:**
+Write the improved content to `.github/changelog-draft.md`, then run:
 
 ```bash
-gh release edit <tag> --notes-file /tmp/improved-changelog.md
+gh release edit <tag> --notes-file .github/changelog-draft.md
+```
+
+After a successful update, delete the working file:
+
+```bash
+rm .github/changelog-draft.md
 ```
 
 Confirm success and print the release URL.
-
-**If `gh` is not available:**
-
-Write the improved content back to `.github/changelog-draft.md`, then tell the user:
-
-```
-Done. To publish the changes:
-
-1. Open the GitHub Release page for <tag>
-2. Click Edit
-3. Replace the release notes with the contents of .github/changelog-draft.md
-4. Save
-
-You can delete .github/changelog-draft.md afterwards — it is listed in .gitignore and will not be committed.
-```
 
 ---
 
