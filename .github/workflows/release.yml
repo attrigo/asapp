@@ -1,5 +1,8 @@
 # This workflow is triggered when a version tag matching v* is pushed (e.g. v0.3.0).
-# It builds and tests the project, publishes Docker images to ghcr.io, and creates a GitHub Release.
+# It runs three sequential jobs:
+#   1. build-and-test    — full build with tests, coverage, Javadoc, and style check
+#   2. publish-docker    — builds and pushes versioned Docker images to ghcr.io
+#   3. create-release    — generates changelog and creates the GitHub Release with JARs
 #
 # Permissions required:
 #   - contents: write  — to create the GitHub Release
@@ -17,14 +20,12 @@ permissions:
   packages: write
 
 jobs:
-  release:
+  build-and-test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - name: Checkout the project
         uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
 
       - name: Set up JDK 25
         uses: actions/setup-java@v5
@@ -38,16 +39,33 @@ jobs:
       - name: Build and test the project
         run: mvn install -B --no-transfer-progress -Pfull
 
+  publish-docker:
+    needs: [build-and-test]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      version: ${{ steps.version.outputs.VERSION }}
+    steps:
+      - name: Checkout the project
+        uses: actions/checkout@v6
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
       - name: Log in to ghcr.io
         uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract version from tag
-        id: version
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
 
       # Builds and pushes a versioned Docker image for every module under services/.
       # Lib modules are automatically skipped.
@@ -60,6 +78,33 @@ jobs:
             SERVICE=$(basename "$SERVICE_DIR")
             docker push "ghcr.io/attrigo/${SERVICE}:${{ steps.version.outputs.VERSION }}"
           done
+
+  create-release:
+    needs: [publish-docker]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout the project
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 25
+        uses: actions/setup-java@v5
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+          cache: maven
+
+      # Rebuilds the service JARs to attach to the GitHub Release.
+      # Tests are skipped — already validated in the build-and-test job.
+      # The Maven dependency cache is warm from previous jobs, keeping this fast.
+      - name: Build service JARs
+        run: mvn package -B --no-transfer-progress -DskipTests
+
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
 
       # Generates release notes from commits since the previous tag using git-cliff.
       # --latest   : only includes commits reachable from the current tag back to the previous one
