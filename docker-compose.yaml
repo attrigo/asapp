@@ -107,26 +107,34 @@ services:
       - '8080:8080'
       - '8090:8090'
     environment:
+      # Runtime
       - JAVA_OPTS=-Xmx256m -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/heap-dumps
       - SPRING_PROFILES_ACTIVE=docker
+      # Ports
       - SERVER_PORT=8080
-      - MANAGEMENT_PORT=8090
+      # Database
       - DB_HOST=asapp-authentication-postgres-db
       - DB_PORT=5432
       - DB_NAME=authenticationdb
       - DB_USERNAME=user
       - DB_PASSWORD=secret
+      # Redis
       - REDIS_HOST=asapp-redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=secret
+      # Config service
       - CONFIG_URI=http://asapp-config-service:8888/asapp-config-service
       - CONFIG_USERNAME=config-user
       - CONFIG_PASSWORD=config-secret
+      # Discovery service
       - DISCOVERY_HOST=asapp-discovery-service:8761/asapp-discovery-service
       - DISCOVERY_USERNAME=discovery-user
       - DISCOVERY_PASSWORD=discovery-secret
+      # Management
+      - MANAGEMENT_PORT=8090
       - MANAGEMENT_USERNAME=auth-user
       - MANAGEMENT_PASSWORD=auth-secret
+      # Security
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
       - ASAPP_SECURITY_ACCESS_TOKEN_EXPIRATION_TIME=300000
       - ASAPP_SECURITY_REFRESH_TOKEN_EXPIRATION_TIME=3600000
@@ -151,12 +159,17 @@ services:
       - '8888:8888'
       - '8898:8898'
     environment:
+      # Runtime
       - JAVA_OPTS=-Xmx256m -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/heap-dumps
       - SPRING_PROFILES_ACTIVE=native,docker
+      # Ports
       - SERVER_PORT=8888
-      - MANAGEMENT_PORT=8898
+      # Config service
       - CONFIG_USERNAME=config-user
       - CONFIG_PASSWORD=config-secret
+      # Management
+      - MANAGEMENT_PORT=8898
+      # Health check
       - THC_PORT=8888
       - THC_PATH=/asapp-config-service/readyz
     volumes:
@@ -176,15 +189,20 @@ services:
       - '8761:8761'
       - '8791:8791'
     environment:
+      # Runtime
       - JAVA_OPTS=-Xmx256m -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/heap-dumps
       - SPRING_PROFILES_ACTIVE=docker
+      # Ports
+      - SERVER_PORT=8761
+      # Discovery service
       - DISCOVERY_HOST=asapp-discovery-service:8761/asapp-discovery-service
       - DISCOVERY_USERNAME=discovery-user
       - DISCOVERY_PASSWORD=discovery-secret
-      - SERVER_PORT=8761
+      # Management
       - MANAGEMENT_PORT=8791
       - MANAGEMENT_USERNAME=discovery-user
       - MANAGEMENT_PASSWORD=discovery-secret
+      # Health check
       - THC_PORT=8791
       - THC_PATH=/asapp-discovery-service/readyz
     volumes:
@@ -203,26 +221,34 @@ services:
       - '8081:8081'
       - '8091:8091'
     environment:
+      # Runtime
       - JAVA_OPTS=-Xmx256m -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/heap-dumps
       - SPRING_PROFILES_ACTIVE=docker
+      # Ports
       - SERVER_PORT=8081
-      - MANAGEMENT_PORT=8091
+      # Database
       - DB_HOST=asapp-tasks-postgres-db
       - DB_PORT=5432
       - DB_NAME=tasksdb
       - DB_USERNAME=user
       - DB_PASSWORD=secret
+      # Redis
       - REDIS_HOST=asapp-redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=secret
+      # Config service
       - CONFIG_URI=http://asapp-config-service:8888/asapp-config-service
       - CONFIG_USERNAME=config-user
       - CONFIG_PASSWORD=config-secret
+      # Discovery service
       - DISCOVERY_HOST=asapp-discovery-service:8761/asapp-discovery-service
       - DISCOVERY_USERNAME=discovery-user
       - DISCOVERY_PASSWORD=discovery-secret
+      # Management
+      - MANAGEMENT_PORT=8091
       - MANAGEMENT_USERNAME=tasks-user
       - MANAGEMENT_PASSWORD=tasks-secret
+      # Security
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
     volumes:
       - heap-dumps-data:/heap-dumps
@@ -242,27 +268,36 @@ services:
     ports:
       - '8092:8092'
     environment:
+      # Runtime
       - JAVA_OPTS=-Xmx256m -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/heap-dumps
       - SPRING_PROFILES_ACTIVE=docker
+      # Ports
       - SERVER_PORT=8082
-      - MANAGEMENT_PORT=8092
+      # Database
       - DB_HOST=asapp-users-postgres-db
       - DB_PORT=5432
       - DB_NAME=usersdb
       - DB_USERNAME=user
       - DB_PASSWORD=secret
+      # Redis
       - REDIS_HOST=asapp-redis
       - REDIS_PORT=6379
       - REDIS_PASSWORD=secret
+      # Config service
       - CONFIG_URI=http://asapp-config-service:8888/asapp-config-service
       - CONFIG_USERNAME=config-user
       - CONFIG_PASSWORD=config-secret
+      # Discovery service
       - DISCOVERY_HOST=asapp-discovery-service:8761/asapp-discovery-service
       - DISCOVERY_USERNAME=discovery-user
       - DISCOVERY_PASSWORD=discovery-secret
+      # Management
+      - MANAGEMENT_PORT=8092
       - MANAGEMENT_USERNAME=users-user
       - MANAGEMENT_PASSWORD=users-secret
+      # Security
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
+      # Clients
       - ASAPP_CLIENT_TASKS_BASE_URL=http://asapp-tasks-service/asapp-tasks-service
     volumes:
       - heap-dumps-data:/heap-dumps
