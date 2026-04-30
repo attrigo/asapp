@@ -190,6 +190,12 @@
 
     <profiles>
         <profile>
+            <id>ci</id>
+            <properties>
+                <spotless.check.skip>false</spotless.check.skip>
+            </properties>
+        </profile>
+        <profile>
             <id>full</id>
             <properties>
                 <jacoco.skip>false</jacoco.skip>
