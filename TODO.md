@@ -226,10 +226,10 @@
     * [X] Improve Docker volumes definition and usage
     * [X] Replace `restart: unless-stopped` with `restart: on-failure:3` on business services to cap infinite restart loops
     * [X] Reorder env vars in docker-compose
-* [ ] AI Code Assistant
-    * [ ] Remove manual mode — require `gh` CLI; abort with a clear message if not available
-    * [ ] Use `.github/changelog-draft.md` as the working file instead of `/tmp` (cross-platform, no `gh` path resolution issues on Windows)
-    * [ ] Delete `.github/changelog-draft.md` automatically after updating the release
+* [X] AI Code Assistant
+    * [X] Remove manual mode — require `gh` CLI; abort with a clear message if not available
+    * [X] Use `.github/changelog-draft.md` as the working file instead of `/tmp` (cross-platform, no `gh` path resolution issues on Windows)
+    * [X] Delete `.github/changelog-draft.md` automatically after updating the release
 * [ ] Doc
     * [ ] Improve READMEs
         * [ ] Clean docs/claude
