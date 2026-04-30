@@ -100,6 +100,12 @@ services/asapp-users-service/src/main/java/com/bcn/asapp/users/infrastructure/co
 
 Replace `version = "OLD_VERSION"` → `version = "X.Y.Z"` in the `@OpenAPIDefinition` annotation.
 
+#### Update docker-compose.yml
+
+Open `docker-compose.yml` and for every `image:` line matching `ghcr.io/attrigo/asapp-*:`, replace the version tag with the **release version** (e.g. `0.3.0`).
+
+Confirm all five `asapp-*` service image tags now reference the release version.
+
 ### Step 5: Add Liquibase Database Tags
 
 For each service, locate the version changelog file:
@@ -168,6 +174,12 @@ services/asapp-users-service/src/main/java/com/bcn/asapp/users/infrastructure/co
 
 Replace `version = "X.Y.Z"` → `version = "X.Y+1.0-SNAPSHOT"` in the `@OpenAPIDefinition` annotation.
 
+#### Update docker-compose.yml
+
+Open `docker-compose.yml` and for every `image:` line matching `ghcr.io/attrigo/asapp-*:`, replace the version tag with the **next SNAPSHOT version** (e.g. `0.4.0-SNAPSHOT`).
+
+Confirm all five `asapp-*` service image tags now reference the next SNAPSHOT version.
+
 ### Step 9: Commit Next Development Version
 
 ```bash
@@ -210,6 +222,7 @@ Only push if the user confirms.
 [Step 4] Removing SNAPSHOT...
   - pom.xml → 0.3.0
   - OpenAPI version → 0.3.0 (3 services)
+  - docker-compose.yml → 0.3.0 (5 services)
 [Step 5] Tagging Liquibase changelogs...
   - asapp-authentication-service: added tag_version_0_3_0
   - asapp-users-service: added tag_version_0_3_0
@@ -219,6 +232,7 @@ Only push if the user confirms.
 [Step 8] Bumping to next SNAPSHOT...
   - pom.xml → 0.4.0-SNAPSHOT
   - OpenAPI version → 0.4.0-SNAPSHOT (3 services)
+  - docker-compose.yml → 0.4.0-SNAPSHOT (5 services)
 [Step 9] Committing next dev version...  done
 
 Ready to push. Run the following command to publish the release:
