@@ -306,10 +306,12 @@ class SecurityConfigurationIT {
             // When & Then
             managementRestTestClient.get()
                                     .uri(endpoint)
-                                    .headers(h -> h.setBasicAuth(managementUsername, managementPassword))
+                                    .headers(h -> h.setBasicAuth("wrong-user", "wrong-password"))
                                     .exchange()
                                     .expectStatus()
-                                    .isOk();
+                                    .isUnauthorized()
+                                    .expectBody()
+                                    .isEmpty();
         }
 
         @ParameterizedTest
@@ -365,10 +367,12 @@ class SecurityConfigurationIT {
             // When & Then
             managementRestTestClient.post()
                                     .uri(endpoint)
-                                    .headers(h -> h.setBasicAuth(managementUsername, managementPassword))
+                                    .headers(h -> h.setBasicAuth("wrong-user", "wrong-password"))
                                     .exchange()
                                     .expectStatus()
-                                    .isOk();
+                                    .isUnauthorized()
+                                    .expectBody()
+                                    .isEmpty();
         }
 
         @ParameterizedTest
