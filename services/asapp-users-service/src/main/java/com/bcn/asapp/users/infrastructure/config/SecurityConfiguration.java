@@ -34,6 +34,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
@@ -148,12 +150,13 @@ public class SecurityConfiguration {
      * <li>Configures HTTP Basic authentication for the incoming requests that matches {@literal /actuator/**}.</li>
      * </ul>
      *
-     * @param http the {@link HttpSecurity} object used to configure HTTP security
+     * @param http            the {@link HttpSecurity} object used to configure HTTP security
+     * @param passwordEncoder the password encoder used to hash the management user password
      * @return the configured {@link SecurityFilterChain}
      */
     @Bean
     @Order(2)
-    DefaultSecurityFilterChain actuatorFilterChain(HttpSecurity http) {
+    DefaultSecurityFilterChain actuatorFilterChain(HttpSecurity http, PasswordEncoder passwordEncoder) {
         http.csrf(AbstractHttpConfigurer::disable);
         http.cors(AbstractHttpConfigurer::disable);
         http.securityMatcher(EndpointRequest.toAnyEndpoint())
@@ -164,7 +167,7 @@ public class SecurityConfiguration {
                     .authenticated();
             });
         http.httpBasic(Customizer.withDefaults());
-        http.userDetailsService(managementUserDetailsManager());
+        http.userDetailsService(managementUserDetailsManager(passwordEncoder));
         http.sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
 
         return http.build();
@@ -223,15 +226,28 @@ public class SecurityConfiguration {
     }
 
     /**
+     * Creates a {@link PasswordEncoder} bean.
+     * <p>
+     * The PasswordEncoder is responsible for encoding the management user password.
+     *
+     * @return the {@link PasswordEncoder}
+     */
+    @Bean
+    PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    /**
      * Creates an {@link InMemoryUserDetailsManager} with the management user credentials.
      * <p>
      * Used by {@link #actuatorFilterChain} to authenticate actuator requests independently of the application's main {@link UserDetailsService}.
      *
+     * @param passwordEncoder the password encoder used to hash the management user password
      * @return the {@link InMemoryUserDetailsManager} holding the management user
      */
-    private InMemoryUserDetailsManager managementUserDetailsManager() {
+    private InMemoryUserDetailsManager managementUserDetailsManager(PasswordEncoder passwordEncoder) {
         var user = User.withUsername(managementUsername)
-                       .password("{noop}" + managementPassword)
+                       .password(passwordEncoder.encode(managementPassword))
                        .build();
         return new InMemoryUserDetailsManager(user);
     }
