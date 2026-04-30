@@ -39,6 +39,15 @@ jobs:
       - name: Build and test the project
         run: mvn install -B --no-transfer-progress -Pfull
 
+      # Uploads the four runnable service JARs so the create-release job can attach
+      # them to the GitHub Release without rebuilding the project.
+      - name: Upload service JARs
+        uses: actions/upload-artifact@v4
+        with:
+          name: service-jars
+          path: services/*/target/*.jar
+          retention-days: 1
+
   publish-docker:
     needs: [build-and-test]
     runs-on: ubuntu-latest
@@ -89,22 +98,11 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up JDK 25
-        uses: actions/setup-java@v5
+      - name: Download service JARs
+        uses: actions/download-artifact@v4
         with:
-          java-version: '25'
-          distribution: 'temurin'
-          cache: maven
-
-      # Rebuilds the service JARs to attach to the GitHub Release.
-      # Tests are skipped — already validated in the build-and-test job.
-      # The Maven dependency cache is warm from previous jobs, keeping this fast.
-      - name: Build service JARs
-        run: mvn package -B --no-transfer-progress -DskipTests
-
-      - name: Extract version from tag
-        id: version
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+          name: service-jars
+          path: release-artifacts
 
       # Generates release notes from commits since the previous tag using git-cliff.
       # --latest   : only includes commits reachable from the current tag back to the previous one
@@ -130,7 +128,4 @@ jobs:
           gh release create "${{ github.ref_name }}" \
             --title "${{ github.ref_name }}" \
             --notes-file CHANGELOG_RELEASE.md \
-            services/asapp-authentication-service/target/asapp-authentication-service-${{ steps.version.outputs.VERSION }}.jar \
-            services/asapp-config-service/target/asapp-config-service-${{ steps.version.outputs.VERSION }}.jar \
-            services/asapp-tasks-service/target/asapp-tasks-service-${{ steps.version.outputs.VERSION }}.jar \
-            services/asapp-users-service/target/asapp-users-service-${{ steps.version.outputs.VERSION }}.jar
+            release-artifacts/services/*/target/*.jar
