@@ -285,6 +285,9 @@ mvn liquibase:rollback -Dliquibase.rollbackCount=1
 # Generate reports
 mvn clean verify -Pfull
 
+# Generate Spring REST API docs (no tests needed)
+mvn asciidoctor:process-asciidoc@generate-docs
+
 # View Javadoc
 open target/asapp-tasks-service-<version>-javadoc.jar
 # Or: target/site/apidocs/index.html
@@ -294,6 +297,9 @@ open target/site/jacoco-aggregate/index.html
 
 # View Mutation Testing Report
 open target/pit-reports/<timestamp>/index.html
+
+# View REST API Documentation
+open target/generated-docs/api-guide.html
 ```
 
 ## API Endpoints

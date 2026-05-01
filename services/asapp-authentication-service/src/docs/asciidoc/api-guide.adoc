@@ -1,0 +1,221 @@
+= ASAPP Authentication Service API Guide
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+:operation-curl-request-title: Example request
+:operation-http-response-title: Example response
+
+[[overview]]
+= Overview
+
+REST API documentation for the ASAPP Authentication Service.
+This service manages authentication operations (token issuance, refresh, revocation) and user account management.
+
+[[overview-http-verbs]]
+== HTTP verbs
+
+|===
+| Verb | Usage
+
+| `GET`
+| Used to retrieve a resource
+
+| `POST`
+| Used to create a new resource
+
+| `PUT`
+| Used to update an existing resource
+
+| `DELETE`
+| Used to delete an existing resource
+|===
+
+[[overview-http-status-codes]]
+== HTTP status codes
+
+|===
+| Status code | Usage
+
+| `200 OK`
+| The request completed successfully
+
+| `201 Created`
+| A new resource has been created successfully
+
+| `204 No Content`
+| The request completed successfully and there is no content to return
+
+| `400 Bad Request`
+| The request was malformed. The response body will include an error providing further information
+
+| `401 Unauthorized`
+| The request requires authentication. A valid Bearer token must be provided
+
+| `404 Not Found`
+| The requested resource did not exist
+
+| `409 Conflict`
+| The request could not be completed due to a conflict with the current state of the resource
+
+| `503 Service Unavailable`
+| The service is temporarily unavailable due to an external dependency failure
+|===
+
+[[resources]]
+= Resources
+
+[[resources-authentication]]
+== Authentication
+
+Authentication endpoints handle JWT token issuance, refresh, and revocation.
+
+[[resources-authentication-authenticate]]
+=== Authenticate
+
+Authenticates a user by validating their credentials, returning a new JWT token pair (access and refresh tokens).
+Each authentication creates a new session; previous sessions remain valid until they expire or are explicitly revoked.
+
+operation::authenticate[snippets='request-fields,http-request,response-fields,curl-request,http-response']
+
+[[resources-authentication-refresh]]
+=== Refresh Authentication
+
+Updates the existing session with new JWTs (both access and refresh), invalidating the old ones.
+Used to extend the session without requiring the user to re-authenticate.
+
+operation::refresh-authentication[snippets='request-fields,http-request,response-fields,curl-request,http-response']
+
+[[resources-authentication-revoke]]
+=== Revoke Authentication
+
+Invalidates the current JWT authentication by revoking the provided access token.
+Prevents further use of the token for accessing protected resources.
+
+operation::revoke-authentication[snippets='request-fields,http-request,curl-request,http-response']
+
+[[authentication-errors]]
+=== Errors
+
+All error responses follow the https://www.rfc-editor.org/rfc/rfc7807[RFC 7807 Problem Details] format.
+
+[[authentication-errors-400]]
+==== Validation Failure (400)
+
+Returned when the request body contains invalid or missing fields.
+The `errors` array describes each validation failure.
+
+operation::error-validation-failure[snippets='http-response,response-fields']
+
+[[authentication-errors-401]]
+==== Unauthorized (401)
+
+Returned when the provided credentials are invalid or the token has expired.
+The `error` field contains a machine-readable error code.
+
+operation::error-invalid-credentials[snippets='http-response,response-fields']
+
+[[authentication-errors-500]]
+==== Internal Server Error (500)
+
+Returned when an unexpected server-side failure occurs.
+The `error` field contains a machine-readable error code.
+
+operation::error-internal-server-error[snippets='http-response,response-fields']
+
+[[authentication-errors-503]]
+==== Service Unavailable (503)
+
+Returned when the token store service is temporarily unavailable.
+The `error` field contains a machine-readable error code.
+
+operation::error-service-unavailable[snippets='http-response,response-fields']
+
+[[resources-users]]
+== Users
+
+User endpoints require Bearer token authentication.
+
+[[resources-users-get-by-id]]
+=== Get User by ID
+
+Retrieves detailed information about a specific user by their unique identifier.
+
+operation::get-user-by-id[snippets='path-parameters,http-request,response-fields,curl-request,http-response']
+
+[[resources-users-get-all]]
+=== Get All Users
+
+Retrieves a list of all registered users in the system.
+If no users exist, an empty array is returned.
+
+operation::get-all-users[snippets='http-request,response-fields,curl-request,http-response']
+
+[[resources-users-create]]
+=== Create User
+
+Creates a new user account in the system with the provided user information.
+Returns the user identifier. Use the GET endpoint to retrieve full user details.
+
+operation::create-user[snippets='request-fields,http-request,response-fields,curl-request,http-response']
+
+[[resources-users-update-by-id]]
+=== Update User by ID
+
+Updates the information of an existing user identified by their unique identifier.
+Only the fields provided in the request will be updated. Returns the user identifier. Use the GET endpoint to retrieve full user details.
+
+operation::update-user-by-id[snippets='path-parameters,request-fields,http-request,response-fields,curl-request,http-response']
+
+[[resources-users-delete-by-id]]
+=== Delete User by ID
+
+Removes a user from the system by their unique identifier.
+Removes the user's authentications before deletion. This operation cannot be undone.
+
+operation::delete-user-by-id[snippets='path-parameters,http-request,curl-request,http-response']
+
+[[auth-users-errors]]
+=== Errors
+
+All error responses follow the https://www.rfc-editor.org/rfc/rfc7807[RFC 7807 Problem Details] format.
+
+[[auth-users-errors-400]]
+==== Validation Failure (400)
+
+Returned when the request body contains invalid or missing fields.
+The `errors` array describes each validation failure.
+
+operation::error-validation-failure[snippets='http-response,response-fields']
+
+[[auth-users-errors-401]]
+==== Unauthorized (401)
+
+Returned when the request is missing a valid Bearer token.
+
+operation::error-unauthorized[snippets='http-response']
+
+[[auth-users-errors-404]]
+==== Not Found (404)
+
+Returned when the requested resource does not exist.
+
+operation::error-not-found[snippets='http-response']
+
+[[auth-users-errors-500]]
+==== Internal Server Error (500)
+
+Returned when an unexpected server-side failure occurs.
+The `error` field contains a machine-readable error code.
+
+operation::error-internal-server-error[snippets='http-response,response-fields']
+
+[[auth-users-errors-503]]
+==== Service Unavailable (503)
+
+Returned when the token store service is temporarily unavailable.
+The `error` field contains a machine-readable error code.
+
+operation::error-service-unavailable[snippets='http-response,response-fields']

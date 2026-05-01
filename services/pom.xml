@@ -31,6 +31,8 @@
         <nimbus-jose-jwt.version>9.37.4</nimbus-jose-jwt.version>
 
         <!-- # Test Dependencies -->
+        <!-- ## Spring Dependencies -->
+        <spring-restdocs.version>4.0.0</spring-restdocs.version>
         <!-- ## Org Dependencies -->
         <mockserver-client-java.version>5.15.0</mockserver-client-java.version>
         <testcontainers.version>2.0.4</testcontainers.version>
@@ -47,6 +49,9 @@
         <commons-beanutils.version>1.11.0</commons-beanutils.version>
         <commons-io.version>2.21.0</commons-io.version>
         <guava.version>33.4.8-jre</guava.version>
+
+        <!-- Plugins Versions -->
+        <asciidoctor-maven-plugin.version>3.2.0</asciidoctor-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -91,7 +96,14 @@
                 <version>${nimbus-jose-jwt.version}</version>
             </dependency>
 
-            <!-- # Runtime Dependencies -->
+            <!-- # Test Dependencies -->
+            <!-- ## Spring Dependencies -->
+            <dependency>
+                <groupId>org.springframework.restdocs</groupId>
+                <artifactId>spring-restdocs-mockmvc</artifactId>
+                <version>${spring-restdocs.version}</version>
+                <scope>test</scope>
+            </dependency>
             <!-- ## Org Dependencies -->
             <dependency>
                 <groupId>org.mock-server</groupId>
@@ -237,6 +249,32 @@
                 </plugin>
 
                 <!-- # Org Plugins -->
+                <plugin>
+                    <groupId>org.asciidoctor</groupId>
+                    <artifactId>asciidoctor-maven-plugin</artifactId>
+                    <version>${asciidoctor-maven-plugin.version}</version>
+                    <executions>
+                        <execution>
+                            <id>generate-docs</id>
+                            <phase>post-integration-test</phase>
+                            <goals>
+                                <goal>process-asciidoc</goal>
+                            </goals>
+                            <configuration>
+                                <sourceDirectory>src/docs/asciidoc</sourceDirectory>
+                                <backend>html</backend>
+                                <doctype>book</doctype>
+                            </configuration>
+                        </execution>
+                    </executions>
+                    <dependencies>
+                        <dependency>
+                            <groupId>org.springframework.restdocs</groupId>
+                            <artifactId>spring-restdocs-asciidoctor</artifactId>
+                            <version>${spring-restdocs.version}</version>
+                        </dependency>
+                    </dependencies>
+                </plugin>
                 <plugin>
                     <groupId>org.cyclonedx</groupId>
                     <artifactId>cyclonedx-maven-plugin</artifactId>

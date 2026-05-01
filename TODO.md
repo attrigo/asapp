@@ -189,13 +189,13 @@
     * [X] Add HTTP Basic Authentication to eureka endpoints
     * [X] Review startup warning "Spring Cloud LoadBalancer is currently working with the default cache. While this cache implementation is useful for development and tests, it's recommended to use Caffeine cache in production.You can switch to using Caffeine cache, by adding it and org.springframework.cache.caffeine.CaffeineCacheManager to the classpath."
     * [X] Update README files of each service to reference the discovery setup
-* [ ] Add Spring Rest Docs for API documentation
-    * [ ] Add Spring REST Docs dependency and AsciiDoctor Maven plugin to each service
-    * [ ] Configure `RestDocumentationExtension` in the test setup of each service
-    * [ ] Document all REST endpoints (request params, request/response body fields, headers) in controller tests
-    * [ ] Write AsciiDoc index templates per service
-    * [ ] Configure the Maven build to generate and package HTML documentation from the snippets
-    * [ ] Update README files of each service to reference the generated documentation
+* [X] Add Spring Rest Docs for API documentation
+    * [X] Add Spring REST Docs dependency and AsciiDoctor Maven plugin to each service
+    * [X] Configure `RestDocumentationExtension` in the test setup of each service
+    * [X] Document all REST endpoints (request params, request/response body fields, headers) in controller tests
+    * [X] Write AsciiDoc index templates per service
+    * [X] Configure the Maven build to generate and package HTML documentation from the snippets
+    * [X] Update README files of each service to reference the generated documentation
 * [X] Test Improvements
     * [X] Rename `JwtAuthenticationFilterIT` to `SecurityConfigurationIT` — the class covers broader security config (not just the JWT filter)
     * [X] Test Actuator endpoints under management port — verify `/actuator/refresh` requires HTTP Basic auth (401 without credentials), `/actuator/health` returns 200, `/actuator/prometheus` is accessible
