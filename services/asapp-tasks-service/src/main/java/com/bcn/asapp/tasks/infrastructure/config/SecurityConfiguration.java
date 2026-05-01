@@ -26,9 +26,7 @@ import org.springframework.boot.security.autoconfigure.actuate.web.servlet.Endpo
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -209,20 +207,6 @@ public class SecurityConfiguration {
         http.exceptionHandling(exception -> exception.authenticationEntryPoint(jwtAuthenticationEntryPoint));
 
         return http.build();
-    }
-
-    /**
-     * Creates a {@link AuthenticationManager} bean.
-     * <p>
-     * The AuthenticationManager is responsible for authenticating task credentials and determining whether the authentication request is valid, delegating the
-     * process to the appropriate authentication providers.
-     *
-     * @param authenticationConfiguration the configuration used to build the authentication manager
-     * @return the {@link AuthenticationManager}
-     */
-    @Bean
-    AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) {
-        return authenticationConfiguration.getAuthenticationManager();
     }
 
     /**
