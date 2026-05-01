@@ -31,8 +31,10 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Authentication entry point for handling unauthorized access attempts.
  * <p>
- * Returns an HTTP 401 response with an empty body when authentication fails or is missing. Uses {@link HttpServletResponse#setStatus} rather than
- * {@link HttpServletResponse#sendError} to prevent Spring Boot's error controller from adding a response body.
+ * Returns an HTTP 401 response with an empty body when authentication fails or is missing.
+ * <p>
+ * Uses {@link HttpServletResponse#setStatus} rather than {@link HttpServletResponse#sendError} to prevent Spring Boot's error controller from adding a response
+ * body.
  *
  * @since 0.3.0
  * @see AuthenticationEntryPoint
