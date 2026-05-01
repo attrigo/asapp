@@ -1,0 +1,113 @@
+= ASAPP Users Service API
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+= Overview
+
+REST API documentation for the ASAPP Users Service.
+This service manages user profile operations including creation, retrieval, update, and deletion.
+Retrieval by ID includes task identifiers associated with the user.
+
+All endpoints require Bearer token authentication.
+
+= User Endpoints
+
+== Get User by ID
+
+Retrieves a user by their unique identifier, enriched with associated task identifiers.
+
+=== Request
+
+include::{snippets}/get-user-by-id/path-parameters.adoc[]
+
+=== Example Request
+
+include::{snippets}/get-user-by-id/http-request.adoc[]
+
+=== Example Response
+
+include::{snippets}/get-user-by-id/http-response.adoc[]
+
+=== Response Fields
+
+include::{snippets}/get-user-by-id/response-fields.adoc[]
+
+== Get All Users
+
+Retrieves all users in the system.
+
+=== Example Request
+
+include::{snippets}/get-all-users/http-request.adoc[]
+
+=== Example Response
+
+include::{snippets}/get-all-users/http-response.adoc[]
+
+=== Response Fields
+
+include::{snippets}/get-all-users/response-fields.adoc[]
+
+== Create User
+
+Creates a new user profile.
+
+=== Request Fields
+
+include::{snippets}/create-user/request-fields.adoc[]
+
+=== Example Request
+
+include::{snippets}/create-user/http-request.adoc[]
+
+=== Example Response
+
+include::{snippets}/create-user/http-response.adoc[]
+
+=== Response Fields
+
+include::{snippets}/create-user/response-fields.adoc[]
+
+== Update User by ID
+
+Updates an existing user profile by their unique identifier.
+
+=== Request
+
+include::{snippets}/update-user-by-id/path-parameters.adoc[]
+
+=== Request Fields
+
+include::{snippets}/update-user-by-id/request-fields.adoc[]
+
+=== Example Request
+
+include::{snippets}/update-user-by-id/http-request.adoc[]
+
+=== Example Response
+
+include::{snippets}/update-user-by-id/http-response.adoc[]
+
+=== Response Fields
+
+include::{snippets}/update-user-by-id/response-fields.adoc[]
+
+== Delete User by ID
+
+Deletes a user profile by their unique identifier.
+
+=== Request
+
+include::{snippets}/delete-user-by-id/path-parameters.adoc[]
+
+=== Example Request
+
+include::{snippets}/delete-user-by-id/http-request.adoc[]
+
+=== Example Response
+
+include::{snippets}/delete-user-by-id/http-response.adoc[]

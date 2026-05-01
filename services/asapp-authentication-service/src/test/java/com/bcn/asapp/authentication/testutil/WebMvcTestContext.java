@@ -25,10 +25,10 @@ import org.springframework.test.web.servlet.assertj.MockMvcTester;
 import com.bcn.asapp.authentication.application.authentication.in.AuthenticateUseCase;
 import com.bcn.asapp.authentication.application.authentication.in.RefreshAuthenticationUseCase;
 import com.bcn.asapp.authentication.application.authentication.in.RevokeAuthenticationUseCase;
-import com.bcn.asapp.authentication.application.user.in.service.CreateUserService;
-import com.bcn.asapp.authentication.application.user.in.service.DeleteUserService;
-import com.bcn.asapp.authentication.application.user.in.service.ReadUserService;
-import com.bcn.asapp.authentication.application.user.in.service.UpdateUserService;
+import com.bcn.asapp.authentication.application.user.in.CreateUserUseCase;
+import com.bcn.asapp.authentication.application.user.in.DeleteUserUseCase;
+import com.bcn.asapp.authentication.application.user.in.ReadUserUseCase;
+import com.bcn.asapp.authentication.application.user.in.UpdateUserUseCase;
 import com.bcn.asapp.authentication.infrastructure.authentication.in.AuthenticationRestController;
 import com.bcn.asapp.authentication.infrastructure.authentication.mapper.JwtAuthenticationMapper;
 import com.bcn.asapp.authentication.infrastructure.config.SecurityConfiguration;
@@ -45,43 +45,44 @@ import com.bcn.asapp.authentication.infrastructure.user.mapper.UserMapper;
  * configuration, Spring reuses the same ApplicationContext instead of creating a new one per test class, significantly reducing test execution time. Uses
  * {@code @WebMvcTest} to load only web layer components.
  *
+ * @see WebMvcTest
  * @since 0.2.0
  */
 @WebMvcTest(controllers = { AuthenticationRestController.class, UserRestController.class })
 @Import(value = { SecurityConfiguration.class, JwtAuthenticationFilter.class, JwtAuthenticationEntryPoint.class })
 public class WebMvcTestContext {
 
+    @MockitoBean
+    private JwtVerifier jwtVerifier;
+
     @Autowired
-    protected MockMvcTester mockMvc;
+    protected MockMvcTester mockMvcTester;
 
     @MockitoBean
-    private JwtVerifier jwtVerifierMock;
+    protected AuthenticateUseCase authenticateUseCase;
 
     @MockitoBean
-    private AuthenticateUseCase authenticateUseCaseMock;
+    protected RefreshAuthenticationUseCase refreshAuthenticationUseCase;
 
     @MockitoBean
-    private RefreshAuthenticationUseCase refreshAuthenticationUseCaseMock;
+    protected RevokeAuthenticationUseCase revokeAuthenticationUseCase;
 
     @MockitoBean
-    private RevokeAuthenticationUseCase revokeAuthenticationUseCaseMock;
+    protected JwtAuthenticationMapper jwtAuthenticationMapper;
 
     @MockitoBean
-    private JwtAuthenticationMapper jwtAuthenticationMapperMock;
+    protected ReadUserUseCase readUserUseCase;
 
     @MockitoBean
-    private ReadUserService readUserServiceMock;
+    protected CreateUserUseCase createUserUseCase;
 
     @MockitoBean
-    private CreateUserService createUserServiceMock;
+    protected UpdateUserUseCase updateUserUseCase;
 
     @MockitoBean
-    private UpdateUserService updateUserServiceMock;
+    protected DeleteUserUseCase deleteUserUseCase;
 
     @MockitoBean
-    private DeleteUserService deleteUserServiceMock;
-
-    @MockitoBean
-    private UserMapper userMapperMock;
+    protected UserMapper userMapperMock;
 
 }

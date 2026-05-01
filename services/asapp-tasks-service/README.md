@@ -294,6 +294,9 @@ open target/site/jacoco-aggregate/index.html
 
 # View Mutation Testing Report
 open target/pit-reports/<timestamp>/index.html
+
+# View REST API Documentation
+open target/generated-docs/index.html
 ```
 
 ## API Endpoints

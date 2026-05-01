@@ -1,0 +1,132 @@
+= ASAPP Tasks Service API
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+= Overview
+
+REST API documentation for the ASAPP Tasks Service.
+This service manages task lifecycle operations including creation, retrieval, update, and deletion.
+
+All endpoints require Bearer token authentication.
+
+= Task Endpoints
+
+== Get Task by ID
+
+Retrieves a task by its unique identifier.
+
+=== Request
+
+include::{snippets}/get-task-by-id/path-parameters.adoc[]
+
+=== Example Request
+
+include::{snippets}/get-task-by-id/http-request.adoc[]
+
+=== Example Response
+
+include::{snippets}/get-task-by-id/http-response.adoc[]
+
+=== Response Fields
+
+include::{snippets}/get-task-by-id/response-fields.adoc[]
+
+== Get Tasks by User ID
+
+Retrieves all tasks belonging to a specific user.
+
+=== Request
+
+include::{snippets}/get-tasks-by-user-id/path-parameters.adoc[]
+
+=== Example Request
+
+include::{snippets}/get-tasks-by-user-id/http-request.adoc[]
+
+=== Example Response
+
+include::{snippets}/get-tasks-by-user-id/http-response.adoc[]
+
+=== Response Fields
+
+include::{snippets}/get-tasks-by-user-id/response-fields.adoc[]
+
+== Get All Tasks
+
+Retrieves all tasks in the system.
+
+=== Example Request
+
+include::{snippets}/get-all-tasks/http-request.adoc[]
+
+=== Example Response
+
+include::{snippets}/get-all-tasks/http-response.adoc[]
+
+=== Response Fields
+
+include::{snippets}/get-all-tasks/response-fields.adoc[]
+
+== Create Task
+
+Creates a new task.
+
+=== Request Fields
+
+include::{snippets}/create-task/request-fields.adoc[]
+
+=== Example Request
+
+include::{snippets}/create-task/http-request.adoc[]
+
+=== Example Response
+
+include::{snippets}/create-task/http-response.adoc[]
+
+=== Response Fields
+
+include::{snippets}/create-task/response-fields.adoc[]
+
+== Update Task by ID
+
+Updates an existing task by its unique identifier.
+
+=== Request
+
+include::{snippets}/update-task-by-id/path-parameters.adoc[]
+
+=== Request Fields
+
+include::{snippets}/update-task-by-id/request-fields.adoc[]
+
+=== Example Request
+
+include::{snippets}/update-task-by-id/http-request.adoc[]
+
+=== Example Response
+
+include::{snippets}/update-task-by-id/http-response.adoc[]
+
+=== Response Fields
+
+include::{snippets}/update-task-by-id/response-fields.adoc[]
+
+== Delete Task by ID
+
+Deletes a task by its unique identifier.
+
+=== Request
+
+include::{snippets}/delete-task-by-id/path-parameters.adoc[]
+
+=== Example Request
+
+include::{snippets}/delete-task-by-id/http-request.adoc[]
+
+=== Example Response
+
+include::{snippets}/delete-task-by-id/http-response.adoc[]

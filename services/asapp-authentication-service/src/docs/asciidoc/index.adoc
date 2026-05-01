@@ -1,0 +1,170 @@
+= ASAPP Authentication Service API
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 2
+:sectlinks:
+
+= Overview
+
+REST API documentation for the ASAPP Authentication Service.
+This service manages authentication operations (token issuance, refresh, revocation) and user account management.
+
+= Authentication Endpoints
+
+== Authenticate
+
+Authenticates a user with credentials and returns a new JWT pair.
+
+=== Request Fields
+
+include::{snippets}/authenticate/request-fields.adoc[]
+
+=== Example Request
+
+include::{snippets}/authenticate/http-request.adoc[]
+
+=== Example Response
+
+include::{snippets}/authenticate/http-response.adoc[]
+
+=== Response Fields
+
+include::{snippets}/authenticate/response-fields.adoc[]
+
+== Refresh Authentication
+
+Refreshes a JWT session using a refresh token, returning new tokens.
+
+=== Request Fields
+
+include::{snippets}/refresh-authentication/request-fields.adoc[]
+
+=== Example Request
+
+include::{snippets}/refresh-authentication/http-request.adoc[]
+
+=== Example Response
+
+include::{snippets}/refresh-authentication/http-response.adoc[]
+
+=== Response Fields
+
+include::{snippets}/refresh-authentication/response-fields.adoc[]
+
+== Revoke Authentication
+
+Revokes a JWT session using an access token, effectively logging out the user.
+
+=== Request Fields
+
+include::{snippets}/revoke-authentication/request-fields.adoc[]
+
+=== Example Request
+
+include::{snippets}/revoke-authentication/http-request.adoc[]
+
+=== Example Response
+
+include::{snippets}/revoke-authentication/http-response.adoc[]
+
+= User Endpoints
+
+All user endpoints require Bearer token authentication.
+
+== Get User by ID
+
+Retrieves a user account by their unique identifier.
+
+=== Request
+
+include::{snippets}/get-user-by-id/path-parameters.adoc[]
+
+=== Example Request
+
+include::{snippets}/get-user-by-id/http-request.adoc[]
+
+=== Example Response
+
+include::{snippets}/get-user-by-id/http-response.adoc[]
+
+=== Response Fields
+
+include::{snippets}/get-user-by-id/response-fields.adoc[]
+
+== Get All Users
+
+Retrieves all user accounts in the system.
+
+=== Example Request
+
+include::{snippets}/get-all-users/http-request.adoc[]
+
+=== Example Response
+
+include::{snippets}/get-all-users/http-response.adoc[]
+
+=== Response Fields
+
+include::{snippets}/get-all-users/response-fields.adoc[]
+
+== Create User
+
+Creates a new user account.
+
+=== Request Fields
+
+include::{snippets}/create-user/request-fields.adoc[]
+
+=== Example Request
+
+include::{snippets}/create-user/http-request.adoc[]
+
+=== Example Response
+
+include::{snippets}/create-user/http-response.adoc[]
+
+=== Response Fields
+
+include::{snippets}/create-user/response-fields.adoc[]
+
+== Update User by ID
+
+Updates an existing user account by their unique identifier.
+
+=== Request
+
+include::{snippets}/update-user-by-id/path-parameters.adoc[]
+
+=== Request Fields
+
+include::{snippets}/update-user-by-id/request-fields.adoc[]
+
+=== Example Request
+
+include::{snippets}/update-user-by-id/http-request.adoc[]
+
+=== Example Response
+
+include::{snippets}/update-user-by-id/http-response.adoc[]
+
+=== Response Fields
+
+include::{snippets}/update-user-by-id/response-fields.adoc[]
+
+== Delete User by ID
+
+Deletes a user account by their unique identifier.
+
+=== Request
+
+include::{snippets}/delete-user-by-id/path-parameters.adoc[]
+
+=== Example Request
+
+include::{snippets}/delete-user-by-id/http-request.adoc[]
+
+=== Example Response
+
+include::{snippets}/delete-user-by-id/http-response.adoc[]

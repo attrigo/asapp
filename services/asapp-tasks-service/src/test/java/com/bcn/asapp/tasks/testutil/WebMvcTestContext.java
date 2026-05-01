@@ -22,10 +22,10 @@ import org.springframework.context.annotation.Import;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.assertj.MockMvcTester;
 
-import com.bcn.asapp.tasks.application.task.in.service.CreateTaskService;
-import com.bcn.asapp.tasks.application.task.in.service.DeleteTaskService;
-import com.bcn.asapp.tasks.application.task.in.service.ReadTaskService;
-import com.bcn.asapp.tasks.application.task.in.service.UpdateTaskService;
+import com.bcn.asapp.tasks.application.task.in.CreateTaskUseCase;
+import com.bcn.asapp.tasks.application.task.in.DeleteTaskUseCase;
+import com.bcn.asapp.tasks.application.task.in.ReadTaskUseCase;
+import com.bcn.asapp.tasks.application.task.in.UpdateTaskUseCase;
 import com.bcn.asapp.tasks.infrastructure.config.SecurityConfiguration;
 import com.bcn.asapp.tasks.infrastructure.security.JwtVerifier;
 import com.bcn.asapp.tasks.infrastructure.security.web.JwtAuthenticationEntryPoint;
@@ -40,31 +40,32 @@ import com.bcn.asapp.tasks.infrastructure.task.mapper.TaskMapper;
  * configuration, Spring reuses the same ApplicationContext instead of creating a new one per test class, significantly reducing test execution time. Uses
  * {@code @WebMvcTest} to load only web layer components.
  *
+ * @see WebMvcTest
  * @since 0.2.0
  */
 @WebMvcTest(TaskRestController.class)
 @Import(value = { SecurityConfiguration.class, JwtAuthenticationFilter.class, JwtAuthenticationEntryPoint.class })
 public class WebMvcTestContext {
 
+    @MockitoBean
+    private JwtVerifier jwtVerifier;
+
     @Autowired
-    protected MockMvcTester mockMvc;
+    protected MockMvcTester mockMvcTester;
 
     @MockitoBean
-    private JwtVerifier jwtVerifierMock;
+    protected ReadTaskUseCase readTaskUseCase;
 
     @MockitoBean
-    private ReadTaskService readTaskServiceMock;
+    protected CreateTaskUseCase createTaskUseCase;
 
     @MockitoBean
-    private CreateTaskService createTaskServiceMock;
+    protected UpdateTaskUseCase updateTaskUseCase;
 
     @MockitoBean
-    private UpdateTaskService updateTaskServiceMock;
+    protected DeleteTaskUseCase deleteTaskUseCase;
 
     @MockitoBean
-    private DeleteTaskService deleteTaskServiceMock;
-
-    @MockitoBean
-    private TaskMapper taskMapperMock;
+    protected TaskMapper taskMapper;
 
 }
