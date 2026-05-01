@@ -1,0 +1,148 @@
+= ASAPP Tasks Service API Guide
+:doctype: book
+:icons: font
+:source-highlighter: highlightjs
+:toc: left
+:toclevels: 4
+:sectlinks:
+:operation-curl-request-title: Example request
+:operation-http-response-title: Example response
+
+[[overview]]
+= Overview
+
+REST API documentation for the ASAPP Tasks Service.
+This service manages task lifecycle operations including creation, retrieval, update, and deletion.
+
+All endpoints require Bearer token authentication.
+
+[[overview-http-verbs]]
+== HTTP verbs
+
+|===
+| Verb | Usage
+
+| `GET`
+| Used to retrieve a resource
+
+| `POST`
+| Used to create a new resource
+
+| `PUT`
+| Used to update an existing resource
+
+| `DELETE`
+| Used to delete an existing resource
+|===
+
+[[overview-http-status-codes]]
+== HTTP status codes
+
+|===
+| Status code | Usage
+
+| `200 OK`
+| The request completed successfully
+
+| `201 Created`
+| A new resource has been created successfully
+
+| `204 No Content`
+| The request completed successfully and there is no content to return
+
+| `400 Bad Request`
+| The request was malformed. The response body will include an error providing further information
+
+| `401 Unauthorized`
+| The request requires authentication. A valid Bearer token must be provided
+
+| `404 Not Found`
+| The requested resource did not exist
+|===
+
+[[resources]]
+= Resources
+
+[[resources-tasks]]
+== Tasks
+
+[[resources-tasks-get-by-id]]
+=== Get Task by ID
+
+Retrieves detailed information about a specific task by their unique identifier.
+
+operation::get-task-by-id[snippets='path-parameters,http-request,response-fields,curl-request,http-response']
+
+[[resources-tasks-get-by-user-id]]
+=== Get Tasks by User ID
+
+Retrieves a list of all tasks belonging to a specific user identified by their unique identifier.
+If no tasks exist for the user, an empty array is returned.
+
+operation::get-tasks-by-user-id[snippets='path-parameters,http-request,response-fields,curl-request,http-response']
+
+[[resources-tasks-get-all]]
+=== Get All Tasks
+
+Retrieves a list of all registered tasks in the system.
+If no tasks exist, an empty array is returned.
+
+operation::get-all-tasks[snippets='http-request,response-fields,curl-request,http-response']
+
+[[resources-tasks-create]]
+=== Create Task
+
+Creates a new task in the system with the provided task information.
+Returns the task identifier. Use the GET endpoint to retrieve full task details.
+
+operation::create-task[snippets='request-fields,http-request,response-fields,curl-request,http-response']
+
+[[resources-tasks-update-by-id]]
+=== Update Task by ID
+
+Updates the information of an existing task identified by their unique identifier.
+Only the fields provided in the request will be updated. Returns the task identifier. Use the GET endpoint to retrieve full task details.
+
+operation::update-task-by-id[snippets='path-parameters,request-fields,http-request,response-fields,curl-request,http-response']
+
+[[resources-tasks-delete-by-id]]
+=== Delete Task by ID
+
+Removes a task from the system by their unique identifier. This operation cannot be undone.
+
+operation::delete-task-by-id[snippets='path-parameters,http-request,curl-request,http-response']
+
+[[tasks-errors]]
+=== Errors
+
+All error responses follow the https://www.rfc-editor.org/rfc/rfc7807[RFC 7807 Problem Details] format.
+
+[[tasks-errors-400]]
+==== Validation Failure (400)
+
+Returned when the request body contains invalid or missing fields.
+The `errors` array describes each validation failure.
+
+operation::error-validation-failure[snippets='http-response,response-fields']
+
+[[tasks-errors-401]]
+==== Unauthorized (401)
+
+Returned when the request is missing a valid Bearer token.
+
+operation::error-unauthorized[snippets='http-response']
+
+[[tasks-errors-404]]
+==== Not Found (404)
+
+Returned when the requested resource does not exist.
+
+operation::error-not-found[snippets='http-response']
+
+[[tasks-errors-500]]
+==== Internal Server Error (500)
+
+Returned when an unexpected server-side failure occurs.
+The `error` field contains a machine-readable error code.
+
+operation::error-internal-server-error[snippets='http-response,response-fields']

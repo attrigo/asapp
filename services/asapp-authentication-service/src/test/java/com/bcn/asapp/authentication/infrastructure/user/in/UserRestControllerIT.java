@@ -65,17 +65,17 @@ class UserRestControllerIT extends WebMvcTestContext {
             var requestBuilder = get(USERS_ROOT_PATH + "/");
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.NOT_FOUND)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> assertThatJson(json).isObject()
-                                                          .containsEntry("title", "Not Found")
-                                                          .containsEntry("status", 404)
-                                                          .containsEntry("detail", "No static resource api/users.")
-                                                          .containsEntry("instance", "/api/users/"));
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.NOT_FOUND)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> assertThatJson(json).isObject()
+                                                                .containsEntry("title", "Not Found")
+                                                                .containsEntry("status", 404)
+                                                                .containsEntry("detail", "No static resource api/users.")
+                                                                .containsEntry("instance", "/api/users/"));
         }
 
         @Test
@@ -85,17 +85,17 @@ class UserRestControllerIT extends WebMvcTestContext {
             var requestBuilder = get(USERS_GET_BY_ID_FULL_PATH, userId);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.BAD_REQUEST)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> assertThatJson(json).isObject()
-                                                          .containsEntry("title", "Bad Request")
-                                                          .containsEntry("status", 400)
-                                                          .containsEntry("detail", "Failed to convert 'id' with value: '1'")
-                                                          .containsEntry("instance", "/api/users/1"));
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> assertThatJson(json).isObject()
+                                                                .containsEntry("title", "Bad Request")
+                                                                .containsEntry("status", 400)
+                                                                .containsEntry("detail", "Failed to convert 'id' with value: '1'")
+                                                                .containsEntry("instance", "/api/users/1"));
         }
 
     }
@@ -112,17 +112,17 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                              .content(requestBody);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> assertThatJson(json).isObject()
-                                                          .containsEntry("title", "Unsupported Media Type")
-                                                          .containsEntry("status", 415)
-                                                          .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
-                                                          .containsEntry("instance", "/api/users"));
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> assertThatJson(json).isObject()
+                                                                .containsEntry("title", "Unsupported Media Type")
+                                                                .containsEntry("status", 415)
+                                                                .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
+                                                                .containsEntry("instance", "/api/users"));
         }
 
         @Test
@@ -133,17 +133,17 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                              .content(requestBody);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.BAD_REQUEST)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> assertThatJson(json).isObject()
-                                                          .containsEntry("title", "Bad Request")
-                                                          .containsEntry("status", 400)
-                                                          .containsEntry("detail", "Failed to read request")
-                                                          .containsEntry("instance", "/api/users"));
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> assertThatJson(json).isObject()
+                                                                .containsEntry("title", "Bad Request")
+                                                                .containsEntry("status", 400)
+                                                                .containsEntry("detail", "Failed to read request")
+                                                                .containsEntry("instance", "/api/users"));
         }
 
         @Test
@@ -154,23 +154,23 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                              .content(requestBody);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.BAD_REQUEST)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> {
-                       assertThatJson(json).isObject()
-                                           .containsEntry("title", "Bad Request")
-                                           .containsEntry("status", 400)
-                                           .containsEntry("instance", "/api/users");
-                       assertThatJson(json).inPath("detail")
-                                           .asString()
-                                           .contains("The username must not be empty")
-                                           .contains("The password must not be empty")
-                                           .contains("The role must be a valid Role");
-                   //@formatter:off
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> {
+                             assertThatJson(json).isObject()
+                                                 .containsEntry("title", "Bad Request")
+                                                 .containsEntry("status", 400)
+                                                 .containsEntry("instance", "/api/users");
+                             assertThatJson(json).inPath("detail")
+                                                 .asString()
+                                                 .contains("The username must not be empty")
+                                                 .contains("The password must not be empty")
+                                                 .contains("The role must be a valid Role");
+                         //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
@@ -179,7 +179,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                   Map.of("entity", "createUserRequest", "field", "role", "message", "The role must be a valid Role")
                                           );
                        //@formatter:on
-                   });
+                         });
         }
 
         @Test
@@ -196,25 +196,25 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                              .content(requestBody);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.BAD_REQUEST)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> {
-                       assertThatJson(json).isObject()
-                                           .containsEntry("title", "Bad Request")
-                                           .containsEntry("status", 400)
-                                           .containsEntry("instance", "/api/users");
-                       assertThatJson(json).inPath("detail")
-                                           .asString()
-                                           .contains("The username must not be empty")
-                                           .contains("The username must be a valid email address")
-                                           .contains("The password must not be empty")
-                                           .contains("The password must be between 8 and 64 characters")
-                                           .contains("The role must be a valid Role");
-                   //@formatter:off
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> {
+                             assertThatJson(json).isObject()
+                                                 .containsEntry("title", "Bad Request")
+                                                 .containsEntry("status", 400)
+                                                 .containsEntry("instance", "/api/users");
+                             assertThatJson(json).inPath("detail")
+                                                 .asString()
+                                                 .contains("The username must not be empty")
+                                                 .contains("The username must be a valid email address")
+                                                 .contains("The password must not be empty")
+                                                 .contains("The password must be between 8 and 64 characters")
+                                                 .contains("The role must be a valid Role");
+                         //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
@@ -225,7 +225,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                   Map.of("entity", "createUserRequest", "field", "role", "message", "The role must be a valid Role")
                                           );
                        //@formatter:on
-                   });
+                         });
         }
 
         @Test
@@ -242,28 +242,28 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                              .content(requestBody);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.BAD_REQUEST)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> {
-                       assertThatJson(json).isObject()
-                                           .containsEntry("title", "Bad Request")
-                                           .containsEntry("status", 400)
-                                           .containsEntry("instance", "/api/users");
-                       assertThatJson(json).inPath("detail")
-                                           .asString()
-                                           .contains("The username must be a valid email address");
-                   //@formatter:off
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> {
+                             assertThatJson(json).isObject()
+                                                 .containsEntry("title", "Bad Request")
+                                                 .containsEntry("status", 400)
+                                                 .containsEntry("instance", "/api/users");
+                             assertThatJson(json).inPath("detail")
+                                                 .asString()
+                                                 .contains("The username must be a valid email address");
+                         //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("entity", "createUserRequest", "field", "username", "message", "The username must be a valid email address")
                                           );
                        //@formatter:on
-                   });
+                         });
         }
 
         @Test
@@ -281,28 +281,28 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                              .content(requestBody);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.BAD_REQUEST)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> {
-                       assertThatJson(json).isObject()
-                                           .containsEntry("title", "Bad Request")
-                                           .containsEntry("status", 400)
-                                           .containsEntry("instance", "/api/users");
-                       assertThatJson(json).inPath("detail")
-                                           .asString()
-                                           .contains("The password must be between 8 and 64 characters");
-                   //@formatter:off
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> {
+                             assertThatJson(json).isObject()
+                                                 .containsEntry("title", "Bad Request")
+                                                 .containsEntry("status", 400)
+                                                 .containsEntry("instance", "/api/users");
+                             assertThatJson(json).inPath("detail")
+                                                 .asString()
+                                                 .contains("The password must be between 8 and 64 characters");
+                         //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("entity", "createUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters")
                                           );
                        //@formatter:on
-                   });
+                         });
         }
 
         @Test
@@ -320,28 +320,28 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                              .content(requestBody);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.BAD_REQUEST)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> {
-                       assertThatJson(json).isObject()
-                                           .containsEntry("title", "Bad Request")
-                                           .containsEntry("status", 400)
-                                           .containsEntry("instance", "/api/users");
-                       assertThatJson(json).inPath("detail")
-                                           .asString()
-                                           .contains("The password must be between 8 and 64 characters");
-                   //@formatter:off
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> {
+                             assertThatJson(json).isObject()
+                                                 .containsEntry("title", "Bad Request")
+                                                 .containsEntry("status", 400)
+                                                 .containsEntry("instance", "/api/users");
+                             assertThatJson(json).inPath("detail")
+                                                 .asString()
+                                                 .contains("The password must be between 8 and 64 characters");
+                         //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("entity", "createUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters")
                                           );
                        //@formatter:on
-                   });
+                         });
         }
 
         @Test
@@ -358,28 +358,28 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                              .content(requestBody);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.BAD_REQUEST)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> {
-                       assertThatJson(json).isObject()
-                                           .containsEntry("title", "Bad Request")
-                                           .containsEntry("status", 400)
-                                           .containsEntry("instance", "/api/users");
-                       assertThatJson(json).inPath("detail")
-                                           .asString()
-                                           .contains("The role must be a valid Role");
-                   //@formatter:off
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> {
+                             assertThatJson(json).isObject()
+                                                 .containsEntry("title", "Bad Request")
+                                                 .containsEntry("status", 400)
+                                                 .containsEntry("instance", "/api/users");
+                             assertThatJson(json).inPath("detail")
+                                                 .asString()
+                                                 .contains("The role must be a valid Role");
+                         //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("entity", "createUserRequest", "field", "role", "message", "The role must be a valid Role")
                                           );
                        //@formatter:on
-                   });
+                         });
         }
 
     }
@@ -401,17 +401,17 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                            .content(requestBody);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.NOT_FOUND)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> assertThatJson(json).isObject()
-                                                          .containsEntry("title", "Not Found")
-                                                          .containsEntry("status", 404)
-                                                          .containsEntry("detail", "No static resource api/users.")
-                                                          .containsEntry("instance", "/api/users/"));
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.NOT_FOUND)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> assertThatJson(json).isObject()
+                                                                .containsEntry("title", "Not Found")
+                                                                .containsEntry("status", 404)
+                                                                .containsEntry("detail", "No static resource api/users.")
+                                                                .containsEntry("instance", "/api/users/"));
         }
 
         @Test
@@ -429,17 +429,17 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                                           .content(requestBody);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.BAD_REQUEST)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> assertThatJson(json).isObject()
-                                                          .containsEntry("title", "Bad Request")
-                                                          .containsEntry("status", 400)
-                                                          .containsEntry("detail", "Failed to convert 'id' with value: '1'")
-                                                          .containsEntry("instance", "/api/users/1"));
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> assertThatJson(json).isObject()
+                                                                .containsEntry("title", "Bad Request")
+                                                                .containsEntry("status", 400)
+                                                                .containsEntry("detail", "Failed to convert 'id' with value: '1'")
+                                                                .containsEntry("instance", "/api/users/1"));
         }
 
         @Test
@@ -451,17 +451,17 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                                           .content(requestBody);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> assertThatJson(json).isObject()
-                                                          .containsEntry("title", "Unsupported Media Type")
-                                                          .containsEntry("status", 415)
-                                                          .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
-                                                          .containsEntry("instance", "/api/users/" + userId));
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> assertThatJson(json).isObject()
+                                                                .containsEntry("title", "Unsupported Media Type")
+                                                                .containsEntry("status", 415)
+                                                                .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
+                                                                .containsEntry("instance", "/api/users/" + userId));
         }
 
         @Test
@@ -473,17 +473,17 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                                           .content(requestBody);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.BAD_REQUEST)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> assertThatJson(json).isObject()
-                                                          .containsEntry("title", "Bad Request")
-                                                          .containsEntry("status", 400)
-                                                          .containsEntry("detail", "Failed to read request")
-                                                          .containsEntry("instance", "/api/users/" + userId));
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> assertThatJson(json).isObject()
+                                                                .containsEntry("title", "Bad Request")
+                                                                .containsEntry("status", 400)
+                                                                .containsEntry("detail", "Failed to read request")
+                                                                .containsEntry("instance", "/api/users/" + userId));
         }
 
         @Test
@@ -495,23 +495,23 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                                           .content(requestBody);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.BAD_REQUEST)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> {
-                       assertThatJson(json).isObject()
-                                           .containsEntry("title", "Bad Request")
-                                           .containsEntry("status", 400)
-                                           .containsEntry("instance", "/api/users/" + userId);
-                       assertThatJson(json).inPath("detail")
-                                           .asString()
-                                           .contains("The username must not be empty")
-                                           .contains("The password must not be empty")
-                                           .contains("The role must be a valid Role");
-                   //@formatter:off
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> {
+                             assertThatJson(json).isObject()
+                                                 .containsEntry("title", "Bad Request")
+                                                 .containsEntry("status", 400)
+                                                 .containsEntry("instance", "/api/users/" + userId);
+                             assertThatJson(json).inPath("detail")
+                                                 .asString()
+                                                 .contains("The username must not be empty")
+                                                 .contains("The password must not be empty")
+                                                 .contains("The role must be a valid Role");
+                         //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
@@ -520,7 +520,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                   Map.of("entity", "updateUserRequest", "field", "role", "message", "The role must be a valid Role")
                                           );
                        //@formatter:on
-                   });
+                         });
         }
 
         @Test
@@ -538,25 +538,25 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                                           .content(requestBody);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.BAD_REQUEST)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> {
-                       assertThatJson(json).isObject()
-                                           .containsEntry("title", "Bad Request")
-                                           .containsEntry("status", 400)
-                                           .containsEntry("instance", "/api/users/" + userId);
-                       assertThatJson(json).inPath("detail")
-                                           .asString()
-                                           .contains("The username must not be empty")
-                                           .contains("The username must be a valid email address")
-                                           .contains("The password must not be empty")
-                                           .contains("The password must be between 8 and 64 characters")
-                                           .contains("The role must be a valid Role");
-                   //@formatter:off
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> {
+                             assertThatJson(json).isObject()
+                                                 .containsEntry("title", "Bad Request")
+                                                 .containsEntry("status", 400)
+                                                 .containsEntry("instance", "/api/users/" + userId);
+                             assertThatJson(json).inPath("detail")
+                                                 .asString()
+                                                 .contains("The username must not be empty")
+                                                 .contains("The username must be a valid email address")
+                                                 .contains("The password must not be empty")
+                                                 .contains("The password must be between 8 and 64 characters")
+                                                 .contains("The role must be a valid Role");
+                         //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
@@ -567,7 +567,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                   Map.of("entity", "updateUserRequest", "field", "role", "message", "The role must be a valid Role")
                                           );
                        //@formatter:on
-                   });
+                         });
         }
 
         @Test
@@ -585,28 +585,28 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                                           .content(requestBody);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.BAD_REQUEST)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> {
-                       assertThatJson(json).isObject()
-                                           .containsEntry("title", "Bad Request")
-                                           .containsEntry("status", 400)
-                                           .containsEntry("instance", "/api/users/" + userId);
-                       assertThatJson(json).inPath("detail")
-                                           .asString()
-                                           .contains("The username must be a valid email address");
-                   //@formatter:off
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> {
+                             assertThatJson(json).isObject()
+                                                 .containsEntry("title", "Bad Request")
+                                                 .containsEntry("status", 400)
+                                                 .containsEntry("instance", "/api/users/" + userId);
+                             assertThatJson(json).inPath("detail")
+                                                 .asString()
+                                                 .contains("The username must be a valid email address");
+                         //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("entity", "updateUserRequest", "field", "username", "message", "The username must be a valid email address")
                                           );
                        //@formatter:on
-                   });
+                         });
         }
 
         @Test
@@ -625,28 +625,28 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                                           .content(requestBody);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.BAD_REQUEST)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> {
-                       assertThatJson(json).isObject()
-                                           .containsEntry("title", "Bad Request")
-                                           .containsEntry("status", 400)
-                                           .containsEntry("instance", "/api/users/" + userId);
-                       assertThatJson(json).inPath("detail")
-                                           .asString()
-                                           .contains("The password must be between 8 and 64 characters");
-                   //@formatter:off
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> {
+                             assertThatJson(json).isObject()
+                                                 .containsEntry("title", "Bad Request")
+                                                 .containsEntry("status", 400)
+                                                 .containsEntry("instance", "/api/users/" + userId);
+                             assertThatJson(json).inPath("detail")
+                                                 .asString()
+                                                 .contains("The password must be between 8 and 64 characters");
+                         //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters")
                                           );
                        //@formatter:on
-                   });
+                         });
         }
 
         @Test
@@ -665,28 +665,28 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                                           .content(requestBody);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.BAD_REQUEST)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> {
-                       assertThatJson(json).isObject()
-                                           .containsEntry("title", "Bad Request")
-                                           .containsEntry("status", 400)
-                                           .containsEntry("instance", "/api/users/" + userId);
-                       assertThatJson(json).inPath("detail")
-                                           .asString()
-                                           .contains("The password must be between 8 and 64 characters");
-                   //@formatter:off
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> {
+                             assertThatJson(json).isObject()
+                                                 .containsEntry("title", "Bad Request")
+                                                 .containsEntry("status", 400)
+                                                 .containsEntry("instance", "/api/users/" + userId);
+                             assertThatJson(json).inPath("detail")
+                                                 .asString()
+                                                 .contains("The password must be between 8 and 64 characters");
+                         //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters")
                                           );
                        //@formatter:on
-                   });
+                         });
         }
 
         @Test
@@ -704,28 +704,28 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                                           .content(requestBody);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.BAD_REQUEST)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> {
-                       assertThatJson(json).isObject()
-                                           .containsEntry("title", "Bad Request")
-                                           .containsEntry("status", 400)
-                                           .containsEntry("instance", "/api/users/" + userId);
-                       assertThatJson(json).inPath("detail")
-                                           .asString()
-                                           .contains("The role must be a valid Role");
-                   //@formatter:off
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> {
+                             assertThatJson(json).isObject()
+                                                 .containsEntry("title", "Bad Request")
+                                                 .containsEntry("status", 400)
+                                                 .containsEntry("instance", "/api/users/" + userId);
+                             assertThatJson(json).inPath("detail")
+                                                 .asString()
+                                                 .contains("The role must be a valid Role");
+                         //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("entity", "updateUserRequest", "field", "role", "message", "The role must be a valid Role")
                                           );
                        //@formatter:on
-                   });
+                         });
         }
 
     }
@@ -739,17 +739,17 @@ class UserRestControllerIT extends WebMvcTestContext {
             var requestBuilder = delete(USERS_ROOT_PATH + "/");
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.NOT_FOUND)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> assertThatJson(json).isObject()
-                                                          .containsEntry("title", "Not Found")
-                                                          .containsEntry("status", 404)
-                                                          .containsEntry("detail", "No static resource api/users.")
-                                                          .containsEntry("instance", "/api/users/"));
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.NOT_FOUND)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> assertThatJson(json).isObject()
+                                                                .containsEntry("title", "Not Found")
+                                                                .containsEntry("status", 404)
+                                                                .containsEntry("detail", "No static resource api/users.")
+                                                                .containsEntry("instance", "/api/users/"));
         }
 
         @Test
@@ -759,17 +759,17 @@ class UserRestControllerIT extends WebMvcTestContext {
             var requestBuilder = delete(USERS_DELETE_BY_ID_FULL_PATH, userId);
 
             // When & Then
-            mockMvc.perform(requestBuilder)
-                   .assertThat()
-                   .hasStatus(HttpStatus.BAD_REQUEST)
-                   .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                   .bodyJson()
-                   .convertTo(String.class)
-                   .satisfies(json -> assertThatJson(json).isObject()
-                                                          .containsEntry("title", "Bad Request")
-                                                          .containsEntry("status", 400)
-                                                          .containsEntry("detail", "Failed to convert 'id' with value: '1'")
-                                                          .containsEntry("instance", "/api/users/1"));
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> assertThatJson(json).isObject()
+                                                                .containsEntry("title", "Bad Request")
+                                                                .containsEntry("status", 400)
+                                                                .containsEntry("detail", "Failed to convert 'id' with value: '1'")
+                                                                .containsEntry("instance", "/api/users/1"));
         }
 
     }

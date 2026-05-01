@@ -6,6 +6,7 @@ paths:
   - "**/infrastructure/**/*Response.java"
   - "**/infrastructure/error/**"
   - "**/asapp-commons-url/**/*.java"
+  - "**/src/docs/asciidoc/api-guide.adoc"
 ---
 
 # API Conventions
@@ -30,6 +31,11 @@ paths:
 - Request and response fields use snake_case serialization names
 - Use `@JsonProperty("field_name")` for multi-word field names — single-word fields need no annotation
 - One response record per endpoint — create separate records even if fields are identical
+
+## Spring REST Docs
+
+- Whenever a `*RestAPI.java` changes, update its `api-guide.adoc` section to keep description, status codes, and parameters in sync
+- Strip "This endpoint requires authentication." from adoc descriptions; authentication scope is already stated in the Overview
 
 ## Error Response Format
 
