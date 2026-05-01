@@ -31,7 +31,7 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Authentication entry point for handling unauthorized access attempts.
  * <p>
- * Implements Spring Security's {@link AuthenticationEntryPoint} to return HTTP 401 responses when authentication fails or is missing.
+ * Returns an HTTP 401 response with an empty body when authentication fails or is missing.
  *
  * @since 0.2.0
  * @see AuthenticationEntryPoint
