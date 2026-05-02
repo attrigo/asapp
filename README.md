@@ -43,43 +43,46 @@ ASAPP consists of five microservices:
 
 ### System Architecture
 
+**Startup:** Config Service distributes configuration to the three business services before they register with the Discovery server.
+
 ```
-    Startup:
     ┌───────────────────────────────────────────────────────────┐
     │                  Config Service  :8888                    │
     │               (native: central-config/)                   │
     └──────────┬──────────────────┬──────────────────┬──────────┘
-               │ cfg              │ cfg              │ cfg
+               │ config           │ config           │ config
                ▼                  ▼                  ▼
-         Authentication         Tasks              Users
+    ┌──────────┴───────┐    ┌─────┴─────┐      ┌─────┴─────┐
+    │  Authentication  │    │   Tasks   │      │   Users   │
+    │      Service     │    │  Service  │      │  Service  │
+    └──────────┬───────┘    └─────┬─────┘      └─────┬─────┘
+               │                  │                  │
+               └──────────────────┴──────────────────┘
+                                  │ register
+                                  ▼
+                     ┌──────────────────────────┐
+                     │     Discovery  :8761     │
+                     └──────────────────────────┘
+```
+**Runtime:** Client authenticates and then calls the business services directly using a Bearer JWT.
+```
+    ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
+    │                                              Client                                         │
+    └───────────────────────┬────────────────────────────────────────────┬────────────────────────┘
+                            │ 1. credentials                             │ 2. Bearer JWT
+                            ▼                               ┌────────────┴───────────┐
+                 ┌────────────────────┐                     ▼                        ▼
+                 │  Authentication    │           ┌────────────────────┐   ┌────────────────────┐
+                 │   Service  :8080   │           │      Users         │   │      Tasks         │
+                 └──────────┬─────────┘           │   Service  :8082   │◄─►│   Service  :8081   │
+                            │                     └────────┬───────────┘   └────────┬───────────┘
+    authenticationdb ◄──────┴──────► Redis                 │                        │
+                                                           ▼                        ▼
+                                                        usersdb                  tasksdb
 
-    Runtime:
-┌─────────────────────────────────────────────────────────────┐
-│                         Client                              │
-└────────────┬────────────────────────────────────────────────┘
-             │ JWT Bearer Token
-             ▼
-    ┌────────────────────┐
-    │  Authentication    │ :8080
-    │     Service        │──────► authenticationdb
-    └─────────┬──────────┘
-              │
-              ├──────► Redis :6379 (Token Store)
-              │
-              │ JWT Token
-              ▼
-    ┌────────────────────┐         ┌────────────────────┐
-    │      Users         │ :8082   │      Tasks         │ :8081
-    │     Service        │◄───────►│     Service        │
-    └─────────┬──────────┘         └─────────┬──────────┘
-              │                              │
-              ▼                              ▼
-          usersdb                        tasksdb
-
-    ┌────────────────────┐         ┌────────────────────┐
-    │    Prometheus      │ :9090   │     Grafana        │ :3000
-    │   (Metrics DB)     │◄────────│  (Visualization)   │
-    └────────────────────┘         └────────────────────┘
+    ┌────────────────────┐    ┌─────────────────┐
+    │  Prometheus :9090  │───►│  Grafana :3000  │ 
+    └────────────────────┘    └─────────────────┘
 ```
 
 ### Architectural Patterns
