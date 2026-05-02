@@ -612,7 +612,7 @@ The command applies AI editorial judgment to the generated changelog and asks fo
 - Rewrites terse or unclear messages into plain language
 - Preserves commit links, section structure, and all breaking change entries
 
-## Documentation
+## Related Documentation
 
 ### For Developers
 
