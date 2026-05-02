@@ -719,7 +719,7 @@ docker exec -it asapp-authentication-postgres-db psql -U user -d authenticationd
 open http://localhost:9090/targets
 
 # 2. Verify management credentials work (example for the tasks service)
-curl -u tasks-user:tasks-secret http://localhost:8091/asapp-tasks-service/actuator/prometheus
+curl -u user:secret http://localhost:8091/asapp-tasks-service/actuator/prometheus
 
 # 3. Check Prometheus container logs
 docker-compose logs asapp-prometheus

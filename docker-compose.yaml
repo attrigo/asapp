@@ -112,6 +112,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       # Ports
       - SERVER_PORT=8080
+      - MANAGEMENT_PORT=8090
       # Database
       - DB_HOST=asapp-authentication-postgres-db
       - DB_PORT=5432
@@ -123,18 +124,16 @@ services:
       - REDIS_PORT=6379
       - REDIS_PASSWORD=secret
       # Config service
-      - CONFIG_URI=http://asapp-config-service:8888/asapp-config-service
-      - CONFIG_USERNAME=config-user
-      - CONFIG_PASSWORD=config-secret
+      - CONFIG_SERVER_URI=http://asapp-config-service:8888/asapp-config-service
+      - CONFIG_SERVER_USERNAME=user
+      - CONFIG_SERVER_PASSWORD=secret
       # Discovery service
       - DISCOVERY_HOST=asapp-discovery-service:8761/asapp-discovery-service
-      - DISCOVERY_USERNAME=discovery-user
-      - DISCOVERY_PASSWORD=discovery-secret
-      # Management
-      - MANAGEMENT_PORT=8090
-      - MANAGEMENT_USERNAME=auth-user
-      - MANAGEMENT_PASSWORD=auth-secret
+      - DISCOVERY_USERNAME=user
+      - DISCOVERY_PASSWORD=secret
       # Security
+      - SERVICE_USERNAME=user
+      - SERVICE_PASSWORD=secret
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
       - ASAPP_SECURITY_ACCESS_TOKEN_EXPIRATION_TIME=300000
       - ASAPP_SECURITY_REFRESH_TOKEN_EXPIRATION_TIME=3600000
@@ -164,11 +163,10 @@ services:
       - SPRING_PROFILES_ACTIVE=native,docker
       # Ports
       - SERVER_PORT=8888
-      # Config service
-      - CONFIG_USERNAME=config-user
-      - CONFIG_PASSWORD=config-secret
-      # Management
       - MANAGEMENT_PORT=8898
+      # Security
+      - SERVICE_USERNAME=user
+      - SERVICE_PASSWORD=secret
       # Health check
       - THC_PORT=8888
       - THC_PATH=/asapp-config-service/readyz
@@ -194,14 +192,14 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       # Ports
       - SERVER_PORT=8761
+      - MANAGEMENT_PORT=8791
       # Discovery service
       - DISCOVERY_HOST=asapp-discovery-service:8761/asapp-discovery-service
-      - DISCOVERY_USERNAME=discovery-user
-      - DISCOVERY_PASSWORD=discovery-secret
-      # Management
-      - MANAGEMENT_PORT=8791
-      - MANAGEMENT_USERNAME=discovery-user
-      - MANAGEMENT_PASSWORD=discovery-secret
+      - DISCOVERY_USERNAME=user
+      - DISCOVERY_PASSWORD=secret
+      # Security
+      - SERVICE_USERNAME=user
+      - SERVICE_PASSWORD=secret
       # Health check
       - THC_PORT=8761
       - THC_PATH=/asapp-discovery-service/readyz
@@ -226,6 +224,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       # Ports
       - SERVER_PORT=8081
+      - MANAGEMENT_PORT=8091
       # Database
       - DB_HOST=asapp-tasks-postgres-db
       - DB_PORT=5432
@@ -237,18 +236,16 @@ services:
       - REDIS_PORT=6379
       - REDIS_PASSWORD=secret
       # Config service
-      - CONFIG_URI=http://asapp-config-service:8888/asapp-config-service
-      - CONFIG_USERNAME=config-user
-      - CONFIG_PASSWORD=config-secret
+      - CONFIG_SERVER_URI=http://asapp-config-service:8888/asapp-config-service
+      - CONFIG_SERVER_USERNAME=user
+      - CONFIG_SERVER_PASSWORD=secret
       # Discovery service
       - DISCOVERY_HOST=asapp-discovery-service:8761/asapp-discovery-service
-      - DISCOVERY_USERNAME=discovery-user
-      - DISCOVERY_PASSWORD=discovery-secret
-      # Management
-      - MANAGEMENT_PORT=8091
-      - MANAGEMENT_USERNAME=tasks-user
-      - MANAGEMENT_PASSWORD=tasks-secret
+      - DISCOVERY_USERNAME=user
+      - DISCOVERY_PASSWORD=secret
       # Security
+      - SERVICE_USERNAME=user
+      - SERVICE_PASSWORD=secret
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
     volumes:
       - heap-dumps-data:/heap-dumps
@@ -274,6 +271,7 @@ services:
       - SPRING_PROFILES_ACTIVE=docker
       # Ports
       - SERVER_PORT=8082
+      - MANAGEMENT_PORT=8092
       # Database
       - DB_HOST=asapp-users-postgres-db
       - DB_PORT=5432
@@ -285,18 +283,16 @@ services:
       - REDIS_PORT=6379
       - REDIS_PASSWORD=secret
       # Config service
-      - CONFIG_URI=http://asapp-config-service:8888/asapp-config-service
-      - CONFIG_USERNAME=config-user
-      - CONFIG_PASSWORD=config-secret
+      - CONFIG_SERVER_URI=http://asapp-config-service:8888/asapp-config-service
+      - CONFIG_SERVER_USERNAME=user
+      - CONFIG_SERVER_PASSWORD=secret
       # Discovery service
       - DISCOVERY_HOST=asapp-discovery-service:8761/asapp-discovery-service
-      - DISCOVERY_USERNAME=discovery-user
-      - DISCOVERY_PASSWORD=discovery-secret
-      # Management
-      - MANAGEMENT_PORT=8092
-      - MANAGEMENT_USERNAME=users-user
-      - MANAGEMENT_PASSWORD=users-secret
+      - DISCOVERY_USERNAME=user
+      - DISCOVERY_PASSWORD=secret
       # Security
+      - SERVICE_USERNAME=user
+      - SERVICE_PASSWORD=secret
       - ASAPP_SECURITY_JWT_SECRET=qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi
       # Clients
       - ASAPP_CLIENT_TASKS_BASE_URL=http://asapp-tasks-service/asapp-tasks-service

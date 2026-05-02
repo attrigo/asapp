@@ -9,35 +9,35 @@ scrape_configs:
   - job_name: 'asapp-authentication-service'
     metrics_path: '/asapp-authentication-service/actuator/prometheus'
     basic_auth:
-      username: auth-user
-      password: auth-secret
+      username: user
+      password: secret
     static_configs:
       - targets: [ 'asapp-authentication-service:8090' ]
   - job_name: 'asapp-config-service'
     metrics_path: '/asapp-config-service/actuator/prometheus'
     basic_auth:
-      username: config-user
-      password: config-secret
+      username: user
+      password: secret
     static_configs:
       - targets: [ 'asapp-config-service:8898' ]
   - job_name: 'asapp-discovery-service'
     metrics_path: '/asapp-discovery-service/actuator/prometheus'
     basic_auth:
-      username: discovery-user
-      password: discovery-secret
+      username: user
+      password: secret
     static_configs:
       - targets: [ 'asapp-discovery-service:8791' ]
   - job_name: 'asapp-tasks-service'
     metrics_path: '/asapp-tasks-service/actuator/prometheus'
     basic_auth:
-      username: tasks-user
-      password: tasks-secret
+      username: user
+      password: secret
     static_configs:
       - targets: [ 'asapp-tasks-service:8091' ]
   - job_name: 'asapp-users-service'
     metrics_path: '/asapp-users-service/actuator/prometheus'
     basic_auth:
-      username: users-user
-      password: users-secret
+      username: user
+      password: secret
     static_configs:
       - targets: [ 'asapp-users-service:8092' ]
