@@ -64,12 +64,12 @@ central-config/
 
 When a client requests its configuration, the server merges property sources in priority order (highest first):
 
-| File | Scope |
-|------|-------|
-| `{service}-{profile}.properties` | per-service, profile-specific |
-| `{service}.properties` | per-service, all profiles |
-| `application-{profile}.properties` | shared, profile-specific |
-| `application.properties` | shared, all profiles |
+| File                               | Scope                         |
+|------------------------------------|-------------------------------|
+| `{service}-{profile}.properties`   | per-service, profile-specific |
+| `{service}.properties`             | per-service, all profiles     |
+| `application-{profile}.properties` | shared, profile-specific      |
+| `application.properties`           | shared, all profiles          |
 
 ### Security Model
 
@@ -130,19 +130,19 @@ curl -X POST http://localhost:8092/asapp-users-service/actuator/refresh
 
 ### Property Sources
 
-| File | Source | Scope |
-|------|--------|-------|
-| `application-docker.properties` | Local | docker profile |
-| `application.properties` | Local | all profiles |
+| File                            | Source | Scope          |
+|---------------------------------|--------|----------------|
+| `application-docker.properties` | Local  | docker profile |
+| `application.properties`        | Local  | all profiles   |
 
 ### Docker Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `SERVICE_PASSWORD` | HTTP Basic password | `secret` |
-| `SERVICE_USERNAME` | HTTP Basic username | `user` |
-| `MANAGEMENT_PORT` | Actuator management port | `8898` |
-| `SERVER_PORT` | HTTP server port | `8888` |
+| Variable           | Description              | Default  |
+|--------------------|--------------------------|----------|
+| `SERVICE_PASSWORD` | HTTP Basic password      | `secret` |
+| `SERVICE_USERNAME` | HTTP Basic username      | `user`   |
+| `MANAGEMENT_PORT`  | Actuator management port | `8898`   |
+| `SERVER_PORT`      | HTTP server port         | `8888`   |
 
 ## Development
 
@@ -176,11 +176,11 @@ mvn git-build-hook:install
 
 ### Spring Cloud Config Endpoints (Protected)
 
-| Method | Endpoint | Description | Auth Required |
-|--------|---|---|---|
-| GET | `/{application}/{profile}` | Get merged configuration for a service | ✅ |
-| GET | `/{application}/{profile}/{label}` | Get configuration for a specific label | ✅ |
-| GET | `/{application}-{profile}.properties` | Get raw properties file | ✅ |
+| Method | Endpoint                              | Description                            | Auth Required |
+|--------|---------------------------------------|----------------------------------------|---------------|
+| GET    | `/{application}/{profile}`            | Get merged configuration for a service | ✅             |
+| GET    | `/{application}/{profile}/{label}`    | Get configuration for a specific label | ✅             |
+| GET    | `/{application}-{profile}.properties` | Get raw properties file                | ✅             |
 
 ### Management Endpoints
 

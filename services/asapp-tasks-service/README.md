@@ -205,26 +205,26 @@ curl -X PUT http://localhost:8081/asapp-tasks-service/api/tasks/{id} \
 
 Merged at startup via `spring.config.import`; local files take precedence over centralized ones.
 
-| File | Source | Scope |
-|------|--------|-------|
-| `application-docker.properties` | Local | docker profile |
-| `application.properties` | Local | all profiles |
-| `asapp-tasks-service.properties` | Centralized | service-specific |
-| `application-docker.properties` | Centralized | shared, docker profile |
-| `application.properties` | Centralized | shared |
+| File                             | Source      | Scope                  |
+|----------------------------------|-------------|------------------------|
+| `application-docker.properties`  | Local       | docker profile         |
+| `application.properties`         | Local       | all profiles           |
+| `asapp-tasks-service.properties` | Centralized | service-specific       |
+| `application-docker.properties`  | Centralized | shared, docker profile |
+| `application.properties`         | Centralized | shared                 |
 
 ### Docker Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DISCOVERY_HOST` | Eureka server hostname | `asapp-discovery-service:8761/asapp-discovery-service` |
-| `DISCOVERY_PASSWORD` | Eureka server password | `secret` |
-| `DISCOVERY_USERNAME` | Eureka server username | `user` |
-| `MANAGEMENT_PORT` | Actuator management port | `8091` |
-| `SERVER_PORT` | HTTP server port | `8081` |
-| `SPRING_DATASOURCE_PASSWORD` | Database password | `secret` |
-| `SPRING_DATASOURCE_URL` | PostgreSQL JDBC URL | `jdbc:postgresql://localhost:5433/tasksdb` |
-| `SPRING_DATASOURCE_USERNAME` | Database username | `user` |
+| Variable                     | Description              | Default                                                |
+|------------------------------|--------------------------|--------------------------------------------------------|
+| `DISCOVERY_HOST`             | Eureka server hostname   | `asapp-discovery-service:8761/asapp-discovery-service` |
+| `DISCOVERY_PASSWORD`         | Eureka server password   | `secret`                                               |
+| `DISCOVERY_USERNAME`         | Eureka server username   | `user`                                                 |
+| `MANAGEMENT_PORT`            | Actuator management port | `8091`                                                 |
+| `SERVER_PORT`                | HTTP server port         | `8081`                                                 |
+| `SPRING_DATASOURCE_PASSWORD` | Database password        | `secret`                                               |
+| `SPRING_DATASOURCE_URL`      | PostgreSQL JDBC URL      | `jdbc:postgresql://localhost:5433/tasksdb`             |
+| `SPRING_DATASOURCE_USERNAME` | Database username        | `user`                                                 |
 
 ## Development
 

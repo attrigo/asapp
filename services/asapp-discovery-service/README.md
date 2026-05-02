@@ -53,10 +53,10 @@ Self-preservation mode is disabled (`enable-self-preservation=false`) to avoid r
 
 All endpoints are protected with **HTTP Basic authentication** using two ordered Security Filter Chains:
 
-| Filter Chain | Scope | Public Endpoints | Protected Endpoints |
-|---|---|---|---|
-| Actuator chain (`@Order(1)`) | `EndpointRequest.toAnyEndpoint()` | `/actuator/health` | All other actuator endpoints |
-| Root chain (`@Order(2)`) | `/**` | `/livez`, `/readyz` | All Eureka endpoints |
+| Filter Chain                 | Scope                             | Public Endpoints    | Protected Endpoints          |
+|------------------------------|-----------------------------------|---------------------|------------------------------|
+| Actuator chain (`@Order(1)`) | `EndpointRequest.toAnyEndpoint()` | `/actuator/health`  | All other actuator endpoints |
+| Root chain (`@Order(2)`)     | `/**`                             | `/livez`, `/readyz` | All Eureka endpoints         |
 
 Credentials are configured via `spring.security.user.name` and `spring.security.user.password` (locally) or `SERVICE_USERNAME` / `SERVICE_PASSWORD` environment variables (Docker).
 
@@ -107,22 +107,22 @@ docker-compose down -v
 
 ### Property Sources
 
-| File | Source | Scope |
-|------|--------|-------|
-| `application-docker.properties` | Local | docker profile |
-| `application.properties` | Local | all profiles |
+| File                            | Source | Scope          |
+|---------------------------------|--------|----------------|
+| `application-docker.properties` | Local  | docker profile |
+| `application.properties`        | Local  | all profiles   |
 
 ### Docker Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DISCOVERY_HOST` | Eureka server host used for self-registration URL | `asapp-discovery-service:8761/asapp-discovery-service` |
-| `DISCOVERY_PASSWORD` | Password used in the Eureka `defaultZone` URL | `secret` |
-| `DISCOVERY_USERNAME` | Username used in the Eureka `defaultZone` URL | `user` |
-| `MANAGEMENT_PORT` | Actuator management port | `8791` |
-| `SERVICE_PASSWORD` | HTTP Basic password for all endpoints | `secret` |
-| `SERVICE_USERNAME` | HTTP Basic username for all endpoints | `user` |
-| `SERVER_PORT` | HTTP server port | `8761` |
+| Variable             | Description                                       | Default                                                |
+|----------------------|---------------------------------------------------|--------------------------------------------------------|
+| `DISCOVERY_HOST`     | Eureka server host used for self-registration URL | `asapp-discovery-service:8761/asapp-discovery-service` |
+| `DISCOVERY_PASSWORD` | Password used in the Eureka `defaultZone` URL     | `secret`                                               |
+| `DISCOVERY_USERNAME` | Username used in the Eureka `defaultZone` URL     | `user`                                                 |
+| `MANAGEMENT_PORT`    | Actuator management port                          | `8791`                                                 |
+| `SERVICE_PASSWORD`   | HTTP Basic password for all endpoints             | `secret`                                               |
+| `SERVICE_USERNAME`   | HTTP Basic username for all endpoints             | `user`                                                 |
+| `SERVER_PORT`        | HTTP server port                                  | `8761`                                                 |
 
 ## Development
 
@@ -169,12 +169,12 @@ open target/site/jacoco-aggregate/index.html
 
 ### Eureka Server Endpoints (Protected)
 
-| Method | Endpoint | Description | Auth Required |
-|--------|---|---|---|
-| GET | `/` | Eureka dashboard UI | ✅ |
-| GET | `/eureka/apps` | Get all registered applications | ✅ |
-| GET | `/eureka/apps/{appId}` | Get all instances of an application | ✅ |
-| GET | `/eureka/apps/{appId}/{instanceId}` | Get a specific instance | ✅ |
+| Method | Endpoint                              | Description                         | Auth Required |
+|--------|---------------------------------------|-------------------------------------|---------------|
+| GET    | `/`                                   | Eureka dashboard UI                 | ✅             |
+| GET    | `/eureka/apps`                        | Get all registered applications     | ✅             |
+| GET    | `/eureka/apps/{appId}`                | Get all instances of an application | ✅             |
+| GET    | `/eureka/apps/{appId}/{instanceId}`   | Get a specific instance             | ✅             |
 
 ### Management Endpoints
 
