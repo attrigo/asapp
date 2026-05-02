@@ -7,11 +7,15 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![CI](https://img.shields.io/github/actions/workflow/status/attrigo/asapp/ci.yml?branch=main)](https://github.com/attrigo/asapp/actions)
 
+---
+
 ## Overview
 
-ASAPP (Application for Task Management) is a production-ready microservices application built with Spring Boot and Java. It demonstrates modern enterprise architecture patterns including Hexagonal Architecture, Domain-Driven Design, and comprehensive observability.
+ASAPP (Application for Task Management) is a production-ready microservices application built with Spring Boot and Java. It demonstrates modern enterprise
+architecture patterns including Hexagonal Architecture, Domain-Driven Design, and comprehensive observability.
 
 **Key Features**:
+
 - 🏗️ **Hexagonal Architecture** - Clean separation of concerns with ports and adapters
 - 🎯 **Domain-Driven Design** - Rich domain models with explicit aggregates and value objects
 - 🔐 **JWT Authentication** - Secure token-based authentication with refresh capability
@@ -19,74 +23,24 @@ ASAPP (Application for Task Management) is a production-ready microservices appl
 - 🧪 **Test Coverage** - JaCoCo coverage reports and PITest mutation testing
 - 🐳 **Docker Support** - Full Docker Compose setup for local development
 - 📝 **OpenAPI Documentation** - Interactive Swagger UI for all services
+- 📖 **Self-Documented APIs** - Spring REST Docs generates accurate API documentation from tests
 - ⚙️ **Centralized Configuration** - Spring Cloud Config Server for unified configuration management across all services
 
-## Architecture
+---
 
-### Microservices
+## Services
 
-ASAPP consists of four microservices:
+ASAPP consists of five microservices:
 
-| Service            | Port      | Purpose                          | Database         | Cache/Store               |
-|--------------------|-----------|----------------------------------|------------------|---------------------------|
-| **Authentication** | 8080/8090 | User credentials & JWT tokens    | authenticationdb | Redis (token store)       |
-| **Config**         | 8888/8898 | Centralized configuration server | -                | native (`central-config`) |
-| **Tasks**          | 8081/8091 | Task CRUD operations             | tasksdb          | -                         |
-| **Users**          | 8082/8092 | User profile management          | usersdb          | -                         |
+| Service            | Port      | Purpose                          | Documentation                                             |
+|--------------------|-----------|----------------------------------|-----------------------------------------------------------|
+| **Authentication** | 8080/8090 | User credentials & JWT tokens    | [README](services/asapp-authentication-service/README.md) |
+| **Config**         | 8888/8898 | Centralized configuration server | [README](services/asapp-config-service/README.md)         |
+| **Discovery**      | 8761/8791 | Service registry (Eureka)        | [README](services/asapp-discovery-service/README.md)      |
+| **Tasks**          | 8081/8091 | Task operations                  | [README](services/asapp-tasks-service/README.md)          |
+| **Users**          | 8082/8092 | User profile management          | [README](services/asapp-users-service/README.md)          |
 
-### System Architecture
-
-```
-    Startup:
-    ┌───────────────────────────────────────────────────────────┐
-    │                  Config Service  :8888                    │
-    │               (native: central-config/)                   │
-    └──────────┬──────────────────┬──────────────────┬──────────┘
-               │ cfg              │ cfg              │ cfg
-               ▼                  ▼                  ▼
-         Authentication         Tasks              Users
-
-    Runtime:
-┌─────────────────────────────────────────────────────────────┐
-│                         Client                              │
-└────────────┬────────────────────────────────────────────────┘
-             │ JWT Bearer Token
-             ▼
-    ┌────────────────────┐
-    │  Authentication    │ :8080
-    │     Service        │──────► authenticationdb
-    └─────────┬──────────┘
-              │
-              ├──────► Redis :6379 (Token Store)
-              │
-              │ JWT Token
-              ▼
-    ┌────────────────────┐         ┌────────────────────┐
-    │      Users         │ :8082   │      Tasks         │ :8081
-    │     Service        │◄───────►│     Service        │
-    └─────────┬──────────┘         └─────────┬──────────┘
-              │                              │
-              ▼                              ▼
-          usersdb                        tasksdb
-
-    ┌────────────────────┐         ┌────────────────────┐
-    │    Prometheus      │ :9090   │     Grafana        │ :3000
-    │   (Metrics DB)     │◄────────│  (Visualization)   │
-    └────────────────────┘         └────────────────────┘
-```
-
-### Architectural Patterns
-
-**Hexagonal Architecture** (Ports & Adapters):
-- **Domain Layer**: Pure business logic (aggregates, value objects, domain services)
-- **Application Layer**: Use cases with input/output ports
-- **Infrastructure Layer**: Adapters for REST, database, security
-
-**Domain-Driven Design**:
-- **4 Aggregates**: User (auth), JwtAuthentication, User (profile), Task
-- **30+ Value Objects**: Type-safe domain concepts
-- **Bounded Contexts**: Each service is an independent context
-- **Ubiquitous Language**: Consistent terminology across layers
+---
 
 ## Requirements
 
@@ -97,6 +51,8 @@ ASAPP consists of four microservices:
 - **Docker**: 20.10+
 - **Docker Compose**: 2.0+
 - **Git**: 2.30+
+
+---
 
 ## Quick Start
 
@@ -122,13 +78,6 @@ docker-compose up -d
 
 # 3. Verify services are running
 docker-compose ps
-
-# 4. Access the application
-# - Authentication Swagger: http://localhost:8080/asapp-authentication-service/swagger-ui.html
-# - Users Swagger: http://localhost:8082/asapp-users-service/swagger-ui.html
-# - Tasks Swagger: http://localhost:8081/asapp-tasks-service/swagger-ui.html
-# - Grafana Dashboards: http://localhost:3000 (admin/secret)
-# - Prometheus: http://localhost:9090
 ```
 
 ### Example Workflow
@@ -184,7 +133,108 @@ curl -X GET http://localhost:8082/asapp-users-service/api/users/$USER_ID \
 docker-compose down -v
 ```
 
-## Project Structure
+---
+
+## Architecture
+
+### System Architecture
+
+**Startup**: Config Service distributes configuration to the three business services before they register with the Discovery server.
+
+```
+    ┌───────────────────────────────────────────────────────────┐
+    │                  Config Service  :8888                    │
+    │               (native: central-config/)                   │
+    └──────────┬──────────────────┬──────────────────┬──────────┘
+               │ config           │ config           │ config
+               ▼                  ▼                  ▼
+    ┌──────────┴───────┐    ┌─────┴─────┐      ┌─────┴─────┐
+    │  Authentication  │    │   Tasks   │      │   Users   │
+    │      Service     │    │  Service  │      │  Service  │
+    └──────────┬───────┘    └─────┬─────┘      └─────┬─────┘
+               │                  │                  │
+               └──────────────────┴──────────────────┘
+                                  │ register
+                                  ▼
+                     ┌──────────────────────────┐
+                     │     Discovery  :8761     │
+                     └──────────────────────────┘
+```
+
+**Runtime**: Client authenticates and then calls the business services directly using a Bearer JWT.
+
+```
+    ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
+    │                                              Client                                         │
+    └───────────────────────┬────────────────────────────────────────────┬────────────────────────┘
+                            │ 1. credentials                             │ 2. Bearer JWT
+                            ▼                               ┌────────────┴───────────┐
+                 ┌────────────────────┐                     ▼                        ▼
+                 │  Authentication    │           ┌────────────────────┐   ┌────────────────────┐
+                 │   Service  :8080   │           │      Users         │   │      Tasks         │
+                 └──────────┬─────────┘           │   Service  :8082   │◄─►│   Service  :8081   │
+                            │                     └────────┬───────────┘   └────────┬───────────┘
+    authenticationdb ◄──────┴──────► Redis                 │                        │
+                                                           ▼                        ▼
+                                                        usersdb                  tasksdb
+
+    ┌────────────────────┐    ┌─────────────────┐
+    │  Prometheus :9090  │───►│  Grafana :3000  │ 
+    └────────────────────┘    └─────────────────┘
+```
+
+### Architectural Patterns
+
+**Hexagonal Architecture** (Ports & Adapters):
+
+- **Domain Layer**: Pure business logic (aggregates, value objects, domain services)
+- **Application Layer**: Use cases with input/output ports
+- **Infrastructure Layer**: Adapters for REST, database, security
+
+**Domain-Driven Design**:
+
+- **4 Aggregates**: User (auth), JwtAuthentication, User (profile), Task
+- **30+ Value Objects**: Type-safe domain concepts
+- **Bounded Contexts**: Each service is an independent context
+- **Ubiquitous Language**: Consistent terminology across layers
+
+### Security Model
+
+**JWT Authentication Flow**:
+
+1. Client authenticates with credentials → `POST /api/auth/token`
+2. Receives access token (5 min) + refresh token (1 hour)
+3. Tokens stored in Redis with TTL for revocation checks
+4. Client includes `Authorization: Bearer <access_token>` in requests
+5. Services validate JWT signature and check Redis for revocation
+6. When access token expires, use refresh token → `POST /api/auth/refresh`
+
+**Token Structure**:
+
+```json
+{
+  "typ": "at+jwt",
+  "sub": "user@asapp.com",
+  "role": "USER",
+  "token_use": "access",
+  "iat": 1234567890,
+  "exp": 1234567990
+}
+```
+
+### Data Stores
+
+**PostgreSQL** — one dedicated database per business service:
+
+- `authenticationdb` — user credentials and active JWT sessions (Authentication service)
+- `tasksdb` — task records (Tasks service)
+- `usersdb` — user profiles (Users service)
+
+**Redis** — shared across Authentication, Tasks, and Users services for JWT revocation checks (TTL-based key expiry)
+
+**Migrations**: All PostgreSQL schemas managed by Liquibase
+
+### Project Structure
 
 ```
 asapp/
@@ -193,106 +243,21 @@ asapp/
 │   ├── asapp-commons-url/                   # API endpoint constants
 │   └── asapp-rest-clients/                  # REST client infrastructure
 ├── services/                                # Microservices
-│   ├── asapp-config-service/                # Centralized configuration server
 │   ├── asapp-authentication-service/        # JWT & credentials
-│   ├── asapp-users-service/                 # User profiles
-│   └── asapp-tasks-service/                 # Task management
+│   ├── asapp-config-service/                # Centralized configuration server
+│   ├── asapp-discovery-service/             # Service registry (Eureka)
+│   ├── asapp-tasks-service/                 # Task management
+│   └── asapp-users-service/                 # User profiles
 ├── tools/                                   # Monitoring tools
-│   ├── prometheus/                          # Prometheus config
 │   └── grafana/                             # Grafana dashboards
-├── docs/claude/                             # AI-optimized documentation
-│   ├── architecture.md
-│   ├── testing.md
-│   ├── api-conventions.md
-│   ├── code-style.md
-│   └── development-patterns.md
+│   ├── prometheus/                          # Prometheus config
 ├── git/hooks/                               # Git hooks (pre-commit, commit-msg)
 ├── docker-compose.yaml                      # Docker services configuration
 ├── pom.xml                                  # Parent POM
 └── CLAUDE.md                                # AI assistant guidance
 ```
 
-## Services Overview
-
-### Authentication Service
-
-**Port**: 8080 (app), 8090 (actuator)
-
-**Responsibilities**:
-- User credential storage and validation
-- JWT token generation (access + refresh)
-- Token refresh and revocation
-- User authentication management
-
-**Database**: `authenticationdb` (port 5432)
-
-**API Endpoints**:
-- `POST /api/auth/token` - Authenticate
-- `POST /api/auth/refresh` - Refresh tokens
-- `POST /api/auth/revoke` - Revoke tokens
-- `/api/users/*` - User CRUD
-- `POST /actuator/refresh` - Reload configuration from config server
-
-[View README](services/asapp-authentication-service/README.md)
-
-### Config Service
-
-**Port**: 8888 (app), 8898 (actuator)
-
-**Responsibilities**:
-- Serve centralized configuration to all services at startup
-- Enable runtime configuration refresh without redeployment (`/actuator/refresh`)
-- Read property files from `central-config/` using the native filesystem backend
-
-**API Endpoints**:
-- `GET /{application}/{profile}` - Fetch merged configuration for a service
-- `GET /{application}/{profile}/{label}` - Fetch configuration for a specific label
-- `GET /{application}-{profile}.properties` - Fetch raw properties file
-
-**Must be started before all other services.**
-
-[View README](services/asapp-config-service/README.md)
-
-### Tasks Service
-
-**Port**: 8081 (app), 8091 (actuator)
-
-**Responsibilities**:
-- Task lifecycle management
-- Task CRUD operations
-- User task ownership and queries
-
-**Database**: `tasksdb` (port 5433)
-
-**API Endpoints**:
-- `POST /api/tasks` - Create task
-- `GET /api/tasks/{id}` - Get task
-- `GET /api/tasks/user/{id}` - Get user's tasks
-- `PUT /api/tasks/{id}` - Update task
-- `DELETE /api/tasks/{id}` - Delete task
-- `POST /actuator/refresh` - Reload configuration from config server
-
-[View README](services/asapp-tasks-service/README.md)
-
-### Users Service
-
-**Port**: 8082 (app), 8092 (actuator)
-
-**Responsibilities**:
-- User profile management (firstName, lastName, email, phoneNumber)
-- Task aggregation via Tasks service integration
-- User queries and searches
-
-**Database**: `usersdb` (port 5434)
-
-**API Endpoints**:
-- `POST /api/users` - Create profile
-- `GET /api/users/{id}` - Get profile (with tasks)
-- `PUT /api/users/{id}` - Update profile
-- `DELETE /api/users/{id}` - Delete profile
-- `POST /actuator/refresh` - Reload configuration from config server
-
-[View README](services/asapp-users-service/README.md)
+---
 
 ## Technology Stack
 
@@ -336,201 +301,103 @@ asapp/
 - **Git Hooks**: Pre-commit (style check), commit-msg (conventional commits)
 - **CI/CD**: GitHub Actions
 
+---
+
 ## Development
 
-### Building the Project
+### Build
 
 ```bash
 # Build all modules
 mvn clean install
 
-# Skip tests (faster)
+# Build skipping tests
 mvn clean install -DskipTests
-
-# Build Docker images
-mvn spring-boot:build-image
 ```
 
-### Running Tests
+### Test
 
 ```bash
-# All tests (unit + integration)
+# Run all tests
 mvn clean verify
 
-# Unit tests only
-mvn test
-
-# Integration tests only
-mvn verify -DskipUnitTests
-
-# Specific test class
-mvn test -Dtest=UserTests
-
-# Mutation testing (domain layer)
+# Run mutation testing
 mvn org.pitest:pitest-maven:mutationCoverage
 ```
 
 ### Code Quality
 
 ```bash
-# Check code formatting
-mvn spotless:check
+# Install git hooks (pre-commit, commit-msg)
+mvn git-build-hook:install
 
 # Apply formatting
 mvn spotless:apply
-
-# Install git hooks
-mvn git-build-hook:install
 ```
 
 ### Generate Documentation
 
 ```bash
-# Generate reports
+# Generate all reports (coverage, javadoc, sources, REST docs)
 mvn clean verify -Pfull
-
-# View test coverage
-open services/asapp-tasks-service/target/site/jacoco-aggregate/index.html
-
-# View Mutation Testing Report
-open services/asapp-tasks-service/target/pit-reports/<timestamp>/index.html
 ```
 
-### Database Management
+---
 
-```bash
-# Navigate to specific service
-cd services/asapp-authentication-service
+## Reference
 
-# Apply Liquibase migrations
-mvn liquibase:update
+### API Endpoints
 
-# Generate migration SQL (dry-run)
-mvn liquibase:updateSQL
+Each service provides interactive Swagger UI:
 
-# Rollback last changeset
-mvn liquibase:rollback -Dliquibase.rollbackCount=1
-```
+| Service            | Swagger UI                                                         |
+|--------------------|--------------------------------------------------------------------|
+| **Authentication** | http://localhost:8080/asapp-authentication-service/swagger-ui.html |
+| **Tasks**          | http://localhost:8081/asapp-tasks-service/swagger-ui.html          |
+| **Users**          | http://localhost:8082/asapp-users-service/swagger-ui.html          |
 
-### Running Services Locally
+### Documentation
 
-```bash
-# 1. Start the config service first (terminal 1)
-cd services/asapp-config-service
-mvn spring-boot:run
+Generated per service under `target/` after `mvn clean verify -Pfull`:
 
-# 2. Start all required infrastructure (terminal 2)
-docker-compose up -d asapp-authentication-postgres-db asapp-tasks-postgres-db asapp-users-postgres-db asapp-redis
+| Artifact        | Location                                    |
+|-----------------|---------------------------------------------|
+| REST API docs   | `target/generated-docs/api-guide.html`      |
+| Test coverage   | `target/site/jacoco-aggregate/index.html`   |
+| Mutation report | `target/pit-reports/<timestamp>/index.html` |
+| Javadoc         | `target/site/apidocs/index.html`            |
 
-# 3. Start the authentication service (terminal 3)
-cd services/asapp-authentication-service
-mvn spring-boot:run
+### Monitoring
 
-# 4. Start the tasks service (terminal 4)
-cd services/asapp-tasks-service
-mvn spring-boot:run
-
-# 5. Start the users service (terminal 5)
-cd services/asapp-users-service
-mvn spring-boot:run
-```
-
-## Monitoring and Observability
-
-### Accessing Monitoring Tools
-
-| Tool                         | URL                                                          | Credentials  | Purpose               |
-|------------------------------|--------------------------------------------------------------|--------------|-----------------------|
-| **Grafana**                  | http://localhost:3000                                        | admin/secret | Metrics visualization |
-| **Prometheus**               | http://localhost:9090                                        | -            | Metrics database      |
-| **Config Actuator**          | http://localhost:8898/asapp-config-service/actuator          | -            | Health & metrics      |
-| **Authentication Actuator**  | http://localhost:8090/asapp-authentication-service/actuator  | HTTP Basic   | Health & metrics      |
-| **Tasks Actuator**           | http://localhost:8091/asapp-tasks-service/actuator           | HTTP Basic   | Health & metrics      |
-| **Users Actuator**           | http://localhost:8092/asapp-users-service/actuator           | HTTP Basic   | Health & metrics      |
-
-### Pre-configured Dashboards
+| Tool                        | URL                                                         | Credentials  | Purpose               |
+|-----------------------------|-------------------------------------------------------------|--------------|-----------------------|
+| **Grafana**                 | http://localhost:3000                                       | admin/secret | Metrics visualization |
+| **Prometheus**              | http://localhost:9090                                       | -            | Metrics database      |
+| **Config Actuator**         | http://localhost:8898/asapp-config-service/actuator         | -            | Health & metrics      |
+| **Authentication Actuator** | http://localhost:8090/asapp-authentication-service/actuator | HTTP Basic   | Health & metrics      |
+| **Tasks Actuator**          | http://localhost:8091/asapp-tasks-service/actuator          | HTTP Basic   | Health & metrics      |
+| **Users Actuator**          | http://localhost:8092/asapp-users-service/actuator          | HTTP Basic   | Health & metrics      |
 
 **JVM Micrometer Dashboard**: Available in Grafana under "Services" folder
 
 **Metrics Include**:
+
 - JVM memory, GC, threads
 - HTTP request rates and response times
 - Database connection pool usage
 - Custom business metrics
 
-## API Documentation
-
-Each service provides interactive Swagger UI:
-
-- **Authentication**: http://localhost:8080/asapp-authentication-service/swagger-ui.html
-- **Users**: http://localhost:8082/asapp-users-service/swagger-ui.html
-- **Tasks**: http://localhost:8081/asapp-tasks-service/swagger-ui.html
-
-## Security
-
-### JWT Authentication Flow
-
-1. Client authenticates with credentials → `POST /api/auth/token`
-2. Receives access token (5 min) + refresh token (1 hour)
-3. Tokens stored in Redis with TTL for revocation checks
-4. Client includes `Authorization: Bearer <access_token>` in requests
-5. Services validate JWT signature and check Redis for revocation
-6. When access token expires, use refresh token → `POST /api/auth/refresh`
-
-### Token Structure
-
-```json
-{
-  "typ": "at+jwt",
-  "sub": "user@asapp.com",
-  "role": "USER",
-  "token_use": "access",
-  "iat": 1234567890,
-  "exp": 1234567990
-}
-```
-
-### Protected vs Public Endpoints
-
-**Public** (no authentication):
-- `POST /api/auth/token` - Login
-- `POST /api/auth/refresh` - Refresh token
-- `POST /api/users` - Create user (authentication service)
-- `/actuator/health` - Basic health check
-- `/swagger-ui.html` - API documentation
-
-**Protected** (requires JWT):
-- All other `/api/*` endpoints
-
-**Protected** (requires HTTP Basic):
-- `/actuator/prometheus` - Detailed metrics
-- `/actuator/*` - Most management endpoints
+---
 
 ## Contributing
 
 ### Code Standards
 
 - **Architecture**: Follow Hexagonal Architecture and DDD patterns
-- **Formatting**: Run `mvn spotless:apply` before committing
 - **Testing**: Maintain high test coverage (unit + integration + E2E)
+- **Formatting**: Run `mvn spotless:apply` before committing
 - **Commits**: Use Conventional Commits format
 - **Documentation**: Update OpenAPI docs for API changes
-
-### Commit Message Format
-
-```
-<type>(<scope>): <description>
-
-Types: feat, fix, chore, docs, test, refactor, ci, build, perf, revert, style
-```
-
-**Examples**:
-```
-feat(auth): add refresh token endpoint
-fix(tasks): resolve null pointer in update
-test(users): add integration tests for profile creation
-docs: update architecture documentation
-```
 
 ### Git Hooks
 
@@ -539,20 +406,7 @@ Automatically installed on `mvn install`:
 - **pre-commit**: Validates code formatting and line endings
 - **commit-msg**: Validates commit message format
 
-**Manual installation**:
-```bash
-mvn git-build-hook:install
-```
-
-### Pull Request Process
-
-1. Create feature branch from `main`
-2. Make changes following code standards
-3. Run `mvn clean verify -Pfull` (all tests and reports must pass)
-4. Commit with conventional commit messages
-5. Push and create PR to `main`
-6. CI pipeline runs automatically (see [CI/CD](#cicd))
-7. Merge after review and CI success
+---
 
 ## CI/CD
 
@@ -563,16 +417,19 @@ Builds and tests the project on every push and pull request to `main`.
 **File**: `.github/workflows/ci.yml`
 
 **Triggers**:
+
 - Push to `main` branch
 - Pull requests to `main`
 
 **Pipeline Steps**:
+
 1. Checkout code
 2. Setup JDK (Temurin)
 3. Maven dependency caching
 4. Build and test (`mvn verify -Pfull`)
 
 **Reports Generated**:
+
 - JaCoCo coverage (unit, integration, aggregate)
 - Surefire test results (unit tests)
 - Failsafe test results (integration tests)
@@ -607,15 +464,18 @@ Once the tag is pushed, the release pipeline runs automatically:
 **File**: `.github/workflows/release.yml`
 
 **Triggers**:
+
 - Push of a version tag (`v*`)
 
 **Pipeline Steps**:
+
 1. Build and test the project
 2. Build and publish Docker images
 3. Generate changelog from Conventional Commits
 4. Create a GitHub Release
 
 **Resources Published**:
+
 - Docker images → `ghcr.io`
 - GitHub Release with changelog and JAR artifacts
 
@@ -634,7 +494,9 @@ The command applies AI editorial judgment to the generated changelog and asks fo
 - Rewrites terse or unclear messages into plain language
 - Preserves commit links, section structure, and all breaking change entries
 
-## Documentation
+---
+
+## Related Documentation
 
 ### For Developers
 
@@ -662,68 +524,7 @@ Comprehensive guides for working with ASAPP:
 - [Commons URL](libs/asapp-commons-url/README.md)
 - [REST Clients](libs/asapp-rest-clients/README.md)
 
-## Troubleshooting
-
-### Config Service Not Reachable
-
-```bash
-# Verify the config service is up
-curl http://localhost:8888/asapp-config-service/actuator/health
-
-# Verify configuration is being served correctly
-curl http://localhost:8888/asapp-config-service/asapp-tasks-service/default
-```
-
-**Issue**: Services fail to start with `ConfigClientFailFastException`
-
-**Solution**: Start `asapp-config-service` before any other service. See [Running Services Locally](#running-services-locally).
-
-### Services Not Starting
-
-```bash
-# Check Docker containers
-docker-compose ps
-
-# View service logs
-docker-compose logs -f asapp-authentication-service
-
-# Restart specific service
-docker-compose restart asapp-authentication-service
-```
-
-### Database Issues
-
-```bash
-# Reset databases
-docker-compose down -v  # -v removes volumes
-docker-compose up -d
-
-# Check database connectivity
-docker exec -it asapp-authentication-postgres-db psql -U user -d authenticationdb
-```
-
-### JWT Authentication Errors
-
-**Issue**: 401 Unauthorized
-
-**Solutions**:
-1. Verify token hasn't expired (access tokens expire after 5 minutes)
-2. Use refresh token to get new access token
-3. Re-authenticate if refresh token expired
-4. Ensure `Authorization: Bearer <token>` header is included
-
-### Prometheus Not Scraping
-
-```bash
-# 1. Check Prometheus targets
-open http://localhost:9090/targets
-
-# 2. Verify management credentials work (example for the tasks service)
-curl -u user:secret http://localhost:8091/asapp-tasks-service/actuator/prometheus
-
-# 3. Check Prometheus container logs
-docker-compose logs asapp-prometheus
-```
+---
 
 ## License
 
@@ -745,9 +546,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ```
 
+---
+
 ## Authors
 
 - **Antonio Trigo** - [@attrigo](https://github.com/attrigo)
+
+---
 
 ## Acknowledgments
 
