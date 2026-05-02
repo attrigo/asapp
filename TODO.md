@@ -230,17 +230,10 @@
     * [X] Remove manual mode — require `gh` CLI; abort with a clear message if not available
     * [X] Use `.github/changelog-draft.md` as the working file instead of `/tmp` (cross-platform, no `gh` path resolution issues on Windows)
     * [X] Delete `.github/changelog-draft.md` automatically after updating the release
-* [ ] Doc
-    * [ ] Improve READMEs
-        * [ ] Clean docs/claude
-        * [ ] Format tables to make them human-readable
-        * [ ] Clean previous versions in TODO (they are now in changelog in github)?
-        * [ ] Remove ### Protected vs Public Endpoints (hard to maintain)_
-        * [ ] Rename ## Related Documentation by ## Documentation?
-        * [ ] Move ## Project Structure inside ## Architecture?
-        * [ ] Move ## Services Overview before ## Requirements? join with ### Microservices?
-        * [ ] Move ## Technology Stack just after ## Requirements? or inside ## Architecture?
-        * [ ] Move ## Configuration before ## Quick Start (understand how configuration works before we start)?
+* [X] Doc
+    * [X] Improve READMEs
+  
+---
 
 ### Version 0.4.0
 

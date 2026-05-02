@@ -6,11 +6,15 @@
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
+---
+
 ## Overview
 
-The Authentication Service is a core microservice in the ASAPP ecosystem, responsible for managing user credentials and JWT lifecycle. It provides secure authentication, token refresh, and revocation capabilities for all ASAPP services.
+The Authentication Service is a core microservice in the ASAPP ecosystem, responsible for managing user credentials and JWT lifecycle. It provides secure
+authentication, token refresh, and revocation capabilities for all ASAPP services.
 
 **Key Responsibilities**:
+
 - 🔐 User credential management (username, password, role)
 - 🎫 JWT generation (access + refresh tokens)
 - 🔄 Token refresh and revocation
@@ -18,137 +22,25 @@ The Authentication Service is a core microservice in the ASAPP ecosystem, respon
 - 👤 User CRUD operations (for authentication purposes)
 - 🛡️ Security enforcement for downstream services
 
+---
+
 ## Features
 
 ### Authentication Operations
 
-- **Authenticate** - Issue JWT and store in Redis for validation
-  - `POST /api/auth/token`
-  - Returns access token (5 min expiry) + refresh token (1 hour expiry)
-
-- **Refresh Authentication** - Get new tokens using refresh token
-  - `POST /api/auth/refresh`
-  - Extends session without re-entering credentials
-
-- **Revoke Authentication** - Invalidate active tokens (removes from Redis and database)
-  - `POST /api/auth/revoke`
-  - Immediately revokes tokens by removing from Redis and database
+- **Authenticate**: Issue JWT and store in Redis; returns access token (5 min expiry) + refresh token (1 hour expiry)
+- **Refresh Authentication**: Get new tokens using refresh token; extends session without re-entering credentials
+- **Revoke Authentication**: Invalidate active tokens; removes from Redis and database
 
 ### User Management Operations
 
 - **Create User** - Register new user with credentials
-  - `POST /api/users`
-  - Assigns role (ADMIN or USER)
-
 - **Get User** - Retrieve user by ID
-  - `GET /api/users/{id}`
-
 - **Get All Users** - List all registered users
-  - `GET /api/users`
-
 - **Update User** - Modify user credentials or role
-  - `PUT /api/users/{id}`
-
 - **Delete User** - Remove user and revoke all tokens
-  - `DELETE /api/users/{id}`
 
-### Observability
-
-- **Health Check** - Service health and dependencies
-  - `GET /actuator/health`
-
-- **Metrics** - Prometheus-formatted application metrics
-  - `GET /actuator/prometheus`
-
-- **API Documentation** - Interactive Swagger UI
-  - `http://localhost:8080/asapp-authentication-service/swagger-ui.html`
-
-## Architecture
-
-### Hexagonal Architecture
-
-The service follows **Hexagonal Architecture** (Ports & Adapters) with clear separation of concerns:
-
-**Domain Layer** (`domain/`):
-- Pure business logic with no framework dependencies
-- **Aggregates**: User, JwtAuthentication
-- **Value Objects**: Username, Password, Role, Jwt, EncodedToken, Subject, etc.
-- **Domain Services**: PasswordService
-
-**Application Layer** (`application/`):
-- Use cases and orchestration
-- **Input Ports**: AuthenticateUseCase, CreateUserUseCase, etc.
-- **Output Ports**: UserRepository, JwtAuthenticationRepository, Authenticator
-- **Services**: Annotated with `@ApplicationService`
-
-**Infrastructure Layer** (`infrastructure/`):
-- External concerns (REST, database, security)
-- REST controllers and DTOs
-- Repository adapters (Spring Data JDBC)
-- Security components (JWT handling, filters)
-- Redis adapter (token store with TTL management)
-
-### Domain-Driven Design
-
-The service implements **DDD patterns**:
-
-**Aggregates**:
-- `User` - Two-state pattern (inactive/active)
-- `JwtAuthentication` - Manages token pairs with lifecycle
-
-**Value Objects**: 15+ immutable records with validation
-- Username (email format), RawPassword, EncodedPassword, Role
-- Jwt, JwtPair, EncodedToken, Subject, JwtClaims, Issued, Expiration
-
-**Factories**: State-based creation
-- `User.inactiveUser()` / `User.activeUser()`
-- `JwtAuthentication.unAuthenticated()` / `authenticated()`
-
-### Security Model
-
-**JWT Structure**:
-```json
-{
-  "typ": "at+jwt",
-  "sub": "user@asapp.com",
-  "role": "USER",
-  "token_use": "access",
-  "iat": 1234567890,
-  "exp": 1234567990
-}
-```
-
-**Token Types**:
-- **Access Token** (`at+jwt`) - 5-minute expiry, used for API access
-- **Refresh Token** (`rt+jwt`) - 1-hour expiry, used to obtain new access tokens
-
-**Token Validation Flow**:
-1. Signature validation (HMAC-SHA with secret key)
-2. Expiration check (iat/exp claims validation)
-3. Token type verification (must be "access" token)
-4. Redis existence check (revocation verification - source of truth for active sessions)
-5. Claims extraction (username, role, token_use)
-
-**Security Components**:
-- `JwtIssuer` - Creates signed tokens with HMAC-SHA
-- `JwtDecoder` - Validates signatures and extracts claims
-- `JwtVerifier` - Ensures correct token type
-- `JwtAuthenticationFilter` - Intercepts and validates requests
-
-### Data Stores
-
-**PostgreSQL** (`authenticationdb`):
-- Durable storage for user credentials and authentication records
-- Schema managed via Liquibase migrations
-
-**Redis** (`:6379`):
-- Fast token existence checks (O(1) lookups)
-- TTL-based auto-expiration matching token lifetime
-- Key patterns:
-  - `jwt:access_token:<token>` - Access token validation
-  - `jwt:refresh_token:<token>` - Refresh token validation
-- Values: Empty strings (existence only)
-- Consistency: Best-effort (Redis and DB operations not atomic)
+---
 
 ## Requirements
 
@@ -158,6 +50,8 @@ The service implements **DDD patterns**:
 - **Docker Compose**: 2.0+
 - **PostgreSQL**: 15+ (via Docker)
 - **Redis**: 7+ (via Docker)
+
+---
 
 ## Quick Start
 
@@ -227,155 +121,35 @@ curl -X GET http://localhost:8080/asapp-authentication-service/api/users \
   -H "Authorization: Bearer <access_token>"
 ```
 
-## Configuration
+---
 
-### Property Sources
+## Architecture
 
-Merged at startup via `spring.config.import`; local files take precedence over centralized ones.
+### Domain Model
 
-| File | Source | Scope |
-|------|--------|-------|
-| `application-docker.properties` | Local | docker profile |
-| `application.properties` | Local | all profiles |
-| `asapp-authentication-service.properties` | Centralized | service-specific |
-| `application-docker.properties` | Centralized | shared, docker profile |
-| `application.properties` | Centralized | shared |
+**Aggregates**: User, JwtAuthentication  
+**Value Objects**: Username, RawPassword, EncodedPassword, Role, Jwt, JwtPair, EncodedToken, Subject
 
-### Docker Environment Variables
+### Security Model
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DISCOVERY_HOST` | Eureka server hostname | `asapp-discovery-service:8761/asapp-discovery-service` |
-| `DISCOVERY_PASSWORD` | Eureka server password | `secret` |
-| `DISCOVERY_USERNAME` | Eureka server username | `user` |
-| `MANAGEMENT_PORT` | Actuator management port | `8090` |
-| `SERVER_PORT` | HTTP server port | `8080` |
-| `SPRING_DATA_REDIS_HOST` | Redis hostname | `localhost` |
-| `SPRING_DATA_REDIS_PASSWORD` | Redis password | `secret` |
-| `SPRING_DATASOURCE_PASSWORD` | Database password | `secret` |
-| `SPRING_DATASOURCE_URL` | PostgreSQL JDBC URL | `jdbc:postgresql://localhost:5432/authenticationdb` |
-| `SPRING_DATASOURCE_USERNAME` | Database username | `user` |
+- **API endpoints**: JWT Bearer token; issuance and refresh endpoints are public. Tokens are verified for signature, expiry, and active status in Redis
+- **Management endpoints**: HTTP Basic authentication
 
-## Development
+### Data Stores
 
-### Build and Test
+**PostgreSQL**: (`authenticationdb`) user credentials and active authentication records
 
-```bash
-# Build project
-mvn clean install
+- `users` — id, username, password, role
+- `jwt_authentications` — id, user_id, access_token, refresh_token
 
-# Skip tests (faster)
-mvn clean install -DskipTests
+**Redis**: token storage with TTL-based auto-expiration for revocation checks
 
-# Run unit tests only
-mvn test
+- `jwt:access_token:<token>` — TTL: 5 min
+- `jwt:refresh_token:<token>` — TTL: 1 hour
 
-# Run all tests (unit + integration)
-mvn clean verify
+**Migrations**: Managed by Liquibase in `src/main/resources/liquibase/db/changelog/`
 
-# Run integration tests only
-mvn verify -DskipUnitTests
-
-# Run mutation testing
-mvn org.pitest:pitest-maven:mutationCoverage
-```
-
-### Code Quality
-
-```bash
-# Check code formatting
-mvn spotless:check
-
-# Apply formatting
-mvn spotless:apply
-
-# Install git hooks (pre-commit, commit-msg)
-mvn git-build-hook:install
-```
-
-### Database Management
-
-```bash
-# Start standalone database
-docker-compose up -d asapp-authentication-postgres-db
-
-# Apply Liquibase migrations
-mvn liquibase:update
-
-# Generate migration SQL (dry-run)
-mvn liquibase:updateSQL
-
-# Rollback last changeset
-mvn liquibase:rollback -Dliquibase.rollbackCount=1
-```
-
-### Generate Documentation
-
-```bash
-# Generate reports
-mvn clean verify -Pfull
-
-# Generate Spring REST API docs (no tests needed)
-mvn asciidoctor:process-asciidoc@generate-docs
-
-# View Javadoc
-open target/asapp-authentication-service-<version>-javadoc.jar
-# Or: target/site/apidocs/index.html
-
-# View Test Coverage
-open target/site/jacoco-aggregate/index.html
-
-# View Mutation Testing Report
-open target/pit-reports/<timestamp>/index.html
-
-# View REST API Documentation
-open target/generated-docs/api-guide.html
-```
-
-## API Endpoints
-
-### Authentication Endpoints (Public)
-
-| Method | Endpoint            | Description       | Auth Required |
-|--------|---------------------|-------------------|---------------|
-| POST   | `/api/auth/token`   | Authenticate user | ❌             |
-| POST   | `/api/auth/refresh` | Refresh tokens    | ❌             |
-| POST   | `/api/auth/revoke`  | Revoke tokens     | ✅             |
-
-### User Management Endpoints (Protected)
-
-| Method | Endpoint          | Description    | Auth Required |
-|--------|-------------------|----------------|---------------|
-| POST   | `/api/users`      | Create user    | ❌             |
-| GET    | `/api/users`      | Get all users  | ✅             |
-| GET    | `/api/users/{id}` | Get user by ID | ✅             |
-| PUT    | `/api/users/{id}` | Update user    | ✅             |
-| DELETE | `/api/users/{id}` | Delete user    | ✅             |
-
-### Management Endpoints
-
-Management endpoints are available on port `8090` at `/asapp-authentication-service/actuator`.
-
-`/actuator/health` is public; all other endpoints require HTTP Basic authentication (`user` / `secret`).
-
-Use `GET /actuator` to see the full list of available endpoints.
-
-**Actuator Port**: `8090`
-
-## Technology Stack
-
-- **Spring Boot**: 4.0.5
-- **Spring Framework**: 7.x
-- **Configuration**: Spring Cloud Config 5.x
-- **Service Discovery**: Spring Cloud Netflix Eureka Client 5.x
-- **Security**: Spring Security + Nimbus JOSE+JWT
-- **Migrations**: Liquibase
-- **Mapping**: MapStruct
-- **Testing**: JUnit 5, AssertJ, TestContainers, PITest
-- **Documentation**: SpringDoc OpenAPI
-- **Observability**: Spring Boot Actuator, Micrometer
-
-## Project Structure
+### Project Structure
 
 ```
 src/main/java/com/bcn/asapp/authentication/
@@ -397,60 +171,209 @@ src/main/java/com/bcn/asapp/authentication/
     └── error/                        # Exception handling
 ```
 
-## Database Schema
+---
 
-**PostgreSQL Tables**:
-- `users` - User credentials (id, username, password, role)
-- `jwt_authentications` - Active token sessions (id, user_id, access_token, refresh_token)
+## Technology Stack
 
-**Redis Keys**:
-- `jwt:access_token:<token>` - Access token existence (TTL: 5 min)
-- `jwt:refresh_token:<token>` - Refresh token existence (TTL: 1 hour)
+- **Spring Boot**: 4.0.5
+- **Spring Framework**: 7.x
+- **Configuration**: Spring Cloud Config 5.x
+- **Service Discovery**: Spring Cloud Netflix Eureka Client 5.x
+- **Security**: Spring Security + Nimbus JOSE+JWT
+- **Migrations**: Liquibase
+- **Mapping**: MapStruct
+- **Testing**: JUnit 5, AssertJ, TestContainers, PITest
+- **Documentation**: SpringDoc OpenAPI
+- **Observability**: Spring Boot Actuator, Micrometer
 
-**Migrations**: Managed by Liquibase in `src/main/resources/liquibase/db/changelog/`
+---
 
-## Testing
+## Development
 
-**Test Types**:
-- Unit Tests (`*Tests.java`) - Domain and application logic
-- Integration Tests (`*IT.java`) - With TestContainers PostgreSQL and Redis
-- Controller Tests (`*ControllerIT.java`) - WebMvcTest slice
-- E2E Tests (`*E2EIT.java`) - Full application context
+### Build
 
-**Coverage**: JaCoCo reports (unit, integration, aggregate)
-**Mutation Testing**: PITest for domain layer
-**Test Containers**: PostgreSQL and Redis for integration tests
+```bash
+# Build project
+mvn clean install
 
-## Monitoring
+# Build skipping tests
+mvn clean install -DskipTests
+```
 
-**Actuator Endpoints**: `http://localhost:8090/asapp-authentication-service/actuator`
+### Test
+
+```bash
+# Run all tests
+mvn clean verify
+
+# Run mutation testing
+mvn org.pitest:pitest-maven:mutationCoverage
+```
+
+### Code Quality
+
+```bash
+# Install git hooks (pre-commit, commit-msg)
+mvn git-build-hook:install
+
+# Apply formatting
+mvn spotless:apply
+```
+
+### Database Management
+
+```bash
+# Start standalone database
+docker-compose up -d asapp-authentication-postgres-db
+
+# Generate migration SQL (dry-run)
+mvn liquibase:updateSQL
+
+# Apply Liquibase migrations
+mvn liquibase:update
+
+# Rollback last changeset
+mvn liquibase:rollback -Dliquibase.rollbackCount=1
+```
+
+### Generate Documentation
+
+```bash
+# Generate reports
+mvn clean verify -Pfull
+
+# Generate Spring REST API docs (no tests needed)
+mvn asciidoctor:process-asciidoc@generate-docs
+```
+
+---
+
+## Reference
+
+### Property Sources
+
+Merged at startup via `spring.config.import`; local files take precedence over centralized ones.
+
+| File                                      | Source      | Scope                  |
+|-------------------------------------------|-------------|------------------------|
+| `application-docker.properties`           | Local       | docker profile         |
+| `application.properties`                  | Local       | all profiles           |
+| `asapp-authentication-service.properties` | Centralized | service-specific       |
+| `application-docker.properties`           | Centralized | shared, docker profile |
+| `application.properties`                  | Centralized | shared                 |
+
+### Docker Environment Variables
+
+| Variable                                       | Description                                   | Default                                                            |
+|------------------------------------------------|-----------------------------------------------|--------------------------------------------------------------------|
+| `JAVA_OPTS`                                    | JVM runtime options                           | (see docker-compose.yaml)                                          |
+| `SPRING_PROFILES_ACTIVE`                       | Active Spring profiles                        | `docker`                                                           |
+| `SERVER_PORT`                                  | HTTP server port                              | `8080`                                                             |
+| `MANAGEMENT_PORT`                              | Actuator management port                      | `8090`                                                             |
+| `DB_HOST`                                      | PostgreSQL hostname                           | `asapp-authentication-postgres-db`                                 |
+| `DB_PORT`                                      | PostgreSQL port                               | `5432`                                                             |
+| `DB_NAME`                                      | PostgreSQL database name                      | `authenticationdb`                                                 |
+| `DB_USERNAME`                                  | PostgreSQL username                           | `user`                                                             |
+| `DB_PASSWORD`                                  | PostgreSQL password                           | `secret`                                                           |
+| `REDIS_HOST`                                   | Redis hostname                                | `asapp-redis`                                                      |
+| `REDIS_PORT`                                   | Redis port                                    | `6379`                                                             |
+| `REDIS_PASSWORD`                               | Redis password                                | `secret`                                                           |
+| `CONFIG_SERVER_URI`                            | Config server base URI                        | `http://asapp-config-service:8888/asapp-config-service`            |
+| `CONFIG_SERVER_USERNAME`                       | Config server HTTP Basic username             | `user`                                                             |
+| `CONFIG_SERVER_PASSWORD`                       | Config server HTTP Basic password             | `secret`                                                           |
+| `DISCOVERY_HOST`                               | Eureka server hostname                        | `asapp-discovery-service:8761/asapp-discovery-service`             |
+| `DISCOVERY_USERNAME`                           | Eureka server username                        | `user`                                                             |
+| `DISCOVERY_PASSWORD`                           | Eureka server password                        | `secret`                                                           |
+| `SERVICE_USERNAME`                             | HTTP Basic username for actuator endpoints    | `user`                                                             |
+| `SERVICE_PASSWORD`                             | HTTP Basic password for actuator endpoints    | `secret`                                                           |
+| `ASAPP_SECURITY_JWT_SECRET`                    | HMAC-SHA secret for signing JWT tokens        | `qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi` |
+| `ASAPP_SECURITY_ACCESS_TOKEN_EXPIRATION_TIME`  | Access token expiration in milliseconds       | `300000`                                                           |
+| `ASAPP_SECURITY_REFRESH_TOKEN_EXPIRATION_TIME` | Refresh token expiration in milliseconds      | `3600000`                                                          |
+| `ASAPP_SECURITY_JWT_CLEANUP_ENABLED`           | Enable expired JWT cleanup background job     | `true`                                                             |
+| `ASAPP_SECURITY_JWT_CLEANUP_CRON_EXPRESSION`   | Cron expression for expired token cleanup job | `0 0 2 * * ?`                                                      |
+
+### API Endpoints
+
+**Authentication Endpoints**
+
+| Method | Endpoint            | Description       | Auth Required |
+|--------|---------------------|-------------------|---------------|
+| POST   | `/api/auth/token`   | Authenticate user | ❌             |
+| POST   | `/api/auth/refresh` | Refresh tokens    | ❌             |
+| POST   | `/api/auth/revoke`  | Revoke tokens     | ✅             |
+
+**User Management Endpoints**
+
+| Method | Endpoint          | Description    | Auth Required |
+|--------|-------------------|----------------|---------------|
+| POST   | `/api/users`      | Create user    | ❌             |
+| GET    | `/api/users`      | Get all users  | ✅             |
+| GET    | `/api/users/{id}` | Get user by ID | ✅             |
+| PUT    | `/api/users/{id}` | Update user    | ✅             |
+| DELETE | `/api/users/{id}` | Delete user    | ✅             |
+
+**Management Endpoints**
+
+Actuator endpoints are on port `8090` at `/asapp-authentication-service/actuator`; use `GET /actuator` to list them.
+
+- `/actuator/health` — public
+- All other actuator endpoints — HTTP Basic authentication (`user` / `secret`)
+
+Health probes are on the server port (`8080`) at `/asapp-authentication-service` and are public.
+
+- `/asapp-authentication-service/readyz`
+- `/asapp-authentication-service/livez`
+
+### Documentation
+
+| Artifact        | Location                                                             |
+|-----------------|----------------------------------------------------------------------|
+| REST API docs   | `target/generated-docs/api-guide.html`                               |
+| Swagger UI      | `http://localhost:8080/asapp-authentication-service/swagger-ui.html` |
+| Test coverage   | `target/site/jacoco-aggregate/index.html`                            |
+| Mutation report | `target/pit-reports/<timestamp>/index.html`                          |
+| Javadoc         | `target/site/apidocs/index.html`                                     |
+
+### Monitoring
 
 **Prometheus Integration**: Metrics scraped every 15s for monitoring
 
 **Available Metrics**:
+
 - JVM metrics (memory, GC, threads)
 - HTTP request metrics (rate, duration, errors)
 - Database connection pool metrics
 - Custom business metrics
+
+### Dependencies
+
+**Internal Dependencies**:
+
+- `asapp-commons-url` - Endpoint constants
+
+---
 
 ## Contributing
 
 This service is part of the ASAPP monorepo. See the [main repository](../../README.md) for contribution guidelines.
 
 **Key Guidelines**:
+
 - Follow Hexagonal Architecture and DDD patterns
-- Use Conventional Commits (`feat:`, `fix:`, `test:`, etc.)
-- Run `mvn spotless:apply` before committing
-- Ensure all tests pass (`mvn verify`)
 - Update OpenAPI documentation for API changes
+- Add tests for new code
+- Ensure all tests pass (`mvn verify`)
+- Run `mvn spotless:apply` before committing
+- Use Conventional Commits for commit messages
+
+---
 
 ## Related Documentation
 
 - [ASAPP Main Repository](../../README.md)
 - [Discovery Service](../asapp-discovery-service/README.md)
-- [Architecture Guide](../../docs/claude/architecture.md)
-- [Testing Strategy](../../docs/claude/testing.md)
-- [API Conventions](../../docs/claude/api-conventions.md)
+
+---
 
 ## External Resources
 
@@ -460,6 +383,8 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 - [Spring Security](https://docs.spring.io/spring-security/reference/)
 - [Nimbus JOSE+JWT](https://connect2id.com/products/nimbus-jose-jwt)
 - [Liquibase](https://docs.liquibase.com/)
+
+---
 
 ## License
 

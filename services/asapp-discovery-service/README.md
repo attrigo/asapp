@@ -7,60 +7,30 @@
 [![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2025.1.1-brightgreen.svg)](https://spring.io/projects/spring-cloud)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
+---
+
 ## Overview
 
-The Discovery Service is a Spring Cloud Netflix Eureka Server that acts as a service registry for all ASAPP microservices. It enables client-side service discovery, allowing services to register themselves and look up other services by name rather than by hardcoded host and port.
+The Discovery Service is a Spring Cloud Netflix Eureka Server that acts as a service registry for all ASAPP microservices. It enables client-side service
+discovery, allowing services to register themselves and look up other services by name rather than by hardcoded host and port.
 
 **Key Responsibilities**:
+
 - 📋 Maintain a live registry of all running service instances
 - 🔍 Serve service location information to client services on request
 - 🌐 Expose the Eureka dashboard for visualizing registered services
 - 🔒 Protect all endpoints with HTTP Basic authentication
 
+---
+
 ## Features
 
-### Eureka Server Endpoints
+- **Service registry**: Maintains a live registry of all running microservice instances
+- **Client-side discovery**: Services register by name and resolve each other without hardcoded addresses
+- **Eureka dashboard**: Web UI for visualizing all registered services and their status
+- **Self-preservation disabled**: Stale registrations are removed immediately, keeping the registry accurate during development
 
-Spring Cloud Netflix Eureka Server exposes the following endpoints for clients:
-
-- **Get all registered applications** — Returns the full service registry
-  - `GET /eureka/apps`
-
-- **Get instances of an application** — Returns all instances of a specific service
-  - `GET /eureka/apps/{appId}`
-
-- **Get a specific instance** — Returns a single service instance
-  - `GET /eureka/apps/{appId}/{instanceId}`
-
-- **Eureka Dashboard** — Web UI for visualizing all registered services
-  - `GET /`
-
-### Observability
-
-- **Health Check** - Service health
-  - `GET /actuator/health`
-
-- **Metrics** - Prometheus-formatted application metrics
-  - `GET /actuator/prometheus`
-
-## Architecture
-
-The Discovery Service is a thin infrastructure service with no business logic. It is built on **Spring Cloud Netflix Eureka Server** (`@EnableEurekaServer`) and acts solely as a registry — it does not fetch the registry itself nor register as a client (`register-with-eureka=false`, `fetch-registry=false`).
-
-Self-preservation mode is disabled (`enable-self-preservation=false`) to avoid retaining stale registrations during development and testing.
-
-### Security Model
-
-All endpoints are protected with **HTTP Basic authentication** using two ordered Security Filter Chains:
-
-| Filter Chain | Scope | Public Endpoints | Protected Endpoints |
-|---|---|---|---|
-| Actuator chain (`@Order(1)`) | `EndpointRequest.toAnyEndpoint()` | `/actuator/health` | All other actuator endpoints |
-| Root chain (`@Order(2)`) | `/**` | `/livez`, `/readyz` | All Eureka endpoints |
-
-Credentials are configured via `spring.security.user.name` and `spring.security.user.password` (locally) or `SERVICE_USERNAME` / `SERVICE_PASSWORD` environment variables (Docker).
-
-Client services supply credentials directly in the Eureka `defaultZone` URL: `http://<user>:<password>@<host>/eureka`.
+---
 
 ## Requirements
 
@@ -68,6 +38,8 @@ Client services supply credentials directly in the Eureka `defaultZone` URL: `ht
 - **Maven**: 3.9.14+
 - **Docker**: 20.10+
 - **Docker Compose**: 2.0+
+
+---
 
 ## Quick Start
 
@@ -103,96 +75,7 @@ docker-compose logs -f asapp-discovery-service
 docker-compose down -v
 ```
 
-## Configuration
-
-### Property Sources
-
-| File | Source | Scope |
-|------|--------|-------|
-| `application-docker.properties` | Local | docker profile |
-| `application.properties` | Local | all profiles |
-
-### Docker Environment Variables
-
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DISCOVERY_HOST` | Eureka server host used for self-registration URL | `asapp-discovery-service:8761/asapp-discovery-service` |
-| `DISCOVERY_PASSWORD` | Password used in the Eureka `defaultZone` URL | `secret` |
-| `DISCOVERY_USERNAME` | Username used in the Eureka `defaultZone` URL | `user` |
-| `MANAGEMENT_PORT` | Actuator management port | `8791` |
-| `SERVICE_PASSWORD` | HTTP Basic password for all endpoints | `secret` |
-| `SERVICE_USERNAME` | HTTP Basic username for all endpoints | `user` |
-| `SERVER_PORT` | HTTP server port | `8761` |
-
-## Development
-
-### Build and Test
-
-```bash
-# Build project
-mvn clean install
-
-# Skip tests (faster)
-mvn clean install -DskipTests
-
-# Run all tests (unit + integration)
-mvn clean verify
-
-# Run integration tests only
-mvn verify -DskipUnitTests
-```
-
-### Code Quality
-
-```bash
-# Check code formatting
-mvn spotless:check
-
-# Apply formatting
-mvn spotless:apply
-
-# Install git hooks (pre-commit, commit-msg)
-mvn git-build-hook:install
-```
-
-### Generate Documentation
-
-```bash
-# Generate reports
-mvn clean verify -Pfull
-
-# View Test Coverage
-open target/site/jacoco-aggregate/index.html
-```
-
-## API Endpoints
-
-### Eureka Server Endpoints (Protected)
-
-| Method | Endpoint | Description | Auth Required |
-|--------|---|---|---|
-| GET | `/` | Eureka dashboard UI | ✅ |
-| GET | `/eureka/apps` | Get all registered applications | ✅ |
-| GET | `/eureka/apps/{appId}` | Get all instances of an application | ✅ |
-| GET | `/eureka/apps/{appId}/{instanceId}` | Get a specific instance | ✅ |
-
-### Management Endpoints
-
-Management endpoints are available on port `8791` at `/asapp-discovery-service/actuator`.
-
-`/actuator/health` is public; all other endpoints require HTTP Basic authentication (`user` / `secret`).
-
-Use `GET /actuator` to see the full list of available endpoints.
-
-Additionally, `/livez` and `/readyz` (liveness and readiness probes) are public and accessible on the main server port `8761`.
-
-**Actuator Port**: `8791`
-
-## Technology Stack
-
-- **Spring Boot**: 4.0.5
-- **Service Discovery**: Spring Cloud Netflix Eureka Server 5.x
-- **Observability**: Spring Boot Actuator, Micrometer
+---
 
 ## Client Setup
 
@@ -208,37 +91,165 @@ eureka.instance.prefer-ip-address=true
 eureka.instance.status-page-url-path=${server.servlet.context-path}/actuator/info
 ```
 
-In Docker, `docker-compose.yaml` sets `DISCOVERY_HOST`, `DISCOVERY_USERNAME`, and `DISCOVERY_PASSWORD` environment variables so the correct container hostname and credentials are used without any profile-specific override:
+In Docker, `docker-compose.yaml` sets `DISCOVERY_HOST`, `DISCOVERY_USERNAME`, and `DISCOVERY_PASSWORD` environment variables so the correct container hostname
+and credentials are used without any profile-specific override:
 
 ```properties
 # application-docker.properties
 eureka.client.service-url.defaultZone=http://${DISCOVERY_USERNAME}:${DISCOVERY_PASSWORD}@${DISCOVERY_HOST}/eureka
 ```
 
-The discovery server is an **optional** dependency — services will start and function without it, but service-to-service lookups by name will fail. Start `asapp-discovery-service` before starting any other service that performs load-balanced calls.
+> The discovery server is an **optional** dependency, services will start and function without it, but service-to-service lookups by name will fail. Start
+`asapp-discovery-service` before starting any other service that performs load-balanced calls.
 
-## Monitoring
+---
 
-**Actuator Endpoints**: `http://localhost:8791/asapp-discovery-service/actuator`
+## Architecture
+
+The Discovery Service is a thin infrastructure service with no business logic. It is built on **Spring Cloud Netflix Eureka Server** and acts solely as a
+registry.
+
+Self-preservation mode is disabled (`enable-self-preservation=false`) to avoid retaining stale registrations during development and testing.
+
+### Security Model
+
+- **All endpoints**: HTTP Basic authentication
+
+---
+
+## Technology Stack
+
+- **Spring Boot**: 4.0.5
+- **Service Discovery**: Spring Cloud Netflix Eureka Server 5.x
+- **Observability**: Spring Boot Actuator, Micrometer
+
+---
+
+## Development
+
+### Build
+
+```bash
+# Build project
+mvn clean install
+
+# Build skipping tests
+mvn clean install -DskipTests
+```
+
+### Test
+
+```bash
+# Run all tests
+mvn clean verify
+
+# Run mutation testing
+mvn org.pitest:pitest-maven:mutationCoverage
+```
+
+### Code Quality
+
+```bash
+# Install git hooks (pre-commit, commit-msg)
+mvn git-build-hook:install
+
+# Apply formatting
+mvn spotless:apply
+```
+
+### Generate Documentation
+
+```bash
+# Generate reports
+mvn clean verify -Pfull
+```
+
+---
+
+## Reference
+
+### Property Sources
+
+| File                            | Source | Scope          |
+|---------------------------------|--------|----------------|
+| `application-docker.properties` | Local  | docker profile |
+| `application.properties`        | Local  | all profiles   |
+
+### Docker Environment Variables
+
+| Variable                 | Description                                       | Default                                                |
+|--------------------------|---------------------------------------------------|--------------------------------------------------------|
+| `JAVA_OPTS`              | JVM runtime options                               | (see docker-compose.yaml)                              |
+| `SPRING_PROFILES_ACTIVE` | Active Spring profiles                            | `docker`                                               |
+| `SERVER_PORT`            | HTTP server port                                  | `8761`                                                 |
+| `MANAGEMENT_PORT`        | Actuator management port                          | `8791`                                                 |
+| `DISCOVERY_HOST`         | Eureka server host used for self-registration URL | `asapp-discovery-service:8761/asapp-discovery-service` |
+| `DISCOVERY_USERNAME`     | Username used in the Eureka `defaultZone` URL     | `user`                                                 |
+| `DISCOVERY_PASSWORD`     | Password used in the Eureka `defaultZone` URL     | `secret`                                               |
+| `SERVICE_USERNAME`       | HTTP Basic username for all endpoints             | `user`                                                 |
+| `SERVICE_PASSWORD`       | HTTP Basic password for all endpoints             | `secret`                                               |
+| `THC_PORT`               | Health check port for readiness                   | `8761`                                                 |
+| `THC_PATH`               | Health check path for readiness                   | `/asapp-discovery-service/readyz`                      |
+
+### API Endpoints
+
+**Eureka Server Endpoints**
+
+| Method | Endpoint                            | Description                         | Auth Required |
+|--------|-------------------------------------|-------------------------------------|---------------|
+| GET    | `/`                                 | Eureka dashboard UI                 | ✅             |
+| GET    | `/eureka/apps`                      | Get all registered applications     | ✅             |
+| GET    | `/eureka/apps/{appId}`              | Get all instances of an application | ✅             |
+| GET    | `/eureka/apps/{appId}/{instanceId}` | Get a specific instance             | ✅             |
+
+**Management Endpoints**
+
+Actuator endpoints are on port `8791` at `/asapp-discovery-service/actuator`; use `GET /actuator` to list them.
+
+- `/actuator/health` — public
+- All other actuator endpoints — HTTP Basic authentication (`user` / `secret`)
+
+Health probes are on the server port (`8761`) at `/asapp-discovery-service` and are public:
+
+- `/asapp-discovery-service/readyz`
+- `/asapp-discovery-service/livez`
+
+### Documentation
+
+| Artifact        | Location                                    |
+|-----------------|---------------------------------------------|
+| Test coverage   | `target/site/jacoco-aggregate/index.html`   |
+| Mutation report | `target/pit-reports/<timestamp>/index.html` |
+| Javadoc         | `target/site/apidocs/index.html`            |
+
+### Monitoring
 
 **Prometheus Integration**: Metrics scraped every 15s for monitoring
 
 **Available Metrics**:
+
 - JVM metrics (memory, GC, threads)
 - HTTP request metrics (rate, duration, errors)
+
+---
 
 ## Contributing
 
 This service is part of the ASAPP monorepo. See the [main repository](../../README.md) for contribution guidelines.
 
 **Key Guidelines**:
-- Use Conventional Commits (`feat:`, `fix:`, `chore:`, etc.)
+
 - Run `mvn spotless:apply` before committing
+- Use Conventional Commits for commit messages
+
+---
 
 ## Related Documentation
 
 - [ASAPP Main Repository](../../README.md)
 - [Spring Cloud Netflix Eureka Reference](https://docs.spring.io/spring-cloud-netflix/reference/)
+
+---
 
 ## License
 

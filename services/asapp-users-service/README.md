@@ -6,113 +6,34 @@
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
+---
+
 ## Overview
 
-The Users Service manages user profile information within the ASAPP ecosystem. It maintains personal details (name, email, phone) and integrates with the Tasks service to provide aggregated user data.
+The Users Service manages user profile information within the ASAPP ecosystem. It maintains personal details (name, email, phone) and integrates with the Tasks
+service to provide aggregated user data.
 
 **Key Responsibilities**:
+
 - 👤 User profile management (firstName, lastName, email, phoneNumber)
 - 📋 Task aggregation via TasksGateway
 - 🔍 User queries and searches
 - 🔗 Inter-service communication with Tasks service
 - 🛡️ JWT-based authentication and authorization
 
+---
+
 ## Features
 
 ### User Profile Operations
 
-- **Create User** - Register new user profile
-  - `POST /api/users`
-  - Validates email format and required fields
+- **Create User**: Register new user profile
+- **Get User by ID**: Retrieve user profile with tasks; includes tasks from Tasks service
+- **Get All Users**: List all user profiles without tasks
+- **Update User**: Modify firstName, lastName, email, and phoneNumber
+- **Delete User**: Remove user profile
 
-- **Get User by ID** - Retrieve user profile with tasks
-  - `GET /api/users/{id}`
-  - Includes user's tasks from Tasks service
-  - Graceful degradation if Tasks service unavailable
-
-- **Get All Users** - List all user profiles
-  - `GET /api/users`
-  - Returns user summaries without tasks
-
-- **Update User** - Modify user profile information
-  - `PUT /api/users/{id}`
-  - Updates firstName, lastName, email, phoneNumber
-
-- **Delete User** - Remove user profile
-  - `DELETE /api/users/{id}`
-  - Cascade delete from database
-
-### Inter-Service Integration
-
-- **Tasks Integration**: Uses `TasksClient` to retrieve user's tasks
-- **JWT Propagation**: Automatically forwards authentication context
-- **Graceful Degradation**: Returns empty task list if Tasks service fails
-
-### Observability
-
-- **Health Check** - Service health and dependencies
-  - `GET /actuator/health`
-
-- **Metrics** - Prometheus-formatted application metrics
-  - `GET /actuator/prometheus`
-
-- **API Documentation** - Interactive Swagger UI
-  - `http://localhost:8082/asapp-users-service/swagger-ui.html`
-
-## Architecture
-
-### Hexagonal Architecture
-
-The service follows **Hexagonal Architecture** (Ports & Adapters) with clear separation of concerns:
-
-**Domain Layer** (`domain/`):
-- Pure business logic with no framework dependencies
-- **Aggregate**: User (profile entity)
-- **Value Objects**: UserId, FirstName, LastName, Email, PhoneNumber
-
-**Application Layer** (`application/`):
-- Use cases and orchestration
-- **Input Ports**: CreateUserUseCase, ReadUserUseCase, UpdateUserUseCase, DeleteUserUseCase
-- **Output Ports**: UserRepository, TasksGateway
-- **Services**: Annotated with `@ApplicationService`
-
-**Infrastructure Layer** (`infrastructure/`):
-- External concerns (REST, database, security, external services)
-- REST controllers and DTOs
-- Repository adapters (Spring Data JDBC)
-- Security components (JWT validation)
-- Tasks service client integration
-
-### Domain-Driven Design
-
-The service implements **DDD patterns**:
-
-**Aggregate**:
-- `User` - Two-state pattern (create/reconstitute)
-- Encapsulates: firstName, lastName, email, phoneNumber
-
-**Value Objects**: Immutable records with validation
-- FirstName, LastName, Email, PhoneNumber, UserId
-
-**Bounded Context**:
-- Manages user profiles (separate from authentication User)
-- References tasks via userId
-- Queries Tasks service through anti-corruption layer (TasksGateway)
-
-### Security Model
-
-**Token Validation Flow**:
-1. Signature validation (HMAC-SHA with secret key)
-2. Expiration check (iat/exp claims validation)
-3. Token type verification (must be "access" token)
-4. Redis existence check (revocation verification - source of truth for active sessions)
-5. Claims extraction (username, role, token_use)
-
-**Security Components**:
-- `JwtDecoder` - Validates signatures and extracts claims
-- `JwtVerifier` - Ensures correct token type
-- `JwtAuthenticationFilter` - Intercepts and validates requests
-- `RedisJwtStore` - Fast token existence checks for revocation
+---
 
 ## Requirements
 
@@ -122,6 +43,8 @@ The service implements **DDD patterns**:
 - **Docker Compose**: 2.0+
 - **PostgreSQL**: 15+ (via Docker)
 - **Redis**: 7+ (via Docker)
+
+---
 
 ## Quick Start
 
@@ -195,147 +118,29 @@ curl -X GET http://localhost:8082/asapp-users-service/api/users/{id} \
 }
 ```
 
-## Configuration
+---
 
-### Property Sources
+## Architecture
 
-Merged at startup via `spring.config.import`; local files take precedence over centralized ones.
+### Domain Model
 
-| File | Source | Scope |
-|------|--------|-------|
-| `application-docker.properties` | Local | docker profile |
-| `application.properties` | Local | all profiles |
-| `asapp-users-service.properties` | Centralized | service-specific |
-| `application-docker.properties` | Centralized | shared, docker profile |
-| `application.properties` | Centralized | shared |
+**Aggregate**: User  
+**Value Objects**: UserId, FirstName, LastName, Email, PhoneNumber
 
-### Docker Environment Variables
+### Security Model
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `ASAPP_CLIENT_TASKS_BASE_URL` | Tasks service base URL | `http://localhost:8081/asapp-tasks-service` |
-| `DISCOVERY_HOST` | Eureka server hostname | `asapp-discovery-service:8761/asapp-discovery-service` |
-| `DISCOVERY_PASSWORD` | Eureka server password | `secret` |
-| `DISCOVERY_USERNAME` | Eureka server username | `user` |
-| `MANAGEMENT_PORT` | Actuator management port | `8092` |
-| `SERVER_PORT` | HTTP server port | `8082` |
-| `SPRING_DATASOURCE_PASSWORD` | Database password | `secret` |
-| `SPRING_DATASOURCE_URL` | PostgreSQL JDBC URL | `jdbc:postgresql://localhost:5434/usersdb` |
-| `SPRING_DATASOURCE_USERNAME` | Database username | `user` |
+- **API endpoints**: JWT Bearer token required. Tokens are verified for signature, expiry, and active status in Redis
+- **Management endpoints**: HTTP Basic authentication
 
-## Development
+### Data Stores
 
-### Build and Test
+**PostgreSQL**: (`usersdb`) users records
 
-```bash
-# Build project
-mvn clean install
+- `users` — id, first_name, last_name, email, phone_number
 
-# Skip tests (faster)
-mvn clean install -DskipTests
+**Migrations**: Managed by Liquibase in `src/main/resources/liquibase/db/changelog/`
 
-# Run unit tests only
-mvn test
-
-# Run all tests (unit + integration)
-mvn clean verify
-
-# Run integration tests only
-mvn verify -DskipUnitTests
-
-# Run mutation testing
-mvn org.pitest:pitest-maven:mutationCoverage
-```
-
-### Code Quality
-
-```bash
-# Check code formatting
-mvn spotless:check
-
-# Apply formatting
-mvn spotless:apply
-
-# Install git hooks (pre-commit, commit-msg)
-mvn git-build-hook:install
-```
-
-### Database Management
-
-```bash
-# Start standalone database
-docker-compose up -d asapp-users-postgres-db
-
-# Apply Liquibase migrations
-mvn liquibase:update
-
-# Generate migration SQL (dry-run)
-mvn liquibase:updateSQL
-
-# Rollback last changeset
-mvn liquibase:rollback -Dliquibase.rollbackCount=1
-```
-
-### Generate Documentation
-
-```bash
-# Generate reports
-mvn clean verify -Pfull
-
-# Generate Spring REST API docs (no tests needed)
-mvn asciidoctor:process-asciidoc@generate-docs
-
-# View Javadoc
-open target/asapp-users-service-<version>-javadoc.jar
-# Or: target/site/apidocs/index.html
-
-# View Test Coverage
-open target/site/jacoco-aggregate/index.html
-
-# View Mutation Testing Report
-open target/pit-reports/<timestamp>/index.html
-
-# View REST API Documentation
-open target/generated-docs/api-guide.html
-```
-
-## API Endpoints
-
-### User Endpoints
-
-| Method | Endpoint          | Description                 | Auth Required |
-|--------|-------------------|-----------------------------|---------------|
-| POST   | `/api/users`      | Create user profile         | ✅             |
-| GET    | `/api/users`      | Get all users               | ✅             |
-| GET    | `/api/users/{id}` | Get user by ID (with tasks) | ✅             |
-| PUT    | `/api/users/{id}` | Update user profile         | ✅             |
-| DELETE | `/api/users/{id}` | Delete user                 | ✅             |
-
-### Management Endpoints
-
-Management endpoints are available on port `8092` at `/asapp-users-service/actuator`.
-
-`/actuator/health` is public; all other endpoints require HTTP Basic authentication (`user` / `secret`).
-
-Use `GET /actuator` to see the full list of available endpoints.
-
-**Actuator Port**: `8092`
-
-## Technology Stack
-
-- **Spring Boot**: 4.0.5
-- **Spring Framework**: 7.x
-- **Configuration**: Spring Cloud Config 5.x
-- **Service Discovery**: Spring Cloud Netflix Eureka Client 5.x
-- **Security**: Spring Security + Nimbus JOSE+JWT
-- **Migrations**: Liquibase
-- **Mapping**: MapStruct
-- **Testing**: JUnit 5, AssertJ, TestContainers, PITest
-- **Documentation**: SpringDoc OpenAPI
-- **Observability**: Spring Boot Actuator, Micrometer
-- **REST Clients**: Spring RestClient
-
-## Project Structure
+### Project Structure
 
 ```
 src/main/java/com/bcn/asapp/users/
@@ -354,67 +159,205 @@ src/main/java/com/bcn/asapp/users/
     └── error/                        # Exception handling
 ```
 
-## Database Schema
+---
 
-**Tables**:
-- `users` - User profiles (id, first_name, last_name, email, phone_number)
+## Technology Stack
 
-**Migrations**: Managed by Liquibase in `src/main/resources/liquibase/db/changelog/`
+- **Spring Boot**: 4.0.5
+- **Spring Framework**: 7.x
+- **Configuration**: Spring Cloud Config 5.x
+- **Service Discovery**: Spring Cloud Netflix Eureka Client 5.x
+- **Security**: Spring Security + Nimbus JOSE+JWT
+- **Migrations**: Liquibase
+- **Mapping**: MapStruct
+- **Testing**: JUnit 5, AssertJ, TestContainers, PITest
+- **Documentation**: SpringDoc OpenAPI
+- **Observability**: Spring Boot Actuator, Micrometer
+- **REST Clients**: Spring RestClient
 
-## Testing
+---
 
-**Test Types**:
-- Unit Tests (`*Tests.java`) - Domain and application logic
-- Integration Tests (`*IT.java`) - With TestContainers PostgreSQL
-- Controller Tests (`*ControllerIT.java`) - WebMvcTest slice
-- E2E Tests (`*E2EIT.java`) - Full application context with MockServer
+## Development
 
-**E2E Testing**: Uses MockServer to mock Tasks service responses
+### Build
 
-**Coverage**: JaCoCo reports (unit, integration, aggregate)
-**Mutation Testing**: PITest for domain layer
-**Test Containers**: PostgreSQL for integration tests
+```bash
+# Build project
+mvn clean install
 
-## Monitoring
+# Build skipping tests
+mvn clean install -DskipTests
+```
 
-**Actuator Endpoints**: `http://localhost:8092/asapp-users-service/actuator`
+### Test
+
+```bash
+# Run all tests
+mvn clean verify
+
+# Run mutation testing
+mvn org.pitest:pitest-maven:mutationCoverage
+```
+
+### Code Quality
+
+```bash
+# Install git hooks (pre-commit, commit-msg)
+mvn git-build-hook:install
+
+# Apply formatting
+mvn spotless:apply
+```
+
+### Database Management
+
+```bash
+# Start standalone database
+docker-compose up -d asapp-users-postgres-db
+
+# Generate migration SQL (dry-run)
+mvn liquibase:updateSQL
+
+# Apply Liquibase migrations
+mvn liquibase:update
+
+# Rollback last changeset
+mvn liquibase:rollback -Dliquibase.rollbackCount=1
+```
+
+### Generate Documentation
+
+```bash
+# Generate reports
+mvn clean verify -Pfull
+
+# Generate Spring REST API docs (no tests needed)
+mvn asciidoctor:process-asciidoc@generate-docs
+```
+
+---
+
+## Reference
+
+### Property Sources
+
+Merged at startup via `spring.config.import`; local files take precedence over centralized ones.
+
+| File                             | Source      | Scope                  |
+|----------------------------------|-------------|------------------------|
+| `application-docker.properties`  | Local       | docker profile         |
+| `application.properties`         | Local       | all profiles           |
+| `asapp-users-service.properties` | Centralized | service-specific       |
+| `application-docker.properties`  | Centralized | shared, docker profile |
+| `application.properties`         | Centralized | shared                 |
+
+### Docker Environment Variables
+
+| Variable                      | Description                                | Default                                                            |
+|-------------------------------|--------------------------------------------|--------------------------------------------------------------------|
+| `JAVA_OPTS`                   | JVM runtime options                        | (see docker-compose.yaml)                                          |
+| `SPRING_PROFILES_ACTIVE`      | Active Spring profiles                     | `docker`                                                           |
+| `SERVER_PORT`                 | HTTP server port                           | `8082`                                                             |
+| `MANAGEMENT_PORT`             | Actuator management port                   | `8092`                                                             |
+| `DB_HOST`                     | PostgreSQL hostname                        | `asapp-users-postgres-db`                                          |
+| `DB_PORT`                     | PostgreSQL port                            | `5432`                                                             |
+| `DB_NAME`                     | PostgreSQL database name                   | `usersdb`                                                          |
+| `DB_USERNAME`                 | PostgreSQL username                        | `user`                                                             |
+| `DB_PASSWORD`                 | PostgreSQL password                        | `secret`                                                           |
+| `REDIS_HOST`                  | Redis hostname                             | `asapp-redis`                                                      |
+| `REDIS_PORT`                  | Redis port                                 | `6379`                                                             |
+| `REDIS_PASSWORD`              | Redis password                             | `secret`                                                           |
+| `CONFIG_SERVER_URI`           | Config server base URI                     | `http://asapp-config-service:8888/asapp-config-service`            |
+| `CONFIG_SERVER_USERNAME`      | Config server HTTP Basic username          | `user`                                                             |
+| `CONFIG_SERVER_PASSWORD`      | Config server HTTP Basic password          | `secret`                                                           |
+| `DISCOVERY_HOST`              | Eureka server hostname                     | `asapp-discovery-service:8761/asapp-discovery-service`             |
+| `DISCOVERY_USERNAME`          | Eureka server username                     | `user`                                                             |
+| `DISCOVERY_PASSWORD`          | Eureka server password                     | `secret`                                                           |
+| `SERVICE_USERNAME`            | HTTP Basic username for actuator endpoints | `user`                                                             |
+| `SERVICE_PASSWORD`            | HTTP Basic password for actuator endpoints | `secret`                                                           |
+| `ASAPP_SECURITY_JWT_SECRET`   | HMAC-SHA secret for signing JWT tokens     | `qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi` |
+| `ASAPP_CLIENT_TASKS_BASE_URL` | Tasks service base URL                     | `http://asapp-tasks-service/asapp-tasks-service`                   |
+
+### API Endpoints
+
+**User Endpoints**
+
+| Method | Endpoint          | Description                 | Auth Required |
+|--------|-------------------|-----------------------------|---------------|
+| POST   | `/api/users`      | Create user profile         | ✅             |
+| GET    | `/api/users`      | Get all users               | ✅             |
+| GET    | `/api/users/{id}` | Get user by ID (with tasks) | ✅             |
+| PUT    | `/api/users/{id}` | Update user profile         | ✅             |
+| DELETE | `/api/users/{id}` | Delete user                 | ✅             |
+
+**Management Endpoints**
+
+Actuator endpoints are on port `8092` at `/asapp-users-service/actuator`; use `GET /actuator` to list them.
+
+- `/actuator/health` — public
+- All other actuator endpoints — HTTP Basic authentication (`user` / `secret`)
+
+Health probes are on the server port (`8082`) at `/asapp-users-service` and are public.
+
+- `/asapp-users-service/readyz`
+- `/asapp-users-service/livez`
+
+### Documentation
+
+| Artifact        | Location                                                    |
+|-----------------|-------------------------------------------------------------|
+| REST API docs   | `target/generated-docs/api-guide.html`                      |
+| Swagger UI      | `http://localhost:8082/asapp-users-service/swagger-ui.html` |
+| Test coverage   | `target/site/jacoco-aggregate/index.html`                   |
+| Mutation report | `target/pit-reports/<timestamp>/index.html`                 |
+| Javadoc         | `target/site/apidocs/index.html`                            |
+
+### Monitoring
 
 **Prometheus Integration**: Metrics scraped every 15s for monitoring
 
 **Available Metrics**:
+
 - JVM metrics (memory, GC, threads)
 - HTTP request metrics (rate, duration, errors)
 - Database connection pool metrics
 - REST client metrics (tasks service calls)
 
-## Dependencies
+### Dependencies
 
 **Internal Dependencies**:
+
 - `asapp-commons-url` - Endpoint constants
 - `asapp-rest-clients` - Tasks service client
 
 **External Dependencies**:
-- Authentication Service (for JWT validation)
-- Tasks Service (for task queries via REST)
+
+- `asapp-authentication-service` - For JWT validation
+- `asapp-tasks-service` - For task queries via REST
+
+---
 
 ## Contributing
 
 This service is part of the ASAPP monorepo. See the [main repository](../../README.md) for contribution guidelines.
 
 **Key Guidelines**:
+
 - Follow Hexagonal Architecture and DDD patterns
-- Use Conventional Commits (`feat:`, `fix:`, `test:`, etc.)
-- Run `mvn spotless:apply` before committing
-- Ensure all tests pass (`mvn verify`)
 - Update OpenAPI documentation for API changes
+- Add tests for new code
+- Ensure all tests pass (`mvn verify`)
+- Run `mvn spotless:apply` before committing
+- Use Conventional Commits for commit messages
+
+---
 
 ## Related Documentation
 
 - [ASAPP Main Repository](../../README.md)
 - [Discovery Service](../asapp-discovery-service/README.md)
-- [Architecture Guide](../../docs/claude/architecture.md)
-- [Testing Strategy](../../docs/claude/testing.md)
-- [API Conventions](../../docs/claude/api-conventions.md)
+
+---
 
 ## External Resources
 
@@ -424,6 +367,8 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 - [Spring Data JDBC](https://docs.spring.io/spring-data/relational/reference/jdbc.html)
 - [TestContainers](https://java.testcontainers.org/)
 - [MockServer](https://www.mock-server.com/)
+
+---
 
 ## License
 
