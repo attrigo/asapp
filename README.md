@@ -21,19 +21,19 @@ ASAPP (Application for Task Management) is a production-ready microservices appl
 - 📝 **OpenAPI Documentation** - Interactive Swagger UI for all services
 - ⚙️ **Centralized Configuration** - Spring Cloud Config Server for unified configuration management across all services
 
-## Architecture
-
-### Microservices
+## Services
 
 ASAPP consists of five microservices:
 
-| Service            | Port      | Purpose                          | Database         | Cache/Store               |
-|--------------------|-----------|----------------------------------|------------------|---------------------------|
-| **Authentication** | 8080/8090 | User credentials & JWT tokens    | authenticationdb | Redis (token store)       |
-| **Config**         | 8888/8898 | Centralized configuration server | -                | native (`central-config`) |
-| **Discovery**      | 8761/8791 | Service registry (Eureka)        | -                | -                         |
-| **Tasks**          | 8081/8091 | Task CRUD operations             | tasksdb          | -                         |
-| **Users**          | 8082/8092 | User profile management          | usersdb          | -                         |
+| Service            | Port      | Purpose                          | README                                                                          |
+|--------------------|-----------|----------------------------------|---------------------------------------------------------------------------------|
+| **Authentication** | 8080/8090 | User credentials & JWT tokens    | [README](services/asapp-authentication-service/README.md)                       |
+| **Config**         | 8888/8898 | Centralized configuration server | [README](services/asapp-config-service/README.md)                               |
+| **Discovery**      | 8761/8791 | Service registry (Eureka)        | [README](services/asapp-discovery-service/README.md)                            |
+| **Tasks**          | 8081/8091 | Task operations                  | [README](services/asapp-tasks-service/README.md)                                |
+| **Users**          | 8082/8092 | User profile management          | [README](services/asapp-users-service/README.md)                                |
+
+## Architecture
 
 ### System Architecture
 
@@ -207,104 +207,6 @@ curl -X GET http://localhost:8082/asapp-users-service/api/users/$USER_ID \
 # Stop all services and remove volumes
 docker-compose down -v
 ```
-
-## Services Overview
-
-### Authentication Service
-
-**Port**: 8080 (app), 8090 (actuator)
-
-**Responsibilities**:
-- User credential storage and validation
-- JWT token generation (access + refresh)
-- Token refresh and revocation
-- User authentication management
-
-**Database**: `authenticationdb` (port 5432)
-
-**API Endpoints**:
-- `POST /api/auth/token` - Authenticate
-- `POST /api/auth/refresh` - Refresh tokens
-- `POST /api/auth/revoke` - Revoke tokens
-- `/api/users/*` - User CRUD
-- `POST /actuator/refresh` - Reload configuration from config server
-
-[View README](services/asapp-authentication-service/README.md)
-
-### Config Service
-
-**Port**: 8888 (app), 8898 (actuator)
-
-**Responsibilities**:
-- Serve centralized configuration to all services at startup
-- Enable runtime configuration refresh without redeployment (`/actuator/refresh`)
-- Read property files from `central-config/` using the native filesystem backend
-
-**API Endpoints**:
-- `GET /{application}/{profile}` - Fetch merged configuration for a service
-- `GET /{application}/{profile}/{label}` - Fetch configuration for a specific label
-- `GET /{application}-{profile}.properties` - Fetch raw properties file
-
-**Must be started before all other services.**
-
-[View README](services/asapp-config-service/README.md)
-
-### Discovery Service
-
-**Port**: 8761 (app), 8791 (actuator)
-
-**Responsibilities**:
-- Service registry for all microservices (Eureka Server)
-- Enable service-to-service communication via logical service names
-- Provide a dashboard to inspect registered instances
-
-**API Endpoints**:
-- `GET /eureka/apps` - List all registered service instances
-
-**Must be started after the Config Service and before business services.**
-
-[View README](services/asapp-discovery-service/README.md)
-
-### Tasks Service
-
-**Port**: 8081 (app), 8091 (actuator)
-
-**Responsibilities**:
-- Task lifecycle management
-- Task CRUD operations
-- User task ownership and queries
-
-**Database**: `tasksdb` (port 5433)
-
-**API Endpoints**:
-- `POST /api/tasks` - Create task
-- `GET /api/tasks/{id}` - Get task
-- `GET /api/tasks/user/{id}` - Get user's tasks
-- `PUT /api/tasks/{id}` - Update task
-- `DELETE /api/tasks/{id}` - Delete task
-- `POST /actuator/refresh` - Reload configuration from config server
-
-[View README](services/asapp-tasks-service/README.md)
-
-### Users Service
-
-**Port**: 8082 (app), 8092 (actuator)
-
-**Responsibilities**:
-- User profile management (firstName, lastName, email, phoneNumber)
-- Task aggregation via Tasks service integration
-- User queries and searches
-
-**Database**: `usersdb` (port 5434)
-
-**API Endpoints**:
-- `POST /api/users` - Create profile
-- `GET /api/users/{id}` - Get profile (with tasks)
-- `PUT /api/users/{id}` - Update profile
-- `DELETE /api/users/{id}` - Delete profile
-- `POST /actuator/refresh` - Reload configuration from config server
-
-[View README](services/asapp-users-service/README.md)
 
 ## Technology Stack
 
