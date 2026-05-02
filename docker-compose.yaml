@@ -203,7 +203,7 @@ services:
       - MANAGEMENT_USERNAME=discovery-user
       - MANAGEMENT_PASSWORD=discovery-secret
       # Health check
-      - THC_PORT=8791
+      - THC_PORT=8761
       - THC_PATH=/asapp-discovery-service/readyz
     volumes:
       - heap-dumps-data:/heap-dumps
@@ -266,6 +266,7 @@ services:
     container_name: asapp-users-service
     restart: on-failure:3
     ports:
+      - '8082:8082'
       - '8092:8092'
     environment:
       # Runtime
