@@ -58,7 +58,7 @@ All endpoints are protected with **HTTP Basic authentication** using two ordered
 | Actuator chain (`@Order(1)`) | `EndpointRequest.toAnyEndpoint()` | `/actuator/health` | All other actuator endpoints |
 | Root chain (`@Order(2)`) | `/**` | `/livez`, `/readyz` | All Eureka endpoints |
 
-Credentials are configured via `spring.security.user.name` and `spring.security.user.password` (locally) or `MANAGEMENT_USERNAME` / `MANAGEMENT_PASSWORD` environment variables (Docker).
+Credentials are configured via `spring.security.user.name` and `spring.security.user.password` (locally) or `SERVICE_USERNAME` / `SERVICE_PASSWORD` environment variables (Docker).
 
 Client services supply credentials directly in the Eureka `defaultZone` URL: `http://<user>:<password>@<host>/eureka`.
 
@@ -82,7 +82,7 @@ mvn spring-boot:run
 open http://localhost:8761/asapp-discovery-service
 
 # 3. Verify the service registry via API
-curl -u discovery-user:discovery-secret \
+curl -u user:secret \
   -H "Accept: application/json" \
   http://localhost:8761/asapp-discovery-service/eureka/apps
 ```
@@ -117,11 +117,11 @@ docker-compose down -v
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `DISCOVERY_HOST` | Eureka server host used for self-registration URL | `asapp-discovery-service:8761/asapp-discovery-service` |
-| `DISCOVERY_PASSWORD` | Password used in the Eureka `defaultZone` URL | `discovery-secret` |
-| `DISCOVERY_USERNAME` | Username used in the Eureka `defaultZone` URL | `discovery-user` |
-| `MANAGEMENT_PASSWORD` | HTTP Basic password for all endpoints | `discovery-secret` |
+| `DISCOVERY_PASSWORD` | Password used in the Eureka `defaultZone` URL | `secret` |
+| `DISCOVERY_USERNAME` | Username used in the Eureka `defaultZone` URL | `user` |
 | `MANAGEMENT_PORT` | Actuator management port | `8791` |
-| `MANAGEMENT_USERNAME` | HTTP Basic username for all endpoints | `discovery-user` |
+| `SERVICE_PASSWORD` | HTTP Basic password for all endpoints | `secret` |
+| `SERVICE_USERNAME` | HTTP Basic username for all endpoints | `user` |
 | `SERVER_PORT` | HTTP server port | `8761` |
 
 ## Development
@@ -180,7 +180,7 @@ open target/site/jacoco-aggregate/index.html
 
 Management endpoints are available on port `8791` at `/asapp-discovery-service/actuator`.
 
-`/actuator/health` is public; all other endpoints require HTTP Basic authentication (`discovery-user` / `discovery-secret`).
+`/actuator/health` is public; all other endpoints require HTTP Basic authentication (`user` / `secret`).
 
 Use `GET /actuator` to see the full list of available endpoints.
 
@@ -200,7 +200,7 @@ Services that need to register with and discover other services via this server 
 
 ```properties
 # application.properties
-eureka.client.service-url.defaultZone=http://discovery-user:discovery-secret@localhost:8761/asapp-discovery-service/eureka
+eureka.client.service-url.defaultZone=http://user:secret@localhost:8761/asapp-discovery-service/eureka
 eureka.instance.health-check-url-path=${server.servlet.context-path}/actuator/health
 eureka.instance.home-page-url-path=${server.servlet.context-path}
 eureka.instance.instance-id=${spring.application.name}:${server.port}

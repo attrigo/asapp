@@ -73,7 +73,7 @@ When a client requests its configuration, the server merges property sources in 
 
 ### Security Model
 
-All config server endpoints are protected with **HTTP Basic authentication**. Credentials are configured via `spring.security.user.name` and `spring.security.user.password` (locally) or `CONFIG_USERNAME` / `CONFIG_PASSWORD` environment variables (Docker).
+All config server endpoints are protected with **HTTP Basic authentication**. Credentials are configured via `spring.security.user.name` and `spring.security.user.password` (locally) or `SERVICE_USERNAME` / `SERVICE_PASSWORD` environment variables (Docker).
 
 Client services supply credentials through `spring.cloud.config.username` and `spring.cloud.config.password`, which are resolved before the application context starts — they cannot be fetched from the config server itself.
 
@@ -94,7 +94,7 @@ cd services/asapp-config-service
 mvn spring-boot:run
 
 # 2. Verify configuration is served
-curl -u config-user:config-secret http://localhost:8888/asapp-config-service/asapp-tasks-service/default
+curl -u user:secret http://localhost:8888/asapp-config-service/asapp-tasks-service/default
 ```
 
 ### Run with Docker
@@ -139,8 +139,8 @@ curl -X POST http://localhost:8092/asapp-users-service/actuator/refresh
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `CONFIG_PASSWORD` | HTTP Basic password | `config-secret` |
-| `CONFIG_USERNAME` | HTTP Basic username | `config-user` |
+| `SERVICE_PASSWORD` | HTTP Basic password | `secret` |
+| `SERVICE_USERNAME` | HTTP Basic username | `user` |
 | `MANAGEMENT_PORT` | Actuator management port | `8898` |
 | `SERVER_PORT` | HTTP server port | `8888` |
 
@@ -186,7 +186,7 @@ mvn git-build-hook:install
 
 Management endpoints are available on port `8898` at `/asapp-config-service/actuator`.
 
-All endpoints require HTTP Basic authentication (`config-user` / `config-secret`).
+All endpoints require HTTP Basic authentication (`user` / `secret`).
 
 Use `GET /actuator` to see the full list of available endpoints.
 
@@ -204,12 +204,12 @@ Services consuming configuration from this server declare:
 
 ```properties
 # application.properties
-spring.cloud.config.password=config-secret
-spring.cloud.config.username=config-user
-spring.config.import=configserver:${CONFIG_URI:http://localhost:8888/asapp-config-service}
+spring.cloud.config.password=secret
+spring.cloud.config.username=user
+spring.config.import=configserver:${CONFIG_SERVER_URI:http://localhost:8888/asapp-config-service}
 ```
 
-The `CONFIG_URI` placeholder defaults to `localhost:8888` for local development. In Docker, `docker-compose.yaml` sets `CONFIG_URI=http://asapp-config-service:8888/asapp-config-service` so the correct container hostname is used without any profile-specific override.
+The `CONFIG_SERVER_URI` placeholder defaults to `localhost:8888` for local development. In Docker, `docker-compose.yaml` sets `CONFIG_SERVER_URI=http://asapp-config-service:8888/asapp-config-service` so the correct container hostname is used without any profile-specific override.
 
 The config server is a **required** dependency — services will refuse to start if it is unreachable. Start `asapp-config-service` before starting any other service.
 

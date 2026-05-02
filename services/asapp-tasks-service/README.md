@@ -218,8 +218,8 @@ Merged at startup via `spring.config.import`; local files take precedence over c
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `DISCOVERY_HOST` | Eureka server hostname | `asapp-discovery-service:8761/asapp-discovery-service` |
-| `DISCOVERY_PASSWORD` | Eureka server password | `discovery-secret` |
-| `DISCOVERY_USERNAME` | Eureka server username | `discovery-user` |
+| `DISCOVERY_PASSWORD` | Eureka server password | `secret` |
+| `DISCOVERY_USERNAME` | Eureka server username | `user` |
 | `MANAGEMENT_PORT` | Actuator management port | `8091` |
 | `SERVER_PORT` | HTTP server port | `8081` |
 | `SPRING_DATASOURCE_PASSWORD` | Database password | `secret` |
@@ -319,7 +319,7 @@ open target/generated-docs/api-guide.html
 
 Management endpoints are available on port `8091` at `/asapp-tasks-service/actuator`.
 
-`/actuator/health` is public; all other endpoints require HTTP Basic authentication (`tasks-user` / `tasks-secret`).
+`/actuator/health` is public; all other endpoints require HTTP Basic authentication (`user` / `secret`).
 
 Use `GET /actuator` to see the full list of available endpoints.
 
