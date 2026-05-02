@@ -116,6 +116,23 @@ The service implements **DDD patterns**:
 - `JwtAuthenticationFilter` - Intercepts and validates requests
 - `RedisJwtStore` - Fast token existence checks for revocation
 
+### Project Structure
+
+```
+src/main/java/com/bcn/asapp/tasks/
+├── domain/                           # Pure business logic
+│   └── task/                         # Task aggregate
+├── application/                      # Use cases
+│   ├── task/in/                      # Task use cases
+│   └── task/out/                     # Task repository (port)
+└── infrastructure/                   # External concerns
+    ├── task/in/                      # Task REST controllers
+    ├── task/out/                     # Task repository adapter
+    ├── security/                     # JWT validation components
+    ├── config/                       # Spring configuration
+    └── error/                        # Exception handling
+```
+
 ## Requirements
 
 - **Java**: 25+
@@ -350,23 +367,6 @@ Use `GET /actuator` to see the full list of available endpoints.
 - **Testing**: JUnit 5, AssertJ, TestContainers, PITest
 - **Documentation**: SpringDoc OpenAPI
 - **Observability**: Spring Boot Actuator, Micrometer
-
-## Project Structure
-
-```
-src/main/java/com/bcn/asapp/tasks/
-├── domain/                           # Pure business logic
-│   └── task/                         # Task aggregate
-├── application/                      # Use cases
-│   ├── task/in/                      # Task use cases
-│   └── task/out/                     # Task repository (port)
-└── infrastructure/                   # External concerns
-    ├── task/in/                      # Task REST controllers
-    ├── task/out/                     # Task repository adapter
-    ├── security/                     # JWT validation components
-    ├── config/                       # Spring configuration
-    └── error/                        # Exception handling
-```
 
 ## Database Schema
 

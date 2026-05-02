@@ -150,6 +150,28 @@ The service implements **DDD patterns**:
 - Values: Empty strings (existence only)
 - Consistency: Best-effort (Redis and DB operations not atomic)
 
+### Project Structure
+
+```
+src/main/java/com/bcn/asapp/authentication/
+├── domain/                           # Pure business logic
+│   ├── user/                         # User aggregate
+│   └── authentication/               # JwtAuthentication aggregate
+├── application/                      # Use cases
+│   ├── user/in/                      # User use cases
+│   ├── user/out/                     # User repositories (ports)
+│   ├── authentication/in/            # Auth use cases
+│   └── authentication/out/           # Auth repositories (ports)
+└── infrastructure/                   # External concerns
+    ├── user/in/                      # User REST controllers
+    ├── user/out/                     # User repository adapters
+    ├── authentication/in/            # Auth REST controllers
+    ├── authentication/out/           # Auth repository adapters
+    ├── security/                     # JWT components, filters
+    ├── config/                       # Spring configuration
+    └── error/                        # Exception handling
+```
+
 ## Requirements
 
 - **Java**: 25+
@@ -389,28 +411,6 @@ Use `GET /actuator` to see the full list of available endpoints.
 - **Testing**: JUnit 5, AssertJ, TestContainers, PITest
 - **Documentation**: SpringDoc OpenAPI
 - **Observability**: Spring Boot Actuator, Micrometer
-
-## Project Structure
-
-```
-src/main/java/com/bcn/asapp/authentication/
-├── domain/                           # Pure business logic
-│   ├── user/                         # User aggregate
-│   └── authentication/               # JwtAuthentication aggregate
-├── application/                      # Use cases
-│   ├── user/in/                      # User use cases
-│   ├── user/out/                     # User repositories (ports)
-│   ├── authentication/in/            # Auth use cases
-│   └── authentication/out/           # Auth repositories (ports)
-└── infrastructure/                   # External concerns
-    ├── user/in/                      # User REST controllers
-    ├── user/out/                     # User repository adapters
-    ├── authentication/in/            # Auth REST controllers
-    ├── authentication/out/           # Auth repository adapters
-    ├── security/                     # JWT components, filters
-    ├── config/                       # Spring configuration
-    └── error/                        # Exception handling
-```
 
 ## Database Schema
 

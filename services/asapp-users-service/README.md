@@ -114,6 +114,25 @@ The service implements **DDD patterns**:
 - `JwtAuthenticationFilter` - Intercepts and validates requests
 - `RedisJwtStore` - Fast token existence checks for revocation
 
+### Project Structure
+
+```
+src/main/java/com/bcn/asapp/users/
+├── domain/                           # Pure business logic
+│   └── user/                         # User aggregate (profile)
+├── application/                      # Use cases
+│   ├── user/in/                      # User use cases
+│   ├── user/out/                     # User repository (port)
+│   └── tasks/out/                    # Tasks gateway (port)
+└── infrastructure/                   # External concerns
+    ├── user/in/                      # User REST controllers
+    ├── user/out/                     # User repository adapter
+    ├── tasks/out/                    # Tasks client adapter
+    ├── security/                     # JWT validation components
+    ├── config/                       # Spring configuration
+    └── error/                        # Exception handling
+```
+
 ## Requirements
 
 - **Java**: 25+
@@ -347,25 +366,6 @@ Use `GET /actuator` to see the full list of available endpoints.
 - **Documentation**: SpringDoc OpenAPI
 - **Observability**: Spring Boot Actuator, Micrometer
 - **REST Clients**: Spring RestClient
-
-## Project Structure
-
-```
-src/main/java/com/bcn/asapp/users/
-├── domain/                           # Pure business logic
-│   └── user/                         # User aggregate (profile)
-├── application/                      # Use cases
-│   ├── user/in/                      # User use cases
-│   ├── user/out/                     # User repository (port)
-│   └── tasks/out/                    # Tasks gateway (port)
-└── infrastructure/                   # External concerns
-    ├── user/in/                      # User REST controllers
-    ├── user/out/                     # User repository adapter
-    ├── tasks/out/                    # Tasks client adapter
-    ├── security/                     # JWT validation components
-    ├── config/                       # Spring configuration
-    └── error/                        # Exception handling
-```
 
 ## Database Schema
 

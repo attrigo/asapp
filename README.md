@@ -25,12 +25,13 @@ ASAPP (Application for Task Management) is a production-ready microservices appl
 
 ### Microservices
 
-ASAPP consists of four microservices:
+ASAPP consists of five microservices:
 
 | Service            | Port      | Purpose                          | Database         | Cache/Store               |
 |--------------------|-----------|----------------------------------|------------------|---------------------------|
 | **Authentication** | 8080/8090 | User credentials & JWT tokens    | authenticationdb | Redis (token store)       |
 | **Config**         | 8888/8898 | Centralized configuration server | -                | native (`central-config`) |
+| **Discovery**      | 8761/8791 | Service registry (Eureka)        | -                | -                         |
 | **Tasks**          | 8081/8091 | Task CRUD operations             | tasksdb          | -                         |
 | **Users**          | 8082/8092 | User profile management          | usersdb          | -                         |
 
@@ -87,6 +88,29 @@ ASAPP consists of four microservices:
 - **30+ Value Objects**: Type-safe domain concepts
 - **Bounded Contexts**: Each service is an independent context
 - **Ubiquitous Language**: Consistent terminology across layers
+
+### Project Structure
+
+```
+asapp/
+├── central-config/                          # Centralized configuration (Spring Cloud Config native backend)
+├── libs/                                    # Shared libraries
+│   ├── asapp-commons-url/                   # API endpoint constants
+│   └── asapp-rest-clients/                  # REST client infrastructure
+├── services/                                # Microservices
+│   ├── asapp-authentication-service/        # JWT & credentials
+│   ├── asapp-config-service/                # Centralized configuration server
+│   ├── asapp-discovery-service/             # Service registry (Eureka)
+│   ├── asapp-tasks-service/                 # Task management
+│   └── asapp-users-service/                 # User profiles
+├── tools/                                   # Monitoring tools
+│   └── grafana/                             # Grafana dashboards
+│   ├── prometheus/                          # Prometheus config
+├── git/hooks/                               # Git hooks (pre-commit, commit-msg)
+├── docker-compose.yaml                      # Docker services configuration
+├── pom.xml                                  # Parent POM
+└── CLAUDE.md                                # AI assistant guidance
+```
 
 ## Requirements
 
@@ -184,28 +208,6 @@ curl -X GET http://localhost:8082/asapp-users-service/api/users/$USER_ID \
 docker-compose down -v
 ```
 
-## Project Structure
-
-```
-asapp/
-├── central-config/                          # Centralized configuration (Spring Cloud Config native backend)
-├── libs/                                    # Shared libraries
-│   ├── asapp-commons-url/                   # API endpoint constants
-│   └── asapp-rest-clients/                  # REST client infrastructure
-├── services/                                # Microservices
-│   ├── asapp-config-service/                # Centralized configuration server
-│   ├── asapp-authentication-service/        # JWT & credentials
-│   ├── asapp-users-service/                 # User profiles
-│   └── asapp-tasks-service/                 # Task management
-├── tools/                                   # Monitoring tools
-│   ├── prometheus/                          # Prometheus config
-│   └── grafana/                             # Grafana dashboards
-├── git/hooks/                               # Git hooks (pre-commit, commit-msg)
-├── docker-compose.yaml                      # Docker services configuration
-├── pom.xml                                  # Parent POM
-└── CLAUDE.md                                # AI assistant guidance
-```
-
 ## Services Overview
 
 ### Authentication Service
@@ -246,6 +248,22 @@ asapp/
 **Must be started before all other services.**
 
 [View README](services/asapp-config-service/README.md)
+
+### Discovery Service
+
+**Port**: 8761 (app), 8791 (actuator)
+
+**Responsibilities**:
+- Service registry for all microservices (Eureka Server)
+- Enable service-to-service communication via logical service names
+- Provide a dashboard to inspect registered instances
+
+**API Endpoints**:
+- `GET /eureka/apps` - List all registered service instances
+
+**Must be started after the Config Service and before business services.**
+
+[View README](services/asapp-discovery-service/README.md)
 
 ### Tasks Service
 

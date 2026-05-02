@@ -106,21 +106,6 @@ public UriHandler uriHandler(@Value("${asapp.client.users.base-url}") String bas
 }
 ```
 
-## Library Structure
-
-```
-src/main/java/com/bcn/asapp/clients/
-├── tasks/
-│   ├── TasksClient.java                      # High-level Tasks service client
-│   ├── TasksRestClient.java                  # Low-level REST implementation
-│   ├── TasksClientConfiguration.java         # Client configuration
-│   └── response/
-│       └── TasksByUserIdResponse.java        # Response models
-└── util/
-    ├── UriHandler.java                       # URI building interface
-    └── DefaultUriHandler.java                # Default implementation
-```
-
 ## Components
 
 ### TasksClient

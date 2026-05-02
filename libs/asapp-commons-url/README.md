@@ -108,19 +108,6 @@ TASKS_DELETE_BY_ID_FULL_PATH = "/api/tasks/{id}"
 TASKS_GET_ALL_FULL_PATH = "/api/tasks"
 ```
 
-## Library Structure
-
-```
-src/main/java/com/bcn/asapp/url/
-├── authentication/
-│   ├── AuthenticationRestAPIURL.java  # Auth endpoints
-│   └── UserRestAPIURL.java            # User management (in auth service)
-├── users/
-│   └── UserRestAPIURL.java            # User profile endpoints
-└── tasks/
-    └── TaskRestAPIURL.java            # Task endpoints
-```
-
 ## Benefits
 
 **Consistency**: All services use the same endpoint definitions
