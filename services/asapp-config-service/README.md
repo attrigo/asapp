@@ -84,6 +84,12 @@ Client services supply credentials through `spring.cloud.config.username` and `s
 - **Docker**: 20.10+
 - **Docker Compose**: 2.0+
 
+## Technology Stack
+
+- **Spring Boot**: 4.0.5
+- **Configuration**: Spring Cloud Config Server 5.x
+- **Observability**: Spring Boot Actuator, Micrometer
+
 ## Quick Start
 
 ### Run Locally (Development Mode)
@@ -195,12 +201,6 @@ All endpoints require HTTP Basic authentication (`user` / `secret`).
 Use `GET /actuator` to see the full list of available endpoints.
 
 **Actuator Port**: `8898`
-
-## Technology Stack
-
-- **Spring Boot**: 4.0.5
-- **Configuration**: Spring Cloud Config Server 5.x
-- **Observability**: Spring Boot Actuator, Micrometer
 
 ## Client Setup
 

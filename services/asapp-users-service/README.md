@@ -142,6 +142,20 @@ src/main/java/com/bcn/asapp/users/
 - **PostgreSQL**: 15+ (via Docker)
 - **Redis**: 7+ (via Docker)
 
+## Technology Stack
+
+- **Spring Boot**: 4.0.5
+- **Spring Framework**: 7.x
+- **Configuration**: Spring Cloud Config 5.x
+- **Service Discovery**: Spring Cloud Netflix Eureka Client 5.x
+- **Security**: Spring Security + Nimbus JOSE+JWT
+- **Migrations**: Liquibase
+- **Mapping**: MapStruct
+- **Testing**: JUnit 5, AssertJ, TestContainers, PITest
+- **Documentation**: SpringDoc OpenAPI
+- **Observability**: Spring Boot Actuator, Micrometer
+- **REST Clients**: Spring RestClient
+
 ## Quick Start
 
 ### Run Locally (Development Mode)
@@ -352,20 +366,6 @@ Management endpoints are available on port `8092` at `/asapp-users-service/actua
 Use `GET /actuator` to see the full list of available endpoints.
 
 **Actuator Port**: `8092`
-
-## Technology Stack
-
-- **Spring Boot**: 4.0.5
-- **Spring Framework**: 7.x
-- **Configuration**: Spring Cloud Config 5.x
-- **Service Discovery**: Spring Cloud Netflix Eureka Client 5.x
-- **Security**: Spring Security + Nimbus JOSE+JWT
-- **Migrations**: Liquibase
-- **Mapping**: MapStruct
-- **Testing**: JUnit 5, AssertJ, TestContainers, PITest
-- **Documentation**: SpringDoc OpenAPI
-- **Observability**: Spring Boot Actuator, Micrometer
-- **REST Clients**: Spring RestClient
 
 ## Database Schema
 

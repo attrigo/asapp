@@ -69,6 +69,12 @@ Client services supply credentials directly in the Eureka `defaultZone` URL: `ht
 - **Docker**: 20.10+
 - **Docker Compose**: 2.0+
 
+## Technology Stack
+
+- **Spring Boot**: 4.0.5
+- **Service Discovery**: Spring Cloud Netflix Eureka Server 5.x
+- **Observability**: Spring Boot Actuator, Micrometer
+
 ## Quick Start
 
 ### Run Locally (Development Mode)
@@ -191,12 +197,6 @@ Use `GET /actuator` to see the full list of available endpoints.
 Additionally, `/livez` and `/readyz` (liveness and readiness probes) are public and accessible on the main server port `8761`.
 
 **Actuator Port**: `8791`
-
-## Technology Stack
-
-- **Spring Boot**: 4.0.5
-- **Service Discovery**: Spring Cloud Netflix Eureka Server 5.x
-- **Observability**: Spring Boot Actuator, Micrometer
 
 ## Client Setup
 

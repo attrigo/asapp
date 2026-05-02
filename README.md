@@ -122,6 +122,48 @@ asapp/
 - **Docker Compose**: 2.0+
 - **Git**: 2.30+
 
+## Technology Stack
+
+### Framework
+
+- **Spring Boot**: 4.0.5
+- **Spring Cloud**: 2025.1.1 (Oakwood)
+- **Spring Framework**: 7.x
+
+### Key Dependencies
+
+- **Configuration**: Spring Cloud Config 5.x
+- **Security**: Spring Security 7.x, Nimbus JOSE+JWT 9.x
+- **Data Access**: Spring Data JDBC
+- **Migrations**: Liquibase 4.x
+- **Mapping**: MapStruct 1.x
+- **Validation**: Jakarta Validation
+- **Documentation**: SpringDoc OpenAPI 3.x
+
+### Testing
+
+- **Framework**: JUnit 5
+- **Assertions**: AssertJ
+- **Mocking**: Mockito (BDDMockito style)
+- **Coverage**: JaCoCo 1.x
+- **Mutation Testing**: PITest 1.x
+- **Integration**: TestContainers 2.x (PostgreSQL)
+- **E2E Mocking**: MockServer 5.x
+
+### Observability
+
+- **Metrics**: Spring Boot Actuator + Micrometer
+- **Monitoring**: Prometheus 2.x
+- **Visualization**: Grafana 10.x
+- **Dashboards**: JVM Micrometer (pre-configured)
+
+### Code Quality
+
+- **Formatting**: Spotless Maven Plugin
+- **Style**: Eclipse formatter (asapp_formatter.xml)
+- **Git Hooks**: Pre-commit (style check), commit-msg (conventional commits)
+- **CI/CD**: GitHub Actions
+
 ## Quick Start
 
 ### Installation
@@ -207,48 +249,6 @@ curl -X GET http://localhost:8082/asapp-users-service/api/users/$USER_ID \
 # Stop all services and remove volumes
 docker-compose down -v
 ```
-
-## Technology Stack
-
-### Framework
-
-- **Spring Boot**: 4.0.5
-- **Spring Cloud**: 2025.1.1 (Oakwood)
-- **Spring Framework**: 7.x
-
-### Key Dependencies
-
-- **Configuration**: Spring Cloud Config 5.x
-- **Security**: Spring Security 7.x, Nimbus JOSE+JWT 9.x
-- **Data Access**: Spring Data JDBC
-- **Migrations**: Liquibase 4.x
-- **Mapping**: MapStruct 1.x
-- **Validation**: Jakarta Validation
-- **Documentation**: SpringDoc OpenAPI 3.x
-
-### Testing
-
-- **Framework**: JUnit 5
-- **Assertions**: AssertJ
-- **Mocking**: Mockito (BDDMockito style)
-- **Coverage**: JaCoCo 1.x
-- **Mutation Testing**: PITest 1.x
-- **Integration**: TestContainers 2.x (PostgreSQL)
-- **E2E Mocking**: MockServer 5.x
-
-### Observability
-
-- **Metrics**: Spring Boot Actuator + Micrometer
-- **Monitoring**: Prometheus 2.x
-- **Visualization**: Grafana 10.x
-- **Dashboards**: JVM Micrometer (pre-configured)
-
-### Code Quality
-
-- **Formatting**: Spotless Maven Plugin
-- **Style**: Eclipse formatter (asapp_formatter.xml)
-- **Git Hooks**: Pre-commit (style check), commit-msg (conventional commits)
-- **CI/CD**: GitHub Actions
 
 ## Development
 
