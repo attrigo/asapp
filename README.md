@@ -7,6 +7,8 @@
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 [![CI](https://img.shields.io/github/actions/workflow/status/attrigo/asapp/ci.yml?branch=main)](https://github.com/attrigo/asapp/actions)
 
+---
+
 ## Overview
 
 ASAPP (Application for Task Management) is a production-ready microservices application built with Spring Boot and Java. It demonstrates modern enterprise architecture patterns including Hexagonal Architecture, Domain-Driven Design, and comprehensive observability.
@@ -21,6 +23,8 @@ ASAPP (Application for Task Management) is a production-ready microservices appl
 - 📝 **OpenAPI Documentation** - Interactive Swagger UI for all services
 - ⚙️ **Centralized Configuration** - Spring Cloud Config Server for unified configuration management across all services
 
+---
+
 ## Services
 
 ASAPP consists of five microservices:
@@ -32,6 +36,8 @@ ASAPP consists of five microservices:
 | **Discovery**      | 8761/8791 | Service registry (Eureka)        | [README](services/asapp-discovery-service/README.md)                            |
 | **Tasks**          | 8081/8091 | Task operations                  | [README](services/asapp-tasks-service/README.md)                                |
 | **Users**          | 8082/8092 | User profile management          | [README](services/asapp-users-service/README.md)                                |
+
+---
 
 ## Architecture
 
@@ -112,6 +118,8 @@ asapp/
 └── CLAUDE.md                                # AI assistant guidance
 ```
 
+---
+
 ## Requirements
 
 - **Java**: 25+
@@ -121,6 +129,8 @@ asapp/
 - **Docker**: 20.10+
 - **Docker Compose**: 2.0+
 - **Git**: 2.30+
+
+---
 
 ## Technology Stack
 
@@ -163,6 +173,8 @@ asapp/
 - **Style**: Eclipse formatter (asapp_formatter.xml)
 - **Git Hooks**: Pre-commit (style check), commit-msg (conventional commits)
 - **CI/CD**: GitHub Actions
+
+---
 
 ## Quick Start
 
@@ -249,6 +261,8 @@ curl -X GET http://localhost:8082/asapp-users-service/api/users/$USER_ID \
 # Stop all services and remove volumes
 docker-compose down -v
 ```
+
+---
 
 ## Development
 
@@ -349,6 +363,8 @@ cd services/asapp-users-service
 mvn spring-boot:run
 ```
 
+---
+
 ## Monitoring and Observability
 
 ### Accessing Monitoring Tools
@@ -372,6 +388,8 @@ mvn spring-boot:run
 - Database connection pool usage
 - Custom business metrics
 
+---
+
 ## API Documentation
 
 Each service provides interactive Swagger UI:
@@ -379,6 +397,8 @@ Each service provides interactive Swagger UI:
 - **Authentication**: http://localhost:8080/asapp-authentication-service/swagger-ui.html
 - **Users**: http://localhost:8082/asapp-users-service/swagger-ui.html
 - **Tasks**: http://localhost:8081/asapp-tasks-service/swagger-ui.html
+
+---
 
 ## Security
 
@@ -403,6 +423,8 @@ Each service provides interactive Swagger UI:
   "exp": 1234567990
 }
 ```
+
+---
 
 ## Contributing
 
@@ -451,6 +473,8 @@ mvn git-build-hook:install
 5. Push and create PR to `main`
 6. CI pipeline runs automatically (see [CI/CD](#cicd))
 7. Merge after review and CI success
+
+---
 
 ## CI/CD
 
@@ -532,6 +556,8 @@ The command applies AI editorial judgment to the generated changelog and asks fo
 - Rewrites terse or unclear messages into plain language
 - Preserves commit links, section structure, and all breaking change entries
 
+---
+
 ## Related Documentation
 
 ### For Developers
@@ -559,6 +585,8 @@ Comprehensive guides for working with ASAPP:
 
 - [Commons URL](libs/asapp-commons-url/README.md)
 - [REST Clients](libs/asapp-rest-clients/README.md)
+
+---
 
 ## Troubleshooting
 
@@ -623,6 +651,8 @@ curl -u user:secret http://localhost:8091/asapp-tasks-service/actuator/prometheu
 docker-compose logs asapp-prometheus
 ```
 
+---
+
 ## License
 
 ASAPP is Open Source software released under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0).
@@ -643,9 +673,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 ```
 
+---
+
 ## Authors
 
 - **Antonio Trigo** - [@attrigo](https://github.com/attrigo)
+
+---
 
 ## Acknowledgments
 

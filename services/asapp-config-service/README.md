@@ -7,6 +7,8 @@
 [![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2025.1.1-brightgreen.svg)](https://spring.io/projects/spring-cloud)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
+---
+
 ## Overview
 
 The Config Service is a Spring Cloud Config Server that centralises configuration for all ASAPP microservices. It serves shared and per-service property files from a native filesystem backend (`central-config/`), enabling runtime configuration refresh without rebuilding or redeploying services.
@@ -16,6 +18,8 @@ The Config Service is a Spring Cloud Config Server that centralises configuratio
 - 🔧 Serve per-service configuration (logging levels, service-specific tuning)
 - 🔄 Enable runtime configuration refresh on client services without redeploying
 - 🔒 Protect all configuration endpoints with HTTP Basic authentication
+
+---
 
 ## Features
 
@@ -38,6 +42,8 @@ Spring Cloud Config Server exposes the following endpoints for clients:
 
 - **Metrics** - Prometheus-formatted application metrics
   - `GET /actuator/prometheus`
+
+---
 
 ## Architecture
 
@@ -77,6 +83,8 @@ All config server endpoints are protected with **HTTP Basic authentication**. Cr
 
 Client services supply credentials through `spring.cloud.config.username` and `spring.cloud.config.password`, which are resolved before the application context starts — they cannot be fetched from the config server itself.
 
+---
+
 ## Requirements
 
 - **Java**: 25+
@@ -84,11 +92,15 @@ Client services supply credentials through `spring.cloud.config.username` and `s
 - **Docker**: 20.10+
 - **Docker Compose**: 2.0+
 
+---
+
 ## Technology Stack
 
 - **Spring Boot**: 4.0.5
 - **Configuration**: Spring Cloud Config Server 5.x
 - **Observability**: Spring Boot Actuator, Micrometer
+
+---
 
 ## Quick Start
 
@@ -132,6 +144,8 @@ curl -X POST http://localhost:8092/asapp-users-service/actuator/refresh
 > **Note:** Only properties consumed by `@RefreshScope` beans or `@ConfigurationProperties` classes are applied at runtime.
 > Properties that drive Spring Boot auto-configuration decisions are evaluated once at startup and require a service restart to take effect.
 
+---
+
 ## Configuration
 
 ### Property Sources
@@ -153,6 +167,8 @@ curl -X POST http://localhost:8092/asapp-users-service/actuator/refresh
 | `SERVICE_PASSWORD`       | HTTP Basic password for all endpoints | `secret`                       |
 | `THC_PORT`               | Health check port for readiness       | `8888`                         |
 | `THC_PATH`               | Health check path for readiness       | `/asapp-config-service/readyz` |
+
+---
 
 ## Development
 
@@ -182,6 +198,8 @@ mvn spotless:apply
 mvn git-build-hook:install
 ```
 
+---
+
 ## API Endpoints
 
 ### Spring Cloud Config Endpoints (Protected)
@@ -202,6 +220,8 @@ Use `GET /actuator` to see the full list of available endpoints.
 
 **Actuator Port**: `8898`
 
+---
+
 ## Client Setup
 
 Services consuming configuration from this server declare:
@@ -217,6 +237,8 @@ The `CONFIG_SERVER_URI` placeholder defaults to `localhost:8888` for local devel
 
 The config server is a **required** dependency — services will refuse to start if it is unreachable. Start `asapp-config-service` before starting any other service.
 
+---
+
 ## Monitoring
 
 **Actuator Endpoints**: `http://localhost:8898/asapp-config-service/actuator`
@@ -227,6 +249,8 @@ The config server is a **required** dependency — services will refuse to start
 - JVM metrics (memory, GC, threads)
 - HTTP request metrics (rate, duration, errors)
 
+---
+
 ## Contributing
 
 This service is part of the ASAPP monorepo. See the [main repository](../../README.md) for contribution guidelines.
@@ -236,10 +260,14 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 - Run `mvn spotless:apply` before committing
 - Update `central-config/` property files when adding new shared configuration
 
+---
+
 ## Related Documentation
 
 - [ASAPP Main Repository](../../README.md)
 - [Spring Cloud Config Reference](https://docs.spring.io/spring-cloud-config/reference/)
+
+---
 
 ## License
 

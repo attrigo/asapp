@@ -6,6 +6,8 @@
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
+---
+
 ## Overview
 
 The Tasks Service manages task creation, updates, and lifecycle within the ASAPP ecosystem. It provides task CRUD operations and enables users to organize their work items with titles, descriptions, and date ranges.
@@ -16,6 +18,8 @@ The Tasks Service manages task creation, updates, and lifecycle within the ASAPP
 - 📅 Task scheduling (start date, end date)
 - 🔗 Integration with Users service
 - 🛡️ JWT-based authentication and authorization
+
+---
 
 ## Features
 
@@ -61,6 +65,8 @@ The Tasks Service manages task creation, updates, and lifecycle within the ASAPP
 
 - **API Documentation** - Interactive Swagger UI
   - `http://localhost:8081/asapp-tasks-service/swagger-ui.html`
+
+---
 
 ## Architecture
 
@@ -133,6 +139,8 @@ src/main/java/com/bcn/asapp/tasks/
     └── error/                        # Exception handling
 ```
 
+---
+
 ## Requirements
 
 - **Java**: 25+
@@ -141,6 +149,8 @@ src/main/java/com/bcn/asapp/tasks/
 - **Docker Compose**: 2.0+
 - **PostgreSQL**: 15+ (via Docker)
 - **Redis**: 7+ (via Docker)
+
+---
 
 ## Technology Stack
 
@@ -154,6 +164,8 @@ src/main/java/com/bcn/asapp/tasks/
 - **Testing**: JUnit 5, AssertJ, TestContainers, PITest
 - **Documentation**: SpringDoc OpenAPI
 - **Observability**: Spring Boot Actuator, Micrometer
+
+---
 
 ## Quick Start
 
@@ -229,6 +241,8 @@ curl -X PUT http://localhost:8081/asapp-tasks-service/api/tasks/{id} \
   }'
 ```
 
+---
+
 ## Configuration
 
 ### Property Sources
@@ -268,6 +282,8 @@ Merged at startup via `spring.config.import`; local files take precedence over c
 | `SERVICE_USERNAME`          | HTTP Basic username for actuator endpoints | `user`                                                             |
 | `SERVICE_PASSWORD`          | HTTP Basic password for actuator endpoints | `secret`                                                           |
 | `ASAPP_SECURITY_JWT_SECRET` | HMAC-SHA secret for signing JWT tokens     | `qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi` |
+
+---
 
 ## Development
 
@@ -345,6 +361,8 @@ open target/pit-reports/<timestamp>/index.html
 open target/generated-docs/api-guide.html
 ```
 
+---
+
 ## API Endpoints
 
 ### Task Endpoints (All Protected)
@@ -368,6 +386,8 @@ Use `GET /actuator` to see the full list of available endpoints.
 
 **Actuator Port**: `8091`
 
+---
+
 ## Database Schema
 
 **Tables**:
@@ -379,6 +399,8 @@ Use `GET /actuator` to see the full list of available endpoints.
 - Primary key on `id`
 - Foreign key reference to user via `user_id`
 - Index on `user_id` for efficient user task queries
+
+---
 
 ## Testing
 
@@ -392,6 +414,8 @@ Use `GET /actuator` to see the full list of available endpoints.
 **Mutation Testing**: PITest for domain layer
 **Test Containers**: PostgreSQL for integration tests
 
+---
+
 ## Monitoring
 
 **Actuator Endpoints**: `http://localhost:8091/asapp-tasks-service/actuator`
@@ -404,6 +428,8 @@ Use `GET /actuator` to see the full list of available endpoints.
 - Database connection pool metrics
 - Task-specific business metrics
 
+---
+
 ## Dependencies
 
 **Internal Dependencies**:
@@ -411,6 +437,8 @@ Use `GET /actuator` to see the full list of available endpoints.
 
 **External Dependencies**:
 - Authentication Service (for JWT validation)
+
+---
 
 ## Contributing
 
@@ -423,10 +451,14 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 - Ensure all tests pass (`mvn verify`)
 - Update OpenAPI documentation for API changes
 
+---
+
 ## Related Documentation
 
 - [ASAPP Main Repository](../../README.md)
 - [Discovery Service](../asapp-discovery-service/README.md)
+
+---
 
 ## External Resources
 
@@ -435,6 +467,8 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 - [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
 - [Spring Data JDBC](https://docs.spring.io/spring-data/relational/reference/jdbc.html)
 - [Liquibase](https://docs.liquibase.com/)
+
+---
 
 ## License
 

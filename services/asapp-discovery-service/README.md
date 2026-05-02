@@ -7,6 +7,8 @@
 [![Spring Cloud](https://img.shields.io/badge/Spring%20Cloud-2025.1.1-brightgreen.svg)](https://spring.io/projects/spring-cloud)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
+---
+
 ## Overview
 
 The Discovery Service is a Spring Cloud Netflix Eureka Server that acts as a service registry for all ASAPP microservices. It enables client-side service discovery, allowing services to register themselves and look up other services by name rather than by hardcoded host and port.
@@ -16,6 +18,8 @@ The Discovery Service is a Spring Cloud Netflix Eureka Server that acts as a ser
 - 🔍 Serve service location information to client services on request
 - 🌐 Expose the Eureka dashboard for visualizing registered services
 - 🔒 Protect all endpoints with HTTP Basic authentication
+
+---
 
 ## Features
 
@@ -43,6 +47,8 @@ Spring Cloud Netflix Eureka Server exposes the following endpoints for clients:
 - **Metrics** - Prometheus-formatted application metrics
   - `GET /actuator/prometheus`
 
+---
+
 ## Architecture
 
 The Discovery Service is a thin infrastructure service with no business logic. It is built on **Spring Cloud Netflix Eureka Server** (`@EnableEurekaServer`) and acts solely as a registry — it does not fetch the registry itself nor register as a client (`register-with-eureka=false`, `fetch-registry=false`).
@@ -62,6 +68,8 @@ Credentials are configured via `spring.security.user.name` and `spring.security.
 
 Client services supply credentials directly in the Eureka `defaultZone` URL: `http://<user>:<password>@<host>/eureka`.
 
+---
+
 ## Requirements
 
 - **Java**: 25+
@@ -69,11 +77,15 @@ Client services supply credentials directly in the Eureka `defaultZone` URL: `ht
 - **Docker**: 20.10+
 - **Docker Compose**: 2.0+
 
+---
+
 ## Technology Stack
 
 - **Spring Boot**: 4.0.5
 - **Service Discovery**: Spring Cloud Netflix Eureka Server 5.x
 - **Observability**: Spring Boot Actuator, Micrometer
+
+---
 
 ## Quick Start
 
@@ -109,6 +121,8 @@ docker-compose logs -f asapp-discovery-service
 docker-compose down -v
 ```
 
+---
+
 ## Configuration
 
 ### Property Sources
@@ -133,6 +147,8 @@ docker-compose down -v
 | `SERVICE_PASSWORD`       | HTTP Basic password for all endpoints             | `secret`                                               |
 | `THC_PORT`               | Health check port for readiness                   | `8761`                                                 |
 | `THC_PATH`               | Health check path for readiness                   | `/asapp-discovery-service/readyz`                      |
+
+---
 
 ## Development
 
@@ -175,6 +191,8 @@ mvn clean verify -Pfull
 open target/site/jacoco-aggregate/index.html
 ```
 
+---
+
 ## API Endpoints
 
 ### Eureka Server Endpoints (Protected)
@@ -197,6 +215,8 @@ Use `GET /actuator` to see the full list of available endpoints.
 Additionally, `/livez` and `/readyz` (liveness and readiness probes) are public and accessible on the main server port `8761`.
 
 **Actuator Port**: `8791`
+
+---
 
 ## Client Setup
 
@@ -221,6 +241,8 @@ eureka.client.service-url.defaultZone=http://${DISCOVERY_USERNAME}:${DISCOVERY_P
 
 The discovery server is an **optional** dependency — services will start and function without it, but service-to-service lookups by name will fail. Start `asapp-discovery-service` before starting any other service that performs load-balanced calls.
 
+---
+
 ## Monitoring
 
 **Actuator Endpoints**: `http://localhost:8791/asapp-discovery-service/actuator`
@@ -231,6 +253,8 @@ The discovery server is an **optional** dependency — services will start and f
 - JVM metrics (memory, GC, threads)
 - HTTP request metrics (rate, duration, errors)
 
+---
+
 ## Contributing
 
 This service is part of the ASAPP monorepo. See the [main repository](../../README.md) for contribution guidelines.
@@ -239,10 +263,14 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 - Use Conventional Commits (`feat:`, `fix:`, `chore:`, etc.)
 - Run `mvn spotless:apply` before committing
 
+---
+
 ## Related Documentation
 
 - [ASAPP Main Repository](../../README.md)
 - [Spring Cloud Netflix Eureka Reference](https://docs.spring.io/spring-cloud-netflix/reference/)
+
+---
 
 ## License
 

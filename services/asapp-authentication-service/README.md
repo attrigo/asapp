@@ -6,6 +6,8 @@
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
+---
+
 ## Overview
 
 The Authentication Service is a core microservice in the ASAPP ecosystem, responsible for managing user credentials and JWT lifecycle. It provides secure authentication, token refresh, and revocation capabilities for all ASAPP services.
@@ -17,6 +19,8 @@ The Authentication Service is a core microservice in the ASAPP ecosystem, respon
 - ⚡ Redis-based token storage and revocation checks
 - 👤 User CRUD operations (for authentication purposes)
 - 🛡️ Security enforcement for downstream services
+
+---
 
 ## Features
 
@@ -62,6 +66,8 @@ The Authentication Service is a core microservice in the ASAPP ecosystem, respon
 
 - **API Documentation** - Interactive Swagger UI
   - `http://localhost:8080/asapp-authentication-service/swagger-ui.html`
+
+---
 
 ## Architecture
 
@@ -172,6 +178,8 @@ src/main/java/com/bcn/asapp/authentication/
     └── error/                        # Exception handling
 ```
 
+---
+
 ## Requirements
 
 - **Java**: 25+
@@ -180,6 +188,8 @@ src/main/java/com/bcn/asapp/authentication/
 - **Docker Compose**: 2.0+
 - **PostgreSQL**: 15+ (via Docker)
 - **Redis**: 7+ (via Docker)
+
+---
 
 ## Technology Stack
 
@@ -193,6 +203,8 @@ src/main/java/com/bcn/asapp/authentication/
 - **Testing**: JUnit 5, AssertJ, TestContainers, PITest
 - **Documentation**: SpringDoc OpenAPI
 - **Observability**: Spring Boot Actuator, Micrometer
+
+---
 
 ## Quick Start
 
@@ -262,6 +274,8 @@ curl -X GET http://localhost:8080/asapp-authentication-service/api/users \
   -H "Authorization: Bearer <access_token>"
 ```
 
+---
+
 ## Configuration
 
 ### Property Sources
@@ -305,6 +319,8 @@ Merged at startup via `spring.config.import`; local files take precedence over c
 | `ASAPP_SECURITY_REFRESH_TOKEN_EXPIRATION_TIME` | Refresh token expiration in milliseconds      | `3600000`                                                          |
 | `ASAPP_SECURITY_JWT_CLEANUP_ENABLED`           | Enable expired JWT cleanup background job     | `true`                                                             |
 | `ASAPP_SECURITY_JWT_CLEANUP_CRON_EXPRESSION`   | Cron expression for expired token cleanup job | `0 0 2 * * ?`                                                      |
+
+---
 
 ## Development
 
@@ -382,6 +398,8 @@ open target/pit-reports/<timestamp>/index.html
 open target/generated-docs/api-guide.html
 ```
 
+---
+
 ## API Endpoints
 
 ### Authentication Endpoints (Public)
@@ -412,6 +430,8 @@ Use `GET /actuator` to see the full list of available endpoints.
 
 **Actuator Port**: `8090`
 
+---
+
 ## Database Schema
 
 **PostgreSQL Tables**:
@@ -423,6 +443,8 @@ Use `GET /actuator` to see the full list of available endpoints.
 - `jwt:refresh_token:<token>` - Refresh token existence (TTL: 1 hour)
 
 **Migrations**: Managed by Liquibase in `src/main/resources/liquibase/db/changelog/`
+
+---
 
 ## Testing
 
@@ -436,6 +458,8 @@ Use `GET /actuator` to see the full list of available endpoints.
 **Mutation Testing**: PITest for domain layer
 **Test Containers**: PostgreSQL and Redis for integration tests
 
+---
+
 ## Monitoring
 
 **Actuator Endpoints**: `http://localhost:8090/asapp-authentication-service/actuator`
@@ -448,6 +472,8 @@ Use `GET /actuator` to see the full list of available endpoints.
 - Database connection pool metrics
 - Custom business metrics
 
+---
+
 ## Contributing
 
 This service is part of the ASAPP monorepo. See the [main repository](../../README.md) for contribution guidelines.
@@ -459,10 +485,14 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 - Ensure all tests pass (`mvn verify`)
 - Update OpenAPI documentation for API changes
 
+---
+
 ## Related Documentation
 
 - [ASAPP Main Repository](../../README.md)
 - [Discovery Service](../asapp-discovery-service/README.md)
+
+---
 
 ## External Resources
 
@@ -472,6 +502,8 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 - [Spring Security](https://docs.spring.io/spring-security/reference/)
 - [Nimbus JOSE+JWT](https://connect2id.com/products/nimbus-jose-jwt)
 - [Liquibase](https://docs.liquibase.com/)
+
+---
 
 ## License
 

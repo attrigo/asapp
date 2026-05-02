@@ -6,6 +6,8 @@
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-4.0.5-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
+---
+
 ## Overview
 
 The Users Service manages user profile information within the ASAPP ecosystem. It maintains personal details (name, email, phone) and integrates with the Tasks service to provide aggregated user data.
@@ -16,6 +18,8 @@ The Users Service manages user profile information within the ASAPP ecosystem. I
 - 🔍 User queries and searches
 - 🔗 Inter-service communication with Tasks service
 - 🛡️ JWT-based authentication and authorization
+
+---
 
 ## Features
 
@@ -58,6 +62,8 @@ The Users Service manages user profile information within the ASAPP ecosystem. I
 
 - **API Documentation** - Interactive Swagger UI
   - `http://localhost:8082/asapp-users-service/swagger-ui.html`
+
+---
 
 ## Architecture
 
@@ -133,6 +139,8 @@ src/main/java/com/bcn/asapp/users/
     └── error/                        # Exception handling
 ```
 
+---
+
 ## Requirements
 
 - **Java**: 25+
@@ -141,6 +149,8 @@ src/main/java/com/bcn/asapp/users/
 - **Docker Compose**: 2.0+
 - **PostgreSQL**: 15+ (via Docker)
 - **Redis**: 7+ (via Docker)
+
+---
 
 ## Technology Stack
 
@@ -155,6 +165,8 @@ src/main/java/com/bcn/asapp/users/
 - **Documentation**: SpringDoc OpenAPI
 - **Observability**: Spring Boot Actuator, Micrometer
 - **REST Clients**: Spring RestClient
+
+---
 
 ## Quick Start
 
@@ -228,6 +240,8 @@ curl -X GET http://localhost:8082/asapp-users-service/api/users/{id} \
 }
 ```
 
+---
+
 ## Configuration
 
 ### Property Sources
@@ -268,6 +282,8 @@ Merged at startup via `spring.config.import`; local files take precedence over c
 | `SERVICE_PASSWORD`            | HTTP Basic password for actuator endpoints | `secret`                                                           |
 | `ASAPP_SECURITY_JWT_SECRET`   | HMAC-SHA secret for signing JWT tokens     | `qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi` |
 | `ASAPP_CLIENT_TASKS_BASE_URL` | Tasks service base URL                     | `http://asapp-tasks-service/asapp-tasks-service`                   |
+
+---
 
 ## Development
 
@@ -345,6 +361,8 @@ open target/pit-reports/<timestamp>/index.html
 open target/generated-docs/api-guide.html
 ```
 
+---
+
 ## API Endpoints
 
 ### User Endpoints
@@ -367,12 +385,16 @@ Use `GET /actuator` to see the full list of available endpoints.
 
 **Actuator Port**: `8092`
 
+---
+
 ## Database Schema
 
 **Tables**:
 - `users` - User profiles (id, first_name, last_name, email, phone_number)
 
 **Migrations**: Managed by Liquibase in `src/main/resources/liquibase/db/changelog/`
+
+---
 
 ## Testing
 
@@ -388,6 +410,8 @@ Use `GET /actuator` to see the full list of available endpoints.
 **Mutation Testing**: PITest for domain layer
 **Test Containers**: PostgreSQL for integration tests
 
+---
+
 ## Monitoring
 
 **Actuator Endpoints**: `http://localhost:8092/asapp-users-service/actuator`
@@ -400,6 +424,8 @@ Use `GET /actuator` to see the full list of available endpoints.
 - Database connection pool metrics
 - REST client metrics (tasks service calls)
 
+---
+
 ## Dependencies
 
 **Internal Dependencies**:
@@ -409,6 +435,8 @@ Use `GET /actuator` to see the full list of available endpoints.
 **External Dependencies**:
 - Authentication Service (for JWT validation)
 - Tasks Service (for task queries via REST)
+
+---
 
 ## Contributing
 
@@ -421,10 +449,14 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 - Ensure all tests pass (`mvn verify`)
 - Update OpenAPI documentation for API changes
 
+---
+
 ## Related Documentation
 
 - [ASAPP Main Repository](../../README.md)
 - [Discovery Service](../asapp-discovery-service/README.md)
+
+---
 
 ## External Resources
 
@@ -434,6 +466,8 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 - [Spring Data JDBC](https://docs.spring.io/spring-data/relational/reference/jdbc.html)
 - [TestContainers](https://java.testcontainers.org/)
 - [MockServer](https://www.mock-server.com/)
+
+---
 
 ## License
 

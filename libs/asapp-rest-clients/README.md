@@ -6,6 +6,8 @@
 [![Maven](https://img.shields.io/badge/Maven-3.9.14+-blue.svg)](https://maven.apache.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
+---
+
 ## Overview
 
 `asapp-rest-clients` provides reusable REST client infrastructure and service-specific clients for inter-service communication within the ASAPP microservices ecosystem.
@@ -16,10 +18,14 @@
 - ✅ Automatic JWT propagation for service-to-service calls
 - ✅ Type-safe response models
 
+---
+
 ## Requirements
 
 - **Java**: 25+
 - **Maven**: 3.9.14+
+
+---
 
 ## Installation
 
@@ -45,6 +51,8 @@ cd asapp/libs/asapp-rest-clients
 # Build and install
 mvn clean install
 ```
+
+---
 
 ## Usage
 
@@ -106,6 +114,8 @@ public UriHandler uriHandler(@Value("${asapp.client.users.base-url}") String bas
 }
 ```
 
+---
+
 ## Components
 
 ### TasksClient
@@ -133,6 +143,8 @@ public UriHandler uriHandler(@Value("${asapp.client.users.base-url}") String bas
 uriHandler.buildUri("/api", "tasks", "user", userId)
 // → http://localhost:8081/asapp-tasks-service/api/tasks/user/{userId}
 ```
+
+---
 
 ## Development
 
@@ -175,6 +187,8 @@ open target/asapp-rest-clients-<version>-javadoc.jar
 # Or: target/site/apidocs/index.html
 ```
 
+---
+
 ## Configuration Properties
 
 Services using this library should configure base URLs in `application.properties`:
@@ -187,6 +201,8 @@ asapp.client.tasks.base-url=http://localhost:8081/asapp-tasks-service
 asapp.client.tasks.base-url=http://asapp-tasks-service:8081/asapp-tasks-service
 ```
 
+---
+
 ## Contributing
 
 This library is part of the ASAPP monorepo. See the [main repository](../../README.md) for contribution guidelines.
@@ -197,10 +213,14 @@ This library is part of the ASAPP monorepo. See the [main repository](../../READ
 - Ensure all tests pass (`mvn verify`)
 - Add tests for new REST clients
 
+---
+
 ## Related Documentation
 
 - [Spring RestClient Documentation](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html#rest-restclient)
 - [ASAPP Commons URL](../asapp-commons-url/README.md) - Endpoint constants
+
+---
 
 ## License
 

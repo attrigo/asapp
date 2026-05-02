@@ -6,6 +6,8 @@
 [![Maven](https://img.shields.io/badge/Maven-3.9.14+-blue.svg)](https://maven.apache.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
+---
+
 ## Overview
 
 `asapp-commons-url` is a shared library that provides type-safe, centralized REST API endpoint constants for all ASAPP services. It ensures consistency across services and eliminates hardcoded URL strings.
@@ -17,10 +19,14 @@
 - ✅ Supports both relative paths and full paths
 - ✅ Easy to maintain and version
 
+---
+
 ## Requirements
 
 - **Java**: 25+
 - **Maven**: 3.9.14+
+
+---
 
 ## Installation
 
@@ -46,6 +52,8 @@ cd asapp/libs/asapp-commons-url
 # Build and install
 mvn clean install
 ```
+
+---
 
 ## Usage
 
@@ -108,6 +116,8 @@ TASKS_DELETE_BY_ID_FULL_PATH = "/api/tasks/{id}"
 TASKS_GET_ALL_FULL_PATH = "/api/tasks"
 ```
 
+---
+
 ## Benefits
 
 **Consistency**: All services use the same endpoint definitions
@@ -115,6 +125,8 @@ TASKS_GET_ALL_FULL_PATH = "/api/tasks"
 **Maintainability**: Change URL once, propagates to all services
 **Refactoring**: Rename endpoints easily with IDE support
 **Documentation**: Central reference for all API paths
+
+---
 
 ## Development
 
@@ -157,6 +169,8 @@ open target/asapp-commons-url-<version>-javadoc.jar
 # Or: target/site/apidocs/index.html
 ```
 
+---
+
 ## Contributing
 
 This library is part of the ASAPP monorepo. See the [main repository](../../README.md) for contribution guidelines.
@@ -166,6 +180,8 @@ This library is part of the ASAPP monorepo. See the [main repository](../../READ
 - Run `mvn spotless:apply` before committing
 - Ensure all tests pass (`mvn verify`)
 - Update this README if adding new endpoint constants
+
+---
 
 ## License
 
