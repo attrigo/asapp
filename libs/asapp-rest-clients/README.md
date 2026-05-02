@@ -216,7 +216,6 @@ This library is part of the ASAPP monorepo. See the [main repository](../../READ
 
 - [Spring RestClient Documentation](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html#rest-restclient)
 - [ASAPP Commons URL](../asapp-commons-url/README.md) - Endpoint constants
-- [ASAPP Architecture](../../docs/claude/architecture.md) - Service communication patterns
 
 ## License
 

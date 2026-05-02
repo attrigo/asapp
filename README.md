@@ -200,12 +200,6 @@ asapp/
 ├── tools/                                   # Monitoring tools
 │   ├── prometheus/                          # Prometheus config
 │   └── grafana/                             # Grafana dashboards
-├── docs/claude/                             # AI-optimized documentation
-│   ├── architecture.md
-│   ├── testing.md
-│   ├── api-conventions.md
-│   ├── code-style.md
-│   └── development-patterns.md
 ├── git/hooks/                               # Git hooks (pre-commit, commit-msg)
 ├── docker-compose.yaml                      # Docker services configuration
 ├── pom.xml                                  # Parent POM

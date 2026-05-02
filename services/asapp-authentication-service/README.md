@@ -448,9 +448,6 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 
 - [ASAPP Main Repository](../../README.md)
 - [Discovery Service](../asapp-discovery-service/README.md)
-- [Architecture Guide](../../docs/claude/architecture.md)
-- [Testing Strategy](../../docs/claude/testing.md)
-- [API Conventions](../../docs/claude/api-conventions.md)
 
 ## External Resources
 
