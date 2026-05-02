@@ -484,22 +484,6 @@ Each service provides interactive Swagger UI:
 }
 ```
 
-### Protected vs Public Endpoints
-
-**Public** (no authentication):
-- `POST /api/auth/token` - Login
-- `POST /api/auth/refresh` - Refresh token
-- `POST /api/users` - Create user (authentication service)
-- `/actuator/health` - Basic health check
-- `/swagger-ui.html` - API documentation
-
-**Protected** (requires JWT):
-- All other `/api/*` endpoints
-
-**Protected** (requires HTTP Basic):
-- `/actuator/prometheus` - Detailed metrics
-- `/actuator/*` - Most management endpoints
-
 ## Contributing
 
 ### Code Standards
