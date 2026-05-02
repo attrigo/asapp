@@ -243,18 +243,33 @@ Merged at startup via `spring.config.import`; local files take precedence over c
 
 ### Docker Environment Variables
 
-| Variable                     | Description              | Default                                                |
-|------------------------------|--------------------------|--------------------------------------------------------|
-| `DISCOVERY_HOST`             | Eureka server hostname   | `asapp-discovery-service:8761/asapp-discovery-service` |
-| `DISCOVERY_PASSWORD`         | Eureka server password   | `secret`                                               |
-| `DISCOVERY_USERNAME`         | Eureka server username   | `user`                                                 |
-| `MANAGEMENT_PORT`            | Actuator management port | `8090`                                                 |
-| `SERVER_PORT`                | HTTP server port         | `8080`                                                 |
-| `SPRING_DATA_REDIS_HOST`     | Redis hostname           | `localhost`                                            |
-| `SPRING_DATA_REDIS_PASSWORD` | Redis password           | `secret`                                               |
-| `SPRING_DATASOURCE_PASSWORD` | Database password        | `secret`                                               |
-| `SPRING_DATASOURCE_URL`      | PostgreSQL JDBC URL      | `jdbc:postgresql://localhost:5432/authenticationdb`    |
-| `SPRING_DATASOURCE_USERNAME` | Database username        | `user`                                                 |
+| Variable                                       | Description                                   | Default                                                            |
+|------------------------------------------------|-----------------------------------------------|--------------------------------------------------------------------|
+| `JAVA_OPTS`                                    | JVM runtime options                           | (see docker-compose.yaml)                                          |
+| `SPRING_PROFILES_ACTIVE`                       | Active Spring profiles                        | `docker`                                                           |
+| `SERVER_PORT`                                  | HTTP server port                              | `8080`                                                             |
+| `MANAGEMENT_PORT`                              | Actuator management port                      | `8090`                                                             |
+| `DB_HOST`                                      | PostgreSQL hostname                           | `asapp-authentication-postgres-db`                                 |
+| `DB_PORT`                                      | PostgreSQL port                               | `5432`                                                             |
+| `DB_NAME`                                      | PostgreSQL database name                      | `authenticationdb`                                                 |
+| `DB_USERNAME`                                  | PostgreSQL username                           | `user`                                                             |
+| `DB_PASSWORD`                                  | PostgreSQL password                           | `secret`                                                           |
+| `REDIS_HOST`                                   | Redis hostname                                | `asapp-redis`                                                      |
+| `REDIS_PORT`                                   | Redis port                                    | `6379`                                                             |
+| `REDIS_PASSWORD`                               | Redis password                                | `secret`                                                           |
+| `CONFIG_SERVER_URI`                            | Config server base URI                        | `http://asapp-config-service:8888/asapp-config-service`            |
+| `CONFIG_SERVER_USERNAME`                       | Config server HTTP Basic username             | `user`                                                             |
+| `CONFIG_SERVER_PASSWORD`                       | Config server HTTP Basic password             | `secret`                                                           |
+| `DISCOVERY_HOST`                               | Eureka server hostname                        | `asapp-discovery-service:8761/asapp-discovery-service`             |
+| `DISCOVERY_USERNAME`                           | Eureka server username                        | `user`                                                             |
+| `DISCOVERY_PASSWORD`                           | Eureka server password                        | `secret`                                                           |
+| `SERVICE_USERNAME`                             | HTTP Basic username for actuator endpoints    | `user`                                                             |
+| `SERVICE_PASSWORD`                             | HTTP Basic password for actuator endpoints    | `secret`                                                           |
+| `ASAPP_SECURITY_JWT_SECRET`                    | HMAC-SHA secret for signing JWT tokens        | `qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi` |
+| `ASAPP_SECURITY_ACCESS_TOKEN_EXPIRATION_TIME`  | Access token expiration in milliseconds       | `300000`                                                           |
+| `ASAPP_SECURITY_REFRESH_TOKEN_EXPIRATION_TIME` | Refresh token expiration in milliseconds      | `3600000`                                                          |
+| `ASAPP_SECURITY_JWT_CLEANUP_ENABLED`           | Enable expired JWT cleanup background job     | `true`                                                             |
+| `ASAPP_SECURITY_JWT_CLEANUP_CRON_EXPRESSION`   | Cron expression for expired token cleanup job | `0 0 2 * * ?`                                                      |
 
 ## Development
 

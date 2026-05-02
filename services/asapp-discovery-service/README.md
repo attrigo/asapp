@@ -114,15 +114,19 @@ docker-compose down -v
 
 ### Docker Environment Variables
 
-| Variable             | Description                                       | Default                                                |
-|----------------------|---------------------------------------------------|--------------------------------------------------------|
-| `DISCOVERY_HOST`     | Eureka server host used for self-registration URL | `asapp-discovery-service:8761/asapp-discovery-service` |
-| `DISCOVERY_PASSWORD` | Password used in the Eureka `defaultZone` URL     | `secret`                                               |
-| `DISCOVERY_USERNAME` | Username used in the Eureka `defaultZone` URL     | `user`                                                 |
-| `MANAGEMENT_PORT`    | Actuator management port                          | `8791`                                                 |
-| `SERVICE_PASSWORD`   | HTTP Basic password for all endpoints             | `secret`                                               |
-| `SERVICE_USERNAME`   | HTTP Basic username for all endpoints             | `user`                                                 |
-| `SERVER_PORT`        | HTTP server port                                  | `8761`                                                 |
+| Variable                 | Description                                       | Default                                                |
+|--------------------------|---------------------------------------------------|--------------------------------------------------------|
+| `JAVA_OPTS`              | JVM runtime options                               | (see docker-compose.yaml)                              |
+| `SPRING_PROFILES_ACTIVE` | Active Spring profiles                            | `docker`                                               |
+| `SERVER_PORT`            | HTTP server port                                  | `8761`                                                 |
+| `MANAGEMENT_PORT`        | Actuator management port                          | `8791`                                                 |
+| `DISCOVERY_HOST`         | Eureka server host used for self-registration URL | `asapp-discovery-service:8761/asapp-discovery-service` |
+| `DISCOVERY_USERNAME`     | Username used in the Eureka `defaultZone` URL     | `user`                                                 |
+| `DISCOVERY_PASSWORD`     | Password used in the Eureka `defaultZone` URL     | `secret`                                               |
+| `SERVICE_USERNAME`       | HTTP Basic username for all endpoints             | `user`                                                 |
+| `SERVICE_PASSWORD`       | HTTP Basic password for all endpoints             | `secret`                                               |
+| `THC_PORT`               | Health check port for readiness                   | `8761`                                                 |
+| `THC_PATH`               | Health check path for readiness                   | `/asapp-discovery-service/readyz`                      |
 
 ## Development
 

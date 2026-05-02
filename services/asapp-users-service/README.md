@@ -211,17 +211,30 @@ Merged at startup via `spring.config.import`; local files take precedence over c
 
 ### Docker Environment Variables
 
-| Variable                      | Description              | Default                                                |
-|-------------------------------|--------------------------|--------------------------------------------------------|
-| `ASAPP_CLIENT_TASKS_BASE_URL` | Tasks service base URL   | `http://localhost:8081/asapp-tasks-service`            |
-| `DISCOVERY_HOST`              | Eureka server hostname   | `asapp-discovery-service:8761/asapp-discovery-service` |
-| `DISCOVERY_PASSWORD`          | Eureka server password   | `secret`                                               |
-| `DISCOVERY_USERNAME`          | Eureka server username   | `user`                                                 |
-| `MANAGEMENT_PORT`             | Actuator management port | `8092`                                                 |
-| `SERVER_PORT`                 | HTTP server port         | `8082`                                                 |
-| `SPRING_DATASOURCE_PASSWORD`  | Database password        | `secret`                                               |
-| `SPRING_DATASOURCE_URL`       | PostgreSQL JDBC URL      | `jdbc:postgresql://localhost:5434/usersdb`             |
-| `SPRING_DATASOURCE_USERNAME`  | Database username        | `user`                                                 |
+| Variable                      | Description                                | Default                                                            |
+|-------------------------------|--------------------------------------------|--------------------------------------------------------------------|
+| `JAVA_OPTS`                   | JVM runtime options                        | (see docker-compose.yaml)                                          |
+| `SPRING_PROFILES_ACTIVE`      | Active Spring profiles                     | `docker`                                                           |
+| `SERVER_PORT`                 | HTTP server port                           | `8082`                                                             |
+| `MANAGEMENT_PORT`             | Actuator management port                   | `8092`                                                             |
+| `DB_HOST`                     | PostgreSQL hostname                        | `asapp-users-postgres-db`                                          |
+| `DB_PORT`                     | PostgreSQL port                            | `5432`                                                             |
+| `DB_NAME`                     | PostgreSQL database name                   | `usersdb`                                                          |
+| `DB_USERNAME`                 | PostgreSQL username                        | `user`                                                             |
+| `DB_PASSWORD`                 | PostgreSQL password                        | `secret`                                                           |
+| `REDIS_HOST`                  | Redis hostname                             | `asapp-redis`                                                      |
+| `REDIS_PORT`                  | Redis port                                 | `6379`                                                             |
+| `REDIS_PASSWORD`              | Redis password                             | `secret`                                                           |
+| `CONFIG_SERVER_URI`           | Config server base URI                     | `http://asapp-config-service:8888/asapp-config-service`            |
+| `CONFIG_SERVER_USERNAME`      | Config server HTTP Basic username          | `user`                                                             |
+| `CONFIG_SERVER_PASSWORD`      | Config server HTTP Basic password          | `secret`                                                           |
+| `DISCOVERY_HOST`              | Eureka server hostname                     | `asapp-discovery-service:8761/asapp-discovery-service`             |
+| `DISCOVERY_USERNAME`          | Eureka server username                     | `user`                                                             |
+| `DISCOVERY_PASSWORD`          | Eureka server password                     | `secret`                                                           |
+| `SERVICE_USERNAME`            | HTTP Basic username for actuator endpoints | `user`                                                             |
+| `SERVICE_PASSWORD`            | HTTP Basic password for actuator endpoints | `secret`                                                           |
+| `ASAPP_SECURITY_JWT_SECRET`   | HMAC-SHA secret for signing JWT tokens     | `qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi` |
+| `ASAPP_CLIENT_TASKS_BASE_URL` | Tasks service base URL                     | `http://asapp-tasks-service/asapp-tasks-service`                   |
 
 ## Development
 
