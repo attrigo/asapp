@@ -21,6 +21,7 @@ ASAPP (Application for Task Management) is a production-ready microservices appl
 - 🧪 **Test Coverage** - JaCoCo coverage reports and PITest mutation testing
 - 🐳 **Docker Support** - Full Docker Compose setup for local development
 - 📝 **OpenAPI Documentation** - Interactive Swagger UI for all services
+- 📖 **Self-Documented APIs** - Spring REST Docs generates accurate API documentation from tests
 - ⚙️ **Centralized Configuration** - Spring Cloud Config Server for unified configuration management across all services
 
 ---
