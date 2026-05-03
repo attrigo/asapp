@@ -100,7 +100,7 @@ services:
 
   # Services
   asapp-authentication-service:
-    image: 'ghcr.io/attrigo/asapp-authentication-service:0.3.0'
+    image: 'ghcr.io/attrigo/asapp-authentication-service:0.4.0-SNAPSHOT'
     container_name: asapp-authentication-service
     restart: on-failure:3
     ports:
@@ -151,7 +151,7 @@ services:
       asapp-redis:
         condition: service_healthy
   asapp-config-service:
-    image: 'ghcr.io/attrigo/asapp-config-service:0.3.0'
+    image: 'ghcr.io/attrigo/asapp-config-service:0.4.0-SNAPSHOT'
     container_name: asapp-config-service
     restart: on-failure:3
     ports:
@@ -180,7 +180,7 @@ services:
       retries: 3
       start_period: 5s
   asapp-discovery-service:
-    image: 'ghcr.io/attrigo/asapp-discovery-service:0.3.0'
+    image: 'ghcr.io/attrigo/asapp-discovery-service:0.4.0-SNAPSHOT'
     container_name: asapp-discovery-service
     restart: on-failure:3
     ports:
@@ -212,7 +212,7 @@ services:
       retries: 3
       start_period: 10s
   asapp-tasks-service:
-    image: 'ghcr.io/attrigo/asapp-tasks-service:0.3.0'
+    image: 'ghcr.io/attrigo/asapp-tasks-service:0.4.0-SNAPSHOT'
     container_name: asapp-tasks-service
     restart: on-failure:3
     ports:
@@ -259,7 +259,7 @@ services:
       asapp-tasks-postgres-db:
         condition: service_healthy
   asapp-users-service:
-    image: 'ghcr.io/attrigo/asapp-users-service:0.3.0'
+    image: 'ghcr.io/attrigo/asapp-users-service:0.4.0-SNAPSHOT'
     container_name: asapp-users-service
     restart: on-failure:3
     ports:
