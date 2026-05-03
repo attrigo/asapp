@@ -36,58 +36,6 @@ The Tasks Service manages task creation, updates, and lifecycle within the ASAPP
 
 ## Architecture
 
-### Hexagonal Architecture
-
-The service follows **Hexagonal Architecture** (Ports & Adapters) with clear separation of concerns:
-
-**Domain Layer** (`domain/`):
-- Pure business logic with no framework dependencies
-- **Aggregate**: Task
-- **Value Objects**: TaskId, UserId, Title, Description, StartDate, EndDate
-
-**Application Layer** (`application/`):
-- Use cases and orchestration
-- **Input Ports**: CreateTaskUseCase, ReadTaskUseCase, UpdateTaskUseCase, DeleteTaskUseCase
-- **Output Ports**: TaskRepository
-- **Services**: Annotated with `@ApplicationService`
-
-**Infrastructure Layer** (`infrastructure/`):
-- External concerns (REST, database, security)
-- REST controllers and DTOs
-- Repository adapters (Spring Data JDBC)
-- Security components (JWT validation)
-
-### Domain-Driven Design
-
-The service implements **DDD patterns**:
-
-**Aggregate**:
-- `Task` - Two-state pattern (create/reconstitute)
-- Encapsulates: userId (owner), title, description, startDate, endDate
-
-**Value Objects**: Immutable records with validation
-- TaskId, UserId, Title, Description, StartDate, EndDate
-
-**Bounded Context**:
-- Manages tasks independently
-- References users via userId (no direct dependency on Users service)
-- Provides task queries for Users service integration
-
-### Security Model
-
-**Token Validation Flow**:
-1. Signature validation (HMAC-SHA with secret key)
-2. Expiration check (iat/exp claims validation)
-3. Token type verification (must be "access" token)
-4. Redis existence check (revocation verification - source of truth for active sessions)
-5. Claims extraction (username, role, token_use)
-
-**Security Components**:
-- `JwtDecoder` - Validates signatures and extracts claims
-- `JwtVerifier` - Ensures correct token type
-- `JwtAuthenticationFilter` - Intercepts and validates requests
-- `RedisJwtStore` - Fast token existence checks for revocation
-
 ### Project Structure
 
 ```
@@ -104,6 +52,16 @@ src/main/java/com/bcn/asapp/tasks/
     ├── config/                       # Spring configuration
     └── error/                        # Exception handling
 ```
+
+### Domain Model
+
+**Aggregate**: Task  
+**Value Objects**: TaskId, UserId, Title, Description, StartDate, EndDate
+
+### Security Model
+
+- **API endpoints:** JWT Bearer token required. Tokens are verified for signature, expiry, and active status in Redis.
+- **Management endpoints:** HTTP Basic authentication
 
 ---
 

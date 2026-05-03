@@ -31,9 +31,9 @@ The Config Service is a Spring Cloud Config Server that centralises configuratio
 
 ## Architecture
 
-The Config Service is a thin infrastructure service with no business logic. It is built on **Spring Cloud Config Server** (`@EnableConfigServer`) using the **native** profile, which reads property files directly from the filesystem (`central-config/`). No git history is required — the directory is part of the main repository.
+The Config Service is a thin infrastructure service with no business logic. It is built on **Spring Cloud Config Server** (`@EnableConfigServer`) using the **native** profile, which reads property files directly from the filesystem (`central-config/`). No git history is required, the directory is part of the main repository.
 
-### Configuration Repository Structure
+### Configuration Files
 
 ```
 central-config/
@@ -43,12 +43,6 @@ central-config/
 ├── asapp-tasks-service.properties            # Tasks service specific
 └── asapp-users-service.properties            # Users service specific
 ```
-
-### What Is Centralized
-
-**`application.properties`**: shared across all services and profiles:
-**`application-docker.properties`**: shared docker-only config:
-**Per-service files**: service-specific tuning:
 
 ### Property Resolution
 
@@ -63,9 +57,7 @@ When a client requests its configuration, the server merges property sources in 
 
 ### Security Model
 
-All config server endpoints are protected with **HTTP Basic authentication**. Credentials are configured via `spring.security.user.name` and `spring.security.user.password` (locally) or `SERVICE_USERNAME` / `SERVICE_PASSWORD` environment variables (Docker).
-
-Client services supply credentials through `spring.cloud.config.username` and `spring.cloud.config.password`, which are resolved before the application context starts — they cannot be fetched from the config server itself.
+- **All endpoints:** HTTP Basic authentication
 
 ---
 

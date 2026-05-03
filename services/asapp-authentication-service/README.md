@@ -42,91 +42,6 @@ The Authentication Service is a core microservice in the ASAPP ecosystem, respon
 
 ## Architecture
 
-### Hexagonal Architecture
-
-The service follows **Hexagonal Architecture** (Ports & Adapters) with clear separation of concerns:
-
-**Domain Layer** (`domain/`):
-- Pure business logic with no framework dependencies
-- **Aggregates**: User, JwtAuthentication
-- **Value Objects**: Username, Password, Role, Jwt, EncodedToken, Subject, etc.
-- **Domain Services**: PasswordService
-
-**Application Layer** (`application/`):
-- Use cases and orchestration
-- **Input Ports**: AuthenticateUseCase, CreateUserUseCase, etc.
-- **Output Ports**: UserRepository, JwtAuthenticationRepository, Authenticator
-- **Services**: Annotated with `@ApplicationService`
-
-**Infrastructure Layer** (`infrastructure/`):
-- External concerns (REST, database, security)
-- REST controllers and DTOs
-- Repository adapters (Spring Data JDBC)
-- Security components (JWT handling, filters)
-- Redis adapter (token store with TTL management)
-
-### Domain-Driven Design
-
-The service implements **DDD patterns**:
-
-**Aggregates**:
-- `User` - Two-state pattern (inactive/active)
-- `JwtAuthentication` - Manages token pairs with lifecycle
-
-**Value Objects**: 15+ immutable records with validation
-- Username (email format), RawPassword, EncodedPassword, Role
-- Jwt, JwtPair, EncodedToken, Subject, JwtClaims, Issued, Expiration
-
-**Factories**: State-based creation
-- `User.inactiveUser()` / `User.activeUser()`
-- `JwtAuthentication.unAuthenticated()` / `authenticated()`
-
-### Security Model
-
-**JWT Structure**:
-```json
-{
-  "typ": "at+jwt",
-  "sub": "user@asapp.com",
-  "role": "USER",
-  "token_use": "access",
-  "iat": 1234567890,
-  "exp": 1234567990
-}
-```
-
-**Token Types**:
-- **Access Token** (`at+jwt`) - 5-minute expiry, used for API access
-- **Refresh Token** (`rt+jwt`) - 1-hour expiry, used to obtain new access tokens
-
-**Token Validation Flow**:
-1. Signature validation (HMAC-SHA with secret key)
-2. Expiration check (iat/exp claims validation)
-3. Token type verification (must be "access" token)
-4. Redis existence check (revocation verification - source of truth for active sessions)
-5. Claims extraction (username, role, token_use)
-
-**Security Components**:
-- `JwtIssuer` - Creates signed tokens with HMAC-SHA
-- `JwtDecoder` - Validates signatures and extracts claims
-- `JwtVerifier` - Ensures correct token type
-- `JwtAuthenticationFilter` - Intercepts and validates requests
-
-### Data Stores
-
-**PostgreSQL** (`authenticationdb`):
-- Durable storage for user credentials and authentication records
-- Schema managed via Liquibase migrations
-
-**Redis** (`:6379`):
-- Fast token existence checks (O(1) lookups)
-- TTL-based auto-expiration matching token lifetime
-- Key patterns:
-  - `jwt:access_token:<token>` - Access token validation
-  - `jwt:refresh_token:<token>` - Refresh token validation
-- Values: Empty strings (existence only)
-- Consistency: Best-effort (Redis and DB operations not atomic)
-
 ### Project Structure
 
 ```
@@ -148,6 +63,21 @@ src/main/java/com/bcn/asapp/authentication/
     ├── config/                       # Spring configuration
     └── error/                        # Exception handling
 ```
+
+### Domain Model
+
+**Aggregates**: User, JwtAuthentication  
+**Value Objects**: Username, RawPassword, EncodedPassword, Role, Jwt, JwtPair, EncodedToken, Subject
+
+### Security Model
+
+- **API endpoints:** JWT Bearer token; issuance and refresh endpoints are public. Tokens are verified for signature, expiry, and active status in Redis.
+- **Management endpoints:** HTTP Basic authentication
+
+### Data Stores
+
+**PostgreSQL:** (`authenticationdb`) user credentials and active authentication records  
+**Redis:** token storage with TTL-based auto-expiration for revocation checks
 
 ---
 

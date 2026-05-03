@@ -32,22 +32,13 @@ The Discovery Service is a Spring Cloud Netflix Eureka Server that acts as a ser
 
 ## Architecture
 
-The Discovery Service is a thin infrastructure service with no business logic. It is built on **Spring Cloud Netflix Eureka Server** (`@EnableEurekaServer`) and acts solely as a registry — it does not fetch the registry itself nor register as a client (`register-with-eureka=false`, `fetch-registry=false`).
+The Discovery Service is a thin infrastructure service with no business logic. It is built on **Spring Cloud Netflix Eureka Server** and acts solely as a registry.
 
 Self-preservation mode is disabled (`enable-self-preservation=false`) to avoid retaining stale registrations during development and testing.
 
 ### Security Model
 
-All endpoints are protected with **HTTP Basic authentication** using two ordered Security Filter Chains:
-
-| Filter Chain                 | Scope                             | Public Endpoints    | Protected Endpoints          |
-|------------------------------|-----------------------------------|---------------------|------------------------------|
-| Actuator chain (`@Order(1)`) | `EndpointRequest.toAnyEndpoint()` | `/actuator/health`  | All other actuator endpoints |
-| Root chain (`@Order(2)`)     | `/**`                             | `/livez`, `/readyz` | All Eureka endpoints         |
-
-Credentials are configured via `spring.security.user.name` and `spring.security.user.password` (locally) or `SERVICE_USERNAME` / `SERVICE_PASSWORD` environment variables (Docker).
-
-Client services supply credentials directly in the Eureka `defaultZone` URL: `http://<user>:<password>@<host>/eureka`.
+- **All endpoints:** HTTP Basic authentication
 
 ---
 

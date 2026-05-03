@@ -35,59 +35,6 @@ The Users Service manages user profile information within the ASAPP ecosystem. I
 
 ## Architecture
 
-### Hexagonal Architecture
-
-The service follows **Hexagonal Architecture** (Ports & Adapters) with clear separation of concerns:
-
-**Domain Layer** (`domain/`):
-- Pure business logic with no framework dependencies
-- **Aggregate**: User (profile entity)
-- **Value Objects**: UserId, FirstName, LastName, Email, PhoneNumber
-
-**Application Layer** (`application/`):
-- Use cases and orchestration
-- **Input Ports**: CreateUserUseCase, ReadUserUseCase, UpdateUserUseCase, DeleteUserUseCase
-- **Output Ports**: UserRepository, TasksGateway
-- **Services**: Annotated with `@ApplicationService`
-
-**Infrastructure Layer** (`infrastructure/`):
-- External concerns (REST, database, security, external services)
-- REST controllers and DTOs
-- Repository adapters (Spring Data JDBC)
-- Security components (JWT validation)
-- Tasks service client integration
-
-### Domain-Driven Design
-
-The service implements **DDD patterns**:
-
-**Aggregate**:
-- `User` - Two-state pattern (create/reconstitute)
-- Encapsulates: firstName, lastName, email, phoneNumber
-
-**Value Objects**: Immutable records with validation
-- FirstName, LastName, Email, PhoneNumber, UserId
-
-**Bounded Context**:
-- Manages user profiles (separate from authentication User)
-- References tasks via userId
-- Queries Tasks service through anti-corruption layer (TasksGateway)
-
-### Security Model
-
-**Token Validation Flow**:
-1. Signature validation (HMAC-SHA with secret key)
-2. Expiration check (iat/exp claims validation)
-3. Token type verification (must be "access" token)
-4. Redis existence check (revocation verification - source of truth for active sessions)
-5. Claims extraction (username, role, token_use)
-
-**Security Components**:
-- `JwtDecoder` - Validates signatures and extracts claims
-- `JwtVerifier` - Ensures correct token type
-- `JwtAuthenticationFilter` - Intercepts and validates requests
-- `RedisJwtStore` - Fast token existence checks for revocation
-
 ### Project Structure
 
 ```
@@ -106,6 +53,16 @@ src/main/java/com/bcn/asapp/users/
     ├── config/                       # Spring configuration
     └── error/                        # Exception handling
 ```
+
+### Domain Model
+
+**Aggregate**: User  
+**Value Objects**: UserId, FirstName, LastName, Email, PhoneNumber
+
+### Security Model
+
+- **API endpoints:** JWT Bearer token required. Tokens are verified for signature, expiry, and active status in Redis.
+- **Management endpoints:** HTTP Basic authentication
 
 ---
 
