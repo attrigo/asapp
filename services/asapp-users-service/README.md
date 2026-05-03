@@ -25,43 +25,11 @@ The Users Service manages user profile information within the ASAPP ecosystem. I
 
 ### User Profile Operations
 
-- **Create User** - Register new user profile
-  - `POST /api/users`
-  - Validates email format and required fields
-
-- **Get User by ID** - Retrieve user profile with tasks
-  - `GET /api/users/{id}`
-  - Includes user's tasks from Tasks service
-  - Graceful degradation if Tasks service unavailable
-
-- **Get All Users** - List all user profiles
-  - `GET /api/users`
-  - Returns user summaries without tasks
-
-- **Update User** - Modify user profile information
-  - `PUT /api/users/{id}`
-  - Updates firstName, lastName, email, phoneNumber
-
-- **Delete User** - Remove user profile
-  - `DELETE /api/users/{id}`
-  - Cascade delete from database
-
-### Inter-Service Integration
-
-- **Tasks Integration**: Uses `TasksClient` to retrieve user's tasks
-- **JWT Propagation**: Automatically forwards authentication context
-- **Graceful Degradation**: Returns empty task list if Tasks service fails
-
-### Observability
-
-- **Health Check** - Service health and dependencies
-  - `GET /actuator/health`
-
-- **Metrics** - Prometheus-formatted application metrics
-  - `GET /actuator/prometheus`
-
-- **API Documentation** - Interactive Swagger UI
-  - `http://localhost:8082/asapp-users-service/swagger-ui.html`
+- **Create User:** Register new user profile
+- **Get User by ID:** Retrieve user profile with tasks; includes tasks from Tasks service
+- **Get All Users:** List all user profiles without tasks
+- **Update User:** Modify firstName, lastName, email, and phoneNumber
+- **Delete User:** Remove user profile
 
 ---
 
@@ -413,8 +381,6 @@ Use `GET /actuator` to see the full list of available endpoints.
 ---
 
 ## Monitoring
-
-**Actuator Endpoints**: `http://localhost:8092/asapp-users-service/actuator`
 
 **Prometheus Integration**: Metrics scraped every 15s for monitoring
 

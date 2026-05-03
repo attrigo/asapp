@@ -26,46 +26,17 @@ The Authentication Service is a core microservice in the ASAPP ecosystem, respon
 
 ### Authentication Operations
 
-- **Authenticate** - Issue JWT and store in Redis for validation
-  - `POST /api/auth/token`
-  - Returns access token (5 min expiry) + refresh token (1 hour expiry)
-
-- **Refresh Authentication** - Get new tokens using refresh token
-  - `POST /api/auth/refresh`
-  - Extends session without re-entering credentials
-
-- **Revoke Authentication** - Invalidate active tokens (removes from Redis and database)
-  - `POST /api/auth/revoke`
-  - Immediately revokes tokens by removing from Redis and database
+- **Authenticate:** Issue JWT and store in Redis; returns access token (5 min expiry) + refresh token (1 hour expiry)
+- **Refresh Authentication:** Get new tokens using refresh token; extends session without re-entering credentials
+- **Revoke Authentication:** Invalidate active tokens; removes from Redis and database
 
 ### User Management Operations
 
 - **Create User** - Register new user with credentials
-  - `POST /api/users`
-  - Assigns role (ADMIN or USER)
-
 - **Get User** - Retrieve user by ID
-  - `GET /api/users/{id}`
-
 - **Get All Users** - List all registered users
-  - `GET /api/users`
-
 - **Update User** - Modify user credentials or role
-  - `PUT /api/users/{id}`
-
 - **Delete User** - Remove user and revoke all tokens
-  - `DELETE /api/users/{id}`
-
-### Observability
-
-- **Health Check** - Service health and dependencies
-  - `GET /actuator/health`
-
-- **Metrics** - Prometheus-formatted application metrics
-  - `GET /actuator/prometheus`
-
-- **API Documentation** - Interactive Swagger UI
-  - `http://localhost:8080/asapp-authentication-service/swagger-ui.html`
 
 ---
 
@@ -461,8 +432,6 @@ Use `GET /actuator` to see the full list of available endpoints.
 ---
 
 ## Monitoring
-
-**Actuator Endpoints**: `http://localhost:8090/asapp-authentication-service/actuator`
 
 **Prometheus Integration**: Metrics scraped every 15s for monitoring
 

@@ -23,29 +23,10 @@ The Discovery Service is a Spring Cloud Netflix Eureka Server that acts as a ser
 
 ## Features
 
-### Eureka Server Endpoints
-
-Spring Cloud Netflix Eureka Server exposes the following endpoints for clients:
-
-- **Get all registered applications** — Returns the full service registry
-  - `GET /eureka/apps`
-
-- **Get instances of an application** — Returns all instances of a specific service
-  - `GET /eureka/apps/{appId}`
-
-- **Get a specific instance** — Returns a single service instance
-  - `GET /eureka/apps/{appId}/{instanceId}`
-
-- **Eureka Dashboard** — Web UI for visualizing all registered services
-  - `GET /`
-
-### Observability
-
-- **Health Check** - Service health
-  - `GET /actuator/health`
-
-- **Metrics** - Prometheus-formatted application metrics
-  - `GET /actuator/prometheus`
+- **Service registry:** Maintains a live registry of all running microservice instances
+- **Client-side discovery:** Services register by name and resolve each other without hardcoded addresses
+- **Eureka dashboard:** Web UI for visualizing all registered services and their status
+- **Self-preservation disabled:** Stale registrations are removed immediately, keeping the registry accurate during development
 
 ---
 
@@ -244,8 +225,6 @@ The discovery server is an **optional** dependency — services will start and f
 ---
 
 ## Monitoring
-
-**Actuator Endpoints**: `http://localhost:8791/asapp-discovery-service/actuator`
 
 **Prometheus Integration**: Metrics scraped every 15s for monitoring
 

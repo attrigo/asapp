@@ -23,25 +23,9 @@ The Config Service is a Spring Cloud Config Server that centralises configuratio
 
 ## Features
 
-### Configuration Endpoints
-
-Spring Cloud Config Server exposes the following endpoints for clients:
-
-- **Get configuration** — Returns merged property sources for a service and profile
-  - `GET /{application}/{profile}`
-  - `GET /{application}/{profile}/{label}`
-
-- **Get raw file** — Returns a raw configuration file from the repository
-  - `GET /{application}-{profile}.properties`
-  - `GET /{label}/{application}-{profile}.properties`
-
-### Observability
-
-- **Health Check** - Service health
-  - `GET /actuator/health`
-
-- **Metrics** - Prometheus-formatted application metrics
-  - `GET /actuator/prometheus`
+- **Centralized configuration:** Serves shared and per-service properties to all microservices from a single source
+- **Profile-aware resolution:** Merges property sources by profile, supporting environment-specific overrides without code changes
+- **Runtime configuration refresh:** Client services can reload properties without restart via `@RefreshScope` and `@ConfigurationProperties`
 
 ---
 
@@ -240,8 +224,6 @@ The config server is a **required** dependency — services will refuse to start
 ---
 
 ## Monitoring
-
-**Actuator Endpoints**: `http://localhost:8898/asapp-config-service/actuator`
 
 **Prometheus Integration**: Metrics scraped every 15s for monitoring
 

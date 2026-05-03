@@ -206,9 +206,6 @@ docker-compose up -d
 docker-compose ps
 
 # 4. Access the application
-# - Authentication Swagger: http://localhost:8080/asapp-authentication-service/swagger-ui.html
-# - Users Swagger: http://localhost:8082/asapp-users-service/swagger-ui.html
-# - Tasks Swagger: http://localhost:8081/asapp-tasks-service/swagger-ui.html
 # - Grafana Dashboards: http://localhost:3000 (admin/secret)
 # - Prometheus: http://localhost:9090
 ```

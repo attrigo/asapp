@@ -25,46 +25,12 @@ The Tasks Service manages task creation, updates, and lifecycle within the ASAPP
 
 ### Task Operations
 
-- **Create Task** - Create new task for a user
-  - `POST /api/tasks`
-  - Requires: userId, title, description, startDate, endDate
-
-- **Get Task by ID** - Retrieve specific task
-  - `GET /api/tasks/{id}`
-  - Returns task details
-
-- **Get Tasks by User ID** - Retrieve all tasks for a user
-  - `GET /api/tasks/user/{id}`
-  - Supports filtering by user
-
-- **Get All Tasks** - List all tasks in system
-  - `GET /api/tasks`
-  - Returns all tasks across all users
-
-- **Update Task** - Modify task details
-  - `PUT /api/tasks/{id}`
-  - Updates title, description, dates
-
-- **Delete Task** - Remove task
-  - `DELETE /api/tasks/{id}`
-  - Cascade delete from database
-
-### Date Handling
-
-- **ISO-8601 Format**: All dates use standard ISO-8601 format
-- **Optional Dates**: Start and end dates are optional
-- **Validation**: Dates validated at domain level
-
-### Observability
-
-- **Health Check** - Service health and dependencies
-  - `GET /actuator/health`
-
-- **Metrics** - Prometheus-formatted application metrics
-  - `GET /actuator/prometheus`
-
-- **API Documentation** - Interactive Swagger UI
-  - `http://localhost:8081/asapp-tasks-service/swagger-ui.html`
+- **Create Task:** Create new task for a user
+- **Get Task by ID:** Retrieve specific task
+- **Get Tasks by User ID:** Retrieve all tasks for a user
+- **Get All Tasks:** List all tasks in system
+- **Update Task:** Modify task title, description, and dates
+- **Delete Task:** Remove task
 
 ---
 
@@ -417,8 +383,6 @@ Use `GET /actuator` to see the full list of available endpoints.
 ---
 
 ## Monitoring
-
-**Actuator Endpoints**: `http://localhost:8091/asapp-tasks-service/actuator`
 
 **Prometheus Integration**: Metrics scraped every 15s for monitoring
 
