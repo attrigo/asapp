@@ -104,20 +104,27 @@ git status --porcelain
    - Changed database schema without migration
    - If breaking: use `!` suffix on type and/or `BREAKING CHANGE:` footer
 
+5. **Decide on body structure**:
+   - Count distinct logical changes in the diff. If ≥2, or if the why is non-obvious from the subject alone, include a body.
+   - If a body is needed, decide whether a lead paragraph adds context the subject can't carry. If not, go straight to bullets.
+
 ### Step 3: Generate Message
 
-**Single-line format** (most cases):
+**Single-line format** (most cases — single conceptual change with no nuance):
 ```
 <type>(<scope>): <description>
 ```
 
-**Multi-line format** (complex changes or breaking changes):
+**Multi-line format** (when the subject cannot capture the change alone):
 ```
 <type>(<scope>): <description>
 
-<body: explain what and why, not how>
+[optional: 1-3 sentences explaining the WHY]
 
-<footer(s)>
+- <bullet describing one change>
+- <bullet describing another change>
+
+<optional footer(s)>
 ```
 
 **Rules:**
@@ -125,8 +132,19 @@ git status --porcelain
 - Use imperative mood ("add" not "added" or "adds")
 - No period at end of subject line
 - Focus on what and why, not how
-- Use multi-line body only when changes are complex or breaking
+- Include a body only when the subject cannot capture the change alone (single conceptual change with no nuance → subject-only)
+- For breaking changes, add `!` after scope: `feat(authentication)!: remove endpoint`
 - Reference issues when applicable: `Closes #123`, `Refs #456`
+
+**Body format** (when a body is included):
+- Optional lead paragraph (1-3 sentences) explaining the WHY — motivation, root cause, or constraint. Omit when the subject already conveys the why and the bullets stand on their own.
+- Required bulleted list of changes (one or more bullets):
+  - Marker: `-` followed by a single space
+  - First letter capitalized
+  - Imperative mood (`Add`, `Rename`, `Fix` — same mood as the subject line)
+  - No trailing period
+  - One change per bullet, single line per bullet (no nested bullets, no multi-line bullets)
+- Footers (`BREAKING CHANGE:`, `Closes #N`, `Refs #N`) follow the bulleted list, separated by a blank line.
 
 ### Step 4: Output
 
@@ -160,13 +178,13 @@ Generated commit message:
 ```
 feat(authentication)!: remove deprecated verify endpoint
 
-The /api/auth/verify endpoint has been removed. Clients should use
-the /api/auth/token endpoint with token introspection instead.
+- Remove the /api/auth/verify endpoint from the REST API
+- Remove the corresponding controller method and tests
 
-BREAKING CHANGE: /api/auth/verify endpoint no longer available
+BREAKING CHANGE: /api/auth/verify endpoint no longer available; clients should use /api/auth/token with token introspection
 ```
 
-Reasoning: Endpoint removal is a breaking change; multi-line body explains migration path.
+Reasoning: Endpoint removal is a breaking change; bulleted body lists the discrete actions, and the `BREAKING CHANGE:` footer documents the impact and migration path.
 
 ---
 
@@ -182,6 +200,46 @@ refactor(api): standardize error handling across services
 ```
 
 Reasoning: Structural improvement affecting multiple services, API layer scope used for cross-cutting concern.
+
+---
+
+**Example 4: Bullets-only body (multiple sub-actions, why is obvious from subject)**
+
+Detected changes:
+- Renamed credential env vars across all services
+- Simplified credential values
+
+Generated commit message:
+```
+refactor(docker): clean up service credential env vars and values
+
+- Rename MANAGEMENT_USERNAME/PASSWORD → SERVICE_USERNAME/PASSWORD to better reflect credential scope
+- Rename CONFIG_URI/USERNAME/PASSWORD → CONFIG_SERVER_URI/USERNAME/PASSWORD for consistency
+- Simplify all credential values to user/secret for easier local testing
+```
+
+Reasoning: Multiple distinct sub-actions warrant a body; the subject alone conveys the why ("clean up"), so no lead paragraph is needed.
+
+---
+
+**Example 5: Lead paragraph + bullets (non-obvious why)**
+
+Detected changes:
+- Removed AuthenticationManager bean from tasks and users services
+- Kept the bean in authentication service
+
+Generated commit message:
+```
+fix(security): drop AuthenticationManager bean from tasks and users
+
+Exposing @Bean AuthenticationManager in a proxyBeanMethods=false class
+caused a StackOverflowError in the actuator filter chain.
+
+- Drop the AuthenticationManager bean from tasks and users services
+- Keep the bean in authentication service where CredentialsAuthenticatorAdapter requires it
+```
+
+Reasoning: The why (StackOverflowError root cause) is non-obvious from the subject and warrants a lead paragraph; bullets list the surgical changes.
 
 ## Git Safety
 
