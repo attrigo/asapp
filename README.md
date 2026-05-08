@@ -510,7 +510,9 @@ Comprehensive guides for working with ASAPP:
 
 ### For AI Assistants
 
-[CLAUDE.md](CLAUDE.md) - Guidance for AI tools like Claude Code
+- [CLAUDE.md](CLAUDE.md) — Guidance for AI tools like Claude Code
+- [docs/superpowers/](docs/superpowers/) — Specs and plans for spec-driven development
+- AI workflow is built on the [superpowers](https://github.com/obra/superpowers) Claude Code plugin
 
 ### Service-Specific
 
