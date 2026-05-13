@@ -15,3 +15,14 @@ Spec-driven development artifacts produced and consumed by the [superpowers](htt
 - `superpowers:verification-before-completion` — verify before claiming done.
 
 Plans and specs are committed so future sessions can resume the work.
+
+## Subagents
+
+Project-tailored subagents live in `.claude/agents/` (Claude Code requires that exact path, so they sit outside this directory). They are what `superpowers:subagent-driven-development` dispatches to during plan execution.
+
+The 13-agent roster groups by lifecycle phase:
+
+- **Design** (blue): `domain-designer`, `architecture-designer`, `api-designer`, `persistence-designer`, `security-designer`
+- **Implementation** (green): `test-automator`, `spring-boot-developer`, `devops-engineer`
+- **Review** (orange): `code-reviewer`, `architect-reviewer`, `security-auditor`
+- **Documentation** (purple): `documentation-engineer`, `claude-docs-maintainer`

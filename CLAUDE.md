@@ -8,6 +8,7 @@ Libs: `asapp-commons-url` (endpoint URL constants), `asapp-rest-clients` (servic
 
 ## Docs
 Guidelines: see `.claude/rules/`
+Subagents: see `.claude/agents/` (13 project-tailored roles across design, implementation, review, documentation)
 Plans and specs: `docs/superpowers/`
 
 ## Build
