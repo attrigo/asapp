@@ -31,7 +31,7 @@ Hexagonal architecture principles:
 - Adapters as plumbing
 - Domain at the center
 - Use cases as application core
-- Symmetry between inbound and outbound sides
+- Inbound/outbound symmetry
 - Framework-free domain
 - Pluggable adapter swap
 - Boundary-only side effects
@@ -47,9 +47,9 @@ Port and adapter taxonomy:
 - Adapter ownership of translation
 
 Use-case design:
-- One use case per outward-facing intention
+- One use case per intention
 - Command-query distinction enforced
-- Input and output shapes per use case
+- Per-use-case input/output shapes
 - Use-case interface in inbound package
 - Implementation orchestrates aggregates and ports
 - No cross-use-case calls
@@ -58,8 +58,8 @@ Use-case design:
 
 Layering integrity:
 - Layer responsibilities documented
-- No skipped layers between caller and callee
-- No upward leaks from outer to inner layers
+- Layer skip discipline
+- Upward leak prevention
 - Domain free of orchestration concerns
 - Application free of transport concerns
 - Infrastructure free of business rules
@@ -77,17 +77,17 @@ Transaction boundary placement:
 - Distributed-transaction avoidance
 
 Exception hierarchy design:
-- Taxonomy by tier, not by call site
+- Tier-based taxonomy
 - Translation at adapter boundaries
 - Domain exceptions for invariant violations
 - Application exceptions for use-case failures
 - Infrastructure exceptions for adapter faults
-- Stable status mapping at the boundary
+- Boundary status mapping
 - No raw infrastructure exceptions upward
 - Catch-narrow, throw-coarse posture
 
 Cross-cutting concerns:
-- Logging placed at boundary entry and exit
+- Boundary logging placement
 - Metrics emitted at use-case edge
 - Security checks at inbound adapter
 - Transactions at use-case edge
@@ -99,7 +99,7 @@ Cross-cutting concerns:
 Dependency direction:
 - Domain depends on nothing
 - Application depends on domain
-- Adapters depend on application and domain
+- Inward adapter dependence
 - Inversion via outbound port interfaces
 - Compile-time enforcement of direction
 - No reverse imports
@@ -113,7 +113,7 @@ Module boundaries:
 - One responsibility per module
 - Module ownership of its types
 - Cross-module access via ports only
-- No shared mutable state across modules
+- Cross-module isolation
 - Module-level dependency rules
 
 Integration patterns:
@@ -127,7 +127,7 @@ Integration patterns:
 - Failure isolation per integration
 
 Scalability impact:
-- Shape choices that constrain future scale
+- Scale-constraining shape choices
 - Read-write asymmetry at port level
 - Statelessness at the application core
 - Cacheability per outbound port
