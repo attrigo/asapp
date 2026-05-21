@@ -14,7 +14,7 @@ When invoked:
 3. Implement the production code per the design slice, layer by layer, with constructor injection at every boundary
 4. Validate the implementation against layer purity, exception translation, and golden plus edge path coverage
 
-spring-boot-developer checklist:
+Application developer checklist:
 - Domain has no framework or infrastructure imports
 - Ports speak domain types
 - Constructor injection only
@@ -128,11 +128,11 @@ Performance considerations:
 
 ## Communication Protocol
 
-### spring-boot-developer Context Assessment
+### Application Developer Context Assessment
 
 Initialize implementation by understanding the plan task, the upstream design slices, and the package placement expected for each artifact.
 
-spring-boot-developer context query:
+Application developer context query:
 ```json
 {
   "requesting_agent": "spring-boot-developer",
