@@ -22,7 +22,7 @@ Before designing, we researched three sources:
 **Decision**:
 
 - **Don't adopt VoltAgent as-is** — their agents are stack-agnostic and unaudited
-- **Don't go pure greenfield either** — their structural conventions (frontmatter, 8-section body skeleton, JSON status block, integration prose) are good
+- **Don't go pure greenfield either** — their structural conventions (frontmatter, 7-section body skeleton, integration prose) are good
 - **Build a project-tailored roster** that:
   - Mirrors VoltAgent's frontmatter and naming conventions
   - Relies on Claude Code path-scoped rule auto-loading to deliver the project-specific overlay from `.claude/rules/`
@@ -55,7 +55,7 @@ color: <blue | green | orange | purple>
 
 ### 3.3 Body structure
 
-Every agent's body follows the same 8-section skeleton. This section defines what each part *contains* (semantics); the literal template and per-section format notes live in §5.
+Every agent's body follows the same 7-section skeleton. This section defines what each part *contains* (semantics); the literal template and per-section format notes live in §5.
 
 #### Body parts
 
@@ -63,7 +63,6 @@ Every agent's body follows the same 8-section skeleton. This section defines wha
 - **When invoked**: initial discovery and orientation steps the agent performs before producing output. Item 1 is always context discovery.
 - **Role checklist**: the agent's success criteria — what "done" looks like.
 - **Domain knowledge**: generic senior-practitioner expertise the agent draws on.
-- **Communication Protocol**: how the agent declares what context it needs from the dispatcher (the input-query JSON).
 - **Development Workflow**: three phases (analyze → produce → deliver).
 - **Integration with other agents**: how this agent collaborates with siblings — handoffs, parallel paths, follow-ups.
 - **Closing prose**: a closing priority statement naming the agent's dominant tradeoff.
@@ -84,7 +83,7 @@ These apply to the entire body.
 
 - **Read-only design + review agents**: `Read, Glob, Grep, WebFetch, WebSearch` (+ `Bash` only for agents that need `git diff` or running failing tests)
 - **Implementation agents**: `Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch`
-- **Documentation agent**: `Read, Write, Edit, Glob, Grep, WebFetch, WebSearch` (no `Bash` — prose work, nothing to verify via shell)
+- **Documentation agent**: `Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch` (`Bash` to replay command samples in prose)
 
 ### 4.2 Model selection
 
@@ -170,23 +169,6 @@ When invoked:
 <Domain knowledge area N>:
 - <…>
 
-## Communication Protocol
-
-### <Role> Context Assessment
-
-<one-line prose intro stating the agent's high-level intent>
-
-<role> context query:
-```json
-{
-  "requesting_agent": "<agent-name>",
-  "request_type": "get_<domain>_context",
-  "payload": {
-    "query": "<one-sentence statement of what context is needed from the dispatcher>"
-  }
-}
-```
-
 ## Development Workflow
 
 ### 1. <Analysis phase name>
@@ -208,19 +190,6 @@ When invoked:
 
 <Phase-2 labeled list N>:
 - <…>
-
-Progress tracking:
-```json
-{
-  "agent": "<agent-name>",
-  "status": "<in-progress-status>",
-  "progress": {
-    "<field-1>": "<value>",
-    "<field-2>": "<value>",
-    "<field-3>": "<value>"
-  }
-}
-```
 
 ### 3. <Delivery / Verification phase name>
 
@@ -259,13 +228,9 @@ These cover shape and format only — body-wide content rules are in §3.3.
 - **Domain knowledge**:
   - 5–12 labeled bullet lists.
   - Each label ends in `:`, followed by around 8 concise nominal phrases (typically 2–5 words).
-- **Communication Protocol**:
-  - Single H3 subsection titled `<Role> Context Assessment`.
-  - Short prose intro followed by a JSON code block.
 - **Development Workflow**:
   - Exactly 3 H3 phases.
   - Each phase opens with a one-line prose intro followed by 1–3 labeled bullet lists (count varies per agent; see §7 for per-agent labels).
-  - Phase 2 contains the status JSON shown in the template.
   - Phase 3 sequence: `<Phase-3-name> checklist:` → delivery notification (mandatory quoted string) → 0–5 post-delivery labeled lists (some agents have none — see §7) → closing prose.
 - **Integration with other agents**:
   - Labeled bullet list of typically 5–8 bullets.
@@ -395,23 +360,6 @@ Developer experience:
 - DTO shape predictability
 - Onboarding ergonomics
 
-## Communication Protocol
-
-### API Designer Context Assessment
-
-Initialize API design by understanding use cases, surrounding contracts, and consumer constraints.
-
-API context query:
-```json
-{
-  "requesting_agent": "api-designer",
-  "request_type": "get_api_context",
-  "payload": {
-    "query": "API context needed: use cases to expose, existing surface and conventions, downstream consumers, authentication model, pagination preferences, and contract-stability constraints."
-  }
-}
-```
-
 ## Development Workflow
 
 ### 1. API Analysis
@@ -461,19 +409,6 @@ Contract patterns:
 - Conditional requests via ETag and If-Match
 - Partial updates via a declared PATCH dialect
 - Long-lived operations with Location-based polling
-
-Progress tracking:
-```json
-{
-  "agent": "api-designer",
-  "status": "specifying",
-  "api_progress": {
-    "endpoints_defined": 0,
-    "dtos_specified": 0,
-    "error_responses_modeled": 0
-  }
-}
-```
 
 ### 3. Report
 
@@ -551,7 +486,7 @@ Always prioritize contract stability over short-term convenience: every breaking
 | 9 | `code-reviewer` | Review | Line-level review against project rules + community standards | R, Gl, Gr, B, WF, WS | opus |
 | 10 | `architect-reviewer` | Review | Macro/system-level review for architectural drift | R, Gl, Gr, B, WF, WS | opus |
 | 11 | `security-auditor` | Review | Post-impl security regression audit | R, Gl, Gr, B, WF, WS | opus |
-| 12 | `documentation-engineer` | Document | Keep narrative documentation in sync | R, W, E, Gl, Gr, WF, WS | sonnet |
+| 12 | `documentation-engineer` | Document | Keep narrative documentation in sync | R, W, E, Gl, Gr, B, WF, WS | sonnet |
 | 13 | `claude-docs-maintainer` | Document | Maintain .claude/* and CLAUDE.md (AI instruction files) | R, W, E, Gl, Gr, WF, WS | sonnet |
 
 Tools key: R=Read, W=Write, E=Edit, Gl=Glob, Gr=Grep, B=Bash, WF=WebFetch, WS=WebSearch.
@@ -1171,7 +1106,7 @@ Post-delivery:
 
 - **Frontmatter validation** — required fields, value constraints, no typos in keys
 - **Path-scoped rule conventions** — `paths:` globs that auto-attach as intended
-- **Agent body skeleton enforcement** — 8-section body per §3.3, label sets per §7
+- **Agent body skeleton enforcement** — 7-section body per §3.3, label sets per §7
 - **Secure-authoring audit** — bodies checked against §4.5: firm role boundaries, no instruction-injection surface, no exfiltration patterns, no embedded secrets, frontmatter accuracy, no leftover placeholders
 - **Cross-file consistency** — references between agents, rules, and skills stay coherent
 - **YAML schema discipline** — well-formed YAML, no tab indentation, quoted strings where needed
