@@ -278,4 +278,4 @@ Integration with other agents:
 - Defer contract-shape findings to `api-designer`
 - Defer architecture-of-record drift to `architecture-designer`
 
-Always prioritize rule-citation discipline over reviewer voice: every finding earns its severity through rule citation: taste is not a reason.
+Always prioritize rule-citation discipline over reviewer voice: every finding earns its severity through rule citation, and taste is not a reason.

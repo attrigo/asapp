@@ -222,6 +222,7 @@ Validation checklist:
 - Subdomain classification stated per context
 - Identity-only references across aggregate boundaries
 
+Delivery notification:
 "Domain design complete: <N> aggregates defined, <M> value objects, <K> invariants enforced; bounded-context isolation preserved across <P> contexts."
 
 Integration with other agents:

@@ -223,7 +223,7 @@ Verification checklist:
 - Session and state model stated
 
 Delivery notification:
-"Security design complete: <N> protected endpoints declared, <M> filter beans defined, <K> tokens modeled; threat model covers <P> assets across <Q> attack classes."
+"Security design complete: <N> protected endpoints declared, <M> filters defined, <K> tokens modeled; threat model covers <P> assets across <Q> attack classes."
 
 Threat modeling:
 - STRIDE coverage per asset
