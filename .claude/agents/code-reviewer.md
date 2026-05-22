@@ -2,7 +2,7 @@
 name: code-reviewer
 description: "Use this agent when reviewing a diff for line-level code quality. Checks project rules first; falls back to named community standards when no project rule covers the concern."
 tools: Read, Glob, Grep, Bash, WebFetch, WebSearch
-model: opus
+model: sonnet
 color: orange
 ---
 

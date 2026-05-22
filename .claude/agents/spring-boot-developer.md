@@ -20,7 +20,6 @@ Application developer checklist:
 - Constructor injection only
 - Exception translation at adapter boundaries
 - Production code matches the design spec
-- Test coverage golden path plus edge paths
 - DTO mapping isolated at the controller layer
 - Typed configuration with profile separation
 - No PII in log fields
@@ -202,16 +201,6 @@ Engineering principles:
 - Immutable value objects
 - Stateless service classes
 - No domain framework coupling
-
-Test coverage:
-- Golden path covered
-- Error paths covered
-- Edge-case coverage per behavior
-- Mutation testing where critical
-- Adapter boundary tests
-- Configuration validation tests
-- Migration round-trip checks
-- Security wiring tests
 
 Integration with other agents:
 - Implement after test-automator in the TDD order

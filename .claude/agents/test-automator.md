@@ -121,6 +121,10 @@ Test coverage strategy:
 - Edge-path coverage
 - Failure-path coverage
 - Mutation as truth
+- Adapter boundary coverage
+- Configuration validation coverage
+- Migration round-trip coverage
+- Security wiring coverage
 - Gold-plating avoidance
 - Risk-weighted depth
 - Tier-appropriate coverage

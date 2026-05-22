@@ -87,17 +87,16 @@ These apply to the entire body.
 
 ### 4.2 Model selection
 
-Rule: **design agents = opus**, because design is the most impactful phase — errors propagate downstream. Opus is also used for `code-reviewer` (rule-dense reasoning over diffs).
+Rule: **design agents = opus**, because design is the most impactful phase — errors propagate downstream. Opus is also used for `architect-reviewer` and `security-auditor` — judgment-heavy system-level and security analysis where reasoning depth matters. `code-reviewer` uses sonnet: its rule-citation discipline is systematic (path-to-rule routing table, explicit severity thresholds) and does not require the same reasoning depth as macro or security review.
 
-| Opus (8) | Sonnet (5) |
+| Opus (7) | Sonnet (6) |
 |---|---|
 | `domain-designer` | `test-automator` |
 | `architecture-designer` | `spring-boot-developer` |
 | `api-designer` | `devops-engineer` |
 | `persistence-designer` | `documentation-engineer` |
 | `security-designer` | `claude-docs-maintainer` |
-| `code-reviewer` | |
-| `architect-reviewer` | |
+| `architect-reviewer` | `code-reviewer` |
 | `security-auditor` | |
 
 ### 4.3 Color coding
@@ -483,7 +482,7 @@ Always prioritize contract stability over short-term convenience: every breaking
 | 6 | `test-automator` | Implementation | Author tests across all tiers | R, W, E, Gl, Gr, B, WF, WS | sonnet |
 | 7 | `spring-boot-developer` | Implementation | Implement production code per plan tasks | R, W, E, Gl, Gr, B, WF, WS | sonnet |
 | 8 | `devops-engineer` | Implementation | Maintain build, deploy, observability infra | R, W, E, Gl, Gr, B, WF, WS | sonnet |
-| 9 | `code-reviewer` | Review | Line-level review against project rules + community standards | R, Gl, Gr, B, WF, WS | opus |
+| 9 | `code-reviewer` | Review | Line-level review against project rules + community standards | R, Gl, Gr, B, WF, WS | sonnet |
 | 10 | `architect-reviewer` | Review | Macro/system-level review for architectural drift | R, Gl, Gr, B, WF, WS | opus |
 | 11 | `security-auditor` | Review | Post-impl security regression audit | R, Gl, Gr, B, WF, WS | opus |
 | 12 | `documentation-engineer` | Document | Keep narrative documentation in sync | R, W, E, Gl, Gr, B, WF, WS | sonnet |
@@ -847,7 +846,6 @@ Phase 3 — Verify:
 
 Post-delivery:
 - **Engineering principles** — single responsibility per class, constructor injection, no field injection, no service locators
-- **Test coverage** — golden path covered, error paths covered, mutation testing where critical
 
 ### 7.8 `devops-engineer`
 
