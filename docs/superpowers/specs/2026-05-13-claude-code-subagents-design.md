@@ -134,6 +134,16 @@ A subagent's body is its system prompt — a static authoring artifact that defi
 
 These constraints apply at authoring time. `claude-docs-maintainer` (§7.13) is the verifier — every new or edited agent body is checked against this section before deployment.
 
+### 4.6 Dispatch policy
+
+For every Agent tool call from any trigger, pick the most specific match from `.claude/agents/`. `general-purpose` is a last resort, never a default.
+
+Skill templates may hardcode generic types — e.g., `subagent-driven-development`'s `spec-reviewer-prompt.md` uses `Task tool (general-purpose)`. The policy overrides this with `code-reviewer`. Superpowers skills cannot be edited locally; the override has to live on the project side.
+
+**Rationale**: First `subagent-driven-development` session (2026-05-22, `find-by-list-ids` branch) surfaced repeated wrong-agent dispatch — `spring-boot-developer` for tests instead of `test-automator`, `general-purpose` for spec reviews instead of `code-reviewer`. Both required mid-session correction.
+
+Enforced via the `## Subagent dispatch` directive in `CLAUDE.md`, auto-loaded into every session and every subagent.
+
 ## 5. Subagent template
 
 ### 5.1 Template

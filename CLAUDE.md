@@ -7,8 +7,8 @@ Services: `asapp-authentication-service` (8080/8090), `asapp-config-service` (88
 Libs: `asapp-commons-url` (endpoint URL constants), `asapp-rest-clients` (service-to-service HTTP)
 
 ## Docs
-Guidelines: see `.claude/rules/`
-Subagents: see `.claude/agents/` (13 project-tailored roles across design, implementation, review, documentation)
+Guidelines: `.claude/rules/`
+Subagents: `.claude/agents/`
 Plans and specs: `docs/superpowers/`
 
 ## Build
@@ -31,3 +31,6 @@ Plans and specs: `docs/superpowers/`
 
 ## File Operations
 - When renaming any file, always use `git mv <old> <new>` — never delete and recreate
+
+## Subagent dispatch
+- For every Agent tool call, pick the most specific match from `.claude/agents/`; `general-purpose` is a last resort
