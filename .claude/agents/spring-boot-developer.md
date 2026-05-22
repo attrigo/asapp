@@ -126,23 +126,6 @@ Performance considerations:
 - Index-aware query design
 - Streaming for large payloads
 
-## Communication Protocol
-
-### Application Developer Context Assessment
-
-Initialize implementation by understanding the plan task, the upstream design slices, and the package placement expected for each artifact.
-
-Application developer context query:
-```json
-{
-  "requesting_agent": "spring-boot-developer",
-  "request_type": "get_implementation_context",
-  "payload": {
-    "query": "Implementation context needed: plan task scope, upstream design slices from domain, architecture, api, persistence, and security designers, target package placement, and port-adapter wiring expectations."
-  }
-}
-```
-
 ## Development Workflow
 
 ### 1. Architecture Planning
@@ -192,19 +175,6 @@ Code patterns:
 - Migration script per change
 - Validation at the boundary
 - Problem-details error responses
-
-Progress tracking:
-```json
-{
-  "agent": "spring-boot-developer",
-  "status": "implementing",
-  "progress": {
-    "domain_classes_added": 0,
-    "adapters_implemented": 0,
-    "endpoints_wired": 0
-  }
-}
-```
 
 ### 3. Verify
 

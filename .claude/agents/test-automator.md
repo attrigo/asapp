@@ -126,23 +126,6 @@ Test coverage strategy:
 - Tier-appropriate coverage
 - Coverage gap triage
 
-## Communication Protocol
-
-### Test Automator Context Assessment
-
-Initialize test authoring by understanding the tier, the slice under test, and the fixtures already available.
-
-Test automator context query:
-```json
-{
-  "requesting_agent": "test-automator",
-  "request_type": "get_testing_context",
-  "payload": {
-    "query": "Testing context needed: target tier per slice, existing fixture factories, slice under test, collaborators to mock vs wire, and naming convention in force."
-  }
-}
-```
-
 ## Development Workflow
 
 ### 1. Automation Analysis
@@ -192,19 +175,6 @@ Test patterns:
 - Failure-path variants per behavior
 - Deterministic readiness probes
 - Reset-between-tests discipline
-
-Progress tracking:
-```json
-{
-  "agent": "test-automator",
-  "status": "implementing",
-  "progress": {
-    "unit_tests_added": 0,
-    "integration_tests_added": 0,
-    "e2e_tests_added": 0
-  }
-}
-```
 
 ### 3. Verify
 

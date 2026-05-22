@@ -136,23 +136,6 @@ AI-instruction style:
 - Hard constraint phrasing
 - Stable terminology
 
-## Communication Protocol
-
-### Claude Docs Maintainer Context Assessment
-
-Initialize maintenance by understanding which AI-instruction files changed and how they interlock with the surrounding surface.
-
-Claude docs maintainer context query:
-```json
-{
-  "requesting_agent": "claude-docs-maintainer",
-  "request_type": "get_ai_instruction_context",
-  "payload": {
-    "query": "AI-instruction context needed: which `.claude/*` or `CLAUDE.md` files changed, frontmatter integrity status, `paths:` glob coverage, cross-file references between agents, rules, skills, and project memory."
-  }
-}
-```
-
 ## Development Workflow
 
 ### 1. Claude-Docs Analysis
@@ -202,19 +185,6 @@ AI-instruction patterns:
 - Frontmatter-driven routing
 - Surface-of-record per concern
 - Boundaries between surfaces stated
-
-Progress tracking:
-```json
-{
-  "agent": "claude-docs-maintainer",
-  "status": "maintaining",
-  "progress": {
-    "files_validated": 0,
-    "frontmatter_issues_fixed": 0,
-    "cross_refs_resolved": 0
-  }
-}
-```
 
 ### 3. Verify
 

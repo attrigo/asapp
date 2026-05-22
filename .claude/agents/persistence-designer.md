@@ -126,23 +126,6 @@ Data integrity constraints:
 - Enum encoding choice
 - Constraint naming convention
 
-## Communication Protocol
-
-### Persistence Designer Context Assessment
-
-Initialize persistence design by understanding the aggregate shapes at hand, the existing schema and migration history, the query patterns already in play, and the concurrency requirements implied by the use cases.
-
-Persistence context query:
-```json
-{
-  "requesting_agent": "persistence-designer",
-  "request_type": "get_persistence_context",
-  "payload": {
-    "query": "Persistence context needed: aggregate shapes to store, existing schema and migration history, query patterns in use, concurrency needs per aggregate, and zero-downtime constraints across environments."
-  }
-}
-```
-
 ## Development Workflow
 
 ### 1. Persistence Analysis
@@ -192,19 +175,6 @@ Persistence patterns:
 - Declarative constraints at the row
 - Idempotent writes where retries occur
 - Read-write asymmetry at port granularity
-
-Progress tracking:
-```json
-{
-  "agent": "persistence-designer",
-  "status": "designing",
-  "progress": {
-    "entities_mapped": 0,
-    "repositories_defined": 0,
-    "migrations_sequenced": 0
-  }
-}
-```
 
 ### 3. Validate
 

@@ -126,23 +126,6 @@ Remediation guidance:
 - Owner and timeline note
 - Upstream design feedback
 
-## Communication Protocol
-
-### Security Auditor Context Assessment
-
-Initialize the audit by understanding the diff scope, the threat checklist baseline, and the security-relevant touch points exercised by the change.
-
-Security diff context query:
-```json
-{
-  "requesting_agent": "security-auditor",
-  "request_type": "get_security_diff_context",
-  "payload": {
-    "query": "Security diff context needed: base SHA, head SHA, changed file paths, threat checklist baseline reference, security-relevant touch points exercised (endpoints, filters, token store, password handling, input validation), and any companion code or architecture review running in parallel."
-  }
-}
-```
-
 ## Development Workflow
 
 ### 1. Audit Preparation
@@ -192,19 +175,6 @@ Regression patterns:
 - Sensitive-data in error responses
 - Filter-order inversion
 - Wrap-boundary erosion
-
-Progress tracking:
-```json
-{
-  "agent": "security-auditor",
-  "status": "auditing",
-  "audit_progress": {
-    "endpoints_audited": 0,
-    "regressions_found": 0,
-    "remediations_recommended": 0
-  }
-}
-```
 
 ### 3. Report
 

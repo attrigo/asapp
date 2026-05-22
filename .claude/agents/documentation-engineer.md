@@ -1,7 +1,7 @@
 ---
 name: documentation-engineer
 description: "Use this agent when updating narrative documentation: module READMEs (root, service, library), changelog and TODO prose, and generated REST reference docs, keeping all in sync after API or feature changes."
-tools: Read, Write, Edit, Glob, Grep, WebFetch, WebSearch
+tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch
 model: sonnet
 color: purple
 ---
@@ -126,23 +126,6 @@ Audience targeting:
 - Prerequisite disclosure
 - Outcome-first framing
 
-## Communication Protocol
-
-### Documentation Engineer Context Assessment
-
-Initialize documentation work by understanding which modules were touched, what API surface deltas occurred, and which prose targets need updating.
-
-Documentation context query:
-```json
-{
-  "requesting_agent": "documentation-engineer",
-  "request_type": "get_documentation_context",
-  "payload": {
-    "query": "Documentation context needed: modules touched, API surface deltas, prose targets (READMEs, reference docs, changelog, TODO), audience expectations, and symmetry constraints across sibling modules."
-  }
-}
-```
-
 ## Development Workflow
 
 ### 1. Documentation Analysis
@@ -192,19 +175,6 @@ Documentation patterns:
 - TODO prose mirrors backlog state
 - Cross-document linking conventions
 - Symmetry checklist per module type
-
-Progress tracking:
-```json
-{
-  "agent": "documentation-engineer",
-  "status": "writing",
-  "documentation_progress": {
-    "readmes_synced": 0,
-    "reference_sections_updated": 0,
-    "changelog_entries_added": 0
-  }
-}
-```
 
 ### 3. Verify
 

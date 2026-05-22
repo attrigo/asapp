@@ -126,23 +126,6 @@ Session/state model:
 - Concurrent-session policy
 - Logout propagation
 
-## Communication Protocol
-
-### Security Designer Context Assessment
-
-Initialize security design by understanding the assets at risk, the existing authentication and authorization model, the attack surface across inbound seams, and the sensitive flows the design must protect.
-
-Security context query:
-```json
-{
-  "requesting_agent": "security-designer",
-  "request_type": "get_security_context",
-  "payload": {
-    "query": "Security context needed: assets at risk, existing authentication and authorization model, inbound attack surface, sensitive flows touching identity, tokens, and secrets, and current threat posture per asset."
-  }
-}
-```
-
 ## Development Workflow
 
 ### 1. Security Analysis
@@ -192,19 +175,6 @@ Security patterns:
 - Default-deny on unmatched routes
 - Authentication-exception transparency
 - Constant-time credential checks
-
-Progress tracking:
-```json
-{
-  "agent": "security-designer",
-  "status": "designing",
-  "progress": {
-    "protected_endpoints": 0,
-    "filters_defined": 0,
-    "assets_threat_modeled": 0
-  }
-}
-```
 
 ### 3. Security Verification
 

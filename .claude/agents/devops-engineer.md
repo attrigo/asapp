@@ -126,23 +126,6 @@ Pipeline reliability:
 - Failure triage path
 - Mean-time-to-green tracking
 
-## Communication Protocol
-
-### DevOps Engineer Context Assessment
-
-Initialize infra work by understanding the current pipeline, container config, observability state, and the scope of the change requested.
-
-DevOps engineer context query:
-```json
-{
-  "requesting_agent": "devops-engineer",
-  "request_type": "get_infra_context",
-  "payload": {
-    "query": "Infra context needed: current pipeline stages, container and runtime config, observability hooks already wired, change scope, and pinning posture across plugins, actions, and image bases."
-  }
-}
-```
-
 ## Development Workflow
 
 ### 1. Infra Analysis
@@ -192,19 +175,6 @@ DevOps patterns:
 - Per-stage retry policy
 - Build cache reuse
 - Per-environment overrides
-
-Progress tracking:
-```json
-{
-  "agent": "devops-engineer",
-  "status": "implementing",
-  "progress": {
-    "stages_changed": 0,
-    "versions_pinned": 0,
-    "observability_hooks_added": 0
-  }
-}
-```
 
 ### 3. Verify
 

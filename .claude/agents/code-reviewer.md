@@ -142,23 +142,6 @@ Finding severity classification:
 - Severity-stable thresholds
 - No silent escalation
 
-## Communication Protocol
-
-### Code Reviewer Context Assessment
-
-Initialize review by understanding the diff scope, the base and head SHAs, and the changed-file set.
-
-Diff context query:
-```json
-{
-  "requesting_agent": "code-reviewer",
-  "request_type": "get_diff_context",
-  "payload": {
-    "query": "Diff context needed: base SHA, head SHA, changed file paths, hunk listing, and any companion architecture or security review running in parallel."
-  }
-}
-```
-
 ## Development Workflow
 
 ### 1. Review Preparation
@@ -208,19 +191,6 @@ Finding patterns:
 - Long parameter list
 - Test-name vagueness
 - Assertion sprawl
-
-Progress tracking:
-```json
-{
-  "agent": "code-reviewer",
-  "status": "reviewing",
-  "review_progress": {
-    "files_reviewed": 0,
-    "findings_recorded": 0,
-    "rules_cited": 0
-  }
-}
-```
 
 ### 3. Report
 

@@ -126,23 +126,6 @@ Domain event modeling:
 - Subscriber-agnostic shape
 - Replay-safe semantics
 
-## Communication Protocol
-
-### Domain Designer Context Assessment
-
-Initialize domain design by understanding the use cases at hand, the existing aggregates and contexts, observed language drift, and integration patterns already in place.
-
-Domain context query:
-```json
-{
-  "requesting_agent": "domain-designer",
-  "request_type": "get_domain_context",
-  "payload": {
-    "query": "Domain context needed: use cases to model, existing aggregates and bounded contexts, observed ubiquitous-language drift, and integration patterns between contexts."
-  }
-}
-```
-
 ## Development Workflow
 
 ### 1. Domain Analysis
@@ -192,19 +175,6 @@ Tactical patterns:
 - Invariant locality per aggregate
 - Domain event emission sites
 - Reference-by-identity across aggregate boundaries
-
-Progress tracking:
-```json
-{
-  "agent": "domain-designer",
-  "status": "designing",
-  "progress": {
-    "aggregates_defined": 0,
-    "value_objects_defined": 0,
-    "invariants_enforced": 0
-  }
-}
-```
 
 ### 3. Validate
 

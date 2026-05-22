@@ -116,23 +116,6 @@ Developer experience:
 - DTO shape predictability
 - Onboarding ergonomics
 
-## Communication Protocol
-
-### API Designer Context Assessment
-
-Initialize API design by understanding use cases, surrounding contracts, and consumer constraints.
-
-API context query:
-```json
-{
-  "requesting_agent": "api-designer",
-  "request_type": "get_api_context",
-  "payload": {
-    "query": "API context needed: use cases to expose, existing surface and conventions, downstream consumers, authentication model, pagination preferences, and contract-stability constraints."
-  }
-}
-```
-
 ## Development Workflow
 
 ### 1. API Analysis
@@ -182,19 +165,6 @@ Contract patterns:
 - Conditional requests via ETag and If-Match
 - Partial updates via a declared PATCH dialect
 - Long-lived operations with Location-based polling
-
-Progress tracking:
-```json
-{
-  "agent": "api-designer",
-  "status": "specifying",
-  "api_progress": {
-    "endpoints_defined": 0,
-    "dtos_specified": 0,
-    "error_responses_modeled": 0
-  }
-}
-```
 
 ### 3. Report
 

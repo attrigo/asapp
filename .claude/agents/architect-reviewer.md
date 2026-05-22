@@ -126,23 +126,6 @@ Module boundary integrity:
 - Shared-kernel justification
 - Boundary erosion signals
 
-## Communication Protocol
-
-### Architect Reviewer Context Assessment
-
-Initialize the review by understanding the diff scope, the agreed-design baseline, and the architectural touch points exercised by the change.
-
-Architecture diff context query:
-```json
-{
-  "requesting_agent": "architect-reviewer",
-  "request_type": "get_architecture_diff_context",
-  "payload": {
-    "query": "Architecture diff context needed: base SHA, head SHA, changed file paths, agreed-design baseline reference, architectural touch points exercised (ports, adapters, exceptions, transactions, integration patterns), and any companion code or security review running in parallel."
-  }
-}
-```
-
 ## Development Workflow
 
 ### 1. Architecture Preparation
@@ -192,19 +175,6 @@ Drift patterns:
 - Premature shared abstractions
 - Transaction scope sprawl
 - Exception boundary leaks
-
-Progress tracking:
-```json
-{
-  "agent": "architect-reviewer",
-  "status": "reviewing",
-  "review_progress": {
-    "touch_points_reviewed": 0,
-    "drift_findings": 0,
-    "layer_leak_findings": 0
-  }
-}
-```
 
 ### 3. Report
 

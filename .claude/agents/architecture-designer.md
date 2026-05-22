@@ -136,23 +136,6 @@ Scalability impact:
 - Failure-domain isolation
 - Cost of crossing module boundaries
 
-## Communication Protocol
-
-### Architecture Designer Context Assessment
-
-Initialize architecture design by understanding the use cases at hand, existing ports, exception propagation paths already in place, and transaction boundaries observed across the application.
-
-Architecture context query:
-```json
-{
-  "requesting_agent": "architecture-designer",
-  "request_type": "get_architecture_context",
-  "payload": {
-    "query": "Architecture context needed: use cases to support, existing inbound and outbound ports, exception propagation paths across layers, and current transaction boundaries."
-  }
-}
-```
-
 ## Development Workflow
 
 ### 1. Architecture Analysis
@@ -202,19 +185,6 @@ Architectural patterns:
 - Event-driven propagation where coupling must drop
 - Idempotent retry semantics on outbound ports
 - Read-write asymmetry at port granularity
-
-Progress tracking:
-```json
-{
-  "agent": "architecture-designer",
-  "status": "designing",
-  "progress": {
-    "ports_defined": 0,
-    "exceptions_placed": 0,
-    "transaction_boundaries_set": 0
-  }
-}
-```
 
 ### 3. Justify
 
