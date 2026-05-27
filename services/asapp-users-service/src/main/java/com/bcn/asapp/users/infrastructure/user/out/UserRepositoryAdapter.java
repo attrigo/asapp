@@ -67,6 +67,24 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     /**
+     * Finds users by their unique identifiers.
+     *
+     * @param userIds the collection of user identifiers
+     * @return a {@link Collection} of {@link User} entities found; missing identifiers are silently omitted
+     */
+    @Override
+    public Collection<User> findByIds(Collection<UserId> userIds) {
+        var ids = userIds.stream()
+                         .map(UserId::value)
+                         .toList();
+
+        return userRepository.findAllById(ids)
+                             .stream()
+                             .map(userMapper::toUser)
+                             .toList();
+    }
+
+    /**
      * Retrieves all users from the repository.
      *
      * @return a {@link Collection} of all {@link User} entities
