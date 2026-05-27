@@ -1,7 +1,7 @@
 # Design — Bulleted body in `commit-msg` skill
 
 **Date:** 2026-05-07
-**Status:** Approved
+**Status:** Implemented
 **Owner:** attrigo
 **Source:** TODO.md v0.4.0 → CI/CD → "Update commit-msg skill to include a bulleted body in generated commit messages"
 **Skill affected:** `.claude/skills/commit-msg/SKILL.md`
@@ -160,3 +160,23 @@ This is a documentation/prompt change with no code or tests.
   docs(commit-msg): require bulleted body in generated commit messages
   ```
 - The TODO.md entry at line 21 stays for now and will be checked off as part of release housekeeping (matches the existing pattern in `c3daa0b4`).
+
+## 8. Post-implementation notes
+
+This spec was written before implementation. The slice shipped in `56408e9c` (`chore(skill): require bulleted body in generated commit messages`). The sections above describe the original design intent; **the canonical implementation is the current state of `.claude/skills/commit-msg/SKILL.md`**, not this document. Notable deltas:
+
+- **Commit subject**: shipped as `chore(skill): …` (not `docs(commit-msg): …` as in §7). `chore` reflects that `SKILL.md` is tooling/prompt config rather than user-facing documentation; `skill` is the scope already used for sibling skill changes (e.g., `f6c59d28`, `afeb5f98`, `ce8304bf`).
+
+- **§5.2 "Multi-line format" heading kept**: the spec called for replacing the template; the implementation kept the `**Multi-line format**` heading and only rewrote the parenthetical and the template body underneath. The intent (subject → optional lead → required bullets → optional footers) is unchanged.
+
+- **§5.2 Rules list — extra entry**: the implementation also added a `For breaking changes, add `!` after scope: feat(authentication)!: remove endpoint` line to the Rules list. Not called out in the spec but consistent with the rest of the file.
+
+- **Example 5 subject reworded** to satisfy the 72-character rule and match the lead bullet's verb:
+    - Spec (§4.5): `fix(security): remove AuthenticationManager bean from tasks and users services` (75 chars — violates §4.1).
+    - Implementation: `fix(security): drop AuthenticationManager bean from tasks and users` (67 chars; verb `drop` matches the first bullet).
+
+- **Example 2 footer expanded**: the implementation's `BREAKING CHANGE:` footer carries the migration path inline (`… clients should use /api/auth/token with token introspection`) rather than only documenting the removal. Matches the worked example in §4.5; called out here because §5.3 only said "preserve the `BREAKING CHANGE:` footer".
+
+- **TODO.md tick-off**: deferred to release housekeeping as planned (§7); not part of `56408e9c`.
+
+**For future skill edits**, treat the current `SKILL.md` as the template. The spec is preserved as a record of the original design intent and the reasoning that led to it.
