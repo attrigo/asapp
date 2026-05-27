@@ -4,22 +4,27 @@
 
 ### Goal - Establish SDD and AI Agents
 
-* [ ] Setup SDD flow and tool
-* [ ] Setup AI agents
+* [X] Setup SDD flow and tool
+* [X] Setup AI agents
 
 ### Quick Wins
 
 * Functional Improvements
-    * [ ] Add operation to find domain entities by list of ids
+    * [X] Add operation to find tasks by list of ids
+    * [X] Add operation to find users by list of ids
 * Technical Improvements
-    * [ ] Improve error responses to return sorted, structured validation errors
+    * Error Handler
+        * [ ] Improve error responses to return sorted, structured validation errors
+        * [ ] Constants for all details
+        * [ ] Standardize usage of fixed messages, ex.getMessage() or ex.getLocalizedMessage() in ProblemDetails
+        * [ ] Improve usage InvalidRequestParameter, its entity field does not match errors produced from not wrappers parameters
     * [ ] Add load test with JMeter
     * [ ] Replace REST clients by declarative HTTP clients
-      * Use circuit breaker pattern
-      * Use retry pattern
+        * Use circuit breaker pattern
+        * Use retry pattern
 * CI/CD
-    * [ ] Update commit-msg skill to include a bulleted body in generated commit messages
-    * [ ] Change commit-msg to perform all operations in a dedicated agent and then response with the message
+    * [X] Update commit-msg skill to include a bulleted body in generated commit messages
+    * [X] ~~Change commit-msg to perform all operations in a dedicated agent and then response with the message~~
 * Tools
     * [ ] Support fixup! commits in the commit-msg git hook
 * Docs
@@ -133,7 +138,8 @@
 * Add AOP/Native support
 * Add Graceful shutdown
 * Support dynamic refresh of the expired JWT cleanup scheduler
-* Expose a GraphQL API with Spring GraphQL
+* Build a BFF with GraphQL
+* Removes NPEs with JSpecify
 
 ### Observability
 
