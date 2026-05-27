@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bcn.asapp.tasks.application.task.in.CreateTaskUseCase;
@@ -32,6 +33,7 @@ import com.bcn.asapp.tasks.infrastructure.task.in.request.UpdateTaskRequest;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.CreateTaskResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetAllTasksResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetTaskByIdResponse;
+import com.bcn.asapp.tasks.infrastructure.task.in.response.GetTasksByIdsResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetTasksByUserIdResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.UpdateTaskResponse;
 import com.bcn.asapp.tasks.infrastructure.task.mapper.TaskMapper;
@@ -45,6 +47,7 @@ import com.bcn.asapp.tasks.infrastructure.task.mapper.TaskMapper;
  * @author attrigo
  */
 @RestController
+@Validated
 public class TaskRestController implements TaskRestAPI {
 
     private final ReadTaskUseCase readTaskUseCase;
@@ -89,6 +92,20 @@ public class TaskRestController implements TaskRestAPI {
                               .map(ResponseEntity::ok)
                               .orElseGet(() -> ResponseEntity.notFound()
                                                              .build());
+    }
+
+    /**
+     * Gets tasks by their unique identifiers.
+     *
+     * @param ids the list of task identifiers
+     * @return a {@link List} of {@link GetTasksByIdsResponse} containing the tasks found; missing identifiers are silently omitted
+     */
+    @Override
+    public List<GetTasksByIdsResponse> getTasksByIds(List<UUID> ids) {
+        return readTaskUseCase.getTasksByIds(ids)
+                              .stream()
+                              .map(taskMapper::toGetTasksByIdsResponse)
+                              .toList();
     }
 
     /**

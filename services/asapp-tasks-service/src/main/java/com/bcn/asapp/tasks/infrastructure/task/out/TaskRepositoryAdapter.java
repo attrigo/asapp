@@ -68,6 +68,24 @@ public class TaskRepositoryAdapter implements TaskRepository {
     }
 
     /**
+     * Finds tasks by their unique identifiers.
+     *
+     * @param taskIds the collection of task identifiers
+     * @return a {@link Collection} of {@link Task} entities found; missing identifiers are silently omitted
+     */
+    @Override
+    public Collection<Task> findByIds(Collection<TaskId> taskIds) {
+        var ids = taskIds.stream()
+                         .map(TaskId::value)
+                         .toList();
+
+        return taskRepository.findAllById(ids)
+                             .stream()
+                             .map(taskMapper::toTask)
+                             .toList();
+    }
+
+    /**
      * Finds all tasks by their user's unique identifier.
      *
      * @param userId the user's unique identifier

@@ -20,10 +20,13 @@ import static com.bcn.asapp.tasks.testutil.fixture.TaskMother.aTask;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_CREATE_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_DELETE_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_ALL_FULL_PATH;
+import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_IDS_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
+import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_IDS_PARAM;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_UPDATE_BY_ID_FULL_PATH;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -40,6 +43,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.requestF
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
@@ -60,6 +64,7 @@ import com.bcn.asapp.tasks.infrastructure.task.in.request.UpdateTaskRequest;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.CreateTaskResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetAllTasksResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetTaskByIdResponse;
+import com.bcn.asapp.tasks.infrastructure.task.in.response.GetTasksByIdsResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetTasksByUserIdResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.UpdateTaskResponse;
 import com.bcn.asapp.tasks.testutil.RestDocsConstrainedFields;
@@ -119,6 +124,54 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                    fieldWithPath("end_date").description("The task's end date in ISO 8601 format"))
                        )
                        // @formatter:on
+                   );
+        }
+
+    }
+
+    @Nested
+    class GetTasksByIds {
+
+        @Test
+        void DocumentsGetTasksByIds() throws Exception {
+            // Given
+            var task = aTask();
+            var taskIdValue = task.getId()
+                                  .value();
+            var taskUserIdValue = task.getUserId()
+                                      .value();
+            var taskTitleValue = task.getTitle()
+                                     .value();
+            var taskDescriptionValue = task.getDescription()
+                                           .value();
+            var taskStartDateValue = task.getStartDate()
+                                         .value();
+            var taskEndDateValue = task.getEndDate()
+                                       .value();
+            var response = new GetTasksByIdsResponse(taskIdValue, taskUserIdValue, taskTitleValue, taskDescriptionValue, taskStartDateValue, taskEndDateValue);
+
+            given(readTaskUseCase.getTasksByIds(anyList())).willReturn(List.of(task));
+            given(taskMapper.toGetTasksByIdsResponse(any(Task.class))).willReturn(response);
+
+            // When & Then
+            mockMvc.perform(get(TASKS_GET_BY_IDS_FULL_PATH).param(TASKS_IDS_PARAM, taskIdValue.toString())
+                                                           .accept(APPLICATION_JSON)
+                                                           .header(AUTHORIZATION, "Bearer sample.access.token"))
+                   .andExpect(status().isOk())
+                   .andDo(
+                   // @formatter:off
+                       document("get-tasks-by-ids",
+                               requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
+                               queryParameters(parameterWithName("ids").description("Comma-separated list of task identifiers (1 to 50 elements)")),
+                               responseFields(
+                                       fieldWithPath("[].task_id").description("The task's unique identifier"),
+                                       fieldWithPath("[].user_id").description("The task's owner unique identifier"),
+                                       fieldWithPath("[].title").description("The task's title"),
+                                       fieldWithPath("[].description").description("The task's description"),
+                                       fieldWithPath("[].start_date").description("The task's start date in ISO 8601 format"),
+                                       fieldWithPath("[].end_date").description("The task's end date in ISO 8601 format"))
+                       )
+                   // @formatter:on
                    );
         }
 
@@ -391,6 +444,28 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                            )
                        )
                    // @formatter:on
+                   );
+        }
+
+        @Test
+        void DocumentsRequestParamValidationFailure() throws Exception {
+            // When & Then
+            mockMvc.perform(get(TASKS_GET_BY_IDS_FULL_PATH).param(TASKS_IDS_PARAM, ""))
+                   .andExpect(status().isBadRequest())
+                   .andDo(
+                   // @formatter:off
+                       document("error-request-param-validation-failure",
+                           relaxedResponseFields(
+                               fieldWithPath("title").description("Short summary of the problem type"),
+                               fieldWithPath("status").description("HTTP status code"),
+                               fieldWithPath("detail").description("Human-readable explanation of the problem"),
+                               fieldWithPath("errors").description("List of validation errors"),
+                               fieldWithPath("errors[].entity").description("Always empty for request-parameter violations"),
+                               fieldWithPath("errors[].field").description("Name of the request parameter that failed validation"),
+                               fieldWithPath("errors[].message").description("Validation error message")
+                           )
+                       )
+                       // @formatter:on
                    );
         }
 
