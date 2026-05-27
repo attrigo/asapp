@@ -25,8 +25,10 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.times;
 import static org.mockito.BDDMockito.willThrow;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Nested;
@@ -47,7 +49,10 @@ import com.bcn.asapp.tasks.domain.task.UserId;
  * <li>Retrieval failures propagate for all query strategies (by ID, by user, all tasks)</li>
  * <li>Returns empty result when no tasks match query criteria</li>
  * <li>Returns single task when queried by unique identifier</li>
- * <li>Returns task collection when queried by user ownership</li>
+ * <li>Returns task collection when queried by a list of identifiers</li>
+ * <li>Deduplicates duplicate identifiers before querying</li>
+ * <li>Throws when the input list contains a null identifier</li>
+ * <li>Returns user collection when querying all users</<li>Returns task collection when queried by user ownership</li>
  * <li>Returns all tasks regardless of ownership</li>
  */
 @ExtendWith(MockitoExtension.class)
@@ -122,6 +127,149 @@ class ReadTaskServiceTests {
     }
 
     @Nested
+    class GetTasksByIds {
+
+        @Test
+        void ReturnsTasks_AllTasksExist() {
+            // Given
+            var task1 = aTask();
+            var task2 = aTaskBuilder().withTaskId(UUID.fromString("6626568e-b677-43bb-99ad-923ca9b24b04"))
+                                      .withTitle("Task 2")
+                                      .withDescription("Description 2")
+                                      .build();
+            var taskId1 = task1.getId();
+            var taskId2 = task2.getId();
+            var tasks = List.of(task1, task2);
+            var taskIds = Set.of(taskId1, taskId2);
+            var taskIdValues = List.of(taskId1.value(), taskId2.value());
+
+            given(taskRepository.findByIds(taskIds)).willReturn(tasks);
+
+            // When
+            var actual = readTaskService.getTasksByIds(taskIdValues);
+
+            // Then
+            assertThat(actual).containsExactlyInAnyOrder(task1, task2);
+
+            then(taskRepository).should(times(1))
+                                .findByIds(taskIds);
+        }
+
+        @Test
+        void ReturnsFoundTasks_SomeTasksExist() {
+            // Given
+            var task1 = aTask();
+            var task2 = aTaskBuilder().withTaskId(UUID.fromString("6626568e-b677-43bb-99ad-923ca9b24b04"))
+                                      .withTitle("Task 2")
+                                      .withDescription("Description 2")
+                                      .build();
+            var taskId1 = task1.getId();
+            var taskId2 = task2.getId();
+            var taskIds = Set.of(taskId1, taskId2);
+            var taskIdValues = List.of(taskId1.value(), taskId2.value());
+
+            given(taskRepository.findByIds(taskIds)).willReturn(List.of(task1));
+
+            // When
+            var actual = readTaskService.getTasksByIds(taskIdValues);
+
+            // Then
+            assertThat(actual).containsExactlyInAnyOrder(task1);
+
+            then(taskRepository).should(times(1))
+                                .findByIds(taskIds);
+        }
+
+        @Test
+        void ReturnsEmptyList_TasksNotExist() {
+            // Given
+            var task1 = aTask();
+            var task2 = aTaskBuilder().withTaskId(UUID.fromString("6626568e-b677-43bb-99ad-923ca9b24b04"))
+                                      .withTitle("Task 2")
+                                      .withDescription("Description 2")
+                                      .build();
+            var taskId1 = task1.getId();
+            var taskId2 = task2.getId();
+            var taskIds = Set.of(taskId1, taskId2);
+            var taskIdValues = List.of(taskId1.value(), taskId2.value());
+
+            given(taskRepository.findByIds(taskIds)).willReturn(List.of());
+
+            // When
+            var actual = readTaskService.getTasksByIds(taskIdValues);
+
+            // Then
+            assertThat(actual).isEmpty();
+
+            then(taskRepository).should(times(1))
+                                .findByIds(taskIds);
+        }
+
+        @Test
+        void ReturnsTasksOnce_DuplicateIds() {
+            // Given
+            var task1 = aTask();
+            var task2 = aTaskBuilder().withTaskId(UUID.fromString("6626568e-b677-43bb-99ad-923ca9b24b04"))
+                                      .withTitle("Task 2")
+                                      .withDescription("Description 2")
+                                      .build();
+            var taskId1 = task1.getId();
+            var taskId2 = task2.getId();
+            var tasks = List.of(task1, task2);
+            var taskIds = Set.of(taskId1, taskId2);
+            var taskIdValues = List.of(taskId1.value(), taskId1.value(), taskId2.value());
+
+            given(taskRepository.findByIds(taskIds)).willReturn(tasks);
+
+            // When
+            var actual = readTaskService.getTasksByIds(taskIdValues);
+
+            // Then
+            assertThat(actual).containsExactlyInAnyOrder(task1, task2);
+
+            then(taskRepository).should(times(1))
+                                .findByIds(taskIds);
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_NullId() {
+            // Given
+            var taskIdValue = UUID.fromString("6626568e-b677-43bb-99ad-923ca9b24b04");
+            var taskIds = new ArrayList<UUID>();
+            taskIds.add(taskIdValue);
+            taskIds.add(null);
+
+            // When
+            var actual = catchThrowable(() -> readTaskService.getTasksByIds(taskIds));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Task ID must not be null");
+        }
+
+        @Test
+        void ThrowsRuntimeException_TasksRetrievalFails() {
+            // Given
+            var taskIdValue = UUID.fromString("6626568e-b677-43bb-99ad-923ca9b24b04");
+            var taskId = TaskId.of(taskIdValue);
+            var taskIds = Set.of(taskId);
+            var taskIdValues = List.of(taskIdValue);
+
+            given(taskRepository.findByIds(taskIds)).willThrow(RuntimeException.class);
+
+            // When
+            var actual = catchThrowable(() -> readTaskService.getTasksByIds(taskIdValues));
+
+            // Then
+            assertThat(actual).isInstanceOf(RuntimeException.class);
+
+            then(taskRepository).should(times(1))
+                                .findByIds(taskIds);
+        }
+
+    }
+
+    @Nested
     class GetTasksByUserId {
 
         @Test
@@ -166,7 +314,7 @@ class ReadTaskServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_TasksRetrievalFailsForUserId() {
+        void ThrowsRuntimeException_TasksRetrievalFails() {
             // Given
             var userIdValue = UUID.fromString("09726a94-df21-48ad-864a-f3612499ff3d");
             var userId = UserId.of(userIdValue);

@@ -73,6 +73,15 @@ Retrieves detailed information about a specific task by their unique identifier.
 
 operation::get-task-by-id[snippets='path-parameters,http-request,response-fields,curl-request,http-response']
 
+[[resources-tasks-get-by-ids]]
+=== Get Tasks by IDs
+
+Retrieves a list of tasks whose identifiers are in the provided `ids` query parameter.
+Missing identifiers are silently omitted; the response order is not guaranteed.
+Duplicate identifiers are deduplicated. The list must contain between 1 and 50 identifiers.
+
+operation::get-tasks-by-ids[snippets='query-parameters,http-request,response-fields,curl-request,http-response']
+
 [[resources-tasks-get-by-user-id]]
 === Get Tasks by User ID
 
@@ -117,13 +126,29 @@ operation::delete-task-by-id[snippets='path-parameters,http-request,curl-request
 
 All error responses follow the https://www.rfc-editor.org/rfc/rfc7807[RFC 7807 Problem Details] format.
 
-[[tasks-errors-400]]
-==== Validation Failure (400)
+[[tasks-errors-400-path]]
+==== Validation Failure - Path Variable (400)
+
+Returned when a path variable cannot be converted to its expected type (e.g., a malformed UUID).
+The response contains only `title`, `status`, and `detail`; no `errors` array is produced for type-conversion failures.
+
+operation::error-path-variable-validation-failure[snippets='http-response,response-fields']
+
+[[tasks-errors-400-param]]
+==== Validation Failure - Request Parameter (400)
+
+Returned when a query parameter fails validation (empty, out of range, or
+malformed). `errors[].entity` is empty; `errors[].field` is the parameter name.
+
+operation::error-request-param-validation-failure[snippets='http-response,response-fields']
+
+[[tasks-errors-400-body]]
+==== Validation Failure - Request Body (400)
 
 Returned when the request body contains invalid or missing fields.
 The `errors` array describes each validation failure.
 
-operation::error-validation-failure[snippets='http-response,response-fields']
+operation::error-request-body-validation-failure[snippets='http-response,response-fields']
 
 [[tasks-errors-401]]
 ==== Unauthorized (401)

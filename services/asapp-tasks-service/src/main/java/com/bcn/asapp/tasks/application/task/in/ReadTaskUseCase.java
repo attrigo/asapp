@@ -42,6 +42,15 @@ public interface ReadTaskUseCase {
     Optional<Task> getTaskById(UUID id);
 
     /**
+     * Retrieves tasks by their unique identifiers.
+     *
+     * @param ids the list of task identifiers; duplicates are deduped
+     * @return a {@link List} of {@link Task} entities found; missing ids are silently omitted
+     * @throws IllegalArgumentException if any id is invalid
+     */
+    List<Task> getTasksByIds(List<UUID> ids);
+
+    /**
      * Retrieves all tasks for a specific user by their unique identifier.
      *
      * @param userId the user's unique identifier
