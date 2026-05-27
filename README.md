@@ -512,6 +512,8 @@ Comprehensive guides for working with ASAPP:
 
 - [CLAUDE.md](CLAUDE.md) — Guidance for AI tools like Claude Code
 - [docs/superpowers/](docs/superpowers/) — Specs and plans for spec-driven development
+- [.claude/agents/](.claude/agents/) — Project-tailored Claude Code subagent roster (13 agents across design, implementation, review, documentation phases)
+- [.claude/rules/](.claude/rules/) — Path-scoped project rules auto-attached when agents touch matching files
 - AI workflow is built on the [superpowers](https://github.com/obra/superpowers) Claude Code plugin
 
 ### Service-Specific
