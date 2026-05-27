@@ -184,14 +184,14 @@ class AuthenticationRestControllerDocumentationIT extends RestDocsWebMvcTestCont
     class Errors {
 
         @Test
-        void DocumentsValidationFailure() throws Exception {
+        void DocumentsRequestBodyValidationFailure() throws Exception {
             // When & Then
             mockMvc.perform(post(AUTH_TOKEN_FULL_PATH).contentType(APPLICATION_JSON)
                                                       .content("{}"))
                    .andExpect(status().isBadRequest())
                    .andDo(
                    // @formatter:off
-                       document("error-validation-failure",
+                       document("error-request-body-validation-failure",
                            relaxedResponseFields(
                                fieldWithPath("title").description("Short summary of the problem type"),
                                fieldWithPath("status").description("HTTP status code"),

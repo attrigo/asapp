@@ -101,13 +101,13 @@ operation::revoke-authentication[snippets='request-fields,http-request,curl-requ
 
 All error responses follow the https://www.rfc-editor.org/rfc/rfc7807[RFC 7807 Problem Details] format.
 
-[[authentication-errors-400]]
-==== Validation Failure (400)
+[[authentication-errors-400-body]]
+==== Validation Failure - Request Body (400)
 
 Returned when the request body contains invalid or missing fields.
 The `errors` array describes each validation failure.
 
-operation::error-validation-failure[snippets='http-response,response-fields']
+operation::error-request-body-validation-failure[snippets='http-response,response-fields']
 
 [[authentication-errors-401]]
 ==== Unauthorized (401)
@@ -182,13 +182,21 @@ operation::delete-user-by-id[snippets='path-parameters,http-request,curl-request
 
 All error responses follow the https://www.rfc-editor.org/rfc/rfc7807[RFC 7807 Problem Details] format.
 
-[[auth-users-errors-400]]
-==== Validation Failure (400)
+[[auth-users-errors-400-path]]
+==== Validation Failure - Path Variable (400)
+
+Returned when a path variable cannot be converted to its expected type (e.g., a malformed UUID).
+The response contains only `title`, `status`, and `detail`; no `errors` array is produced for type-conversion failures.
+
+operation::error-path-variable-validation-failure[snippets='http-response,response-fields']
+
+[[auth-users-errors-400-body]]
+==== Validation Failure - Request Body (400)
 
 Returned when the request body contains invalid or missing fields.
 The `errors` array describes each validation failure.
 
-operation::error-validation-failure[snippets='http-response,response-fields']
+operation::error-request-body-validation-failure[snippets='http-response,response-fields']
 
 [[auth-users-errors-401]]
 ==== Unauthorized (401)
