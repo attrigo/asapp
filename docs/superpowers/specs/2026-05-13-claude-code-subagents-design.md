@@ -1,7 +1,7 @@
 # Claude Code subagents — design spec
 
 **Date**: 2026-05-13
-**Status**: Draft (pending user review)
+**Status**: Implemented
 **Owner**: Antonio Trigo
 
 
@@ -1212,3 +1212,30 @@ flowchart LR
 - [Claude Code subagents docs](https://code.claude.com/docs/en/sub-agents) — frontmatter + best practices
 - [obra/superpowers](https://github.com/obra/superpowers) — workflow framework
 - `.claude/rules/` (15 files) — the project conventions every agent must enforce
+
+## 11. Post-implementation notes
+
+This spec was written before implementation and refined as the roster shipped. The 13 agent bodies were authored over a sequence of `feat(agents): add <name>` commits (`710badfc` … `c833fbe9`) and then aligned to the final shape in `0a758c7e`, `7670195b`, `0a2ca3b7`, `471dbf21`. The sections above describe the original design intent and the in-flight updates that landed back into this document; **the canonical implementation is the current state of `.claude/agents/*.md` and the `## Subagent dispatch` directive in `CLAUDE.md`**, not this document.
+
+Most divergences from the original draft were folded back into the spec as they happened. Notable ones, with the commit that captured them:
+
+- **Body skeleton shrunk 8 → 7 sections** (`179af882` for spec, `0a758c7e` for agents): the `## Communication Protocol` section and the `Progress tracking` JSON block were removed from §3.3, §5.1, §5.2, §5.3 and from all 13 deployed agents. They modeled an inter-agent channel Claude Code subagents don't actually use (subagent I/O is a single free-text task message).
+
+- **`documentation-engineer` tools** (`179af882` / `0a758c7e`): added `Bash` to support replaying command samples in prose. Reflected in §4.1 and §6.1.
+
+- **`code-reviewer` model demoted opus → sonnet** (`0a2ca3b7`): rule-citation discipline is systematic (path-to-rule routing, explicit severity thresholds) and does not need the reasoning depth of macro or security review. Reflected in §4.2.
+
+- **`spring-boot-developer` lost test-authoring scope** (`0a2ca3b7`): tests are exclusively `test-automator`'s domain. Corresponding coverage items (adapter boundary, configuration validation, migration round-trip, security wiring) moved into `test-automator`'s coverage strategy. Reflected in §7.6 / §7.7.
+
+- **§4.6 Dispatch policy + `## Subagent dispatch` in `CLAUDE.md`** (`471dbf21`): added after a `subagent-driven-development` session repeatedly mis-routed (`spring-boot-developer` for tests, `general-purpose` for spec reviews). The CLAUDE.md directive enforces "most specific match from `.claude/agents/`; `general-purpose` is a last resort" across every Agent dispatch.
+
+- **Minor body fixes** (`7670195b`):
+    - `code-reviewer`: broken double-colon punctuation in closing prose → `", and"`.
+    - `domain-designer`: added the required `Delivery notification:` label before the quoted string (per §5.2).
+    - `security-designer`: `"filter beans"` → `"filters"` in the delivery notification (stack-agnostic per §3.3).
+
+- **§7 entries are seeds, not full bodies**: each §7.x agent in this spec lists 5–12 domain-knowledge labels with one-line descriptions. The deployed body expands each label to ~8 nominal phrases per §5.2. The §7 prose is the design intent; the deployed bodies are the canonical text.
+
+- **CLAUDE.md surface additions** (`471dbf21` and a later edit): added a `Subagents: .claude/agents/` pointer to the Docs block alongside the existing `Guidelines: .claude/rules/` and `Plans and specs: docs/superpowers/` lines.
+
+**For future agent edits**, treat the current `.claude/agents/<name>.md` as the template; treat `.claude/rules/`, `CLAUDE.md`, and §4.5 (secure agent authoring) as the binding constraints. The spec is preserved as a record of the original design intent and the reasoning that led to it.
