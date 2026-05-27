@@ -17,6 +17,7 @@
 package com.bcn.asapp.users.infrastructure.error;
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -36,6 +37,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 
 import com.bcn.asapp.users.infrastructure.security.AuthenticationNotFoundException;
 import com.bcn.asapp.users.infrastructure.security.InvalidJwtException;
@@ -123,6 +127,29 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
         problemDetail.setTitle("Invalid Argument");
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                             .body(problemDetail);
+    }
+
+    /**
+     * Handles constraint violations from {@code @Validated} request parameter constraints.
+     * <p>
+     * Thrown by the Bean Validation framework when method-level parameter constraints (e.g., {@code @NotEmpty}, {@code @Size} on {@code @RequestParam}) are
+     * violated. Returns a 400 Bad Request response.
+     *
+     * @param ex the {@link ConstraintViolationException}
+     * @return a {@link ResponseEntity} containing the error details
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<ProblemDetail> handleConstraintViolationException(ConstraintViolationException ex) {
+        log.warn("Constraint violation: {}", ex.getMessage());
+
+        var invalidParameters = buildInvalidParameters(ex.getConstraintViolations());
+
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage());
+        problemDetail.setTitle("Bad Request");
+        problemDetail.setProperty("errors", invalidParameters);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                              .body(problemDetail);
@@ -281,6 +308,23 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         return fieldErrors.stream()
                           .map(fieldErrorMapper)
                           .toList();
+    }
+
+    /**
+     * Builds a list of invalid parameter details from constraint violations.
+     *
+     * @param violations the set of {@link ConstraintViolation} from bean validation
+     * @return a {@link List} of {@link InvalidRequestParameter} containing error details
+     */
+    private List<InvalidRequestParameter> buildInvalidParameters(Set<ConstraintViolation<?>> violations) {
+        return violations.stream()
+                         .map(v -> {
+                             var path = v.getPropertyPath()
+                                         .toString();
+                             var field = path.contains(".") ? path.substring(path.indexOf('.') + 1) : path;
+                             return new InvalidRequestParameter("", field, v.getMessage());
+                         })
+                         .toList();
     }
 
 }

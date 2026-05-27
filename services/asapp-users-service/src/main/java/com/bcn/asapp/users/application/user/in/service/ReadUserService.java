@@ -19,6 +19,7 @@ package com.bcn.asapp.users.application.user.in.service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.bcn.asapp.users.application.ApplicationService;
 import com.bcn.asapp.users.application.user.in.ReadUserUseCase;
@@ -77,7 +78,7 @@ public class ReadUserService implements ReadUserUseCase {
     public Optional<UserWithTasksResult> getUserById(UUID id) {
         var userId = UserId.of(id);
 
-        var optionalUser = retrieveUser(userId);
+        var optionalUser = userRepository.findById(userId);
         if (optionalUser.isEmpty()) {
             return Optional.empty();
         }
@@ -88,13 +89,33 @@ public class ReadUserService implements ReadUserUseCase {
     }
 
     /**
-     * Retrieves user from repository by identifier.
+     * Retrieves users by their unique identifiers.
      *
-     * @param userId the user identifier
-     * @return an {@link Optional} containing the {@link User} if found, {@link Optional#empty} otherwise
+     * @param ids the list of user identifiers; duplicates are deduped
+     * @return a {@link List} of {@link User} entities found; missing ids are silently omitted
+     * @throws IllegalArgumentException if any id is invalid
      */
-    private Optional<User> retrieveUser(UserId userId) {
-        return userRepository.findById(userId);
+    @Override
+    public List<User> getUsersByIds(List<UUID> ids) {
+        var userIds = ids.stream()
+                         .map(UserId::of)
+                         .collect(Collectors.toUnmodifiableSet());
+
+        return userRepository.findByIds(userIds)
+                             .stream()
+                             .toList();
+    }
+
+    /**
+     * Retrieves all users from the system.
+     *
+     * @return a {@link List} of all {@link User} entities
+     */
+    @Override
+    public List<User> getAllUsers() {
+        return userRepository.findAll()
+                             .stream()
+                             .toList();
     }
 
     /**
@@ -110,18 +131,6 @@ public class ReadUserService implements ReadUserUseCase {
     private UserWithTasksResult enrichUserWithTasks(User user) {
         var taskIds = tasksGateway.getTaskIdsByUserId(user.getId());
         return new UserWithTasksResult(user, taskIds);
-    }
-
-    /**
-     * Retrieves all users from the system.
-     *
-     * @return a {@link List} of all {@link User} entities
-     */
-    @Override
-    public List<User> getAllUsers() {
-        return userRepository.findAll()
-                             .stream()
-                             .toList();
     }
 
 }

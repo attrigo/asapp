@@ -78,6 +78,15 @@ If task retrieval fails, the response includes the user with an empty task list.
 
 operation::get-user-by-id[snippets='path-parameters,http-request,response-fields,curl-request,http-response']
 
+[[resources-users-get-by-ids]]
+=== Get Users by IDs
+
+Retrieves a list of users whose identifiers are in the provided `ids` query parameter.
+Missing identifiers are silently omitted; the response order is not guaranteed.
+Duplicate identifiers are deduplicated. The list must contain between 1 and 50 identifiers.
+
+operation::get-users-by-ids[snippets='query-parameters,http-request,response-fields,curl-request,http-response']
+
 [[resources-users-get-all]]
 === Get All Users
 
@@ -121,6 +130,14 @@ Returned when a path variable cannot be converted to its expected type (e.g., a 
 The response contains only `title`, `status`, and `detail`; no `errors` array is produced for type-conversion failures.
 
 operation::error-path-variable-validation-failure[snippets='http-response,response-fields']
+
+[[users-errors-400-param]]
+==== Validation Failure - Request Parameter (400)
+
+Returned when a query parameter fails validation (empty, out of range, or
+malformed). `errors[].entity` is empty; `errors[].field` is the parameter name.
+
+operation::error-request-param-validation-failure[snippets='http-response,response-fields']
 
 [[users-errors-400-body]]
 ==== Validation Failure - Request Body (400)

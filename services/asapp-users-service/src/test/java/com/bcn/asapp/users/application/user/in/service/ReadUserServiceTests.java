@@ -26,8 +26,10 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.times;
 import static org.mockito.BDDMockito.willThrow;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Nested;
@@ -42,12 +44,15 @@ import com.bcn.asapp.users.application.user.out.UserRepository;
 import com.bcn.asapp.users.domain.user.UserId;
 
 /**
- * Tests {@link ReadUserService} single and collection retrieval with task enrichment.
+ * Tests {@link ReadUserService} single, collection, and identifier-list retrieval with task enrichment.
  * <p>
  * Coverage:
- * <li>Retrieval failures propagate for all query strategies (by ID, all users)</li>
+ * <li>Retrieval failures propagate for all query strategies (by ID, by IDs, all users)</li>
  * <li>Returns empty result when no users match query criteria</li>
  * <li>Returns single user when queried by unique identifier</li>
+ * <li>Returns user collection when queried by a list of identifiers</li>
+ * <li>Deduplicates duplicate identifiers before querying</li>
+ * <li>Throws when the input list contains a null identifier</li>
  * <li>Returns user collection when querying all users</li>
  * <li>Enriches user data with associated task identifiers via external gateway</li>
  * <li>Propagates task gateway failures to the caller</li>
@@ -184,6 +189,157 @@ class ReadUserServiceTests {
                                 .findById(userId);
             then(tasksGateway).should(times(1))
                               .getTaskIdsByUserId(userId);
+        }
+
+    }
+
+    @Nested
+    class GetUsersByIds {
+
+        @Test
+        void ReturnsUsers_AllUsersExist() {
+            // Given
+            var user1 = aUser();
+            var user2 = aUserBuilder().withUserId(UUID.fromString("57cfe2c8-5d08-4ba2-b3c3-a1823ab9812a"))
+                                      .withFirstName("FirstName 2")
+                                      .withLastName("LastName 2")
+                                      .withEmail("user2@asapp.com")
+                                      .withPhoneNumber("666 666 666")
+                                      .build();
+            var userId1 = user1.getId();
+            var userId2 = user2.getId();
+            var users = List.of(user1, user2);
+            var userIds = Set.of(userId1, userId2);
+            var userIdValues = List.of(userId1.value(), userId2.value());
+
+            given(userRepository.findByIds(userIds)).willReturn(users);
+
+            // When
+            var actual = readUserService.getUsersByIds(userIdValues);
+
+            // Then
+            assertThat(actual).containsExactlyInAnyOrder(user1, user2);
+
+            then(userRepository).should(times(1))
+                                .findByIds(userIds);
+        }
+
+        @Test
+        void ReturnsFoundUsers_SomeUsersExist() {
+            // Given
+            var user1 = aUser();
+            var user2 = aUserBuilder().withUserId(UUID.fromString("57cfe2c8-5d08-4ba2-b3c3-a1823ab9812a"))
+                                      .withFirstName("FirstName 2")
+                                      .withLastName("LastName 2")
+                                      .withEmail("user2@asapp.com")
+                                      .withPhoneNumber("666 666 666")
+                                      .build();
+            var userId1 = user1.getId();
+            var userId2 = user2.getId();
+            var userIds = Set.of(userId1, userId2);
+            var userIdValues = List.of(userId1.value(), userId2.value());
+
+            given(userRepository.findByIds(userIds)).willReturn(List.of(user1));
+
+            // When
+            var actual = readUserService.getUsersByIds(userIdValues);
+
+            // Then
+            assertThat(actual).containsExactlyInAnyOrder(user1);
+
+            then(userRepository).should(times(1))
+                                .findByIds(userIds);
+        }
+
+        @Test
+        void ReturnsEmptyList_UsersNotExist() {
+            // Given
+            var user1 = aUser();
+            var user2 = aUserBuilder().withUserId(UUID.fromString("57cfe2c8-5d08-4ba2-b3c3-a1823ab9812a"))
+                                      .withFirstName("FirstName 2")
+                                      .withLastName("LastName 2")
+                                      .withEmail("user2@asapp.com")
+                                      .withPhoneNumber("666 666 666")
+                                      .build();
+            var userId1 = user1.getId();
+            var userId2 = user2.getId();
+            var userIds = Set.of(userId1, userId2);
+            var userIdValues = List.of(userId1.value(), userId2.value());
+
+            given(userRepository.findByIds(userIds)).willReturn(List.of());
+
+            // When
+            var actual = readUserService.getUsersByIds(userIdValues);
+
+            // Then
+            assertThat(actual).isEmpty();
+
+            then(userRepository).should(times(1))
+                                .findByIds(userIds);
+        }
+
+        @Test
+        void ReturnsUsersOnce_DuplicateIds() {
+            // Given
+            var user1 = aUser();
+            var user2 = aUserBuilder().withUserId(UUID.fromString("57cfe2c8-5d08-4ba2-b3c3-a1823ab9812a"))
+                                      .withFirstName("FirstName 2")
+                                      .withLastName("LastName 2")
+                                      .withEmail("user2@asapp.com")
+                                      .withPhoneNumber("666 666 666")
+                                      .build();
+            var userId1 = user1.getId();
+            var userId2 = user2.getId();
+            var users = List.of(user1, user2);
+            var userIds = Set.of(userId1, userId2);
+            var userIdValues = List.of(userId1.value(), userId1.value(), userId2.value());
+
+            given(userRepository.findByIds(userIds)).willReturn(users);
+
+            // When
+            var actual = readUserService.getUsersByIds(userIdValues);
+
+            // Then
+            assertThat(actual).containsExactlyInAnyOrder(user1, user2);
+
+            then(userRepository).should(times(1))
+                                .findByIds(userIds);
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_NullId() {
+            // Given
+            var userIdValue = UUID.fromString("57cfe2c8-5d08-4ba2-b3c3-a1823ab9812a");
+            var userIds = new ArrayList<UUID>();
+            userIds.add(userIdValue);
+            userIds.add(null);
+
+            // When
+            var actual = catchThrowable(() -> readUserService.getUsersByIds(userIds));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("User ID must not be null");
+        }
+
+        @Test
+        void ThrowsRuntimeException_UsersRetrievalFails() {
+            // Given
+            var userIdValue = UUID.fromString("57cfe2c8-5d08-4ba2-b3c3-a1823ab9812a");
+            var userId = UserId.of(userIdValue);
+            var userIds = Set.of(userId);
+            var userIdValues = List.of(userIdValue);
+
+            given(userRepository.findByIds(userIds)).willThrow(RuntimeException.class);
+
+            // When
+            var actual = catchThrowable(() -> readUserService.getUsersByIds(userIdValues));
+
+            // Then
+            assertThat(actual).isInstanceOf(RuntimeException.class);
+
+            then(userRepository).should(times(1))
+                                .findByIds(userIds);
         }
 
     }

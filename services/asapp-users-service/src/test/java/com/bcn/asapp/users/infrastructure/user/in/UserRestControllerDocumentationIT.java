@@ -19,10 +19,13 @@ package com.bcn.asapp.users.infrastructure.user.in;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_CREATE_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_DELETE_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_ALL_FULL_PATH;
+import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_BY_IDS_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_BY_ID_FULL_PATH;
+import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_IDS_PARAM;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_UPDATE_BY_ID_FULL_PATH;
 import static com.bcn.asapp.users.testutil.fixture.UserMother.aUser;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -39,6 +42,7 @@ import static org.springframework.restdocs.payload.PayloadDocumentation.requestF
 import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.restdocs.request.RequestDocumentation.pathParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.queryParameters;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
@@ -60,6 +64,7 @@ import com.bcn.asapp.users.infrastructure.user.in.request.UpdateUserRequest;
 import com.bcn.asapp.users.infrastructure.user.in.response.CreateUserResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetAllUsersResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUserByIdResponse;
+import com.bcn.asapp.users.infrastructure.user.in.response.GetUsersByIdsResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
 import com.bcn.asapp.users.testutil.RestDocsConstrainedFields;
 import com.bcn.asapp.users.testutil.RestDocsWebMvcTestContext;
@@ -119,6 +124,51 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                            )
                        )
                        // @formatter:on
+                   );
+        }
+
+    }
+
+    @Nested
+    class GetUsersByIds {
+
+        @Test
+        void DocumentsGetUsersByIds() throws Exception {
+            // Given
+            var user = aUser();
+            var userIdValue = user.getId()
+                                  .value();
+            var firstNameValue = user.getFirstName()
+                                     .value();
+            var lastNameValue = user.getLastName()
+                                    .value();
+            var emailValue = user.getEmail()
+                                 .value();
+            var phoneNumberValue = user.getPhoneNumber()
+                                       .value();
+            var response = new GetUsersByIdsResponse(userIdValue, firstNameValue, lastNameValue, emailValue, phoneNumberValue);
+
+            given(readUserUseCase.getUsersByIds(anyList())).willReturn(List.of(user));
+            given(userMapper.toGetUsersByIdsResponse(any(User.class))).willReturn(response);
+
+            // When & Then
+            mockMvc.perform(get(USERS_GET_BY_IDS_FULL_PATH).param(USERS_IDS_PARAM, userIdValue.toString())
+                                                           .accept(APPLICATION_JSON)
+                                                           .header(AUTHORIZATION, "Bearer sample.access.token"))
+                   .andExpect(status().isOk())
+                   .andDo(
+                   // @formatter:off
+                       document("get-users-by-ids",
+                               requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
+                               queryParameters(parameterWithName("ids").description("Comma-separated list of user identifiers (1 to 50 elements)")),
+                               responseFields(
+                                       fieldWithPath("[].user_id").description("The user's unique identifier"),
+                                       fieldWithPath("[].first_name").description("The user's first name"),
+                                       fieldWithPath("[].last_name").description("The user's last name"),
+                                       fieldWithPath("[].email").description("The user's email address"),
+                                       fieldWithPath("[].phone_number").description("The user's phone number"))
+                       )
+                   // @formatter:on
                    );
         }
 
@@ -320,6 +370,28 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                fieldWithPath("title").description("Short summary of the problem type"),
                                fieldWithPath("status").description("HTTP status code"),
                                fieldWithPath("detail").description("Human-readable explanation of the problem")
+                           )
+                       )
+                       // @formatter:on
+                   );
+        }
+
+        @Test
+        void DocumentsRequestParamValidationFailure() throws Exception {
+            // When & Then
+            mockMvc.perform(get(USERS_GET_BY_IDS_FULL_PATH).param(USERS_IDS_PARAM, ""))
+                   .andExpect(status().isBadRequest())
+                   .andDo(
+                   // @formatter:off
+                       document("error-request-param-validation-failure",
+                           relaxedResponseFields(
+                               fieldWithPath("title").description("Short summary of the problem type"),
+                               fieldWithPath("status").description("HTTP status code"),
+                               fieldWithPath("detail").description("Human-readable explanation of the problem"),
+                               fieldWithPath("errors").description("List of validation errors"),
+                               fieldWithPath("errors[].entity").description("Always empty for request-parameter violations"),
+                               fieldWithPath("errors[].field").description("Name of the request parameter that failed validation"),
+                               fieldWithPath("errors[].message").description("Validation error message")
                            )
                        )
                        // @formatter:on
