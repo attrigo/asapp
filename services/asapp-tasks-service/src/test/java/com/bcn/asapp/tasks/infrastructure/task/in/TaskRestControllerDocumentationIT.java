@@ -425,25 +425,20 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
     class Errors {
 
         @Test
-        void DocumentsValidationFailure() throws Exception {
+        void DocumentsPathVariableValidationFailure() throws Exception {
             // When & Then
-            mockMvc.perform(post(TASKS_CREATE_FULL_PATH).contentType(APPLICATION_JSON)
-                                                        .content("{}"))
+            mockMvc.perform(get(TASKS_GET_BY_ID_FULL_PATH, "not-a-uuid").accept(APPLICATION_JSON))
                    .andExpect(status().isBadRequest())
                    .andDo(
                    // @formatter:off
-                       document("error-validation-failure",
+                       document("error-path-variable-validation-failure",
                            relaxedResponseFields(
                                fieldWithPath("title").description("Short summary of the problem type"),
                                fieldWithPath("status").description("HTTP status code"),
-                               fieldWithPath("detail").description("Human-readable explanation of the problem"),
-                               fieldWithPath("errors").description("List of validation errors"),
-                               fieldWithPath("errors[].entity").description("Entity that failed validation"),
-                               fieldWithPath("errors[].field").description("Field that failed validation"),
-                               fieldWithPath("errors[].message").description("Validation error message")
+                               fieldWithPath("detail").description("Human-readable explanation of the problem")
                            )
                        )
-                   // @formatter:on
+                       // @formatter:on
                    );
         }
 
@@ -466,6 +461,29 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                            )
                        )
                        // @formatter:on
+                   );
+        }
+
+        @Test
+        void DocumentsRequestBodyValidationFailure() throws Exception {
+            // When & Then
+            mockMvc.perform(post(TASKS_CREATE_FULL_PATH).contentType(APPLICATION_JSON)
+                                                        .content("{}"))
+                   .andExpect(status().isBadRequest())
+                   .andDo(
+                   // @formatter:off
+                       document("error-request-body-validation-failure",
+                           relaxedResponseFields(
+                               fieldWithPath("title").description("Short summary of the problem type"),
+                               fieldWithPath("status").description("HTTP status code"),
+                               fieldWithPath("detail").description("Human-readable explanation of the problem"),
+                               fieldWithPath("errors").description("List of validation errors"),
+                               fieldWithPath("errors[].entity").description("Entity that failed validation"),
+                               fieldWithPath("errors[].field").description("Field that failed validation"),
+                               fieldWithPath("errors[].message").description("Validation error message")
+                           )
+                       )
+                   // @formatter:on
                    );
         }
 
