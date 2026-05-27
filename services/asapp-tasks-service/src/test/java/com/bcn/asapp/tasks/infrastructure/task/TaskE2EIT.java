@@ -23,8 +23,10 @@ import static com.bcn.asapp.tasks.testutil.fixture.TaskMother.aTaskBuilder;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_CREATE_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_DELETE_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_ALL_FULL_PATH;
+import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_IDS_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
+import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_IDS_PARAM;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_UPDATE_BY_ID_FULL_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
@@ -53,6 +55,7 @@ import com.bcn.asapp.tasks.infrastructure.task.in.request.UpdateTaskRequest;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.CreateTaskResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetAllTasksResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetTaskByIdResponse;
+import com.bcn.asapp.tasks.infrastructure.task.in.response.GetTasksByIdsResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.UpdateTaskResponse;
 import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskEntity;
 import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskRepository;
@@ -64,6 +67,7 @@ import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
  * Coverage:
  * <li>Rejects all operations without valid JWT authentication</li>
  * <li>Retrieves task by identifier returning 404 when not found, task when exists</li>
+ * <li>Retrieves tasks by identifier list, omitting unknown ids and deduplicating</li>
  * <li>Retrieves tasks by user ownership returning empty or collection</li>
  * <li>Retrieves all tasks across users returning empty or collection</li>
  * <li>Creates task persisting to database and returning assigned identifier</li>
@@ -164,6 +168,156 @@ class TaskE2EIT {
     }
 
     @Nested
+    class GetTasksByIds {
+
+        @Test
+        void ReturnsStatusOKAndBodyWithFoundTasks_AllTasksExist() {
+            // Given
+            var task1 = aTaskBuilder().withTitle("Title1")
+                                      .buildJdbc();
+            var task2 = aTaskBuilder().withTitle("Title2")
+                                      .buildJdbc();
+            var createdTask1 = createTask(task1);
+            var createdTask2 = createTask(task2);
+            var taskId1 = createdTask1.id();
+            var taskId2 = createdTask2.id();
+            var response1 = new GetTasksByIdsResponse(taskId1, createdTask1.userId(), createdTask1.title(), createdTask1.description(),
+                    createdTask1.startDate(), createdTask1.endDate());
+            var response2 = new GetTasksByIdsResponse(taskId2, createdTask2.userId(), createdTask2.title(), createdTask2.description(),
+                    createdTask2.startDate(), createdTask2.endDate());
+
+            // When
+            var actual = restTestClient.get()
+                                       .uri(uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
+                                                                    .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId2)
+                                                                    .build())
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(new ParameterizedTypeReference<List<GetTasksByIdsResponse>>() {})
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertThat(actual).containsExactlyInAnyOrder(response1, response2);
+        }
+
+        @Test
+        void ReturnsStatusOKAndBodyWithFoundTasks_SomeTasksExist() {
+            // Given
+            var createdTask = createTask();
+            var taskId1 = createTask().id();
+            var taskId2 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
+            var response = new GetTasksByIdsResponse(taskId1, createdTask.userId(), createdTask.title(), createdTask.description(), createdTask.startDate(),
+                    createdTask.endDate());
+
+            // When
+            var actual = restTestClient.get()
+                                       .uri(uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
+                                                                    .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId2)
+                                                                    .build())
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(new ParameterizedTypeReference<List<GetTasksByIdsResponse>>() {})
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertThat(actual).containsExactlyInAnyOrder(response);
+        }
+
+        @Test
+        void ReturnsStatusOKAndEmptyBody_TasksNotExist() {
+            // Given
+            var taskId1 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
+            var taskId2 = UUID.fromString("68699b10-b665-4378-baea-a44b4be287f9");
+
+            // When
+            var actual = restTestClient.get()
+                                       .uri(uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
+                                                                    .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId2)
+                                                                    .build())
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(new ParameterizedTypeReference<List<GetTasksByIdsResponse>>() {})
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertThat(actual).isEmpty();
+        }
+
+        @Test
+        void ReturnsStatusOKAndBodyWithFoundTasksOnce_DuplicateIds() {
+            // Given
+            var task1 = aTaskBuilder().withTitle("Title1")
+                                      .buildJdbc();
+            var task2 = aTaskBuilder().withTitle("Title2")
+                                      .buildJdbc();
+            var createdTask1 = createTask(task1);
+            var createdTask2 = createTask(task2);
+            var taskId1 = createdTask1.id();
+            var taskId2 = createdTask2.id();
+            var response1 = new GetTasksByIdsResponse(taskId1, createdTask1.userId(), createdTask1.title(), createdTask1.description(),
+                    createdTask1.startDate(), createdTask1.endDate());
+            var response2 = new GetTasksByIdsResponse(taskId2, createdTask2.userId(), createdTask2.title(), createdTask2.description(),
+                    createdTask2.startDate(), createdTask2.endDate());
+
+            // When
+            var actual = restTestClient.get()
+                                       .uri(uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
+                                                                    .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId1 + "," + taskId2)
+                                                                    .build())
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(new ParameterizedTypeReference<List<GetTasksByIdsResponse>>() {})
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertThat(actual).containsExactlyInAnyOrder(response1, response2);
+        }
+
+        @Test
+        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
+            // Given
+            var taskId = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
+
+            // When & Then
+            restTestClient.get()
+                          .uri(uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
+                                                       .queryParam(TASKS_IDS_PARAM, taskId)
+                                                       .build())
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
+        }
+
+    }
+
+    @Nested
     class GetTasksByUserId {
 
         @Test
@@ -171,10 +325,13 @@ class TaskE2EIT {
             // Given
             var userId = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
             var task1 = aTaskBuilder().withUserId(userId)
+                                      .withTitle("Title1")
                                       .buildJdbc();
             var task2 = aTaskBuilder().withUserId(userId)
+                                      .withTitle("Title2")
                                       .buildJdbc();
             var task3 = aTaskBuilder().withUserId(userId)
+                                      .withTitle("Title3")
                                       .buildJdbc();
             var createdTask1 = createTask(task1);
             var createdTask2 = createTask(task2);

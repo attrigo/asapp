@@ -19,6 +19,7 @@ package com.bcn.asapp.tasks.application.task.in.service;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import com.bcn.asapp.tasks.application.ApplicationService;
 import com.bcn.asapp.tasks.application.task.in.ReadTaskUseCase;
@@ -61,6 +62,24 @@ public class ReadTaskService implements ReadTaskUseCase {
         var taskId = TaskId.of(id);
 
         return this.taskRepository.findById(taskId);
+    }
+
+    /**
+     * Retrieves tasks by their unique identifiers.
+     *
+     * @param ids the list of task identifiers; duplicates are deduped
+     * @return a {@link List} of {@link Task} entities found; missing ids are silently omitted
+     * @throws IllegalArgumentException if any id is invalid
+     */
+    @Override
+    public List<Task> getTasksByIds(List<UUID> ids) {
+        var taskIds = ids.stream()
+                         .map(TaskId::of)
+                         .collect(Collectors.toUnmodifiableSet());
+
+        return taskRepository.findByIds(taskIds)
+                             .stream()
+                             .toList();
     }
 
     /**

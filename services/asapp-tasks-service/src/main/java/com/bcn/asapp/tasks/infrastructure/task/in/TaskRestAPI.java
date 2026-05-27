@@ -21,6 +21,7 @@ import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_DELETE_BY_ID_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_ALL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_ID_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_PATH;
+import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_IDS_PARAM;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_ROOT_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_UPDATE_BY_ID_PATH;
 
@@ -37,6 +38,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -47,12 +49,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
 import com.bcn.asapp.tasks.infrastructure.task.in.request.CreateTaskRequest;
 import com.bcn.asapp.tasks.infrastructure.task.in.request.UpdateTaskRequest;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.CreateTaskResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetAllTasksResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetTaskByIdResponse;
+import com.bcn.asapp.tasks.infrastructure.task.in.response.GetTasksByIdsResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetTasksByUserIdResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.UpdateTaskResponse;
 
@@ -97,6 +102,33 @@ public interface TaskRestAPI {
     ResponseEntity<GetTaskByIdResponse> getTaskById(@PathVariable @Parameter(description = "Identifier of the task to get") UUID id);
 
     /**
+     * Gets tasks by their unique identifiers.
+     * <p>
+     * Response codes:
+     * <ul>
+     * <li>200-OK: Tasks found.</li>
+     * <li>400-BAD_REQUEST: ids is empty, exceeds 50 elements, or contains a malformed UUID.</li>
+     * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
+     * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during retrieval.</li>
+     * </ul>
+     *
+     * @param ids the list of task identifiers (1 to 50 elements)
+     * @return a {@link List} of {@link GetTasksByIdsResponse} containing the tasks found; missing identifiers are silently omitted
+     */
+    @GetMapping(value = TASKS_GET_ALL_PATH, params = TASKS_IDS_PARAM, produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Gets tasks by their unique identifiers", description = "Retrieves a list of tasks whose identifiers are in the provided list. This endpoint requires authentication. Missing identifiers are silently omitted; the response order is not guaranteed. Duplicate identifiers are deduplicated server-side. The list must contain between 1 and 50 identifiers.")
+    @ApiResponse(responseCode = "200", description = "Tasks found", content = { @Content(schema = @Schema(implementation = GetTasksByIdsResponse.class)) })
+    @ApiResponse(responseCode = "400", description = "Task identifiers list is empty, exceeds 50 elements, or contains a malformed UUID", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "500", description = "An internal error occurred during retrieval", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    List<GetTasksByIdsResponse> getTasksByIds(
+            @RequestParam(TASKS_IDS_PARAM) @Parameter(description = "List of task identifiers") @NotEmpty(message = "Tasks identifiers list must not be empty") @Size(max = 50, message = "Tasks identifiers list must contain at most 50 elements") List<UUID> ids);
+
+    /**
      * Gets all tasks for a specific user by their unique identifier.
      * <p>
      * Response codes:
@@ -135,7 +167,7 @@ public interface TaskRestAPI {
      *
      * @return a {@link List} of {@link GetAllTasksResponse} containing all tasks found, or an empty list if no tasks exist
      */
-    @GetMapping(value = TASKS_GET_ALL_PATH, produces = "application/json")
+    @GetMapping(value = TASKS_GET_ALL_PATH, params = "!ids", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Gets all tasks", description = "Retrieves a list of all registered tasks in the system. This endpoint requires authentication. If no tasks exist, an empty array is returned.")
     @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully", content = {

@@ -18,8 +18,10 @@ package com.bcn.asapp.tasks.infrastructure.task.in;
 
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_CREATE_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_DELETE_BY_ID_FULL_PATH;
+import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_IDS_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
+import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_IDS_PARAM;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_ROOT_PATH;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_UPDATE_BY_ID_FULL_PATH;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
@@ -31,6 +33,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import java.time.Instant;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -49,7 +52,7 @@ import com.bcn.asapp.tasks.testutil.WebMvcTestContext;
  * <li>Validates request body presence and structure</li>
  * <li>Validates mandatory field constraints (user ID, title)</li>
  * <li>Returns RFC 7807 Problem Details for all validation failures</li>
- * <li>Tests all HTTP endpoints (GET by ID, GET by user, POST, PUT, DELETE)</li>
+ * <li>Tests all HTTP endpoints (GET by ID, GET by IDs, GET by user, POST, PUT, DELETE)</li>
  */
 @WithMockUser
 class TaskRestControllerIT extends WebMvcTestContext {
@@ -94,6 +97,92 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                                 .containsEntry("status", 400)
                                                                 .containsEntry("detail", "Failed to convert 'id' with value: '1'")
                                                                 .containsEntry("instance", "/api/tasks/1"));
+        }
+
+    }
+
+    @Nested
+    class GetTasksByIds {
+
+        @Test
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_MissingTasksIds() {
+            // Given
+            var requestBuilder = get(TASKS_GET_BY_IDS_FULL_PATH).param(TASKS_IDS_PARAM, "");
+
+            // When & Then
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> {
+                             assertThatJson(json).isObject()
+                                                 .containsEntry("title", "Bad Request")
+                                                 .containsEntry("status", 400)
+                                                 .containsEntry("detail", "getTasksByIds.ids: Tasks identifiers list must not be empty")
+                                                 .containsEntry("instance", "/api/tasks");
+                         //@formatter:off
+                             assertThatJson(json).inPath("errors")
+                                                 .isArray()
+                                                 .containsOnly(
+                                                         Map.of("entity", "", "field", "ids", "message", "Tasks identifiers list must not be empty")
+                                                 );
+                             //@formatter:on
+                         });
+        }
+
+        @Test
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_ExceedTasksIds() {
+            // Given
+            var taskIds = IntStream.range(0, 51)
+                                   .mapToObj(_ -> UUID.randomUUID())
+                                   .map(UUID::toString)
+                                   .reduce((a, b) -> a + "," + b)
+                                   .orElseThrow();
+            var requestBuilder = get(TASKS_GET_BY_IDS_FULL_PATH).param(TASKS_IDS_PARAM, taskIds);
+
+            // When & Then
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> {
+                             assertThatJson(json).isObject()
+                                                 .containsEntry("title", "Bad Request")
+                                                 .containsEntry("status", 400)
+                                                 .containsEntry("detail", "getTasksByIds.ids: Tasks identifiers list must contain at most 50 elements")
+                                                 .containsEntry("instance", "/api/tasks");
+                         //@formatter:off
+                             assertThatJson(json).inPath("errors")
+                                                 .isArray()
+                                                 .containsOnly(
+                                                         Map.of("entity", "", "field", "ids", "message", "Tasks identifiers list must contain at most 50 elements")
+                                                 );
+                             //@formatter:on
+                         });
+        }
+
+        @Test
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidTaskId() {
+            // Given
+            var taskIds = "1";
+            var requestBuilder = get(TASKS_GET_BY_IDS_FULL_PATH).param(TASKS_IDS_PARAM, taskIds);
+
+            // When & Then
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> assertThatJson(json).isObject()
+                                                                .containsEntry("title", "Bad Request")
+                                                                .containsEntry("status", 400)
+                                                                .containsEntry("detail", "Failed to convert 'ids' with value: '1'")
+                                                                .containsEntry("instance", "/api/tasks"));
         }
 
     }

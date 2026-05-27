@@ -29,6 +29,7 @@ import com.bcn.asapp.tasks.infrastructure.task.in.request.UpdateTaskRequest;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.CreateTaskResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetAllTasksResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetTaskByIdResponse;
+import com.bcn.asapp.tasks.infrastructure.task.in.response.GetTasksByIdsResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.GetTasksByUserIdResponse;
 import com.bcn.asapp.tasks.infrastructure.task.in.response.UpdateTaskResponse;
 import com.bcn.asapp.tasks.infrastructure.task.persistence.JdbcTaskEntity;
@@ -96,6 +97,15 @@ public interface TaskMapper {
      */
     @Mapping(target = "taskId", source = "id")
     GetTaskByIdResponse toGetTaskByIdResponse(Task task);
+
+    /**
+     * Maps a domain {@link Task} to a {@link GetTasksByIdsResponse}.
+     *
+     * @param task the {@link Task} domain entity
+     * @return the {@link GetTasksByIdsResponse}
+     */
+    @Mapping(target = "taskId", source = "id")
+    GetTasksByIdsResponse toGetTasksByIdsResponse(Task task);
 
     /**
      * Maps a domain {@link Task} to a {@link GetTasksByUserIdResponse}.
