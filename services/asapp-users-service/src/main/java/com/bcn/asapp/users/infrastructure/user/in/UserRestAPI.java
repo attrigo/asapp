@@ -20,6 +20,7 @@ import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_CREATE_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_DELETE_BY_ID_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_ALL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_BY_ID_PATH;
+import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_IDS_PARAM;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_ROOT_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_UPDATE_BY_ID_PATH;
 
@@ -36,6 +37,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -46,12 +48,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Size;
 
 import com.bcn.asapp.users.infrastructure.user.in.request.CreateUserRequest;
 import com.bcn.asapp.users.infrastructure.user.in.request.UpdateUserRequest;
 import com.bcn.asapp.users.infrastructure.user.in.response.CreateUserResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetAllUsersResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUserByIdResponse;
+import com.bcn.asapp.users.infrastructure.user.in.response.GetUsersByIdsResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
 
 /**
@@ -100,6 +105,33 @@ public interface UserRestAPI {
     ResponseEntity<GetUserByIdResponse> getUserById(@PathVariable @Parameter(description = "Identifier of the user to get") UUID id);
 
     /**
+     * Gets users by their unique identifiers.
+     * <p>
+     * Response codes:
+     * <ul>
+     * <li>200-OK: Users found.</li>
+     * <li>400-BAD_REQUEST: ids is empty, exceeds 50 elements, or contains a malformed UUID.</li>
+     * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
+     * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during retrieval.</li>
+     * </ul>
+     *
+     * @param ids the list of user identifiers (1 to 50 elements)
+     * @return a {@link List} of {@link GetUsersByIdsResponse} containing the users found; missing identifiers are silently omitted
+     */
+    @GetMapping(value = USERS_GET_ALL_PATH, params = USERS_IDS_PARAM, produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Gets users by their unique identifiers", description = "Retrieves a list of users whose identifiers are in the provided list. This endpoint requires authentication. Missing identifiers are silently omitted; the response order is not guaranteed. Duplicate identifiers are deduplicated server-side. The list must contain between 1 and 50 identifiers.")
+    @ApiResponse(responseCode = "200", description = "Users found", content = { @Content(schema = @Schema(implementation = GetUsersByIdsResponse.class)) })
+    @ApiResponse(responseCode = "400", description = "User identifiers list is empty, exceeds 50 elements, or contains a malformed UUID", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "500", description = "An internal error occurred during retrieval", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    List<GetUsersByIdsResponse> getUsersByIds(
+            @RequestParam(USERS_IDS_PARAM) @Parameter(description = "List of user identifiers") @NotEmpty(message = "Users identifiers list must not be empty") @Size(max = 50, message = "Users identifiers list must contain at most 50 elements") List<UUID> ids);
+
+    /**
      * Gets all users.
      * <p>
      * Response codes:
@@ -111,7 +143,7 @@ public interface UserRestAPI {
      *
      * @return a {@link List} of {@link GetAllUsersResponse} containing all users found, or an empty list if no users exist
      */
-    @GetMapping(value = USERS_GET_ALL_PATH, produces = "application/json")
+    @GetMapping(value = USERS_GET_ALL_PATH, params = "!ids", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Gets all users", description = "Retrieves a list of all registered users in the system. This endpoint requires authentication. If no users exist, an empty array is returned.")
     @ApiResponse(responseCode = "200", description = "Users retrieved successfully", content = {

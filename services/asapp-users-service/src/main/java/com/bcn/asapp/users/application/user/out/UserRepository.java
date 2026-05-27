@@ -41,6 +41,14 @@ public interface UserRepository {
     Optional<User> findById(UserId userId);
 
     /**
+     * Finds users by their unique identifiers.
+     *
+     * @param userIds the collection of user identifiers
+     * @return a {@link Collection} of {@link User} entities found; missing identifiers are silently omitted
+     */
+    Collection<User> findByIds(Collection<UserId> userIds);
+
+    /**
      * Retrieves all users from the repository.
      *
      * @return a {@link Collection} of all {@link User} entities

@@ -20,7 +20,9 @@ import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_P
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_CREATE_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_DELETE_BY_ID_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_ALL_FULL_PATH;
+import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_BY_IDS_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_BY_ID_FULL_PATH;
+import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_IDS_PARAM;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_UPDATE_BY_ID_FULL_PATH;
 import static com.bcn.asapp.users.infrastructure.security.RedisJwtStore.ACCESS_TOKEN_PREFIX;
 import static com.bcn.asapp.users.testutil.fixture.EncodedTokenMother.encodedAccessToken;
@@ -67,6 +69,7 @@ import com.bcn.asapp.users.infrastructure.user.in.request.UpdateUserRequest;
 import com.bcn.asapp.users.infrastructure.user.in.response.CreateUserResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetAllUsersResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUserByIdResponse;
+import com.bcn.asapp.users.infrastructure.user.in.response.GetUsersByIdsResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
 import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserEntity;
 import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserRepository;
@@ -79,6 +82,7 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
  * <li>Rejects all operations without valid JWT authentication</li>
  * <li>Retrieves user by identifier returning 404 when not found, user when exists</li>
  * <li>Retrieves user with task enrichment via external gateway (graceful degradation on failure)</li>
+ * <li>Retrieves users by identifier list, omitting unknown ids and deduplicating</li>
  * <li>Retrieves all users returning empty or collection</li>
  * <li>Creates user persisting to database and returning assigned identifier</li>
  * <li>Updates existing user persisting changes and returning updated data</li>
@@ -252,6 +256,155 @@ class UserE2EIT {
             // When & Then
             restTestClient.get()
                           .uri(USERS_GET_BY_ID_FULL_PATH, userId)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
+        }
+
+    }
+
+    @Nested
+    class GetUsersByIds {
+
+        @Test
+        void ReturnsStatusOKAndBodyWithFoundUsers_AllUsersExist() {
+            // Given
+            var user1 = aUserBuilder().withEmail("user1@asapp.com")
+                                      .buildJdbc();
+            var user2 = aUserBuilder().withEmail("user2@asapp.com")
+                                      .buildJdbc();
+            var createdUser1 = createUser(user1);
+            var createdUser2 = createUser(user2);
+            var userId1 = createdUser1.id();
+            var userId2 = createdUser2.id();
+            var response1 = new GetUsersByIdsResponse(userId1, createdUser1.firstName(), createdUser1.lastName(), createdUser1.email(),
+                    createdUser1.phoneNumber());
+            var response2 = new GetUsersByIdsResponse(userId2, createdUser2.firstName(), createdUser2.lastName(), createdUser2.email(),
+                    createdUser2.phoneNumber());
+
+            // When
+            var actual = restTestClient.get()
+                                       .uri(uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
+                                                                    .queryParam(USERS_IDS_PARAM, userId1 + "," + userId2)
+                                                                    .build())
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(new ParameterizedTypeReference<List<GetUsersByIdsResponse>>() {})
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertThat(actual).containsExactlyInAnyOrder(response1, response2);
+        }
+
+        @Test
+        void ReturnsStatusOKAndBodyWithFoundUsers_SomeUsersExist() {
+            // Given
+            var createdUser = createUser();
+            var userId1 = createdUser.id();
+            var userId2 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
+            var response = new GetUsersByIdsResponse(userId1, createdUser.firstName(), createdUser.lastName(), createdUser.email(), createdUser.phoneNumber());
+
+            // When
+            var actual = restTestClient.get()
+                                       .uri(uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
+                                                                    .queryParam(USERS_IDS_PARAM, userId1 + "," + userId2)
+                                                                    .build())
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(new ParameterizedTypeReference<List<GetUsersByIdsResponse>>() {})
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertThat(actual).containsExactlyInAnyOrder(response);
+        }
+
+        @Test
+        void ReturnsStatusOKAndEmptyBody_UsersNotExist() {
+            // Given
+            var userId1 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
+            var userId2 = UUID.fromString("68699b10-b665-4378-baea-a44b4be287f9");
+
+            // When
+            var actual = restTestClient.get()
+                                       .uri(uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
+                                                                    .queryParam(USERS_IDS_PARAM, userId1 + "," + userId2)
+                                                                    .build())
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(new ParameterizedTypeReference<List<GetUsersByIdsResponse>>() {})
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertThat(actual).isEmpty();
+        }
+
+        @Test
+        void ReturnsStatusOKAndBodyWithFoundUsersOnce_DuplicateIds() {
+            // Given
+            var user1 = aUserBuilder().withEmail("user1@asapp.com")
+                                      .buildJdbc();
+            var user2 = aUserBuilder().withEmail("user2@asapp.com")
+                                      .buildJdbc();
+            var createdUser1 = createUser(user1);
+            var createdUser2 = createUser(user2);
+            var userId1 = createdUser1.id();
+            var userId2 = createdUser2.id();
+            var response1 = new GetUsersByIdsResponse(userId1, createdUser1.firstName(), createdUser1.lastName(), createdUser1.email(),
+                    createdUser1.phoneNumber());
+            var response2 = new GetUsersByIdsResponse(userId2, createdUser2.firstName(), createdUser2.lastName(), createdUser2.email(),
+                    createdUser2.phoneNumber());
+
+            // When
+            var actual = restTestClient.get()
+                                       .uri(uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
+                                                                    .queryParam(USERS_IDS_PARAM, userId1 + "," + userId1 + "," + userId2)
+                                                                    .build())
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(new ParameterizedTypeReference<List<GetUsersByIdsResponse>>() {})
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertThat(actual).containsExactlyInAnyOrder(response1, response2);
+        }
+
+        @Test
+        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
+            // Given
+            var userId = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
+
+            // When & Then
+            restTestClient.get()
+                          .uri(uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
+                                                       .queryParam(USERS_IDS_PARAM, userId)
+                                                       .build())
                           .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                           .exchange()
                           .expectStatus()

@@ -48,6 +48,15 @@ public interface ReadUserUseCase {
     Optional<UserWithTasksResult> getUserById(UUID id);
 
     /**
+     * Retrieves users by their unique identifiers.
+     *
+     * @param ids the list of user identifiers; duplicates are deduped
+     * @return a {@link List} of {@link User} entities found; missing ids are silently omitted
+     * @throws IllegalArgumentException if any id is invalid
+     */
+    List<User> getUsersByIds(List<UUID> ids);
+
+    /**
      * Retrieves all users from the system.
      *
      * @return a {@link List} of all {@link User} entities

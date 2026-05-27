@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bcn.asapp.users.application.user.in.CreateUserUseCase;
@@ -32,6 +33,7 @@ import com.bcn.asapp.users.infrastructure.user.in.request.UpdateUserRequest;
 import com.bcn.asapp.users.infrastructure.user.in.response.CreateUserResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetAllUsersResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUserByIdResponse;
+import com.bcn.asapp.users.infrastructure.user.in.response.GetUsersByIdsResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
 import com.bcn.asapp.users.infrastructure.user.mapper.UserMapper;
 
@@ -44,6 +46,7 @@ import com.bcn.asapp.users.infrastructure.user.mapper.UserMapper;
  * @author attrigo
  */
 @RestController
+@Validated
 public class UserRestController implements UserRestAPI {
 
     private final ReadUserUseCase readUserUseCase;
@@ -92,6 +95,20 @@ public class UserRestController implements UserRestAPI {
                               .map(ResponseEntity::ok)
                               .orElseGet(() -> ResponseEntity.notFound()
                                                              .build());
+    }
+
+    /**
+     * Gets users by their unique identifiers.
+     *
+     * @param ids the list of user identifiers
+     * @return a {@link List} of {@link GetUsersByIdsResponse} containing the users found; missing identifiers are silently omitted
+     */
+    @Override
+    public List<GetUsersByIdsResponse> getUsersByIds(List<UUID> ids) {
+        return readUserUseCase.getUsersByIds(ids)
+                              .stream()
+                              .map(userMapper::toGetUsersByIdsResponse)
+                              .toList();
     }
 
     /**

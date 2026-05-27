@@ -30,6 +30,7 @@ import com.bcn.asapp.users.infrastructure.user.in.request.UpdateUserRequest;
 import com.bcn.asapp.users.infrastructure.user.in.response.CreateUserResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetAllUsersResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUserByIdResponse;
+import com.bcn.asapp.users.infrastructure.user.in.response.GetUsersByIdsResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
 import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserEntity;
 
@@ -102,6 +103,15 @@ public interface UserMapper {
     @Mapping(target = "phoneNumber", source = "user.phoneNumber")
     @Mapping(target = "taskIds", source = "taskIds")
     GetUserByIdResponse toGetUserByIdResponse(UserWithTasksResult result);
+
+    /**
+     * Maps a domain {@link User} to a {@link GetUsersByIdsResponse}.
+     *
+     * @param user the {@link User} domain entity
+     * @return the {@link GetUsersByIdsResponse}
+     */
+    @Mapping(target = "userId", source = "id")
+    GetUsersByIdsResponse toGetUsersByIdsResponse(User user);
 
     /**
      * Maps a domain {@link User} to a {@link GetAllUsersResponse}.

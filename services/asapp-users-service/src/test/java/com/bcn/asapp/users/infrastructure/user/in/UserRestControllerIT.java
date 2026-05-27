@@ -18,7 +18,9 @@ package com.bcn.asapp.users.infrastructure.user.in;
 
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_CREATE_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_DELETE_BY_ID_FULL_PATH;
+import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_BY_IDS_FULL_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_GET_BY_ID_FULL_PATH;
+import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_IDS_PARAM;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_ROOT_PATH;
 import static com.bcn.asapp.url.users.UserRestAPIURL.USERS_UPDATE_BY_ID_FULL_PATH;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
@@ -29,6 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -43,12 +46,13 @@ import com.bcn.asapp.users.testutil.WebMvcTestContext;
  * <p>
  * Coverage:
  * <li>Validates path parameter format (UUID required for user IDs)</li>
+ * <li>Validates request parameter constraints (ids non-empty, ids size cap, ids malformed UUID)</li>
  * <li>Validates request content type (JSON required for POST/PUT operations)</li>
  * <li>Validates request body presence and structure</li>
  * <li>Validates mandatory field constraints (first name, last name, email, phone number)</li>
  * <li>Validates email format and phone number format patterns</li>
  * <li>Returns RFC 7807 Problem Details for all validation failures</li>
- * <li>Tests all HTTP endpoints (GET by ID, POST, PUT, DELETE)</li>
+ * <li>Tests all HTTP endpoints (GET by ID, GET by IDs, POST, PUT, DELETE)</li>
  */
 @WithMockUser
 class UserRestControllerIT extends WebMvcTestContext {
@@ -93,6 +97,92 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                                 .containsEntry("status", 400)
                                                                 .containsEntry("detail", "Failed to convert 'id' with value: '1'")
                                                                 .containsEntry("instance", "/api/users/1"));
+        }
+
+    }
+
+    @Nested
+    class GetUsersByIds {
+
+        @Test
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_MissingUsersIds() {
+            // Given
+            var requestBuilder = get(USERS_GET_BY_IDS_FULL_PATH).param(USERS_IDS_PARAM, "");
+
+            // When & Then
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> {
+                             assertThatJson(json).isObject()
+                                                 .containsEntry("title", "Bad Request")
+                                                 .containsEntry("status", 400)
+                                                 .containsEntry("detail", "getUsersByIds.ids: Users identifiers list must not be empty")
+                                                 .containsEntry("instance", "/api/users");
+                         //@formatter:off
+                             assertThatJson(json).inPath("errors")
+                                                 .isArray()
+                                                 .containsOnly(
+                                                         Map.of("entity", "", "field", "ids", "message", "Users identifiers list must not be empty")
+                                                 );
+                             //@formatter:on
+                         });
+        }
+
+        @Test
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_ExceedUsersIds() {
+            // Given
+            var userIds = IntStream.range(0, 51)
+                                   .mapToObj(_ -> UUID.randomUUID())
+                                   .map(UUID::toString)
+                                   .reduce((a, b) -> a + "," + b)
+                                   .orElseThrow();
+            var requestBuilder = get(USERS_GET_BY_IDS_FULL_PATH).param(USERS_IDS_PARAM, userIds);
+
+            // When & Then
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> {
+                             assertThatJson(json).isObject()
+                                                 .containsEntry("title", "Bad Request")
+                                                 .containsEntry("status", 400)
+                                                 .containsEntry("detail", "getUsersByIds.ids: Users identifiers list must contain at most 50 elements")
+                                                 .containsEntry("instance", "/api/users");
+                         //@formatter:off
+                             assertThatJson(json).inPath("errors")
+                                                 .isArray()
+                                                 .containsOnly(
+                                                         Map.of("entity", "", "field", "ids", "message", "Users identifiers list must contain at most 50 elements")
+                                                 );
+                             //@formatter:on
+                         });
+        }
+
+        @Test
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidUserId() {
+            // Given
+            var userIds = "1";
+            var requestBuilder = get(USERS_GET_BY_IDS_FULL_PATH).param(USERS_IDS_PARAM, userIds);
+
+            // When & Then
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> assertThatJson(json).isObject()
+                                                                .containsEntry("title", "Bad Request")
+                                                                .containsEntry("status", 400)
+                                                                .containsEntry("detail", "Failed to convert 'ids' with value: '1'")
+                                                                .containsEntry("instance", "/api/users"));
         }
 
     }
