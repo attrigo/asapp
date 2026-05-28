@@ -37,6 +37,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
@@ -45,10 +48,6 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.ElementKind;
 import jakarta.validation.Path;
-
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import com.bcn.asapp.tasks.infrastructure.security.AuthenticationNotFoundException;
 import com.bcn.asapp.tasks.infrastructure.security.InvalidJwtException;
@@ -330,7 +329,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                          .map(v -> {
                              var path = v.getPropertyPath()
                                          .toString();
-                             var field = path.contains(".") ? path.substring(path.indexOf('.') + 1) : path;
+                             var field = path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : path;
                              return new InvalidRequestParameter(resolveLocation(v), field, v.getMessage());
                          })
                          .toList();
@@ -356,6 +355,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         }
         Integer paramIndex = paramNode.as(Path.ParameterNode.class)
                                       .getParameterIndex();
+
+        if (paramIndex == null) {
+            return ParameterLocation.QUERY;
+        }
 
         for (Method method : rootClass.getMethods()) {
 
