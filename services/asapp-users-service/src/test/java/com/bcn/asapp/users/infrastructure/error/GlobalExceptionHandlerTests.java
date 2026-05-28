@@ -125,11 +125,32 @@ class GlobalExceptionHandlerTests {
                               });
         }
 
+        @Test
+        void handleConstraintViolationException_whenMixedLocations_sortsByLocation() throws Exception {
+            // Given
+            var method = FakeController.class.getMethod("searchById", String.class, String.class);
+            var violations = executableValidator.validateParameters(fakeController, method, new Object[] { null, null });
+            var ex = new ConstraintViolationException(violations);
+
+            // When
+            ResponseEntity<ProblemDetail> response = globalExceptionHandler.handleConstraintViolationException(ex);
+
+            // Then
+            var problemDetail = response.getBody();
+            @SuppressWarnings("unchecked")
+            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties().get("errors");
+            assertThat(errors).hasSize(2);
+            assertThat(errors.get(0).location()).isEqualTo(ParameterLocation.PATH);
+            assertThat(errors.get(1).location()).isEqualTo(ParameterLocation.QUERY);
+        }
+
         static class FakeController {
 
             public void findById(@PathVariable @NotNull String id) {}
 
             public void search(@RequestParam @NotNull String query) {}
+
+            public void searchById(@PathVariable @NotNull String id, @RequestParam @NotNull String term) {}
 
         }
 
@@ -139,14 +160,13 @@ class GlobalExceptionHandlerTests {
     class HandleMethodArgumentNotValid {
 
         @Test
-        void handleMethodArgumentNotValid_whenFieldHasMultipleViolations_returnsAllViolations() throws Exception {
+        void handleMethodArgumentNotValid_whenFieldHasMultipleViolations_returnsAllViolations() {
             // Given
             FieldError empty = new FieldError("createUserRequest", "username", "must not be empty");
             FieldError tooShort = new FieldError("createUserRequest", "username", "size must be between 3 and 50");
             var bindingResult = mock(BindingResult.class);
             given(bindingResult.getFieldErrors()).willReturn(List.of(empty, tooShort));
-            var methodParameter = new MethodParameter(Object.class.getMethod("toString"), -1);
-            var ex = new MethodArgumentNotValidException(methodParameter, bindingResult);
+            var ex = new MethodArgumentNotValidException((MethodParameter) null, bindingResult);
 
             // When
             var response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST, mock(WebRequest.class));
@@ -155,9 +175,10 @@ class GlobalExceptionHandlerTests {
             var problemDetail = (ProblemDetail) response.getBody();
             @SuppressWarnings("unchecked")
             var errors = (List<InvalidRequestParameter>) problemDetail.getProperties().get("errors");
-            assertThat(errors).hasSize(2)
-                              .allMatch(e -> e.location() == ParameterLocation.BODY)
-                              .allMatch(e -> "username".equals(e.field()));
+            assertThat(errors).containsExactly(
+                    new InvalidRequestParameter(ParameterLocation.BODY, "username", "must not be empty"),
+                    new InvalidRequestParameter(ParameterLocation.BODY, "username", "size must be between 3 and 50")
+            );
         }
 
         @Test

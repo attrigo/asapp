@@ -87,6 +87,28 @@ class GlobalExceptionHandlerTests {
             );
         }
 
+        @Test
+        void handleMethodArgumentNotValid_whenSameFieldMultipleViolations_sortsByMessage() {
+            // Given
+            FieldError size = new FieldError("authenticateRequest", "password", "size must be between 8 and 100");
+            FieldError empty = new FieldError("authenticateRequest", "password", "must not be empty");
+            var bindingResult = mock(BindingResult.class);
+            given(bindingResult.getFieldErrors()).willReturn(List.of(size, empty));
+            var ex = new MethodArgumentNotValidException((MethodParameter) null, bindingResult);
+
+            // When
+            ResponseEntity<Object> response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST, mock(WebRequest.class));
+
+            // Then
+            var problemDetail = (ProblemDetail) response.getBody();
+            @SuppressWarnings("unchecked")
+            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties().get("errors");
+            assertThat(errors).containsExactly(
+                    new InvalidRequestParameter(ParameterLocation.BODY, "password", "must not be empty"),
+                    new InvalidRequestParameter(ParameterLocation.BODY, "password", "size must be between 8 and 100")
+            );
+        }
+
     }
 
     @Nested
