@@ -17,18 +17,29 @@
 package com.bcn.asapp.authentication.infrastructure.error;
 
 /**
- * Represents an invalid request parameter in validation errors.
+ * Represents a single validation error in an HTTP request.
  * <p>
- * Contains information about which entity, field, and validation message failed.
+ * Contains the field name and the validation message.
  *
- * @param entity  the entity name containing the invalid field
  * @param field   the field name that failed validation
  * @param message the validation error message
- * @since 0.2.0
+ * @since 0.4.0
  * @author attrigo
  */
-public record InvalidRequestParameter(
-        String entity,
+public record RequestValidationError(
         String field,
         String message
-) {}
+) {
+
+    /**
+     * Factory method to create a new {@code RequestValidationError} instance.
+     *
+     * @param field   the field name that failed validation
+     * @param message the validation error message
+     * @return a new {@code RequestValidationError} instance
+     */
+    static RequestValidationError of(String field, String message) {
+        return new RequestValidationError(field, message);
+    }
+
+}

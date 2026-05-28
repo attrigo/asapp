@@ -16,10 +16,7 @@
 
 package com.bcn.asapp.tasks.infrastructure.error;
 
-import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.stream.Collectors;
+import static com.bcn.asapp.tasks.infrastructure.error.ErrorMessages.*;
 
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
@@ -31,14 +28,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 
 import com.bcn.asapp.tasks.infrastructure.security.AuthenticationNotFoundException;
@@ -46,14 +41,17 @@ import com.bcn.asapp.tasks.infrastructure.security.InvalidJwtException;
 import com.bcn.asapp.tasks.infrastructure.security.UnexpectedJwtTypeException;
 
 /**
- * Global exception handler for REST API endpoints.
+ * Handles REST API exceptions and maps them to RFC 7807 {@link ProblemDetail} responses.
  * <p>
- * Extends {@link ResponseEntityExceptionHandler} to provide centralized exception handling and consistent error responses across the application, particularly
- * for validation errors.
+ * Error response strategy follows Spring Security best practices:
+ * <ul>
+ * <li><strong>Validation errors (400):</strong> Include detailed field errors (safe, aids client developers)</li>
+ * <li><strong>Authentication errors (401):</strong> Generic messages only (prevent user enumeration attacks)</li>
+ * <li><strong>Server errors (5xx):</strong> Generic messages only (avoid internal implementation disclosure)</li>
+ * </ul>
  *
  * @since 0.2.0
  * @see ResponseEntityExceptionHandler
- * @see MethodArgumentNotValidException
  * @author attrigo
  */
 @RestControllerAdvice
@@ -61,34 +59,44 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    private static final String AUTHENTICATION_FAILED_TITLE = "Authentication Failed";
-
-    private static final String ERROR_PROPERTY = "error";
-
-    private static final String INVALID_GRANT_ERROR = "invalid_grant";
-
-    private static final String INVALID_CREDENTIALS_DETAIL = "Invalid credentials";
-
-    private static final String INTERNAL_ERROR_DETAIL = "An internal error occurred";
-
-    private static final String INTERNAL_SERVER_ERROR_TITLE = "Internal Server Error";
-
-    private static final String SERVER_ERROR = "server_error";
-
-    private static final String SERVICE_UNAVAILABLE_DETAIL = "Service temporarily unavailable";
-
-    private static final String SERVICE_UNAVAILABLE_TITLE = "Service Unavailable";
-
-    private static final String TEMPORARILY_UNAVAILABLE_ERROR = "temporarily_unavailable";
-
     // ============================================================================
     // 400 BAD REQUEST - Validation Errors
     // ============================================================================
 
     /**
+     * Handles constraint violations from {@code @Validated} method-level parameter constraints.
+     * <p>
+     * Thrown by the Bean Validation framework when {@code @RequestParam}, {@code @PathVariable}, or {@code @RequestHeader} parameters violate declared
+     * constraints.
+     * <p>
+     * Returns HTTP 400 Bad Request with a sorted list of field-level validation errors.
+     *
+     * @param ex the {@link ConstraintViolationException}
+     * @return a {@link ResponseEntity} containing the error details
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<ProblemDetail> handleConstraintViolationException(ConstraintViolationException ex) {
+        var invalidParameters = RequestValidationErrorAssembler.fromConstraintViolations(ex.getConstraintViolations());
+
+        log.warn("Constraint violation: {}", ex.getMessage());
+        log.atTrace()
+           .log(() -> "Invalid parameters: " + invalidParameters);
+
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_FAILED_DETAIL);
+        problemDetail.setTitle(BAD_REQUEST_TITLE);
+        problemDetail.setProperty(ERROR_PROPERTY, INVALID_REQUEST_ERROR);
+        problemDetail.setProperty(FIELD_ERRORS_PROPERTY, invalidParameters);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                             .body(problemDetail);
+    }
+
+    /**
      * Handles method argument validation failures.
      * <p>
-     * Converts validation errors into a structured {@link ProblemDetail} response containing details about each invalid parameter.
+     * Thrown by Spring when request body fields fail Jakarta Bean Validation constraints.
+     * <p>
+     * Returns HTTP 400 Bad Request with a sorted list of field-level validation errors.
      *
      * @param ex      the {@link MethodArgumentNotValidException}
      * @param headers the HTTP headers
@@ -100,23 +108,27 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, @NonNull HttpHeaders headers,
             @NonNull HttpStatusCode status, @NonNull WebRequest request) {
 
-        log.atWarn()
-           .log(() -> "Validation failed: " + buildValidationErrorMessage(ex));
+        var invalidArguments = RequestValidationErrorAssembler.fromFieldErrors(ex.getBindingResult()
+                                                                                 .getFieldErrors());
 
-        var invalidParameters = buildInvalidParameters(ex.getBindingResult()
-                                                         .getFieldErrors());
+        log.warn("Argument not valid: {}", ex.getMessage());
+        log.atTrace()
+           .log(() -> "Invalid arguments: " + invalidArguments);
 
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage());
-        problemDetail.setTitle("Bad Request");
-        problemDetail.setProperty("errors", invalidParameters);
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_FAILED_DETAIL);
+        problemDetail.setTitle(BAD_REQUEST_TITLE);
+        problemDetail.setProperty(ERROR_PROPERTY, INVALID_REQUEST_ERROR);
+        problemDetail.setProperty(FIELD_ERRORS_PROPERTY, invalidArguments);
 
         return handleExceptionInternal(ex, problemDetail, headers, status, request);
     }
 
     /**
-     * Handles illegal argument exceptions thrown by domain value objects.
+     * Handles illegal argument exceptions.
      * <p>
-     * Returns a 400 Bad Request response with details about the invalid argument.
+     * Thrown by domain value objects when constructor or factory method arguments violate format constraints.
+     * <p>
+     * Returns HTTP 400 Bad Request with a fixed error message (never the raw exception message).
      *
      * @param ex the {@link IllegalArgumentException}
      * @return a {@link ResponseEntity} containing the error details
@@ -125,31 +137,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ProblemDetail> handleIllegalArgumentException(IllegalArgumentException ex) {
         log.warn("Invalid argument: {}", ex.getMessage());
 
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
-        problemDetail.setTitle("Invalid Argument");
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                             .body(problemDetail);
-    }
-
-    /**
-     * Handles constraint violations from {@code @Validated} request parameter constraints.
-     * <p>
-     * Thrown by the Bean Validation framework when method-level parameter constraints (e.g., {@code @NotEmpty}, {@code @Size} on {@code @RequestParam}) are
-     * violated. Returns a 400 Bad Request response.
-     *
-     * @param ex the {@link ConstraintViolationException}
-     * @return a {@link ResponseEntity} containing the error details
-     */
-    @ExceptionHandler(ConstraintViolationException.class)
-    protected ResponseEntity<ProblemDetail> handleConstraintViolationException(ConstraintViolationException ex) {
-        log.warn("Constraint violation: {}", ex.getMessage());
-
-        var invalidParameters = buildInvalidParameters(ex.getConstraintViolations());
-
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage());
-        problemDetail.setTitle("Bad Request");
-        problemDetail.setProperty("errors", invalidParameters);
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, INVALID_ARGUMENT_DETAIL);
+        problemDetail.setTitle(INVALID_ARGUMENT_TITLE);
+        problemDetail.setProperty(ERROR_PROPERTY, INVALID_REQUEST_ERROR);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                              .body(problemDetail);
@@ -195,7 +185,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ProblemDetail> handleUnexpectedJwtTypeException(UnexpectedJwtTypeException ex) {
         log.warn("Invalid token type: {}", ex.getMessage());
 
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Invalid token");
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, INVALID_TOKEN_DETAIL);
         problemDetail.setTitle(AUTHENTICATION_FAILED_TITLE);
         problemDetail.setProperty(ERROR_PROPERTY, INVALID_GRANT_ERROR);
 
@@ -275,56 +265,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                              .body(problemDetail);
-    }
-
-    // ============================================================================
-    // HELPER METHODS
-    // ============================================================================
-
-    /**
-     * Builds a comma-separated string of validation error messages from field errors.
-     *
-     * @param ex the {@link MethodArgumentNotValidException} containing validation errors
-     * @return a comma-separated string of field error messages
-     */
-    private String buildValidationErrorMessage(MethodArgumentNotValidException ex) {
-        return ex.getBindingResult()
-                 .getFieldErrors()
-                 .stream()
-                 .map(FieldError::getDefaultMessage)
-                 .collect(Collectors.joining(", "));
-    }
-
-    /**
-     * Builds a list of invalid parameter details from field errors.
-     *
-     * @param fieldErrors the list of {@link FieldError} from validation
-     * @return a {@link List} of {@link InvalidRequestParameter} containing error details
-     */
-    private List<InvalidRequestParameter> buildInvalidParameters(List<FieldError> fieldErrors) {
-        Function<FieldError, InvalidRequestParameter> fieldErrorMapper = fieldError -> new InvalidRequestParameter(fieldError.getObjectName(),
-                fieldError.getField(), fieldError.getDefaultMessage());
-
-        return fieldErrors.stream()
-                          .map(fieldErrorMapper)
-                          .toList();
-    }
-
-    /**
-     * Builds a list of invalid parameter details from constraint violations.
-     *
-     * @param violations the set of {@link ConstraintViolation} from bean validation
-     * @return a {@link List} of {@link InvalidRequestParameter} containing error details
-     */
-    private List<InvalidRequestParameter> buildInvalidParameters(Set<ConstraintViolation<?>> violations) {
-        return violations.stream()
-                         .map(v -> {
-                             var path = v.getPropertyPath()
-                                         .toString();
-                             var field = path.contains(".") ? path.substring(path.indexOf('.') + 1) : path;
-                             return new InvalidRequestParameter("", field, v.getMessage());
-                         })
-                         .toList();
     }
 
 }
