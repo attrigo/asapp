@@ -16,6 +16,8 @@
 
 package com.bcn.asapp.users.infrastructure.error;
 
+import static com.bcn.asapp.users.infrastructure.error.ErrorMessages.*;
+
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Comparator;
@@ -70,26 +72,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    private static final String AUTHENTICATION_FAILED_TITLE = "Authentication Failed";
-
-    private static final String ERROR_PROPERTY = "error";
-
-    private static final String INVALID_GRANT_ERROR = "invalid_grant";
-
-    private static final String INVALID_CREDENTIALS_DETAIL = "Invalid credentials";
-
-    private static final String INTERNAL_ERROR_DETAIL = "An internal error occurred";
-
-    private static final String INTERNAL_SERVER_ERROR_TITLE = "Internal Server Error";
-
-    private static final String SERVER_ERROR = "server_error";
-
-    private static final String SERVICE_UNAVAILABLE_DETAIL = "Service temporarily unavailable";
-
-    private static final String SERVICE_UNAVAILABLE_TITLE = "Service Unavailable";
-
-    private static final String TEMPORARILY_UNAVAILABLE_ERROR = "temporarily_unavailable";
-
     private static final Comparator<InvalidRequestParameter> SORT_ORDER = Comparator.comparing(InvalidRequestParameter::location)
                                                                                     .thenComparing(InvalidRequestParameter::field)
                                                                                     .thenComparing(InvalidRequestParameter::message);
@@ -120,7 +102,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                                                          .getFieldErrors());
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage());
-        problemDetail.setTitle("Bad Request");
+        problemDetail.setTitle(BAD_REQUEST_TITLE);
         problemDetail.setProperty("errors", invalidParameters);
 
         return handleExceptionInternal(ex, problemDetail, headers, status, request);
@@ -139,7 +121,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.warn("Invalid argument: {}", ex.getMessage());
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
-        problemDetail.setTitle("Invalid Argument");
+        problemDetail.setTitle(INVALID_ARGUMENT_TITLE);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                              .body(problemDetail);
@@ -161,7 +143,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         var invalidParameters = buildInvalidParameters(ex.getConstraintViolations());
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage());
-        problemDetail.setTitle("Bad Request");
+        problemDetail.setTitle(BAD_REQUEST_TITLE);
         problemDetail.setProperty("errors", invalidParameters);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -208,7 +190,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ProblemDetail> handleUnexpectedJwtTypeException(UnexpectedJwtTypeException ex) {
         log.warn("Invalid token type: {}", ex.getMessage());
 
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, "Invalid token");
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, INVALID_TOKEN_DETAIL);
         problemDetail.setTitle(AUTHENTICATION_FAILED_TITLE);
         problemDetail.setProperty(ERROR_PROPERTY, INVALID_GRANT_ERROR);
 
