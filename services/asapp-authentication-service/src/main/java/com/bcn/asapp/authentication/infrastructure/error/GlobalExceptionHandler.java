@@ -101,7 +101,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         var invalidParameters = buildInvalidParameters(ex.getBindingResult()
                                                          .getFieldErrors());
 
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getLocalizedMessage());
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_FAILED_DETAIL);
         problemDetail.setTitle(BAD_REQUEST_TITLE);
         problemDetail.setProperty("errors", invalidParameters);
 
@@ -120,7 +120,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ProblemDetail> handleIllegalArgumentException(IllegalArgumentException ex) {
         log.warn("Invalid argument: {}", ex.getMessage());
 
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, ex.getMessage());
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, INVALID_ARGUMENT_DETAIL);
         problemDetail.setTitle(INVALID_ARGUMENT_TITLE);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)

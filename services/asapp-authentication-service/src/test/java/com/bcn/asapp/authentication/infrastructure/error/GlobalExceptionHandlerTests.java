@@ -16,6 +16,8 @@
 
 package com.bcn.asapp.authentication.infrastructure.error;
 
+import static com.bcn.asapp.authentication.infrastructure.error.ErrorMessages.INVALID_ARGUMENT_DETAIL;
+import static com.bcn.asapp.authentication.infrastructure.error.ErrorMessages.VALIDATION_FAILED_DETAIL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.BDDMockito.given;
@@ -64,6 +66,21 @@ class GlobalExceptionHandlerTests {
 
     @Nested
     class HandleMethodArgumentNotValid {
+
+        @Test
+        void handleMethodArgumentNotValid_setsFixedDetail() {
+            // Given
+            var bindingResult = mock(BindingResult.class);
+            given(bindingResult.getFieldErrors()).willReturn(List.of());
+            var ex = new MethodArgumentNotValidException((MethodParameter) null, bindingResult);
+
+            // When
+            ResponseEntity<Object> response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST, mock(WebRequest.class));
+
+            // Then
+            var problemDetail = (ProblemDetail) response.getBody();
+            assertThat(problemDetail.getDetail()).isEqualTo(VALIDATION_FAILED_DETAIL);
+        }
 
         @Test
         void handleMethodArgumentNotValid_whenMixedFieldsOutOfOrder_sortsErrors() {
@@ -115,6 +132,18 @@ class GlobalExceptionHandlerTests {
     class HandleIllegalArgumentException {
 
         @Test
+        void handleIllegalArgumentException_setsFixedDetail() {
+            // Given
+            var ex = new IllegalArgumentException("any dynamic message that must NOT appear in response");
+
+            // When
+            ResponseEntity<ProblemDetail> response = globalExceptionHandler.handleIllegalArgumentException(ex);
+
+            // Then
+            assertThat(response.getBody().getDetail()).isEqualTo(INVALID_ARGUMENT_DETAIL);
+        }
+
+        @Test
         void Returns400WithExceptionMessage_InvalidArgument() {
             // Given
             var exception = new IllegalArgumentException("Username must be a valid email address");
@@ -129,7 +158,7 @@ class GlobalExceptionHandlerTests {
                 // @formatter:off
                 softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Invalid Argument");
                 softly.assertThat(actual.getBody().getStatus()).as("status").isEqualTo(400);
-                softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo("Username must be a valid email address");
+                softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo(INVALID_ARGUMENT_DETAIL);
                 // @formatter:on
             });
         }

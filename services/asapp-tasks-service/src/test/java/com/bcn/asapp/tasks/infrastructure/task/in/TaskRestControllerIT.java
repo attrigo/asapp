@@ -120,7 +120,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
-                                                 .containsEntry("detail", "getTasksByIds.ids: Tasks identifiers list must not be empty")
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("instance", "/api/tasks");
                          //@formatter:off
                              assertThatJson(json).inPath("errors")
@@ -153,7 +153,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
-                                                 .containsEntry("detail", "getTasksByIds.ids: Tasks identifiers list must contain at most 50 elements")
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("instance", "/api/tasks");
                          //@formatter:off
                              assertThatJson(json).inPath("errors")
@@ -294,11 +294,8 @@ class TaskRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("instance", "/api/tasks");
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The user ID must not be empty")
-                                                 .contains("The title must not be empty");
                          //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
@@ -333,11 +330,8 @@ class TaskRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("instance", "/api/tasks");
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The user ID must not be empty")
-                                                 .contains("The title must not be empty");
                          //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
@@ -482,11 +476,8 @@ class TaskRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("instance", "/api/tasks/" + taskId);
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The user ID must not be empty")
-                                                 .contains("The title must not be empty");
                          //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
@@ -522,11 +513,8 @@ class TaskRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("instance", "/api/tasks/" + taskId);
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The user ID must not be empty")
-                                                 .contains("The title must not be empty");
                          //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()

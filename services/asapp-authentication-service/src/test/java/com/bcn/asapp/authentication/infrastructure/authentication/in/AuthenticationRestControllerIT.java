@@ -107,10 +107,8 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("instance", "/api/auth/token");
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The username must not be empty", "The password must not be empty");
                          //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
@@ -145,10 +143,8 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("instance", "/api/auth/token");
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The username must not be empty", "The password must not be empty");
                          //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
@@ -225,10 +221,8 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("instance", "/api/auth/refresh");
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The refresh token must not be empty");
                          //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
@@ -261,10 +255,8 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("instance", "/api/auth/refresh");
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The refresh token must not be empty");
                          //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
@@ -340,10 +332,8 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("instance", "/api/auth/revoke");
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The access token must not be empty");
                          //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
@@ -376,10 +366,8 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("instance", "/api/auth/revoke");
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The access token must not be empty");
                          //@formatter:off
                        assertThatJson(json).inPath("errors")
                                           .isArray()
