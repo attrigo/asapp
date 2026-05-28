@@ -18,12 +18,24 @@ package com.bcn.asapp.authentication.infrastructure.error;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.MethodParameter;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.RedisConnectionFailureException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.context.request.WebRequest;
 
 import com.bcn.asapp.authentication.application.CompensatingTransactionException;
 import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
@@ -49,6 +61,33 @@ import com.bcn.asapp.authentication.infrastructure.security.JwtIssuanceException
 class GlobalExceptionHandlerTests {
 
     private final GlobalExceptionHandler globalExceptionHandler = new GlobalExceptionHandler();
+
+    @Nested
+    class HandleMethodArgumentNotValid {
+
+        @Test
+        void handleMethodArgumentNotValid_whenMixedFieldsOutOfOrder_sortsErrors() {
+            // Given
+            FieldError passwordEmpty = new FieldError("authenticateRequest", "password", "The password must not be empty");
+            FieldError usernameEmpty = new FieldError("authenticateRequest", "username", "The username must not be empty");
+            var bindingResult = mock(BindingResult.class);
+            given(bindingResult.getFieldErrors()).willReturn(List.of(passwordEmpty, usernameEmpty));
+            var ex = new MethodArgumentNotValidException((MethodParameter) null, bindingResult);
+
+            // When
+            ResponseEntity<Object> response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST, mock(WebRequest.class));
+
+            // Then
+            var problemDetail = (ProblemDetail) response.getBody();
+            @SuppressWarnings("unchecked")
+            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties().get("errors");
+            assertThat(errors).containsExactly(
+                    new InvalidRequestParameter(ParameterLocation.BODY, "password", "The password must not be empty"),
+                    new InvalidRequestParameter(ParameterLocation.BODY, "username", "The username must not be empty")
+            );
+        }
+
+    }
 
     @Nested
     class HandleIllegalArgumentException {

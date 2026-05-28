@@ -16,6 +16,7 @@
 
 package com.bcn.asapp.authentication.infrastructure.error;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -88,6 +89,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String SERVICE_UNAVAILABLE_TITLE = "Service Unavailable";
 
     private static final String TEMPORARILY_UNAVAILABLE_ERROR = "temporarily_unavailable";
+
+    private static final Comparator<InvalidRequestParameter> SORT_ORDER = Comparator.comparing(InvalidRequestParameter::location)
+                                                                                    .thenComparing(InvalidRequestParameter::field)
+                                                                                    .thenComparing(InvalidRequestParameter::message);
 
     // ============================================================================
     // 400 BAD REQUEST - Validation Errors
@@ -380,6 +385,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return fieldErrors.stream()
                           .map(fieldErrorMapper)
+                          .sorted(SORT_ORDER)
                           .toList();
     }
 

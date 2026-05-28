@@ -160,6 +160,30 @@ class GlobalExceptionHandlerTests {
                               .allMatch(e -> "username".equals(e.field()));
         }
 
+        @Test
+        void handleMethodArgumentNotValid_whenMixedFieldsOutOfOrder_sortsErrors() {
+            // Given
+            FieldError phoneNumberPattern = new FieldError("createUserRequest", "phoneNumber", "The phone number must be a valid phone number");
+            FieldError emailEmpty = new FieldError("createUserRequest", "email", "The email must not be empty");
+            FieldError firstNameEmpty = new FieldError("createUserRequest", "firstName", "The first name must not be empty");
+            var bindingResult = mock(BindingResult.class);
+            given(bindingResult.getFieldErrors()).willReturn(List.of(phoneNumberPattern, emailEmpty, firstNameEmpty));
+            var ex = new MethodArgumentNotValidException((MethodParameter) null, bindingResult);
+
+            // When
+            ResponseEntity<Object> response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST, mock(WebRequest.class));
+
+            // Then
+            var problemDetail = (ProblemDetail) response.getBody();
+            @SuppressWarnings("unchecked")
+            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties().get("errors");
+            assertThat(errors).containsExactly(
+                    new InvalidRequestParameter(ParameterLocation.BODY, "email", "The email must not be empty"),
+                    new InvalidRequestParameter(ParameterLocation.BODY, "firstName", "The first name must not be empty"),
+                    new InvalidRequestParameter(ParameterLocation.BODY, "phoneNumber", "The phone number must be a valid phone number")
+            );
+        }
+
     }
 
     @Nested

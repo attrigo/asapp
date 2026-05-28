@@ -18,6 +18,7 @@ package com.bcn.asapp.users.infrastructure.error;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -88,6 +89,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static final String SERVICE_UNAVAILABLE_TITLE = "Service Unavailable";
 
     private static final String TEMPORARILY_UNAVAILABLE_ERROR = "temporarily_unavailable";
+
+    private static final Comparator<InvalidRequestParameter> SORT_ORDER = Comparator.comparing(InvalidRequestParameter::location)
+                                                                                    .thenComparing(InvalidRequestParameter::field)
+                                                                                    .thenComparing(InvalidRequestParameter::message);
 
     // ============================================================================
     // 400 BAD REQUEST - Validation Errors
@@ -315,6 +320,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return fieldErrors.stream()
                           .map(fieldErrorMapper)
+                          .sorted(SORT_ORDER)
                           .toList();
     }
 
@@ -332,6 +338,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                              var field = path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : path;
                              return new InvalidRequestParameter(resolveLocation(v), field, v.getMessage());
                          })
+                         .sorted(SORT_ORDER)
                          .toList();
     }
 

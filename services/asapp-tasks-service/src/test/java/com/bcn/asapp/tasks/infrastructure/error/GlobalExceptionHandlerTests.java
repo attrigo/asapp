@@ -160,6 +160,30 @@ class GlobalExceptionHandlerTests {
                               .allMatch(e -> "title".equals(e.field()));
         }
 
+        @Test
+        void handleMethodArgumentNotValid_whenMixedFieldsOutOfOrder_sortsErrors() {
+            // Given
+            FieldError usernameSize = new FieldError("createTaskRequest", "username", "size must be between 3 and 30");
+            FieldError usernameEmpty = new FieldError("createTaskRequest", "username", "must not be empty");
+            FieldError passwordEmpty = new FieldError("createTaskRequest", "password", "must not be empty");
+            var bindingResult = mock(BindingResult.class);
+            given(bindingResult.getFieldErrors()).willReturn(List.of(usernameSize, usernameEmpty, passwordEmpty));
+            var ex = new MethodArgumentNotValidException((MethodParameter) null, bindingResult);
+
+            // When
+            ResponseEntity<Object> response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST, mock(WebRequest.class));
+
+            // Then
+            var problemDetail = (ProblemDetail) response.getBody();
+            @SuppressWarnings("unchecked")
+            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties().get("errors");
+            assertThat(errors).containsExactly(
+                    new InvalidRequestParameter(ParameterLocation.BODY, "password", "must not be empty"),
+                    new InvalidRequestParameter(ParameterLocation.BODY, "username", "must not be empty"),
+                    new InvalidRequestParameter(ParameterLocation.BODY, "username", "size must be between 3 and 30")
+            );
+        }
+
     }
 
     @Nested
