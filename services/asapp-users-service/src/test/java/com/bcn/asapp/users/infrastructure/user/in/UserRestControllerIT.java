@@ -29,7 +29,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
@@ -120,15 +119,16 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
-                                                 .containsEntry("detail", "getUsersByIds.ids: Users identifiers list must not be empty")
+                                                 .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
-                         //@formatter:off
-                             assertThatJson(json).inPath("errors")
+                             assertThatJson(json).node("field_errors")
                                                  .isArray()
-                                                 .containsOnly(
-                                                         Map.of("entity", "", "field", "ids", "message", "Users identifiers list must not be empty")
-                                                 );
-                             //@formatter:on
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "ids")
+                                                 .containsEntry("message", "Users identifiers list must not be empty");
                          });
         }
 
@@ -153,15 +153,16 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
-                                                 .containsEntry("detail", "getUsersByIds.ids: Users identifiers list must contain at most 50 elements")
+                                                 .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
-                         //@formatter:off
-                             assertThatJson(json).inPath("errors")
+                             assertThatJson(json).node("field_errors")
                                                  .isArray()
-                                                 .containsOnly(
-                                                         Map.of("entity", "", "field", "ids", "message", "Users identifiers list must contain at most 50 elements")
-                                                 );
-                             //@formatter:on
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "ids")
+                                                 .containsEntry("message", "Users identifiers list must contain at most 50 elements");
                          });
         }
 
@@ -250,23 +251,28 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The first name must not be empty")
-                                                 .contains("The last name must not be empty")
-                                                 .contains("The email must not be empty")
-                                                 .contains("The phone number must not be empty");
-                         //@formatter:off
-                       assertThatJson(json).inPath("errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("entity", "createUserRequest", "field", "firstName", "message", "The first name must not be empty"),
-                                                  Map.of("entity", "createUserRequest", "field", "lastName", "message", "The last name must not be empty"),
-                                                  Map.of("entity", "createUserRequest", "field", "email", "message", "The email must not be empty"),
-                                                  Map.of("entity", "createUserRequest", "field", "phoneNumber", "message", "The phone number must not be empty")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(4);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "email")
+                                                 .containsEntry("message", "The email must not be empty");
+                             assertThatJson(json).node("field_errors[1]")
+                                                 .isObject()
+                                                 .containsEntry("field", "firstName")
+                                                 .containsEntry("message", "The first name must not be empty");
+                             assertThatJson(json).node("field_errors[2]")
+                                                 .isObject()
+                                                 .containsEntry("field", "lastName")
+                                                 .containsEntry("message", "The last name must not be empty");
+                             assertThatJson(json).node("field_errors[3]")
+                                                 .isObject()
+                                                 .containsEntry("field", "phoneNumber")
+                                                 .containsEntry("message", "The phone number must not be empty");
                          });
         }
 
@@ -295,27 +301,36 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The first name must not be empty")
-                                                 .contains("The last name must not be empty")
-                                                 .contains("The email must not be empty")
-                                                 .contains("The email must be a valid email address")
-                                                 .contains("The phone number must not be empty")
-                                                 .contains("The phone number must be a valid phone number");
-                         //@formatter:off
-                       assertThatJson(json).inPath("errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("entity", "createUserRequest", "field", "firstName", "message", "The first name must not be empty"),
-                                                  Map.of("entity", "createUserRequest", "field", "lastName", "message", "The last name must not be empty"),
-                                                  Map.of("entity", "createUserRequest", "field", "email", "message", "The email must not be empty"),
-                                                  Map.of("entity", "createUserRequest", "field", "email", "message", "The email must be a valid email address"),
-                                                  Map.of("entity", "createUserRequest", "field", "phoneNumber", "message", "The phone number must not be empty"),
-                                                  Map.of("entity", "createUserRequest", "field", "phoneNumber", "message", "The phone number must be a valid phone number")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(6);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "email")
+                                                 .containsEntry("message", "The email must be a valid email address");
+                             assertThatJson(json).node("field_errors[1]")
+                                                 .isObject()
+                                                 .containsEntry("field", "email")
+                                                 .containsEntry("message", "The email must not be empty");
+                             assertThatJson(json).node("field_errors[2]")
+                                                 .isObject()
+                                                 .containsEntry("field", "firstName")
+                                                 .containsEntry("message", "The first name must not be empty");
+                             assertThatJson(json).node("field_errors[3]")
+                                                 .isObject()
+                                                 .containsEntry("field", "lastName")
+                                                 .containsEntry("message", "The last name must not be empty");
+                             assertThatJson(json).node("field_errors[4]")
+                                                 .isObject()
+                                                 .containsEntry("field", "phoneNumber")
+                                                 .containsEntry("message", "The phone number must be a valid phone number");
+                             assertThatJson(json).node("field_errors[5]")
+                                                 .isObject()
+                                                 .containsEntry("field", "phoneNumber")
+                                                 .containsEntry("message", "The phone number must not be empty");
                          });
         }
 
@@ -344,17 +359,16 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The email must be a valid email address");
-                         //@formatter:off
-                       assertThatJson(json).inPath("errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("entity", "createUserRequest", "field", "email", "message", "The email must be a valid email address")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "email")
+                                                 .containsEntry("message", "The email must be a valid email address");
                          });
         }
 
@@ -383,17 +397,16 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The phone number must be a valid phone number");
-                         //@formatter:off
-                       assertThatJson(json).inPath("errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("entity", "createUserRequest", "field", "phoneNumber", "message", "The phone number must be a valid phone number")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "phoneNumber")
+                                                 .containsEntry("message", "The phone number must be a valid phone number");
                          });
         }
 
@@ -522,23 +535,28 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The first name must not be empty")
-                                                 .contains("The last name must not be empty")
-                                                 .contains("The email must not be empty")
-                                                 .contains("The phone number must not be empty");
-                         //@formatter:off
-                       assertThatJson(json).inPath("errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("entity", "updateUserRequest", "field", "firstName", "message", "The first name must not be empty"),
-                                                  Map.of("entity", "updateUserRequest", "field", "lastName", "message", "The last name must not be empty"),
-                                                  Map.of("entity", "updateUserRequest", "field", "email", "message", "The email must not be empty"),
-                                                  Map.of("entity", "updateUserRequest", "field", "phoneNumber", "message", "The phone number must not be empty")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(4);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "email")
+                                                 .containsEntry("message", "The email must not be empty");
+                             assertThatJson(json).node("field_errors[1]")
+                                                 .isObject()
+                                                 .containsEntry("field", "firstName")
+                                                 .containsEntry("message", "The first name must not be empty");
+                             assertThatJson(json).node("field_errors[2]")
+                                                 .isObject()
+                                                 .containsEntry("field", "lastName")
+                                                 .containsEntry("message", "The last name must not be empty");
+                             assertThatJson(json).node("field_errors[3]")
+                                                 .isObject()
+                                                 .containsEntry("field", "phoneNumber")
+                                                 .containsEntry("message", "The phone number must not be empty");
                          });
         }
 
@@ -568,27 +586,36 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The first name must not be empty")
-                                                 .contains("The last name must not be empty")
-                                                 .contains("The email must not be empty")
-                                                 .contains("The email must be a valid email address")
-                                                 .contains("The phone number must not be empty")
-                                                 .contains("The phone number must be a valid phone number");
-                         //@formatter:off
-                       assertThatJson(json).inPath("errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("entity", "updateUserRequest", "field", "firstName", "message", "The first name must not be empty"),
-                                                  Map.of("entity", "updateUserRequest", "field", "lastName", "message", "The last name must not be empty"),
-                                                  Map.of("entity", "updateUserRequest", "field", "email", "message", "The email must not be empty"),
-                                                  Map.of("entity", "updateUserRequest", "field", "email", "message", "The email must be a valid email address"),
-                                                  Map.of("entity", "updateUserRequest", "field", "phoneNumber", "message", "The phone number must not be empty"),
-                                                  Map.of("entity", "updateUserRequest", "field", "phoneNumber", "message", "The phone number must be a valid phone number")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(6);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "email")
+                                                 .containsEntry("message", "The email must be a valid email address");
+                             assertThatJson(json).node("field_errors[1]")
+                                                 .isObject()
+                                                 .containsEntry("field", "email")
+                                                 .containsEntry("message", "The email must not be empty");
+                             assertThatJson(json).node("field_errors[2]")
+                                                 .isObject()
+                                                 .containsEntry("field", "firstName")
+                                                 .containsEntry("message", "The first name must not be empty");
+                             assertThatJson(json).node("field_errors[3]")
+                                                 .isObject()
+                                                 .containsEntry("field", "lastName")
+                                                 .containsEntry("message", "The last name must not be empty");
+                             assertThatJson(json).node("field_errors[4]")
+                                                 .isObject()
+                                                 .containsEntry("field", "phoneNumber")
+                                                 .containsEntry("message", "The phone number must be a valid phone number");
+                             assertThatJson(json).node("field_errors[5]")
+                                                 .isObject()
+                                                 .containsEntry("field", "phoneNumber")
+                                                 .containsEntry("message", "The phone number must not be empty");
                          });
         }
 
@@ -618,17 +645,16 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The email must be a valid email address");
-                         //@formatter:off
-                       assertThatJson(json).inPath("errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("entity", "updateUserRequest", "field", "email", "message", "The email must be a valid email address")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "email")
+                                                 .containsEntry("message", "The email must be a valid email address");
                          });
         }
 
@@ -658,17 +684,16 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The phone number must be a valid phone number");
-                         //@formatter:off
-                       assertThatJson(json).inPath("errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("entity", "updateUserRequest", "field", "phoneNumber", "message", "The phone number must be a valid phone number")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "phoneNumber")
+                                                 .containsEntry("message", "The phone number must be a valid phone number");
                          });
         }
 
