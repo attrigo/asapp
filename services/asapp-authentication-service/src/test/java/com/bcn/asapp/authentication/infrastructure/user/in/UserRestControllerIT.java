@@ -174,9 +174,9 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "createUserRequest", "field", "username", "message", "The username must not be empty"),
-                                                  Map.of("entity", "createUserRequest", "field", "password", "message", "The password must not be empty"),
-                                                  Map.of("entity", "createUserRequest", "field", "role", "message", "The role must be a valid Role")
+                                                  Map.of("location", "BODY", "field", "username", "message", "The username must not be empty"),
+                                                  Map.of("location", "BODY", "field", "password", "message", "The password must not be empty"),
+                                                  Map.of("location", "BODY", "field", "role", "message", "The role must be a valid Role")
                                           );
                        //@formatter:on
                          });
@@ -218,11 +218,11 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "createUserRequest", "field", "username", "message", "The username must not be empty"),
-                                                  Map.of("entity", "createUserRequest", "field", "username", "message","The username must be a valid email address"),
-                                                  Map.of("entity", "createUserRequest", "field", "password", "message","The password must not be empty"),
-                                                  Map.of("entity", "createUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters"),
-                                                  Map.of("entity", "createUserRequest", "field", "role", "message", "The role must be a valid Role")
+                                                  Map.of("location", "BODY", "field", "username", "message", "The username must not be empty"),
+                                                  Map.of("location", "BODY", "field", "username", "message","The username must be a valid email address"),
+                                                  Map.of("location", "BODY", "field", "password", "message","The password must not be empty"),
+                                                  Map.of("location", "BODY", "field", "password", "message", "The password must be between 8 and 64 characters"),
+                                                  Map.of("location", "BODY", "field", "role", "message", "The role must be a valid Role")
                                           );
                        //@formatter:on
                          });
@@ -260,7 +260,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "createUserRequest", "field", "username", "message", "The username must be a valid email address")
+                                                  Map.of("location", "BODY", "field", "username", "message", "The username must be a valid email address")
                                           );
                        //@formatter:on
                          });
@@ -299,7 +299,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "createUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters")
+                                                  Map.of("location", "BODY", "field", "password", "message", "The password must be between 8 and 64 characters")
                                           );
                        //@formatter:on
                          });
@@ -338,7 +338,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "createUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters")
+                                                  Map.of("location", "BODY", "field", "password", "message", "The password must be between 8 and 64 characters")
                                           );
                        //@formatter:on
                          });
@@ -376,7 +376,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "createUserRequest", "field", "role", "message", "The role must be a valid Role")
+                                                  Map.of("location", "BODY", "field", "role", "message", "The role must be a valid Role")
                                           );
                        //@formatter:on
                          });
@@ -515,9 +515,9 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "updateUserRequest", "field", "username", "message", "The username must not be empty"),
-                                                  Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must not be empty"),
-                                                  Map.of("entity", "updateUserRequest", "field", "role", "message", "The role must be a valid Role")
+                                                  Map.of("location", "BODY", "field", "username", "message", "The username must not be empty"),
+                                                  Map.of("location", "BODY", "field", "password", "message", "The password must not be empty"),
+                                                  Map.of("location", "BODY", "field", "role", "message", "The role must be a valid Role")
                                           );
                        //@formatter:on
                          });
@@ -560,11 +560,11 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "updateUserRequest", "field", "username", "message", "The username must not be empty"),
-                                                  Map.of("entity", "updateUserRequest", "field", "username", "message", "The username must be a valid email address"),
-                                                  Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must not be empty"),
-                                                  Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters"),
-                                                  Map.of("entity", "updateUserRequest", "field", "role", "message", "The role must be a valid Role")
+                                                  Map.of("location", "BODY", "field", "username", "message", "The username must not be empty"),
+                                                  Map.of("location", "BODY", "field", "username", "message", "The username must be a valid email address"),
+                                                  Map.of("location", "BODY", "field", "password", "message", "The password must not be empty"),
+                                                  Map.of("location", "BODY", "field", "password", "message", "The password must be between 8 and 64 characters"),
+                                                  Map.of("location", "BODY", "field", "role", "message", "The role must be a valid Role")
                                           );
                        //@formatter:on
                          });
@@ -603,7 +603,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "updateUserRequest", "field", "username", "message", "The username must be a valid email address")
+                                                  Map.of("location", "BODY", "field", "username", "message", "The username must be a valid email address")
                                           );
                        //@formatter:on
                          });
@@ -643,7 +643,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters")
+                                                  Map.of("location", "BODY", "field", "password", "message", "The password must be between 8 and 64 characters")
                                           );
                        //@formatter:on
                          });
@@ -683,7 +683,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "updateUserRequest", "field", "password", "message", "The password must be between 8 and 64 characters")
+                                                  Map.of("location", "BODY", "field", "password", "message", "The password must be between 8 and 64 characters")
                                           );
                        //@formatter:on
                          });
@@ -722,7 +722,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "updateUserRequest", "field", "role", "message", "The role must be a valid Role")
+                                                  Map.of("location", "BODY", "field", "role", "message", "The role must be a valid Role")
                                           );
                        //@formatter:on
                          });

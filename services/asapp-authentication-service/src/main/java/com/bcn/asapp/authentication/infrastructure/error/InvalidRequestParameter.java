@@ -19,16 +19,16 @@ package com.bcn.asapp.authentication.infrastructure.error;
 /**
  * Represents an invalid request parameter in validation errors.
  * <p>
- * Contains information about which entity, field, and validation message failed.
+ * Contains the request location (body, path, query, header), the field name, and the validation message.
  *
- * @param entity  the entity name containing the invalid field
- * @param field   the field name that failed validation
- * @param message the validation error message
- * @since 0.2.0
+ * @param location the HTTP request location of the invalid parameter
+ * @param field    the field name that failed validation
+ * @param message  the validation error message
+ * @since 0.4.0
  * @author attrigo
  */
 public record InvalidRequestParameter(
-        String entity,
+        ParameterLocation location,
         String field,
         String message
 ) {}

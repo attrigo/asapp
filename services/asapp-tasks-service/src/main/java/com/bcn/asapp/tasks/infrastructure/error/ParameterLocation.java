@@ -17,18 +17,18 @@
 package com.bcn.asapp.tasks.infrastructure.error;
 
 /**
- * Represents an invalid request parameter in validation errors.
+ * Identifies the HTTP request location of an invalid parameter in validation error responses.
  * <p>
- * Contains the request location (body, path, query, header), the field name, and the validation message.
+ * Used by {@link InvalidRequestParameter} to disambiguate body fields from path, query, and header parameters.
  *
- * @param location the HTTP request location of the invalid parameter
- * @param field    the field name that failed validation
- * @param message  the validation error message
  * @since 0.4.0
  * @author attrigo
  */
-public record InvalidRequestParameter(
-        ParameterLocation location,
-        String field,
-        String message
-) {}
+public enum ParameterLocation {
+
+    BODY,
+    PATH,
+    QUERY,
+    HEADER
+
+}

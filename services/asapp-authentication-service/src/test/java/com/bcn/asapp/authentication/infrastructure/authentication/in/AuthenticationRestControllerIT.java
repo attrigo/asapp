@@ -115,8 +115,8 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "authenticateRequest", "field", "username", "message", "The username must not be empty"),
-                                                  Map.of("entity", "authenticateRequest", "field", "password", "message", "The password must not be empty")
+                                                  Map.of("location", "BODY", "field", "username", "message", "The username must not be empty"),
+                                                  Map.of("location", "BODY", "field", "password", "message", "The password must not be empty")
                                           );
                        //@formatter:on
                          });
@@ -153,8 +153,8 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "authenticateRequest", "field", "username", "message", "The username must not be empty"),
-                                                  Map.of("entity", "authenticateRequest", "field", "password", "message", "The password must not be empty")
+                                                  Map.of("location", "BODY", "field", "username", "message", "The username must not be empty"),
+                                                  Map.of("location", "BODY", "field", "password", "message", "The password must not be empty")
                                           );
                        //@formatter:on
                          });
@@ -233,7 +233,7 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "refreshAuthenticationRequest", "field", "refreshToken", "message", "The refresh token must not be empty")
+                                                  Map.of("location", "BODY", "field", "refreshToken", "message", "The refresh token must not be empty")
                                           );
                        //@formatter:on
                          });
@@ -269,7 +269,7 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "refreshAuthenticationRequest", "field", "refreshToken", "message", "The refresh token must not be empty")
+                                                  Map.of("location", "BODY", "field", "refreshToken", "message", "The refresh token must not be empty")
                                           );
                        //@formatter:on
                          });
@@ -348,7 +348,7 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "revokeAuthenticationRequest", "field", "accessToken", "message", "The access token must not be empty")
+                                                  Map.of("location", "BODY", "field", "accessToken", "message", "The access token must not be empty")
                                           );
                        //@formatter:on
                          });
@@ -384,7 +384,7 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "revokeAuthenticationRequest", "field", "accessToken", "message", "The access token must not be empty")
+                                                  Map.of("location", "BODY", "field", "accessToken", "message", "The access token must not be empty")
                                           );
                        //@formatter:on
                          });

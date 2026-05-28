@@ -375,7 +375,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * @return a {@link List} of {@link InvalidRequestParameter} containing error details
      */
     private List<InvalidRequestParameter> buildInvalidParameters(List<FieldError> fieldErrors) {
-        Function<FieldError, InvalidRequestParameter> fieldErrorMapper = fieldError -> new InvalidRequestParameter(fieldError.getObjectName(),
+        Function<FieldError, InvalidRequestParameter> fieldErrorMapper = fieldError -> new InvalidRequestParameter(ParameterLocation.BODY,
                 fieldError.getField(), fieldError.getDefaultMessage());
 
         return fieldErrors.stream()

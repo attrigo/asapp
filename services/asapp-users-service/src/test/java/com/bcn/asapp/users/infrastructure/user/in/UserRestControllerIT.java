@@ -126,7 +126,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).inPath("errors")
                                                  .isArray()
                                                  .containsOnly(
-                                                         Map.of("entity", "", "field", "ids", "message", "Users identifiers list must not be empty")
+                                                         Map.of("location", "QUERY", "field", "ids", "message", "Users identifiers list must not be empty")
                                                  );
                              //@formatter:on
                          });
@@ -159,7 +159,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).inPath("errors")
                                                  .isArray()
                                                  .containsOnly(
-                                                         Map.of("entity", "", "field", "ids", "message", "Users identifiers list must contain at most 50 elements")
+                                                         Map.of("location", "QUERY", "field", "ids", "message", "Users identifiers list must contain at most 50 elements")
                                                  );
                              //@formatter:on
                          });
@@ -261,10 +261,10 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "createUserRequest", "field", "firstName", "message", "The first name must not be empty"),
-                                                  Map.of("entity", "createUserRequest", "field", "lastName", "message", "The last name must not be empty"),
-                                                  Map.of("entity", "createUserRequest", "field", "email", "message", "The email must not be empty"),
-                                                  Map.of("entity", "createUserRequest", "field", "phoneNumber", "message", "The phone number must not be empty")
+                                                  Map.of("location", "BODY", "field", "firstName", "message", "The first name must not be empty"),
+                                                  Map.of("location", "BODY", "field", "lastName", "message", "The last name must not be empty"),
+                                                  Map.of("location", "BODY", "field", "email", "message", "The email must not be empty"),
+                                                  Map.of("location", "BODY", "field", "phoneNumber", "message", "The phone number must not be empty")
                                           );
                        //@formatter:on
                          });
@@ -308,12 +308,12 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "createUserRequest", "field", "firstName", "message", "The first name must not be empty"),
-                                                  Map.of("entity", "createUserRequest", "field", "lastName", "message", "The last name must not be empty"),
-                                                  Map.of("entity", "createUserRequest", "field", "email", "message", "The email must not be empty"),
-                                                  Map.of("entity", "createUserRequest", "field", "email", "message", "The email must be a valid email address"),
-                                                  Map.of("entity", "createUserRequest", "field", "phoneNumber", "message", "The phone number must not be empty"),
-                                                  Map.of("entity", "createUserRequest", "field", "phoneNumber", "message", "The phone number must be a valid phone number")
+                                                  Map.of("location", "BODY", "field", "firstName", "message", "The first name must not be empty"),
+                                                  Map.of("location", "BODY", "field", "lastName", "message", "The last name must not be empty"),
+                                                  Map.of("location", "BODY", "field", "email", "message", "The email must not be empty"),
+                                                  Map.of("location", "BODY", "field", "email", "message", "The email must be a valid email address"),
+                                                  Map.of("location", "BODY", "field", "phoneNumber", "message", "The phone number must not be empty"),
+                                                  Map.of("location", "BODY", "field", "phoneNumber", "message", "The phone number must be a valid phone number")
                                           );
                        //@formatter:on
                          });
@@ -352,7 +352,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "createUserRequest", "field", "email", "message", "The email must be a valid email address")
+                                                  Map.of("location", "BODY", "field", "email", "message", "The email must be a valid email address")
                                           );
                        //@formatter:on
                          });
@@ -391,7 +391,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "createUserRequest", "field", "phoneNumber", "message", "The phone number must be a valid phone number")
+                                                  Map.of("location", "BODY", "field", "phoneNumber", "message", "The phone number must be a valid phone number")
                                           );
                        //@formatter:on
                          });
@@ -533,10 +533,10 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "updateUserRequest", "field", "firstName", "message", "The first name must not be empty"),
-                                                  Map.of("entity", "updateUserRequest", "field", "lastName", "message", "The last name must not be empty"),
-                                                  Map.of("entity", "updateUserRequest", "field", "email", "message", "The email must not be empty"),
-                                                  Map.of("entity", "updateUserRequest", "field", "phoneNumber", "message", "The phone number must not be empty")
+                                                  Map.of("location", "BODY", "field", "firstName", "message", "The first name must not be empty"),
+                                                  Map.of("location", "BODY", "field", "lastName", "message", "The last name must not be empty"),
+                                                  Map.of("location", "BODY", "field", "email", "message", "The email must not be empty"),
+                                                  Map.of("location", "BODY", "field", "phoneNumber", "message", "The phone number must not be empty")
                                           );
                        //@formatter:on
                          });
@@ -581,12 +581,12 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "updateUserRequest", "field", "firstName", "message", "The first name must not be empty"),
-                                                  Map.of("entity", "updateUserRequest", "field", "lastName", "message", "The last name must not be empty"),
-                                                  Map.of("entity", "updateUserRequest", "field", "email", "message", "The email must not be empty"),
-                                                  Map.of("entity", "updateUserRequest", "field", "email", "message", "The email must be a valid email address"),
-                                                  Map.of("entity", "updateUserRequest", "field", "phoneNumber", "message", "The phone number must not be empty"),
-                                                  Map.of("entity", "updateUserRequest", "field", "phoneNumber", "message", "The phone number must be a valid phone number")
+                                                  Map.of("location", "BODY", "field", "firstName", "message", "The first name must not be empty"),
+                                                  Map.of("location", "BODY", "field", "lastName", "message", "The last name must not be empty"),
+                                                  Map.of("location", "BODY", "field", "email", "message", "The email must not be empty"),
+                                                  Map.of("location", "BODY", "field", "email", "message", "The email must be a valid email address"),
+                                                  Map.of("location", "BODY", "field", "phoneNumber", "message", "The phone number must not be empty"),
+                                                  Map.of("location", "BODY", "field", "phoneNumber", "message", "The phone number must be a valid phone number")
                                           );
                        //@formatter:on
                          });
@@ -626,7 +626,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "updateUserRequest", "field", "email", "message", "The email must be a valid email address")
+                                                  Map.of("location", "BODY", "field", "email", "message", "The email must be a valid email address")
                                           );
                        //@formatter:on
                          });
@@ -666,7 +666,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "updateUserRequest", "field", "phoneNumber", "message", "The phone number must be a valid phone number")
+                                                  Map.of("location", "BODY", "field", "phoneNumber", "message", "The phone number must be a valid phone number")
                                           );
                        //@formatter:on
                          });

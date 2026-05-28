@@ -16,6 +16,9 @@
 
 package com.bcn.asapp.users.infrastructure.error;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Function;
@@ -40,6 +43,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.ElementKind;
+import jakarta.validation.Path;
+
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.bcn.asapp.users.infrastructure.security.AuthenticationNotFoundException;
 import com.bcn.asapp.users.infrastructure.security.InvalidJwtException;
@@ -302,7 +311,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * @return a {@link List} of {@link InvalidRequestParameter} containing error details
      */
     private List<InvalidRequestParameter> buildInvalidParameters(List<FieldError> fieldErrors) {
-        Function<FieldError, InvalidRequestParameter> fieldErrorMapper = fieldError -> new InvalidRequestParameter(fieldError.getObjectName(),
+        Function<FieldError, InvalidRequestParameter> fieldErrorMapper = fieldError -> new InvalidRequestParameter(ParameterLocation.BODY,
                 fieldError.getField(), fieldError.getDefaultMessage());
 
         return fieldErrors.stream()
@@ -322,9 +331,53 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                              var path = v.getPropertyPath()
                                          .toString();
                              var field = path.contains(".") ? path.substring(path.indexOf('.') + 1) : path;
-                             return new InvalidRequestParameter("", field, v.getMessage());
+                             return new InvalidRequestParameter(resolveLocation(v), field, v.getMessage());
                          })
                          .toList();
+    }
+
+    private static ParameterLocation resolveLocation(ConstraintViolation<?> violation) {
+        Class<?> rootClass = violation.getRootBeanClass();
+        Iterator<Path.Node> nodes = violation.getPropertyPath()
+                                             .iterator();
+
+        if (!nodes.hasNext()) {
+            return ParameterLocation.QUERY;
+        }
+        String methodName = nodes.next()
+                                 .getName();
+
+        if (!nodes.hasNext()) {
+            return ParameterLocation.QUERY;
+        }
+        Path.Node paramNode = nodes.next();
+        if (paramNode.getKind() != ElementKind.PARAMETER) {
+            return ParameterLocation.QUERY;
+        }
+        Integer paramIndex = paramNode.as(Path.ParameterNode.class)
+                                      .getParameterIndex();
+
+        for (Method method : rootClass.getMethods()) {
+
+            if (!method.getName()
+                       .equals(methodName) || paramIndex >= method.getParameterCount()) {
+                continue;
+            }
+
+            Parameter parameter = method.getParameters()[paramIndex];
+            if (parameter.isAnnotationPresent(PathVariable.class)) {
+                return ParameterLocation.PATH;
+            }
+            if (parameter.isAnnotationPresent(RequestHeader.class)) {
+                return ParameterLocation.HEADER;
+            }
+            if (parameter.isAnnotationPresent(RequestParam.class)) {
+                return ParameterLocation.QUERY;
+            }
+            return ParameterLocation.QUERY;
+        }
+
+        return ParameterLocation.QUERY;
     }
 
 }

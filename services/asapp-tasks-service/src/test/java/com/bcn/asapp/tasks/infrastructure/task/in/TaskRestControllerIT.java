@@ -126,7 +126,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).inPath("errors")
                                                  .isArray()
                                                  .containsOnly(
-                                                         Map.of("entity", "", "field", "ids", "message", "Tasks identifiers list must not be empty")
+                                                         Map.of("location", "QUERY", "field", "ids", "message", "Tasks identifiers list must not be empty")
                                                  );
                              //@formatter:on
                          });
@@ -159,7 +159,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).inPath("errors")
                                                  .isArray()
                                                  .containsOnly(
-                                                         Map.of("entity", "", "field", "ids", "message", "Tasks identifiers list must contain at most 50 elements")
+                                                         Map.of("location", "QUERY", "field", "ids", "message", "Tasks identifiers list must contain at most 50 elements")
                                                  );
                              //@formatter:on
                          });
@@ -303,8 +303,8 @@ class TaskRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "createTaskRequest", "field", "userId", "message", "The user ID must not be empty"),
-                                                  Map.of("entity", "createTaskRequest", "field", "title", "message", "The title must not be empty")
+                                                  Map.of("location", "BODY", "field", "userId", "message", "The user ID must not be empty"),
+                                                  Map.of("location", "BODY", "field", "title", "message", "The title must not be empty")
                                           );
                        //@formatter:on
                          });
@@ -342,8 +342,8 @@ class TaskRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "createTaskRequest", "field", "userId", "message", "The user ID must not be empty"),
-                                                  Map.of("entity", "createTaskRequest", "field", "title", "message", "The title must not be empty")
+                                                  Map.of("location", "BODY", "field", "userId", "message", "The user ID must not be empty"),
+                                                  Map.of("location", "BODY", "field", "title", "message", "The title must not be empty")
                                           );
                        //@formatter:on
                          });
@@ -491,8 +491,8 @@ class TaskRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "updateTaskRequest", "field", "userId", "message", "The user ID must not be empty"),
-                                                  Map.of("entity", "updateTaskRequest", "field", "title", "message", "The title must not be empty")
+                                                  Map.of("location", "BODY", "field", "userId", "message", "The user ID must not be empty"),
+                                                  Map.of("location", "BODY", "field", "title", "message", "The title must not be empty")
                                           );
                        //@formatter:on
                          });
@@ -531,8 +531,8 @@ class TaskRestControllerIT extends WebMvcTestContext {
                        assertThatJson(json).inPath("errors")
                                           .isArray()
                                           .containsOnly(
-                                                  Map.of("entity", "updateTaskRequest", "field", "userId", "message", "The user ID must not be empty"),
-                                                  Map.of("entity", "updateTaskRequest", "field", "title", "message", "The title must not be empty")
+                                                  Map.of("location", "BODY", "field", "userId", "message", "The user ID must not be empty"),
+                                                  Map.of("location", "BODY", "field", "title", "message", "The title must not be empty")
                                           );
                        //@formatter:on
                          });

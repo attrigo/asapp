@@ -18,12 +18,23 @@ package com.bcn.asapp.tasks.infrastructure.error;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+
+import java.util.List;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.springframework.core.MethodParameter;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.RedisConnectionFailureException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.context.request.WebRequest;
 
 import com.bcn.asapp.tasks.infrastructure.security.AuthenticationNotFoundException;
 import com.bcn.asapp.tasks.infrastructure.security.InvalidJwtException;
@@ -42,6 +53,33 @@ import com.bcn.asapp.tasks.infrastructure.security.UnexpectedJwtTypeException;
 class GlobalExceptionHandlerTests {
 
     private final GlobalExceptionHandler globalExceptionHandler = new GlobalExceptionHandler();
+
+    @Nested
+    class HandleMethodArgumentNotValid {
+
+        @Test
+        void handleMethodArgumentNotValid_whenFieldHasMultipleViolations_returnsAllViolations() throws Exception {
+            // Given
+            FieldError empty = new FieldError("createTaskRequest", "title", "must not be empty");
+            FieldError tooShort = new FieldError("createTaskRequest", "title", "size must be between 3 and 50");
+            var bindingResult = mock(BindingResult.class);
+            given(bindingResult.getFieldErrors()).willReturn(List.of(empty, tooShort));
+            var methodParameter = new MethodParameter(Object.class.getMethod("toString"), -1);
+            var ex = new MethodArgumentNotValidException(methodParameter, bindingResult);
+
+            // When
+            var response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST, mock(WebRequest.class));
+
+            // Then
+            var problemDetail = (ProblemDetail) response.getBody();
+            @SuppressWarnings("unchecked")
+            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties().get("errors");
+            assertThat(errors).hasSize(2)
+                              .allMatch(e -> e.location() == ParameterLocation.BODY)
+                              .allMatch(e -> "title".equals(e.field()));
+        }
+
+    }
 
     @Nested
     class HandleIllegalArgumentException {
