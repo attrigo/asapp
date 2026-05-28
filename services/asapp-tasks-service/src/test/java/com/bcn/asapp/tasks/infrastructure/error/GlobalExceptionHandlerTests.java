@@ -23,6 +23,12 @@ import static org.mockito.Mockito.mock;
 
 import java.util.List;
 
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validation;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.executable.ExecutableValidator;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
@@ -31,9 +37,12 @@ import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 
 import com.bcn.asapp.tasks.infrastructure.security.AuthenticationNotFoundException;
@@ -53,6 +62,78 @@ import com.bcn.asapp.tasks.infrastructure.security.UnexpectedJwtTypeException;
 class GlobalExceptionHandlerTests {
 
     private final GlobalExceptionHandler globalExceptionHandler = new GlobalExceptionHandler();
+
+    @Nested
+    class HandleConstraintViolationException {
+
+        private ExecutableValidator executableValidator;
+        private FakeController fakeController;
+
+        @BeforeEach
+        void setUp() {
+            var validatorFactory = Validation.buildDefaultValidatorFactory();
+            executableValidator = validatorFactory.getValidator()
+                                                  .forExecutables();
+            fakeController = new FakeController();
+        }
+
+        @Test
+        void handleConstraintViolationException_whenPathVariableViolation_returnsPathLocation() throws Exception {
+            // Given
+            var method = FakeController.class.getMethod("findById", String.class);
+            var violations = executableValidator.validateParameters(fakeController, method, new Object[] { null });
+            var ex = new ConstraintViolationException(violations);
+
+            // When
+            ResponseEntity<ProblemDetail> response = globalExceptionHandler.handleConstraintViolationException(ex);
+
+            // Then
+            var problemDetail = response.getBody();
+            @SuppressWarnings("unchecked")
+            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties().get("errors");
+            assertThat(errors).hasSize(1)
+                              .first()
+                              .satisfies(e -> {
+                                  // @formatter:off
+                                  assertThat(e.location()).as("location").isEqualTo(ParameterLocation.PATH);
+                                  assertThat(e.field()).as("field").isEqualTo("id");
+                                  // @formatter:on
+                              });
+        }
+
+        @Test
+        void handleConstraintViolationException_whenRequestParamViolation_returnsQueryLocation() throws Exception {
+            // Given
+            var method = FakeController.class.getMethod("search", String.class);
+            var violations = executableValidator.validateParameters(fakeController, method, new Object[] { null });
+            var ex = new ConstraintViolationException(violations);
+
+            // When
+            ResponseEntity<ProblemDetail> response = globalExceptionHandler.handleConstraintViolationException(ex);
+
+            // Then
+            var problemDetail = response.getBody();
+            @SuppressWarnings("unchecked")
+            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties().get("errors");
+            assertThat(errors).hasSize(1)
+                              .first()
+                              .satisfies(e -> {
+                                  // @formatter:off
+                                  assertThat(e.location()).as("location").isEqualTo(ParameterLocation.QUERY);
+                                  assertThat(e.field()).as("field").isEqualTo("query");
+                                  // @formatter:on
+                              });
+        }
+
+        static class FakeController {
+
+            public void findById(@PathVariable @NotNull String id) {}
+
+            public void search(@RequestParam @NotNull String query) {}
+
+        }
+
+    }
 
     @Nested
     class HandleMethodArgumentNotValid {
