@@ -18,12 +18,26 @@ package com.bcn.asapp.authentication.infrastructure.error;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
+
+import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.core.MethodParameter;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.RedisConnectionFailureException;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ProblemDetail;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.context.request.WebRequest;
 
 import com.bcn.asapp.authentication.application.CompensatingTransactionException;
 import com.bcn.asapp.authentication.application.authentication.AuthenticationNotFoundException;
@@ -39,11 +53,13 @@ import com.bcn.asapp.authentication.infrastructure.security.JwtIssuanceException
  * Tests {@link GlobalExceptionHandler} exception-to-ProblemDetail translation and HTTP status mapping.
  * <p>
  * Coverage:
- * <li>Translates domain validation failures to 400 Bad Request with specific messages</li>
+ * <li>Translates request validation failures to 400 Bad Request with sorted field errors</li>
+ * <li>Translates invalid arguments to 400 Bad Request with a generic detail</li>
  * <li>Translates authentication failures to 401 Unauthorized with generic messages (security best practice)</li>
+ * <li>Translates compensating-transaction failures to 500 Internal Server Error flagged critical</li>
  * <li>Translates JWT signing failures to 500 Internal Server Error with generic messages</li>
  * <li>Translates database failures to 500 Internal Server Error with generic messages</li>
- * <li>Translates cache connection failures to 503 Service Unavailable</li>
+ * <li>Translates token-store and cache connection failures to 503 Service Unavailable</li>
  * <li>All responses follow RFC 7807 Problem Details structure with error codes</li>
  */
 class GlobalExceptionHandlerTests {
@@ -51,10 +67,50 @@ class GlobalExceptionHandlerTests {
     private final GlobalExceptionHandler globalExceptionHandler = new GlobalExceptionHandler();
 
     @Nested
+    class HandleMethodArgumentNotValid {
+
+        @Test
+        void ReturnsBadRequestAndProblemDetail_InvalidRequestBody() throws NoSuchMethodException {
+            // Given
+            var usernameEmptyFieldError = new FieldError("authenticateRequest", "username", "must not be blank");
+            var passwordEmptyFieldError = new FieldError("authenticateRequest", "password", "must not be blank");
+            var fieldErrors = List.of(usernameEmptyFieldError, passwordEmptyFieldError);
+            var methodParameter = new MethodParameter(getClass().getDeclaredMethod("authenticate", Object.class), 0);
+            var bindingResult = mock(BindingResult.class);
+            var exception = new MethodArgumentNotValidException(methodParameter, bindingResult);
+            var sortedErrors = List.of(RequestValidationError.of("password", "must not be blank"), RequestValidationError.of("username", "must not be blank"));
+
+            given(bindingResult.getFieldErrors()).willReturn(fieldErrors);
+
+            // When
+            var actual = globalExceptionHandler.handleMethodArgumentNotValid(exception, new HttpHeaders(), HttpStatus.BAD_REQUEST, mock(WebRequest.class));
+
+            // Then
+            assertThat(actual).isNotNull();
+            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            var problemDetail = (ProblemDetail) actual.getBody();
+            assertThat(problemDetail).isNotNull();
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Bad Request");
+                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(400);
+                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Request validation failed");
+                softly.assertThat(problemDetail.getProperties()).as("error").containsEntry("error", "invalid_request");
+                softly.assertThat(problemDetail.getProperties()).as("field errors").containsEntry("field_errors", sortedErrors);
+                // @formatter:on
+            });
+        }
+
+        @SuppressWarnings("unused")
+        void authenticate(Object body) {}
+
+    }
+
+    @Nested
     class HandleIllegalArgumentException {
 
         @Test
-        void Returns400WithExceptionMessage_InvalidArgument() {
+        void ReturnsBadRequestAndProblemDetail_InvalidArgument() {
             // Given
             var exception = new IllegalArgumentException("Username must be a valid email address");
 
@@ -63,12 +119,14 @@ class GlobalExceptionHandlerTests {
 
             // Then
             assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
-            assertThat(actual.getBody()).isNotNull();
+            var problemDetail = actual.getBody();
+            assertThat(problemDetail).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
-                softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Invalid Argument");
-                softly.assertThat(actual.getBody().getStatus()).as("status").isEqualTo(400);
-                softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo("Username must be a valid email address");
+                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Invalid Argument");
+                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(400);
+                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Invalid argument provided");
+                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "invalid_request");
                 // @formatter:on
             });
         }
@@ -76,79 +134,32 @@ class GlobalExceptionHandlerTests {
     }
 
     @Nested
-    class HandleInvalidUsernameException {
+    class HandleInvalidCredentials {
 
-        @Test
-        void Returns401WithGenericMessage_InvalidUsernameFormat() {
-            // Given
-            var exception = new InvalidUsernameException("Username must be a valid email address");
-
+        @ParameterizedTest
+        @MethodSource("invalidCredentialExceptions")
+        void ReturnsUnauthorizedAndProblemDetail_InvalidCredentials(RuntimeException exception) {
             // When
             var actual = globalExceptionHandler.handleInvalidCredentials(exception);
 
             // Then
             assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-            assertThat(actual.getBody()).isNotNull();
+            var problemDetail = actual.getBody();
+            assertThat(problemDetail).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
-                softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Authentication Failed");
-                softly.assertThat(actual.getBody().getStatus()).as("status").isEqualTo(401);
-                softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo("Invalid credentials");
-                softly.assertThat(actual.getBody().getProperties()).as("error code").containsEntry("error", "invalid_grant");
+                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Authentication Failed");
+                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(401);
+                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Invalid credentials");
+                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "invalid_grant");
                 // @formatter:on
             });
         }
 
-    }
-
-    @Nested
-    class HandleInvalidPasswordException {
-
-        @Test
-        void Returns401WithGenericMessage_InvalidPasswordFormat() {
-            // Given
-            var exception = new InvalidPasswordException("Raw password must be between 8 and 64 characters");
-
-            // When
-            var actual = globalExceptionHandler.handleInvalidCredentials(exception);
-
-            // Then
-            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-            assertThat(actual.getBody()).isNotNull();
-            assertSoftly(softly -> {
-                // @formatter:off
-                softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Authentication Failed");
-                softly.assertThat(actual.getBody().getStatus()).as("status").isEqualTo(401);
-                softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo("Invalid credentials");
-                softly.assertThat(actual.getBody().getProperties()).as("error code").containsEntry("error", "invalid_grant");
-                // @formatter:on
-            });
-        }
-
-    }
-
-    @Nested
-    class HandleInvalidEncodedTokenException {
-
-        @Test
-        void Returns401WithGenericMessage_InvalidEncodedTokenFormat() {
-            // Given
-            var exception = new InvalidEncodedTokenException("Encoded token must be a valid JWT format");
-
-            // When
-            var actual = globalExceptionHandler.handleInvalidCredentials(exception);
-
-            // Then
-            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-            assertThat(actual.getBody()).isNotNull();
-            assertSoftly(softly -> {
-                // @formatter:off
-                softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Authentication Failed");
-                softly.assertThat(actual.getBody().getStatus()).as("status").isEqualTo(401);
-                softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo("Invalid credentials");
-                softly.assertThat(actual.getBody().getProperties()).as("error code").containsEntry("error", "invalid_grant");
-                // @formatter:on
-            });
+        private static Stream<RuntimeException> invalidCredentialExceptions() {
+            return Stream.of(new InvalidUsernameException("Username must be a valid email address"),
+                    new InvalidPasswordException("Raw password must be between 8 and 64 characters"),
+                    new InvalidEncodedTokenException("Encoded token must be a valid JWT format"));
         }
 
     }
@@ -157,7 +168,7 @@ class GlobalExceptionHandlerTests {
     class HandleAuthenticationNotFoundException {
 
         @Test
-        void Returns401WithGenericMessage_AuthenticationNotFound() {
+        void ReturnsUnauthorizedAndProblemDetail_AuthenticationNotFound() {
             // Given
             var exception = new AuthenticationNotFoundException("Access token not found in active sessions");
 
@@ -166,13 +177,14 @@ class GlobalExceptionHandlerTests {
 
             // Then
             assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-            assertThat(actual.getBody()).isNotNull();
+            var problemDetail = actual.getBody();
+            assertThat(problemDetail).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
-                softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Authentication Failed");
-                softly.assertThat(actual.getBody().getStatus()).as("status").isEqualTo(401);
-                softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo("Invalid credentials");
-                softly.assertThat(actual.getBody().getProperties()).as("error code").containsEntry("error", "invalid_grant");
+                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Authentication Failed");
+                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(401);
+                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Invalid credentials");
+                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "invalid_grant");
                 // @formatter:on
             });
         }
@@ -183,7 +195,7 @@ class GlobalExceptionHandlerTests {
     class HandleUnexpectedJwtTypeException {
 
         @Test
-        void Returns401WithGenericMessage_UnexpectedJwtType() {
+        void ReturnsUnauthorizedAndProblemDetail_UnexpectedJwtType() {
             // Given
             var exception = new UnexpectedJwtTypeException("Token is not an access token");
 
@@ -192,13 +204,14 @@ class GlobalExceptionHandlerTests {
 
             // Then
             assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-            assertThat(actual.getBody()).isNotNull();
+            var problemDetail = actual.getBody();
+            assertThat(problemDetail).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
-                softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Authentication Failed");
-                softly.assertThat(actual.getBody().getStatus()).as("status").isEqualTo(401);
-                softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo("Invalid token");
-                softly.assertThat(actual.getBody().getProperties()).as("error code").containsEntry("error", "invalid_grant");
+                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Authentication Failed");
+                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(401);
+                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Invalid token");
+                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "invalid_grant");
                 // @formatter:on
             });
         }
@@ -209,7 +222,7 @@ class GlobalExceptionHandlerTests {
     class HandleInvalidJwtException {
 
         @Test
-        void Returns401WithGenericMessage_InvalidJwt() {
+        void ReturnsUnauthorizedAndProblemDetail_InvalidJwt() {
             // Given
             var exception = new InvalidJwtException("JWT signature validation failed", new RuntimeException("Signature error"));
 
@@ -218,13 +231,14 @@ class GlobalExceptionHandlerTests {
 
             // Then
             assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-            assertThat(actual.getBody()).isNotNull();
+            var problemDetail = actual.getBody();
+            assertThat(problemDetail).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
-                softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Authentication Failed");
-                softly.assertThat(actual.getBody().getStatus()).as("status").isEqualTo(401);
-                softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo("Invalid credentials");
-                softly.assertThat(actual.getBody().getProperties()).as("error code").containsEntry("error", "invalid_grant");
+                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Authentication Failed");
+                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(401);
+                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Invalid credentials");
+                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "invalid_grant");
                 // @formatter:on
             });
         }
@@ -235,7 +249,7 @@ class GlobalExceptionHandlerTests {
     class HandleCompensatingTransactionException {
 
         @Test
-        void Returns500WithCriticalFlag_CompensatingTransactionFails() {
+        void ReturnsInternalServerErrorAndProblemDetail_CompensatingTransactionFails() {
             // Given
             var exception = new CompensatingTransactionException("Failed to compensate token rotation after token activation failure",
                     new RuntimeException("Could not restore old tokens"));
@@ -245,14 +259,15 @@ class GlobalExceptionHandlerTests {
 
             // Then
             assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-            assertThat(actual.getBody()).isNotNull();
+            var problemDetail = actual.getBody();
+            assertThat(problemDetail).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
-                softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Internal Server Error");
-                softly.assertThat(actual.getBody().getStatus()).as("status").isEqualTo(500);
-                softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo("An internal error occurred");
-                softly.assertThat(actual.getBody().getProperties()).as("error code").containsEntry("error", "server_error");
-                softly.assertThat(actual.getBody().getProperties()).as("critical flag").containsEntry("critical", true);
+                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Internal Server Error");
+                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(500);
+                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("An internal error occurred");
+                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "server_error");
+                softly.assertThat(problemDetail.getProperties()).as("critical flag").containsEntry("critical", true);
                 // @formatter:on
             });
         }
@@ -263,7 +278,7 @@ class GlobalExceptionHandlerTests {
     class HandleJwtIssuanceException {
 
         @Test
-        void Returns500WithGenericMessage_JwtIssuanceFails() {
+        void ReturnsInternalServerErrorAndProblemDetail_JwtIssuanceFails() {
             // Given
             var exception = new JwtIssuanceException("JWT signing failed", new RuntimeException("Signing error"));
 
@@ -272,13 +287,14 @@ class GlobalExceptionHandlerTests {
 
             // Then
             assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-            assertThat(actual.getBody()).isNotNull();
+            var problemDetail = actual.getBody();
+            assertThat(problemDetail).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
-                softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Internal Server Error");
-                softly.assertThat(actual.getBody().getStatus()).as("status").isEqualTo(500);
-                softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo("An internal error occurred");
-                softly.assertThat(actual.getBody().getProperties()).as("error code").containsEntry("error", "server_error");
+                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Internal Server Error");
+                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(500);
+                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("An internal error occurred");
+                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "server_error");
                 // @formatter:on
             });
         }
@@ -289,7 +305,7 @@ class GlobalExceptionHandlerTests {
     class HandleDataAccessException {
 
         @Test
-        void Returns500WithGenericMessage_DatabaseOperationFails() {
+        void ReturnsInternalServerErrorAndProblemDetail_DatabaseOperationFails() {
             // Given
             var exception = new DataAccessException("Database connection failed") {};
 
@@ -298,13 +314,14 @@ class GlobalExceptionHandlerTests {
 
             // Then
             assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-            assertThat(actual.getBody()).isNotNull();
+            var problemDetail = actual.getBody();
+            assertThat(problemDetail).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
-                softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Internal Server Error");
-                softly.assertThat(actual.getBody().getStatus()).as("status").isEqualTo(500);
-                softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo("An internal error occurred");
-                softly.assertThat(actual.getBody().getProperties()).as("error code").containsEntry("error", "server_error");
+                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Internal Server Error");
+                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(500);
+                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("An internal error occurred");
+                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "server_error");
                 // @formatter:on
             });
         }
@@ -315,7 +332,7 @@ class GlobalExceptionHandlerTests {
     class HandleTokenStoreException {
 
         @Test
-        void Returns503WithGenericMessage_TokenStoreFails() {
+        void ReturnsServiceUnavailableAndProblemDetail_TokenStoreFails() {
             // Given
             var exception = new TokenStoreException("Could not rotate tokens in fast-access store", new RuntimeException("Redis connection failed"));
 
@@ -324,13 +341,14 @@ class GlobalExceptionHandlerTests {
 
             // Then
             assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
-            assertThat(actual.getBody()).isNotNull();
+            var problemDetail = actual.getBody();
+            assertThat(problemDetail).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
-                softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Service Unavailable");
-                softly.assertThat(actual.getBody().getStatus()).as("status").isEqualTo(503);
-                softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo("Service temporarily unavailable");
-                softly.assertThat(actual.getBody().getProperties()).as("error code").containsEntry("error", "temporarily_unavailable");
+                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Service Unavailable");
+                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(503);
+                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Service temporarily unavailable");
+                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "temporarily_unavailable");
                 // @formatter:on
             });
         }
@@ -341,7 +359,7 @@ class GlobalExceptionHandlerTests {
     class HandleRedisException {
 
         @Test
-        void Returns503WithGenericMessage_CacheConnectionFails() {
+        void ReturnsServiceUnavailableAndProblemDetail_CacheConnectionFails() {
             // Given
             var exception = new RedisConnectionFailureException("Cannot connect to Redis server", new RuntimeException("Connection refused"));
 
@@ -350,13 +368,14 @@ class GlobalExceptionHandlerTests {
 
             // Then
             assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
-            assertThat(actual.getBody()).isNotNull();
+            var problemDetail = actual.getBody();
+            assertThat(problemDetail).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
-                softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Service Unavailable");
-                softly.assertThat(actual.getBody().getStatus()).as("status").isEqualTo(503);
-                softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo("Service temporarily unavailable");
-                softly.assertThat(actual.getBody().getProperties()).as("error code").containsEntry("error", "temporarily_unavailable");
+                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Service Unavailable");
+                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(503);
+                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Service temporarily unavailable");
+                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "temporarily_unavailable");
                 // @formatter:on
             });
         }

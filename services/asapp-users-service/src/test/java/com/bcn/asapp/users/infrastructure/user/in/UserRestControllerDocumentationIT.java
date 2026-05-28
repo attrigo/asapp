@@ -388,10 +388,10 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                fieldWithPath("title").description("Short summary of the problem type"),
                                fieldWithPath("status").description("HTTP status code"),
                                fieldWithPath("detail").description("Human-readable explanation of the problem"),
-                               fieldWithPath("errors").description("List of validation errors"),
-                               fieldWithPath("errors[].entity").description("Always empty for request-parameter violations"),
-                               fieldWithPath("errors[].field").description("Name of the request parameter that failed validation"),
-                               fieldWithPath("errors[].message").description("Validation error message")
+                               fieldWithPath("error").description("Machine-readable error code"),
+                               fieldWithPath("field_errors").description("List of validation errors"),
+                               fieldWithPath("field_errors[].field").description("Name of the request parameter that failed validation"),
+                               fieldWithPath("field_errors[].message").description("Validation error message")
                            )
                        )
                        // @formatter:on
@@ -411,10 +411,10 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                fieldWithPath("title").description("Short summary of the problem type"),
                                fieldWithPath("status").description("HTTP status code"),
                                fieldWithPath("detail").description("Human-readable explanation of the problem"),
-                               fieldWithPath("errors").description("List of validation errors"),
-                               fieldWithPath("errors[].entity").description("Entity that failed validation"),
-                               fieldWithPath("errors[].field").description("Field that failed validation"),
-                               fieldWithPath("errors[].message").description("Validation error message")
+                               fieldWithPath("error").description("Machine-readable error code"),
+                               fieldWithPath("field_errors").description("List of validation errors"),
+                               fieldWithPath("field_errors[].field").description("Field that failed validation"),
+                               fieldWithPath("field_errors[].message").description("Validation error message")
                            )
                        )
                    // @formatter:on

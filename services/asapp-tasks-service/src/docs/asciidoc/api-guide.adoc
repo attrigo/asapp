@@ -130,7 +130,7 @@ All error responses follow the https://www.rfc-editor.org/rfc/rfc7807[RFC 7807 P
 ==== Validation Failure - Path Variable (400)
 
 Returned when a path variable cannot be converted to its expected type (e.g., a malformed UUID).
-The response contains only `title`, `status`, and `detail`; no `errors` array is produced for type-conversion failures.
+The response contains only `title`, `status`, and `detail`; no `field_errors` array is produced for type-conversion failures.
 
 operation::error-path-variable-validation-failure[snippets='http-response,response-fields']
 
@@ -138,7 +138,7 @@ operation::error-path-variable-validation-failure[snippets='http-response,respon
 ==== Validation Failure - Request Parameter (400)
 
 Returned when a query parameter fails validation (empty, out of range, or
-malformed). `errors[].entity` is empty; `errors[].field` is the parameter name.
+malformed). `field_errors[].field` is the parameter name.
 
 operation::error-request-param-validation-failure[snippets='http-response,response-fields']
 
@@ -146,7 +146,7 @@ operation::error-request-param-validation-failure[snippets='http-response,respon
 ==== Validation Failure - Request Body (400)
 
 Returned when the request body contains invalid or missing fields.
-The `errors` array describes each validation failure.
+The `field_errors` array describes each validation failure.
 
 operation::error-request-body-validation-failure[snippets='http-response,response-fields']
 

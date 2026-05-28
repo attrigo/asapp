@@ -14,10 +14,13 @@
     * [X] Add operation to find users by list of ids
 * Technical Improvements
     * Error Handler
-        * [ ] Improve error responses to return sorted, structured validation errors
-        * [ ] Constants for all details
-        * [ ] Standardize usage of fixed messages, ex.getMessage() or ex.getLocalizedMessage() in ProblemDetails
-        * [ ] Improve usage InvalidRequestParameter, its entity field does not match errors produced from not wrappers parameters
+        * [X] Return validation errors in a deterministic, sorted order
+        * [X] Move all remaining inline error strings (titles, details, codes) into constants
+        * [X] Use only fixed messages for `ProblemDetail.detail` (never exception messages)
+        * [X] ~~Make `RequestValidationError` correctly represent the origin of validation errors for non-body parameters (path/query)~~
+        * [X] Preserve the full field path in validation errors so nested or duplicate field names don't collide
+    * JSON Naming
+        * [ ] Enforce request/response camelCase globally
     * [ ] Add load test with JMeter
     * [ ] Replace REST clients by declarative HTTP clients
         * Use circuit breaker pattern
@@ -73,6 +76,7 @@
 ### Goal - Adopt Modulith with Domain Events & CQRS
 
 * Introduce modularization with Spring Modulith (ArchUnit & JMolecules)
+    * Add an ArchUnit/test asserting every request DTO `@JsonProperty` value equals the snake_case of its Java component name
 * Adopt domain events following DDD principles
     * Handle domain CUD operations via events
     * Use CQRS pattern
