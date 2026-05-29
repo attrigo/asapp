@@ -26,9 +26,9 @@ package com.bcn.asapp.tasks.infrastructure.error;
  */
 public enum ParameterLocation {
 
-    BODY,
     PATH,
     QUERY,
-    HEADER
+    HEADER,
+    BODY
 
 }

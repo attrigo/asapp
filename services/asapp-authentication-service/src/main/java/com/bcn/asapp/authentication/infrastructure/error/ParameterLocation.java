@@ -26,9 +26,9 @@ package com.bcn.asapp.authentication.infrastructure.error;
  */
 public enum ParameterLocation {
 
-    BODY,
     PATH,
     QUERY,
-    HEADER
+    HEADER,
+    BODY
 
 }
