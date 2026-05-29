@@ -18,9 +18,6 @@ package com.bcn.asapp.authentication.infrastructure.error;
 
 import static com.bcn.asapp.authentication.infrastructure.error.ErrorMessages.*;
 
-import java.util.Comparator;
-import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.jspecify.annotations.NonNull;
@@ -72,10 +69,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    private static final Comparator<InvalidRequestParameter> SORT_ORDER = Comparator.comparing(InvalidRequestParameter::location)
-                                                                                    .thenComparing(InvalidRequestParameter::field)
-                                                                                    .thenComparing(InvalidRequestParameter::message);
-
     // ============================================================================
     // 400 BAD REQUEST - Validation Errors
     // ============================================================================
@@ -98,8 +91,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.atWarn()
            .log(() -> "Validation failed: " + buildValidationErrorMessage(ex));
 
-        var invalidParameters = buildInvalidParameters(ex.getBindingResult()
-                                                         .getFieldErrors());
+        var invalidParameters = ValidationErrorAssembler.fromFieldErrors(ex.getBindingResult()
+                                                                           .getFieldErrors());
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_FAILED_DETAIL);
         problemDetail.setTitle(BAD_REQUEST_TITLE);
@@ -353,22 +346,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                  .stream()
                  .map(FieldError::getDefaultMessage)
                  .collect(Collectors.joining(", "));
-    }
-
-    /**
-     * Builds a list of invalid parameter details from field errors.
-     *
-     * @param fieldErrors the list of {@link FieldError} from validation
-     * @return a {@link List} of {@link InvalidRequestParameter} containing error details
-     */
-    private List<InvalidRequestParameter> buildInvalidParameters(List<FieldError> fieldErrors) {
-        Function<FieldError, InvalidRequestParameter> fieldErrorMapper = fieldError -> new InvalidRequestParameter(ParameterLocation.BODY,
-                fieldError.getField(), fieldError.getDefaultMessage());
-
-        return fieldErrors.stream()
-                          .map(fieldErrorMapper)
-                          .sorted(SORT_ORDER)
-                          .toList();
     }
 
 }

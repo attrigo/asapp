@@ -18,13 +18,6 @@ package com.bcn.asapp.tasks.infrastructure.error;
 
 import static com.bcn.asapp.tasks.infrastructure.error.ErrorMessages.*;
 
-import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.jspecify.annotations.NonNull;
@@ -40,17 +33,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.ElementKind;
-import jakarta.validation.Path;
 
 import com.bcn.asapp.tasks.infrastructure.security.AuthenticationNotFoundException;
 import com.bcn.asapp.tasks.infrastructure.security.InvalidJwtException;
@@ -71,10 +58,6 @@ import com.bcn.asapp.tasks.infrastructure.security.UnexpectedJwtTypeException;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
-
-    private static final Comparator<InvalidRequestParameter> SORT_ORDER = Comparator.comparing(InvalidRequestParameter::location)
-                                                                                    .thenComparing(InvalidRequestParameter::field)
-                                                                                    .thenComparing(InvalidRequestParameter::message);
 
     // ============================================================================
     // 400 BAD REQUEST - Validation Errors
@@ -98,8 +81,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.atWarn()
            .log(() -> "Validation failed: " + buildValidationErrorMessage(ex));
 
-        var invalidParameters = buildInvalidParameters(ex.getBindingResult()
-                                                         .getFieldErrors());
+        var invalidParameters = ValidationErrorAssembler.fromFieldErrors(ex.getBindingResult()
+                                                                           .getFieldErrors());
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_FAILED_DETAIL);
         problemDetail.setTitle(BAD_REQUEST_TITLE);
@@ -140,7 +123,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ProblemDetail> handleConstraintViolationException(ConstraintViolationException ex) {
         log.warn("Constraint violation: {}", ex.getMessage());
 
-        var invalidParameters = buildInvalidParameters(ex.getConstraintViolations());
+        var invalidParameters = ValidationErrorAssembler.fromConstraintViolations(ex.getConstraintViolations());
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_FAILED_DETAIL);
         problemDetail.setTitle(BAD_REQUEST_TITLE);
@@ -288,88 +271,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                  .stream()
                  .map(FieldError::getDefaultMessage)
                  .collect(Collectors.joining(", "));
-    }
-
-    /**
-     * Builds a list of invalid parameter details from field errors.
-     *
-     * @param fieldErrors the list of {@link FieldError} from validation
-     * @return a {@link List} of {@link InvalidRequestParameter} containing error details
-     */
-    private List<InvalidRequestParameter> buildInvalidParameters(List<FieldError> fieldErrors) {
-        Function<FieldError, InvalidRequestParameter> fieldErrorMapper = fieldError -> new InvalidRequestParameter(ParameterLocation.BODY,
-                fieldError.getField(), fieldError.getDefaultMessage());
-
-        return fieldErrors.stream()
-                          .map(fieldErrorMapper)
-                          .sorted(SORT_ORDER)
-                          .toList();
-    }
-
-    /**
-     * Builds a list of invalid parameter details from constraint violations.
-     *
-     * @param violations the set of {@link ConstraintViolation} from bean validation
-     * @return a {@link List} of {@link InvalidRequestParameter} containing error details
-     */
-    private List<InvalidRequestParameter> buildInvalidParameters(Set<ConstraintViolation<?>> violations) {
-        return violations.stream()
-                         .map(v -> {
-                             var path = v.getPropertyPath()
-                                         .toString();
-                             var field = path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : path;
-                             return new InvalidRequestParameter(resolveLocation(v), field, v.getMessage());
-                         })
-                         .sorted(SORT_ORDER)
-                         .toList();
-    }
-
-    private static ParameterLocation resolveLocation(ConstraintViolation<?> violation) {
-        Class<?> rootClass = violation.getRootBeanClass();
-        Iterator<Path.Node> nodes = violation.getPropertyPath()
-                                             .iterator();
-
-        if (!nodes.hasNext()) {
-            return ParameterLocation.QUERY;
-        }
-        String methodName = nodes.next()
-                                 .getName();
-
-        if (!nodes.hasNext()) {
-            return ParameterLocation.QUERY;
-        }
-        Path.Node paramNode = nodes.next();
-        if (paramNode.getKind() != ElementKind.PARAMETER) {
-            return ParameterLocation.QUERY;
-        }
-        Integer paramIndex = paramNode.as(Path.ParameterNode.class)
-                                      .getParameterIndex();
-
-        if (paramIndex == null) {
-            return ParameterLocation.QUERY;
-        }
-
-        for (Method method : rootClass.getMethods()) {
-
-            if (!method.getName()
-                       .equals(methodName) || paramIndex >= method.getParameterCount()) {
-                continue;
-            }
-
-            Parameter parameter = method.getParameters()[paramIndex];
-            if (parameter.isAnnotationPresent(PathVariable.class)) {
-                return ParameterLocation.PATH;
-            }
-            if (parameter.isAnnotationPresent(RequestHeader.class)) {
-                return ParameterLocation.HEADER;
-            }
-            if (parameter.isAnnotationPresent(RequestParam.class)) {
-                return ParameterLocation.QUERY;
-            }
-            return ParameterLocation.QUERY;
-        }
-
-        return ParameterLocation.QUERY;
     }
 
 }
