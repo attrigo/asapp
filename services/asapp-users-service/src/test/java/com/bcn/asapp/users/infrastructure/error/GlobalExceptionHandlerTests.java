@@ -26,11 +26,6 @@ import static org.mockito.Mockito.mock;
 import java.util.List;
 import java.util.Set;
 
-import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Validation;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.executable.ExecutableValidator;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -47,6 +42,11 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
+
+import jakarta.validation.ConstraintViolationException;
+import jakarta.validation.Validation;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.executable.ExecutableValidator;
 
 import com.bcn.asapp.users.infrastructure.security.AuthenticationNotFoundException;
 import com.bcn.asapp.users.infrastructure.security.InvalidJwtException;
@@ -70,6 +70,7 @@ class GlobalExceptionHandlerTests {
     class HandleConstraintViolationException {
 
         private ExecutableValidator executableValidator;
+
         private FakeController fakeController;
 
         @BeforeEach
@@ -93,11 +94,12 @@ class GlobalExceptionHandlerTests {
             // Then
             var problemDetail = response.getBody();
             @SuppressWarnings("unchecked")
-            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties().get("errors");
+            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties()
+                                                                      .get("errors");
             assertThat(errors).hasSize(1)
                               .first()
                               .satisfies(e -> {
-                                  // @formatter:off
+                              // @formatter:off
                                   assertThat(e.location()).as("location").isEqualTo(ParameterLocation.PATH);
                                   assertThat(e.field()).as("field").isEqualTo("id");
                                   // @formatter:on
@@ -117,11 +119,12 @@ class GlobalExceptionHandlerTests {
             // Then
             var problemDetail = response.getBody();
             @SuppressWarnings("unchecked")
-            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties().get("errors");
+            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties()
+                                                                      .get("errors");
             assertThat(errors).hasSize(1)
                               .first()
                               .satisfies(e -> {
-                                  // @formatter:off
+                              // @formatter:off
                                   assertThat(e.location()).as("location").isEqualTo(ParameterLocation.QUERY);
                                   assertThat(e.field()).as("field").isEqualTo("query");
                                   // @formatter:on
@@ -137,7 +140,8 @@ class GlobalExceptionHandlerTests {
             ResponseEntity<ProblemDetail> response = globalExceptionHandler.handleConstraintViolationException(ex);
 
             // Then
-            assertThat(response.getBody().getDetail()).isEqualTo(VALIDATION_FAILED_DETAIL);
+            assertThat(response.getBody()
+                               .getDetail()).isEqualTo(VALIDATION_FAILED_DETAIL);
         }
 
         @Test
@@ -153,10 +157,13 @@ class GlobalExceptionHandlerTests {
             // Then
             var problemDetail = response.getBody();
             @SuppressWarnings("unchecked")
-            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties().get("errors");
+            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties()
+                                                                      .get("errors");
             assertThat(errors).hasSize(2);
-            assertThat(errors.get(0).location()).isEqualTo(ParameterLocation.PATH);
-            assertThat(errors.get(1).location()).isEqualTo(ParameterLocation.QUERY);
+            assertThat(errors.get(0)
+                             .location()).isEqualTo(ParameterLocation.PATH);
+            assertThat(errors.get(1)
+                             .location()).isEqualTo(ParameterLocation.QUERY);
         }
 
         static class FakeController {
@@ -182,7 +189,8 @@ class GlobalExceptionHandlerTests {
             var ex = new MethodArgumentNotValidException((MethodParameter) null, bindingResult);
 
             // When
-            ResponseEntity<Object> response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST, mock(WebRequest.class));
+            ResponseEntity<Object> response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST,
+                    mock(WebRequest.class));
 
             // Then
             var problemDetail = (ProblemDetail) response.getBody();
@@ -204,11 +212,10 @@ class GlobalExceptionHandlerTests {
             // Then
             var problemDetail = (ProblemDetail) response.getBody();
             @SuppressWarnings("unchecked")
-            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties().get("errors");
-            assertThat(errors).containsExactly(
-                    new InvalidRequestParameter(ParameterLocation.BODY, "username", "must not be empty"),
-                    new InvalidRequestParameter(ParameterLocation.BODY, "username", "size must be between 3 and 50")
-            );
+            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties()
+                                                                      .get("errors");
+            assertThat(errors).containsExactly(new InvalidRequestParameter(ParameterLocation.BODY, "username", "must not be empty"),
+                    new InvalidRequestParameter(ParameterLocation.BODY, "username", "size must be between 3 and 50"));
         }
 
         @Test
@@ -222,17 +229,17 @@ class GlobalExceptionHandlerTests {
             var ex = new MethodArgumentNotValidException((MethodParameter) null, bindingResult);
 
             // When
-            ResponseEntity<Object> response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST, mock(WebRequest.class));
+            ResponseEntity<Object> response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST,
+                    mock(WebRequest.class));
 
             // Then
             var problemDetail = (ProblemDetail) response.getBody();
             @SuppressWarnings("unchecked")
-            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties().get("errors");
-            assertThat(errors).containsExactly(
-                    new InvalidRequestParameter(ParameterLocation.BODY, "email", "The email must not be empty"),
+            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties()
+                                                                      .get("errors");
+            assertThat(errors).containsExactly(new InvalidRequestParameter(ParameterLocation.BODY, "email", "The email must not be empty"),
                     new InvalidRequestParameter(ParameterLocation.BODY, "firstName", "The first name must not be empty"),
-                    new InvalidRequestParameter(ParameterLocation.BODY, "phoneNumber", "The phone number must be a valid phone number")
-            );
+                    new InvalidRequestParameter(ParameterLocation.BODY, "phoneNumber", "The phone number must be a valid phone number"));
         }
 
     }
@@ -249,7 +256,8 @@ class GlobalExceptionHandlerTests {
             ResponseEntity<ProblemDetail> response = globalExceptionHandler.handleIllegalArgumentException(ex);
 
             // Then
-            assertThat(response.getBody().getDetail()).isEqualTo(INVALID_ARGUMENT_DETAIL);
+            assertThat(response.getBody()
+                               .getDetail()).isEqualTo(INVALID_ARGUMENT_DETAIL);
         }
 
         @Test
