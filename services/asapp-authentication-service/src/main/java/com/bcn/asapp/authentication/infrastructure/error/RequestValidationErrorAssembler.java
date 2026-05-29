@@ -23,30 +23,30 @@ import java.util.function.Function;
 import org.springframework.validation.FieldError;
 
 /**
- * Assembles sorted {@link InvalidRequestParameter} lists from Spring body-validation failures.
+ * Assembles sorted {@link RequestValidationError} lists from Spring body-validation failures.
  * <p>
  * Maps body field errors to {@link ParameterLocation#BODY}. Results are ordered by location, then field, then message.
  *
  * @since 0.4.0
  * @author attrigo
  */
-final class ValidationErrorAssembler {
+final class RequestValidationErrorAssembler {
 
-    private static final Comparator<InvalidRequestParameter> SORT_ORDER = Comparator.comparing(InvalidRequestParameter::location)
-                                                                                    .thenComparing(InvalidRequestParameter::field)
-                                                                                    .thenComparing(InvalidRequestParameter::message);
+    private static final Comparator<RequestValidationError> SORT_ORDER = Comparator.comparing(RequestValidationError::location)
+                                                                                   .thenComparing(RequestValidationError::field)
+                                                                                   .thenComparing(RequestValidationError::message);
 
-    private ValidationErrorAssembler() {}
+    private RequestValidationErrorAssembler() {}
 
     /**
      * Builds a sorted list of invalid parameters from body field errors.
      *
      * @param fieldErrors the list of {@link FieldError} from body validation
-     * @return a sorted {@link List} of {@link InvalidRequestParameter}
+     * @return a sorted {@link List} of {@link RequestValidationError}
      */
-    static List<InvalidRequestParameter> fromFieldErrors(List<FieldError> fieldErrors) {
-        Function<FieldError, InvalidRequestParameter> fieldErrorMapper = fieldError -> new InvalidRequestParameter(ParameterLocation.BODY,
-                fieldError.getField(), fieldError.getDefaultMessage());
+    static List<RequestValidationError> fromFieldErrors(List<FieldError> fieldErrors) {
+        Function<FieldError, RequestValidationError> fieldErrorMapper = fieldError -> new RequestValidationError(ParameterLocation.BODY, fieldError.getField(),
+                fieldError.getDefaultMessage());
 
         return fieldErrors.stream()
                           .map(fieldErrorMapper)

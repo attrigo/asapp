@@ -94,8 +94,8 @@ class GlobalExceptionHandlerTests {
             // Then
             var problemDetail = response.getBody();
             @SuppressWarnings("unchecked")
-            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties()
-                                                                      .get("errors");
+            var errors = (List<RequestValidationError>) problemDetail.getProperties()
+                                                                     .get("errors");
             assertThat(errors).hasSize(1)
                               .first()
                               .satisfies(e -> {
@@ -119,8 +119,8 @@ class GlobalExceptionHandlerTests {
             // Then
             var problemDetail = response.getBody();
             @SuppressWarnings("unchecked")
-            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties()
-                                                                      .get("errors");
+            var errors = (List<RequestValidationError>) problemDetail.getProperties()
+                                                                     .get("errors");
             assertThat(errors).hasSize(1)
                               .first()
                               .satisfies(e -> {
@@ -157,8 +157,8 @@ class GlobalExceptionHandlerTests {
             // Then
             var problemDetail = response.getBody();
             @SuppressWarnings("unchecked")
-            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties()
-                                                                      .get("errors");
+            var errors = (List<RequestValidationError>) problemDetail.getProperties()
+                                                                     .get("errors");
             assertThat(errors).hasSize(2);
             assertThat(errors.get(0)
                              .location()).isEqualTo(ParameterLocation.PATH);
@@ -212,10 +212,10 @@ class GlobalExceptionHandlerTests {
             // Then
             var problemDetail = (ProblemDetail) response.getBody();
             @SuppressWarnings("unchecked")
-            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties()
-                                                                      .get("errors");
-            assertThat(errors).containsExactly(new InvalidRequestParameter(ParameterLocation.BODY, "title", "must not be empty"),
-                    new InvalidRequestParameter(ParameterLocation.BODY, "title", "size must be between 3 and 50"));
+            var errors = (List<RequestValidationError>) problemDetail.getProperties()
+                                                                     .get("errors");
+            assertThat(errors).containsExactly(new RequestValidationError(ParameterLocation.BODY, "title", "must not be empty"),
+                    new RequestValidationError(ParameterLocation.BODY, "title", "size must be between 3 and 50"));
         }
 
         @Test
@@ -235,11 +235,11 @@ class GlobalExceptionHandlerTests {
             // Then
             var problemDetail = (ProblemDetail) response.getBody();
             @SuppressWarnings("unchecked")
-            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties()
-                                                                      .get("errors");
-            assertThat(errors).containsExactly(new InvalidRequestParameter(ParameterLocation.BODY, "password", "must not be empty"),
-                    new InvalidRequestParameter(ParameterLocation.BODY, "username", "must not be empty"),
-                    new InvalidRequestParameter(ParameterLocation.BODY, "username", "size must be between 3 and 30"));
+            var errors = (List<RequestValidationError>) problemDetail.getProperties()
+                                                                     .get("errors");
+            assertThat(errors).containsExactly(new RequestValidationError(ParameterLocation.BODY, "password", "must not be empty"),
+                    new RequestValidationError(ParameterLocation.BODY, "username", "must not be empty"),
+                    new RequestValidationError(ParameterLocation.BODY, "username", "size must be between 3 and 30"));
         }
 
     }

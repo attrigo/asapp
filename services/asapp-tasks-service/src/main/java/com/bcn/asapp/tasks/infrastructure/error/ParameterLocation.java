@@ -19,7 +19,7 @@ package com.bcn.asapp.tasks.infrastructure.error;
 /**
  * Identifies the HTTP request location of an invalid parameter in validation error responses.
  * <p>
- * Used by {@link InvalidRequestParameter} to disambiguate body fields from path, query, and header parameters.
+ * Used by {@link RequestValidationError} to disambiguate body fields from path, query, and header parameters.
  *
  * @since 0.4.0
  * @author attrigo

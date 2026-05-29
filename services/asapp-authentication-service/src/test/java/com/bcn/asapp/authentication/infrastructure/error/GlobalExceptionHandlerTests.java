@@ -99,10 +99,10 @@ class GlobalExceptionHandlerTests {
             // Then
             var problemDetail = (ProblemDetail) response.getBody();
             @SuppressWarnings("unchecked")
-            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties()
-                                                                      .get("errors");
-            assertThat(errors).containsExactly(new InvalidRequestParameter(ParameterLocation.BODY, "password", "The password must not be empty"),
-                    new InvalidRequestParameter(ParameterLocation.BODY, "username", "The username must not be empty"));
+            var errors = (List<RequestValidationError>) problemDetail.getProperties()
+                                                                     .get("errors");
+            assertThat(errors).containsExactly(new RequestValidationError(ParameterLocation.BODY, "password", "The password must not be empty"),
+                    new RequestValidationError(ParameterLocation.BODY, "username", "The username must not be empty"));
         }
 
         @Test
@@ -121,10 +121,10 @@ class GlobalExceptionHandlerTests {
             // Then
             var problemDetail = (ProblemDetail) response.getBody();
             @SuppressWarnings("unchecked")
-            var errors = (List<InvalidRequestParameter>) problemDetail.getProperties()
-                                                                      .get("errors");
-            assertThat(errors).containsExactly(new InvalidRequestParameter(ParameterLocation.BODY, "password", "must not be empty"),
-                    new InvalidRequestParameter(ParameterLocation.BODY, "password", "size must be between 8 and 100"));
+            var errors = (List<RequestValidationError>) problemDetail.getProperties()
+                                                                     .get("errors");
+            assertThat(errors).containsExactly(new RequestValidationError(ParameterLocation.BODY, "password", "must not be empty"),
+                    new RequestValidationError(ParameterLocation.BODY, "password", "size must be between 8 and 100"));
         }
 
     }

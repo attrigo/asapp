@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.tasks.infrastructure.error;
+package com.bcn.asapp.users.infrastructure.error;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -34,7 +34,7 @@ import jakarta.validation.ElementKind;
 import jakarta.validation.Path;
 
 /**
- * Assembles sorted {@link InvalidRequestParameter} lists from Spring and Jakarta validation failures.
+ * Assembles sorted {@link RequestValidationError} lists from Spring and Jakarta validation failures.
  * <p>
  * Maps body field errors to {@link ParameterLocation#BODY} and resolves the request location of method-parameter constraint violations (path, query, header) by
  * inspecting the controller parameter annotations. Results are ordered by location, then field, then message.
@@ -42,23 +42,23 @@ import jakarta.validation.Path;
  * @since 0.4.0
  * @author attrigo
  */
-final class ValidationErrorAssembler {
+final class RequestValidationErrorAssembler {
 
-    private static final Comparator<InvalidRequestParameter> SORT_ORDER = Comparator.comparing(InvalidRequestParameter::location)
-                                                                                    .thenComparing(InvalidRequestParameter::field)
-                                                                                    .thenComparing(InvalidRequestParameter::message);
+    private static final Comparator<RequestValidationError> SORT_ORDER = Comparator.comparing(RequestValidationError::location)
+                                                                                   .thenComparing(RequestValidationError::field)
+                                                                                   .thenComparing(RequestValidationError::message);
 
-    private ValidationErrorAssembler() {}
+    private RequestValidationErrorAssembler() {}
 
     /**
      * Builds a sorted list of invalid parameters from body field errors.
      *
      * @param fieldErrors the list of {@link FieldError} from body validation
-     * @return a sorted {@link List} of {@link InvalidRequestParameter}
+     * @return a sorted {@link List} of {@link RequestValidationError}
      */
-    static List<InvalidRequestParameter> fromFieldErrors(List<FieldError> fieldErrors) {
-        Function<FieldError, InvalidRequestParameter> fieldErrorMapper = fieldError -> new InvalidRequestParameter(ParameterLocation.BODY,
-                fieldError.getField(), fieldError.getDefaultMessage());
+    static List<RequestValidationError> fromFieldErrors(List<FieldError> fieldErrors) {
+        Function<FieldError, RequestValidationError> fieldErrorMapper = fieldError -> new RequestValidationError(ParameterLocation.BODY, fieldError.getField(),
+                fieldError.getDefaultMessage());
 
         return fieldErrors.stream()
                           .map(fieldErrorMapper)
@@ -70,15 +70,15 @@ final class ValidationErrorAssembler {
      * Builds a sorted list of invalid parameters from method-parameter constraint violations.
      *
      * @param violations the set of {@link ConstraintViolation} from bean validation
-     * @return a sorted {@link List} of {@link InvalidRequestParameter}
+     * @return a sorted {@link List} of {@link RequestValidationError}
      */
-    static List<InvalidRequestParameter> fromConstraintViolations(Set<ConstraintViolation<?>> violations) {
+    static List<RequestValidationError> fromConstraintViolations(Set<ConstraintViolation<?>> violations) {
         return violations.stream()
                          .map(v -> {
                              var path = v.getPropertyPath()
                                          .toString();
                              var field = path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : path;
-                             return new InvalidRequestParameter(resolveLocation(v), field, v.getMessage());
+                             return new RequestValidationError(resolveLocation(v), field, v.getMessage());
                          })
                          .sorted(SORT_ORDER)
                          .toList();

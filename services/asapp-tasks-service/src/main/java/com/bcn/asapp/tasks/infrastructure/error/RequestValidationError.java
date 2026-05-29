@@ -14,10 +14,10 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.users.infrastructure.error;
+package com.bcn.asapp.tasks.infrastructure.error;
 
 /**
- * Represents an invalid request parameter in validation errors.
+ * Represents a single validation error in an HTTP request.
  * <p>
  * Contains the request location (body, path, query, header), the field name, and the validation message.
  *
@@ -27,7 +27,7 @@ package com.bcn.asapp.users.infrastructure.error;
  * @since 0.4.0
  * @author attrigo
  */
-public record InvalidRequestParameter(
+public record RequestValidationError(
         ParameterLocation location,
         String field,
         String message

@@ -81,8 +81,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         log.atWarn()
            .log(() -> "Validation failed: " + buildValidationErrorMessage(ex));
 
-        var invalidParameters = ValidationErrorAssembler.fromFieldErrors(ex.getBindingResult()
-                                                                           .getFieldErrors());
+        var invalidParameters = RequestValidationErrorAssembler.fromFieldErrors(ex.getBindingResult()
+                                                                                  .getFieldErrors());
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_FAILED_DETAIL);
         problemDetail.setTitle(BAD_REQUEST_TITLE);
@@ -123,7 +123,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ProblemDetail> handleConstraintViolationException(ConstraintViolationException ex) {
         log.warn("Constraint violation: {}", ex.getMessage());
 
-        var invalidParameters = ValidationErrorAssembler.fromConstraintViolations(ex.getConstraintViolations());
+        var invalidParameters = RequestValidationErrorAssembler.fromConstraintViolations(ex.getConstraintViolations());
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_FAILED_DETAIL);
         problemDetail.setTitle(BAD_REQUEST_TITLE);
