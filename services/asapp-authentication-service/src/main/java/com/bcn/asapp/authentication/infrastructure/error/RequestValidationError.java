@@ -31,4 +31,17 @@ public record RequestValidationError(
         ParameterLocation location,
         String field,
         String message
-) {}
+) {
+
+    /**
+     * Creates a validation error located in the request body.
+     *
+     * @param field   the body field name that failed validation
+     * @param message the validation error message
+     * @return a {@link RequestValidationError} with {@link ParameterLocation#BODY} location
+     */
+    public static RequestValidationError ofBody(String field, String message) {
+        return new RequestValidationError(ParameterLocation.BODY, field, message);
+    }
+
+}

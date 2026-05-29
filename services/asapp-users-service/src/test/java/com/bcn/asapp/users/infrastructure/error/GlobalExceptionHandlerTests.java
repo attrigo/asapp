@@ -214,8 +214,8 @@ class GlobalExceptionHandlerTests {
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
                                                                      .get("errors");
-            assertThat(errors).containsExactly(new RequestValidationError(ParameterLocation.BODY, "username", "must not be empty"),
-                    new RequestValidationError(ParameterLocation.BODY, "username", "size must be between 3 and 50"));
+            assertThat(errors).containsExactly(RequestValidationError.ofBody("username", "must not be empty"),
+                    RequestValidationError.ofBody("username", "size must be between 3 and 50"));
         }
 
         @Test
@@ -237,9 +237,9 @@ class GlobalExceptionHandlerTests {
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
                                                                      .get("errors");
-            assertThat(errors).containsExactly(new RequestValidationError(ParameterLocation.BODY, "email", "The email must not be empty"),
-                    new RequestValidationError(ParameterLocation.BODY, "firstName", "The first name must not be empty"),
-                    new RequestValidationError(ParameterLocation.BODY, "phoneNumber", "The phone number must be a valid phone number"));
+            assertThat(errors).containsExactly(RequestValidationError.ofBody("email", "The email must not be empty"),
+                    RequestValidationError.ofBody("firstName", "The first name must not be empty"),
+                    RequestValidationError.ofBody("phoneNumber", "The phone number must be a valid phone number"));
         }
 
     }

@@ -57,7 +57,7 @@ final class RequestValidationErrorAssembler {
      * @return a sorted {@link List} of {@link RequestValidationError}
      */
     static List<RequestValidationError> fromFieldErrors(List<FieldError> fieldErrors) {
-        Function<FieldError, RequestValidationError> fieldErrorMapper = fieldError -> new RequestValidationError(ParameterLocation.BODY, fieldError.getField(),
+        Function<FieldError, RequestValidationError> fieldErrorMapper = fieldError -> RequestValidationError.ofBody(fieldError.getField(),
                 fieldError.getDefaultMessage());
 
         return fieldErrors.stream()
