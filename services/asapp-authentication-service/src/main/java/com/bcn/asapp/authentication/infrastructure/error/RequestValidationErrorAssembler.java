@@ -25,15 +25,14 @@ import org.springframework.validation.FieldError;
 /**
  * Assembles sorted {@link RequestValidationError} lists from Spring body-validation failures.
  * <p>
- * Maps body field errors to {@link ParameterLocation#BODY}. Results are ordered by location, then field, then message.
+ * Maps body field errors to {@link RequestValidationError}. Results are ordered by field, then message.
  *
  * @since 0.4.0
  * @author attrigo
  */
 final class RequestValidationErrorAssembler {
 
-    private static final Comparator<RequestValidationError> SORT_ORDER = Comparator.comparing(RequestValidationError::location)
-                                                                                   .thenComparing(RequestValidationError::field)
+    private static final Comparator<RequestValidationError> SORT_ORDER = Comparator.comparing(RequestValidationError::field)
                                                                                    .thenComparing(RequestValidationError::message);
 
     private RequestValidationErrorAssembler() {}
@@ -45,7 +44,7 @@ final class RequestValidationErrorAssembler {
      * @return a sorted {@link List} of {@link RequestValidationError}
      */
     static List<RequestValidationError> fromFieldErrors(List<FieldError> fieldErrors) {
-        Function<FieldError, RequestValidationError> fieldErrorMapper = fieldError -> RequestValidationError.ofBody(fieldError.getField(),
+        Function<FieldError, RequestValidationError> fieldErrorMapper = fieldError -> new RequestValidationError(fieldError.getField(),
                 fieldError.getDefaultMessage());
 
         return fieldErrors.stream()

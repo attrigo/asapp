@@ -82,56 +82,6 @@ class GlobalExceptionHandlerTests {
         }
 
         @Test
-        void handleConstraintViolationException_whenPathVariableViolation_returnsPathLocation() throws Exception {
-            // Given
-            var method = FakeController.class.getMethod("findById", String.class);
-            var violations = executableValidator.validateParameters(fakeController, method, new Object[] { null });
-            var ex = new ConstraintViolationException(violations);
-
-            // When
-            ResponseEntity<ProblemDetail> response = globalExceptionHandler.handleConstraintViolationException(ex);
-
-            // Then
-            var problemDetail = response.getBody();
-            @SuppressWarnings("unchecked")
-            var errors = (List<RequestValidationError>) problemDetail.getProperties()
-                                                                     .get("errors");
-            assertThat(errors).hasSize(1)
-                              .first()
-                              .satisfies(e -> {
-                              // @formatter:off
-                                  assertThat(e.location()).as("location").isEqualTo(ParameterLocation.PATH);
-                                  assertThat(e.field()).as("field").isEqualTo("id");
-                                  // @formatter:on
-                              });
-        }
-
-        @Test
-        void handleConstraintViolationException_whenRequestParamViolation_returnsQueryLocation() throws Exception {
-            // Given
-            var method = FakeController.class.getMethod("search", String.class);
-            var violations = executableValidator.validateParameters(fakeController, method, new Object[] { null });
-            var ex = new ConstraintViolationException(violations);
-
-            // When
-            ResponseEntity<ProblemDetail> response = globalExceptionHandler.handleConstraintViolationException(ex);
-
-            // Then
-            var problemDetail = response.getBody();
-            @SuppressWarnings("unchecked")
-            var errors = (List<RequestValidationError>) problemDetail.getProperties()
-                                                                     .get("errors");
-            assertThat(errors).hasSize(1)
-                              .first()
-                              .satisfies(e -> {
-                              // @formatter:off
-                                  assertThat(e.location()).as("location").isEqualTo(ParameterLocation.QUERY);
-                                  assertThat(e.field()).as("field").isEqualTo("query");
-                                  // @formatter:on
-                              });
-        }
-
-        @Test
         void handleConstraintViolationException_setsFixedDetail() {
             // Given
             var ex = new ConstraintViolationException("ignored message", Set.of());
@@ -145,7 +95,7 @@ class GlobalExceptionHandlerTests {
         }
 
         @Test
-        void handleConstraintViolationException_whenMixedLocations_sortsByLocation() throws Exception {
+        void handleConstraintViolationException_whenMultipleViolations_sortsByFieldThenMessage() throws Exception {
             // Given
             var method = FakeController.class.getMethod("searchById", String.class, String.class);
             var violations = executableValidator.validateParameters(fakeController, method, new Object[] { null, null });
@@ -159,18 +109,11 @@ class GlobalExceptionHandlerTests {
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
                                                                      .get("errors");
-            assertThat(errors).hasSize(2);
-            assertThat(errors.get(0)
-                             .location()).isEqualTo(ParameterLocation.PATH);
-            assertThat(errors.get(1)
-                             .location()).isEqualTo(ParameterLocation.QUERY);
+            assertThat(errors).hasSize(2)
+                              .containsExactly(new RequestValidationError("id", "must not be null"), new RequestValidationError("term", "must not be null"));
         }
 
         static class FakeController {
-
-            public void findById(@PathVariable @NotNull String id) {}
-
-            public void search(@RequestParam @NotNull String query) {}
 
             public void searchById(@PathVariable @NotNull String id, @RequestParam @NotNull String term) {}
 
@@ -214,8 +157,8 @@ class GlobalExceptionHandlerTests {
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
                                                                      .get("errors");
-            assertThat(errors).containsExactly(RequestValidationError.ofBody("title", "must not be empty"),
-                    RequestValidationError.ofBody("title", "size must be between 3 and 50"));
+            assertThat(errors).containsExactly(new RequestValidationError("title", "must not be empty"),
+                    new RequestValidationError("title", "size must be between 3 and 50"));
         }
 
         @Test
@@ -237,8 +180,8 @@ class GlobalExceptionHandlerTests {
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
                                                                      .get("errors");
-            assertThat(errors).containsExactly(RequestValidationError.ofBody("password", "must not be empty"),
-                    RequestValidationError.ofBody("username", "must not be empty"), RequestValidationError.ofBody("username", "size must be between 3 and 30"));
+            assertThat(errors).containsExactly(new RequestValidationError("password", "must not be empty"),
+                    new RequestValidationError("username", "must not be empty"), new RequestValidationError("username", "size must be between 3 and 30"));
         }
 
     }

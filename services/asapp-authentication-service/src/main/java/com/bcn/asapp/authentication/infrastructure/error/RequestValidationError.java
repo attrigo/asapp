@@ -19,29 +19,14 @@ package com.bcn.asapp.authentication.infrastructure.error;
 /**
  * Represents a single validation error in an HTTP request.
  * <p>
- * Contains the request location (body, path, query, header), the field name, and the validation message.
+ * Contains the field name and the validation message.
  *
- * @param location the HTTP request location of the invalid parameter
- * @param field    the field name that failed validation
- * @param message  the validation error message
+ * @param field   the field name that failed validation
+ * @param message the validation error message
  * @since 0.4.0
  * @author attrigo
  */
 public record RequestValidationError(
-        ParameterLocation location,
         String field,
         String message
-) {
-
-    /**
-     * Creates a validation error located in the request body.
-     *
-     * @param field   the body field name that failed validation
-     * @param message the validation error message
-     * @return a {@link RequestValidationError} with {@link ParameterLocation#BODY} location
-     */
-    public static RequestValidationError ofBody(String field, String message) {
-        return new RequestValidationError(ParameterLocation.BODY, field, message);
-    }
-
-}
+) {}
