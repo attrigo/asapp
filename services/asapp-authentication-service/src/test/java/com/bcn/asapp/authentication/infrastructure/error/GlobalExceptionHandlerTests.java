@@ -101,8 +101,8 @@ class GlobalExceptionHandlerTests {
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
                                                                      .get("errors");
-            assertThat(errors).containsExactly(new RequestValidationError("password", "The password must not be empty"),
-                    new RequestValidationError("username", "The username must not be empty"));
+            assertThat(errors).containsExactly(RequestValidationError.of("password", "The password must not be empty"),
+                    RequestValidationError.of("username", "The username must not be empty"));
         }
 
         @Test
@@ -123,8 +123,8 @@ class GlobalExceptionHandlerTests {
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
                                                                      .get("errors");
-            assertThat(errors).containsExactly(new RequestValidationError("password", "must not be empty"),
-                    new RequestValidationError("password", "size must be between 8 and 100"));
+            assertThat(errors).containsExactly(RequestValidationError.of("password", "must not be empty"),
+                    RequestValidationError.of("password", "size must be between 8 and 100"));
         }
 
     }

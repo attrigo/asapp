@@ -110,7 +110,7 @@ class GlobalExceptionHandlerTests {
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
                                                                      .get("errors");
             assertThat(errors).hasSize(2)
-                              .containsExactly(new RequestValidationError("id", "must not be null"), new RequestValidationError("term", "must not be null"));
+                              .containsExactly(RequestValidationError.of("id", "must not be null"), RequestValidationError.of("term", "must not be null"));
         }
 
         static class FakeController {
@@ -157,8 +157,8 @@ class GlobalExceptionHandlerTests {
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
                                                                      .get("errors");
-            assertThat(errors).containsExactly(new RequestValidationError("title", "must not be empty"),
-                    new RequestValidationError("title", "size must be between 3 and 50"));
+            assertThat(errors).containsExactly(RequestValidationError.of("title", "must not be empty"),
+                    RequestValidationError.of("title", "size must be between 3 and 50"));
         }
 
         @Test
@@ -180,8 +180,8 @@ class GlobalExceptionHandlerTests {
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
                                                                      .get("errors");
-            assertThat(errors).containsExactly(new RequestValidationError("password", "must not be empty"),
-                    new RequestValidationError("username", "must not be empty"), new RequestValidationError("username", "size must be between 3 and 30"));
+            assertThat(errors).containsExactly(RequestValidationError.of("password", "must not be empty"),
+                    RequestValidationError.of("username", "must not be empty"), RequestValidationError.of("username", "size must be between 3 and 30"));
         }
 
     }

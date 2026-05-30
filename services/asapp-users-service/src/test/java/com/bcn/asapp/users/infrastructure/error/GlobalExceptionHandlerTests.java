@@ -110,7 +110,7 @@ class GlobalExceptionHandlerTests {
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
                                                                      .get("errors");
             assertThat(errors).hasSize(2)
-                              .containsExactly(new RequestValidationError("id", "must not be null"), new RequestValidationError("term", "must not be null"));
+                              .containsExactly(RequestValidationError.of("id", "must not be null"), RequestValidationError.of("term", "must not be null"));
         }
 
         static class FakeController {
@@ -157,8 +157,8 @@ class GlobalExceptionHandlerTests {
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
                                                                      .get("errors");
-            assertThat(errors).containsExactly(new RequestValidationError("username", "must not be empty"),
-                    new RequestValidationError("username", "size must be between 3 and 50"));
+            assertThat(errors).containsExactly(RequestValidationError.of("username", "must not be empty"),
+                    RequestValidationError.of("username", "size must be between 3 and 50"));
         }
 
         @Test
@@ -180,9 +180,9 @@ class GlobalExceptionHandlerTests {
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
                                                                      .get("errors");
-            assertThat(errors).containsExactly(new RequestValidationError("email", "The email must not be empty"),
-                    new RequestValidationError("firstName", "The first name must not be empty"),
-                    new RequestValidationError("phoneNumber", "The phone number must be a valid phone number"));
+            assertThat(errors).containsExactly(RequestValidationError.of("email", "The email must not be empty"),
+                    RequestValidationError.of("firstName", "The first name must not be empty"),
+                    RequestValidationError.of("phoneNumber", "The phone number must be a valid phone number"));
         }
 
     }

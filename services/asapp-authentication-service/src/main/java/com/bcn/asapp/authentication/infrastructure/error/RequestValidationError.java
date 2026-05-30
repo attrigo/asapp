@@ -29,4 +29,17 @@ package com.bcn.asapp.authentication.infrastructure.error;
 public record RequestValidationError(
         String field,
         String message
-) {}
+) {
+
+    /**
+     * Factory method to create a new {@code RequestValidationError} instance.
+     *
+     * @param field   the field name that failed validation
+     * @param message the validation error message
+     * @return a new {@code RequestValidationError} instance
+     */
+    static RequestValidationError of(String field, String message) {
+        return new RequestValidationError(field, message);
+    }
+
+}

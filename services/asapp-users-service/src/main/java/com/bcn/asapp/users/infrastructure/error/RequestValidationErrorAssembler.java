@@ -47,7 +47,7 @@ final class RequestValidationErrorAssembler {
      * @return a sorted {@link List} of {@link RequestValidationError}
      */
     static List<RequestValidationError> fromFieldErrors(List<FieldError> fieldErrors) {
-        Function<FieldError, RequestValidationError> fieldErrorMapper = fieldError -> new RequestValidationError(fieldError.getField(),
+        Function<FieldError, RequestValidationError> fieldErrorMapper = fieldError -> RequestValidationError.of(fieldError.getField(),
                 fieldError.getDefaultMessage());
 
         return fieldErrors.stream()
@@ -68,7 +68,7 @@ final class RequestValidationErrorAssembler {
                              var path = v.getPropertyPath()
                                          .toString();
                              var field = path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : path;
-                             return new RequestValidationError(field, v.getMessage());
+                             return RequestValidationError.of(field, v.getMessage());
                          })
                          .sorted(SORT_ORDER)
                          .toList();
