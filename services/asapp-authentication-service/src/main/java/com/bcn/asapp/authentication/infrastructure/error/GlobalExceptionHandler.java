@@ -141,6 +141,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, INVALID_CREDENTIALS_DETAIL);
         problemDetail.setTitle(AUTHENTICATION_FAILED_TITLE);
         problemDetail.setProperty(ERROR_PROPERTY, INVALID_GRANT_ERROR);
+
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                              .body(problemDetail);
     }
