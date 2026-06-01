@@ -31,7 +31,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
 import java.time.Instant;
-import java.util.Map;
 import java.util.UUID;
 import java.util.stream.IntStream;
 
@@ -123,13 +122,13 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/tasks");
-                         //@formatter:off
-                             assertThatJson(json).inPath("field_errors")
+                             assertThatJson(json).node("field_errors")
                                                  .isArray()
-                                                 .containsOnly(
-                                                         Map.of("field", "ids", "message", "Tasks identifiers list must not be empty")
-                                                 );
-                             //@formatter:on
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "ids")
+                                                 .containsEntry("message", "Tasks identifiers list must not be empty");
                          });
         }
 
@@ -157,13 +156,13 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/tasks");
-                         //@formatter:off
-                             assertThatJson(json).inPath("field_errors")
+                             assertThatJson(json).node("field_errors")
                                                  .isArray()
-                                                 .containsOnly(
-                                                         Map.of("field", "ids", "message", "Tasks identifiers list must contain at most 50 elements")
-                                                 );
-                             //@formatter:on
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "ids")
+                                                 .containsEntry("message", "Tasks identifiers list must contain at most 50 elements");
                          });
         }
 
@@ -299,14 +298,17 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/tasks");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "userId", "message", "The user ID must not be empty"),
-                                                  Map.of("field", "title", "message", "The title must not be empty")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(2);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "title")
+                                                 .containsEntry("message", "The title must not be empty");
+                             assertThatJson(json).node("field_errors[1]")
+                                                 .isObject()
+                                                 .containsEntry("field", "userId")
+                                                 .containsEntry("message", "The user ID must not be empty");
                          });
         }
 
@@ -336,14 +338,17 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/tasks");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "userId", "message", "The user ID must not be empty"),
-                                                  Map.of("field", "title", "message", "The title must not be empty")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(2);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "title")
+                                                 .containsEntry("message", "The title must not be empty");
+                             assertThatJson(json).node("field_errors[1]")
+                                                 .isObject()
+                                                 .containsEntry("field", "userId")
+                                                 .containsEntry("message", "The user ID must not be empty");
                          });
         }
 
@@ -483,14 +488,17 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/tasks/" + taskId);
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "userId", "message", "The user ID must not be empty"),
-                                                  Map.of("field", "title", "message", "The title must not be empty")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(2);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "title")
+                                                 .containsEntry("message", "The title must not be empty");
+                             assertThatJson(json).node("field_errors[1]")
+                                                 .isObject()
+                                                 .containsEntry("field", "userId")
+                                                 .containsEntry("message", "The user ID must not be empty");
                          });
         }
 
@@ -521,14 +529,17 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/tasks/" + taskId);
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "userId", "message", "The user ID must not be empty"),
-                                                  Map.of("field", "title", "message", "The title must not be empty")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(2);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "title")
+                                                 .containsEntry("message", "The title must not be empty");
+                             assertThatJson(json).node("field_errors[1]")
+                                                 .isObject()
+                                                 .containsEntry("field", "userId")
+                                                 .containsEntry("message", "The user ID must not be empty");
                          });
         }
 

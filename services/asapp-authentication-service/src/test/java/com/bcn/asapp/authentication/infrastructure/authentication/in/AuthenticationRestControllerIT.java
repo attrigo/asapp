@@ -22,8 +22,6 @@ import static com.bcn.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_TOK
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
-import java.util.Map;
-
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -110,14 +108,17 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/auth/token");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "username", "message", "The username must not be empty"),
-                                                  Map.of("field", "password", "message", "The password must not be empty")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(2);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "password")
+                                                 .containsEntry("message", "The password must not be empty");
+                             assertThatJson(json).node("field_errors[1]")
+                                                 .isObject()
+                                                 .containsEntry("field", "username")
+                                                 .containsEntry("message", "The username must not be empty");
                          });
         }
 
@@ -147,14 +148,17 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/auth/token");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "username", "message", "The username must not be empty"),
-                                                  Map.of("field", "password", "message", "The password must not be empty")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(2);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "password")
+                                                 .containsEntry("message", "The password must not be empty");
+                             assertThatJson(json).node("field_errors[1]")
+                                                 .isObject()
+                                                 .containsEntry("field", "username")
+                                                 .containsEntry("message", "The username must not be empty");
                          });
         }
 
@@ -226,13 +230,13 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/auth/refresh");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "refreshToken", "message", "The refresh token must not be empty")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "refreshToken")
+                                                 .containsEntry("message", "The refresh token must not be empty");
                          });
         }
 
@@ -261,13 +265,13 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/auth/refresh");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "refreshToken", "message", "The refresh token must not be empty")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "refreshToken")
+                                                 .containsEntry("message", "The refresh token must not be empty");
                          });
         }
 
@@ -339,13 +343,13 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/auth/revoke");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "accessToken", "message", "The access token must not be empty")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "accessToken")
+                                                 .containsEntry("message", "The access token must not be empty");
                          });
         }
 
@@ -374,13 +378,13 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/auth/revoke");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "accessToken", "message", "The access token must not be empty")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "accessToken")
+                                                 .containsEntry("message", "The access token must not be empty");
                          });
         }
 

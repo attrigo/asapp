@@ -29,7 +29,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 
-import java.util.Map;
 import java.util.UUID;
 
 import org.junit.jupiter.api.Nested;
@@ -171,15 +170,21 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .contains("The username must not be empty")
                                                  .contains("The password must not be empty")
                                                  .contains("The role must be a valid Role");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "username", "message", "The username must not be empty"),
-                                                  Map.of("field", "password", "message", "The password must not be empty"),
-                                                  Map.of("field", "role", "message", "The role must be a valid Role")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(3);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "password")
+                                                 .containsEntry("message", "The password must not be empty");
+                             assertThatJson(json).node("field_errors[1]")
+                                                 .isObject()
+                                                 .containsEntry("field", "role")
+                                                 .containsEntry("message", "The role must be a valid Role");
+                             assertThatJson(json).node("field_errors[2]")
+                                                 .isObject()
+                                                 .containsEntry("field", "username")
+                                                 .containsEntry("message", "The username must not be empty");
                          });
         }
 
@@ -216,17 +221,29 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .contains("The password must not be empty")
                                                  .contains("The password must be between 8 and 64 characters")
                                                  .contains("The role must be a valid Role");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "username", "message", "The username must not be empty"),
-                                                  Map.of("field", "username", "message", "The username must be a valid email address"),
-                                                  Map.of("field", "password", "message", "The password must not be empty"),
-                                                  Map.of("field", "password", "message", "The password must be between 8 and 64 characters"),
-                                                  Map.of("field", "role", "message", "The role must be a valid Role")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(5);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "password")
+                                                 .containsEntry("message", "The password must be between 8 and 64 characters");
+                             assertThatJson(json).node("field_errors[1]")
+                                                 .isObject()
+                                                 .containsEntry("field", "password")
+                                                 .containsEntry("message", "The password must not be empty");
+                             assertThatJson(json).node("field_errors[2]")
+                                                 .isObject()
+                                                 .containsEntry("field", "role")
+                                                 .containsEntry("message", "The role must be a valid Role");
+                             assertThatJson(json).node("field_errors[3]")
+                                                 .isObject()
+                                                 .containsEntry("field", "username")
+                                                 .containsEntry("message", "The username must be a valid email address");
+                             assertThatJson(json).node("field_errors[4]")
+                                                 .isObject()
+                                                 .containsEntry("field", "username")
+                                                 .containsEntry("message", "The username must not be empty");
                          });
         }
 
@@ -259,13 +276,13 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).inPath("detail")
                                                  .asString()
                                                  .contains("The username must be a valid email address");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "username", "message", "The username must be a valid email address")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "username")
+                                                 .containsEntry("message", "The username must be a valid email address");
                          });
         }
 
@@ -299,13 +316,13 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).inPath("detail")
                                                  .asString()
                                                  .contains("The password must be between 8 and 64 characters");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "password", "message", "The password must be between 8 and 64 characters")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "password")
+                                                 .containsEntry("message", "The password must be between 8 and 64 characters");
                          });
         }
 
@@ -339,13 +356,13 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).inPath("detail")
                                                  .asString()
                                                  .contains("The password must be between 8 and 64 characters");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "password", "message", "The password must be between 8 and 64 characters")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "password")
+                                                 .containsEntry("message", "The password must be between 8 and 64 characters");
                          });
         }
 
@@ -378,13 +395,13 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).inPath("detail")
                                                  .asString()
                                                  .contains("The role must be a valid Role");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "role", "message", "The role must be a valid Role")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "role")
+                                                 .containsEntry("message", "The role must be a valid Role");
                          });
         }
 
@@ -511,6 +528,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
                              assertThatJson(json).inPath("detail")
@@ -518,15 +536,21 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .contains("The username must not be empty")
                                                  .contains("The password must not be empty")
                                                  .contains("The role must be a valid Role");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "username", "message", "The username must not be empty"),
-                                                  Map.of("field", "password", "message", "The password must not be empty"),
-                                                  Map.of("field", "role", "message", "The role must be a valid Role")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(3);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "password")
+                                                 .containsEntry("message", "The password must not be empty");
+                             assertThatJson(json).node("field_errors[1]")
+                                                 .isObject()
+                                                 .containsEntry("field", "role")
+                                                 .containsEntry("message", "The role must be a valid Role");
+                             assertThatJson(json).node("field_errors[2]")
+                                                 .isObject()
+                                                 .containsEntry("field", "username")
+                                                 .containsEntry("message", "The username must not be empty");
                          });
         }
 
@@ -564,17 +588,29 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .contains("The password must not be empty")
                                                  .contains("The password must be between 8 and 64 characters")
                                                  .contains("The role must be a valid Role");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "username", "message", "The username must not be empty"),
-                                                  Map.of("field", "username", "message", "The username must be a valid email address"),
-                                                  Map.of("field", "password", "message", "The password must not be empty"),
-                                                  Map.of("field", "password", "message", "The password must be between 8 and 64 characters"),
-                                                  Map.of("field", "role", "message", "The role must be a valid Role")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(5);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "password")
+                                                 .containsEntry("message", "The password must be between 8 and 64 characters");
+                             assertThatJson(json).node("field_errors[1]")
+                                                 .isObject()
+                                                 .containsEntry("field", "password")
+                                                 .containsEntry("message", "The password must not be empty");
+                             assertThatJson(json).node("field_errors[2]")
+                                                 .isObject()
+                                                 .containsEntry("field", "role")
+                                                 .containsEntry("message", "The role must be a valid Role");
+                             assertThatJson(json).node("field_errors[3]")
+                                                 .isObject()
+                                                 .containsEntry("field", "username")
+                                                 .containsEntry("message", "The username must be a valid email address");
+                             assertThatJson(json).node("field_errors[4]")
+                                                 .isObject()
+                                                 .containsEntry("field", "username")
+                                                 .containsEntry("message", "The username must not be empty");
                          });
         }
 
@@ -608,13 +644,13 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).inPath("detail")
                                                  .asString()
                                                  .contains("The username must be a valid email address");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "username", "message", "The username must be a valid email address")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "username")
+                                                 .containsEntry("message", "The username must be a valid email address");
                          });
         }
 
@@ -649,13 +685,13 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).inPath("detail")
                                                  .asString()
                                                  .contains("The password must be between 8 and 64 characters");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "password", "message", "The password must be between 8 and 64 characters")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "password")
+                                                 .containsEntry("message", "The password must be between 8 and 64 characters");
                          });
         }
 
@@ -690,13 +726,13 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).inPath("detail")
                                                  .asString()
                                                  .contains("The password must be between 8 and 64 characters");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "password", "message", "The password must be between 8 and 64 characters")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "password")
+                                                 .containsEntry("message", "The password must be between 8 and 64 characters");
                          });
         }
 
@@ -730,13 +766,13 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).inPath("detail")
                                                  .asString()
                                                  .contains("The role must be a valid Role");
-                         //@formatter:off
-                       assertThatJson(json).inPath("field_errors")
-                                          .isArray()
-                                          .containsOnly(
-                                                  Map.of("field", "role", "message", "The role must be a valid Role")
-                                          );
-                       //@formatter:on
+                             assertThatJson(json).node("field_errors")
+                                                 .isArray()
+                                                 .hasSize(1);
+                             assertThatJson(json).node("field_errors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "role")
+                                                 .containsEntry("message", "The role must be a valid Role");
                          });
         }
 
