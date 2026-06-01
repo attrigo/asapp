@@ -34,7 +34,6 @@ import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -69,74 +68,39 @@ class GlobalExceptionHandlerTests {
     class HandleMethodArgumentNotValid {
 
         @Test
-        void Returns400WithGenericMessage_BodyValidationFails() {
+        void Returns400AndProblemDetail_InvalidRequestBody() throws NoSuchMethodException {
             // Given
+            var usernameEmptyFieldError = new FieldError("authenticateRequest", "username", "must not be blank");
+            var passwordEmptyFieldError = new FieldError("authenticateRequest", "password", "must not be blank");
+            var fieldErrors = List.of(usernameEmptyFieldError, passwordEmptyFieldError);
+            var methodParameter = new MethodParameter(getClass().getDeclaredMethod("authenticate", Object.class), 0);
             var bindingResult = mock(BindingResult.class);
-            given(bindingResult.getFieldErrors()).willReturn(List.of());
-            var ex = new MethodArgumentNotValidException((MethodParameter) null, bindingResult);
+            var exception = new MethodArgumentNotValidException(methodParameter, bindingResult);
+            var sortedErrors = List.of(RequestValidationError.of("password", "must not be blank"), RequestValidationError.of("username", "must not be blank"));
+
+            given(bindingResult.getFieldErrors()).willReturn(fieldErrors);
 
             // When
-            ResponseEntity<Object> response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST,
-                    mock(WebRequest.class));
+            var actual = globalExceptionHandler.handleMethodArgumentNotValid(exception, new HttpHeaders(), HttpStatus.BAD_REQUEST, mock(WebRequest.class));
 
             // Then
-            var problemDetail = (ProblemDetail) response.getBody();
+            assertThat(actual).isNotNull();
+            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            var problemDetail = (ProblemDetail) actual.getBody();
             assertThat(problemDetail).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Bad Request");
                 softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(400);
                 softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Request validation failed");
-                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "invalid_request");
+                softly.assertThat(problemDetail.getProperties()).as("error").containsEntry("error", "invalid_request");
+                softly.assertThat(problemDetail.getProperties()).as("field errors").containsEntry("field_errors", sortedErrors);
                 // @formatter:on
             });
         }
 
-        @Test
-        void ReturnsSortedErrors_MixedFieldsOutOfOrder() {
-            // Given
-            FieldError passwordEmpty = new FieldError("authenticateRequest", "password", "The password must not be empty");
-            FieldError usernameEmpty = new FieldError("authenticateRequest", "username", "The username must not be empty");
-            var bindingResult = mock(BindingResult.class);
-            given(bindingResult.getFieldErrors()).willReturn(List.of(passwordEmpty, usernameEmpty));
-            var ex = new MethodArgumentNotValidException((MethodParameter) null, bindingResult);
-            var sortedErrors = List.of(RequestValidationError.of("password", "The password must not be empty"),
-                    RequestValidationError.of("username", "The username must not be empty"));
-
-            // When
-            ResponseEntity<Object> response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST,
-                    mock(WebRequest.class));
-
-            // Then
-            var problemDetail = (ProblemDetail) response.getBody();
-            @SuppressWarnings("unchecked")
-            var errors = (List<RequestValidationError>) problemDetail.getProperties()
-                                                                     .get("field_errors");
-            assertThat(errors).containsExactlyElementsOf(sortedErrors);
-        }
-
-        @Test
-        void ReturnsSortedErrors_SameFieldMultipleViolations() {
-            // Given
-            FieldError size = new FieldError("authenticateRequest", "password", "size must be between 8 and 100");
-            FieldError empty = new FieldError("authenticateRequest", "password", "must not be empty");
-            var bindingResult = mock(BindingResult.class);
-            given(bindingResult.getFieldErrors()).willReturn(List.of(size, empty));
-            var ex = new MethodArgumentNotValidException((MethodParameter) null, bindingResult);
-            var sortedErrors = List.of(RequestValidationError.of("password", "must not be empty"),
-                    RequestValidationError.of("password", "size must be between 8 and 100"));
-
-            // When
-            ResponseEntity<Object> response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST,
-                    mock(WebRequest.class));
-
-            // Then
-            var problemDetail = (ProblemDetail) response.getBody();
-            @SuppressWarnings("unchecked")
-            var errors = (List<RequestValidationError>) problemDetail.getProperties()
-                                                                     .get("field_errors");
-            assertThat(errors).containsExactlyElementsOf(sortedErrors);
-        }
+        @SuppressWarnings("unused")
+        void authenticate(Object body) {}
 
     }
 

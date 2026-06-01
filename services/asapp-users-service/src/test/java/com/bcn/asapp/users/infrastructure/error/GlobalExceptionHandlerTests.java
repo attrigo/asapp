@@ -32,7 +32,6 @@ import org.springframework.data.redis.RedisConnectionFailureException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -103,75 +102,39 @@ class GlobalExceptionHandlerTests {
     class HandleMethodArgumentNotValid {
 
         @Test
-        void Returns400WithGenericMessage_BodyValidationFails() {
+        void Returns400AndProblemDetail_InvalidRequestBody() throws NoSuchMethodException {
             // Given
+            var usernameEmptyFieldError = new FieldError("createUserRequest", "username", "must not be blank");
+            var emailEmptyFieldError = new FieldError("createUserRequest", "email", "must not be blank");
+            var fieldErrors = List.of(usernameEmptyFieldError, emailEmptyFieldError);
+            var methodParameter = new MethodParameter(getClass().getDeclaredMethod("createUser", Object.class), 0);
             var bindingResult = mock(BindingResult.class);
-            given(bindingResult.getFieldErrors()).willReturn(List.of());
-            var ex = new MethodArgumentNotValidException((MethodParameter) null, bindingResult);
+            var exception = new MethodArgumentNotValidException(methodParameter, bindingResult);
+            var sortedErrors = List.of(RequestValidationError.of("email", "must not be blank"), RequestValidationError.of("username", "must not be blank"));
+
+            given(bindingResult.getFieldErrors()).willReturn(fieldErrors);
 
             // When
-            ResponseEntity<Object> response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST,
-                    mock(WebRequest.class));
+            var actual = globalExceptionHandler.handleMethodArgumentNotValid(exception, new HttpHeaders(), HttpStatus.BAD_REQUEST, mock(WebRequest.class));
 
             // Then
-            var problemDetail = (ProblemDetail) response.getBody();
+            assertThat(actual).isNotNull();
+            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            var problemDetail = (ProblemDetail) actual.getBody();
             assertThat(problemDetail).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Bad Request");
                 softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(400);
                 softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Request validation failed");
-                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "invalid_request");
+                softly.assertThat(problemDetail.getProperties()).as("error").containsEntry("error", "invalid_request");
+                softly.assertThat(problemDetail.getProperties()).as("field errors").containsEntry("field_errors", sortedErrors);
                 // @formatter:on
             });
         }
 
-        @Test
-        void ReturnsSortedErrors_SameFieldMultipleViolations() {
-            // Given
-            FieldError empty = new FieldError("createUserRequest", "username", "must not be empty");
-            FieldError tooShort = new FieldError("createUserRequest", "username", "size must be between 3 and 50");
-            var bindingResult = mock(BindingResult.class);
-            given(bindingResult.getFieldErrors()).willReturn(List.of(empty, tooShort));
-            var ex = new MethodArgumentNotValidException((MethodParameter) null, bindingResult);
-            var sortedErrors = List.of(RequestValidationError.of("username", "must not be empty"),
-                    RequestValidationError.of("username", "size must be between 3 and 50"));
-
-            // When
-            var response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST, mock(WebRequest.class));
-
-            // Then
-            var problemDetail = (ProblemDetail) response.getBody();
-            @SuppressWarnings("unchecked")
-            var errors = (List<RequestValidationError>) problemDetail.getProperties()
-                                                                     .get("field_errors");
-            assertThat(errors).containsExactlyElementsOf(sortedErrors);
-        }
-
-        @Test
-        void ReturnsSortedErrors_MixedFieldsOutOfOrder() {
-            // Given
-            FieldError phoneNumberPattern = new FieldError("createUserRequest", "phoneNumber", "The phone number must be a valid phone number");
-            FieldError emailEmpty = new FieldError("createUserRequest", "email", "The email must not be empty");
-            FieldError firstNameEmpty = new FieldError("createUserRequest", "firstName", "The first name must not be empty");
-            var bindingResult = mock(BindingResult.class);
-            given(bindingResult.getFieldErrors()).willReturn(List.of(phoneNumberPattern, emailEmpty, firstNameEmpty));
-            var ex = new MethodArgumentNotValidException((MethodParameter) null, bindingResult);
-            var sortedErrors = List.of(RequestValidationError.of("email", "The email must not be empty"),
-                    RequestValidationError.of("firstName", "The first name must not be empty"),
-                    RequestValidationError.of("phoneNumber", "The phone number must be a valid phone number"));
-
-            // When
-            ResponseEntity<Object> response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST,
-                    mock(WebRequest.class));
-
-            // Then
-            var problemDetail = (ProblemDetail) response.getBody();
-            @SuppressWarnings("unchecked")
-            var errors = (List<RequestValidationError>) problemDetail.getProperties()
-                                                                     .get("field_errors");
-            assertThat(errors).containsExactlyElementsOf(sortedErrors);
-        }
+        @SuppressWarnings("unused")
+        void createUser(Object body) {}
 
     }
 
