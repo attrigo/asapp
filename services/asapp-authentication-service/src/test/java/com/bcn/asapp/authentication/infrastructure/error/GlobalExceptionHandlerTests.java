@@ -71,7 +71,7 @@ class GlobalExceptionHandlerTests {
     class HandleMethodArgumentNotValid {
 
         @Test
-        void ReturnsFixedDetail_BodyValidationFails() {
+        void Returns400WithGenericMessage_BodyValidationFails() {
             // Given
             var bindingResult = mock(BindingResult.class);
             given(bindingResult.getFieldErrors()).willReturn(List.of());
@@ -83,7 +83,15 @@ class GlobalExceptionHandlerTests {
 
             // Then
             var problemDetail = (ProblemDetail) response.getBody();
-            assertThat(problemDetail.getDetail()).isEqualTo(VALIDATION_FAILED_DETAIL);
+            assertThat(problemDetail).isNotNull();
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Bad Request");
+                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(400);
+                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo(VALIDATION_FAILED_DETAIL);
+                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "invalid_request");
+                // @formatter:on
+            });
         }
 
         @Test

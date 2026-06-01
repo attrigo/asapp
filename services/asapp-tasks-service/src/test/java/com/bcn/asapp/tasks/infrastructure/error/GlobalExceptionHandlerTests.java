@@ -80,7 +80,7 @@ class GlobalExceptionHandlerTests {
         }
 
         @Test
-        void ReturnsFixedDetail_ParameterValidationFails() {
+        void Returns400WithGenericMessage_ParameterValidationFails() {
             // Given
             var ex = new ConstraintViolationException("ignored message", Set.of());
 
@@ -88,8 +88,16 @@ class GlobalExceptionHandlerTests {
             ResponseEntity<ProblemDetail> response = globalExceptionHandler.handleConstraintViolationException(ex);
 
             // Then
-            assertThat(response.getBody()
-                               .getDetail()).isEqualTo(VALIDATION_FAILED_DETAIL);
+            var problemDetail = response.getBody();
+            assertThat(problemDetail).isNotNull();
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Bad Request");
+                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(400);
+                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo(VALIDATION_FAILED_DETAIL);
+                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "invalid_request");
+                // @formatter:on
+            });
         }
 
         @Test
@@ -123,7 +131,7 @@ class GlobalExceptionHandlerTests {
     class HandleMethodArgumentNotValid {
 
         @Test
-        void ReturnsFixedDetail_BodyValidationFails() {
+        void Returns400WithGenericMessage_BodyValidationFails() {
             // Given
             var bindingResult = mock(BindingResult.class);
             given(bindingResult.getFieldErrors()).willReturn(List.of());
@@ -135,7 +143,15 @@ class GlobalExceptionHandlerTests {
 
             // Then
             var problemDetail = (ProblemDetail) response.getBody();
-            assertThat(problemDetail.getDetail()).isEqualTo(VALIDATION_FAILED_DETAIL);
+            assertThat(problemDetail).isNotNull();
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Bad Request");
+                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(400);
+                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo(VALIDATION_FAILED_DETAIL);
+                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "invalid_request");
+                // @formatter:on
+            });
         }
 
         @Test
@@ -218,6 +234,7 @@ class GlobalExceptionHandlerTests {
                 softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Invalid Argument");
                 softly.assertThat(actual.getBody().getStatus()).as("status").isEqualTo(400);
                 softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo(INVALID_ARGUMENT_DETAIL);
+                softly.assertThat(actual.getBody().getProperties()).as("error code").containsEntry("error", "invalid_request");
                 // @formatter:on
             });
         }
