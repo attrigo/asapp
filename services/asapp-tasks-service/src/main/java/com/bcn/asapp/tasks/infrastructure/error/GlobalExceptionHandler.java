@@ -18,8 +18,6 @@ package com.bcn.asapp.tasks.infrastructure.error;
 
 import static com.bcn.asapp.tasks.infrastructure.error.ErrorMessages.*;
 
-import java.util.stream.Collectors;
-
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +28,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ProblemDetail;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -83,15 +80,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<Object> handleMethodArgumentNotValid(MethodArgumentNotValidException ex, @NonNull HttpHeaders headers,
             @NonNull HttpStatusCode status, @NonNull WebRequest request) {
 
-        log.atWarn()
-           .log(() -> "Validation failed: " + buildValidationErrorMessage(ex));
+        var invalidArguments = RequestValidationErrorAssembler.fromFieldErrors(ex.getBindingResult()
+                                                                                 .getFieldErrors());
 
-        var invalidParameters = RequestValidationErrorAssembler.fromFieldErrors(ex.getBindingResult()
-                                                                                  .getFieldErrors());
+        log.warn("Argument not valid: {}", ex.getMessage());
+        log.atTrace()
+           .log(() -> "Invalid arguments: " + invalidArguments);
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_FAILED_DETAIL);
         problemDetail.setTitle(BAD_REQUEST_TITLE);
-        problemDetail.setProperty("errors", invalidParameters);
+        problemDetail.setProperty("errors", invalidArguments);
 
         return handleExceptionInternal(ex, problemDetail, headers, status, request);
     }
@@ -130,9 +128,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(ConstraintViolationException.class)
     protected ResponseEntity<ProblemDetail> handleConstraintViolationException(ConstraintViolationException ex) {
-        log.warn("Constraint violation: {}", ex.getMessage());
-
         var invalidParameters = RequestValidationErrorAssembler.fromConstraintViolations(ex.getConstraintViolations());
+
+        log.warn("Constraint violation: {}", ex.getMessage());
+        log.atTrace()
+           .log(() -> "Invalid parameters: " + invalidParameters);
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_FAILED_DETAIL);
         problemDetail.setTitle(BAD_REQUEST_TITLE);
@@ -262,24 +262,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                              .body(problemDetail);
-    }
-
-    // ============================================================================
-    // HELPER METHODS
-    // ============================================================================
-
-    /**
-     * Builds a comma-separated string of validation error messages from field errors.
-     *
-     * @param ex the {@link MethodArgumentNotValidException} containing validation errors
-     * @return a comma-separated string of field error messages
-     */
-    private String buildValidationErrorMessage(MethodArgumentNotValidException ex) {
-        return ex.getBindingResult()
-                 .getFieldErrors()
-                 .stream()
-                 .map(FieldError::getDefaultMessage)
-                 .collect(Collectors.joining(", "));
     }
 
 }
