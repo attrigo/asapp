@@ -39,8 +39,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.context.request.WebRequest;
 
 import jakarta.validation.ConstraintViolationException;
@@ -115,7 +113,7 @@ class GlobalExceptionHandlerTests {
 
         static class FakeController {
 
-            public void searchById(@PathVariable @NotNull String id, @RequestParam @NotNull String term) {}
+            public void searchById(@NotNull String id, @NotNull String term) {}
 
         }
 
