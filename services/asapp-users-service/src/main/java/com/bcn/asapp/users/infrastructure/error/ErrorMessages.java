@@ -57,6 +57,11 @@ final class ErrorMessages {
 
     static final String TEMPORARILY_UNAVAILABLE_ERROR = "temporarily_unavailable";
 
+    static final String INVALID_REQUEST_ERROR = "invalid_request";
+
+    // Property names
+    static final String FIELD_ERRORS_PROPERTY = "field_errors";
+
     private ErrorMessages() {}
 
 }

@@ -108,7 +108,7 @@ class GlobalExceptionHandlerTests {
             var problemDetail = response.getBody();
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
-                                                                     .get("errors");
+                                                                     .get("field_errors");
             assertThat(errors).hasSize(2)
                               .containsExactly(RequestValidationError.of("id", "must not be null"), RequestValidationError.of("term", "must not be null"));
         }
@@ -156,7 +156,7 @@ class GlobalExceptionHandlerTests {
             var problemDetail = (ProblemDetail) response.getBody();
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
-                                                                     .get("errors");
+                                                                     .get("field_errors");
             assertThat(errors).containsExactly(RequestValidationError.of("title", "must not be empty"),
                     RequestValidationError.of("title", "size must be between 3 and 50"));
         }
@@ -179,7 +179,7 @@ class GlobalExceptionHandlerTests {
             var problemDetail = (ProblemDetail) response.getBody();
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
-                                                                     .get("errors");
+                                                                     .get("field_errors");
             assertThat(errors).containsExactly(RequestValidationError.of("password", "must not be empty"),
                     RequestValidationError.of("username", "must not be empty"), RequestValidationError.of("username", "size must be between 3 and 30"));
         }

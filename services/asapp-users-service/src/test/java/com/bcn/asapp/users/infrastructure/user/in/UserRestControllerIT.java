@@ -121,9 +121,10 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
                                                  .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
                          //@formatter:off
-                             assertThatJson(json).inPath("errors")
+                             assertThatJson(json).inPath("field_errors")
                                                  .isArray()
                                                  .containsOnly(
                                                          Map.of("field", "ids", "message", "Users identifiers list must not be empty")
@@ -154,9 +155,10 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
                                                  .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
                          //@formatter:off
-                             assertThatJson(json).inPath("errors")
+                             assertThatJson(json).inPath("field_errors")
                                                  .isArray()
                                                  .containsOnly(
                                                          Map.of("field", "ids", "message", "Users identifiers list must contain at most 50 elements")
@@ -251,9 +253,10 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
                                                  .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "firstName", "message", "The first name must not be empty"),
@@ -291,9 +294,10 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
                                                  .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "firstName", "message", "The first name must not be empty"),
@@ -333,9 +337,10 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
                                                  .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "email", "message", "The email must be a valid email address")
@@ -370,9 +375,10 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
                                                  .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "phoneNumber", "message", "The phone number must be a valid phone number")
@@ -507,9 +513,10 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
                                                  .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "firstName", "message", "The first name must not be empty"),
@@ -548,9 +555,10 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
                                                  .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "firstName", "message", "The first name must not be empty"),
@@ -591,9 +599,10 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
                                                  .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "email", "message", "The email must be a valid email address")
@@ -629,9 +638,10 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
                                                  .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "phoneNumber", "message", "The phone number must be a valid phone number")

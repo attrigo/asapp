@@ -100,7 +100,7 @@ class GlobalExceptionHandlerTests {
             var problemDetail = (ProblemDetail) response.getBody();
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
-                                                                     .get("errors");
+                                                                     .get("field_errors");
             assertThat(errors).containsExactly(RequestValidationError.of("password", "The password must not be empty"),
                     RequestValidationError.of("username", "The username must not be empty"));
         }
@@ -122,7 +122,7 @@ class GlobalExceptionHandlerTests {
             var problemDetail = (ProblemDetail) response.getBody();
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
-                                                                     .get("errors");
+                                                                     .get("field_errors");
             assertThat(errors).containsExactly(RequestValidationError.of("password", "must not be empty"),
                     RequestValidationError.of("password", "size must be between 8 and 100"));
         }
@@ -161,6 +161,7 @@ class GlobalExceptionHandlerTests {
                 softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Invalid Argument");
                 softly.assertThat(actual.getBody().getStatus()).as("status").isEqualTo(400);
                 softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo(INVALID_ARGUMENT_DETAIL);
+                softly.assertThat(actual.getBody().getProperties()).as("error code").containsEntry("error", "invalid_request");
                 // @formatter:on
             });
         }

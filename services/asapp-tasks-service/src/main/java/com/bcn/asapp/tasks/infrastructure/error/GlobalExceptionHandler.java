@@ -84,7 +84,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_FAILED_DETAIL);
         problemDetail.setTitle(BAD_REQUEST_TITLE);
-        problemDetail.setProperty("errors", invalidParameters);
+        problemDetail.setProperty(ERROR_PROPERTY, INVALID_REQUEST_ERROR);
+        problemDetail.setProperty(FIELD_ERRORS_PROPERTY, invalidParameters);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                              .body(problemDetail);
@@ -116,7 +117,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_FAILED_DETAIL);
         problemDetail.setTitle(BAD_REQUEST_TITLE);
-        problemDetail.setProperty("errors", invalidArguments);
+        problemDetail.setProperty(ERROR_PROPERTY, INVALID_REQUEST_ERROR);
+        problemDetail.setProperty(FIELD_ERRORS_PROPERTY, invalidArguments);
 
         return handleExceptionInternal(ex, problemDetail, headers, status, request);
     }
@@ -137,6 +139,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, INVALID_ARGUMENT_DETAIL);
         problemDetail.setTitle(INVALID_ARGUMENT_TITLE);
+        problemDetail.setProperty(ERROR_PROPERTY, INVALID_REQUEST_ERROR);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                              .body(problemDetail);

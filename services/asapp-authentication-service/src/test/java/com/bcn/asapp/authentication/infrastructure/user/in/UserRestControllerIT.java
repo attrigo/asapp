@@ -164,6 +164,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
                              assertThatJson(json).inPath("detail")
                                                  .asString()
@@ -171,7 +172,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .contains("The password must not be empty")
                                                  .contains("The role must be a valid Role");
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "username", "message", "The username must not be empty"),
@@ -206,6 +207,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
                              assertThatJson(json).inPath("detail")
                                                  .asString()
@@ -215,7 +217,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .contains("The password must be between 8 and 64 characters")
                                                  .contains("The role must be a valid Role");
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "username", "message", "The username must not be empty"),
@@ -252,12 +254,13 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
                              assertThatJson(json).inPath("detail")
                                                  .asString()
                                                  .contains("The username must be a valid email address");
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "username", "message", "The username must be a valid email address")
@@ -291,12 +294,13 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
                              assertThatJson(json).inPath("detail")
                                                  .asString()
                                                  .contains("The password must be between 8 and 64 characters");
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "password", "message", "The password must be between 8 and 64 characters")
@@ -330,12 +334,13 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
                              assertThatJson(json).inPath("detail")
                                                  .asString()
                                                  .contains("The password must be between 8 and 64 characters");
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "password", "message", "The password must be between 8 and 64 characters")
@@ -368,12 +373,13 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
                              assertThatJson(json).inPath("detail")
                                                  .asString()
                                                  .contains("The role must be a valid Role");
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "role", "message", "The role must be a valid Role")
@@ -505,6 +511,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
                              assertThatJson(json).inPath("detail")
                                                  .asString()
@@ -512,7 +519,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .contains("The password must not be empty")
                                                  .contains("The role must be a valid Role");
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "username", "message", "The username must not be empty"),
@@ -548,6 +555,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
                              assertThatJson(json).inPath("detail")
                                                  .asString()
@@ -557,7 +565,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .contains("The password must be between 8 and 64 characters")
                                                  .contains("The role must be a valid Role");
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "username", "message", "The username must not be empty"),
@@ -595,12 +603,13 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
                              assertThatJson(json).inPath("detail")
                                                  .asString()
                                                  .contains("The username must be a valid email address");
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "username", "message", "The username must be a valid email address")
@@ -635,12 +644,13 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
                              assertThatJson(json).inPath("detail")
                                                  .asString()
                                                  .contains("The password must be between 8 and 64 characters");
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "password", "message", "The password must be between 8 and 64 characters")
@@ -675,12 +685,13 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
                              assertThatJson(json).inPath("detail")
                                                  .asString()
                                                  .contains("The password must be between 8 and 64 characters");
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "password", "message", "The password must be between 8 and 64 characters")
@@ -714,12 +725,13 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
                              assertThatJson(json).inPath("detail")
                                                  .asString()
                                                  .contains("The role must be a valid Role");
                          //@formatter:off
-                       assertThatJson(json).inPath("errors")
+                       assertThatJson(json).inPath("field_errors")
                                           .isArray()
                                           .containsOnly(
                                                   Map.of("field", "role", "message", "The role must be a valid Role")
