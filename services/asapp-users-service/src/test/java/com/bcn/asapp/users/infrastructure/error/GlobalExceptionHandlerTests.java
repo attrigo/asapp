@@ -204,7 +204,7 @@ class GlobalExceptionHandlerTests {
         }
 
         @Test
-        void Returns400WithExceptionMessage_InvalidArgument() {
+        void Returns400WithGenericMessage_InvalidArgument() {
             // Given
             var exception = new IllegalArgumentException("Email must be a valid email address");
 
