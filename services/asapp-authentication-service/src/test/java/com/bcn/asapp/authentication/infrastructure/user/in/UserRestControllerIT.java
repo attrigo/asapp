@@ -163,13 +163,9 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The username must not be empty")
-                                                 .contains("The password must not be empty")
-                                                 .contains("The role must be a valid Role");
                              assertThatJson(json).node("field_errors")
                                                  .isArray()
                                                  .hasSize(3);
@@ -212,15 +208,9 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The username must not be empty")
-                                                 .contains("The username must be a valid email address")
-                                                 .contains("The password must not be empty")
-                                                 .contains("The password must be between 8 and 64 characters")
-                                                 .contains("The role must be a valid Role");
                              assertThatJson(json).node("field_errors")
                                                  .isArray()
                                                  .hasSize(5);
@@ -271,11 +261,9 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The username must be a valid email address");
                              assertThatJson(json).node("field_errors")
                                                  .isArray()
                                                  .hasSize(1);
@@ -311,11 +299,9 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The password must be between 8 and 64 characters");
                              assertThatJson(json).node("field_errors")
                                                  .isArray()
                                                  .hasSize(1);
@@ -351,11 +337,9 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The password must be between 8 and 64 characters");
                              assertThatJson(json).node("field_errors")
                                                  .isArray()
                                                  .hasSize(1);
@@ -390,11 +374,9 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The role must be a valid Role");
                              assertThatJson(json).node("field_errors")
                                                  .isArray()
                                                  .hasSize(1);
@@ -531,11 +513,6 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The username must not be empty")
-                                                 .contains("The password must not be empty")
-                                                 .contains("The role must be a valid Role");
                              assertThatJson(json).node("field_errors")
                                                  .isArray()
                                                  .hasSize(3);
@@ -579,15 +556,9 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The username must not be empty")
-                                                 .contains("The username must be a valid email address")
-                                                 .contains("The password must not be empty")
-                                                 .contains("The password must be between 8 and 64 characters")
-                                                 .contains("The role must be a valid Role");
                              assertThatJson(json).node("field_errors")
                                                  .isArray()
                                                  .hasSize(5);
@@ -639,11 +610,9 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The username must be a valid email address");
                              assertThatJson(json).node("field_errors")
                                                  .isArray()
                                                  .hasSize(1);
@@ -680,11 +649,9 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The password must be between 8 and 64 characters");
                              assertThatJson(json).node("field_errors")
                                                  .isArray()
                                                  .hasSize(1);
@@ -721,11 +688,9 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The password must be between 8 and 64 characters");
                              assertThatJson(json).node("field_errors")
                                                  .isArray()
                                                  .hasSize(1);
@@ -761,11 +726,9 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).isObject()
                                                  .containsEntry("title", "Bad Request")
                                                  .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
-                             assertThatJson(json).inPath("detail")
-                                                 .asString()
-                                                 .contains("The role must be a valid Role");
                              assertThatJson(json).node("field_errors")
                                                  .isArray()
                                                  .hasSize(1);
