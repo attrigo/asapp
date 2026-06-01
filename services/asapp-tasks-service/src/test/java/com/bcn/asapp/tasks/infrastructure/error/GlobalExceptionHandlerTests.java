@@ -50,6 +50,7 @@ import com.bcn.asapp.tasks.infrastructure.security.UnexpectedJwtTypeException;
  * <p>
  * Coverage:
  * <li>Translates request validation failures to 400 Bad Request with sorted field errors</li>
+ * <li>Translates invalid arguments to 400 Bad Request with a generic detail</li>
  * <li>Translates authentication failures to 401 Unauthorized with generic messages (security best practice)</li>
  * <li>Translates database failures to 500 Internal Server Error with generic messages</li>
  * <li>Translates cache connection failures to 503 Service Unavailable</li>

@@ -54,10 +54,12 @@ import com.bcn.asapp.authentication.infrastructure.security.JwtIssuanceException
  * <p>
  * Coverage:
  * <li>Translates request validation failures to 400 Bad Request with sorted field errors</li>
+ * <li>Translates invalid arguments to 400 Bad Request with a generic detail</li>
  * <li>Translates authentication failures to 401 Unauthorized with generic messages (security best practice)</li>
+ * <li>Translates compensating-transaction failures to 500 Internal Server Error flagged critical</li>
  * <li>Translates JWT signing failures to 500 Internal Server Error with generic messages</li>
  * <li>Translates database failures to 500 Internal Server Error with generic messages</li>
- * <li>Translates cache connection failures to 503 Service Unavailable</li>
+ * <li>Translates token-store and cache connection failures to 503 Service Unavailable</li>
  * <li>All responses follow RFC 7807 Problem Details structure with error codes</li>
  */
 class GlobalExceptionHandlerTests {
