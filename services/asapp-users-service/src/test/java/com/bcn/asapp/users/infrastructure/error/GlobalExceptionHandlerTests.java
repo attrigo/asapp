@@ -67,6 +67,61 @@ class GlobalExceptionHandlerTests {
     private final GlobalExceptionHandler globalExceptionHandler = new GlobalExceptionHandler();
 
     @Nested
+    class HandleConstraintViolationException {
+
+        private ExecutableValidator executableValidator;
+
+        private FakeController fakeController;
+
+        @BeforeEach
+        void setUp() {
+            var validatorFactory = Validation.buildDefaultValidatorFactory();
+            executableValidator = validatorFactory.getValidator()
+                                                  .forExecutables();
+            fakeController = new FakeController();
+        }
+
+        @Test
+        void handleConstraintViolationException_setsFixedDetail() {
+            // Given
+            var ex = new ConstraintViolationException("ignored message", Set.of());
+
+            // When
+            ResponseEntity<ProblemDetail> response = globalExceptionHandler.handleConstraintViolationException(ex);
+
+            // Then
+            assertThat(response.getBody()
+                               .getDetail()).isEqualTo(VALIDATION_FAILED_DETAIL);
+        }
+
+        @Test
+        void handleConstraintViolationException_whenMultipleViolations_sortsByFieldThenMessage() throws Exception {
+            // Given
+            var method = FakeController.class.getMethod("searchById", String.class, String.class);
+            var violations = executableValidator.validateParameters(fakeController, method, new Object[] { null, null });
+            var ex = new ConstraintViolationException(violations);
+
+            // When
+            ResponseEntity<ProblemDetail> response = globalExceptionHandler.handleConstraintViolationException(ex);
+
+            // Then
+            var problemDetail = response.getBody();
+            @SuppressWarnings("unchecked")
+            var errors = (List<RequestValidationError>) problemDetail.getProperties()
+                                                                     .get("errors");
+            assertThat(errors).hasSize(2)
+                              .containsExactly(RequestValidationError.of("id", "must not be null"), RequestValidationError.of("term", "must not be null"));
+        }
+
+        static class FakeController {
+
+            public void searchById(@PathVariable @NotNull String id, @RequestParam @NotNull String term) {}
+
+        }
+
+    }
+
+    @Nested
     class HandleMethodArgumentNotValid {
 
         @Test
@@ -166,61 +221,6 @@ class GlobalExceptionHandlerTests {
                 softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo(INVALID_ARGUMENT_DETAIL);
                 // @formatter:on
             });
-        }
-
-    }
-
-    @Nested
-    class HandleConstraintViolationException {
-
-        private ExecutableValidator executableValidator;
-
-        private FakeController fakeController;
-
-        @BeforeEach
-        void setUp() {
-            var validatorFactory = Validation.buildDefaultValidatorFactory();
-            executableValidator = validatorFactory.getValidator()
-                                                  .forExecutables();
-            fakeController = new FakeController();
-        }
-
-        @Test
-        void handleConstraintViolationException_setsFixedDetail() {
-            // Given
-            var ex = new ConstraintViolationException("ignored message", Set.of());
-
-            // When
-            ResponseEntity<ProblemDetail> response = globalExceptionHandler.handleConstraintViolationException(ex);
-
-            // Then
-            assertThat(response.getBody()
-                               .getDetail()).isEqualTo(VALIDATION_FAILED_DETAIL);
-        }
-
-        @Test
-        void handleConstraintViolationException_whenMultipleViolations_sortsByFieldThenMessage() throws Exception {
-            // Given
-            var method = FakeController.class.getMethod("searchById", String.class, String.class);
-            var violations = executableValidator.validateParameters(fakeController, method, new Object[] { null, null });
-            var ex = new ConstraintViolationException(violations);
-
-            // When
-            ResponseEntity<ProblemDetail> response = globalExceptionHandler.handleConstraintViolationException(ex);
-
-            // Then
-            var problemDetail = response.getBody();
-            @SuppressWarnings("unchecked")
-            var errors = (List<RequestValidationError>) problemDetail.getProperties()
-                                                                     .get("errors");
-            assertThat(errors).hasSize(2)
-                              .containsExactly(RequestValidationError.of("id", "must not be null"), RequestValidationError.of("term", "must not be null"));
-        }
-
-        static class FakeController {
-
-            public void searchById(@PathVariable @NotNull String id, @RequestParam @NotNull String term) {}
-
         }
 
     }

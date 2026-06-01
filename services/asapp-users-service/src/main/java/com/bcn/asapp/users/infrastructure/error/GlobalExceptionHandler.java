@@ -64,6 +64,33 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // ============================================================================
 
     /**
+     * Handles constraint violations from {@code @Validated} method-level parameter constraints.
+     * <p>
+     * Thrown by the Bean Validation framework when {@code @RequestParam}, {@code @PathVariable}, or {@code @RequestHeader} parameters violate declared
+     * constraints.
+     * <p>
+     * Returns HTTP 400 Bad Request with a sorted list of field-level validation errors.
+     *
+     * @param ex the {@link ConstraintViolationException}
+     * @return a {@link ResponseEntity} containing the error details
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    protected ResponseEntity<ProblemDetail> handleConstraintViolationException(ConstraintViolationException ex) {
+        var invalidParameters = RequestValidationErrorAssembler.fromConstraintViolations(ex.getConstraintViolations());
+
+        log.warn("Constraint violation: {}", ex.getMessage());
+        log.atTrace()
+           .log(() -> "Invalid parameters: " + invalidParameters);
+
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_FAILED_DETAIL);
+        problemDetail.setTitle(BAD_REQUEST_TITLE);
+        problemDetail.setProperty("errors", invalidParameters);
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                             .body(problemDetail);
+    }
+
+    /**
      * Handles method argument validation failures.
      * <p>
      * Thrown by Spring when request body fields fail Jakarta Bean Validation constraints.
@@ -110,33 +137,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, INVALID_ARGUMENT_DETAIL);
         problemDetail.setTitle(INVALID_ARGUMENT_TITLE);
-
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                             .body(problemDetail);
-    }
-
-    /**
-     * Handles constraint violations from {@code @Validated} method-level parameter constraints.
-     * <p>
-     * Thrown by the Bean Validation framework when {@code @RequestParam}, {@code @PathVariable}, or {@code @RequestHeader} parameters violate declared
-     * constraints.
-     * <p>
-     * Returns HTTP 400 Bad Request with a sorted list of field-level validation errors.
-     *
-     * @param ex the {@link ConstraintViolationException}
-     * @return a {@link ResponseEntity} containing the error details
-     */
-    @ExceptionHandler(ConstraintViolationException.class)
-    protected ResponseEntity<ProblemDetail> handleConstraintViolationException(ConstraintViolationException ex) {
-        var invalidParameters = RequestValidationErrorAssembler.fromConstraintViolations(ex.getConstraintViolations());
-
-        log.warn("Constraint violation: {}", ex.getMessage());
-        log.atTrace()
-           .log(() -> "Invalid parameters: " + invalidParameters);
-
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_FAILED_DETAIL);
-        problemDetail.setTitle(BAD_REQUEST_TITLE);
-        problemDetail.setProperty("errors", invalidParameters);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                              .body(problemDetail);
