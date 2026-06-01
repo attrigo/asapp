@@ -24,9 +24,12 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.core.MethodParameter;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.RedisConnectionFailureException;
@@ -169,13 +172,11 @@ class GlobalExceptionHandlerTests {
     }
 
     @Nested
-    class HandleInvalidUsernameException {
+    class HandleInvalidCredentials {
 
-        @Test
-        void Returns401WithGenericMessage_InvalidUsernameFormat() {
-            // Given
-            var exception = new InvalidUsernameException("Username must be a valid email address");
-
+        @ParameterizedTest
+        @MethodSource("invalidCredentialExceptions")
+        void Returns401WithGenericMessage_InvalidCredentials(RuntimeException exception) {
             // When
             var actual = globalExceptionHandler.handleInvalidCredentials(exception);
 
@@ -192,56 +193,10 @@ class GlobalExceptionHandlerTests {
             });
         }
 
-    }
-
-    @Nested
-    class HandleInvalidPasswordException {
-
-        @Test
-        void Returns401WithGenericMessage_InvalidPasswordFormat() {
-            // Given
-            var exception = new InvalidPasswordException("Raw password must be between 8 and 64 characters");
-
-            // When
-            var actual = globalExceptionHandler.handleInvalidCredentials(exception);
-
-            // Then
-            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-            assertThat(actual.getBody()).isNotNull();
-            assertSoftly(softly -> {
-                // @formatter:off
-                softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Authentication Failed");
-                softly.assertThat(actual.getBody().getStatus()).as("status").isEqualTo(401);
-                softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo("Invalid credentials");
-                softly.assertThat(actual.getBody().getProperties()).as("error code").containsEntry("error", "invalid_grant");
-                // @formatter:on
-            });
-        }
-
-    }
-
-    @Nested
-    class HandleInvalidEncodedTokenException {
-
-        @Test
-        void Returns401WithGenericMessage_InvalidEncodedTokenFormat() {
-            // Given
-            var exception = new InvalidEncodedTokenException("Encoded token must be a valid JWT format");
-
-            // When
-            var actual = globalExceptionHandler.handleInvalidCredentials(exception);
-
-            // Then
-            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-            assertThat(actual.getBody()).isNotNull();
-            assertSoftly(softly -> {
-                // @formatter:off
-                softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Authentication Failed");
-                softly.assertThat(actual.getBody().getStatus()).as("status").isEqualTo(401);
-                softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo("Invalid credentials");
-                softly.assertThat(actual.getBody().getProperties()).as("error code").containsEntry("error", "invalid_grant");
-                // @formatter:on
-            });
+        private static Stream<RuntimeException> invalidCredentialExceptions() {
+            return Stream.of(new InvalidUsernameException("Username must be a valid email address"),
+                    new InvalidPasswordException("Raw password must be between 8 and 64 characters"),
+                    new InvalidEncodedTokenException("Encoded token must be a valid JWT format"));
         }
 
     }
