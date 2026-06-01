@@ -16,8 +16,6 @@
 
 package com.bcn.asapp.authentication.infrastructure.error;
 
-import static com.bcn.asapp.authentication.infrastructure.error.ErrorMessages.INVALID_ARGUMENT_DETAIL;
-import static com.bcn.asapp.authentication.infrastructure.error.ErrorMessages.VALIDATION_FAILED_DETAIL;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockito.BDDMockito.given;
@@ -56,7 +54,7 @@ import com.bcn.asapp.authentication.infrastructure.security.JwtIssuanceException
  * Tests {@link GlobalExceptionHandler} exception-to-ProblemDetail translation and HTTP status mapping.
  * <p>
  * Coverage:
- * <li>Translates domain validation failures to 400 Bad Request with specific messages</li>
+ * <li>Translates request validation failures to 400 Bad Request with sorted field errors</li>
  * <li>Translates authentication failures to 401 Unauthorized with generic messages (security best practice)</li>
  * <li>Translates JWT signing failures to 500 Internal Server Error with generic messages</li>
  * <li>Translates database failures to 500 Internal Server Error with generic messages</li>
@@ -88,7 +86,7 @@ class GlobalExceptionHandlerTests {
                 // @formatter:off
                 softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Bad Request");
                 softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(400);
-                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo(VALIDATION_FAILED_DETAIL);
+                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Request validation failed");
                 softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "invalid_request");
                 // @formatter:on
             });
@@ -160,7 +158,7 @@ class GlobalExceptionHandlerTests {
                 // @formatter:off
                 softly.assertThat(actual.getBody().getTitle()).as("title").isEqualTo("Invalid Argument");
                 softly.assertThat(actual.getBody().getStatus()).as("status").isEqualTo(400);
-                softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo(INVALID_ARGUMENT_DETAIL);
+                softly.assertThat(actual.getBody().getDetail()).as("detail").isEqualTo("Invalid argument provided");
                 softly.assertThat(actual.getBody().getProperties()).as("error code").containsEntry("error", "invalid_request");
                 // @formatter:on
             });
