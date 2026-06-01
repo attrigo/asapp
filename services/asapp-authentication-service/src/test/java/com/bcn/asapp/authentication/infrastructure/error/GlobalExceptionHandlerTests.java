@@ -94,6 +94,8 @@ class GlobalExceptionHandlerTests {
             var bindingResult = mock(BindingResult.class);
             given(bindingResult.getFieldErrors()).willReturn(List.of(passwordEmpty, usernameEmpty));
             var ex = new MethodArgumentNotValidException((MethodParameter) null, bindingResult);
+            var sortedErrors = List.of(RequestValidationError.of("password", "The password must not be empty"),
+                    RequestValidationError.of("username", "The username must not be empty"));
 
             // When
             ResponseEntity<Object> response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST,
@@ -104,8 +106,7 @@ class GlobalExceptionHandlerTests {
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
                                                                      .get("field_errors");
-            assertThat(errors).containsExactly(RequestValidationError.of("password", "The password must not be empty"),
-                    RequestValidationError.of("username", "The username must not be empty"));
+            assertThat(errors).containsExactlyElementsOf(sortedErrors);
         }
 
         @Test
@@ -116,6 +117,8 @@ class GlobalExceptionHandlerTests {
             var bindingResult = mock(BindingResult.class);
             given(bindingResult.getFieldErrors()).willReturn(List.of(size, empty));
             var ex = new MethodArgumentNotValidException((MethodParameter) null, bindingResult);
+            var sortedErrors = List.of(RequestValidationError.of("password", "must not be empty"),
+                    RequestValidationError.of("password", "size must be between 8 and 100"));
 
             // When
             ResponseEntity<Object> response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST,
@@ -126,8 +129,7 @@ class GlobalExceptionHandlerTests {
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
                                                                      .get("field_errors");
-            assertThat(errors).containsExactly(RequestValidationError.of("password", "must not be empty"),
-                    RequestValidationError.of("password", "size must be between 8 and 100"));
+            assertThat(errors).containsExactlyElementsOf(sortedErrors);
         }
 
     }

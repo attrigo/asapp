@@ -98,6 +98,7 @@ class GlobalExceptionHandlerTests {
             var method = FakeController.class.getMethod("searchById", String.class, String.class);
             var violations = executableValidator.validateParameters(fakeController, method, new Object[] { null, null });
             var ex = new ConstraintViolationException(violations);
+            var sortedErrors = List.of(RequestValidationError.of("id", "must not be null"), RequestValidationError.of("term", "must not be null"));
 
             // When
             ResponseEntity<ProblemDetail> response = globalExceptionHandler.handleConstraintViolationException(ex);
@@ -107,8 +108,7 @@ class GlobalExceptionHandlerTests {
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
                                                                      .get("field_errors");
-            assertThat(errors).hasSize(2)
-                              .containsExactly(RequestValidationError.of("id", "must not be null"), RequestValidationError.of("term", "must not be null"));
+            assertThat(errors).containsExactlyElementsOf(sortedErrors);
         }
 
         static class FakeController {
@@ -146,6 +146,8 @@ class GlobalExceptionHandlerTests {
             var bindingResult = mock(BindingResult.class);
             given(bindingResult.getFieldErrors()).willReturn(List.of(empty, tooShort));
             var ex = new MethodArgumentNotValidException((MethodParameter) null, bindingResult);
+            var sortedErrors = List.of(RequestValidationError.of("title", "must not be empty"),
+                    RequestValidationError.of("title", "size must be between 3 and 50"));
 
             // When
             var response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST, mock(WebRequest.class));
@@ -155,8 +157,7 @@ class GlobalExceptionHandlerTests {
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
                                                                      .get("field_errors");
-            assertThat(errors).containsExactly(RequestValidationError.of("title", "must not be empty"),
-                    RequestValidationError.of("title", "size must be between 3 and 50"));
+            assertThat(errors).containsExactlyElementsOf(sortedErrors);
         }
 
         @Test
@@ -168,6 +169,8 @@ class GlobalExceptionHandlerTests {
             var bindingResult = mock(BindingResult.class);
             given(bindingResult.getFieldErrors()).willReturn(List.of(usernameSize, usernameEmpty, passwordEmpty));
             var ex = new MethodArgumentNotValidException((MethodParameter) null, bindingResult);
+            var sortedErrors = List.of(RequestValidationError.of("password", "must not be empty"), RequestValidationError.of("username", "must not be empty"),
+                    RequestValidationError.of("username", "size must be between 3 and 30"));
 
             // When
             ResponseEntity<Object> response = globalExceptionHandler.handleMethodArgumentNotValid(ex, new HttpHeaders(), HttpStatus.BAD_REQUEST,
@@ -178,8 +181,7 @@ class GlobalExceptionHandlerTests {
             @SuppressWarnings("unchecked")
             var errors = (List<RequestValidationError>) problemDetail.getProperties()
                                                                      .get("field_errors");
-            assertThat(errors).containsExactly(RequestValidationError.of("password", "must not be empty"),
-                    RequestValidationError.of("username", "must not be empty"), RequestValidationError.of("username", "size must be between 3 and 30"));
+            assertThat(errors).containsExactlyElementsOf(sortedErrors);
         }
 
     }
