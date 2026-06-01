@@ -48,9 +48,7 @@ import com.bcn.asapp.authentication.domain.user.InvalidUsernameException;
 import com.bcn.asapp.authentication.infrastructure.security.JwtIssuanceException;
 
 /**
- * Global exception handler for REST API endpoints.
- * <p>
- * Extends {@link ResponseEntityExceptionHandler} to provide centralized exception handling and consistent error responses across the application.
+ * Handles REST API exceptions and maps them to RFC 7807 {@link ProblemDetail} responses.
  * <p>
  * Error response strategy follows RFC 6749 (OAuth2 Token Endpoint) and Spring Security best practices:
  * <ul>
@@ -61,7 +59,6 @@ import com.bcn.asapp.authentication.infrastructure.security.JwtIssuanceException
  *
  * @since 0.2.0
  * @see ResponseEntityExceptionHandler
- * @see MethodArgumentNotValidException
  * @author attrigo
  */
 @RestControllerAdvice
@@ -76,7 +73,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles method argument validation failures.
      * <p>
-     * Converts validation errors into a structured {@link ProblemDetail} response containing details about each invalid parameter.
+     * Thrown by Spring when request body fields fail Jakarta Bean Validation constraints.
+     * <p>
+     * Returns HTTP 400 Bad Request with a sorted list of field-level validation errors.
      *
      * @param ex      the {@link MethodArgumentNotValidException}
      * @param headers the HTTP headers
@@ -102,9 +101,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handles illegal argument exceptions thrown by domain value objects.
+     * Handles illegal argument exceptions.
      * <p>
-     * Returns a 400 Bad Request response with details about the invalid argument.
+     * Thrown by domain value objects when constructor or factory method arguments violate format constraints.
+     * <p>
+     * Returns HTTP 400 Bad Request with a fixed error message (never the raw exception message).
      *
      * @param ex the {@link IllegalArgumentException}
      * @return a {@link ResponseEntity} containing the error details
@@ -125,10 +126,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // ============================================================================
 
     /**
-     * Handles invalid credential format exceptions during authentication.
+     * Handles invalid credential format exceptions.
      * <p>
-     * Returns HTTP 401 Unauthorized with a generic message to prevent user enumeration attacks. Since these exceptions are only thrown in authentication
-     * contexts, they should always be treated as authentication failures rather than validation errors.
+     * Thrown by domain value objects when credentials are malformed — invalid username, password, or encoded token format. Always treated as an authentication
+     * failure rather than a validation error to prevent user enumeration attacks.
+     * <p>
+     * Returns HTTP 401 Unauthorized with a generic error message.
      *
      * @param ex the credential validation exception ({@link InvalidUsernameException}, {@link InvalidPasswordException}, or
      *           {@link InvalidEncodedTokenException})

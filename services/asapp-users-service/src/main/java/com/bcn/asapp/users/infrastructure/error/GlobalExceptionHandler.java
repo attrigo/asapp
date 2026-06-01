@@ -44,14 +44,17 @@ import com.bcn.asapp.users.infrastructure.security.InvalidJwtException;
 import com.bcn.asapp.users.infrastructure.security.UnexpectedJwtTypeException;
 
 /**
- * Global exception handler for REST API endpoints.
+ * Handles REST API exceptions and maps them to RFC 7807 {@link ProblemDetail} responses.
  * <p>
- * Extends {@link ResponseEntityExceptionHandler} to provide centralized exception handling and consistent error responses across the application, particularly
- * for validation errors.
+ * Error response strategy follows Spring Security best practices:
+ * <ul>
+ * <li><strong>Validation errors (400):</strong> Include detailed field errors (safe, aids client developers)</li>
+ * <li><strong>Authentication errors (401):</strong> Generic messages only (prevent user enumeration attacks)</li>
+ * <li><strong>Server errors (5xx):</strong> Generic messages only (avoid internal implementation disclosure)</li>
+ * </ul>
  *
  * @since 0.2.0
  * @see ResponseEntityExceptionHandler
- * @see MethodArgumentNotValidException
  * @author attrigo
  */
 @RestControllerAdvice
@@ -66,7 +69,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles method argument validation failures.
      * <p>
-     * Converts validation errors into a structured {@link ProblemDetail} response containing details about each invalid parameter.
+     * Thrown by Spring when request body fields fail Jakarta Bean Validation constraints.
+     * <p>
+     * Returns HTTP 400 Bad Request with a sorted list of field-level validation errors.
      *
      * @param ex      the {@link MethodArgumentNotValidException}
      * @param headers the HTTP headers
@@ -92,9 +97,11 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handles illegal argument exceptions thrown by domain value objects.
+     * Handles illegal argument exceptions.
      * <p>
-     * Returns a 400 Bad Request response with details about the invalid argument.
+     * Thrown by domain value objects when constructor or factory method arguments violate format constraints.
+     * <p>
+     * Returns HTTP 400 Bad Request with a fixed error message (never the raw exception message).
      *
      * @param ex the {@link IllegalArgumentException}
      * @return a {@link ResponseEntity} containing the error details
@@ -111,10 +118,12 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handles constraint violations from {@code @Validated} request parameter constraints.
+     * Handles constraint violations from {@code @Validated} method-level parameter constraints.
      * <p>
-     * Thrown by the Bean Validation framework when method-level parameter constraints (e.g., {@code @NotEmpty}, {@code @Size} on {@code @RequestParam}) are
-     * violated. Returns a 400 Bad Request response.
+     * Thrown by the Bean Validation framework when {@code @RequestParam}, {@code @PathVariable}, or {@code @RequestHeader} parameters violate declared
+     * constraints.
+     * <p>
+     * Returns HTTP 400 Bad Request with a sorted list of field-level validation errors.
      *
      * @param ex the {@link ConstraintViolationException}
      * @return a {@link ResponseEntity} containing the error details
