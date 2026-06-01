@@ -24,8 +24,6 @@ import static org.mockito.Mockito.mock;
 import java.util.List;
 import java.util.Set;
 
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.MethodParameter;
@@ -40,11 +38,9 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.context.request.WebRequest;
 
+import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import jakarta.validation.Validation;
-import jakarta.validation.ValidatorFactory;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.executable.ExecutableValidator;
+import jakarta.validation.Path;
 
 import com.bcn.asapp.users.infrastructure.security.AuthenticationNotFoundException;
 import com.bcn.asapp.users.infrastructure.security.InvalidJwtException;
@@ -67,69 +63,38 @@ class GlobalExceptionHandlerTests {
     @Nested
     class HandleConstraintViolationException {
 
-        private ValidatorFactory validatorFactory;
-
-        private ExecutableValidator executableValidator;
-
-        private FakeController fakeController;
-
-        @BeforeEach
-        void setUp() {
-            validatorFactory = Validation.buildDefaultValidatorFactory();
-            executableValidator = validatorFactory.getValidator()
-                                                  .forExecutables();
-            fakeController = new FakeController();
-        }
-
-        @AfterEach
-        void tearDown() {
-            validatorFactory.close();
-        }
-
         @Test
-        void Returns400WithGenericMessage_ParameterValidationFails() {
+        void Returns400AndProblemDetail_InvalidRequestParameter() {
             // Given
-            var ex = new ConstraintViolationException("ignored message", Set.of());
+            var violations = Set.of(violation("searchById.term", "must not be blank"), violation("searchById.id", "must be a valid UUID"));
+            var exception = new ConstraintViolationException(violations);
+            var sortedErrors = List.of(RequestValidationError.of("id", "must be a valid UUID"), RequestValidationError.of("term", "must not be blank"));
 
             // When
-            ResponseEntity<ProblemDetail> response = globalExceptionHandler.handleConstraintViolationException(ex);
+            var actual = globalExceptionHandler.handleConstraintViolationException(exception);
 
             // Then
-            var problemDetail = response.getBody();
+            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+            var problemDetail = actual.getBody();
             assertThat(problemDetail).isNotNull();
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Bad Request");
                 softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(400);
                 softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Request validation failed");
-                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "invalid_request");
+                softly.assertThat(problemDetail.getProperties()).as("error").containsEntry("error", "invalid_request");
+                softly.assertThat(problemDetail.getProperties()).as("field errors").containsEntry("field_errors", sortedErrors);
                 // @formatter:on
             });
         }
 
-        @Test
-        void ReturnsSortedErrors_MultipleViolations() throws Exception {
-            // Given
-            var method = FakeController.class.getMethod("searchById", String.class, String.class);
-            var violations = executableValidator.validateParameters(fakeController, method, new Object[] { null, null });
-            var ex = new ConstraintViolationException(violations);
-            var sortedErrors = List.of(RequestValidationError.of("id", "must not be null"), RequestValidationError.of("term", "must not be null"));
-
-            // When
-            ResponseEntity<ProblemDetail> response = globalExceptionHandler.handleConstraintViolationException(ex);
-
-            // Then
-            var problemDetail = response.getBody();
-            @SuppressWarnings("unchecked")
-            var errors = (List<RequestValidationError>) problemDetail.getProperties()
-                                                                     .get("field_errors");
-            assertThat(errors).containsExactlyElementsOf(sortedErrors);
-        }
-
-        static class FakeController {
-
-            public void searchById(@NotNull String id, @NotNull String term) {}
-
+        private static ConstraintViolation<?> violation(String propertyPath, String message) {
+            Path path = mock(Path.class);
+            given(path.toString()).willReturn(propertyPath);
+            ConstraintViolation<?> violation = mock(ConstraintViolation.class);
+            given(violation.getPropertyPath()).willReturn(path);
+            given(violation.getMessage()).willReturn(message);
+            return violation;
         }
 
     }
