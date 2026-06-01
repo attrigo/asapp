@@ -71,7 +71,7 @@ class GlobalExceptionHandlerTests {
     class HandleMethodArgumentNotValid {
 
         @Test
-        void handleMethodArgumentNotValid_setsFixedDetail() {
+        void ReturnsFixedDetail_BodyValidationFails() {
             // Given
             var bindingResult = mock(BindingResult.class);
             given(bindingResult.getFieldErrors()).willReturn(List.of());
@@ -87,7 +87,7 @@ class GlobalExceptionHandlerTests {
         }
 
         @Test
-        void handleMethodArgumentNotValid_whenMixedFieldsOutOfOrder_sortsErrors() {
+        void ReturnsSortedErrors_MixedFieldsOutOfOrder() {
             // Given
             FieldError passwordEmpty = new FieldError("authenticateRequest", "password", "The password must not be empty");
             FieldError usernameEmpty = new FieldError("authenticateRequest", "username", "The username must not be empty");
@@ -109,7 +109,7 @@ class GlobalExceptionHandlerTests {
         }
 
         @Test
-        void handleMethodArgumentNotValid_whenSameFieldMultipleViolations_sortsByMessage() {
+        void ReturnsSortedErrors_SameFieldMultipleViolations() {
             // Given
             FieldError size = new FieldError("authenticateRequest", "password", "size must be between 8 and 100");
             FieldError empty = new FieldError("authenticateRequest", "password", "must not be empty");
@@ -136,7 +136,7 @@ class GlobalExceptionHandlerTests {
     class HandleIllegalArgumentException {
 
         @Test
-        void handleIllegalArgumentException_setsFixedDetail() {
+        void ReturnsFixedDetail_InvalidArgument() {
             // Given
             var ex = new IllegalArgumentException("any dynamic message that must NOT appear in response");
 

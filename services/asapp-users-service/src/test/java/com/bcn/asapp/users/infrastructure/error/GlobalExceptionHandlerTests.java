@@ -82,7 +82,7 @@ class GlobalExceptionHandlerTests {
         }
 
         @Test
-        void handleConstraintViolationException_setsFixedDetail() {
+        void ReturnsFixedDetail_ParameterValidationFails() {
             // Given
             var ex = new ConstraintViolationException("ignored message", Set.of());
 
@@ -95,7 +95,7 @@ class GlobalExceptionHandlerTests {
         }
 
         @Test
-        void handleConstraintViolationException_whenMultipleViolations_sortsByFieldThenMessage() throws Exception {
+        void ReturnsSortedErrors_MultipleViolations() throws Exception {
             // Given
             var method = FakeController.class.getMethod("searchById", String.class, String.class);
             var violations = executableValidator.validateParameters(fakeController, method, new Object[] { null, null });
@@ -125,7 +125,7 @@ class GlobalExceptionHandlerTests {
     class HandleMethodArgumentNotValid {
 
         @Test
-        void handleMethodArgumentNotValid_setsFixedDetail() {
+        void ReturnsFixedDetail_BodyValidationFails() {
             // Given
             var bindingResult = mock(BindingResult.class);
             given(bindingResult.getFieldErrors()).willReturn(List.of());
@@ -141,7 +141,7 @@ class GlobalExceptionHandlerTests {
         }
 
         @Test
-        void handleMethodArgumentNotValid_whenFieldHasMultipleViolations_returnsAllViolations() {
+        void ReturnsSortedErrors_SameFieldMultipleViolations() {
             // Given
             FieldError empty = new FieldError("createUserRequest", "username", "must not be empty");
             FieldError tooShort = new FieldError("createUserRequest", "username", "size must be between 3 and 50");
@@ -162,7 +162,7 @@ class GlobalExceptionHandlerTests {
         }
 
         @Test
-        void handleMethodArgumentNotValid_whenMixedFieldsOutOfOrder_sortsErrors() {
+        void ReturnsSortedErrors_MixedFieldsOutOfOrder() {
             // Given
             FieldError phoneNumberPattern = new FieldError("createUserRequest", "phoneNumber", "The phone number must be a valid phone number");
             FieldError emailEmpty = new FieldError("createUserRequest", "email", "The email must not be empty");
@@ -191,7 +191,7 @@ class GlobalExceptionHandlerTests {
     class HandleIllegalArgumentException {
 
         @Test
-        void handleIllegalArgumentException_setsFixedDetail() {
+        void ReturnsFixedDetail_InvalidArgument() {
             // Given
             var ex = new IllegalArgumentException("any dynamic message that must NOT appear in response");
 
