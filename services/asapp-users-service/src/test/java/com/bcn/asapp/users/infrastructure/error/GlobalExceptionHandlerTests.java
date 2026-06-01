@@ -207,19 +207,6 @@ class GlobalExceptionHandlerTests {
     class HandleIllegalArgumentException {
 
         @Test
-        void ReturnsFixedDetail_InvalidArgument() {
-            // Given
-            var ex = new IllegalArgumentException("any dynamic message that must NOT appear in response");
-
-            // When
-            ResponseEntity<ProblemDetail> response = globalExceptionHandler.handleIllegalArgumentException(ex);
-
-            // Then
-            assertThat(response.getBody()
-                               .getDetail()).isEqualTo(INVALID_ARGUMENT_DETAIL);
-        }
-
-        @Test
         void Returns400WithGenericMessage_InvalidArgument() {
             // Given
             var exception = new IllegalArgumentException("Email must be a valid email address");
