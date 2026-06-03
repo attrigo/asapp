@@ -29,6 +29,7 @@ import org.springframework.validation.FieldError;
  * <p>
  * Coverage:
  * <li>Maps body field errors to validation errors ordered by field then message</li>
+ * <li>Preserves the full field path so nested or duplicate field names stay distinct</li>
  * <li>Returns an empty list when there are no failures</li>
  */
 class RequestValidationErrorAssemblerTests {
@@ -39,12 +40,47 @@ class RequestValidationErrorAssemblerTests {
         @Test
         void ReturnsSortedValidationErrors_MultipleFieldErrors() {
             // Given
-            var nameSizeFieldError = new FieldError("request", "name", "size must be between 3 and 30");
-            var nameBlankFieldError = new FieldError("request", "name", "must not be blank");
-            var emailBlankFieldError = new FieldError("request", "email", "must not be blank");
-            var fieldErrors = List.of(nameSizeFieldError, nameBlankFieldError, emailBlankFieldError);
-            var sortedErrors = List.of(RequestValidationError.of("email", "must not be blank"), RequestValidationError.of("name", "must not be blank"),
+            var idFieldError = new FieldError("parameter", "id", "must be a valid UUID");
+            var termFieldError = new FieldError("parameter", "term", "must not be blank");
+            var nameFieldError = new FieldError("parameter", "name", "must not be empty");
+            var fieldErrors = List.of(idFieldError, termFieldError, nameFieldError);
+            var sortedErrors = List.of(RequestValidationError.of("id", "must be a valid UUID"), RequestValidationError.of("name", "must not be empty"),
+                    RequestValidationError.of("term", "must not be blank"));
+
+            // When
+            var actual = RequestValidationErrorAssembler.fromFieldErrors(fieldErrors);
+
+            // Then
+            assertThat(actual).containsExactlyElementsOf(sortedErrors);
+        }
+
+        @Test
+        void ReturnsSortedValidationErrors_SameFieldDifferentMessages() {
+            // Given
+            var nameSizeFieldError = new FieldError("parameter", "name", "size must be between 3 and 30");
+            var nameBlankFieldError = new FieldError("parameter", "name", "must not be blank");
+            var fieldErrors = List.of(nameSizeFieldError, nameBlankFieldError);
+            var sortedErrors = List.of(RequestValidationError.of("name", "must not be blank"),
                     RequestValidationError.of("name", "size must be between 3 and 30"));
+
+            // When
+            var actual = RequestValidationErrorAssembler.fromFieldErrors(fieldErrors);
+
+            // Then
+            assertThat(actual).containsExactlyElementsOf(sortedErrors);
+        }
+
+        @Test
+        void ReturnsSortedValidationErrors_NestedFieldErrors() {
+            // Given
+            var idFieldError = new FieldError("parameter", "data.id", "must be a valid UUID");
+            var termFieldError = new FieldError("parameter", "data.term", "must not be blank");
+            var nameFieldError = new FieldError("parameter", "data.nested.name", "must not be empty");
+            var emailFieldError = new FieldError("parameter", "data.nested.email", "must be a valid email");
+            var fieldErrors = List.of(idFieldError, termFieldError, nameFieldError, emailFieldError);
+            var sortedErrors = List.of(RequestValidationError.of("data.id", "must be a valid UUID"),
+                    RequestValidationError.of("data.nested.email", "must be a valid email"), RequestValidationError.of("data.nested.name", "must not be empty"),
+                    RequestValidationError.of("data.term", "must not be blank"));
 
             // When
             var actual = RequestValidationErrorAssembler.fromFieldErrors(fieldErrors);

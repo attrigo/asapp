@@ -25,7 +25,8 @@ import org.springframework.validation.FieldError;
 /**
  * Assembles sorted {@link RequestValidationError} lists from Spring body-validation failures.
  * <p>
- * Maps body field errors to {@link RequestValidationError}. Results are ordered by field, then message.
+ * Maps body field errors to {@link RequestValidationError}, preserving the full field path so nested or duplicate field names stay distinct. Results are
+ * ordered by field, then message.
  *
  * @since 0.4.0
  * @author attrigo
@@ -38,7 +39,10 @@ final class RequestValidationErrorAssembler {
     private RequestValidationErrorAssembler() {}
 
     /**
-     * Builds a sorted list of invalid parameters from body field errors.
+     * Builds a sorted list of validation errors from body field errors.
+     * <p>
+     * The full field path reported by {@link FieldError#getField()} is preserved (e.g. {@code data.nested.email}), so nested or duplicate leaf field names do
+     * not collide.
      *
      * @param fieldErrors the list of {@link FieldError} from body validation
      * @return a sorted {@link List} of {@link RequestValidationError}

@@ -28,7 +28,8 @@ import jakarta.validation.ConstraintViolation;
 /**
  * Assembles sorted {@link RequestValidationError} lists from Spring and Jakarta validation failures.
  * <p>
- * Maps body field errors and method-parameter constraint violations to {@link RequestValidationError}. Results are ordered by field, then message.
+ * Maps body field errors and method-parameter constraint violations to {@link RequestValidationError}, preserving the full field path so nested or duplicate
+ * field names stay distinct. Results are ordered by field, then message.
  *
  * @since 0.4.0
  * @author attrigo
@@ -41,7 +42,10 @@ final class RequestValidationErrorAssembler {
     private RequestValidationErrorAssembler() {}
 
     /**
-     * Builds a sorted list of invalid parameters from body field errors.
+     * Builds a sorted list of validation errors from body field errors.
+     * <p>
+     * The full field path reported by {@link FieldError#getField()} is preserved (e.g. {@code data.nested.email}), so nested or duplicate leaf field names do
+     * not collide.
      *
      * @param fieldErrors the list of {@link FieldError} from body validation
      * @return a sorted {@link List} of {@link RequestValidationError}
@@ -57,7 +61,10 @@ final class RequestValidationErrorAssembler {
     }
 
     /**
-     * Builds a sorted list of invalid parameters from method-parameter constraint violations.
+     * Builds a sorted list of validation errors from method-parameter constraint violations.
+     * <p>
+     * The constraint-violation property path has the form {@code <method>.<field-path>}. The leading method-name segment is stripped while the rest of the path
+     * is preserved (e.g. {@code search.filter.name} maps to {@code filter.name}), so nested or duplicate leaf field names do not collide.
      *
      * @param violations the set of {@link ConstraintViolation} from bean validation
      * @return a sorted {@link List} of {@link RequestValidationError}
@@ -67,7 +74,7 @@ final class RequestValidationErrorAssembler {
                          .map(v -> {
                              var path = v.getPropertyPath()
                                          .toString();
-                             var field = path.contains(".") ? path.substring(path.lastIndexOf('.') + 1) : path;
+                             var field = path.contains(".") ? path.substring(path.indexOf('.') + 1) : path;
                              return RequestValidationError.of(field, v.getMessage());
                          })
                          .sorted(SORT_ORDER)
