@@ -128,7 +128,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles invalid credential format exceptions.
      * <p>
-     * Thrown by domain value objects when credentials are malformed — invalid username, password, or encoded token format. Always treated as an authentication
+     * Thrown by domain value objects when credentials are malformed; invalid username, password, or encoded token format. Always treated as an authentication
      * failure rather than a validation error to prevent user enumeration attacks.
      * <p>
      * Returns HTTP 401 Unauthorized with a generic error message.
