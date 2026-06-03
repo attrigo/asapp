@@ -1,7 +1,7 @@
   # Error Handler Improvements — Design
 
 **Date:** 2026-05-28
-**Status:** Approved
+**Status:** Implemented
 **Targets:** `asapp-authentication-service`, `asapp-tasks-service`, `asapp-users-service`
 
 ---
@@ -288,3 +288,86 @@ A change set satisfying this design must:
   users-service integration tests.
 - Keep `.claude/rules/rest.md` accurate.
 - Pass `mvn clean verify` across all three services.
+
+## 8. Post-implementation notes
+
+This spec was written before implementation. The initial slice was built from the
+plan (`docs/superpowers/plans/2026-05-28-error-handler-improvements.md`) and then
+refined through a manual review pass. Tasks 1–3 shipped substantially as designed;
+**Task 4 (origin / `ParameterLocation`) was reversed entirely**, and the manual review
+went on to reshape the validation-error contract beyond the original design. The
+sections above describe the original design intent; **the canonical implementation is
+the current state of the code under `services/*/infrastructure/error/`**, not this
+document. Notable deltas:
+
+- **Validation-error record reshaped and renamed.**
+  `InvalidRequestParameter(entity, field, message)` became
+  `RequestValidationError(field, message)`. Both fields dropped from the original
+  three-field shape were removed for the same reason — neither carried client value
+  that varied within a response: `entity` (the binding-object / DTO name, empty for
+  constraint violations) and the briefly-added `location`. Construction goes through a
+  single static `of(field, message)` factory, per the project's record-factory
+  convention. (An interim `ofBody` factory was added and then removed once `location`
+  was dropped — only `of` remains.)
+
+- **`ParameterLocation` enum dropped (Task 4 reversed).** The enum and the §3.4
+  origin-detection helper (`resolveLocation`, which walked the constraint-violation
+  property path looking for `@PathVariable` / `@RequestParam` / `@RequestHeader`) were
+  removed; no new file shipped. Rationale: within a single response the location never
+  varies (body and method-parameter validation are mutually exclusive per request), and
+  `PATH` / `HEADER` were unreachable in the current API. The deterministic sort (Task 1)
+  was kept but **re-keyed from `(location, field, message)` to `(field, message)`**.
+
+- **Assembly logic extracted into `RequestValidationErrorAssembler`.** The
+  `buildInvalidParameters` overloads that originally lived inside each
+  `GlobalExceptionHandler` moved to a dedicated package-private
+  `RequestValidationErrorAssembler` final class that owns the `SORT_ORDER` comparator
+  and the field-to-record mapping. `asapp-tasks-service` and `asapp-users-service`
+  expose two entry points (`fromFieldErrors`, `fromConstraintViolations`);
+  `asapp-authentication-service`, which has no `ConstraintViolationException` handler,
+  ships a body-only assembler with just `fromFieldErrors`. A new
+  `RequestValidationErrorAssemblerTests` unit suite covers the assembler directly, so
+  sort order and field-path extraction are now unit-tested at the assembler rather than
+  only through the handler.
+
+- **`errors` property renamed to `field_errors`; every 400 now carries an `error`
+  code (breaking contract change).** The validation extension property was renamed
+  `errors` → `field_errors`, and all 400 responses — both validation handlers and
+  `handleIllegalArgumentException` — now set `error = "invalid_request"`, aligning 400s
+  with the machine-readable `error`-code convention already used by 401/500/503. This
+  added `INVALID_REQUEST_ERROR` to `ErrorMessages`, plus a `FIELD_ERRORS_PROPERTY`
+  constant — so the property key, originally kept inline per §3.2, was extracted after
+  all.
+
+- **Full field path preserved.** Body errors use `FieldError.getField()` (the full
+  path, e.g. `data.nested.email`); constraint violations strip only the leading
+  method-name segment via `indexOf('.')` (not `lastIndexOf`), so nested or duplicate
+  leaf names such as `filter.name` no longer collide. This refines the original §3.4
+  field-extraction note.
+
+- **Validation logging simplified.** The `buildValidationErrorMessage` helper —
+  explicitly listed as out of scope in §6 ("still used as-is") — was removed. Each
+  validation handler now logs `log.warn("…", ex.getMessage())` for the raw cause plus a
+  lazy `log.atTrace().log(() -> "Invalid arguments: " + …)` for the assembled list. The
+  4xx-warn / 5xx-error policy (§3.5) is preserved.
+
+- **`.claude/rules/rest.md` landed differently than §3.6 planned.** Rather than the
+  planned `entity` → `location` swap, the rule now documents
+  `RequestValidationError(field, message)` with a `field_errors` property, and gained a
+  line stating that every error response carries an `error` machine-readable code.
+
+- **REST Docs realigned.** The three `api-guide.adoc` files and the
+  `*RestControllerDocumentationIT` snippet tests were updated to the `field_errors`
+  response contract.
+
+- **Polish (no behavior change).** `handleConstraintViolationException` is ordered
+  before `handleMethodArgumentNotValid` in source (tasks / users) for readability;
+  `GlobalExceptionHandlerTests` were consolidated/parameterized and their coverage lists
+  realigned with the handlers; Javadoc was standardized across the three handlers and
+  the new classes.
+
+**For future error-handler edits**, treat the current `services/*/infrastructure/error/`
+package (`GlobalExceptionHandler`, `RequestValidationError`,
+`RequestValidationErrorAssembler`, `ErrorMessages`) as the template and `.claude/rules/rest.md`
+as the binding contract. This spec is preserved as a record of the original design intent
+and the reasoning that led to the shipped shape.
