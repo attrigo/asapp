@@ -34,3 +34,7 @@ build/
 
 ### Claude Code ###
 .claude/settings.local.json
+
+### JMeter load tests ###
+tools/jmeter/.runtime/
+tools/jmeter/results/
