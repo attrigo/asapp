@@ -19,8 +19,6 @@ package com.bcn.asapp.tasks.infrastructure.task.in.response;
 import java.time.Instant;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * Response for retrieving tasks by a list of unique identifiers.
  *
@@ -34,10 +32,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author attrigo
  */
 public record GetTasksByIdsResponse(
-        @JsonProperty("task_id") UUID taskId,
-        @JsonProperty("user_id") UUID userId,
+        UUID taskId,
+        UUID userId,
         String title,
         String description,
-        @JsonProperty("start_date") Instant startDate,
-        @JsonProperty("end_date") Instant endDate
+        Instant startDate,
+        Instant endDate
 ) {}

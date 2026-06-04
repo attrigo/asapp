@@ -60,7 +60,7 @@ final class ErrorMessages {
     static final String INVALID_REQUEST_ERROR = "invalid_request";
 
     // Property names
-    static final String FIELD_ERRORS_PROPERTY = "field_errors";
+    static final String FIELD_ERRORS_PROPERTY = "fieldErrors";
 
     private ErrorMessages() {}
 

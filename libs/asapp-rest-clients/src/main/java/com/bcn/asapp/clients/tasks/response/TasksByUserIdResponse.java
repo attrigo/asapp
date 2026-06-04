@@ -18,8 +18,6 @@ package com.bcn.asapp.clients.tasks.response;
 
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * Internal DTO for mapping task responses from the Tasks Service.
  * <p>
@@ -30,5 +28,5 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author attrigo
  */
 public record TasksByUserIdResponse(
-        @JsonProperty("task_id") UUID taskId
+        UUID taskId
 ) {}

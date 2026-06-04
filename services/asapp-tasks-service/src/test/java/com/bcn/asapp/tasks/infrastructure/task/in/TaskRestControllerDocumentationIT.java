@@ -116,12 +116,12 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                            requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
                            pathParameters(parameterWithName("id").description("The task's unique identifier")),
                            responseFields(
-                                   fieldWithPath("task_id").description("The task's unique identifier"),
-                                   fieldWithPath("user_id").description("The task's owner unique identifier"),
+                                   fieldWithPath("taskId").description("The task's unique identifier"),
+                                   fieldWithPath("userId").description("The task's owner unique identifier"),
                                    fieldWithPath("title").description("The task's title"),
                                    fieldWithPath("description").description("The task's description"),
-                                   fieldWithPath("start_date").description("The task's start date in ISO 8601 format"),
-                                   fieldWithPath("end_date").description("The task's end date in ISO 8601 format"))
+                                   fieldWithPath("startDate").description("The task's start date in ISO 8601 format"),
+                                   fieldWithPath("endDate").description("The task's end date in ISO 8601 format"))
                        )
                        // @formatter:on
                    );
@@ -164,12 +164,12 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
                                queryParameters(parameterWithName("ids").description("Comma-separated list of task identifiers (1 to 50 elements)")),
                                responseFields(
-                                       fieldWithPath("[].task_id").description("The task's unique identifier"),
-                                       fieldWithPath("[].user_id").description("The task's owner unique identifier"),
+                                       fieldWithPath("[].taskId").description("The task's unique identifier"),
+                                       fieldWithPath("[].userId").description("The task's owner unique identifier"),
                                        fieldWithPath("[].title").description("The task's title"),
                                        fieldWithPath("[].description").description("The task's description"),
-                                       fieldWithPath("[].start_date").description("The task's start date in ISO 8601 format"),
-                                       fieldWithPath("[].end_date").description("The task's end date in ISO 8601 format"))
+                                       fieldWithPath("[].startDate").description("The task's start date in ISO 8601 format"),
+                                       fieldWithPath("[].endDate").description("The task's end date in ISO 8601 format"))
                        )
                    // @formatter:on
                    );
@@ -212,12 +212,12 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                            requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
                            pathParameters(parameterWithName("id").description("The user's unique identifier")),
                            responseFields(
-                                   fieldWithPath("[].task_id").description("The task's unique identifier"),
-                                   fieldWithPath("[].user_id").description("The task's owner unique identifier"),
+                                   fieldWithPath("[].taskId").description("The task's unique identifier"),
+                                   fieldWithPath("[].userId").description("The task's owner unique identifier"),
                                    fieldWithPath("[].title").description("The task's title"),
                                    fieldWithPath("[].description").description("The task's description"),
-                                   fieldWithPath("[].start_date").description("The task's start date in ISO 8601 format"),
-                                   fieldWithPath("[].end_date").description("The task's end date in ISO 8601 format")
+                                   fieldWithPath("[].startDate").description("The task's start date in ISO 8601 format"),
+                                   fieldWithPath("[].endDate").description("The task's end date in ISO 8601 format")
                            )
                        )
                        // @formatter:on
@@ -259,12 +259,12 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                        document("get-all-tasks",
                            requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
                            responseFields(
-                                   fieldWithPath("[].task_id").description("The task's unique identifier"),
-                                   fieldWithPath("[].user_id").description("The task's owner unique identifier"),
+                                   fieldWithPath("[].taskId").description("The task's unique identifier"),
+                                   fieldWithPath("[].userId").description("The task's owner unique identifier"),
                                    fieldWithPath("[].title").description("The task's title"),
                                    fieldWithPath("[].description").description("The task's description"),
-                                   fieldWithPath("[].start_date").description("The task's start date in ISO 8601 format"),
-                                   fieldWithPath("[].end_date").description("The task's end date in ISO 8601 format")
+                                   fieldWithPath("[].startDate").description("The task's start date in ISO 8601 format"),
+                                   fieldWithPath("[].endDate").description("The task's end date in ISO 8601 format")
                            )
                        )
                        // @formatter:on
@@ -295,11 +295,11 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                        .value();
             var requestBody = """
                     {
-                        "user_id": "%s",
+                        "userId": "%s",
                         "title": "%s",
                         "description": "%s",
-                        "start_date": "%s",
-                        "end_date": "%s"
+                        "startDate": "%s",
+                        "endDate": "%s"
                     }
                     """.formatted(taskUserIdValue, taskTitleValue, taskDescriptionValue, taskStartDateValue, taskEndDateValue);
             var createTaskCommand = new CreateTaskCommand(taskUserIdValue, taskTitleValue, taskDescriptionValue, taskStartDateValue, taskEndDateValue);
@@ -319,13 +319,13 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                        document("create-task",
                            requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
                            requestFields(
-                                   fields.withPath("user_id", "userId").description("The task's owner unique identifier"),
+                                   fields.withPath("userId").description("The task's owner unique identifier"),
                                    fields.withPath("title").description("The task's title"),
                                    fields.withPath("description").description("The task's description").optional(),
-                                   fields.withPath("start_date", "startDate").description("The task's start date in ISO 8601 format").optional(),
-                                   fields.withPath("end_date", "endDate").description("The task's end date in ISO 8601 format").optional()
+                                   fields.withPath("startDate").description("The task's start date in ISO 8601 format").optional(),
+                                   fields.withPath("endDate").description("The task's end date in ISO 8601 format").optional()
                            ),
-                           responseFields(fieldWithPath("task_id").description("The created task's unique identifier"))
+                           responseFields(fieldWithPath("taskId").description("The created task's unique identifier"))
                        )
                        // @formatter:on
                    );
@@ -355,11 +355,11 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                        .value();
             var requestBody = """
                     {
-                        "user_id": "%s",
+                        "userId": "%s",
                         "title": "%s",
                         "description": "%s",
-                        "start_date": "%s",
-                        "end_date": "%s"
+                        "startDate": "%s",
+                        "endDate": "%s"
                     }
                     """.formatted(taskUserIdValue, taskTitleValue, taskDescriptionValue, taskStartDateValue, taskEndDateValue);
             var updateTaskCommand = new UpdateTaskCommand(taskIdValue, taskUserIdValue, taskTitleValue, taskDescriptionValue, taskStartDateValue,
@@ -381,13 +381,13 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                            requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
                            pathParameters(parameterWithName("id").description("The task's unique identifier")),
                            requestFields(
-                                   fields.withPath("user_id", "userId").description("The task's owner unique identifier"),
+                                   fields.withPath("userId").description("The task's owner unique identifier"),
                                    fields.withPath("title").description("The task's title"),
                                    fields.withPath("description").description("The task's description").optional(),
-                                   fields.withPath("start_date", "startDate").description("The task's start date in ISO 8601 format").optional(),
-                                   fields.withPath("end_date", "endDate").description("The task's end date in ISO 8601 format").optional()
+                                   fields.withPath("startDate").description("The task's start date in ISO 8601 format").optional(),
+                                   fields.withPath("endDate").description("The task's end date in ISO 8601 format").optional()
                            ),
-                           responseFields(fieldWithPath("task_id").description("The updated task's unique identifier"))
+                           responseFields(fieldWithPath("taskId").description("The updated task's unique identifier"))
                        )
                        // @formatter:on
                    );
@@ -455,9 +455,9 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                fieldWithPath("status").description("HTTP status code"),
                                fieldWithPath("detail").description("Human-readable explanation of the problem"),
                                fieldWithPath("error").description("Machine-readable error code"),
-                               fieldWithPath("field_errors").description("List of validation errors"),
-                               fieldWithPath("field_errors[].field").description("Name of the request parameter that failed validation"),
-                               fieldWithPath("field_errors[].message").description("Validation error message")
+                               fieldWithPath("fieldErrors").description("List of validation errors"),
+                               fieldWithPath("fieldErrors[].field").description("Name of the request parameter that failed validation"),
+                               fieldWithPath("fieldErrors[].message").description("Validation error message")
                            )
                        )
                        // @formatter:on
@@ -478,9 +478,9 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                fieldWithPath("status").description("HTTP status code"),
                                fieldWithPath("detail").description("Human-readable explanation of the problem"),
                                fieldWithPath("error").description("Machine-readable error code"),
-                               fieldWithPath("field_errors").description("List of validation errors"),
-                               fieldWithPath("field_errors[].field").description("Field that failed validation"),
-                               fieldWithPath("field_errors[].message").description("Validation error message")
+                               fieldWithPath("fieldErrors").description("List of validation errors"),
+                               fieldWithPath("fieldErrors[].field").description("Field that failed validation"),
+                               fieldWithPath("fieldErrors[].message").description("Validation error message")
                            )
                        )
                    // @formatter:on

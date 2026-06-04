@@ -96,7 +96,7 @@ curl -X POST http://localhost:8080/asapp-authentication-service/api/users \
 TOKEN=$(curl -X POST http://localhost:8080/asapp-authentication-service/api/auth/token \
   -H "Content-Type: application/json" \
   -d '{"username":"john.doe@asapp.com","password":"SecurePass123!"}' \
-  | jq -r '.access_token')
+  | jq -r '.accessToken')
 
 # 3. Create user profile
 USER_ID=$(curl -X POST http://localhost:8082/asapp-users-service/api/users \
@@ -107,18 +107,18 @@ USER_ID=$(curl -X POST http://localhost:8082/asapp-users-service/api/users \
     "lastName": "Doe",
     "email": "john.doe@asapp.com",
     "phoneNumber": "+1-555-0123"
-  }' | jq -r '.user_id')
+  }' | jq -r '.userId')
 
 # 4. Create a task
 curl -X POST http://localhost:8081/asapp-tasks-service/api/tasks \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{
-    "user_id": "'$USER_ID'",
+    "userId": "'$USER_ID'",
     "title": "Complete documentation",
     "description": "Update all README files",
-    "start_date": "2025-01-15T09:00:00Z",
-    "end_date": "2025-01-20T17:00:00Z"
+    "startDate": "2025-01-15T09:00:00Z",
+    "endDate": "2025-01-20T17:00:00Z"
   }'
 
 # 5. Get user with tasks
@@ -205,7 +205,7 @@ docker-compose down -v
 1. Client authenticates with credentials → `POST /api/auth/token`
 2. Receives access token (5 min) + refresh token (1 hour)
 3. Tokens stored in Redis with TTL for revocation checks
-4. Client includes `Authorization: Bearer <access_token>` in requests
+4. Client includes `Authorization: Bearer <accessToken>` in requests
 5. Services validate JWT signature and check Redis for revocation
 6. When access token expires, use refresh token → `POST /api/auth/refresh`
 
@@ -347,6 +347,8 @@ mvn clean verify -Pfull
 ## Reference
 
 ### API Endpoints
+
+All request and response bodies use **camelCase** JSON field names.
 
 Each service provides interactive Swagger UI:
 

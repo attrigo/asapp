@@ -20,7 +20,7 @@
         * [X] ~~Make `RequestValidationError` correctly represent the origin of validation errors for non-body parameters (path/query)~~
         * [X] Preserve the full field path in validation errors so nested or duplicate field names don't collide
     * JSON Naming
-        * [ ] Enforce request/response camelCase globally
+        * [X] Enforce request/response camelCase globally
     * [ ] Add load test with JMeter
     * [ ] Replace REST clients by declarative HTTP clients
         * Use circuit breaker pattern
@@ -76,7 +76,7 @@
 ### Goal - Adopt Modulith with Domain Events & CQRS
 
 * Introduce modularization with Spring Modulith (ArchUnit & JMolecules)
-    * Add an ArchUnit/test asserting every request DTO `@JsonProperty` value equals the snake_case of its Java component name
+    * Add an ArchUnit/test asserting every request DTO `@JsonProperty` value equals the camelCase of its Java component name (already enforced per service by `JsonNamingConventionTest`; fold into the Modulith ArchUnit suite)
 * Adopt domain events following DDD principles
     * Handle domain CUD operations via events
     * Use CQRS pattern
@@ -102,7 +102,7 @@
 ### Goal - Enforce Cross-Service Data Consistency
 
 * Create or update a user in one service must replicate in other service
-* Create and update a task must check if user_id exists in user service
+* Create and update a task must check if userId exists in user service
 * Change user's username or password must revoke all user authentications
 * Make User's username unique, user creation must not create the user if there is another one with the same username (email)
 

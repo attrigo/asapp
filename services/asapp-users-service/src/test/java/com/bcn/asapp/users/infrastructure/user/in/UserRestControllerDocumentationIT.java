@@ -115,12 +115,12 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                            requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
                            pathParameters(parameterWithName("id").description("The user's unique identifier")),
                            responseFields(
-                                   fieldWithPath("user_id").description("The user's unique identifier"),
-                                   fieldWithPath("first_name").description("The user's first name"),
-                                   fieldWithPath("last_name").description("The user's last name"),
+                                   fieldWithPath("userId").description("The user's unique identifier"),
+                                   fieldWithPath("firstName").description("The user's first name"),
+                                   fieldWithPath("lastName").description("The user's last name"),
                                    fieldWithPath("email").description("The user's email address"),
-                                   fieldWithPath("phone_number").description("The user's phone number"),
-                                   fieldWithPath("task_ids").description("The identifiers of tasks associated with the user")
+                                   fieldWithPath("phoneNumber").description("The user's phone number"),
+                                   fieldWithPath("taskIds").description("The identifiers of tasks associated with the user")
                            )
                        )
                        // @formatter:on
@@ -162,11 +162,11 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
                                queryParameters(parameterWithName("ids").description("Comma-separated list of user identifiers (1 to 50 elements)")),
                                responseFields(
-                                       fieldWithPath("[].user_id").description("The user's unique identifier"),
-                                       fieldWithPath("[].first_name").description("The user's first name"),
-                                       fieldWithPath("[].last_name").description("The user's last name"),
+                                       fieldWithPath("[].userId").description("The user's unique identifier"),
+                                       fieldWithPath("[].firstName").description("The user's first name"),
+                                       fieldWithPath("[].lastName").description("The user's last name"),
                                        fieldWithPath("[].email").description("The user's email address"),
-                                       fieldWithPath("[].phone_number").description("The user's phone number"))
+                                       fieldWithPath("[].phoneNumber").description("The user's phone number"))
                        )
                    // @formatter:on
                    );
@@ -205,11 +205,11 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                        document("get-all-users",
                            requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
                            responseFields(
-                                   fieldWithPath("[].user_id").description("The user's unique identifier"),
-                                   fieldWithPath("[].first_name").description("The user's first name"),
-                                   fieldWithPath("[].last_name").description("The user's last name"),
+                                   fieldWithPath("[].userId").description("The user's unique identifier"),
+                                   fieldWithPath("[].firstName").description("The user's first name"),
+                                   fieldWithPath("[].lastName").description("The user's last name"),
                                    fieldWithPath("[].email").description("The user's email address"),
-                                   fieldWithPath("[].phone_number").description("The user's phone number")
+                                   fieldWithPath("[].phoneNumber").description("The user's phone number")
                            )
                        )
                        // @formatter:on
@@ -238,10 +238,10 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                        .value();
             var requestBody = """
                     {
-                        "first_name": "%s",
-                        "last_name": "%s",
+                        "firstName": "%s",
+                        "lastName": "%s",
                         "email": "%s",
-                        "phone_number": "%s"
+                        "phoneNumber": "%s"
                     }
                     """.formatted(firstNameValue, lastNameValue, emailValue, phoneNumberValue);
             var createUserCommand = new CreateUserCommand(firstNameValue, lastNameValue, emailValue, phoneNumberValue);
@@ -259,12 +259,12 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                    // @formatter:off
                        document("create-user",
                            requestFields(
-                                   fields.withPath("first_name", "firstName").description("The user's first name"),
-                                   fields.withPath("last_name", "lastName").description("The user's last name"),
+                                   fields.withPath("firstName").description("The user's first name"),
+                                   fields.withPath("lastName").description("The user's last name"),
                                    fields.withPath("email").description("The user's email address"),
-                                   fields.withPath("phone_number", "phoneNumber").description("The user's phone number")
+                                   fields.withPath("phoneNumber").description("The user's phone number")
                            ),
-                           responseFields(fieldWithPath("user_id").description("The created user's unique identifier"))
+                           responseFields(fieldWithPath("userId").description("The created user's unique identifier"))
                        )
                        // @formatter:on
                    );
@@ -292,10 +292,10 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                        .value();
             var requestBody = """
                     {
-                        "first_name": "%s",
-                        "last_name": "%s",
+                        "firstName": "%s",
+                        "lastName": "%s",
                         "email": "%s",
-                        "phone_number": "%s"
+                        "phoneNumber": "%s"
                     }
                     """.formatted(firstNameValue, lastNameValue, emailValue, phoneNumberValue);
             var updateUserCommand = new UpdateUserCommand(userIdValue, firstNameValue, lastNameValue, emailValue, phoneNumberValue);
@@ -316,12 +316,12 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                            requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
                            pathParameters(parameterWithName("id").description("The user's unique identifier")),
                            requestFields(
-                                   fields.withPath("first_name", "firstName").description("The user's first name"),
-                                   fields.withPath("last_name", "lastName").description("The user's last name"),
+                                   fields.withPath("firstName").description("The user's first name"),
+                                   fields.withPath("lastName").description("The user's last name"),
                                    fields.withPath("email").description("The user's email address"),
-                                   fields.withPath("phone_number", "phoneNumber").description("The user's phone number")
+                                   fields.withPath("phoneNumber").description("The user's phone number")
                            ),
-                           responseFields(fieldWithPath("user_id").description("The updated user's unique identifier"))
+                           responseFields(fieldWithPath("userId").description("The updated user's unique identifier"))
                        )
                        // @formatter:on
                    );
@@ -389,9 +389,9 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                fieldWithPath("status").description("HTTP status code"),
                                fieldWithPath("detail").description("Human-readable explanation of the problem"),
                                fieldWithPath("error").description("Machine-readable error code"),
-                               fieldWithPath("field_errors").description("List of validation errors"),
-                               fieldWithPath("field_errors[].field").description("Name of the request parameter that failed validation"),
-                               fieldWithPath("field_errors[].message").description("Validation error message")
+                               fieldWithPath("fieldErrors").description("List of validation errors"),
+                               fieldWithPath("fieldErrors[].field").description("Name of the request parameter that failed validation"),
+                               fieldWithPath("fieldErrors[].message").description("Validation error message")
                            )
                        )
                        // @formatter:on
@@ -412,9 +412,9 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                fieldWithPath("status").description("HTTP status code"),
                                fieldWithPath("detail").description("Human-readable explanation of the problem"),
                                fieldWithPath("error").description("Machine-readable error code"),
-                               fieldWithPath("field_errors").description("List of validation errors"),
-                               fieldWithPath("field_errors[].field").description("Field that failed validation"),
-                               fieldWithPath("field_errors[].message").description("Validation error message")
+                               fieldWithPath("fieldErrors").description("List of validation errors"),
+                               fieldWithPath("fieldErrors[].field").description("Field that failed validation"),
+                               fieldWithPath("fieldErrors[].message").description("Validation error message")
                            )
                        )
                    // @formatter:on

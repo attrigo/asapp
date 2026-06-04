@@ -18,8 +18,6 @@ package com.bcn.asapp.tasks.infrastructure.task.in.request;
 
 import java.time.Instant;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import jakarta.validation.constraints.NotBlank;
 
 /**
@@ -36,9 +34,9 @@ import jakarta.validation.constraints.NotBlank;
  * @author attrigo
  */
 public record UpdateTaskRequest(
-        @JsonProperty("user_id") @NotBlank(message = "The user ID must not be empty") String userId,
+        @NotBlank(message = "The user ID must not be empty") String userId,
         @NotBlank(message = "The title must not be empty") String title,
         String description,
-        @JsonProperty("start_date") Instant startDate,
-        @JsonProperty("end_date") Instant endDate
+        Instant startDate,
+        Instant endDate
 ) {}

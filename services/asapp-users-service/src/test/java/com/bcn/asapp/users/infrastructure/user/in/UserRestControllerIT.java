@@ -122,10 +122,10 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
-                             assertThatJson(json).node("field_errors")
+                             assertThatJson(json).node("fieldErrors")
                                                  .isArray()
                                                  .hasSize(1);
-                             assertThatJson(json).node("field_errors[0]")
+                             assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "ids")
                                                  .containsEntry("message", "Users identifiers list must not be empty");
@@ -156,10 +156,10 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
-                             assertThatJson(json).node("field_errors")
+                             assertThatJson(json).node("fieldErrors")
                                                  .isArray()
                                                  .hasSize(1);
-                             assertThatJson(json).node("field_errors[0]")
+                             assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "ids")
                                                  .containsEntry("message", "Users identifiers list must contain at most 50 elements");
@@ -254,22 +254,22 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
-                             assertThatJson(json).node("field_errors")
+                             assertThatJson(json).node("fieldErrors")
                                                  .isArray()
                                                  .hasSize(4);
-                             assertThatJson(json).node("field_errors[0]")
+                             assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "email")
                                                  .containsEntry("message", "The email must not be empty");
-                             assertThatJson(json).node("field_errors[1]")
+                             assertThatJson(json).node("fieldErrors[1]")
                                                  .isObject()
                                                  .containsEntry("field", "firstName")
                                                  .containsEntry("message", "The first name must not be empty");
-                             assertThatJson(json).node("field_errors[2]")
+                             assertThatJson(json).node("fieldErrors[2]")
                                                  .isObject()
                                                  .containsEntry("field", "lastName")
                                                  .containsEntry("message", "The last name must not be empty");
-                             assertThatJson(json).node("field_errors[3]")
+                             assertThatJson(json).node("fieldErrors[3]")
                                                  .isObject()
                                                  .containsEntry("field", "phoneNumber")
                                                  .containsEntry("message", "The phone number must not be empty");
@@ -281,10 +281,10 @@ class UserRestControllerIT extends WebMvcTestContext {
             // Given
             var requestBody = """
                     {
-                    "first_name": "",
-                    "last_name": "",
+                    "firstName": "",
+                    "lastName": "",
                     "email": "",
-                    "phone_number": ""
+                    "phoneNumber": ""
                     }
                     """;
             var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
@@ -304,30 +304,30 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
-                             assertThatJson(json).node("field_errors")
+                             assertThatJson(json).node("fieldErrors")
                                                  .isArray()
                                                  .hasSize(6);
-                             assertThatJson(json).node("field_errors[0]")
+                             assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "email")
                                                  .containsEntry("message", "The email must be a valid email address");
-                             assertThatJson(json).node("field_errors[1]")
+                             assertThatJson(json).node("fieldErrors[1]")
                                                  .isObject()
                                                  .containsEntry("field", "email")
                                                  .containsEntry("message", "The email must not be empty");
-                             assertThatJson(json).node("field_errors[2]")
+                             assertThatJson(json).node("fieldErrors[2]")
                                                  .isObject()
                                                  .containsEntry("field", "firstName")
                                                  .containsEntry("message", "The first name must not be empty");
-                             assertThatJson(json).node("field_errors[3]")
+                             assertThatJson(json).node("fieldErrors[3]")
                                                  .isObject()
                                                  .containsEntry("field", "lastName")
                                                  .containsEntry("message", "The last name must not be empty");
-                             assertThatJson(json).node("field_errors[4]")
+                             assertThatJson(json).node("fieldErrors[4]")
                                                  .isObject()
                                                  .containsEntry("field", "phoneNumber")
                                                  .containsEntry("message", "The phone number must be a valid phone number");
-                             assertThatJson(json).node("field_errors[5]")
+                             assertThatJson(json).node("fieldErrors[5]")
                                                  .isObject()
                                                  .containsEntry("field", "phoneNumber")
                                                  .containsEntry("message", "The phone number must not be empty");
@@ -339,10 +339,10 @@ class UserRestControllerIT extends WebMvcTestContext {
             // Given
             var requestBody = """
                     {
-                    "first_name": "%s",
-                    "last_name": "%s",
+                    "firstName": "%s",
+                    "lastName": "%s",
                     "email": "invalid_email",
-                    "phone_number": "%s"
+                    "phoneNumber": "%s"
                     }
                     """.formatted("FirstName", "LastName", "555 555 555");
             var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
@@ -362,10 +362,10 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
-                             assertThatJson(json).node("field_errors")
+                             assertThatJson(json).node("fieldErrors")
                                                  .isArray()
                                                  .hasSize(1);
-                             assertThatJson(json).node("field_errors[0]")
+                             assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "email")
                                                  .containsEntry("message", "The email must be a valid email address");
@@ -377,10 +377,10 @@ class UserRestControllerIT extends WebMvcTestContext {
             // Given
             var requestBody = """
                     {
-                    "first_name": "%s",
-                    "last_name": "%s",
+                    "firstName": "%s",
+                    "lastName": "%s",
                     "email": "%s",
-                    "phone_number": "invalid_phone_number"
+                    "phoneNumber": "invalid_phone_number"
                     }
                     """.formatted("FirstName", "LastName", "user@asapp.com");
             var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
@@ -400,10 +400,10 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users");
-                             assertThatJson(json).node("field_errors")
+                             assertThatJson(json).node("fieldErrors")
                                                  .isArray()
                                                  .hasSize(1);
-                             assertThatJson(json).node("field_errors[0]")
+                             assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "phoneNumber")
                                                  .containsEntry("message", "The phone number must be a valid phone number");
@@ -420,10 +420,10 @@ class UserRestControllerIT extends WebMvcTestContext {
             // Given
             var requestBody = """
                     {
-                    "first_name": "%s",
-                    "last_name": "%s",
+                    "firstName": "%s",
+                    "lastName": "%s",
                     "email": "%s",
-                    "phone_number": "%s"
+                    "phoneNumber": "%s"
                     }
                     """.formatted("New FirstName", "New LastName", "new_user@asapp.com", "666 666 666");
             var requestBuilder = put(USERS_ROOT_PATH + "/").contentType(MediaType.APPLICATION_JSON)
@@ -449,10 +449,10 @@ class UserRestControllerIT extends WebMvcTestContext {
             var userId = 1L;
             var requestBody = """
                     {
-                    "first_name": "%s",
-                    "last_name": "%s",
+                    "firstName": "%s",
+                    "lastName": "%s",
                     "email": "%s",
-                    "phone_number": "%s"
+                    "phoneNumber": "%s"
                     }
                     """.formatted("New FirstName", "New LastName", "new_user@asapp.com", "666 666 666");
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userId).contentType(MediaType.APPLICATION_JSON)
@@ -538,22 +538,22 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
-                             assertThatJson(json).node("field_errors")
+                             assertThatJson(json).node("fieldErrors")
                                                  .isArray()
                                                  .hasSize(4);
-                             assertThatJson(json).node("field_errors[0]")
+                             assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "email")
                                                  .containsEntry("message", "The email must not be empty");
-                             assertThatJson(json).node("field_errors[1]")
+                             assertThatJson(json).node("fieldErrors[1]")
                                                  .isObject()
                                                  .containsEntry("field", "firstName")
                                                  .containsEntry("message", "The first name must not be empty");
-                             assertThatJson(json).node("field_errors[2]")
+                             assertThatJson(json).node("fieldErrors[2]")
                                                  .isObject()
                                                  .containsEntry("field", "lastName")
                                                  .containsEntry("message", "The last name must not be empty");
-                             assertThatJson(json).node("field_errors[3]")
+                             assertThatJson(json).node("fieldErrors[3]")
                                                  .isObject()
                                                  .containsEntry("field", "phoneNumber")
                                                  .containsEntry("message", "The phone number must not be empty");
@@ -566,10 +566,10 @@ class UserRestControllerIT extends WebMvcTestContext {
             var userId = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = """
                     {
-                    "first_name": "",
-                    "last_name": "",
+                    "firstName": "",
+                    "lastName": "",
                     "email": "",
-                    "phone_number": ""
+                    "phoneNumber": ""
                     }
                     """;
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userId).contentType(MediaType.APPLICATION_JSON)
@@ -589,30 +589,30 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
-                             assertThatJson(json).node("field_errors")
+                             assertThatJson(json).node("fieldErrors")
                                                  .isArray()
                                                  .hasSize(6);
-                             assertThatJson(json).node("field_errors[0]")
+                             assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "email")
                                                  .containsEntry("message", "The email must be a valid email address");
-                             assertThatJson(json).node("field_errors[1]")
+                             assertThatJson(json).node("fieldErrors[1]")
                                                  .isObject()
                                                  .containsEntry("field", "email")
                                                  .containsEntry("message", "The email must not be empty");
-                             assertThatJson(json).node("field_errors[2]")
+                             assertThatJson(json).node("fieldErrors[2]")
                                                  .isObject()
                                                  .containsEntry("field", "firstName")
                                                  .containsEntry("message", "The first name must not be empty");
-                             assertThatJson(json).node("field_errors[3]")
+                             assertThatJson(json).node("fieldErrors[3]")
                                                  .isObject()
                                                  .containsEntry("field", "lastName")
                                                  .containsEntry("message", "The last name must not be empty");
-                             assertThatJson(json).node("field_errors[4]")
+                             assertThatJson(json).node("fieldErrors[4]")
                                                  .isObject()
                                                  .containsEntry("field", "phoneNumber")
                                                  .containsEntry("message", "The phone number must be a valid phone number");
-                             assertThatJson(json).node("field_errors[5]")
+                             assertThatJson(json).node("fieldErrors[5]")
                                                  .isObject()
                                                  .containsEntry("field", "phoneNumber")
                                                  .containsEntry("message", "The phone number must not be empty");
@@ -625,10 +625,10 @@ class UserRestControllerIT extends WebMvcTestContext {
             var userId = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = """
                     {
-                    "first_name": "%s",
-                    "last_name": "%s",
+                    "firstName": "%s",
+                    "lastName": "%s",
                     "email": "invalid_email",
-                    "phone_number": "%s"
+                    "phoneNumber": "%s"
                     }
                     """.formatted("New FirstName", "New LastName", "666 666 666");
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userId).contentType(MediaType.APPLICATION_JSON)
@@ -648,10 +648,10 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
-                             assertThatJson(json).node("field_errors")
+                             assertThatJson(json).node("fieldErrors")
                                                  .isArray()
                                                  .hasSize(1);
-                             assertThatJson(json).node("field_errors[0]")
+                             assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "email")
                                                  .containsEntry("message", "The email must be a valid email address");
@@ -664,10 +664,10 @@ class UserRestControllerIT extends WebMvcTestContext {
             var userId = UUID.fromString("82bb9f78-4851-4f5b-a252-412995b26864");
             var requestBody = """
                     {
-                    "first_name": "%s",
-                    "last_name": "%s",
+                    "firstName": "%s",
+                    "lastName": "%s",
                     "email": "%s",
-                    "phone_number": "invalid_phone_number"
+                    "phoneNumber": "invalid_phone_number"
                     }
                     """.formatted("New FirstName", "New LastName", "new_user@asapp.com");
             var requestBuilder = put(USERS_UPDATE_BY_ID_FULL_PATH, userId).contentType(MediaType.APPLICATION_JSON)
@@ -687,10 +687,10 @@ class UserRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/users/" + userId);
-                             assertThatJson(json).node("field_errors")
+                             assertThatJson(json).node("fieldErrors")
                                                  .isArray()
                                                  .hasSize(1);
-                             assertThatJson(json).node("field_errors[0]")
+                             assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "phoneNumber")
                                                  .containsEntry("message", "The phone number must be a valid phone number");

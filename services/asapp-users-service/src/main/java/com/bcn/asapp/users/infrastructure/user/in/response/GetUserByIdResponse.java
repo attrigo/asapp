@@ -19,8 +19,6 @@ package com.bcn.asapp.users.infrastructure.user.in.response;
 import java.util.List;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * Response for retrieving a user by its unique identifier.
  *
@@ -34,10 +32,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author attrigo
  */
 public record GetUserByIdResponse(
-        @JsonProperty("user_id") UUID userId,
-        @JsonProperty("first_name") String firstName,
-        @JsonProperty("last_name") String lastName,
+        UUID userId,
+        String firstName,
+        String lastName,
         String email,
-        @JsonProperty("phone_number") String phoneNumber,
-        @JsonProperty("task_ids") List<UUID> taskIds
+        String phoneNumber,
+        List<UUID> taskIds
 ) {}

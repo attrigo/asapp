@@ -18,8 +18,6 @@ package com.bcn.asapp.tasks.infrastructure.task.in.response;
 
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * Response for a successfully updated task.
  *
@@ -28,5 +26,5 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author attrigo
  */
 public record UpdateTaskResponse(
-        @JsonProperty("task_id") UUID taskId
+        UUID taskId
 ) {}

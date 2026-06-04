@@ -122,10 +122,10 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/tasks");
-                             assertThatJson(json).node("field_errors")
+                             assertThatJson(json).node("fieldErrors")
                                                  .isArray()
                                                  .hasSize(1);
-                             assertThatJson(json).node("field_errors[0]")
+                             assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "ids")
                                                  .containsEntry("message", "Tasks identifiers list must not be empty");
@@ -156,10 +156,10 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/tasks");
-                             assertThatJson(json).node("field_errors")
+                             assertThatJson(json).node("fieldErrors")
                                                  .isArray()
                                                  .hasSize(1);
-                             assertThatJson(json).node("field_errors[0]")
+                             assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "ids")
                                                  .containsEntry("message", "Tasks identifiers list must contain at most 50 elements");
@@ -298,14 +298,14 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/tasks");
-                             assertThatJson(json).node("field_errors")
+                             assertThatJson(json).node("fieldErrors")
                                                  .isArray()
                                                  .hasSize(2);
-                             assertThatJson(json).node("field_errors[0]")
+                             assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "title")
                                                  .containsEntry("message", "The title must not be empty");
-                             assertThatJson(json).node("field_errors[1]")
+                             assertThatJson(json).node("fieldErrors[1]")
                                                  .isObject()
                                                  .containsEntry("field", "userId")
                                                  .containsEntry("message", "The user ID must not be empty");
@@ -317,7 +317,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
             // Given
             var requestBody = """
                     {
-                    "user_id": "",
+                    "userId": "",
                     "title": ""
                     }
                     """;
@@ -338,14 +338,14 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/tasks");
-                             assertThatJson(json).node("field_errors")
+                             assertThatJson(json).node("fieldErrors")
                                                  .isArray()
                                                  .hasSize(2);
-                             assertThatJson(json).node("field_errors[0]")
+                             assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "title")
                                                  .containsEntry("message", "The title must not be empty");
-                             assertThatJson(json).node("field_errors[1]")
+                             assertThatJson(json).node("fieldErrors[1]")
                                                  .isObject()
                                                  .containsEntry("field", "userId")
                                                  .containsEntry("message", "The user ID must not be empty");
@@ -365,11 +365,11 @@ class TaskRestControllerIT extends WebMvcTestContext {
             var newEndDate = Instant.parse("2025-04-04T14:00:00Z");
             var requestBody = """
                     {
-                    "user_id": "%s",
+                    "userId": "%s",
                     "title": "%s",
                     "description": "%s",
-                    "start_date": "%s",
-                    "end_date": "%s"
+                    "startDate": "%s",
+                    "endDate": "%s"
                     }
                     """.formatted(newUserId, "New Title", "New Description", newStartDate, newEndDate);
             var requestBuilder = put(TASKS_ROOT_PATH + "/").contentType(MediaType.APPLICATION_JSON)
@@ -398,11 +398,11 @@ class TaskRestControllerIT extends WebMvcTestContext {
             var newEndDate = Instant.parse("2025-04-04T14:00:00Z");
             var requestBody = """
                     {
-                    "user_id": "%s",
+                    "userId": "%s",
                     "title": "%s",
                     "description": "%s",
-                    "start_date": "%s",
-                    "end_date": "%s"
+                    "startDate": "%s",
+                    "endDate": "%s"
                     }
                     """.formatted(newUserId, "New Title", "New Description", newStartDate, newEndDate);
             var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskId).contentType(MediaType.APPLICATION_JSON)
@@ -488,14 +488,14 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/tasks/" + taskId);
-                             assertThatJson(json).node("field_errors")
+                             assertThatJson(json).node("fieldErrors")
                                                  .isArray()
                                                  .hasSize(2);
-                             assertThatJson(json).node("field_errors[0]")
+                             assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "title")
                                                  .containsEntry("message", "The title must not be empty");
-                             assertThatJson(json).node("field_errors[1]")
+                             assertThatJson(json).node("fieldErrors[1]")
                                                  .isObject()
                                                  .containsEntry("field", "userId")
                                                  .containsEntry("message", "The user ID must not be empty");
@@ -508,7 +508,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
             var taskId = UUID.fromString("e3a8c5d1-7f9b-482b-9f6a-2d8e5b7c9f3a");
             var requestBody = """
                     {
-                    "user_id": "",
+                    "userId": "",
                     "title": ""
                     }
                     """;
@@ -529,14 +529,14 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                  .containsEntry("detail", "Request validation failed")
                                                  .containsEntry("error", "invalid_request")
                                                  .containsEntry("instance", "/api/tasks/" + taskId);
-                             assertThatJson(json).node("field_errors")
+                             assertThatJson(json).node("fieldErrors")
                                                  .isArray()
                                                  .hasSize(2);
-                             assertThatJson(json).node("field_errors[0]")
+                             assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "title")
                                                  .containsEntry("message", "The title must not be empty");
-                             assertThatJson(json).node("field_errors[1]")
+                             assertThatJson(json).node("fieldErrors[1]")
                                                  .isObject()
                                                  .containsEntry("field", "userId")
                                                  .containsEntry("message", "The user ID must not be empty");

@@ -79,7 +79,7 @@ class TasksRestClientTests {
             var responseBody = """
                     [
                         {
-                            "task_id": "%s"
+                            "taskId": "%s"
                         }
                     ]
                     """.formatted(taskId);
@@ -115,13 +115,13 @@ class TasksRestClientTests {
             var responseBody = """
                     [
                         {
-                            "task_id": "%s"
+                            "taskId": "%s"
                         },
                         {
-                            "task_id": "%s"
+                            "taskId": "%s"
                         },
                         {
-                            "task_id": "%s"
+                            "taskId": "%s"
                         }
                     ]
                     """.formatted(taskId1, taskId2, taskId3);

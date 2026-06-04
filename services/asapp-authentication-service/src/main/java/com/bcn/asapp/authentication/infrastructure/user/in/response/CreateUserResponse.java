@@ -18,8 +18,6 @@ package com.bcn.asapp.authentication.infrastructure.user.in.response;
 
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * Response for a successfully created user.
  *
@@ -28,5 +26,5 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author attrigo
  */
 public record CreateUserResponse(
-        @JsonProperty("user_id") UUID userId
+        UUID userId
 ) {}

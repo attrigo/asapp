@@ -96,7 +96,7 @@ class GlobalExceptionHandlerTests {
                 softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(400);
                 softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Request validation failed");
                 softly.assertThat(problemDetail.getProperties()).as("error").containsEntry("error", "invalid_request");
-                softly.assertThat(problemDetail.getProperties()).as("field errors").containsEntry("field_errors", sortedErrors);
+                softly.assertThat(problemDetail.getProperties()).as("field errors").containsEntry("fieldErrors", sortedErrors);
                 // @formatter:on
             });
         }
