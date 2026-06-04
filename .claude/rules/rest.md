@@ -28,8 +28,8 @@ paths:
 ## Request / Response DTOs
 
 - Validation annotations must include explicit error messages
-- Request and response fields use camelCase serialization names (Jackson's default — Java fields are already camelCase)
-- Do not use `@JsonProperty` to rename fields; this is enforced per service by `JsonNamingConventionTest` (ArchUnit)
+- Request and response fields use camelCase serialization names
+- Do not use `@JsonProperty` to rename fields
 - One response record per endpoint — create separate records even if fields are identical
 
 ## Spring REST Docs
