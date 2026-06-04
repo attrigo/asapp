@@ -28,8 +28,8 @@ paths:
 ## Request / Response DTOs
 
 - Validation annotations must include explicit error messages
-- Request and response fields use snake_case serialization names
-- Use `@JsonProperty("field_name")` for multi-word field names — single-word fields need no annotation
+- Request and response fields use camelCase serialization names (Jackson's default — Java fields are already camelCase)
+- Do not use `@JsonProperty` to rename fields; this is enforced per service by `JsonNamingConventionTest` (ArchUnit)
 - One response record per endpoint — create separate records even if fields are identical
 
 ## Spring REST Docs
@@ -41,6 +41,6 @@ paths:
 
 - All errors must follow RFC 7807 `ProblemDetail` — do not invent a custom error format
 - All error responses carry an `error` property with a machine-readable error code (e.g., `"invalid_request"`, `"invalid_grant"`, `"server_error"`)
-- Validation errors extend `ProblemDetail` with a `field_errors` property containing a list of `RequestValidationError(field, message)`
+- Validation errors extend `ProblemDetail` with a `fieldErrors` property containing a list of `RequestValidationError(field, message)`
 - Always set `title` and `detail` via `ProblemDetail.forStatusAndDetail(...)`
 - 5xx responses in `GlobalExceptionHandler` add `"critical": true` to `ProblemDetail` for monitoring alerts
