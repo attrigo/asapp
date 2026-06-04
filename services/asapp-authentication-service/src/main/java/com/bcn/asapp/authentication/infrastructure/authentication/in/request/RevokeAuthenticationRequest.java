@@ -16,8 +16,6 @@
 
 package com.bcn.asapp.authentication.infrastructure.authentication.in.request;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import jakarta.validation.constraints.NotBlank;
 
 /**
@@ -30,5 +28,5 @@ import jakarta.validation.constraints.NotBlank;
  * @author attrigo
  */
 public record RevokeAuthenticationRequest(
-        @JsonProperty("access_token") @NotBlank(message = "The access token must not be empty") String accessToken
+        @NotBlank(message = "The access token must not be empty") String accessToken
 ) {}

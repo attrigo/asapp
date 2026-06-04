@@ -104,7 +104,7 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                            requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
                            pathParameters(parameterWithName("id").description("The user's unique identifier")),
                            responseFields(
-                                   fieldWithPath("user_id").description("The user's unique identifier"),
+                                   fieldWithPath("userId").description("The user's unique identifier"),
                                    fieldWithPath("username").description("The user's username in email format"),
                                    fieldWithPath("password").description("The user's masked password"),
                                    fieldWithPath("role").description("The user's role")
@@ -143,7 +143,7 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                        document("get-all-users",
                            requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
                            responseFields(
-                                   fieldWithPath("[].user_id").description("The user's unique identifier"),
+                                   fieldWithPath("[].userId").description("The user's unique identifier"),
                                    fieldWithPath("[].username").description("The user's username in email format"),
                                    fieldWithPath("[].password").description("The user's masked password"),
                                    fieldWithPath("[].role").description("The user's role")
@@ -197,7 +197,7 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                    fields.withPath("password").description("The user's raw password"),
                                    fields.withPath("role").description("The user's role")
                            ),
-                           responseFields(fieldWithPath("user_id").description("The created user's unique identifier"))
+                           responseFields(fieldWithPath("userId").description("The created user's unique identifier"))
                        )
                        // @formatter:on
                    );
@@ -249,7 +249,7 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                    fields.withPath("password").description("The user's new raw password"),
                                    fields.withPath("role").description("The user's role")
                            ),
-                           responseFields(fieldWithPath("user_id").description("The updated user's unique identifier"))
+                           responseFields(fieldWithPath("userId").description("The updated user's unique identifier"))
                        )
                        // @formatter:on
                    );
@@ -319,9 +319,9 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                fieldWithPath("status").description("HTTP status code"),
                                fieldWithPath("detail").description("Human-readable explanation of the problem"),
                                fieldWithPath("error").description("Machine-readable error code"),
-                               fieldWithPath("field_errors").description("List of validation errors"),
-                               fieldWithPath("field_errors[].field").description("Field that failed validation"),
-                               fieldWithPath("field_errors[].message").description("Validation error message")
+                               fieldWithPath("fieldErrors").description("List of validation errors"),
+                               fieldWithPath("fieldErrors[].field").description("Field that failed validation"),
+                               fieldWithPath("fieldErrors[].message").description("Validation error message")
                            )
                        )
                    // @formatter:on
