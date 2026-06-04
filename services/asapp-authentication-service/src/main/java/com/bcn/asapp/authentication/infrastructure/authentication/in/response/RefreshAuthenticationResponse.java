@@ -16,8 +16,6 @@
 
 package com.bcn.asapp.authentication.infrastructure.authentication.in.response;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * Response for a successful JWT authentication refresh.
  * <p>
@@ -29,6 +27,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author attrigo
  */
 public record RefreshAuthenticationResponse(
-        @JsonProperty("access_token") String accessToken,
-        @JsonProperty("refresh_token") String refreshToken
+        String accessToken,
+        String refreshToken
 ) {}

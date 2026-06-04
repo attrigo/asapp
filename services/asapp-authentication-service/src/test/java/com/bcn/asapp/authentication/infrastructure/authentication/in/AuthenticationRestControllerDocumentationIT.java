@@ -95,8 +95,8 @@ class AuthenticationRestControllerDocumentationIT extends RestDocsWebMvcTestCont
                                    fields.withPath("password").description("The user's raw password")
                            ),
                            responseFields(
-                                   fieldWithPath("access_token").description("The generated access token"),
-                                   fieldWithPath("refresh_token").description("The generated refresh token")
+                                   fieldWithPath("accessToken").description("The generated access token"),
+                                   fieldWithPath("refreshToken").description("The generated refresh token")
                            )
                        )
                        // @formatter:on
@@ -116,7 +116,7 @@ class AuthenticationRestControllerDocumentationIT extends RestDocsWebMvcTestCont
             var encodedToken = jwtAuthentication.refreshToken();
             var requestBody = """
                     {
-                        "refresh_token": "%s"
+                        "refreshToken": "%s"
                     }
                     """.formatted(encodedToken.encodedTokenValue());
             var response = new RefreshAuthenticationResponse("sample.access.token", "sample.refresh.token");
@@ -132,11 +132,11 @@ class AuthenticationRestControllerDocumentationIT extends RestDocsWebMvcTestCont
                    // @formatter:off
                        document("refresh-authentication",
                            requestFields(
-                                   fields.withPath("refresh_token", "refreshToken").description("The refresh token to renew the session")
+                                   fields.withPath("refreshToken").description("The refresh token to renew the session")
                            ),
                            responseFields(
-                                   fieldWithPath("access_token").description("The new access token"),
-                                   fieldWithPath("refresh_token").description("The new refresh token")
+                                   fieldWithPath("accessToken").description("The new access token"),
+                                   fieldWithPath("refreshToken").description("The new refresh token")
                            )
                        )
                        // @formatter:on
@@ -156,7 +156,7 @@ class AuthenticationRestControllerDocumentationIT extends RestDocsWebMvcTestCont
             var encodedToken = jwtAuthentication.accessToken();
             var requestBody = """
                     {
-                        "access_token": "%s"
+                        "accessToken": "%s"
                     }
                     """.formatted(encodedToken.encodedTokenValue());
 
@@ -171,7 +171,7 @@ class AuthenticationRestControllerDocumentationIT extends RestDocsWebMvcTestCont
                    // @formatter:off
                        document("revoke-authentication",
                            requestFields(
-                                   fields.withPath("access_token", "accessToken").description("The access token identifying the session to revoke")
+                                   fields.withPath("accessToken").description("The access token identifying the session to revoke")
                            )
                        )
                        // @formatter:on
@@ -197,9 +197,9 @@ class AuthenticationRestControllerDocumentationIT extends RestDocsWebMvcTestCont
                                fieldWithPath("status").description("HTTP status code"),
                                fieldWithPath("detail").description("Human-readable explanation of the problem"),
                                fieldWithPath("error").description("Machine-readable error code"),
-                               fieldWithPath("field_errors").description("List of validation errors"),
-                               fieldWithPath("field_errors[].field").description("Field that failed validation"),
-                               fieldWithPath("field_errors[].message").description("Validation error message")
+                               fieldWithPath("fieldErrors").description("List of validation errors"),
+                               fieldWithPath("fieldErrors[].field").description("Field that failed validation"),
+                               fieldWithPath("fieldErrors[].message").description("Validation error message")
                            )
                        )
                    // @formatter:on

@@ -29,3 +29,7 @@ com.bcn.asapp.<service>/
 ```
 
 Dependency rule: `infrastructure → application → domain`. Never reverse.
+
+## Architecture tests
+
+ArchUnit fitness functions live in `<service>.architecture` (test scope), grouped by concern (e.g. `JsonNamingConventionTests`) — never mirrored into the package they scan. Drive the scope with `@AnalyzeClasses(packages = ...)`; the test's own package is irrelevant to what gets analyzed.

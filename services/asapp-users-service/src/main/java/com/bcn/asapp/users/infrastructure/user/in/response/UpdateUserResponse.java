@@ -18,8 +18,6 @@ package com.bcn.asapp.users.infrastructure.user.in.response;
 
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * Response for a successfully updated user.
  *
@@ -28,5 +26,5 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  * @author attrigo
  */
 public record UpdateUserResponse(
-        @JsonProperty("user_id") UUID userId
+        UUID userId
 ) {}
