@@ -1,7 +1,7 @@
 # Enforce camelCase JSON Naming Globally — Design
 
 **Date:** 2026-06-04
-**Status:** Designed
+**Status:** Implemented
 **Targets:** `asapp-authentication-service`, `asapp-tasks-service`, `asapp-users-service`, `asapp-rest-clients`, `central-config`
 
 ---
@@ -351,3 +351,71 @@ A change set satisfying this design must:
   consistent with camelCase.
 - Pass `mvn clean verify` across all modules (run by the developer, not the
   agent).
+
+## 10. Post-implementation notes
+
+This spec was written before implementation. The work was built from the plan
+(`docs/superpowers/plans/2026-06-04-enforce-camelcase-json-naming.md`) across
+commits `e41446a9`–`cbb2eaa3`, then refined through a manual review pass
+(commits `d15ec1e7`–`1987941d`). The plan implementation shipped the design
+substantially as written — the 24 DTOs were flipped, `field_errors` became
+`fieldErrors`, the global config line and the three ArchUnit guards landed, and
+all tests/docs were realigned to camelCase. The manual review made no
+behavioral reversals; it polished naming, placement, and documentation. As with
+the error-handler spec, **the canonical implementation is the current state of
+the code**, not this document. Notable manual-review deltas:
+
+- **ArchUnit guard renamed and its condition reframed.**
+  `JsonNamingConventionTest` → `JsonNamingConventionTests` in all three services
+  (matching the project's `*Tests` unit-suite naming convention — so the
+  `JsonNamingConventionTest` name used throughout §3.4, §4.3, §6 and §9 is now
+  plural). The custom condition `notRenameViaJsonProperty()` was renamed to
+  `haveJsonNameMatchingFieldName()` (positive framing), and its violation
+  message is now built from `JavaField.getFullName()` via `String.formatted(...)`
+  instead of `getOwner().getSimpleName()` + the field name with `String.format`.
+  Behavior is unchanged: a renaming `@JsonProperty` still fails the build.
+
+- **ArchUnit conventions documented in `.claude/rules/architecture.md`.** A new
+  "Architecture tests" section was added stating that ArchUnit fitness functions
+  live in `<service>.architecture` (test scope), grouped by concern, are never
+  mirrored into the package they scan, and drive their scope via
+  `@AnalyzeClasses(packages = ...)`. The plan only created the test classes; the
+  rule documentation was added during review, making `architecture.md` a second
+  binding contract for this kind of test alongside `rest.md`.
+
+- **`RestDocsConstrainedFields.withPath` collapsed to a single overload.** The
+  plan collapsed every two-arg `withPath(jsonPath, javaProperty)` call site to
+  the single-arg form (JSON path now equals the Java property) but left the
+  two-arg overload in place. The manual review deleted the now-unused two-arg
+  overload (and its Javadoc) from all three services' test util, leaving only
+  `withPath(String path)`.
+
+- **Global Jackson config trimmed and reordered.** The four-line
+  "documentation, not enforcement" comment that §3.3 and the plan added above
+  `spring.jackson.property-naming-strategy=LOWER_CAMEL_CASE` was removed, and the
+  property was reordered before `spring.jackson.default-property-inclusion=NON_NULL`.
+  The "config documents intent, ArchUnit enforces" rationale (§2 decision 3,
+  §3.3) now lives only in this spec and the rule files — not as an inline
+  comment in `central-config/application.properties`.
+
+- **ArchUnit reclassified in the parent BOM.** The plan placed `archunit-junit5`
+  under `<!-- ## Org Dependencies -->` (before `pitest-junit5-plugin`). The
+  manual review moved it to a new `<!-- ## Other Dependencies -->` group in both
+  the `<properties>` version block and `<dependencyManagement>`, since
+  `com.tngtech.archunit` is a third-party (not `org.*`) dependency — aligning the
+  parent POM with the per-service POMs, which already grouped it under "Other".
+
+- **`.claude/rules/rest.md` rule statements trimmed.** The two camelCase DTO
+  bullets landed (per plan Task 6) carrying their parenthetical rationale
+  ("Jackson's default — Java fields are already camelCase"; "enforced per service
+  by `JsonNamingConventionTest` (ArchUnit)"). The manual review trimmed both to
+  terse, prescriptive rule statements ("Request and response fields use camelCase
+  serialization names"; "Do not use `@JsonProperty` to rename fields"), keeping
+  the rule file directive rather than explanatory.
+
+**For future JSON-naming or architecture-test edits**, treat the current code —
+the three `JsonNamingConventionTests` classes, the flipped `..in.request` /
+`..in.response` DTOs, and `central-config/application.properties` — as the
+template, and `.claude/rules/rest.md` plus `.claude/rules/architecture.md` as the
+binding contracts. This spec is preserved as a record of the original design
+intent and the reasoning behind the shipped shape.
