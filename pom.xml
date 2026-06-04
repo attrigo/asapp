@@ -50,6 +50,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Dependencies Versions -->
+        <archunit.version>1.4.1</archunit.version>
         <!-- # CVE Dependencies (Overrides SB4 BOM) -->
         <jackson-bom.version>3.1.1</jackson-bom.version>
 
@@ -71,6 +72,12 @@
         <dependencies>
             <!-- # Test Dependencies -->
             <!-- ## Org Dependencies -->
+            <dependency>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit-junit5</artifactId>
+                <version>${archunit.version}</version>
+                <scope>test</scope>
+            </dependency>
             <dependency>
                 <groupId>org.pitest</groupId>
                 <artifactId>pitest-junit5-plugin</artifactId>
