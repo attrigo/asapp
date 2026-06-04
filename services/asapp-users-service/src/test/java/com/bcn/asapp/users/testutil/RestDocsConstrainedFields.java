@@ -43,27 +43,12 @@ public class RestDocsConstrainedFields {
 
     /**
      * Returns a field descriptor for the given path, enriched with its Bean Validation constraints.
-     * <p>
-     * Use when the JSON path matches the Java property name.
      *
-     * @param path the JSON path and Java property name
+     * @param path the JSON path, which equals the Java property name used to look up constraints
      * @return the enriched field descriptor
      */
     public FieldDescriptor withPath(String path) {
-        return withPath(path, path);
-    }
-
-    /**
-     * Returns a field descriptor for the given path, enriched with its Bean Validation constraints.
-     * <p>
-     * Use when the JSON path differs from the Java property name.
-     *
-     * @param jsonPath     the JSON field path used in the snippet
-     * @param javaProperty the Java property name used to look up constraints
-     * @return the enriched field descriptor
-     */
-    public FieldDescriptor withPath(String jsonPath, String javaProperty) {
-        return fieldWithPath(jsonPath).attributes(key("constraints").value(String.join(". ", constraintDescriptions.descriptionsForProperty(javaProperty))));
+        return fieldWithPath(path).attributes(key("constraints").value(String.join(". ", constraintDescriptions.descriptionsForProperty(path))));
     }
 
 }
