@@ -34,29 +34,27 @@ import com.tngtech.archunit.lang.SimpleConditionEvent;
  * @author attrigo
  */
 @AnalyzeClasses(packages = "com.bcn.asapp.tasks.infrastructure", importOptions = ImportOption.DoNotIncludeTests.class)
-class JsonNamingConventionTest {
+class JsonNamingConventionTests {
 
     @ArchTest
     static final ArchRule requestResponseDtoFieldsUseCamelCaseJson = fields().that()
                                                                              .areDeclaredInClassesThat()
                                                                              .resideInAnyPackage("..in.request..", "..in.response..")
-                                                                             .should(notRenameViaJsonProperty());
+                                                                             .should(haveJsonNameMatchingFieldName());
 
-    private static ArchCondition<JavaField> notRenameViaJsonProperty() {
-        return new ArchCondition<>("not rename the JSON property (the camelCase Java field name is the wire name)") {
+    private static ArchCondition<JavaField> haveJsonNameMatchingFieldName() {
+        return new ArchCondition<>("have a JSON property name matching the camelCase Java field name") {
 
             @Override
             public void check(JavaField field, ConditionEvents events) {
                 field.tryGetAnnotationOfType(JsonProperty.class)
                      .ifPresent(annotation -> {
+                         var fieldName = field.getName();
                          var jsonName = annotation.value();
 
-                         if (!jsonName.isEmpty() && !jsonName.equals(field.getName())) {
-                             var message = String.format(
-                                     "%s.%s is annotated @JsonProperty(\"%s\"); request/response JSON must be camelCase — remove the annotation or set the value to \"%s\"",
-                                     field.getOwner()
-                                          .getSimpleName(),
-                                     field.getName(), jsonName, field.getName());
+                         if (!jsonName.isEmpty() && !jsonName.equals(fieldName)) {
+                             var message = "%s is annotated @JsonProperty(\"%s\"); request/response JSON must be camelCase — remove the annotation or set the value to \"%s\"".formatted(
+                                     field.getFullName(), jsonName, fieldName);
                              events.add(SimpleConditionEvent.violated(field, message));
                          }
                      });
