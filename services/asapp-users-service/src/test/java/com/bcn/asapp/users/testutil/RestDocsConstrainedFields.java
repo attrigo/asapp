@@ -56,7 +56,7 @@ public class RestDocsConstrainedFields {
     /**
      * Returns a field descriptor for the given path, enriched with its Bean Validation constraints.
      * <p>
-     * Use when the JSON path differs from the Java property name (e.g. {@code user_id} vs {@code userId}).
+     * Use when the JSON path differs from the Java property name.
      *
      * @param jsonPath     the JSON field path used in the snippet
      * @param javaProperty the Java property name used to look up constraints

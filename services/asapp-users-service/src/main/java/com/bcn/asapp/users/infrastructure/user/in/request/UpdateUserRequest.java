@@ -19,8 +19,6 @@ package com.bcn.asapp.users.infrastructure.user.in.request;
 import static com.bcn.asapp.users.domain.user.Email.SUPPORTED_EMAIL_PATTERN;
 import static com.bcn.asapp.users.domain.user.PhoneNumber.SUPPORTED_PHONE_NUMBER_PATTERN;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -38,8 +36,8 @@ import jakarta.validation.constraints.Pattern;
  * @author attrigo
  */
 public record UpdateUserRequest(
-        @JsonProperty("first_name") @NotBlank(message = "The first name must not be empty") String firstName,
-        @JsonProperty("last_name") @NotBlank(message = "The last name must not be empty") String lastName,
+        @NotBlank(message = "The first name must not be empty") String firstName,
+        @NotBlank(message = "The last name must not be empty") String lastName,
         @NotBlank(message = "The email must not be empty") @Email(regexp = SUPPORTED_EMAIL_PATTERN, message = "The email must be a valid email address") String email,
-        @JsonProperty("phone_number") @NotBlank(message = "The phone number must not be empty") @Pattern(regexp = SUPPORTED_PHONE_NUMBER_PATTERN, message = "The phone number must be a valid phone number") String phoneNumber
+        @NotBlank(message = "The phone number must not be empty") @Pattern(regexp = SUPPORTED_PHONE_NUMBER_PATTERN, message = "The phone number must be a valid phone number") String phoneNumber
 ) {}
