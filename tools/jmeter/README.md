@@ -15,8 +15,8 @@ tools/jmeter/
 ├── asapp-regression.jmx   # deterministic gate plan
 ├── asapp-stress.jmx        # nested-loop load plan
 ├── env/local-docker.properties  # service URLs and load knobs
-├── lib/jmeter-version.properties  # pinned JMeter version + SHA-512
 ├── scripts/ensure-jmeter.sh  # auto-download on first run
+├── scripts/jmeter-version.properties  # pinned JMeter version + SHA-512
 ├── run-regression.sh       # pre-release gate runner
 └── run-stress.sh           # observation runner
 ```
@@ -98,6 +98,6 @@ JMETER_BIN="$(bash tools/jmeter/scripts/ensure-jmeter.sh)"
 
 ## Upgrading JMeter
 
-Edit the three lines in `lib/jmeter-version.properties` (version, URL, SHA-512 from the published
+Edit the three lines in `scripts/jmeter-version.properties` (version, URL, SHA-512 from the published
 `apache-jmeter-<version>.zip.sha512`), delete `.runtime/`, and re-run — the script re-downloads and
 re-verifies.

@@ -14,7 +14,7 @@ fi
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 JMETER_TOOL_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"   # tools/jmeter
 RUNTIME_DIR="$JMETER_TOOL_DIR/.runtime"
-VERSION_FILE="$JMETER_TOOL_DIR/lib/jmeter-version.properties"
+VERSION_FILE="$SCRIPT_DIR/jmeter-version.properties"
 
 # Load JMETER_VERSION / JMETER_URL / JMETER_SHA512
 JMETER_VERSION="$(grep '^JMETER_VERSION=' "$VERSION_FILE" | cut -d= -f2)"
