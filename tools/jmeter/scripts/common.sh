@@ -12,6 +12,29 @@ SCRIPTS_DIR="$JMETER_TOOL_DIR/scripts"
 ENV_FILE="$JMETER_TOOL_DIR/env/local.properties"
 RESULTS_DIR="$JMETER_TOOL_DIR/results"
 
+# --- execution tracing ----------------------------------------------------------
+# Run scripts set STEP_TOTAL to the number of phases they will run; log_step then
+# stamps each phase as a timestamped [x/y] line on stderr, so a run reads as a trace.
+STEP=0
+STEP_TOTAL=0
+
+# _trace <step-number> <message>: one "[HH:MM:SS] [n/total] message" line on stderr.
+_trace() {
+  printf '[%s] [%s/%s] %s\n' "$(date +%H:%M:%S)" "$1" "$STEP_TOTAL" "$2" >&2
+}
+
+# log_step <message>: advance to the next step and trace it.
+log_step() {
+  STEP=$((STEP + 1))
+  _trace "$STEP" "$1"
+}
+
+# log_step_end <message>: trace another line for the current step without advancing
+# (e.g. the "finished" line that pairs with a "running" line).
+log_step_end() {
+  _trace "$STEP" "$1"
+}
+
 # preflight: check the three docker-compose services answer their readiness probe
 # before a run starts. Exits 1 with guidance if any service is down.
 preflight() {
@@ -22,7 +45,7 @@ preflight() {
     "http://localhost:8081/asapp-tasks-service/readyz"
     "http://localhost:8082/asapp-users-service/readyz"
   )
-  echo "Pre-flight: checking service readiness..." >&2
+  log_step "Pre-flight: checking service readiness"
   local u
   for u in "${urls[@]}"; do
     if ! curl -fsS -o /dev/null --max-time 5 "$u"; then
@@ -50,6 +73,9 @@ run_plan() {
   LOG="$RESULTS_DIR/$label-$ts.log"
   REPORT="$RESULTS_DIR/$label-$ts-report"
 
+  log_step "Running $label plan: $plan"
+  local start rc=0
+  start="$(date +%s)"
   "$JMETER_BIN" -n \
     -t "$plan" \
     -q "$ENV_FILE" \
@@ -58,5 +84,7 @@ run_plan() {
     -e -o "$REPORT" \
     -Jjmeter.save.saveservice.output_format=csv \
     -Jjmeter.save.saveservice.print_field_names=true \
-    "$@"
+    "$@" || rc=$?
+  log_step_end "Finished $label plan: $(( $(date +%s) - start ))s elapsed (exit $rc)"
+  (( rc == 0 )) || exit "$rc"
 }

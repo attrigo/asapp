@@ -18,13 +18,18 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PREFLIGHT=1
 if [[ "${1:-}" == "--no-preflight" ]]; then PREFLIGHT=0; shift; fi
 
+# Steps traced as [x/y]: resolve Java, provision, [pre-flight], run.
+STEP_TOTAL=$(( PREFLIGHT == 1 ? 4 : 3 ))
+
 # The stress plan uses JSR223/Groovy; JMeter's bundled Groovy 3.0.20 cannot run on a
 # JDK newer than Java 21. Resolve & validate a Java 17/21 JVM (JMETER_JAVA_HOME or
 # JAVA_HOME) and export JAVA_HOME so the JMeter launcher below uses it. Validate before
 # the download so a misconfigured JVM aborts instantly.
 . "$SCRIPT_DIR/scripts/resolve-java.sh"
 
+log_step "Provisioning JMeter"
 JMETER_BIN="$("$SCRIPTS_DIR/ensure-jmeter.sh")"
+
 (( PREFLIGHT == 1 )) && preflight
 
 run_plan stress "$SCRIPT_DIR/asapp-stress.jmx" "$@"

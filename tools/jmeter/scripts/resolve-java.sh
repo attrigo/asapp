@@ -71,7 +71,7 @@ _resolve_jmeter_java() {
   fi
 
   export JAVA_HOME="$java_home"
-  echo "Using Java $ver_major for JMeter: $java_home" >&2
+  log_step "Resolved Java $ver_major for JMeter: $java_home"
 }
 
 _resolve_jmeter_java

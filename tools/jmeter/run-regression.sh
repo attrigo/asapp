@@ -17,10 +17,17 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PREFLIGHT=1
 if [[ "${1:-}" == "--no-preflight" ]]; then PREFLIGHT=0; shift; fi
 
+# Steps traced as [x/y]: provision, [pre-flight], run, evaluate.
+STEP_TOTAL=$(( PREFLIGHT == 1 ? 4 : 3 ))
+
+log_step "Provisioning JMeter"
 JMETER_BIN="$("$SCRIPTS_DIR/ensure-jmeter.sh")"
+
 (( PREFLIGHT == 1 )) && preflight
 
 run_plan regression "$SCRIPT_DIR/asapp-regression.jmx" "$@"
+
+log_step "Evaluating results"
 
 # Sanity check: JTL must have at least one data row (header + 1 sample).
 line_count="$(wc -l < "$JTL")"
