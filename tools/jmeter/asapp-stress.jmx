@@ -10,7 +10,7 @@
       </elementProp>
     </TestPlan>
     <hashTree>
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="props">
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Configuration">
         <collectionProp name="Arguments.arguments">
           <elementProp name="auth.scheme" elementType="Argument">
             <stringProp name="Argument.name">auth.scheme</stringProp>
@@ -110,7 +110,7 @@
         </collectionProp>
       </Arguments>
       <hashTree/>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="stress">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Stress Test">
         <stringProp name="ThreadGroup.num_threads">${threads}</stringProp>
         <stringProp name="ThreadGroup.ramp_time">${rampup}</stringProp>
         <stringProp name="ThreadGroup.duration">${duration}</stringProp>
@@ -123,7 +123,7 @@
         </elementProp>
       </ThreadGroup>
       <hashTree>
-        <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="per-pass vars" enabled="true">
+        <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="Test Data" enabled="true">
           <collectionProp name="UserParameters.names">
             <stringProp name="0">username</stringProp>
           </collectionProp>
@@ -135,7 +135,7 @@
           <boolProp name="UserParameters.per_iteration">true</boolProp>
         </UserParameters>
         <hashTree/>
-        <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Content-Type" enabled="true">
+        <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Content-Type Header" enabled="true">
           <collectionProp name="HeaderManager.headers">
             <elementProp name="" elementType="Header">
               <stringProp name="Header.name">Content-Type</stringProp>
@@ -144,7 +144,7 @@
           </collectionProp>
         </HeaderManager>
         <hashTree/>
-        <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="2xx (light)" enabled="true">
+        <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Response Code 2xx" enabled="true">
           <collectionProp name="Asserion.test_strings">
             <stringProp name="49015874">2\d\d</stringProp>
           </collectionProp>
@@ -154,7 +154,7 @@
           <intProp name="Assertion.test_type">1</intProp>
         </ResponseAssertion>
         <hashTree/>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01 register" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01 - Register User" enabled="true">
           <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
           <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
           <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
@@ -174,7 +174,7 @@
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="init pass lists" enabled="true">
+          <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="Initialize Pass Id Lists" enabled="true">
             <stringProp name="cacheKey">true</stringProp>
             <stringProp name="filename"></stringProp>
             <stringProp name="parameters"></stringProp>
@@ -186,14 +186,14 @@
             <stringProp name="scriptLanguage">groovy</stringProp>
           </JSR223PreProcessor>
           <hashTree/>
-          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="authUserId" enabled="true">
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Response Body UserId" enabled="true">
             <stringProp name="JSONPostProcessor.referenceNames">authUserId</stringProp>
             <stringProp name="JSONPostProcessor.jsonPathExprs">$.userId</stringProp>
             <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
           </JSONPostProcessor>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02 token" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02 - Authenticate User (JWT)" enabled="true">
           <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
           <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
           <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
@@ -213,20 +213,20 @@
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="accessToken" enabled="true">
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Response Body AccessToken" enabled="true">
             <stringProp name="JSONPostProcessor.referenceNames">accessToken</stringProp>
             <stringProp name="JSONPostProcessor.jsonPathExprs">$.accessToken</stringProp>
             <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
           </JSONPostProcessor>
           <hashTree/>
-          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="refreshToken" enabled="true">
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Response Body RefreshToken" enabled="true">
             <stringProp name="JSONPostProcessor.referenceNames">refreshToken</stringProp>
             <stringProp name="JSONPostProcessor.jsonPathExprs">$.refreshToken</stringProp>
             <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
           </JSONPostProcessor>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="03 get auth user" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="03 - Get Authentication User" enabled="true">
           <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
           <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
           <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
@@ -240,7 +240,7 @@
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Authentication Header (Bearer)" enabled="true">
             <collectionProp name="HeaderManager.headers">
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">Authorization</stringProp>
@@ -250,7 +250,7 @@
           </HeaderManager>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="04 update auth user" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="04 - Update Authentication User" enabled="true">
           <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
           <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
           <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
@@ -270,7 +270,7 @@
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Authentication Header (Bearer)" enabled="true">
             <collectionProp name="HeaderManager.headers">
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">Authorization</stringProp>
@@ -280,7 +280,7 @@
           </HeaderManager>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="05 get all auth users" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="05 - Get All Authentication Users" enabled="true">
           <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
           <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
           <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
@@ -294,7 +294,7 @@
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Authentication Header (Bearer)" enabled="true">
             <collectionProp name="HeaderManager.headers">
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">Authorization</stringProp>
@@ -304,7 +304,7 @@
           </HeaderManager>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="06 refresh" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="06 - Refresh Authentication (JWT)" enabled="true">
           <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
           <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
           <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
@@ -324,13 +324,13 @@
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="accessToken" enabled="true">
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Response Body AccessToken" enabled="true">
             <stringProp name="JSONPostProcessor.referenceNames">accessToken</stringProp>
             <stringProp name="JSONPostProcessor.jsonPathExprs">$.accessToken</stringProp>
             <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
           </JSONPostProcessor>
           <hashTree/>
-          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="refreshToken" enabled="true">
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Response Body RefreshToken" enabled="true">
             <stringProp name="JSONPostProcessor.referenceNames">refreshToken</stringProp>
             <stringProp name="JSONPostProcessor.jsonPathExprs">$.refreshToken</stringProp>
             <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
@@ -342,7 +342,7 @@
           <stringProp name="LoopController.loops">${__Random(1,${users.per.pass.max})}</stringProp>
         </LoopController>
         <hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="07 create user" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="07 - Create User" enabled="true">
             <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
             <stringProp name="HTTPSampler.port">${users.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
@@ -362,7 +362,7 @@
             </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Authentication Header (Bearer)" enabled="true">
               <collectionProp name="HeaderManager.headers">
                 <elementProp name="" elementType="Header">
                   <stringProp name="Header.name">Authorization</stringProp>
@@ -371,13 +371,13 @@
               </collectionProp>
             </HeaderManager>
             <hashTree/>
-            <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="userId" enabled="true">
+            <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Response Body UserId" enabled="true">
               <stringProp name="JSONPostProcessor.referenceNames">userId</stringProp>
               <stringProp name="JSONPostProcessor.jsonPathExprs">$.userId</stringProp>
               <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
             </JSONPostProcessor>
             <hashTree/>
-            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="append userId" enabled="true">
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Append UserId" enabled="true">
               <stringProp name="cacheKey">true</stringProp>
               <stringProp name="filename"></stringProp>
               <stringProp name="parameters"></stringProp>
@@ -387,7 +387,7 @@ n++; vars.put(&apos;userIdsCount&apos;, n.toString()); vars.put(&apos;userIds_&a
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="08 get user (cold fan-out)" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="08 - Get User By Id (cold fan-out)" enabled="true">
             <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
             <stringProp name="HTTPSampler.port">${users.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
@@ -401,7 +401,7 @@ n++; vars.put(&apos;userIdsCount&apos;, n.toString()); vars.put(&apos;userIds_&a
             </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Authentication Header (Bearer)" enabled="true">
               <collectionProp name="HeaderManager.headers">
                 <elementProp name="" elementType="Header">
                   <stringProp name="Header.name">Authorization</stringProp>
@@ -411,7 +411,7 @@ n++; vars.put(&apos;userIdsCount&apos;, n.toString()); vars.put(&apos;userIds_&a
             </HeaderManager>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="09 update user" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="09 - Update User" enabled="true">
             <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
             <stringProp name="HTTPSampler.port">${users.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
@@ -431,7 +431,7 @@ n++; vars.put(&apos;userIdsCount&apos;, n.toString()); vars.put(&apos;userIds_&a
             </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Authentication Header (Bearer)" enabled="true">
               <collectionProp name="HeaderManager.headers">
                 <elementProp name="" elementType="Header">
                   <stringProp name="Header.name">Authorization</stringProp>
@@ -441,7 +441,7 @@ n++; vars.put(&apos;userIdsCount&apos;, n.toString()); vars.put(&apos;userIds_&a
             </HeaderManager>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="10 get all users" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="10 - Get All Users" enabled="true">
             <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
             <stringProp name="HTTPSampler.port">${users.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
@@ -455,7 +455,7 @@ n++; vars.put(&apos;userIdsCount&apos;, n.toString()); vars.put(&apos;userIds_&a
             </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Authentication Header (Bearer)" enabled="true">
               <collectionProp name="HeaderManager.headers">
                 <elementProp name="" elementType="Header">
                   <stringProp name="Header.name">Authorization</stringProp>
@@ -470,7 +470,7 @@ n++; vars.put(&apos;userIdsCount&apos;, n.toString()); vars.put(&apos;userIds_&a
             <stringProp name="LoopController.loops">${__Random(1,${tasks.per.user.max})}</stringProp>
           </LoopController>
           <hashTree>
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="11 create task" enabled="true">
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="11 - Create Task" enabled="true">
               <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
               <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
               <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
@@ -490,7 +490,7 @@ n++; vars.put(&apos;userIdsCount&apos;, n.toString()); vars.put(&apos;userIds_&a
               </elementProp>
             </HTTPSamplerProxy>
             <hashTree>
-              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Authentication Header (Bearer)" enabled="true">
                 <collectionProp name="HeaderManager.headers">
                   <elementProp name="" elementType="Header">
                     <stringProp name="Header.name">Authorization</stringProp>
@@ -499,13 +499,13 @@ n++; vars.put(&apos;userIdsCount&apos;, n.toString()); vars.put(&apos;userIds_&a
                 </collectionProp>
               </HeaderManager>
               <hashTree/>
-              <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="taskId" enabled="true">
+              <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="Extract Response Body TaskId" enabled="true">
                 <stringProp name="JSONPostProcessor.referenceNames">taskId</stringProp>
                 <stringProp name="JSONPostProcessor.jsonPathExprs">$.taskId</stringProp>
                 <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
               </JSONPostProcessor>
               <hashTree/>
-              <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="append taskId" enabled="true">
+              <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Append TaskId" enabled="true">
                 <stringProp name="cacheKey">true</stringProp>
                 <stringProp name="filename"></stringProp>
                 <stringProp name="parameters"></stringProp>
@@ -515,7 +515,7 @@ n++; vars.put(&apos;taskIdsCount&apos;, n.toString()); vars.put(&apos;taskIds_&a
               </JSR223PostProcessor>
               <hashTree/>
             </hashTree>
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="12 get task" enabled="true">
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="12 - Get Task By Id" enabled="true">
               <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
               <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
               <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
@@ -529,7 +529,7 @@ n++; vars.put(&apos;taskIdsCount&apos;, n.toString()); vars.put(&apos;taskIds_&a
               </elementProp>
             </HTTPSamplerProxy>
             <hashTree>
-              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Authentication Header (Bearer)" enabled="true">
                 <collectionProp name="HeaderManager.headers">
                   <elementProp name="" elementType="Header">
                     <stringProp name="Header.name">Authorization</stringProp>
@@ -539,7 +539,7 @@ n++; vars.put(&apos;taskIdsCount&apos;, n.toString()); vars.put(&apos;taskIds_&a
               </HeaderManager>
               <hashTree/>
             </hashTree>
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="13 update task" enabled="true">
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="13 - Update Task" enabled="true">
               <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
               <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
               <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
@@ -559,7 +559,7 @@ n++; vars.put(&apos;taskIdsCount&apos;, n.toString()); vars.put(&apos;taskIds_&a
               </elementProp>
             </HTTPSamplerProxy>
             <hashTree>
-              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Authentication Header (Bearer)" enabled="true">
                 <collectionProp name="HeaderManager.headers">
                   <elementProp name="" elementType="Header">
                     <stringProp name="Header.name">Authorization</stringProp>
@@ -569,7 +569,7 @@ n++; vars.put(&apos;taskIdsCount&apos;, n.toString()); vars.put(&apos;taskIds_&a
               </HeaderManager>
               <hashTree/>
             </hashTree>
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="14 tasks by ids" enabled="true">
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="14 - Get Tasks By Ids" enabled="true">
               <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
               <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
               <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
@@ -590,7 +590,7 @@ n++; vars.put(&apos;taskIdsCount&apos;, n.toString()); vars.put(&apos;taskIds_&a
               </elementProp>
             </HTTPSamplerProxy>
             <hashTree>
-              <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="build ids csv (cap 50)" enabled="true">
+              <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="Build Task Ids CSV (cap 50)" enabled="true">
                 <stringProp name="cacheKey">true</stringProp>
                 <stringProp name="filename"></stringProp>
                 <stringProp name="parameters"></stringProp>
@@ -602,7 +602,7 @@ vars.put(&apos;taskIdsCsv&apos;, ids.join(&apos;,&apos;))</stringProp>
                 <stringProp name="scriptLanguage">groovy</stringProp>
               </JSR223PreProcessor>
               <hashTree/>
-              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Authentication Header (Bearer)" enabled="true">
                 <collectionProp name="HeaderManager.headers">
                   <elementProp name="" elementType="Header">
                     <stringProp name="Header.name">Authorization</stringProp>
@@ -613,7 +613,7 @@ vars.put(&apos;taskIdsCsv&apos;, ids.join(&apos;,&apos;))</stringProp>
               <hashTree/>
             </hashTree>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="15 tasks by user" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="15 - Get Tasks By User Id" enabled="true">
             <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
             <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
@@ -627,7 +627,7 @@ vars.put(&apos;taskIdsCsv&apos;, ids.join(&apos;,&apos;))</stringProp>
             </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Authentication Header (Bearer)" enabled="true">
               <collectionProp name="HeaderManager.headers">
                 <elementProp name="" elementType="Header">
                   <stringProp name="Header.name">Authorization</stringProp>
@@ -637,7 +637,7 @@ vars.put(&apos;taskIdsCsv&apos;, ids.join(&apos;,&apos;))</stringProp>
             </HeaderManager>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="16 get user (warm fan-out)" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="16 - Get User By Id (warm fan-out)" enabled="true">
             <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
             <stringProp name="HTTPSampler.port">${users.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
@@ -651,7 +651,7 @@ vars.put(&apos;taskIdsCsv&apos;, ids.join(&apos;,&apos;))</stringProp>
             </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Authentication Header (Bearer)" enabled="true">
               <collectionProp name="HeaderManager.headers">
                 <elementProp name="" elementType="Header">
                   <stringProp name="Header.name">Authorization</stringProp>
@@ -662,7 +662,7 @@ vars.put(&apos;taskIdsCsv&apos;, ids.join(&apos;,&apos;))</stringProp>
             <hashTree/>
           </hashTree>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="17 get all tasks" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="17 - Get All Tasks" enabled="true">
           <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
           <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
           <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
@@ -676,7 +676,7 @@ vars.put(&apos;taskIdsCsv&apos;, ids.join(&apos;,&apos;))</stringProp>
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Authentication Header (Bearer)" enabled="true">
             <collectionProp name="HeaderManager.headers">
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">Authorization</stringProp>
@@ -692,7 +692,7 @@ vars.put(&apos;taskIdsCsv&apos;, ids.join(&apos;,&apos;))</stringProp>
           <boolProp name="ForeachController.useSeparator">true</boolProp>
         </ForeachController>
         <hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="18 delete task" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="18 - Delete Task" enabled="true">
             <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
             <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
@@ -706,7 +706,7 @@ vars.put(&apos;taskIdsCsv&apos;, ids.join(&apos;,&apos;))</stringProp>
             </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Authentication Header (Bearer)" enabled="true">
               <collectionProp name="HeaderManager.headers">
                 <elementProp name="" elementType="Header">
                   <stringProp name="Header.name">Authorization</stringProp>
@@ -723,7 +723,7 @@ vars.put(&apos;taskIdsCsv&apos;, ids.join(&apos;,&apos;))</stringProp>
           <boolProp name="ForeachController.useSeparator">true</boolProp>
         </ForeachController>
         <hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="19 delete user" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="19 - Delete User" enabled="true">
             <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
             <stringProp name="HTTPSampler.port">${users.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
@@ -737,7 +737,7 @@ vars.put(&apos;taskIdsCsv&apos;, ids.join(&apos;,&apos;))</stringProp>
             </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Authentication Header (Bearer)" enabled="true">
               <collectionProp name="HeaderManager.headers">
                 <elementProp name="" elementType="Header">
                   <stringProp name="Header.name">Authorization</stringProp>
@@ -748,7 +748,7 @@ vars.put(&apos;taskIdsCsv&apos;, ids.join(&apos;,&apos;))</stringProp>
             <hashTree/>
           </hashTree>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="20 delete auth user" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="20 - Delete Authentication User" enabled="true">
           <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
           <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
           <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
@@ -762,7 +762,7 @@ vars.put(&apos;taskIdsCsv&apos;, ids.join(&apos;,&apos;))</stringProp>
           </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Authentication Header (Bearer)" enabled="true">
             <collectionProp name="HeaderManager.headers">
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">Authorization</stringProp>
@@ -772,7 +772,7 @@ vars.put(&apos;taskIdsCsv&apos;, ids.join(&apos;,&apos;))</stringProp>
           </HeaderManager>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="21 revoke" enabled="true">
+        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="21 - Revoke Authentication (JWT)" enabled="true">
           <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
           <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
           <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
