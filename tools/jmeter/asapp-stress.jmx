@@ -338,7 +338,7 @@
           </JSONPostProcessor>
           <hashTree/>
         </hashTree>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Users Loop (x)" enabled="true">
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Users Loop" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">${__Random(1,${users.per.pass.max})}</stringProp>
         </LoopController>
@@ -379,6 +379,7 @@
             </JSONPostProcessor>
             <hashTree/>
             <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Append UserId" enabled="true">
+              <stringProp name="TestPlan.comments">Append the created userId to the per-pass userIds list for the warm fan-out read and end-of-pass cleanup.</stringProp>
               <stringProp name="cacheKey">true</stringProp>
               <stringProp name="filename"></stringProp>
               <stringProp name="parameters"></stringProp>
@@ -466,7 +467,7 @@ n++; vars.put(&apos;userIdsCount&apos;, n.toString()); vars.put(&apos;userIds_&a
             </HeaderManager>
             <hashTree/>
           </hashTree>
-          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Tasks Loop (y)" enabled="true">
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Tasks Loop" enabled="true">
             <boolProp name="LoopController.continue_forever">false</boolProp>
             <stringProp name="LoopController.loops">${__Random(1,${tasks.per.user.max})}</stringProp>
           </LoopController>
@@ -507,6 +508,7 @@ n++; vars.put(&apos;userIdsCount&apos;, n.toString()); vars.put(&apos;userIds_&a
               </JSONPostProcessor>
               <hashTree/>
               <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Append TaskId" enabled="true">
+                <stringProp name="TestPlan.comments">Append the created taskId to the per-pass taskIds list for the by-ids read and end-of-pass cleanup.</stringProp>
                 <stringProp name="cacheKey">true</stringProp>
                 <stringProp name="filename"></stringProp>
                 <stringProp name="parameters"></stringProp>
