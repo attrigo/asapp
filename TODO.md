@@ -12,6 +12,7 @@
 * Functional Improvements
     * [X] Add operation to find tasks by list of ids
     * [X] Add operation to find users by list of ids
+    * [ ] Add boot-ui : https://github.com/jdubois/boot-ui
 * Technical Improvements
     * Error Handler
         * [X] Return validation errors in a deterministic, sorted order
@@ -21,10 +22,13 @@
         * [X] Preserve the full field path in validation errors so nested or duplicate field names don't collide
     * JSON Naming
         * [X] Enforce request/response camelCase globally
-    * [ ] Add load test with JMeter
-    * [ ] Replace REST clients by declarative HTTP clients
-        * Use circuit breaker pattern
-        * Use retry pattern
+    * Load Tests via JMeter
+        * [X] Add regression test 
+        * [X] Add stress test
+    * Improve HTTP clients 
+        * [ ] Refactor REST clients by declarative HTTP clients
+        * [ ] Use circuit breaker pattern
+        * [ ] Use retry pattern
 * CI/CD
     * [X] Update commit-msg skill to include a bulleted body in generated commit messages
     * [X] ~~Change commit-msg to perform all operations in a dedicated agent and then response with the message~~
