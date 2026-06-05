@@ -37,18 +37,26 @@ preflight() {
 PREFLIGHT=1
 if [ "${1:-}" = "--no-preflight" ]; then PREFLIGHT=0; shift; fi
 
+# The stress plan uses JSR223/Groovy; JMeter's bundled Groovy 3.0.20 cannot run on
+# Java 25. Resolve & validate a Java 17/21 JVM (JMETER_JAVA_HOME or JAVA_HOME) and
+# export JAVA_HOME so the JMeter launcher below uses it. Validate before the download
+# so a misconfigured JVM aborts instantly.
+. "$SCRIPT_DIR/scripts/resolve-java.sh"
+
 JMETER_BIN="$("$SCRIPT_DIR/scripts/ensure-jmeter.sh")"
 [ "$PREFLIGHT" -eq 1 ] && preflight
 
 mkdir -p "$RESULTS_DIR"
 TS="$(date +%Y%m%d-%H%M%S)"
 JTL="$RESULTS_DIR/stress-$TS.jtl"
+LOG="$RESULTS_DIR/stress-$TS.log"
 REPORT="$RESULTS_DIR/stress-$TS-report"
 
 "$JMETER_BIN" -n \
   -t "$PLAN" \
   -q "$ENV_FILE" \
   -l "$JTL" \
+  -j "$LOG" \
   -e -o "$REPORT" \
   -Jjmeter.save.saveservice.output_format=csv \
   -Jjmeter.save.saveservice.print_field_names=true \

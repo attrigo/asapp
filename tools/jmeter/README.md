@@ -1,7 +1,7 @@
 # JMeter load tests
 
 Two standalone [Apache JMeter](https://jmeter.apache.org/) plans that run from the CLI against the running `docker-compose` stack. They live **outside** the
-Maven build and CI nothing here runs during `mvn verify`.
+Maven build and CI — nothing here runs during `mvn verify`.
 
 - **`asapp-regression.jmx`** — a single deterministic pass over every functional endpoint, with correctness assertions. The automated pre-release go/no-go
   gate (replaces the old manual click-through).
@@ -14,6 +14,7 @@ tools/jmeter/
 ├── asapp-stress.jmx        # nested-loop load plan
 ├── env/local.properties  # service URLs and load knobs
 ├── scripts/ensure-jmeter.sh  # auto-download on first run
+├── scripts/resolve-java.sh  # pin stress runs to a Groovy-compatible JVM (Java 17/21)
 ├── scripts/jmeter-version.properties  # pinned JMeter version + SHA-512
 ├── run-regression.sh       # pre-release gate runner
 └── run-stress.sh           # observation runner
@@ -26,6 +27,10 @@ tools/jmeter/
 - **Internet on first run only** — the run scripts auto-download a pinned JMeter into `.runtime/` (gitignored) and verify its SHA-512. Subsequent runs reuse the
   cached engine.
 - Java is already required by the project; no separate JMeter install is needed.
+- **The stress plan needs Java 17 or 21.** JMeter 5.6.3 bundles Groovy 3.0.20, which cannot run on Java 25 (the project default) — its JSR223/Groovy
+  scripts fail with `Unsupported class file major version 69`. Point JMeter at a 17/21 JDK via `JMETER_JAVA_HOME` (leaving your project `JAVA_HOME` on
+  Java 25); `run-stress.sh` validates this and fails fast with guidance. The regression plan has no Groovy and runs on any supported Java (including 25),
+  so `run-regression.sh` does not require this.
 - Scripts are bash; on Windows run them via Git for Windows' bundled `bash` (the same `bash` that runs the git hooks), e.g.
   `bash tools/jmeter/run-regression.sh`.
 
@@ -36,6 +41,8 @@ tools/jmeter/
 bash tools/jmeter/run-regression.sh
 
 # Tunable concurrent load for observation (default: 20 threads for 300s).
+# Stress needs Java 17/21 (see Prerequisites); point JMeter at it once per shell:
+export JMETER_JAVA_HOME='C:\Program Files\Java\jdk-17.0.12'   # Windows example path
 bash tools/jmeter/run-stress.sh
 ```
 
@@ -90,6 +97,10 @@ JMETER_BIN="$(bash tools/jmeter/scripts/ensure-jmeter.sh)"
 "$JMETER_BIN" -q tools/jmeter/env/local.properties        # macOS/Linux/Git-Bash
 # Windows: tools\jmeter\.runtime\apache-jmeter-5.6.3\bin\jmeter.bat -q tools\jmeter\env\local.properties
 ```
+
+When authoring or running the **stress** plan in the GUI, launch it under Java 17/21 too — the same Groovy 3.0.20 constraint applies. Set `JAVA_HOME`
+(or the GUI inherits whatever the shell has) to a 17/21 JDK before launching; otherwise the JSR223/Groovy elements fail with `Unsupported class file
+major version 69`.
 
 ## Upgrading JMeter
 

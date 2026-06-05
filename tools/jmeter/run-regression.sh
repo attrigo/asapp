@@ -42,12 +42,14 @@ JMETER_BIN="$("$SCRIPT_DIR/scripts/ensure-jmeter.sh")"
 mkdir -p "$RESULTS_DIR"
 TS="$(date +%Y%m%d-%H%M%S)"
 JTL="$RESULTS_DIR/regression-$TS.jtl"
+LOG="$RESULTS_DIR/regression-$TS.log"
 REPORT="$RESULTS_DIR/regression-$TS-report"
 
 "$JMETER_BIN" -n \
   -t "$PLAN" \
   -q "$ENV_FILE" \
   -l "$JTL" \
+  -j "$LOG" \
   -e -o "$REPORT" \
   -Jjmeter.save.saveservice.output_format=csv \
   -Jjmeter.save.saveservice.print_field_names=true \
