@@ -14,7 +14,7 @@ during `mvn verify`.
 tools/jmeter/
 ├── asapp-regression.jmx   # deterministic gate plan
 ├── asapp-stress.jmx        # nested-loop load plan
-├── env/local-docker.properties  # service URLs and load knobs
+├── env/local.properties  # service URLs and load knobs
 ├── scripts/ensure-jmeter.sh  # auto-download on first run
 ├── scripts/jmeter-version.properties  # pinned JMeter version + SHA-512
 ├── run-regression.sh       # pre-release gate runner
@@ -46,7 +46,7 @@ Skip it with `--no-preflight`.
 
 ## Tune
 
-All knobs are JMeter properties (defaults in `env/local-docker.properties`); override per run with
+All knobs are JMeter properties (defaults in `env/local.properties`); override per run with
 `-J<name>=<value>` — extra args are forwarded straight to JMeter:
 
 ```bash
@@ -92,8 +92,8 @@ then open it with the env properties loaded:
 
 ```bash
 JMETER_BIN="$(bash tools/jmeter/scripts/ensure-jmeter.sh)"
-"$JMETER_BIN" -q tools/jmeter/env/local-docker.properties        # macOS/Linux/Git-Bash
-# Windows: tools\jmeter\.runtime\apache-jmeter-5.6.3\bin\jmeter.bat -q tools\jmeter\env\local-docker.properties
+"$JMETER_BIN" -q tools/jmeter/env/local.properties        # macOS/Linux/Git-Bash
+# Windows: tools\jmeter\.runtime\apache-jmeter-5.6.3\bin\jmeter.bat -q tools\jmeter\env\local.properties
 ```
 
 ## Upgrading JMeter

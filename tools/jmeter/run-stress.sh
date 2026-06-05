@@ -12,7 +12,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ENV_FILE="$SCRIPT_DIR/env/local-docker.properties"
+ENV_FILE="$SCRIPT_DIR/env/local.properties"
 PLAN="$SCRIPT_DIR/asapp-stress.jmx"
 RESULTS_DIR="$SCRIPT_DIR/results"
 
