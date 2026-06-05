@@ -10,6 +10,17 @@ during `mvn verify`.
 - **`asapp-stress.jmx`** — the same comprehensive read+write journey run by many concurrent threads
   (nested random-count loops scale the data volume), for observation in Grafana.
 
+```
+tools/jmeter/
+├── asapp-regression.jmx   # deterministic gate plan
+├── asapp-stress.jmx        # nested-loop load plan
+├── env/local-docker.properties  # service URLs and load knobs
+├── lib/jmeter-version.properties  # pinned JMeter version + SHA-512
+├── scripts/ensure-jmeter.sh  # auto-download on first run
+├── run-regression.sh       # pre-release gate runner
+└── run-stress.sh           # observation runner
+```
+
 ## Prerequisites
 
 - The full stack is up: `docker-compose up -d` (build images first with `mvn spring-boot:build-image`

@@ -53,11 +53,19 @@ REPORT="$RESULTS_DIR/regression-$TS-report"
   -Jjmeter.save.saveservice.print_field_names=true \
   "$@"
 
+# Sanity check: JTL must have at least one data row (header + 1 sample).
+line_count="$(wc -l < "$JTL")"
+if [ "$line_count" -lt 2 ]; then
+  echo "REGRESSION FAILED: JTL has no sample data (JMeter may not have run any samplers). Report: $REPORT/index.html" >&2
+  exit 1
+fi
+
 # Gate: find the 'success' column by header name, count false rows.
 fail_count="$(awk -F',' '
   NR==1 { for (i=1;i<=NF;i++) if ($i=="success") col=i; next }
   col && $col=="false" { c++ }
-  END { print c+0 }' "$JTL")"
+  END { if (!col) { print "ERROR: no success column in JTL" > "/dev/stderr"; exit 1 }
+        print c+0 }' "$JTL")"
 
 if [ "$fail_count" -gt 0 ]; then
   echo "REGRESSION FAILED: $fail_count failed sample(s)/assertion(s). Report: $REPORT/index.html" >&2

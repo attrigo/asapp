@@ -38,7 +38,7 @@ trap 'rm -f "$TMP_ZIP"' EXIT
 
 # 2. Download.
 echo "Downloading $JMETER_URL" >&2
-curl -fSL --max-redirs 2 --max-time 120 --retry 3 --retry-delay 5 -o "$TMP_ZIP" "$JMETER_URL"
+curl -fSL --max-redirs 2 --max-time 120 --retry 3 --retry-delay 5 --retry-connrefused -o "$TMP_ZIP" "$JMETER_URL"
 
 # 3. Verify SHA-512 (abort on mismatch).
 echo "Verifying SHA-512..." >&2
@@ -59,6 +59,7 @@ fi
 
 # 4. Unzip (prefer unzip; fall back to the JDK's jar since Java 25 is required anyway).
 echo "Extracting into $RUNTIME_DIR ..." >&2
+rm -rf "$JMETER_DIR"  # remove any partial extraction from a failed prior run
 if command -v unzip >/dev/null 2>&1; then
   unzip -q "$TMP_ZIP" -d "$RUNTIME_DIR"
 else
