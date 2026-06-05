@@ -15,10 +15,12 @@ RESULTS_DIR="$JMETER_TOOL_DIR/results"
 # preflight: check the three docker-compose services answer their readiness probe
 # before a run starts. Exits 1 with guidance if any service is down.
 preflight() {
+  # /readyz is published on each service's MAIN port
+  # (Spring Boot's management.endpoint.health.probes.add-additional-paths=true).
   local urls=(
-    "http://localhost:8090/asapp-authentication-service/readyz"
-    "http://localhost:8091/asapp-tasks-service/readyz"
-    "http://localhost:8092/asapp-users-service/readyz"
+    "http://localhost:8080/asapp-authentication-service/readyz"
+    "http://localhost:8081/asapp-tasks-service/readyz"
+    "http://localhost:8082/asapp-users-service/readyz"
   )
   echo "Pre-flight: checking service readiness..." >&2
   local u
