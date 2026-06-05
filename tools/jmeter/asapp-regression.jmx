@@ -996,37 +996,6 @@
           </ResponseAssertion>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="22 - Revoke Authentication (JWT)" enabled="true">
-          <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
-          <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
-          <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
-          <stringProp name="HTTPSampler.path">${auth.context}/api/auth/revoke</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&quot;accessToken&quot;:&quot;${accessToken}&quot;}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-        </HTTPSamplerProxy>
-        <hashTree>
-          <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Response Code 204" enabled="true">
-            <collectionProp name="Asserion.test_strings">
-              <stringProp name="49590">204</stringProp>
-            </collectionProp>
-            <stringProp name="Assertion.custom_message"></stringProp>
-            <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
-            <boolProp name="Assertion.assume_success">false</boolProp>
-            <intProp name="Assertion.test_type">8</intProp>
-          </ResponseAssertion>
-          <hashTree/>
-        </hashTree>
       </hashTree>
     </hashTree>
   </hashTree>

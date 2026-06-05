@@ -773,26 +773,6 @@ vars.put(&apos;taskIdsCsv&apos;, ids.join(&apos;,&apos;))</stringProp>
           </HeaderManager>
           <hashTree/>
         </hashTree>
-        <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="21 - Revoke Authentication (JWT)" enabled="true">
-          <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
-          <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
-          <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
-          <stringProp name="HTTPSampler.path">${auth.context}/api/auth/revoke</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{&quot;accessToken&quot;:&quot;${accessToken}&quot;}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
-        </HTTPSamplerProxy>
-        <hashTree/>
       </hashTree>
     </hashTree>
   </hashTree>
