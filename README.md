@@ -248,9 +248,10 @@ asapp/
 │   ├── asapp-discovery-service/             # Service registry (Eureka)
 │   ├── asapp-tasks-service/                 # Task management
 │   └── asapp-users-service/                 # User profiles
-├── tools/                                   # Monitoring tools
-│   └── grafana/                             # Grafana dashboards
+├── tools/                                   # Monitoring & load-testing tools
+│   ├── grafana/                             # Grafana dashboards
 │   ├── prometheus/                          # Prometheus config
+│   └── jmeter/                              # JMeter load tests (regression + stress)
 ├── git/hooks/                               # Git hooks (pre-commit, commit-msg)
 ├── docker-compose.yaml                      # Docker services configuration
 ├── pom.xml                                  # Parent POM
@@ -341,6 +342,20 @@ mvn spotless:apply
 # Generate all reports (coverage, javadoc, sources, REST docs)
 mvn clean verify -Pfull
 ```
+
+### Load Testing
+
+JMeter regression and stress plans run against the running Docker stack, outside the Maven build and CI:
+
+```bash
+# Pre-release go/no-go gate (deterministic full journey, asserts correctness)
+bash tools/jmeter/run-regression.sh
+
+# Tunable concurrent load to watch in Grafana (http://localhost:3000)
+bash tools/jmeter/run-stress.sh -Jthreads=50 -Jduration=600
+```
+
+See [tools/jmeter/README.md](tools/jmeter/README.md) for prerequisites, tuning, and where reports land.
 
 ---
 
