@@ -10,8 +10,7 @@
       </elementProp>
     </TestPlan>
     <hashTree>
-      <!-- UDV: property->variable bridge -->
-      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="props" enabled="true">
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="props">
         <collectionProp name="Arguments.arguments">
           <elementProp name="auth.scheme" elementType="Argument">
             <stringProp name="Argument.name">auth.scheme</stringProp>
@@ -111,36 +110,31 @@
         </collectionProp>
       </Arguments>
       <hashTree/>
-
-      <!-- Thread Group -->
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="stress" enabled="true">
-        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
-          <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">${loops}</stringProp>
-        </elementProp>
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="stress">
         <stringProp name="ThreadGroup.num_threads">${threads}</stringProp>
         <stringProp name="ThreadGroup.ramp_time">${rampup}</stringProp>
-        <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.duration">${duration}</stringProp>
-        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller">
+          <stringProp name="LoopController.loops">${loops}</stringProp>
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+        </elementProp>
       </ThreadGroup>
       <hashTree>
-        <!-- per-pass vars -->
         <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="per-pass vars" enabled="true">
           <collectionProp name="UserParameters.names">
             <stringProp name="0">username</stringProp>
           </collectionProp>
           <collectionProp name="UserParameters.thread_values">
-            <collectionProp name="0">
+            <collectionProp name="-1130594395">
               <stringProp name="0">loadtest_${__UUID}@asapp.test</stringProp>
             </collectionProp>
           </collectionProp>
           <boolProp name="UserParameters.per_iteration">true</boolProp>
         </UserParameters>
         <hashTree/>
-
-        <!-- Content-Type header manager -->
         <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Content-Type" enabled="true">
           <collectionProp name="HeaderManager.headers">
             <elementProp name="" elementType="Header">
@@ -150,11 +144,9 @@
           </collectionProp>
         </HeaderManager>
         <hashTree/>
-
-        <!-- thread-group-level response assertion -->
         <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="2xx (light)" enabled="true">
           <collectionProp name="Asserion.test_strings">
-            <stringProp name="49586">2\d\d</stringProp>
+            <stringProp name="49015874">2\d\d</stringProp>
           </collectionProp>
           <stringProp name="Assertion.custom_message"></stringProp>
           <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
@@ -162,38 +154,34 @@
           <intProp name="Assertion.test_type">1</intProp>
         </ResponseAssertion>
         <hashTree/>
-
-        <!-- 01 register -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01 register" enabled="true">
+          <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
+          <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
+          <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
+          <stringProp name="HTTPSampler.path">${auth.context}/api/users</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{"username":"${username}","password":"${password}","role":"USER"}</stringProp>
+                <stringProp name="Argument.value">{&quot;username&quot;:&quot;${username}&quot;,&quot;password&quot;:&quot;${password}&quot;,&quot;role&quot;:&quot;USER&quot;}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
-          <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
-          <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
-          <stringProp name="HTTPSampler.path">${auth.context}/api/users</stringProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
         </HTTPSamplerProxy>
         <hashTree>
           <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="init pass lists" enabled="true">
             <stringProp name="cacheKey">true</stringProp>
             <stringProp name="filename"></stringProp>
             <stringProp name="parameters"></stringProp>
-            <stringProp name="script">['taskIds','userIds'].each { p ->
-    int n = (vars.get(p + 'Count') ?: '0') as int
-    for (int i = 1; i &lt;= n; i++) { vars.remove(p + '_' + i) }
-    vars.put(p + 'Count', '0')
+            <stringProp name="script">[&apos;taskIds&apos;,&apos;userIds&apos;].each { p -&gt;
+    int n = (vars.get(p + &apos;Count&apos;) ?: &apos;0&apos;) as int
+    for (int i = 1; i &lt;= n; i++) { vars.remove(p + &apos;_&apos; + i) }
+    vars.put(p + &apos;Count&apos;, &apos;0&apos;)
 }</stringProp>
             <stringProp name="scriptLanguage">groovy</stringProp>
           </JSR223PreProcessor>
@@ -205,28 +193,24 @@
           </JSONPostProcessor>
           <hashTree/>
         </hashTree>
-
-        <!-- 02 token -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02 token" enabled="true">
-          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="" elementType="HTTPArgument">
-                <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{"username":"${username}","password":"${password}"}</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
-          </elementProp>
           <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
           <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
           <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
           <stringProp name="HTTPSampler.path">${auth.context}/api/auth/token</stringProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+            <collectionProp name="Arguments.arguments">
+              <elementProp name="" elementType="HTTPArgument">
+                <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                <stringProp name="Argument.value">{&quot;username&quot;:&quot;${username}&quot;,&quot;password&quot;:&quot;${password}&quot;}</stringProp>
+                <stringProp name="Argument.metadata">=</stringProp>
+              </elementProp>
+            </collectionProp>
+          </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
           <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="accessToken" enabled="true">
@@ -242,21 +226,18 @@
           </JSONPostProcessor>
           <hashTree/>
         </hashTree>
-
-        <!-- 03 get auth user -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="03 get auth user" enabled="true">
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments"/>
-          </elementProp>
           <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
           <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
           <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
           <stringProp name="HTTPSampler.path">${auth.context}/api/users/${authUserId}</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
@@ -269,28 +250,24 @@
           </HeaderManager>
           <hashTree/>
         </hashTree>
-
-        <!-- 04 update auth user -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="04 update auth user" enabled="true">
+          <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
+          <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
+          <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
+          <stringProp name="HTTPSampler.path">${auth.context}/api/users/${authUserId}</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">PUT</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{"username":"${username}","password":"${password}","role":"USER"}</stringProp>
+                <stringProp name="Argument.value">{&quot;username&quot;:&quot;${username}&quot;,&quot;password&quot;:&quot;${password}&quot;,&quot;role&quot;:&quot;USER&quot;}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
-          <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
-          <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
-          <stringProp name="HTTPSampler.path">${auth.context}/api/users/${authUserId}</stringProp>
-          <stringProp name="HTTPSampler.method">PUT</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
         </HTTPSamplerProxy>
         <hashTree>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
@@ -303,21 +280,18 @@
           </HeaderManager>
           <hashTree/>
         </hashTree>
-
-        <!-- 05 get all auth users -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="05 get all auth users" enabled="true">
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments"/>
-          </elementProp>
           <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
           <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
           <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
           <stringProp name="HTTPSampler.path">${auth.context}/api/users</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
@@ -330,28 +304,24 @@
           </HeaderManager>
           <hashTree/>
         </hashTree>
-
-        <!-- 06 refresh -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="06 refresh" enabled="true">
+          <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
+          <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
+          <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
+          <stringProp name="HTTPSampler.path">${auth.context}/api/auth/refresh</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{"refreshToken":"${refreshToken}"}</stringProp>
+                <stringProp name="Argument.value">{&quot;refreshToken&quot;:&quot;${refreshToken}&quot;}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
-          <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
-          <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
-          <stringProp name="HTTPSampler.path">${auth.context}/api/auth/refresh</stringProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
         </HTTPSamplerProxy>
         <hashTree>
           <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="accessToken" enabled="true">
@@ -367,35 +337,29 @@
           </JSONPostProcessor>
           <hashTree/>
         </hashTree>
-
-        <!-- x: users loop -->
         <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="x: users loop" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">${__Random(1,${users.per.pass.max})}</stringProp>
         </LoopController>
         <hashTree>
-
-          <!-- 07 create user -->
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="07 create user" enabled="true">
+            <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
+            <stringProp name="HTTPSampler.port">${users.port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
+            <stringProp name="HTTPSampler.path">${users.context}/api/users</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">POST</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments">
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">{"firstName":"Load","lastName":"Test","email":"user_${__UUID}@asapp.test","phoneNumber":"666-555-444"}</stringProp>
+                  <stringProp name="Argument.value">{&quot;firstName&quot;:&quot;Load&quot;,&quot;lastName&quot;:&quot;Test&quot;,&quot;email&quot;:&quot;user_${__UUID}@asapp.test&quot;,&quot;phoneNumber&quot;:&quot;666-555-444&quot;}</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
-            <stringProp name="HTTPSampler.port">${users.port}</stringProp>
-            <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
-            <stringProp name="HTTPSampler.path">${users.context}/api/users</stringProp>
-            <stringProp name="HTTPSampler.method">POST</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
           </HTTPSamplerProxy>
           <hashTree>
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
@@ -417,27 +381,24 @@
               <stringProp name="cacheKey">true</stringProp>
               <stringProp name="filename"></stringProp>
               <stringProp name="parameters"></stringProp>
-              <stringProp name="script">int n = (vars.get('userIdsCount') ?: '0') as int
-n++; vars.put('userIdsCount', n.toString()); vars.put('userIds_' + n, vars.get('userId'))</stringProp>
+              <stringProp name="script">int n = (vars.get(&apos;userIdsCount&apos;) ?: &apos;0&apos;) as int
+n++; vars.put(&apos;userIdsCount&apos;, n.toString()); vars.put(&apos;userIds_&apos; + n, vars.get(&apos;userId&apos;))</stringProp>
               <stringProp name="scriptLanguage">groovy</stringProp>
             </JSR223PostProcessor>
             <hashTree/>
           </hashTree>
-
-          <!-- 08 get user (cold fan-out) -->
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="08 get user (cold fan-out)" enabled="true">
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-              <collectionProp name="Arguments.arguments"/>
-            </elementProp>
             <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
             <stringProp name="HTTPSampler.port">${users.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
             <stringProp name="HTTPSampler.path">${users.context}/api/users/${userId}</stringProp>
-            <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
@@ -450,28 +411,24 @@ n++; vars.put('userIdsCount', n.toString()); vars.put('userIds_' + n, vars.get('
             </HeaderManager>
             <hashTree/>
           </hashTree>
-
-          <!-- 09 update user -->
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="09 update user" enabled="true">
+            <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
+            <stringProp name="HTTPSampler.port">${users.port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
+            <stringProp name="HTTPSampler.path">${users.context}/api/users/${userId}</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">PUT</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
             <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
               <collectionProp name="Arguments.arguments">
                 <elementProp name="" elementType="HTTPArgument">
                   <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">{"firstName":"Load","lastName":"Updated","email":"user_${__UUID}@asapp.test","phoneNumber":"666-555-444"}</stringProp>
+                  <stringProp name="Argument.value">{&quot;firstName&quot;:&quot;Load&quot;,&quot;lastName&quot;:&quot;Updated&quot;,&quot;email&quot;:&quot;user_${__UUID}@asapp.test&quot;,&quot;phoneNumber&quot;:&quot;666-555-444&quot;}</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
               </collectionProp>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
-            <stringProp name="HTTPSampler.port">${users.port}</stringProp>
-            <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
-            <stringProp name="HTTPSampler.path">${users.context}/api/users/${userId}</stringProp>
-            <stringProp name="HTTPSampler.method">PUT</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
           </HTTPSamplerProxy>
           <hashTree>
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
@@ -484,21 +441,18 @@ n++; vars.put('userIdsCount', n.toString()); vars.put('userIds_' + n, vars.get('
             </HeaderManager>
             <hashTree/>
           </hashTree>
-
-          <!-- 10 get all users -->
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="10 get all users" enabled="true">
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-              <collectionProp name="Arguments.arguments"/>
-            </elementProp>
             <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
             <stringProp name="HTTPSampler.port">${users.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
             <stringProp name="HTTPSampler.path">${users.context}/api/users</stringProp>
-            <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
@@ -511,35 +465,29 @@ n++; vars.put('userIdsCount', n.toString()); vars.put('userIds_' + n, vars.get('
             </HeaderManager>
             <hashTree/>
           </hashTree>
-
-          <!-- y: tasks loop (nested inside x: users loop) -->
           <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="y: tasks loop" enabled="true">
             <boolProp name="LoopController.continue_forever">false</boolProp>
             <stringProp name="LoopController.loops">${__Random(1,${tasks.per.user.max})}</stringProp>
           </LoopController>
           <hashTree>
-
-            <!-- 11 create task -->
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="11 create task" enabled="true">
+              <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
+              <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
+              <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
+              <stringProp name="HTTPSampler.path">${tasks.context}/api/tasks</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
               <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
               <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
                 <collectionProp name="Arguments.arguments">
                   <elementProp name="" elementType="HTTPArgument">
                     <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                    <stringProp name="Argument.value">{"userId":"${userId}","title":"task_${__threadNum}_${__Random(1,1000000)}","description":"load test task"}</stringProp>
+                    <stringProp name="Argument.value">{&quot;userId&quot;:&quot;${userId}&quot;,&quot;title&quot;:&quot;task_${__threadNum}_${__Random(1,1000000)}&quot;,&quot;description&quot;:&quot;load test task&quot;}</stringProp>
                     <stringProp name="Argument.metadata">=</stringProp>
                   </elementProp>
                 </collectionProp>
               </elementProp>
-              <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
-              <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
-              <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
-              <stringProp name="HTTPSampler.path">${tasks.context}/api/tasks</stringProp>
-              <stringProp name="HTTPSampler.method">POST</stringProp>
-              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
             </HTTPSamplerProxy>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
@@ -561,27 +509,24 @@ n++; vars.put('userIdsCount', n.toString()); vars.put('userIds_' + n, vars.get('
                 <stringProp name="cacheKey">true</stringProp>
                 <stringProp name="filename"></stringProp>
                 <stringProp name="parameters"></stringProp>
-                <stringProp name="script">int n = (vars.get('taskIdsCount') ?: '0') as int
-n++; vars.put('taskIdsCount', n.toString()); vars.put('taskIds_' + n, vars.get('taskId'))</stringProp>
+                <stringProp name="script">int n = (vars.get(&apos;taskIdsCount&apos;) ?: &apos;0&apos;) as int
+n++; vars.put(&apos;taskIdsCount&apos;, n.toString()); vars.put(&apos;taskIds_&apos; + n, vars.get(&apos;taskId&apos;))</stringProp>
                 <stringProp name="scriptLanguage">groovy</stringProp>
               </JSR223PostProcessor>
               <hashTree/>
             </hashTree>
-
-            <!-- 12 get task -->
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="12 get task" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
               <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
               <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
               <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
               <stringProp name="HTTPSampler.path">${tasks.context}/api/tasks/${taskId}</stringProp>
-              <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
             </HTTPSamplerProxy>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
@@ -594,28 +539,24 @@ n++; vars.put('taskIdsCount', n.toString()); vars.put('taskIds_' + n, vars.get('
               </HeaderManager>
               <hashTree/>
             </hashTree>
-
-            <!-- 13 update task -->
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="13 update task" enabled="true">
+              <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
+              <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
+              <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
+              <stringProp name="HTTPSampler.path">${tasks.context}/api/tasks/${taskId}</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">PUT</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
               <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
               <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
                 <collectionProp name="Arguments.arguments">
                   <elementProp name="" elementType="HTTPArgument">
                     <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                    <stringProp name="Argument.value">{"userId":"${userId}","title":"task_${__threadNum}_upd_${__Random(1,1000000)}","description":"updated"}</stringProp>
+                    <stringProp name="Argument.value">{&quot;userId&quot;:&quot;${userId}&quot;,&quot;title&quot;:&quot;task_${__threadNum}_upd_${__Random(1,1000000)}&quot;,&quot;description&quot;:&quot;updated&quot;}</stringProp>
                     <stringProp name="Argument.metadata">=</stringProp>
                   </elementProp>
                 </collectionProp>
               </elementProp>
-              <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
-              <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
-              <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
-              <stringProp name="HTTPSampler.path">${tasks.context}/api/tasks/${taskId}</stringProp>
-              <stringProp name="HTTPSampler.method">PUT</stringProp>
-              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
             </HTTPSamplerProxy>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
@@ -628,10 +569,16 @@ n++; vars.put('taskIdsCount', n.toString()); vars.put('taskIds_' + n, vars.get('
               </HeaderManager>
               <hashTree/>
             </hashTree>
-
-            <!-- 14 tasks by ids -->
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="14 tasks by ids" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
+              <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
+              <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
+              <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
+              <stringProp name="HTTPSampler.path">${tasks.context}/api/tasks</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
                 <collectionProp name="Arguments.arguments">
                   <elementProp name="ids" elementType="HTTPArgument">
                     <boolProp name="HTTPArgument.always_encode">false</boolProp>
@@ -641,26 +588,17 @@ n++; vars.put('taskIdsCount', n.toString()); vars.put('taskIds_' + n, vars.get('
                   </elementProp>
                 </collectionProp>
               </elementProp>
-              <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
-              <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
-              <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
-              <stringProp name="HTTPSampler.path">${tasks.context}/api/tasks</stringProp>
-              <stringProp name="HTTPSampler.method">GET</stringProp>
-              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
             </HTTPSamplerProxy>
             <hashTree>
               <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="build ids csv (cap 50)" enabled="true">
                 <stringProp name="cacheKey">true</stringProp>
                 <stringProp name="filename"></stringProp>
                 <stringProp name="parameters"></stringProp>
-                <stringProp name="script">int n = (vars.get('taskIdsCount') ?: '0') as int
-if (n &lt; 1) { vars.put('taskIdsCsv',''); return }
+                <stringProp name="script">int n = (vars.get(&apos;taskIdsCount&apos;) ?: &apos;0&apos;) as int
+if (n &lt; 1) { vars.put(&apos;taskIdsCsv&apos;,&apos;&apos;); return }
 int from = Math.max(1, n - 49)
-def ids = (from..n).collect { vars.get('taskIds_' + it) }.findAll { it != null }
-vars.put('taskIdsCsv', ids.join(','))</stringProp>
+def ids = (from..n).collect { vars.get(&apos;taskIds_&apos; + it) }.findAll { it != null }
+vars.put(&apos;taskIdsCsv&apos;, ids.join(&apos;,&apos;))</stringProp>
                 <stringProp name="scriptLanguage">groovy</stringProp>
               </JSR223PreProcessor>
               <hashTree/>
@@ -674,24 +612,19 @@ vars.put('taskIdsCsv', ids.join(','))</stringProp>
               </HeaderManager>
               <hashTree/>
             </hashTree>
-
           </hashTree>
-          <!-- end y: tasks loop -->
-
-          <!-- 15 tasks by user -->
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="15 tasks by user" enabled="true">
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-              <collectionProp name="Arguments.arguments"/>
-            </elementProp>
             <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
             <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
             <stringProp name="HTTPSampler.path">${tasks.context}/api/tasks/user/${userId}</stringProp>
-            <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
@@ -704,21 +637,18 @@ vars.put('taskIdsCsv', ids.join(','))</stringProp>
             </HeaderManager>
             <hashTree/>
           </hashTree>
-
-          <!-- 16 get user (warm fan-out) -->
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="16 get user (warm fan-out)" enabled="true">
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-              <collectionProp name="Arguments.arguments"/>
-            </elementProp>
             <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
             <stringProp name="HTTPSampler.port">${users.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
             <stringProp name="HTTPSampler.path">${users.context}/api/users/${userId}</stringProp>
-            <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
@@ -731,24 +661,19 @@ vars.put('taskIdsCsv', ids.join(','))</stringProp>
             </HeaderManager>
             <hashTree/>
           </hashTree>
-
         </hashTree>
-        <!-- end x: users loop -->
-
-        <!-- 17 get all tasks -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="17 get all tasks" enabled="true">
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments"/>
-          </elementProp>
           <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
           <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
           <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
           <stringProp name="HTTPSampler.path">${tasks.context}/api/tasks</stringProp>
-          <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <stringProp name="HTTPSampler.method">GET</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
@@ -761,29 +686,24 @@ vars.put('taskIdsCsv', ids.join(','))</stringProp>
           </HeaderManager>
           <hashTree/>
         </hashTree>
-
-        <!-- delete created tasks (ForEach) -->
         <ForeachController guiclass="ForeachControlPanel" testclass="ForeachController" testname="delete created tasks" enabled="true">
           <stringProp name="ForeachController.inputVal">taskIds</stringProp>
           <stringProp name="ForeachController.returnVal">curTaskId</stringProp>
           <boolProp name="ForeachController.useSeparator">true</boolProp>
         </ForeachController>
         <hashTree>
-
-          <!-- 18 delete task -->
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="18 delete task" enabled="true">
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-              <collectionProp name="Arguments.arguments"/>
-            </elementProp>
             <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
             <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
             <stringProp name="HTTPSampler.path">${tasks.context}/api/tasks/${curTaskId}</stringProp>
-            <stringProp name="HTTPSampler.method">DELETE</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <stringProp name="HTTPSampler.method">DELETE</stringProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
@@ -796,32 +716,25 @@ vars.put('taskIdsCsv', ids.join(','))</stringProp>
             </HeaderManager>
             <hashTree/>
           </hashTree>
-
         </hashTree>
-        <!-- end delete created tasks -->
-
-        <!-- delete created users (ForEach) -->
         <ForeachController guiclass="ForeachControlPanel" testclass="ForeachController" testname="delete created users" enabled="true">
           <stringProp name="ForeachController.inputVal">userIds</stringProp>
           <stringProp name="ForeachController.returnVal">curUserId</stringProp>
           <boolProp name="ForeachController.useSeparator">true</boolProp>
         </ForeachController>
         <hashTree>
-
-          <!-- 19 delete user -->
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="19 delete user" enabled="true">
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-              <collectionProp name="Arguments.arguments"/>
-            </elementProp>
             <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
             <stringProp name="HTTPSampler.port">${users.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
             <stringProp name="HTTPSampler.path">${users.context}/api/users/${curUserId}</stringProp>
-            <stringProp name="HTTPSampler.method">DELETE</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <stringProp name="HTTPSampler.method">DELETE</stringProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
           </HTTPSamplerProxy>
           <hashTree>
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
@@ -834,24 +747,19 @@ vars.put('taskIdsCsv', ids.join(','))</stringProp>
             </HeaderManager>
             <hashTree/>
           </hashTree>
-
         </hashTree>
-        <!-- end delete created users -->
-
-        <!-- 20 delete auth user -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="20 delete auth user" enabled="true">
-          <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
-            <collectionProp name="Arguments.arguments"/>
-          </elementProp>
           <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
           <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
           <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
           <stringProp name="HTTPSampler.path">${auth.context}/api/users/${authUserId}</stringProp>
-          <stringProp name="HTTPSampler.method">DELETE</stringProp>
           <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+          <stringProp name="HTTPSampler.method">DELETE</stringProp>
           <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+          <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+          <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+            <collectionProp name="Arguments.arguments"/>
+          </elementProp>
         </HTTPSamplerProxy>
         <hashTree>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Bearer" enabled="true">
@@ -864,34 +772,27 @@ vars.put('taskIdsCsv', ids.join(','))</stringProp>
           </HeaderManager>
           <hashTree/>
         </hashTree>
-
-        <!-- 21 revoke -->
         <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="21 revoke" enabled="true">
+          <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
+          <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
+          <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
+          <stringProp name="HTTPSampler.path">${auth.context}/api/auth/revoke</stringProp>
+          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+          <stringProp name="HTTPSampler.method">POST</stringProp>
+          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
           <boolProp name="HTTPSampler.postBodyRaw">true</boolProp>
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments">
             <collectionProp name="Arguments.arguments">
               <elementProp name="" elementType="HTTPArgument">
                 <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                <stringProp name="Argument.value">{"accessToken":"${accessToken}"}</stringProp>
+                <stringProp name="Argument.value">{&quot;accessToken&quot;:&quot;${accessToken}&quot;}</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
           </elementProp>
-          <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
-          <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
-          <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
-          <stringProp name="HTTPSampler.path">${auth.context}/api/auth/revoke</stringProp>
-          <stringProp name="HTTPSampler.method">POST</stringProp>
-          <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-          <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-          <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-          <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
         </HTTPSamplerProxy>
         <hashTree/>
-
       </hashTree>
-      <!-- end thread group -->
-
     </hashTree>
   </hashTree>
 </jmeterTestPlan>
