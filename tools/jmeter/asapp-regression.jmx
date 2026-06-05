@@ -104,7 +104,7 @@
             <stringProp name="3">taskTitleUpd</stringProp>
           </collectionProp>
           <collectionProp name="UserParameters.thread_values">
-            <collectionProp name="0">
+            <collectionProp name="-1">
               <stringProp name="0">loadtest_${__UUID}@asapp.test</stringProp>
               <stringProp name="1">user_${__UUID}@asapp.test</stringProp>
               <stringProp name="2">task_${__threadNum}_${__Random(1,1000000)}</stringProp>
@@ -148,11 +148,11 @@
           <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <JSONPathExtractor guiclass="JSONPathExtractorGui" testclass="JSONPathExtractor" testname="authUserId" enabled="true">
-            <stringProp name="JSONPathExtractor.referenceNames">authUserId</stringProp>
-            <stringProp name="JSONPathExtractor.jsonPathExprs">$.userId</stringProp>
-            <stringProp name="JSONPathExtractor.match_numbers">1</stringProp>
-          </JSONPathExtractor>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="authUserId" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">authUserId</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.userId</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+          </JSONPostProcessor>
           <hashTree/>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="assert 201" enabled="true">
             <collectionProp name="Asserion.test_strings">
@@ -189,17 +189,17 @@
           <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <JSONPathExtractor guiclass="JSONPathExtractorGui" testclass="JSONPathExtractor" testname="accessToken" enabled="true">
-            <stringProp name="JSONPathExtractor.referenceNames">accessToken</stringProp>
-            <stringProp name="JSONPathExtractor.jsonPathExprs">$.accessToken</stringProp>
-            <stringProp name="JSONPathExtractor.match_numbers">1</stringProp>
-          </JSONPathExtractor>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="accessToken" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">accessToken</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.accessToken</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+          </JSONPostProcessor>
           <hashTree/>
-          <JSONPathExtractor guiclass="JSONPathExtractorGui" testclass="JSONPathExtractor" testname="refreshToken" enabled="true">
-            <stringProp name="JSONPathExtractor.referenceNames">refreshToken</stringProp>
-            <stringProp name="JSONPathExtractor.jsonPathExprs">$.refreshToken</stringProp>
-            <stringProp name="JSONPathExtractor.match_numbers">1</stringProp>
-          </JSONPathExtractor>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="refreshToken" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">refreshToken</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.refreshToken</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+          </JSONPostProcessor>
           <hashTree/>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="assert 200" enabled="true">
             <collectionProp name="Asserion.test_strings">
@@ -245,11 +245,11 @@
             </collectionProp>
           </HeaderManager>
           <hashTree/>
-          <JSONPathExtractor guiclass="JSONPathExtractorGui" testclass="JSONPathExtractor" testname="userId" enabled="true">
-            <stringProp name="JSONPathExtractor.referenceNames">userId</stringProp>
-            <stringProp name="JSONPathExtractor.jsonPathExprs">$.userId</stringProp>
-            <stringProp name="JSONPathExtractor.match_numbers">1</stringProp>
-          </JSONPathExtractor>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="userId" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">userId</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.userId</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+          </JSONPostProcessor>
           <hashTree/>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="assert 201" enabled="true">
             <collectionProp name="Asserion.test_strings">
@@ -295,11 +295,11 @@
             </collectionProp>
           </HeaderManager>
           <hashTree/>
-          <JSONPathExtractor guiclass="JSONPathExtractorGui" testclass="JSONPathExtractor" testname="taskId" enabled="true">
-            <stringProp name="JSONPathExtractor.referenceNames">taskId</stringProp>
-            <stringProp name="JSONPathExtractor.jsonPathExprs">$.taskId</stringProp>
-            <stringProp name="JSONPathExtractor.match_numbers">1</stringProp>
-          </JSONPathExtractor>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="taskId" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">taskId</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.taskId</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+          </JSONPostProcessor>
           <hashTree/>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="assert 201" enabled="true">
             <collectionProp name="Asserion.test_strings">
@@ -484,17 +484,17 @@
           <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
         </HTTPSamplerProxy>
         <hashTree>
-          <JSONPathExtractor guiclass="JSONPathExtractorGui" testclass="JSONPathExtractor" testname="accessToken" enabled="true">
-            <stringProp name="JSONPathExtractor.referenceNames">accessToken</stringProp>
-            <stringProp name="JSONPathExtractor.jsonPathExprs">$.accessToken</stringProp>
-            <stringProp name="JSONPathExtractor.match_numbers">1</stringProp>
-          </JSONPathExtractor>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="accessToken" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">accessToken</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.accessToken</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+          </JSONPostProcessor>
           <hashTree/>
-          <JSONPathExtractor guiclass="JSONPathExtractorGui" testclass="JSONPathExtractor" testname="refreshToken" enabled="true">
-            <stringProp name="JSONPathExtractor.referenceNames">refreshToken</stringProp>
-            <stringProp name="JSONPathExtractor.jsonPathExprs">$.refreshToken</stringProp>
-            <stringProp name="JSONPathExtractor.match_numbers">1</stringProp>
-          </JSONPathExtractor>
+          <JSONPostProcessor guiclass="JSONPostProcessorGui" testclass="JSONPostProcessor" testname="refreshToken" enabled="true">
+            <stringProp name="JSONPostProcessor.referenceNames">refreshToken</stringProp>
+            <stringProp name="JSONPostProcessor.jsonPathExprs">$.refreshToken</stringProp>
+            <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
+          </JSONPostProcessor>
           <hashTree/>
           <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="assert 200" enabled="true">
             <collectionProp name="Asserion.test_strings">
