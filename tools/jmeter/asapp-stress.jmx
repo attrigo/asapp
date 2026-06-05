@@ -175,6 +175,7 @@
         </HTTPSamplerProxy>
         <hashTree>
           <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="Initialize Pass Id Lists" enabled="true">
+            <stringProp name="TestPlan.comments">Reset the per-pass taskIds/userIds lists so the cleanup ForEach controllers only delete ids created by the current pass.</stringProp>
             <stringProp name="cacheKey">true</stringProp>
             <stringProp name="filename"></stringProp>
             <stringProp name="parameters"></stringProp>
@@ -337,7 +338,7 @@
           </JSONPostProcessor>
           <hashTree/>
         </hashTree>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="x: users loop" enabled="true">
+        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Users Loop (x)" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">${__Random(1,${users.per.pass.max})}</stringProp>
         </LoopController>
@@ -465,7 +466,7 @@ n++; vars.put(&apos;userIdsCount&apos;, n.toString()); vars.put(&apos;userIds_&a
             </HeaderManager>
             <hashTree/>
           </hashTree>
-          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="y: tasks loop" enabled="true">
+          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Tasks Loop (y)" enabled="true">
             <boolProp name="LoopController.continue_forever">false</boolProp>
             <stringProp name="LoopController.loops">${__Random(1,${tasks.per.user.max})}</stringProp>
           </LoopController>
@@ -591,6 +592,7 @@ n++; vars.put(&apos;taskIdsCount&apos;, n.toString()); vars.put(&apos;taskIds_&a
             </HTTPSamplerProxy>
             <hashTree>
               <JSR223PreProcessor guiclass="TestBeanGUI" testclass="JSR223PreProcessor" testname="Build Task Ids CSV (cap 50)" enabled="true">
+                <stringProp name="TestPlan.comments">Join the most recent accumulated task ids (capped at 50, the batch endpoint limit) into a CSV for the by-ids read.</stringProp>
                 <stringProp name="cacheKey">true</stringProp>
                 <stringProp name="filename"></stringProp>
                 <stringProp name="parameters"></stringProp>
@@ -686,7 +688,7 @@ vars.put(&apos;taskIdsCsv&apos;, ids.join(&apos;,&apos;))</stringProp>
           </HeaderManager>
           <hashTree/>
         </hashTree>
-        <ForeachController guiclass="ForeachControlPanel" testclass="ForeachController" testname="delete created tasks" enabled="true">
+        <ForeachController guiclass="ForeachControlPanel" testclass="ForeachController" testname="Delete Created Tasks" enabled="true">
           <stringProp name="ForeachController.inputVal">taskIds</stringProp>
           <stringProp name="ForeachController.returnVal">curTaskId</stringProp>
           <boolProp name="ForeachController.useSeparator">true</boolProp>
@@ -717,7 +719,7 @@ vars.put(&apos;taskIdsCsv&apos;, ids.join(&apos;,&apos;))</stringProp>
             <hashTree/>
           </hashTree>
         </hashTree>
-        <ForeachController guiclass="ForeachControlPanel" testclass="ForeachController" testname="delete created users" enabled="true">
+        <ForeachController guiclass="ForeachControlPanel" testclass="ForeachController" testname="Delete Created Users" enabled="true">
           <stringProp name="ForeachController.inputVal">userIds</stringProp>
           <stringProp name="ForeachController.returnVal">curUserId</stringProp>
           <boolProp name="ForeachController.useSeparator">true</boolProp>
