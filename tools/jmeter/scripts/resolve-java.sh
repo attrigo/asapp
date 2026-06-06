@@ -2,25 +2,18 @@
 #
 # Sourced by run-stress.sh to point JMeter at a Groovy-compatible JVM.
 #
-# JMeter 5.6.3 bundles Groovy 3.0.20, whose bytecode reader cannot parse class files
-# newer than Java 21: a plan with JSR223/Groovy elements dies with "Unsupported class
-# file major version". JMeter 5.6.3 is officially supported on Java 17, so the stress
-# plan must run on Java 17 (or 21), independently of whichever (newer) JDK the project
-# itself builds on. (The regression plan has no Groovy and runs on any Java, so
-# run-regression.sh does NOT source this.)
+# JMeter 5.6.3 is officially supported on Java 17 and bundles Groovy 3.0.20, whose bytecode reader cannot parse class files newer than Java 21 and,
+# so plans must run on Java 17 (or 21).
 #
-# The JDK is passed in as $1 (run-stress.sh's --java-home flag); if empty it falls back
-# to JAVA_HOME. This lets you keep JAVA_HOME on the project's JDK for the app and point
-# only JMeter at a 17/21 JDK:
+# The JDK is passed in as $1; if empty it falls back to JAVA_HOME.
+# This lets you keep JAVA_HOME on the project's JDK for the app and point only JMeter at a 17/21 JDK:
 #   ./run-stress.sh --java-home '/path/to/jdk-17'
 #
-# Exits non-zero with guidance if the resolved JVM is newer than Java 21, instead
-# of letting JMeter crash with the cryptic Groovy stack trace. Exports JAVA_HOME
-# (unix-style) so the bash-invoked JMeter launcher uses the resolved JVM.
+# Exits non-zero with guidance if the resolved JVM is newer than Java 21, instead of letting JMeter crash with the cryptic Groovy stack trace.
+# Exports JAVA_HOME (unix-style) so the bash-invoked JMeter launcher uses the resolved JVM.
 
-# All logic lives in a function so its intermediate variables stay `local` and do not
-# leak into the sourcing shell (run-stress.sh). Because we are sourced (not subshelled),
-# `exit` below still aborts the whole run, and `export JAVA_HOME` still reaches the caller.
+# All logic lives in a function so its intermediate variables stay `local` and do not leak into the sourcing shell (run-stress.sh).
+# Because we are sourced (not subshelled), `exit` below still aborts the whole run, and `export JAVA_HOME` still reaches the caller.
 _resolve_jmeter_java() {
   local cli_home="${1:-}"
   local raw_home java_home java_bin ver_out first_line ver_raw ver_major

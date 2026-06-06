@@ -26,9 +26,8 @@ tools/jmeter/
 - **Internet on first run only**: the run scripts auto-download a pinned JMeter into `.runtime/` (gitignored) and verify its SHA-512. Subsequent runs reuse the
   cached engine.
 - No separate JMeter install is needed.
-- **The stress plan needs Java 17 or 21.** JMeter 5.6.3 bundles Groovy 3.0.20, which cannot run on newer JVMs; its JSR223/Groovy scripts fail with an
-  `Unsupported class file major version` error. Point JMeter at a 17/21 JDK with the `--java-home` flag (falls back to `JAVA_HOME`); `run-stress.sh`
-  validates this and fails fast with guidance.
+- **The stress plan needs Java 17 or 21.** JMeter 5.6.3 bundles Groovy 3.0.20, which cannot run on newer JVMs. Point JMeter at a 17/21 JDK with the
+  `--java-home` flag (falls back to `JAVA_HOME`); `run-stress.sh` validates this and fails fast with guidance.
 - Scripts are bash; on Windows run them via Git for Windows' bundled `bash`.
 
 ## Run

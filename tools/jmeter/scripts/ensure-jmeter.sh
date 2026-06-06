@@ -1,12 +1,10 @@
 #!/usr/bin/env bash
 #
 # Idempotently provision a pinned Apache JMeter into tools/jmeter/.runtime/.
-# Prints the absolute path to the jmeter binary on stdout (logs go to stderr),
-# so callers can do: JMETER_BIN="$(scripts/ensure-jmeter.sh)".
+# Prints the absolute path to the jmeter binary on stdout (logs go to stderr), so callers can do: JMETER_BIN="$(scripts/ensure-jmeter.sh)".
 #
 # Fail fast with a clear message if launched by a non-bash shell (e.g. `sh ensure-jmeter.sh`).
-# Must run BEFORE `set -euo pipefail` (a bash-only construct); kept as POSIX `[ ]` so it
-# works under any shell.
+# Must run BEFORE `set -euo pipefail` (a bash-only construct); kept as POSIX `[ ]` so it works under any shell.
 if [ -z "${BASH_VERSION:-}" ]; then
   echo "ERROR: this script requires bash. On Windows, invoke via Git Bash: bash ensure-jmeter.sh" >&2
   exit 1

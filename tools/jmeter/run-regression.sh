@@ -1,15 +1,16 @@
 #!/usr/bin/env bash
 #
 # Run the deterministic regression plan against the running docker-compose stack.
-# `jmeter -n` always exits 0, so this script makes the gate real: it parses the
-# .jtl and exits non-zero if ANY sample/assertion failed.
+# `jmeter -n` always exits 0, so this script makes the gate real: it parses the .jtl and exits non-zero if ANY sample/assertion failed.
+#
 # Run with --help for usage.
 #
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-# shellcheck source=scripts/common.sh
-. "$SCRIPT_DIR/scripts/common.sh"   # paths (ENV_FILE/RESULTS_DIR/SCRIPTS_DIR) + preflight() + run_plan()
+
+# paths (ENV_FILE/RESULTS_DIR/SCRIPTS_DIR) + log + preflight() + run_plan()
+. "$SCRIPT_DIR/scripts/common.sh"
 
 usage() {
   cat <<'EOF'
