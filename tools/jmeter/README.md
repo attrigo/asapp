@@ -37,21 +37,25 @@ tools/jmeter/
 
 ## Run
 
+Run these from inside the `tools/jmeter/` directory:
+
 ```bash
+cd tools/jmeter
+
 # Pre-release gate: deterministic full journey, asserts correctness, exits non-zero on any failure.
-bash tools/jmeter/run-regression.sh
+./run-regression.sh
 
 # Tunable concurrent load for observation (default: 20 threads for 300s).
 # Stress needs Java 17/21 (see Prerequisites); pass the JDK with --java-home or rely on JAVA_HOME:
-bash tools/jmeter/run-stress.sh --java-home '/path/to/jdk-17'
+./run-stress.sh --java-home '/path/to/jdk-17'
 ```
 
 ```bash
 # Skip the /readyz pre-flight checks (both scripts poll each service first and abort if any is down):
-bash tools/jmeter/run-regression.sh --no-preflight
+./run-regression.sh --no-preflight
 
 # See the full option list (either script):
-bash tools/jmeter/run-stress.sh --help
+./run-stress.sh --help
 ```
 
 ### Tune
@@ -59,8 +63,8 @@ bash tools/jmeter/run-stress.sh --help
 All knobs are JMeter properties (defaults in `env/local.properties`); override per run with `-J<name>=<value>`; extra args are forwarded straight to JMeter:
 
 ```bash
-bash tools/jmeter/run-stress.sh -Jthreads=100 -Jduration=600 -Jusers.per.pass.max=8 -Jtasks.per.user.max=8
-bash tools/jmeter/run-stress.sh -Jloops=5    # bounded, fully self-cleaning run (leaves DB as found)
+./run-stress.sh -Jthreads=100 -Jduration=600 -Jusers.per.pass.max=8 -Jtasks.per.user.max=8
+./run-stress.sh -Jloops=5    # bounded, fully self-cleaning run (leaves DB as found)
 ```
 
 | Property                     | Default                  | Meaning                                                                                       |
@@ -95,11 +99,11 @@ Open the report's `index.html` in a browser; check the `.log` to diagnose a fail
 
 ## Authoring / debugging the plans
 
-The same downloaded engine can be launched in **GUI mode** to edit the `.jmx` files. Provision it, then open it with the env properties loaded:
+The same downloaded engine can be launched in **GUI mode** to edit the `.jmx` files. Provision it, then open it with the env properties loaded (run from `tools/jmeter/`):
 
 ```bash
-JMETER_BIN="$(bash tools/jmeter/scripts/ensure-jmeter.sh)"
-"$JMETER_BIN" -q tools/jmeter/env/local.properties
+JMETER_BIN="$(./scripts/ensure-jmeter.sh)"
+"$JMETER_BIN" -q env/local.properties
 ```
 
 When authoring or running the **stress** plan in the GUI, launch it under Java 17/21 too; the same Groovy constraint applies (see Prerequisites).
