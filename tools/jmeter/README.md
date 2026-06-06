@@ -8,21 +8,26 @@ CI: nothing here runs during `mvn verify`).
 - **`asapp-stress.jmx`**: the same comprehensive read+write journey run by many concurrent threads (nested random-count loops scale the data volume), for
   observation in Grafana.
 
+## Layout
+
 ```
 tools/jmeter/
-├── asapp-regression.jmx
-├── asapp-stress.jmx
-├── env/local.properties
-├── scripts/ensure-jmeter.sh
-├── scripts/resolve-java.sh
-├── scripts/jmeter-version.properties
-├── run-regression.sh
-└── run-stress.sh
+├── asapp-regression.jmx   # pre-release gate plan
+├── asapp-stress.jmx       # concurrent load plan
+├── run-regression.sh      # entrypoint: regression
+├── run-stress.sh          # entrypoint: stress
+├── env/
+│   └── local.properties   # default tunables (-J overrides)
+└── scripts/               # shared internals
+    ├── common.sh          # paths, logging, preflight, run_plan
+    ├── ensure-jmeter.sh   # download + SHA-512 verify engine
+    ├── resolve-java.sh    # locate/validate Java 17/21
+    └── jmeter-version.properties  # pinned version/URL/sum
 ```
 
 ## Prerequisites
 
-- The full stack is up and healthy: `docker-compose up -d` (build images first with `mvn spring-boot:build-image` images aren't present).
+- The full stack is up and healthy: `docker-compose up -d` (build images first with `mvn spring-boot:build-image` if images aren't present).
 - **Internet on first run only**: the run scripts auto-download a pinned JMeter into `.runtime/` (gitignored) and verify its SHA-512. Subsequent runs reuse the
   cached engine.
 - No separate JMeter install is needed.
@@ -41,11 +46,15 @@ bash tools/jmeter/run-regression.sh
 bash tools/jmeter/run-stress.sh --java-home '/path/to/jdk-17'
 ```
 
-Both scripts pre-flight the stack by polling each service's `/readyz` probe and abort if any is down. Skip it with `--no-preflight`.
+```bash
+# Skip the /readyz pre-flight checks (both scripts poll each service first and abort if any is down):
+bash tools/jmeter/run-regression.sh --no-preflight
 
-Run either script with `--help` for the full option list.
+# See the full option list (either script):
+bash tools/jmeter/run-stress.sh --help
+```
 
-## Tune
+### Tune
 
 All knobs are JMeter properties (defaults in `env/local.properties`); override per run with `-J<name>=<value>`; extra args are forwarded straight to JMeter:
 
