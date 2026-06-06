@@ -9,9 +9,10 @@
 # itself builds on. (The regression plan has no Groovy and runs on any Java, so
 # run-regression.sh does NOT source this.)
 #
-# Resolution order: JMETER_JAVA_HOME (dedicated override) then JAVA_HOME. This lets you
-# keep JAVA_HOME on the project's JDK for the app and point only JMeter at a 17/21 JDK:
-#   export JMETER_JAVA_HOME='C:\Program Files\Java\jdk-17.0.12'
+# The JDK is passed in as $1 (run-stress.sh's --java-home flag); if empty it falls back
+# to JAVA_HOME. This lets you keep JAVA_HOME on the project's JDK for the app and point
+# only JMeter at a 17/21 JDK:
+#   ./run-stress.sh --java-home '/path/to/jdk-17'
 #
 # Exits non-zero with guidance if the resolved JVM is newer than Java 21, instead
 # of letting JMeter crash with the cryptic Groovy stack trace. Exports JAVA_HOME
@@ -21,13 +22,14 @@
 # leak into the sourcing shell (run-stress.sh). Because we are sourced (not subshelled),
 # `exit` below still aborts the whole run, and `export JAVA_HOME` still reaches the caller.
 _resolve_jmeter_java() {
+  local cli_home="${1:-}"
   local raw_home java_home java_bin ver_out first_line ver_raw ver_major
 
-  raw_home="${JMETER_JAVA_HOME:-${JAVA_HOME:-}}"
+  raw_home="${cli_home:-${JAVA_HOME:-}}"
   if [[ -z "$raw_home" ]]; then
-    echo "ERROR: set JMETER_JAVA_HOME (or JAVA_HOME) to a Java 17 (recommended) or 21 JDK." >&2
+    echo "ERROR: pass --java-home <path> (or set JAVA_HOME) to a Java 17 (recommended) or 21 JDK." >&2
     echo "       JMeter 5.6.3 (Groovy 3.0.20) cannot run the stress plan on Java > 21." >&2
-    echo "       e.g.: export JMETER_JAVA_HOME='C:\\Program Files\\Java\\jdk-17.0.12'" >&2
+    echo "       e.g.: ./run-stress.sh --java-home '/path/to/jdk-17'" >&2
     exit 1
   fi
 
@@ -66,7 +68,7 @@ _resolve_jmeter_java() {
     echo "       the stress plan's JSR223/Groovy scripts fail with" >&2
     echo "       'Unsupported class file major version'. Point JMeter at a Java 17" >&2
     echo "       (recommended) or 21 JDK without changing your project JAVA_HOME:" >&2
-    echo "         export JMETER_JAVA_HOME='C:\\Program Files\\Java\\jdk-17.0.12'" >&2
+    echo "         ./run-stress.sh --java-home '/path/to/jdk-17'" >&2
     exit 1
   fi
 
@@ -74,5 +76,5 @@ _resolve_jmeter_java() {
   log_step "Resolved Java $ver_major for JMeter: $java_home"
 }
 
-_resolve_jmeter_java
+_resolve_jmeter_java "${1:-}"
 unset -f _resolve_jmeter_java

@@ -27,7 +27,7 @@ tools/jmeter/
   cached engine.
 - No separate JMeter install is needed.
 - **The stress plan needs Java 17 or 21.** JMeter 5.6.3 bundles Groovy 3.0.20, which cannot run on newer JVMs; its JSR223/Groovy scripts fail with an
-  `Unsupported class file major version` error. Point JMeter at a 17/21 JDK via `JMETER_JAVA_HOME` (leaving your project `JAVA_HOME` untouched); `run-stress.sh`
+  `Unsupported class file major version` error. Point JMeter at a 17/21 JDK with the `--java-home` flag (falls back to `JAVA_HOME`); `run-stress.sh`
   validates this and fails fast with guidance.
 - Scripts are bash; on Windows run them via Git for Windows' bundled `bash`.
 
@@ -38,9 +38,8 @@ tools/jmeter/
 bash tools/jmeter/run-regression.sh
 
 # Tunable concurrent load for observation (default: 20 threads for 300s).
-# Stress needs Java 17/21 (see Prerequisites); point JMeter at it once per shell:
-export JMETER_JAVA_HOME='C:\Program Files\Java\jdk-17.0.12'   # Windows example path
-bash tools/jmeter/run-stress.sh
+# Stress needs Java 17/21 (see Prerequisites); pass the JDK with --java-home or rely on JAVA_HOME:
+bash tools/jmeter/run-stress.sh --java-home '/path/to/jdk-17'
 ```
 
 Both scripts pre-flight the stack by polling each service's `/readyz` probe and abort if any is down. Skip it with `--no-preflight`.
