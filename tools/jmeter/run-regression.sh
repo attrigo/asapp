@@ -59,7 +59,8 @@ log_step "Evaluating results"
 # Sanity check: JTL must have at least one data row (header + 1 sample).
 line_count="$(wc -l < "$JTL")"
 if (( line_count < 2 )); then
-  echo "REGRESSION FAILED: JTL has no sample data (JMeter may not have run any samplers). Report: $REPORT/index.html" >&2
+  log_detail "REGRESSION FAILED: JTL has no sample data (JMeter may not have run any samplers)."
+  log_detail "Report: $REPORT/index.html"
   exit 1
 fi
 
@@ -77,7 +78,9 @@ fail_count="$(awk -F',' '
         print c+0 }' "$JTL")"
 
 if (( fail_count > 0 )); then
-  echo "REGRESSION FAILED: $fail_count failed sample(s)/assertion(s). Report: $REPORT/index.html" >&2
+  log_detail "REGRESSION FAILED: $fail_count failed sample(s)/assertion(s)."
+  log_detail "Report: $REPORT/index.html"
   exit 1
 fi
-echo "REGRESSION PASSED (0 failures). Report: $REPORT/index.html"
+log_detail "REGRESSION PASSED (0 failures)."
+log_detail "Report: $REPORT/index.html"

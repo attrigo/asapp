@@ -32,6 +32,16 @@ log_step_end() {
   _trace "$STEP" "$1"
 }
 
+# log_detail <message>: an indented detail line under the current step (stderr, like the traces).
+log_detail() {
+  printf '  %s\n' "$1" >&2
+}
+
+# log_blank: a blank spacer line on stderr.
+log_blank() {
+  printf '\n' >&2
+}
+
 # preflight: check the three docker-compose services answer their readiness probe
 # before a run starts.
 # Exits 1 with guidance if any service is down.
@@ -51,7 +61,7 @@ preflight() {
       echo "Bring the stack up first: docker-compose up -d" >&2
       exit 1
     fi
-    echo "  UP: $u" >&2
+    log_detail "UP: $u"
   done
 }
 
@@ -72,6 +82,8 @@ run_plan() {
   REPORT="$RESULTS_DIR/$label-$ts-report"
 
   log_step "Running $label plan: $plan"
+  log_blank
+
   local start rc=0
   start="$(date +%s)"
   "$JMETER_BIN" -n \
@@ -83,6 +95,9 @@ run_plan() {
     -Jjmeter.save.saveservice.output_format=csv \
     -Jjmeter.save.saveservice.print_field_names=true \
     "$@" || rc=$?
-  log_step_end "Finished $label plan: $(( $(date +%s) - start ))s elapsed (exit $rc)"
+
+  log_blank
+  log_step_end "Finished $label plan: $(( $(date +%s) - start ))s elapsed"
+
   (( rc == 0 )) || exit "$rc"
 }

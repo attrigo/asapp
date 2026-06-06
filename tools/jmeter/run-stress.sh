@@ -66,8 +66,9 @@ JMETER_BIN="$("$SCRIPTS_DIR/ensure-jmeter.sh")"
 
 (( PREFLIGHT == 1 )) && preflight
 
-echo "Watch live metrics in Grafana: http://localhost:3000"
+log_detail "Watch live metrics in Grafana: http://localhost:3000"
 
 run_plan stress "$SCRIPT_DIR/asapp-stress.jmx" "$@"
 
-echo "STRESS run complete. Report: $REPORT/index.html"
+log_detail "STRESS run complete."
+log_detail "Report: $REPORT/index.html"
