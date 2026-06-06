@@ -48,7 +48,7 @@ while [[ "${1:-}" == --* ]]; do
     --no-preflight) PREFLIGHT=0; shift ;;
     --java-home)    validate_java_home "${2:-}"; JAVA_HOME_OPT="$2"; shift 2 ;;
     --)             shift; break ;;
-    *)              echo "WARNING: unknown option '$1'; forwarding it to JMeter" >&2; break ;;
+    *)              echo "ERROR: unknown option '$1' (see --help)" >&2; exit 2 ;;
   esac
 done
 

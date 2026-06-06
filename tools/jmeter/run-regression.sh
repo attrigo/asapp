@@ -40,7 +40,7 @@ while [[ "${1:-}" == --* ]]; do
     --help)         usage; exit 0 ;;
     --no-preflight) PREFLIGHT=0; shift ;;
     --)             shift; break ;;
-    *)              echo "WARNING: unknown option '$1'; forwarding it to JMeter" >&2; break ;;
+    *)              echo "ERROR: unknown option '$1' (see --help)" >&2; exit 2 ;;
   esac
 done
 

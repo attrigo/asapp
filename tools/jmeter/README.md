@@ -60,7 +60,9 @@ cd tools/jmeter
 
 ### Tune
 
-All knobs are JMeter properties (defaults in `env/local.properties`); override per run with `-J<name>=<value>`; extra args are forwarded straight to JMeter:
+All knobs are JMeter properties (defaults in `env/local.properties`); override per run with `-J<name>=<value>`.
+
+Extra `-J`/`-G`/`-D` args pass straight to JMeter; an unknown `--option` is rejected (to pass a JMeter long option, put it after a `--`):
 
 ```bash
 ./run-stress.sh -Jthreads=100 -Jduration=600 -Jusers.per.pass.max=8 -Jtasks.per.user.max=8
