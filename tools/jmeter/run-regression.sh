@@ -3,10 +3,7 @@
 # Run the deterministic regression plan against the running docker-compose stack.
 # `jmeter -n` always exits 0, so this script makes the gate real: it parses the
 # .jtl and exits non-zero if ANY sample/assertion failed.
-#
-#   ./run-regression.sh                 # pre-flight + run + gate
-#   ./run-regression.sh --no-preflight  # skip readiness checks
-#   ./run-regression.sh -Jauth.host=...  # extra args are forwarded to JMeter
+# Run with --help for usage.
 #
 set -euo pipefail
 
@@ -14,8 +11,36 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=scripts/common.sh
 . "$SCRIPT_DIR/scripts/common.sh"   # paths (ENV_FILE/RESULTS_DIR/SCRIPTS_DIR) + preflight() + run_plan()
 
+usage() {
+  cat <<'EOF'
+Usage: run-regression.sh [--no-preflight] [-J<prop>=<val> ...]
+
+Run the deterministic regression plan against the running stack. This is the
+pre-release gate: it parses the .jtl and exits non-zero if any sample or
+assertion failed (jmeter -n itself always exits 0).
+
+Options (must precede any -J args):
+  --no-preflight   skip the service readiness checks
+  --help           show this help and exit
+
+Any -J<name>=<value> is forwarded to JMeter (defaults in env/local.properties).
+
+Examples:
+  run-regression.sh
+  run-regression.sh --no-preflight
+  run-regression.sh -Jauth.host=staging.example.com
+EOF
+}
+
 PREFLIGHT=1
-if [[ "${1:-}" == "--no-preflight" ]]; then PREFLIGHT=0; shift; fi
+while [[ "${1:-}" == --* ]]; do
+  case "$1" in
+    --help)         usage; exit 0 ;;
+    --no-preflight) PREFLIGHT=0; shift ;;
+    --)             shift; break ;;
+    *)              break ;;  # unknown --flag: leave it for JMeter
+  esac
+done
 
 # Steps traced as [x/y]: provision, [pre-flight], run, evaluate.
 STEP_TOTAL=$(( PREFLIGHT == 1 ? 4 : 3 ))

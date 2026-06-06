@@ -44,6 +44,8 @@ bash tools/jmeter/run-stress.sh --java-home '/path/to/jdk-17'
 
 Both scripts pre-flight the stack by polling each service's `/readyz` probe and abort if any is down. Skip it with `--no-preflight`.
 
+Run either script with `--help` for the full option list.
+
 ## Tune
 
 All knobs are JMeter properties (defaults in `env/local.properties`); override per run with `-J<name>=<value>`; extra args are forwarded straight to JMeter:

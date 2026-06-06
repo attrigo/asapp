@@ -3,12 +3,7 @@
 # Run the nested-loop stress plan against the running docker-compose stack and
 # generate an HTML dashboard. Stress is for OBSERVATION (watch Grafana :3000) -
 # correctness gating lives in run-regression.sh, so there is no .jtl gate here.
-#
-#   ./run-stress.sh
-#   ./run-stress.sh --java-home '/path/to/jdk-17'
-#   ./run-stress.sh --no-preflight
-#   ./run-stress.sh -Jthreads=100 -Jduration=600 -Jusers.per.pass.max=8 -Jtasks.per.user.max=8
-#   ./run-stress.sh -Jloops=5            # bounded, fully self-cleaning run
+# Run with --help for usage.
 #
 set -euo pipefail
 
@@ -22,13 +17,34 @@ validate_java_home() {
   [[ -n "${1:-}" ]] || { echo "ERROR: --java-home requires a path" >&2; exit 1; }
 }
 
-# Script flags (must precede any JMeter -J args, which are forwarded as-is):
-#   --no-preflight       skip the readiness checks
-#   --java-home <path>   JDK for JMeter (Java 17/21); falls back to JAVA_HOME
+usage() {
+  cat <<'EOF'
+Usage: run-stress.sh [--java-home <path>] [--no-preflight] [-J<prop>=<val> ...]
+
+Run the nested-loop stress plan against the running stack for OBSERVATION
+(watch Grafana at http://localhost:3000). No pass/fail gate - that lives in
+run-regression.sh.
+
+Options (must precede any -J args):
+  --java-home <path>   JDK 17/21 for JMeter; falls back to JAVA_HOME
+  --no-preflight       skip the service readiness checks
+  --help               show this help and exit
+
+Any -J<name>=<value> is forwarded to JMeter (defaults in env/local.properties):
+  threads, rampup, duration, loops, users.per.pass.max, tasks.per.user.max
+
+Examples:
+  run-stress.sh --java-home '/path/to/jdk-17'
+  run-stress.sh -Jthreads=100 -Jduration=600
+  run-stress.sh -Jloops=5            # bounded, fully self-cleaning run
+EOF
+}
+
 PREFLIGHT=1
 JAVA_HOME_OPT=""
 while [[ "${1:-}" == --* ]]; do
   case "$1" in
+    --help)         usage; exit 0 ;;
     --no-preflight) PREFLIGHT=0; shift ;;
     --java-home)    validate_java_home "${2:-}"; JAVA_HOME_OPT="$2"; shift 2 ;;
     --)             shift; break ;;
