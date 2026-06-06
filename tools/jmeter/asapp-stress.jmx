@@ -334,11 +334,22 @@
             <stringProp name="JSONPostProcessor.match_numbers">1</stringProp>
           </JSONPostProcessor>
           <hashTree/>
+          <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Init Users Loop Counter" enabled="true">
+            <stringProp name="TestPlan.comments">Seed the per-pass Users fan-out counter/target before the While controller runs. A nested Loop Controller only iterates on a thread&apos;s first pass (JMeter 5.6.3 does not re-initialize it on later thread-group iterations), so the random fan-out is driven by a While controller instead. Runs once per pass on the Refresh sampler, which always precedes the loop.</stringProp>
+            <stringProp name="cacheKey">true</stringProp>
+            <stringProp name="filename"></stringProp>
+            <stringProp name="parameters"></stringProp>
+            <stringProp name="script">int max = (vars.get(&apos;users.per.pass.max&apos;) ?: &apos;10&apos;) as int
+vars.put(&apos;usersLoopTarget&apos;, (1 + (int)(Math.random() * max)).toString())
+vars.put(&apos;usersLoopIdx&apos;, &apos;0&apos;)</stringProp>
+            <stringProp name="scriptLanguage">groovy</stringProp>
+          </JSR223PostProcessor>
+          <hashTree/>
         </hashTree>
-        <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Users Loop" enabled="true">
-          <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">${__Random(1,${users.per.pass.max})}</stringProp>
-        </LoopController>
+        <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="Users Loop" enabled="true">
+          <stringProp name="TestPlan.comments">Repeats usersLoopTarget (1..users.per.pass.max) times per pass. Replaces a Loop Controller, which only iterates on the thread&apos;s first pass in JMeter 5.6.3. The counter is seeded by &apos;Init Users Loop Counter&apos; and advanced by &apos;Increment Users Loop Counter&apos;.</stringProp>
+          <stringProp name="WhileController.condition">${__groovy((vars.get(&apos;usersLoopIdx&apos;) as int) &lt; (vars.get(&apos;usersLoopTarget&apos;) as int))}</stringProp>
+        </WhileController>
         <hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="07 - Create User" enabled="true">
             <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
@@ -382,6 +393,15 @@
               <stringProp name="parameters"></stringProp>
               <stringProp name="script">int n = (vars.get(&apos;userIdsCount&apos;) ?: &apos;0&apos;) as int
 n++; vars.put(&apos;userIdsCount&apos;, n.toString()); vars.put(&apos;userIds_&apos; + n, vars.get(&apos;userId&apos;))</stringProp>
+              <stringProp name="scriptLanguage">groovy</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Increment Users Loop Counter" enabled="true">
+              <stringProp name="TestPlan.comments">Advance the Users While counter once per iteration. Attached to the first sampler of the loop body so it runs even when the sampler fails, guaranteeing the loop always terminates.</stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="script">vars.put(&apos;usersLoopIdx&apos;, ((vars.get(&apos;usersLoopIdx&apos;) as int) + 1).toString())</stringProp>
               <stringProp name="scriptLanguage">groovy</stringProp>
             </JSR223PostProcessor>
             <hashTree/>
@@ -463,11 +483,22 @@ n++; vars.put(&apos;userIdsCount&apos;, n.toString()); vars.put(&apos;userIds_&a
               </collectionProp>
             </HeaderManager>
             <hashTree/>
+            <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Init Tasks Loop Counter" enabled="true">
+              <stringProp name="TestPlan.comments">Seed a fresh Tasks fan-out counter/target before the Tasks While controller. Attached to the last sampler before the loop so it re-seeds on every Users iteration, giving each user a new random task count (matching the original nested-loop intent).</stringProp>
+              <stringProp name="cacheKey">true</stringProp>
+              <stringProp name="filename"></stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="script">int max = (vars.get(&apos;tasks.per.user.max&apos;) ?: &apos;10&apos;) as int
+vars.put(&apos;tasksLoopTarget&apos;, (1 + (int)(Math.random() * max)).toString())
+vars.put(&apos;tasksLoopIdx&apos;, &apos;0&apos;)</stringProp>
+              <stringProp name="scriptLanguage">groovy</stringProp>
+            </JSR223PostProcessor>
+            <hashTree/>
           </hashTree>
-          <LoopController guiclass="LoopControlPanel" testclass="LoopController" testname="Tasks Loop" enabled="true">
-            <boolProp name="LoopController.continue_forever">false</boolProp>
-            <stringProp name="LoopController.loops">${__Random(1,${tasks.per.user.max})}</stringProp>
-          </LoopController>
+          <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="Tasks Loop" enabled="true">
+            <stringProp name="TestPlan.comments">Repeats tasksLoopTarget (1..tasks.per.user.max) times per Users iteration. Replaces a Loop Controller, which only iterates on the thread&apos;s first pass in JMeter 5.6.3. The counter is seeded by &apos;Init Tasks Loop Counter&apos; and advanced by &apos;Increment Tasks Loop Counter&apos;.</stringProp>
+            <stringProp name="WhileController.condition">${__groovy((vars.get(&apos;tasksLoopIdx&apos;) as int) &lt; (vars.get(&apos;tasksLoopTarget&apos;) as int))}</stringProp>
+          </WhileController>
           <hashTree>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="11 - Create Task" enabled="true">
               <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
@@ -511,6 +542,15 @@ n++; vars.put(&apos;userIdsCount&apos;, n.toString()); vars.put(&apos;userIds_&a
                 <stringProp name="parameters"></stringProp>
                 <stringProp name="script">int n = (vars.get(&apos;taskIdsCount&apos;) ?: &apos;0&apos;) as int
 n++; vars.put(&apos;taskIdsCount&apos;, n.toString()); vars.put(&apos;taskIds_&apos; + n, vars.get(&apos;taskId&apos;))</stringProp>
+                <stringProp name="scriptLanguage">groovy</stringProp>
+              </JSR223PostProcessor>
+              <hashTree/>
+              <JSR223PostProcessor guiclass="TestBeanGUI" testclass="JSR223PostProcessor" testname="Increment Tasks Loop Counter" enabled="true">
+                <stringProp name="TestPlan.comments">Advance the Tasks While counter once per iteration. Attached to the first sampler of the loop body so it runs even when the sampler fails, guaranteeing the loop always terminates.</stringProp>
+                <stringProp name="cacheKey">true</stringProp>
+                <stringProp name="filename"></stringProp>
+                <stringProp name="parameters"></stringProp>
+                <stringProp name="script">vars.put(&apos;tasksLoopIdx&apos;, ((vars.get(&apos;tasksLoopIdx&apos;) as int) + 1).toString())</stringProp>
                 <stringProp name="scriptLanguage">groovy</stringProp>
               </JSR223PostProcessor>
               <hashTree/>
