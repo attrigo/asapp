@@ -11,9 +11,12 @@
 #
 # Exits non-zero with guidance if the resolved JVM is newer than Java 21, instead of letting JMeter crash with the cryptic Groovy stack trace.
 # Exports JAVA_HOME (unix-style) so the bash-invoked JMeter launcher uses the resolved JVM.
+#
 
-# All logic lives in a function so its intermediate variables stay `local` and do not leak into the sourcing shell (run-stress.sh).
-# Because we are sourced (not subshelled), `exit` below still aborts the whole run, and `export JAVA_HOME` still reaches the caller.
+# All logic lives in a function so its intermediate variables stay `local` and do not leak into
+# the sourcing shell (run-stress.sh).
+# Because we are sourced (not subshelled), `exit` below still aborts the whole run, and
+# `export JAVA_HOME` still reaches the caller.
 _resolve_jmeter_java() {
   local cli_home="${1:-}"
   local raw_home java_home java_bin ver_out first_line ver_raw ver_major
@@ -42,13 +45,23 @@ _resolve_jmeter_java() {
   # `java -version` prints to stderr; capture it, keep only the first line, then extract the
   # version from inside the double-quotes (e.g. openjdk version "17.0.12" ... -> 17.0.12).
   ver_out="$("$java_bin" -version 2>&1)" || { echo "ERROR: '$java_bin -version' failed." >&2; exit 1; }
+  # ${var%%$'\n'*} strips from the first newline onward, leaving just line 1
+  # ($'\n' is a literal newline).
   first_line="${ver_out%%$'\n'*}"
-  ver_raw="$(printf '%s' "$first_line" | sed -E 's/.*"([^"]+)".*/\1/')"
+  # =~ matches first_line against the regex; the parenthesised group is
+  # captured into BASH_REMATCH[1].
+  if [[ "$first_line" =~ \"([^\"]+)\" ]]; then
+    ver_raw="${BASH_REMATCH[1]}"
+  else
+    ver_raw=""
+  fi
   case "$ver_raw" in
     1.*) ver_major="$(printf '%s' "$ver_raw" | cut -d. -f2)" ;;   # 1.8.0_201 -> 8
     *)   ver_major="$(printf '%s' "$ver_raw" | cut -d. -f1)" ;;   # 17.0.12   -> 17
   esac
 
+  # Guard against a parse failure: this matches if $ver_major is empty ('') OR holds any non-digit
+  # character (*[!0-9]*), i.e. anything that is not a clean integer like "17".
   case "$ver_major" in
     ''|*[!0-9]*)
       echo "ERROR: could not determine Java major version from '$ver_raw'." >&2

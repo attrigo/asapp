@@ -3,8 +3,10 @@
 # Idempotently provision a pinned Apache JMeter into tools/jmeter/.runtime/.
 # Prints the absolute path to the jmeter binary on stdout (logs go to stderr), so callers can do: JMETER_BIN="$(scripts/ensure-jmeter.sh)".
 #
+
 # Fail fast with a clear message if launched by a non-bash shell (e.g. `sh ensure-jmeter.sh`).
-# Must run BEFORE `set -euo pipefail` (a bash-only construct); kept as POSIX `[ ]` so it works under any shell.
+# Must run BEFORE `set -euo pipefail` (a bash-only construct); kept as POSIX `[ ]` so it works
+# under any shell.
 if [ -z "${BASH_VERSION:-}" ]; then
   echo "ERROR: this script requires bash. On Windows, invoke via Git Bash: bash ensure-jmeter.sh" >&2
   exit 1
@@ -35,7 +37,9 @@ echo "Provisioning Apache JMeter ${JMETER_VERSION} (first run only)..." >&2
 mkdir -p "$RUNTIME_DIR"
 
 TMP_ZIP="$(mktemp "${TMPDIR:-/tmp}/jmeter-XXXXXX.zip")"
-trap 'rm -f "$TMP_ZIP"' EXIT
+# Clean up on exit: always delete the temp zip; also delete a half-extracted JMETER_DIR unless the
+# launcher binary is present (extraction finished), so a crash mid-unzip can't leave a broken cache.
+trap 'rm -f "$TMP_ZIP"; [[ -x "$JMETER_BIN" ]] || rm -rf "$JMETER_DIR"' EXIT
 
 # 2. Download. -fSL fails on HTTP errors and follows redirects; the --retry* flags
 #    retry transient failures (including connection-refused) so a flaky mirror doesn't abort us.
@@ -65,8 +69,10 @@ rm -rf "$JMETER_DIR"  # remove any partial extraction from a failed prior run
 if command -v unzip >/dev/null 2>&1; then
   unzip -q "$TMP_ZIP" -d "$RUNTIME_DIR"
 else
-  # No unzip available: fall back to the JDK's jar. cygpath hands jar a Windows-style
-  # path on Git Bash; on other systems the Unix path is used unchanged.
+  # No unzip available: fall back to the JDK's `jar` tool. On Git Bash the temp path looks like
+  # /tmp/jmeter-xxxx.zip (a POSIX path), but the JDK's jar is a native Windows program that needs a
+  # real Windows path (C:\...\Temp\...); `cygpath -w` converts it. On non-Windows shells cygpath is
+  # absent, so the `|| echo` leaves the original Unix path unchanged.
   TMP_ZIP_NATIVE="$(cygpath -w "$TMP_ZIP" 2>/dev/null || echo "$TMP_ZIP")"
   ( cd "$RUNTIME_DIR" && jar xf "$TMP_ZIP_NATIVE" )
 fi

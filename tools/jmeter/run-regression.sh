@@ -5,6 +5,7 @@
 #
 # Run with --help for usage.
 #
+
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -39,7 +40,7 @@ while [[ "${1:-}" == --* ]]; do
     --help)         usage; exit 0 ;;
     --no-preflight) PREFLIGHT=0; shift ;;
     --)             shift; break ;;
-    *)              break ;;  # unknown --flag: leave it for JMeter
+    *)              echo "WARNING: unknown option '$1'; forwarding it to JMeter" >&2; break ;;
   esac
 done
 
@@ -62,7 +63,13 @@ if (( line_count < 2 )); then
   exit 1
 fi
 
-# Gate: find the 'success' column by header name, count false rows.
+# Gate: parse the JTL (a CSV) and count failed samples. awk reads the file line by line; -F','
+# splits each line into fields ($1, $2, ...) on commas, and NR is the current line number.
+#   - NR==1 (header row): scan the column names to find which field is "success", remember its
+#     index in `col`, then `next` to skip to the following line.
+#   - every later row: if that row's "success" field is the string "false", bump the counter `c`.
+#   - END (after the last row): if no "success" column was ever found the JTL is malformed -> abort;
+#     otherwise print the failure count. `c+0` forces a number so an unset `c` prints 0, not "".
 fail_count="$(awk -F',' '
   NR==1 { for (i=1;i<=NF;i++) if ($i=="success") col=i; next }
   col && $col=="false" { c++ }

@@ -5,6 +5,7 @@
 #
 # Run with --help for usage.
 #
+
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -47,7 +48,7 @@ while [[ "${1:-}" == --* ]]; do
     --no-preflight) PREFLIGHT=0; shift ;;
     --java-home)    validate_java_home "${2:-}"; JAVA_HOME_OPT="$2"; shift 2 ;;
     --)             shift; break ;;
-    *)              break ;;  # unknown --flag: leave it for JMeter
+    *)              echo "WARNING: unknown option '$1'; forwarding it to JMeter" >&2; break ;;
   esac
 done
 
@@ -55,7 +56,8 @@ done
 STEP_TOTAL=$(( PREFLIGHT == 1 ? 4 : 3 ))
 
 # JMeter's bundled Groovy 3.0.20 cannot run on a JDK newer than Java 21.
-# Resolve & validate a Java 17/21 JVM (--java-home or JAVA_HOME) and export JAVA_HOME so the JMeter launcher below uses it.
+# Resolve & validate a Java 17/21 JVM (--java-home or JAVA_HOME) and export JAVA_HOME so the
+# JMeter launcher below uses it.
 # Validate before the download so a misconfigured JVM aborts instantly.
 . "$SCRIPT_DIR/scripts/resolve-java.sh" "$JAVA_HOME_OPT"
 
