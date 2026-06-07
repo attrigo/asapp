@@ -1,7 +1,7 @@
 # JMeter load test — design spec
 
 **Date**: 2026-06-04
-**Status**: Approved (pre-implementation)
+**Status**: Implemented
 **Owner**: Antonio Trigo
 **Source**: `TODO.md` v0.4.0 → Quick Wins → Technical Improvements → "Add load test with JMeter"
 **Scope**: New tooling under `tools/jmeter/`; no production code changes.
@@ -263,3 +263,81 @@ Single feature branch (`setup-load-test`, already checked out) off `main`. Commi
 6. `docs(todo): mark JMeter load test as done`
 
 Before opening the PR: dispatch the relevant reviewers (`devops-engineer` for the scripts/provisioning, `architect-reviewer` for overall fit) against the branch diff and address findings. PR title/body follow Conventional Commits + bulleted body per the `commit-msg` skill.
+
+## 15. Post-implementation notes
+
+This spec was written before implementation. The initial slice was built from the plan
+(`docs/superpowers/plans/2026-06-05-jmeter-load-test.md`) and then refined through a
+manual review and debugging pass. The overall shape and the out-of-Maven/CI boundary
+shipped as designed; several lower-level decisions were corrected or extended once the
+plans ran against the real stack. The sections above describe the original design intent;
+**the canonical implementation is the current state of `tools/jmeter/`**. Notable deltas:
+
+- **`JSONPathExtractor` renamed to `JSONPostProcessor` in JMeter 5.6.3.** The spec
+  referenced the old element name; the plans use `JSONPostProcessor` throughout.
+
+- **Preflight probes moved to main ports (8080–8082), not management ports (8090–8092).**
+  The spec listed the management ports for `/readyz`; the actual services expose the probe
+  on the main port via `management.endpoint.health.probes.add-additional-paths`, so polling
+  the management ports returned 404 for a healthy stack. Both run scripts now poll
+  `http://localhost:808{0,1,2}/<context>/readyz`.
+
+- **Revoke step dropped from both plans' teardowns.** `DELETE /api/users/{id}` cascades
+  to clear the user's JWT store, so the explicit `POST /api/auth/revoke` that followed
+  it was redundant and returned 401 (user already gone) instead of the asserted 204. The
+  revoke step was removed from both teardowns. As a consequence the regression plan's
+  **negative revocation check (original step 17)** was also removed — it relied on the
+  revoked token being independently valid, which the cascade invalidation makes
+  untestable at teardown time.
+
+- **Regression plan restructured for full endpoint coverage.** The original 17-step
+  journey interleaved the three services and skipped several read endpoints (auth
+  get-by-id, auth update, auth get-all, users get-all, tasks get-all). The plan was
+  reshaped to mirror the stress journey structure (auth CRUD → token lifecycle → users
+  CRUD → tasks CRUD → enriched fan-out reads → cleanup), giving complete functional
+  coverage of every endpoint across all three services.
+
+- **Stress plan: nested Loop Controllers replaced with While Controllers.** JMeter 5.6.3
+  nested Loop Controllers only execute their body on each thread's **first pass** through
+  the parent; on every subsequent pass they are skipped (the controller marks itself
+  "done" and is never re-initialized). The users loop and tasks loop were replaced with
+  While Controllers driven by per-pass counters (`usersLoopTarget`/`usersLoopIdx`,
+  `tasksLoopTarget`/`tasksLoopIdx`), which re-evaluate their condition on every parent
+  iteration. ForEach cleanup controllers were unaffected — they iterate correctly across
+  passes.
+
+- **Stress plan requires Java 17 or 21 (not Java 25).** JMeter 5.6.3 bundles Groovy
+  3.0.20, which cannot parse Java 25 class files (major version 69). The stress plan's
+  JSR223/Groovy scripts (id-list initialisation, append post-processors, loop counters)
+  crashed at runtime with `Unsupported class file major version 69`. A new
+  `scripts/resolve-java.sh` was added; it locates a Groovy-compatible JDK and is sourced
+  by `run-stress.sh` before JMeter is invoked. `run-regression.sh` has no Groovy and
+  runs on the project's Java 25 without modification.
+
+- **`.jtl` gate replaced with `statistics.json` gate.** The spec proposed parsing the
+  `.jtl` CSV with `awk` to count `success=false` rows. The `.jtl` format embeds commas
+  and newlines inside quoted response/assertion messages; the column parse shifted on
+  those rows and silently passed real failures. The gate now reads `Total.errorCount` from
+  the dashboard's `statistics.json` (structured JSON, immune to embedded delimiters).
+
+- **Layout changes from the §4 spec tree:**
+  - `lib/jmeter-version.properties` → `scripts/jmeter-version.properties` (co-located
+    with its only consumer `ensure-jmeter.sh`).
+  - `env/local-docker.properties` → `env/local.properties` (the localhost defaults serve
+    a native local run as well, not only docker-compose).
+  - Two new scripts added: `scripts/resolve-java.sh` (Groovy-compatible JVM selection for
+    the stress plan) and `scripts/common.sh` (shared preflight, JMeter invocation, and
+    path setup extracted from both run scripts to eliminate duplication).
+
+- **Run-script hardening added post-initial-implementation:**
+  - Unknown `--option` arguments are now rejected with exit 2 (previously forwarded to
+    JMeter, which rejected them but exited 0 — causing a false pass on a run that never
+    executed).
+  - `--java-home <path>` flag on `run-stress.sh` replaces the `JMETER_JAVA_HOME`
+    environment variable for selecting the stress JVM per run.
+
+**For future load-test edits**, treat `tools/jmeter/` as the canonical source and
+`tools/jmeter/README.md` as the operator reference. The key design decisions (out-of-Maven
+boundary, self-provisioning harness, regression-gate vs. stress-observation split,
+per-pass self-cleaning) are preserved exactly as designed; the fixes above are all
+implementation-level corrections surfaced by running against the real stack.
