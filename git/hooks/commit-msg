@@ -3,7 +3,7 @@
 echo "Checking commit message:"
 
 # Create a regex for a conventional commit
-conventional_commit_regex="^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-z \-]+\))?!?: .+$"
+conventional_commit_regex="^(fixup! )?(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-z \-]+\))?!?: .+$"
 
 # Get the commit message
 commit_message=$(cat "$1")

@@ -33,7 +33,7 @@
     * [X] Update commit-msg skill to include a bulleted body in generated commit messages
     * [X] ~~Change commit-msg to perform all operations in a dedicated agent and then response with the message~~
 * Tools
-    * [ ] Support fixup! commits in the commit-msg git hook
+    * [X] Support fixup! commits in the commit-msg git hook
 * Docs
     * [ ] Remove all reference to "docs/guidelines/" from README files
 
