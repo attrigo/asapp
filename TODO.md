@@ -29,6 +29,8 @@
         * [ ] Refactor REST clients by declarative HTTP clients
         * [ ] Use circuit breaker pattern
         * [ ] Use retry pattern
+    * Profiles
+        * [X] Introduce explicit dev and prod profiles to gate dev-only tooling and align with docker/native
 * CI/CD
     * [X] Update commit-msg skill to include a bulleted body in generated commit messages
     * [X] ~~Change commit-msg to perform all operations in a dedicated agent and then response with the message~~
