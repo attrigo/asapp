@@ -69,6 +69,14 @@ docker-compose logs -f asapp-config-service
 docker-compose down -v
 ```
 
+### Profiles
+
+The service is **secure-by-default**: with no environment profile, full Actuator tooling is off and Actuator exposes only `health`, `info`, and `prometheus`. The `dev` profile re-enables it.
+
+- `mvn spring-boot:run` activates `dev` automatically (config-service also keeps `native`, so it runs `native,dev`).
+- The Docker stack runs `native,docker,dev`.
+- For a locked-down deployment set `SPRING_PROFILES_ACTIVE=native,docker,prod`.
+
 ### Trigger Runtime Configuration Refresh
 
 After updating a property file in `central-config/`, signal the related client service to reload without redeploying it.
@@ -202,7 +210,7 @@ mvn clean verify -Pfull
 | Variable                 | Description                           | Default                        |
 |--------------------------|---------------------------------------|--------------------------------|
 | `JAVA_OPTS`              | JVM runtime options                   | (see docker-compose.yaml)      |
-| `SPRING_PROFILES_ACTIVE` | Active Spring profiles                | `native,docker`                |
+| `SPRING_PROFILES_ACTIVE` | Active Spring profiles                | `native,docker,dev`            |
 | `SERVER_PORT`            | HTTP server port                      | `8888`                         |
 | `MANAGEMENT_PORT`        | Actuator management port              | `8898`                         |
 | `SERVICE_USERNAME`       | HTTP Basic username for all endpoints | `user`                         |

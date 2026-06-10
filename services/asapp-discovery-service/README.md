@@ -75,6 +75,14 @@ docker-compose logs -f asapp-discovery-service
 docker-compose down -v
 ```
 
+### Profiles
+
+The service is **secure-by-default**: with no environment profile, full Actuator tooling is off and Actuator exposes only `health`, `info`, and `prometheus`. The `dev` profile re-enables it.
+
+- `mvn spring-boot:run` activates `dev` automatically.
+- The Docker stack runs `docker,dev`.
+- For a locked-down deployment set `SPRING_PROFILES_ACTIVE=docker,prod`.
+
 ---
 
 ## Client Setup
@@ -180,7 +188,7 @@ mvn clean verify -Pfull
 | Variable                 | Description                                       | Default                                                |
 |--------------------------|---------------------------------------------------|--------------------------------------------------------|
 | `JAVA_OPTS`              | JVM runtime options                               | (see docker-compose.yaml)                              |
-| `SPRING_PROFILES_ACTIVE` | Active Spring profiles                            | `docker`                                               |
+| `SPRING_PROFILES_ACTIVE` | Active Spring profiles                            | `docker,dev`                                           |
 | `SERVER_PORT`            | HTTP server port                                  | `8761`                                                 |
 | `MANAGEMENT_PORT`        | Actuator management port                          | `8791`                                                 |
 | `DISCOVERY_HOST`         | Eureka server host used for self-registration URL | `asapp-discovery-service:8761/asapp-discovery-service` |

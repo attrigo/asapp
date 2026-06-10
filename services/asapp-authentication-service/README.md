@@ -90,6 +90,14 @@ docker-compose logs -f asapp-authentication-service
 docker-compose down -v
 ```
 
+### Profiles
+
+The service is **secure-by-default**: with no environment profile, Swagger and full Actuator tooling are off and Actuator exposes only `health`, `info`, and `prometheus`. The `dev` profile re-enables them.
+
+- `mvn spring-boot:run` activates `dev` automatically (Swagger UI is available locally).
+- The Docker stack runs `docker,dev`.
+- For a locked-down deployment set `SPRING_PROFILES_ACTIVE=docker,prod`.
+
 ### Example API Usage
 
 ```bash
@@ -267,7 +275,7 @@ Merged at startup via `spring.config.import`; local files take precedence over c
 | Variable                                       | Description                                   | Default                                                            |
 |------------------------------------------------|-----------------------------------------------|--------------------------------------------------------------------|
 | `JAVA_OPTS`                                    | JVM runtime options                           | (see docker-compose.yaml)                                          |
-| `SPRING_PROFILES_ACTIVE`                       | Active Spring profiles                        | `docker`                                                           |
+| `SPRING_PROFILES_ACTIVE`                       | Active Spring profiles                        | `docker,dev`                                                       |
 | `SERVER_PORT`                                  | HTTP server port                              | `8080`                                                             |
 | `MANAGEMENT_PORT`                              | Actuator management port                      | `8090`                                                             |
 | `DB_HOST`                                      | PostgreSQL hostname                           | `asapp-authentication-postgres-db`                                 |
@@ -329,7 +337,7 @@ Health probes are on the server port (`8080`) at `/asapp-authentication-service`
 | Artifact        | Location                                                             |
 |-----------------|----------------------------------------------------------------------|
 | REST API docs   | `target/generated-docs/api-guide.html`                               |
-| Swagger UI      | `http://localhost:8080/asapp-authentication-service/swagger-ui.html` |
+| Swagger UI      | `http://localhost:8080/asapp-authentication-service/swagger-ui.html` (dev profile only) |
 | Test coverage   | `target/site/jacoco-aggregate/index.html`                            |
 | Mutation report | `target/pit-reports/<timestamp>/index.html`                          |
 | Javadoc         | `target/site/apidocs/index.html`                                     |

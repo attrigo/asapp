@@ -133,6 +133,21 @@ curl -X GET http://localhost:8082/asapp-users-service/api/users/$USER_ID \
 docker-compose down -v
 ```
 
+### Profiles
+
+ASAPP uses two orthogonal profile axes:
+
+| Axis | Values | Controls |
+|------|--------|----------|
+| **Environment** | `dev`, `prod` | Swagger UI, Actuator exposure, heapdump/shutdown access, `info.env`, log verbosity |
+| **Platform** | (default), `docker`, `native` | Service wiring (localhost vs env vars), config-server backend (config-service only) |
+
+The base configuration is **secure-by-default**: with no environment profile active a service is production-safe — Swagger and the heapdump/shutdown endpoints are off and Actuator exposes only `health`, `info`, and `prometheus`. The `dev` profile re-enables the full tooling.
+
+- **Local development** — `mvn spring-boot:run` activates `dev` automatically (config-service runs `native,dev`).
+- **Docker stack** — `docker-compose up -d` runs `docker,dev` (debuggable: Swagger and full Actuator on).
+- **Locked-down deploy** — set `SPRING_PROFILES_ACTIVE` to `docker,prod` (config-service: `native,docker,prod`).
+
 ---
 
 ## Architecture
@@ -363,7 +378,7 @@ See [tools/jmeter/README.md](tools/jmeter/README.md) for more details.
 
 All request and response bodies use **camelCase** JSON field names.
 
-Each service provides interactive Swagger UI:
+Each service provides interactive Swagger UI (available under the `dev` profile only):
 
 | Service            | Swagger UI                                                         |
 |--------------------|--------------------------------------------------------------------|
