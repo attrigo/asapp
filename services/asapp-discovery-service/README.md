@@ -77,6 +77,26 @@ docker-compose down -v
 
 ---
 
+## Configuration & Profiles
+
+The service is **secure-by-default**: with no environment profile, the Actuator exposes only `health`, `info`, `prometheus`, and `sbom`. Activating `dev` re-enables the full tooling.
+
+- **Local** — `mvn spring-boot:run` activates `dev` (wired in the POM).
+- **Docker stack** — `docker,dev`.
+- **Locked-down deploy** — `SPRING_PROFILES_ACTIVE=docker,prod`.
+
+### Property resolution
+
+discovery-service is self-contained — it reads only its own `src/main/resources/` files (it does not consume the config server). A profile overlay (`application-<profile>`) beats the base and applies only when its profile is active. Highest precedence first:
+
+```
+application-docker.properties (docker overlay)
+application-dev.properties    (dev overlay)
+application.properties        (base)
+```
+
+---
+
 ## Client Setup
 
 Services that need to register with and discover other services via this server declare:
@@ -170,9 +190,12 @@ mvn clean verify -Pfull
 
 ### Property Sources
 
+Listed highest-precedence first; `application-<profile>` rows apply only when that profile is active.
+
 | File                            | Source | Scope          |
 |---------------------------------|--------|----------------|
 | `application-docker.properties` | Local  | docker profile |
+| `application-dev.properties`    | Local  | dev profile    |
 | `application.properties`        | Local  | all profiles   |
 
 ### Docker Environment Variables
@@ -180,7 +203,7 @@ mvn clean verify -Pfull
 | Variable                 | Description                                       | Default                                                |
 |--------------------------|---------------------------------------------------|--------------------------------------------------------|
 | `JAVA_OPTS`              | JVM runtime options                               | (see docker-compose.yaml)                              |
-| `SPRING_PROFILES_ACTIVE` | Active Spring profiles                            | `docker`                                               |
+| `SPRING_PROFILES_ACTIVE` | Active Spring profiles                            | `docker,dev`                                           |
 | `SERVER_PORT`            | HTTP server port                                  | `8761`                                                 |
 | `MANAGEMENT_PORT`        | Actuator management port                          | `8791`                                                 |
 | `DISCOVERY_HOST`         | Eureka server host used for self-registration URL | `asapp-discovery-service:8761/asapp-discovery-service` |

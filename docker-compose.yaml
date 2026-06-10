@@ -109,7 +109,7 @@ services:
     environment:
       # Runtime
       - JAVA_OPTS=-Xmx256m -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/heap-dumps
-      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_PROFILES_ACTIVE=docker,dev
       # Ports
       - SERVER_PORT=8080
       - MANAGEMENT_PORT=8090
@@ -160,7 +160,7 @@ services:
     environment:
       # Runtime
       - JAVA_OPTS=-Xmx256m -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/heap-dumps
-      - SPRING_PROFILES_ACTIVE=native,docker
+      - SPRING_PROFILES_ACTIVE=native,docker,dev
       # Ports
       - SERVER_PORT=8888
       - MANAGEMENT_PORT=8898
@@ -189,7 +189,7 @@ services:
     environment:
       # Runtime
       - JAVA_OPTS=-Xmx256m -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/heap-dumps
-      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_PROFILES_ACTIVE=docker,dev
       # Ports
       - SERVER_PORT=8761
       - MANAGEMENT_PORT=8791
@@ -221,7 +221,7 @@ services:
     environment:
       # Runtime
       - JAVA_OPTS=-Xmx256m -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/heap-dumps
-      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_PROFILES_ACTIVE=docker,dev
       # Ports
       - SERVER_PORT=8081
       - MANAGEMENT_PORT=8091
@@ -268,7 +268,7 @@ services:
     environment:
       # Runtime
       - JAVA_OPTS=-Xmx256m -XX:+ExitOnOutOfMemoryError -XX:+HeapDumpOnOutOfMemoryError -XX:HeapDumpPath=/heap-dumps
-      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_PROFILES_ACTIVE=docker,dev
       # Ports
       - SERVER_PORT=8082
       - MANAGEMENT_PORT=8092

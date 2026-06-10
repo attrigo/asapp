@@ -135,6 +135,65 @@ docker-compose down -v
 
 ---
 
+## Configuration & Profiles
+
+ASAPP uses two orthogonal profile axes — a running service activates one value from each:
+
+| Axis | Values | Controls |
+|------|--------|----------|
+| **Environment** | `dev`, `prod` | Swagger UI, Actuator exposure, heapdump/shutdown access, `info.env`, log verbosity |
+| **Platform** | (default), `docker`, `native` | Service wiring (localhost vs env vars), config-server backend (config-service only) |
+
+The base configuration is **secure-by-default**: with no environment profile active, a service is production-safe — Swagger and the heapdump/shutdown endpoints are off and Actuator exposes only `health`, `info`, `prometheus`, and `sbom`. Activating `dev` re-enables the full tooling.
+
+### Profile values
+
+- **`dev`** — re-enables tooling; loads the `application-dev.properties` overlays.
+- **`prod`** — the secure-by-default base; **no overlay file**, an explicit production marker (the base is already locked down).
+- **`docker`** — container wiring via environment variables; loads `application-docker.properties`.
+- **`native`** — **config-service only**; serves configuration from the `central-config/` filesystem. No other service uses it.
+
+### Activating a profile
+
+- **Local development** (default) — `mvn spring-boot:run` activates `dev` automatically; it's wired into each service's Maven plugin.
+- **Docker stack** (default) — `docker-compose up -d` runs `docker,dev`.
+- **Any other posture** — list the profiles explicitly: locally with `-Dspring-boot.run.profiles=…`, or for a packaged jar / container via the `SPRING_PROFILES_ACTIVE` environment variable. Example — a locked-down stack: `SPRING_PROFILES_ACTIVE=docker,prod`.
+
+With no profile set at all (a bare `java -jar` or container), a service runs locked down — the secure-by-default baseline.
+
+> config-service also needs `native` in every posture (it's the config-server backend), so prefix its profiles: `native,dev`, `native,docker,prod`, etc. See the [config-service README](services/asapp-config-service/README.md) for details.
+
+### Property resolution
+
+Properties come from up to two locations:
+
+- **Local** — the service's own `src/main/resources/`.
+- **Shared** — `central-config/`, served by the Config Service to its clients (Authentication, Tasks, Users).
+
+> Config and Discovery are **not** config-server clients — they read only their local files (no shared layer).
+
+The more specific source wins: a profile overlay (`application-<profile>.properties`) beats the base (`application.properties`), and Local beats Shared. An overlay loads only when its profile is active. Highest precedence first:
+
+**Config-server client** (Auth, Tasks, Users)
+
+```
+Local   application.properties                          (own base)
+Shared  central-config/<service>.properties             (service-specific)
+Shared  central-config/application-<profile>.properties (overlay)
+Shared  central-config/application.properties           (shared base)
+```
+
+**Self-contained service** (Config, Discovery)
+
+```
+application-<profile>.properties   (overlay)
+application.properties             (base)
+```
+
+Each service's *Property Sources* table (under **Reference**) lists its full order.
+
+---
+
 ## Architecture
 
 ### System Architecture
@@ -363,7 +422,7 @@ See [tools/jmeter/README.md](tools/jmeter/README.md) for more details.
 
 All request and response bodies use **camelCase** JSON field names.
 
-Each service provides interactive Swagger UI:
+Each service provides interactive Swagger UI (available under the `dev` profile only):
 
 | Service            | Swagger UI                                                         |
 |--------------------|--------------------------------------------------------------------|

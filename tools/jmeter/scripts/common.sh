@@ -101,3 +101,21 @@ run_plan() {
 
   (( rc == 0 )) || exit "$rc"
 }
+
+# evaluate_gate <label>
+# Make a `jmeter -n` run a real pass/fail gate: read the run's total error count from the
+# dashboard's statistics.json (structured JSON, unlike the .jtl whose quoted messages embed
+# commas/newlines and would defeat a column parse). One gawk line pulls Total.errorCount;
+# a non-zero count, or a missing file, fails the gate.
+#   Inputs: REPORT (set by run_plan)
+evaluate_gate() {
+  local label="$1" errors
+  errors="$(gawk '/"Total"[[:space:]]*:/{t=1} t&&/"errorCount"/{match($0,/[0-9]+/); print substr($0,RSTART,RLENGTH); exit}' "$REPORT/statistics.json")"
+  if (( ${errors:-1} > 0 )); then
+    log_detail "$label FAILED."
+    log_detail "Report: $REPORT/index.html"
+    exit 1
+  fi
+  log_detail "$label PASSED."
+  log_detail "Report: $REPORT/index.html"
+}
