@@ -1,27 +1,32 @@
 # JMeter load tests
 
-Two standalone [Apache JMeter](https://jmeter.apache.org/) plans that run from the CLI against the running `docker-compose` stack (outside the Maven build and
+Three standalone [Apache JMeter](https://jmeter.apache.org/) plans that run from the CLI against the running `docker-compose` stack (outside the Maven build and
 CI: nothing here runs during `mvn verify`).
 
 - **`asapp-regression.jmx`**: a single deterministic pass over every functional endpoint, with correctness assertions. The automated pre-release go/no-go gate (
   replaces the old manual click-through).
 - **`asapp-stress.jmx`**: the same comprehensive read+write journey run by many concurrent threads (nested random-count loops scale the data volume), for
   observation in Grafana.
+- **`asapp-tooling-exposure.jmx`**: a black-box check that the project tooling (Swagger UI, OpenAPI docs, Actuator) is exposed as the active environment profile
+  dictates — `--profile dev` asserts it is ON (docs reachable, full Actuator, `dev` active), `--profile prod` asserts it is locked down (docs 404, narrow Actuator,
+  `env` 404).
 
 ## Layout
 
 ```
 tools/jmeter/
-├── asapp-regression.jmx   # pre-release gate plan
-├── asapp-stress.jmx       # concurrent load plan
-├── run-regression.sh      # entrypoint: regression
-├── run-stress.sh          # entrypoint: stress
+├── asapp-regression.jmx        # pre-release gate plan (business journey)
+├── asapp-stress.jmx            # concurrent load plan
+├── asapp-tooling-exposure.jmx  # per-profile tooling exposure plan
+├── run-regression.sh           # entrypoint: regression
+├── run-stress.sh               # entrypoint: stress
+├── run-tooling-exposure.sh     # entrypoint: tooling exposure
 ├── env/
-│   └── local.properties   # default tunables (-J overrides)
-└── scripts/               # shared internals
-    ├── common.sh          # paths, logging, preflight, run_plan
-    ├── ensure-jmeter.sh   # download + SHA-512 verify engine
-    ├── resolve-java.sh    # locate/validate Java 17/21
+│   └── local.properties        # default tunables (-J overrides)
+└── scripts/                    # shared internals
+    ├── common.sh               # paths, logging, preflight, run_plan, evaluate_gate
+    ├── ensure-jmeter.sh        # download + SHA-512 verify engine
+    ├── resolve-java.sh         # locate/validate Java 17/21
     └── jmeter-version.properties  # pinned version/URL/sum
 ```
 
@@ -33,6 +38,7 @@ tools/jmeter/
 - No separate JMeter install is needed.
 - **The stress plan needs Java 17 or 21.** JMeter 5.6.3 bundles Groovy 3.0.20, which cannot run on newer JVMs. Point JMeter at a 17/21 JDK with the
   `--java-home` flag (falls back to `JAVA_HOME`); `run-stress.sh` validates this and fails fast with guidance.
+- **`run-tooling-exposure.sh --profile prod` needs a locked-down stack**: start it with `SPRING_PROFILES_ACTIVE=…,prod` before running.
 - Scripts are bash; on Windows run them via Git for Windows' bundled `bash`.
 
 ## Run
@@ -48,6 +54,11 @@ cd tools/jmeter
 # Tunable concurrent load for observation (default: 20 threads for 300s).
 # Stress needs Java 17/21 (see Prerequisites); pass the JDK with --java-home or rely on JAVA_HOME:
 ./run-stress.sh --java-home '/path/to/jdk-17'
+
+# Per-profile tooling exposure (dev = open tooling, prod = locked down).
+# The stack must be running with the matching profile (default compose stack = docker,dev):
+./run-tooling-exposure.sh                  # asserts the dev posture
+./run-tooling-exposure.sh --profile prod   # against a docker,prod stack
 ```
 
 ```bash
@@ -69,16 +80,19 @@ Extra `-J`/`-G`/`-D` args pass straight to JMeter; an unknown `--option` is reje
 ./run-stress.sh -Jloops=5    # bounded, fully self-cleaning run (leaves DB as found)
 ```
 
-| Property                     | Default                  | Meaning                                                                                       |
-|------------------------------|--------------------------|-----------------------------------------------------------------------------------------------|
-| `threads`                    | `20`                     | concurrent virtual users (stress)                                                             |
-| `rampup`                     | `20`                     | ramp-up seconds (stress)                                                                      |
-| `duration`                   | `300`                    | seconds the threads keep looping the journey                                                  |
-| `loops`                      | `-1`                     | loop cap per thread; `-1` = run for the full `duration`; `>=1` = bounded, fully self-cleaning |
-| `users.per.pass.max`         | `10`                     | owner users per pass = `__Random(1, this)`                                                    |
-| `tasks.per.user.max`         | `10`                     | tasks per owner user = `__Random(1, this)`                                                    |
-| `password`                   | `L0adT3st!Pass`          | password for all load users                                                                   |
-| `auth.* / tasks.* / users.*` | localhost / docker ports | per-service `scheme`/`host`/`port`/`context`                                                  |
+| Property                        | Default                  | Meaning                                                                                       |
+|---------------------------------|--------------------------|-----------------------------------------------------------------------------------------------|
+| `threads`                       | `20`                     | concurrent virtual users (stress)                                                             |
+| `rampup`                        | `20`                     | ramp-up seconds (stress)                                                                      |
+| `duration`                      | `300`                    | seconds the threads keep looping the journey                                                  |
+| `loops`                         | `-1`                     | loop cap per thread; `-1` = run for the full `duration`; `>=1` = bounded, fully self-cleaning |
+| `users.per.pass.max`            | `10`                     | owner users per pass = `__Random(1, this)`                                                    |
+| `tasks.per.user.max`            | `10`                     | tasks per owner user = `__Random(1, this)`                                                    |
+| `password`                      | `L0adT3st!Pass`          | password for all load users                                                                   |
+| `auth.* / tasks.* / users.*`    | localhost / docker ports | per-service `scheme`/`host`/`port`/`context`                                                  |
+| `profile`                       | `dev`                    | tooling-exposure: environment profile to assert (`dev`/`prod`); prefer `--profile`            |
+| `<svc>.mgmt.port`               | `8090` / `8091` / `8092` | per-service Actuator management port (tooling-exposure plan)                                  |
+| `mgmt.username / mgmt.password` | `user` / `secret`        | Actuator Basic-auth credentials (tooling-exposure plan)                                       |
 
 A loops-bounded run (`-Jloops=N`) and the regression run leave the databases exactly as they found them. A duration-bounded run (`loops=-1`) may leave orphan
 rows from the final in-flight pass; reset volumes occasionally with `docker-compose down -v` if they accumulate.
