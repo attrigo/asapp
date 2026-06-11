@@ -92,7 +92,7 @@ docker-compose down -v
 
 ### Profiles
 
-The service is **secure-by-default**: with no environment profile, Swagger and full Actuator tooling are off and Actuator exposes only `health`, `info`, and `prometheus`. The `dev` profile re-enables them.
+The service is **secure-by-default**: with no environment profile, Swagger, Actuator (exposes only `health`, `info`, and `prometheus`) and Rest Docs tooling are off. The `dev` profile re-enables them.
 
 - `mvn spring-boot:run` activates `dev` automatically (Swagger UI is available locally).
 - The Docker stack runs `docker,dev`.
