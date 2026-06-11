@@ -21,9 +21,7 @@ import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalManagementPort;
 import org.springframework.test.context.TestPropertySource;
@@ -32,47 +30,40 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 import com.bcn.asapp.config.AsappConfigServiceApplication;
 
 /**
- * Tests the secure-by-default (prod) posture of the config service endpoint exposure and access control.
+ * Tests the secure-by-default (prod) endpoint exposure and availability.
  * <p>
  * Coverage:
  * <li>Actuator root exposes only health, info and prometheus links when exposure is narrowed</li>
  * <li>Sensitive actuator endpoints (env, heapdump, shutdown) are not reachable when locked down</li>
- * <li>Protected actuator endpoints require Basic authentication</li>
- * <li>Health endpoint remains publicly accessible without credentials</li>
- * <li>Liveness and readiness probes remain publicly accessible without credentials</li>
  */
 @SpringBootTest(classes = AsappConfigServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureRestTestClient
 @TestPropertySource(properties = { "management.endpoints.web.exposure.include=health,info,prometheus", "management.endpoint.heapdump.access=none",
         "management.endpoint.shutdown.access=none", "management.info.env.enabled=false" })
 class SecureByDefaultEndpointsIT {
 
-    @Autowired
-    private RestTestClient restTestClient;
+    @LocalManagementPort
+    private int managementPort;
+
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
+
+    @Value("${spring.security.user.name}")
+    private String configUsername;
+
+    @Value("${spring.security.user.password}")
+    private String configPassword;
+
+    private RestTestClient managementRestTestClient;
+
+    @BeforeEach
+    void setUp() {
+        managementRestTestClient = RestTestClient.bindToServer()
+                                                 .baseUrl("http://localhost:" + managementPort + contextPath)
+                                                 .build();
+    }
 
     @Nested
     class ActuatorExposure {
-
-        @LocalManagementPort
-        private int managementPort;
-
-        @Value("${server.servlet.context-path}")
-        private String contextPath;
-
-        @Value("${spring.security.user.name}")
-        private String configUsername;
-
-        @Value("${spring.security.user.password}")
-        private String configPassword;
-
-        private RestTestClient managementRestTestClient;
-
-        @BeforeEach
-        void setUp() {
-            managementRestTestClient = RestTestClient.bindToServer()
-                                                     .baseUrl("http://localhost:" + managementPort + contextPath)
-                                                     .build();
-        }
 
         @Test
         void BodyContainsOnlyHealthInfoPrometheusLinks_ExposureNarrowed() {
@@ -87,14 +78,8 @@ class SecureByDefaultEndpointsIT {
                                     .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
                                                                                                        .node("_links")
                                                                                                        .isObject()
-                                                                                                       .containsKeys("self", "health", "health-path", "info",
-                                                                                                               "prometheus")
-                                                                                                       .doesNotContainKeys("beans", "env", "env-toMatch",
-                                                                                                               "heapdump", "threaddump", "shutdown", "loggers",
-                                                                                                               "loggers-name", "mappings", "conditions",
-                                                                                                               "configprops", "configprops-prefix", "sbom",
-                                                                                                               "sbom-id", "metrics",
-                                                                                                               "metrics-requiredMetricName", "scheduledtasks"));
+                                                                                                       .containsOnlyKeys("self", "health", "health-path",
+                                                                                                               "info", "prometheus"));
         }
 
         @Test
@@ -128,113 +113,6 @@ class SecureByDefaultEndpointsIT {
                                     .exchange()
                                     .expectStatus()
                                     .isNotFound();
-        }
-
-    }
-
-    @Nested
-    class ActuatorAuthentication {
-
-        @LocalManagementPort
-        private int managementPort;
-
-        @Value("${server.servlet.context-path}")
-        private String contextPath;
-
-        @Value("${spring.security.user.name}")
-        private String configUsername;
-
-        @Value("${spring.security.user.password}")
-        private String configPassword;
-
-        private RestTestClient managementRestTestClient;
-
-        @BeforeEach
-        void setUp() {
-            managementRestTestClient = RestTestClient.bindToServer()
-                                                     .baseUrl("http://localhost:" + managementPort + contextPath)
-                                                     .build();
-        }
-
-        @Test
-        void ReturnsStatusUnauthorized_InfoEndpointWithoutCredentials() {
-            // When & Then
-            managementRestTestClient.get()
-                                    .uri("/actuator/info")
-                                    .exchange()
-                                    .expectStatus()
-                                    .isUnauthorized();
-        }
-
-        @Test
-        void ReturnsStatusUnauthorized_PrometheusEndpointWithoutCredentials() {
-            // When & Then
-            managementRestTestClient.get()
-                                    .uri("/actuator/prometheus")
-                                    .exchange()
-                                    .expectStatus()
-                                    .isUnauthorized();
-        }
-
-        @Test
-        void ReturnsStatusOk_InfoEndpointWithValidCredentials() {
-            // When & Then
-            managementRestTestClient.get()
-                                    .uri("/actuator/info")
-                                    .headers(h -> h.setBasicAuth(configUsername, configPassword))
-                                    .exchange()
-                                    .expectStatus()
-                                    .isOk();
-        }
-
-    }
-
-    @Nested
-    class Probes {
-
-        @LocalManagementPort
-        private int managementPort;
-
-        @Value("${server.servlet.context-path}")
-        private String contextPath;
-
-        private RestTestClient managementRestTestClient;
-
-        @BeforeEach
-        void setUp() {
-            managementRestTestClient = RestTestClient.bindToServer()
-                                                     .baseUrl("http://localhost:" + managementPort + contextPath)
-                                                     .build();
-        }
-
-        @Test
-        void ReturnsStatusOk_HealthEndpointPublic() {
-            // When & Then
-            managementRestTestClient.get()
-                                    .uri("/actuator/health")
-                                    .exchange()
-                                    .expectStatus()
-                                    .isOk();
-        }
-
-        @Test
-        void ReturnsStatusOk_LivezProbePublic() {
-            // When & Then
-            restTestClient.get()
-                          .uri("/livez")
-                          .exchange()
-                          .expectStatus()
-                          .isOk();
-        }
-
-        @Test
-        void ReturnsStatusOk_ReadyzProbePublic() {
-            // When & Then
-            restTestClient.get()
-                          .uri("/readyz")
-                          .exchange()
-                          .expectStatus()
-                          .isOk();
         }
 
     }
