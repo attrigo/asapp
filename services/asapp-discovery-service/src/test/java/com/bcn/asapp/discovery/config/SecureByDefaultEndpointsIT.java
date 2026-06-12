@@ -33,10 +33,10 @@ import com.bcn.asapp.discovery.AsappDiscoveryServiceApplication;
  * Tests the secure-by-default (prod) Actuator endpoint exposure.
  * <p>
  * Coverage:
- * <li>Actuator root exposes only health, info and prometheus links when exposure is narrowed</li>
+ * <li>Actuator root exposes only health, info, prometheus and sbom links when exposure is narrowed</li>
  */
 @SpringBootTest(classes = AsappDiscoveryServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = { "management.endpoints.web.exposure.include=health,info,prometheus", "management.endpoint.heapdump.access=none",
+@TestPropertySource(properties = { "management.endpoints.web.exposure.include=health,info,prometheus,sbom", "management.endpoint.heapdump.access=none",
         "management.endpoint.shutdown.access=none", "management.info.env.enabled=false" })
 class SecureByDefaultEndpointsIT {
 
@@ -78,7 +78,7 @@ class SecureByDefaultEndpointsIT {
                                                                                                        .node("_links")
                                                                                                        .isObject()
                                                                                                        .containsOnlyKeys("self", "health", "health-path",
-                                                                                                               "info", "prometheus"));
+                                                                                                               "info", "prometheus", "sbom", "sbom-id"));
         }
 
     }

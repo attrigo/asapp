@@ -37,14 +37,14 @@ import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
  * Tests the secure-by-default (prod) endpoint exposure and availability.
  * <p>
  * Coverage:
- * <li>Actuator root exposes only health, info and prometheus links when exposure is narrowed</li>
+ * <li>Actuator root exposes only health, info, prometheus and sbom links when exposure is narrowed</li>
  * <li>Swagger UI endpoint is not reachable when springdoc is disabled</li>
  * <li>OpenAPI documentation endpoint is not reachable when springdoc is disabled</li>
  */
 @SpringBootTest(classes = AsappTasksServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
 @Import(TestContainerConfiguration.class)
-@TestPropertySource(properties = { "management.endpoints.web.exposure.include=health,info,prometheus", "management.endpoint.heapdump.access=none",
+@TestPropertySource(properties = { "management.endpoints.web.exposure.include=health,info,prometheus,sbom", "management.endpoint.heapdump.access=none",
         "management.endpoint.shutdown.access=none", "management.info.env.enabled=false", "springdoc.api-docs.enabled=false",
         "springdoc.swagger-ui.enabled=false" })
 class SecureByDefaultEndpointsIT {
@@ -115,7 +115,7 @@ class SecureByDefaultEndpointsIT {
                                                                                                        .node("_links")
                                                                                                        .isObject()
                                                                                                        .containsOnlyKeys("self", "health", "health-path",
-                                                                                                               "info", "prometheus"));
+                                                                                                               "info", "prometheus", "sbom", "sbom-id"));
         }
 
     }
