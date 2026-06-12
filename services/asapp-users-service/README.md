@@ -83,14 +83,6 @@ docker-compose logs -f asapp-users-service
 docker-compose down -v
 ```
 
-### Profiles
-
-The service is **secure-by-default**: with no environment profile, Swagger and full Actuator tooling are off and Actuator exposes only `health`, `info`, and `prometheus`. The `dev` profile re-enables them.
-
-- `mvn spring-boot:run` activates `dev` automatically (Swagger UI is available locally).
-- The Docker stack runs `docker,dev`.
-- For a locked-down deployment set `SPRING_PROFILES_ACTIVE=docker,prod`.
-
 ### Example API Usage
 
 ```bash
@@ -124,6 +116,34 @@ curl -X GET http://localhost:8082/asapp-users-service/api/users/{id} \
   "phone_number": "+1-555-0123",
   "tasks": ["task-id-1", "task-id-2"]
 }
+```
+
+---
+
+## Configuration & Profiles
+
+The service is **secure-by-default**: with no environment profile, Swagger UI is off and the Actuator exposes only `health`, `info`, `prometheus`, and `sbom`. Activating `dev` re-enables the full tooling.
+
+- **Local** — `mvn spring-boot:run` activates `dev` (wired in the POM).
+- **Docker stack** — `docker,dev`.
+- **Locked-down deploy** — `SPRING_PROFILES_ACTIVE=docker,prod`.
+
+### Property resolution
+
+users-service is a **config-server client**: at startup (via `spring.config.import`) it merges properties from two locations —
+
+- **Local** — its own `src/main/resources/`.
+- **Shared** — `central-config/`, served by the Config Service.
+
+Local beats Shared, a profile overlay (`application-<profile>`) beats its base, and an overlay applies only when its profile is active. Highest precedence first:
+
+```
+Local   application-docker.properties                 (docker overlay)
+Local   application.properties                        (base)
+Shared  central-config/asapp-users-service.properties (service-specific)
+Shared  central-config/application-docker.properties  (docker overlay)
+Shared  central-config/application-dev.properties     (dev overlay)
+Shared  central-config/application.properties         (base)
 ```
 
 ---
@@ -249,7 +269,7 @@ mvn asciidoctor:process-asciidoc@generate-docs
 
 ### Property Sources
 
-Merged at startup via `spring.config.import`; local files take precedence over centralized ones.
+Listed highest-precedence first; `application-<profile>` rows apply only when that profile is active.
 
 | File                             | Source      | Scope                  |
 |----------------------------------|-------------|------------------------|
@@ -257,6 +277,7 @@ Merged at startup via `spring.config.import`; local files take precedence over c
 | `application.properties`         | Local       | all profiles           |
 | `asapp-users-service.properties` | Centralized | service-specific       |
 | `application-docker.properties`  | Centralized | shared, docker profile |
+| `application-dev.properties`     | Centralized | shared, dev profile    |
 | `application.properties`         | Centralized | shared                 |
 
 ### Docker Environment Variables

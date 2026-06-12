@@ -69,14 +69,6 @@ docker-compose logs -f asapp-config-service
 docker-compose down -v
 ```
 
-### Profiles
-
-The service is **secure-by-default**: with no environment profile, full Actuator tooling is off and Actuator exposes only `health`, `info`, and `prometheus`. The `dev` profile re-enables it.
-
-- `mvn spring-boot:run` activates `dev` automatically (config-service also keeps `native`, so it runs `native,dev`).
-- The Docker stack runs `native,docker,dev`.
-- For a locked-down deployment set `SPRING_PROFILES_ACTIVE=native,docker,prod`.
-
 ### Trigger Runtime Configuration Refresh
 
 After updating a property file in `central-config/`, signal the related client service to reload without redeploying it.
@@ -89,6 +81,30 @@ curl -X POST http://localhost:8092/asapp-users-service/actuator/refresh
 
 > **Note**: Only properties consumed by `@RefreshScope` beans or `@ConfigurationProperties` classes are applied at runtime.
 > Properties that drive Spring Boot auto-configuration decisions are evaluated once at startup and require a service restart to take effect.
+
+---
+
+## Configuration & Profiles
+
+The service is **secure-by-default**: with no environment profile, the Actuator exposes only `health`, `info`, `prometheus`, and `sbom`. Activating `dev` re-enables the full tooling.
+
+- **Local** — `mvn spring-boot:run` activates `native,dev` (wired in the POM).
+- **Docker stack** — `native,docker,dev`.
+- **Locked-down deploy** — `SPRING_PROFILES_ACTIVE=native,docker,prod`.
+
+config-service always needs `native`: it's the config server's filesystem backend (`central-config/`). An explicit profile list **replaces** the active profiles rather than adding to them, so every explicit run must re-list it: `native,dev`, `native,docker,prod`; never `dev` or `prod` alone.
+
+### Property resolution
+
+config-service is **not** a config-server client — it reads its own configuration only from its local `src/main/resources/` files. A profile overlay (`application-<profile>`) beats the base and applies only when its profile is active. Highest precedence first:
+
+```
+application-docker.properties (docker overlay)
+application-dev.properties    (dev overlay)
+application.properties        (base)
+```
+
+`central-config/` is what config-service **serves** to clients, not its own config (see *Served Configuration Resolution* under Architecture).
 
 ---
 
@@ -115,8 +131,8 @@ without any profile-specific override.
 
 ## Architecture
 
-The Config Service is a thin infrastructure service with no business logic. It is built on **Spring Cloud Config Server** (`@EnableConfigServer`) using the *
-*native** profile, which reads property files directly from the filesystem (`central-config/`). No git history is required, the directory is part of the main
+The Config Service is a thin infrastructure service with no business logic. It is built on **Spring Cloud Config Server** (`@EnableConfigServer`) using the
+**native** profile, which reads property files directly from the filesystem (`central-config/`). No git history is required, the directory is part of the main
 repository.
 
 ### Configuration Files
@@ -125,12 +141,13 @@ repository.
 central-config/
 ├── application.properties                    # Shared by all services (all profiles)
 ├── application-docker.properties             # Shared by all services (docker profile only)
+├── application-dev.properties                # Shared by all services (dev profile only)
 ├── asapp-authentication-service.properties   # Auth service specific
 ├── asapp-tasks-service.properties            # Tasks service specific
 └── asapp-users-service.properties            # Users service specific
 ```
 
-### Property Resolution
+### Served Configuration Resolution
 
 When a client requests its configuration, the server merges property sources in priority order (highest first):
 
@@ -140,6 +157,8 @@ When a client requests its configuration, the server merges property sources in 
 | `{service}.properties`             | per-service, all profiles     |
 | `application-{profile}.properties` | shared, profile-specific      |
 | `application.properties`           | shared, all profiles          |
+
+These are the `central-config/` files. A client's own local files take precedence over all of them.
 
 ### Security Model
 
@@ -200,9 +219,12 @@ mvn clean verify -Pfull
 
 ### Property Sources
 
+Listed highest-precedence first; `application-<profile>` rows apply only when that profile is active.
+
 | File                            | Source | Scope          |
 |---------------------------------|--------|----------------|
 | `application-docker.properties` | Local  | docker profile |
+| `application-dev.properties`    | Local  | dev profile    |
 | `application.properties`        | Local  | all profiles   |
 
 ### Docker Environment Variables

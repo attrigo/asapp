@@ -75,13 +75,25 @@ docker-compose logs -f asapp-discovery-service
 docker-compose down -v
 ```
 
-### Profiles
+---
 
-The service is **secure-by-default**: with no environment profile, full Actuator tooling is off and Actuator exposes only `health`, `info`, and `prometheus`. The `dev` profile re-enables it.
+## Configuration & Profiles
 
-- `mvn spring-boot:run` activates `dev` automatically.
-- The Docker stack runs `docker,dev`.
-- For a locked-down deployment set `SPRING_PROFILES_ACTIVE=docker,prod`.
+The service is **secure-by-default**: with no environment profile, the Actuator exposes only `health`, `info`, `prometheus`, and `sbom`. Activating `dev` re-enables the full tooling.
+
+- **Local** — `mvn spring-boot:run` activates `dev` (wired in the POM).
+- **Docker stack** — `docker,dev`.
+- **Locked-down deploy** — `SPRING_PROFILES_ACTIVE=docker,prod`.
+
+### Property resolution
+
+discovery-service is self-contained — it reads only its own `src/main/resources/` files (it does not consume the config server). A profile overlay (`application-<profile>`) beats the base and applies only when its profile is active. Highest precedence first:
+
+```
+application-docker.properties (docker overlay)
+application-dev.properties    (dev overlay)
+application.properties        (base)
+```
 
 ---
 
@@ -178,9 +190,12 @@ mvn clean verify -Pfull
 
 ### Property Sources
 
+Listed highest-precedence first; `application-<profile>` rows apply only when that profile is active.
+
 | File                            | Source | Scope          |
 |---------------------------------|--------|----------------|
 | `application-docker.properties` | Local  | docker profile |
+| `application-dev.properties`    | Local  | dev profile    |
 | `application.properties`        | Local  | all profiles   |
 
 ### Docker Environment Variables
