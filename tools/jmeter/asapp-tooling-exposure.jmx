@@ -6,6 +6,8 @@
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
         <collectionProp name="Arguments.arguments"/>
       </elementProp>
+      <boolProp name="TestPlan.functional_mode">false</boolProp>
+      <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
     </TestPlan>
     <hashTree>
       <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Configuration">
@@ -103,7 +105,7 @@
         </collectionProp>
       </Arguments>
       <hashTree/>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Tooling Exposure Test">
+      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Tooling Exposure Test" enabled="true">
         <intProp name="ThreadGroup.num_threads">1</intProp>
         <intProp name="ThreadGroup.ramp_time">1</intProp>
         <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
@@ -141,12 +143,11 @@
               <stringProp name="Authorization.mechanism">BASIC</stringProp>
             </elementProp>
           </collectionProp>
-          <boolProp name="AuthManager.clearEachIteration">false</boolProp>
           <boolProp name="AuthManager.controlledByThreadGroup">false</boolProp>
         </AuthManager>
         <hashTree/>
         <IfController guiclass="IfControllerPanel" testclass="IfController" testname="profile == dev (open tooling)" enabled="true">
-          <stringProp name="IfController.condition">${__groovy(vars.get("profile")=="dev")}</stringProp>
+          <stringProp name="IfController.condition">${__groovy(vars.get(&quot;profile&quot;)==&quot;dev&quot;)}</stringProp>
           <boolProp name="IfController.evaluateAll">false</boolProp>
           <boolProp name="IfController.useExpression">true</boolProp>
         </IfController>
@@ -227,31 +228,31 @@
             <hashTree/>
             <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Actuator Exposes All Links" enabled="true">
               <collectionProp name="Asserion.test_strings">
-                <stringProp name="self">&quot;self&quot;</stringProp>
-                <stringProp name="beans">&quot;beans&quot;</stringProp>
-                <stringProp name="health">&quot;health&quot;</stringProp>
-                <stringProp name="health-path">&quot;health-path&quot;</stringProp>
-                <stringProp name="info">&quot;info&quot;</stringProp>
-                <stringProp name="conditions">&quot;conditions&quot;</stringProp>
-                <stringProp name="shutdown">&quot;shutdown&quot;</stringProp>
-                <stringProp name="configprops">&quot;configprops&quot;</stringProp>
-                <stringProp name="configprops-prefix">&quot;configprops-prefix&quot;</stringProp>
-                <stringProp name="env">&quot;env&quot;</stringProp>
-                <stringProp name="env-toMatch">&quot;env-toMatch&quot;</stringProp>
-                <stringProp name="liquibase">&quot;liquibase&quot;</stringProp>
-                <stringProp name="loggers">&quot;loggers&quot;</stringProp>
-                <stringProp name="loggers-name">&quot;loggers-name&quot;</stringProp>
-                <stringProp name="heapdump">&quot;heapdump&quot;</stringProp>
-                <stringProp name="threaddump">&quot;threaddump&quot;</stringProp>
-                <stringProp name="prometheus">&quot;prometheus&quot;</stringProp>
-                <stringProp name="metrics-requiredMetricName">&quot;metrics-requiredMetricName&quot;</stringProp>
-                <stringProp name="metrics">&quot;metrics&quot;</stringProp>
-                <stringProp name="sbom-id">&quot;sbom-id&quot;</stringProp>
-                <stringProp name="sbom">&quot;sbom&quot;</stringProp>
-                <stringProp name="scheduledtasks">&quot;scheduledtasks&quot;</stringProp>
-                <stringProp name="httpexchanges">&quot;httpexchanges&quot;</stringProp>
-                <stringProp name="mappings">&quot;mappings&quot;</stringProp>
-                <stringProp name="refresh">&quot;refresh&quot;</stringProp>
+                <stringProp name="1082711924">&quot;self&quot;</stringProp>
+                <stringProp name="-1282681759">&quot;beans&quot;</stringProp>
+                <stringProp name="-78430492">&quot;health&quot;</stringProp>
+                <stringProp name="-1959665906">&quot;health-path&quot;</stringProp>
+                <stringProp name="1073739346">&quot;info&quot;</stringProp>
+                <stringProp name="1301976840">&quot;conditions&quot;</stringProp>
+                <stringProp name="953797290">&quot;shutdown&quot;</stringProp>
+                <stringProp name="-357774442">&quot;configprops&quot;</stringProp>
+                <stringProp name="-871912177">&quot;configprops-prefix&quot;</stringProp>
+                <stringProp name="34518007">&quot;env&quot;</stringProp>
+                <stringProp name="-445521062">&quot;env-toMatch&quot;</stringProp>
+                <stringProp name="1707773419">&quot;liquibase&quot;</stringProp>
+                <stringProp name="696753601">&quot;loggers&quot;</stringProp>
+                <stringProp name="-32835413">&quot;loggers-name&quot;</stringProp>
+                <stringProp name="2037911648">&quot;heapdump&quot;</stringProp>
+                <stringProp name="2029527938">&quot;threaddump&quot;</stringProp>
+                <stringProp name="563579670">&quot;prometheus&quot;</stringProp>
+                <stringProp name="1822407836">&quot;metrics-requiredMetricName&quot;</stringProp>
+                <stringProp name="-1758063135">&quot;metrics&quot;</stringProp>
+                <stringProp name="1591775017">&quot;sbom-id&quot;</stringProp>
+                <stringProp name="1082625651">&quot;sbom&quot;</stringProp>
+                <stringProp name="1729116383">&quot;scheduledtasks&quot;</stringProp>
+                <stringProp name="-1684489572">&quot;httpexchanges&quot;</stringProp>
+                <stringProp name="-653643397">&quot;mappings&quot;</stringProp>
+                <stringProp name="-2034858295">&quot;refresh&quot;</stringProp>
               </collectionProp>
               <stringProp name="Assertion.custom_message"></stringProp>
               <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
@@ -370,31 +371,31 @@
             <hashTree/>
             <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Actuator Exposes All Links" enabled="true">
               <collectionProp name="Asserion.test_strings">
-                <stringProp name="self">&quot;self&quot;</stringProp>
-                <stringProp name="beans">&quot;beans&quot;</stringProp>
-                <stringProp name="health">&quot;health&quot;</stringProp>
-                <stringProp name="health-path">&quot;health-path&quot;</stringProp>
-                <stringProp name="info">&quot;info&quot;</stringProp>
-                <stringProp name="conditions">&quot;conditions&quot;</stringProp>
-                <stringProp name="shutdown">&quot;shutdown&quot;</stringProp>
-                <stringProp name="configprops">&quot;configprops&quot;</stringProp>
-                <stringProp name="configprops-prefix">&quot;configprops-prefix&quot;</stringProp>
-                <stringProp name="env">&quot;env&quot;</stringProp>
-                <stringProp name="env-toMatch">&quot;env-toMatch&quot;</stringProp>
-                <stringProp name="liquibase">&quot;liquibase&quot;</stringProp>
-                <stringProp name="loggers">&quot;loggers&quot;</stringProp>
-                <stringProp name="loggers-name">&quot;loggers-name&quot;</stringProp>
-                <stringProp name="heapdump">&quot;heapdump&quot;</stringProp>
-                <stringProp name="threaddump">&quot;threaddump&quot;</stringProp>
-                <stringProp name="prometheus">&quot;prometheus&quot;</stringProp>
-                <stringProp name="metrics-requiredMetricName">&quot;metrics-requiredMetricName&quot;</stringProp>
-                <stringProp name="metrics">&quot;metrics&quot;</stringProp>
-                <stringProp name="sbom-id">&quot;sbom-id&quot;</stringProp>
-                <stringProp name="sbom">&quot;sbom&quot;</stringProp>
-                <stringProp name="scheduledtasks">&quot;scheduledtasks&quot;</stringProp>
-                <stringProp name="httpexchanges">&quot;httpexchanges&quot;</stringProp>
-                <stringProp name="mappings">&quot;mappings&quot;</stringProp>
-                <stringProp name="refresh">&quot;refresh&quot;</stringProp>
+                <stringProp name="1082711924">&quot;self&quot;</stringProp>
+                <stringProp name="-1282681759">&quot;beans&quot;</stringProp>
+                <stringProp name="-78430492">&quot;health&quot;</stringProp>
+                <stringProp name="-1959665906">&quot;health-path&quot;</stringProp>
+                <stringProp name="1073739346">&quot;info&quot;</stringProp>
+                <stringProp name="1301976840">&quot;conditions&quot;</stringProp>
+                <stringProp name="953797290">&quot;shutdown&quot;</stringProp>
+                <stringProp name="-357774442">&quot;configprops&quot;</stringProp>
+                <stringProp name="-871912177">&quot;configprops-prefix&quot;</stringProp>
+                <stringProp name="34518007">&quot;env&quot;</stringProp>
+                <stringProp name="-445521062">&quot;env-toMatch&quot;</stringProp>
+                <stringProp name="1707773419">&quot;liquibase&quot;</stringProp>
+                <stringProp name="696753601">&quot;loggers&quot;</stringProp>
+                <stringProp name="-32835413">&quot;loggers-name&quot;</stringProp>
+                <stringProp name="2037911648">&quot;heapdump&quot;</stringProp>
+                <stringProp name="2029527938">&quot;threaddump&quot;</stringProp>
+                <stringProp name="563579670">&quot;prometheus&quot;</stringProp>
+                <stringProp name="1822407836">&quot;metrics-requiredMetricName&quot;</stringProp>
+                <stringProp name="-1758063135">&quot;metrics&quot;</stringProp>
+                <stringProp name="1591775017">&quot;sbom-id&quot;</stringProp>
+                <stringProp name="1082625651">&quot;sbom&quot;</stringProp>
+                <stringProp name="1729116383">&quot;scheduledtasks&quot;</stringProp>
+                <stringProp name="-1684489572">&quot;httpexchanges&quot;</stringProp>
+                <stringProp name="-653643397">&quot;mappings&quot;</stringProp>
+                <stringProp name="-2034858295">&quot;refresh&quot;</stringProp>
               </collectionProp>
               <stringProp name="Assertion.custom_message"></stringProp>
               <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
@@ -513,31 +514,31 @@
             <hashTree/>
             <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Actuator Exposes All Links" enabled="true">
               <collectionProp name="Asserion.test_strings">
-                <stringProp name="self">&quot;self&quot;</stringProp>
-                <stringProp name="beans">&quot;beans&quot;</stringProp>
-                <stringProp name="health">&quot;health&quot;</stringProp>
-                <stringProp name="health-path">&quot;health-path&quot;</stringProp>
-                <stringProp name="info">&quot;info&quot;</stringProp>
-                <stringProp name="conditions">&quot;conditions&quot;</stringProp>
-                <stringProp name="shutdown">&quot;shutdown&quot;</stringProp>
-                <stringProp name="configprops">&quot;configprops&quot;</stringProp>
-                <stringProp name="configprops-prefix">&quot;configprops-prefix&quot;</stringProp>
-                <stringProp name="env">&quot;env&quot;</stringProp>
-                <stringProp name="env-toMatch">&quot;env-toMatch&quot;</stringProp>
-                <stringProp name="liquibase">&quot;liquibase&quot;</stringProp>
-                <stringProp name="loggers">&quot;loggers&quot;</stringProp>
-                <stringProp name="loggers-name">&quot;loggers-name&quot;</stringProp>
-                <stringProp name="heapdump">&quot;heapdump&quot;</stringProp>
-                <stringProp name="threaddump">&quot;threaddump&quot;</stringProp>
-                <stringProp name="prometheus">&quot;prometheus&quot;</stringProp>
-                <stringProp name="metrics-requiredMetricName">&quot;metrics-requiredMetricName&quot;</stringProp>
-                <stringProp name="metrics">&quot;metrics&quot;</stringProp>
-                <stringProp name="sbom-id">&quot;sbom-id&quot;</stringProp>
-                <stringProp name="sbom">&quot;sbom&quot;</stringProp>
-                <stringProp name="scheduledtasks">&quot;scheduledtasks&quot;</stringProp>
-                <stringProp name="httpexchanges">&quot;httpexchanges&quot;</stringProp>
-                <stringProp name="mappings">&quot;mappings&quot;</stringProp>
-                <stringProp name="refresh">&quot;refresh&quot;</stringProp>
+                <stringProp name="1082711924">&quot;self&quot;</stringProp>
+                <stringProp name="-1282681759">&quot;beans&quot;</stringProp>
+                <stringProp name="-78430492">&quot;health&quot;</stringProp>
+                <stringProp name="-1959665906">&quot;health-path&quot;</stringProp>
+                <stringProp name="1073739346">&quot;info&quot;</stringProp>
+                <stringProp name="1301976840">&quot;conditions&quot;</stringProp>
+                <stringProp name="953797290">&quot;shutdown&quot;</stringProp>
+                <stringProp name="-357774442">&quot;configprops&quot;</stringProp>
+                <stringProp name="-871912177">&quot;configprops-prefix&quot;</stringProp>
+                <stringProp name="34518007">&quot;env&quot;</stringProp>
+                <stringProp name="-445521062">&quot;env-toMatch&quot;</stringProp>
+                <stringProp name="1707773419">&quot;liquibase&quot;</stringProp>
+                <stringProp name="696753601">&quot;loggers&quot;</stringProp>
+                <stringProp name="-32835413">&quot;loggers-name&quot;</stringProp>
+                <stringProp name="2037911648">&quot;heapdump&quot;</stringProp>
+                <stringProp name="2029527938">&quot;threaddump&quot;</stringProp>
+                <stringProp name="563579670">&quot;prometheus&quot;</stringProp>
+                <stringProp name="1822407836">&quot;metrics-requiredMetricName&quot;</stringProp>
+                <stringProp name="-1758063135">&quot;metrics&quot;</stringProp>
+                <stringProp name="1591775017">&quot;sbom-id&quot;</stringProp>
+                <stringProp name="1082625651">&quot;sbom&quot;</stringProp>
+                <stringProp name="1729116383">&quot;scheduledtasks&quot;</stringProp>
+                <stringProp name="-1684489572">&quot;httpexchanges&quot;</stringProp>
+                <stringProp name="-653643397">&quot;mappings&quot;</stringProp>
+                <stringProp name="-2034858295">&quot;refresh&quot;</stringProp>
               </collectionProp>
               <stringProp name="Assertion.custom_message"></stringProp>
               <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
@@ -582,7 +583,7 @@
           </hashTree>
         </hashTree>
         <IfController guiclass="IfControllerPanel" testclass="IfController" testname="profile == prod (locked down)" enabled="true">
-          <stringProp name="IfController.condition">${__groovy(vars.get("profile")=="prod")}</stringProp>
+          <stringProp name="IfController.condition">${__groovy(vars.get(&quot;profile&quot;)==&quot;prod&quot;)}</stringProp>
           <boolProp name="IfController.evaluateAll">false</boolProp>
           <boolProp name="IfController.useExpression">true</boolProp>
         </IfController>
@@ -663,10 +664,10 @@
             <hashTree/>
             <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Actuator Exposes Only Operational Links" enabled="true">
               <collectionProp name="Asserion.test_strings">
-                <stringProp name="health">&quot;health&quot;</stringProp>
-                <stringProp name="info">&quot;info&quot;</stringProp>
-                <stringProp name="prometheus">&quot;prometheus&quot;</stringProp>
-                <stringProp name="sbom">&quot;sbom&quot;</stringProp>
+                <stringProp name="-78430492">&quot;health&quot;</stringProp>
+                <stringProp name="1073739346">&quot;info&quot;</stringProp>
+                <stringProp name="563579670">&quot;prometheus&quot;</stringProp>
+                <stringProp name="1082625651">&quot;sbom&quot;</stringProp>
               </collectionProp>
               <stringProp name="Assertion.custom_message"></stringProp>
               <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
@@ -785,10 +786,10 @@
             <hashTree/>
             <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Actuator Exposes Only Operational Links" enabled="true">
               <collectionProp name="Asserion.test_strings">
-                <stringProp name="health">&quot;health&quot;</stringProp>
-                <stringProp name="info">&quot;info&quot;</stringProp>
-                <stringProp name="prometheus">&quot;prometheus&quot;</stringProp>
-                <stringProp name="sbom">&quot;sbom&quot;</stringProp>
+                <stringProp name="-78430492">&quot;health&quot;</stringProp>
+                <stringProp name="1073739346">&quot;info&quot;</stringProp>
+                <stringProp name="563579670">&quot;prometheus&quot;</stringProp>
+                <stringProp name="1082625651">&quot;sbom&quot;</stringProp>
               </collectionProp>
               <stringProp name="Assertion.custom_message"></stringProp>
               <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
@@ -907,10 +908,10 @@
             <hashTree/>
             <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Actuator Exposes Only Operational Links" enabled="true">
               <collectionProp name="Asserion.test_strings">
-                <stringProp name="health">&quot;health&quot;</stringProp>
-                <stringProp name="info">&quot;info&quot;</stringProp>
-                <stringProp name="prometheus">&quot;prometheus&quot;</stringProp>
-                <stringProp name="sbom">&quot;sbom&quot;</stringProp>
+                <stringProp name="-78430492">&quot;health&quot;</stringProp>
+                <stringProp name="1073739346">&quot;info&quot;</stringProp>
+                <stringProp name="563579670">&quot;prometheus&quot;</stringProp>
+                <stringProp name="1082625651">&quot;sbom&quot;</stringProp>
               </collectionProp>
               <stringProp name="Assertion.custom_message"></stringProp>
               <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
