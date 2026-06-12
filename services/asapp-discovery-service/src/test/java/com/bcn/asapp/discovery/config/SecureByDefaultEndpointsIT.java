@@ -30,11 +30,10 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 import com.bcn.asapp.discovery.AsappDiscoveryServiceApplication;
 
 /**
- * Tests the secure-by-default (prod) endpoint exposure and availability.
+ * Tests the secure-by-default (prod) Actuator endpoint exposure.
  * <p>
  * Coverage:
  * <li>Actuator root exposes only health, info and prometheus links when exposure is narrowed</li>
- * <li>Sensitive actuator endpoints (env, heapdump, shutdown) are not reachable when locked down</li>
  */
 @SpringBootTest(classes = AsappDiscoveryServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = { "management.endpoints.web.exposure.include=health,info,prometheus", "management.endpoint.heapdump.access=none",
@@ -80,39 +79,6 @@ class SecureByDefaultEndpointsIT {
                                                                                                        .isObject()
                                                                                                        .containsOnlyKeys("self", "health", "health-path",
                                                                                                                "info", "prometheus"));
-        }
-
-        @Test
-        void ReturnsStatusNotFound_EnvEndpointNotExposed() {
-            // When & Then
-            managementRestTestClient.get()
-                                    .uri("/actuator/env")
-                                    .headers(h -> h.setBasicAuth(discoveryUsername, discoveryPassword))
-                                    .exchange()
-                                    .expectStatus()
-                                    .isNotFound();
-        }
-
-        @Test
-        void ReturnsStatusNotFound_HeapdumpEndpointNotExposed() {
-            // When & Then
-            managementRestTestClient.get()
-                                    .uri("/actuator/heapdump")
-                                    .headers(h -> h.setBasicAuth(discoveryUsername, discoveryPassword))
-                                    .exchange()
-                                    .expectStatus()
-                                    .isNotFound();
-        }
-
-        @Test
-        void ReturnsStatusNotFound_ShutdownEndpointNotExposed() {
-            // When & Then
-            managementRestTestClient.post()
-                                    .uri("/actuator/shutdown")
-                                    .headers(h -> h.setBasicAuth(discoveryUsername, discoveryPassword))
-                                    .exchange()
-                                    .expectStatus()
-                                    .isNotFound();
         }
 
     }

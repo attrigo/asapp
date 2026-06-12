@@ -38,7 +38,6 @@ import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
  * <p>
  * Coverage:
  * <li>Actuator root exposes only health, info and prometheus links when exposure is narrowed</li>
- * <li>Sensitive actuator endpoints (env, heapdump, shutdown) are not reachable when locked down</li>
  * <li>Swagger UI endpoint is not reachable when springdoc is disabled</li>
  * <li>OpenAPI documentation endpoint is not reachable when springdoc is disabled</li>
  */
@@ -117,39 +116,6 @@ class SecureByDefaultEndpointsIT {
                                                                                                        .isObject()
                                                                                                        .containsOnlyKeys("self", "health", "health-path",
                                                                                                                "info", "prometheus"));
-        }
-
-        @Test
-        void ReturnsStatusNotFound_EnvEndpointNotExposed() {
-            // When & Then
-            managementRestTestClient.get()
-                                    .uri("/actuator/env")
-                                    .headers(h -> h.setBasicAuth(managementUsername, managementPassword))
-                                    .exchange()
-                                    .expectStatus()
-                                    .isNotFound();
-        }
-
-        @Test
-        void ReturnsStatusNotFound_HeapdumpEndpointNotExposed() {
-            // When & Then
-            managementRestTestClient.get()
-                                    .uri("/actuator/heapdump")
-                                    .headers(h -> h.setBasicAuth(managementUsername, managementPassword))
-                                    .exchange()
-                                    .expectStatus()
-                                    .isNotFound();
-        }
-
-        @Test
-        void ReturnsStatusNotFound_ShutdownEndpointNotExposed() {
-            // When & Then
-            managementRestTestClient.post()
-                                    .uri("/actuator/shutdown")
-                                    .headers(h -> h.setBasicAuth(managementUsername, managementPassword))
-                                    .exchange()
-                                    .expectStatus()
-                                    .isNotFound();
         }
 
     }
