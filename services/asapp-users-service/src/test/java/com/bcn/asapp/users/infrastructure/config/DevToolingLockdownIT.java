@@ -34,7 +34,7 @@ import com.bcn.asapp.users.AsappUsersServiceApplication;
 import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 
 /**
- * Tests the secure-by-default (prod) endpoint exposure and availability.
+ * Tests that dev-only tooling is locked down without the dev profile.
  * <p>
  * Coverage:
  * <li>Actuator root exposes only health, info, prometheus and sbom links when exposure is narrowed</li>
@@ -47,7 +47,7 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 @TestPropertySource(properties = { "management.endpoints.web.exposure.include=health,info,prometheus,sbom", "management.endpoint.heapdump.access=none",
         "management.endpoint.shutdown.access=none", "management.info.env.enabled=false", "springdoc.api-docs.enabled=false",
         "springdoc.swagger-ui.enabled=false" })
-class SecureByDefaultEndpointsIT {
+class DevToolingLockdownIT {
 
     @Autowired
     private RestTestClient restTestClient;

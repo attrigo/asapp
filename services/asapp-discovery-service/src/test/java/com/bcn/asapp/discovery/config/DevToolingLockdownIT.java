@@ -30,7 +30,7 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 import com.bcn.asapp.discovery.AsappDiscoveryServiceApplication;
 
 /**
- * Tests the secure-by-default (prod) Actuator endpoint exposure.
+ * Tests that Actuator exposure is locked down without the dev profile.
  * <p>
  * Coverage:
  * <li>Actuator root exposes only health, info, prometheus and sbom links when exposure is narrowed</li>
@@ -38,7 +38,7 @@ import com.bcn.asapp.discovery.AsappDiscoveryServiceApplication;
 @SpringBootTest(classes = AsappDiscoveryServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = { "management.endpoints.web.exposure.include=health,info,prometheus,sbom", "management.endpoint.heapdump.access=none",
         "management.endpoint.shutdown.access=none", "management.info.env.enabled=false" })
-class SecureByDefaultEndpointsIT {
+class DevToolingLockdownIT {
 
     @LocalManagementPort
     private int managementPort;

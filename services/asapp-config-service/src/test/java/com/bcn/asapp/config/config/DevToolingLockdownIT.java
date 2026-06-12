@@ -14,43 +14,31 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.tasks.infrastructure.config;
+package com.bcn.asapp.config.config;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalManagementPort;
-import org.springframework.context.annotation.Import;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
-import com.bcn.asapp.tasks.AsappTasksServiceApplication;
-import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
+import com.bcn.asapp.config.AsappConfigServiceApplication;
 
 /**
- * Tests the secure-by-default (prod) endpoint exposure and availability.
+ * Tests that Actuator exposure is locked down without the dev profile.
  * <p>
  * Coverage:
  * <li>Actuator root exposes only health, info, prometheus and sbom links when exposure is narrowed</li>
- * <li>Swagger UI endpoint is not reachable when springdoc is disabled</li>
- * <li>OpenAPI documentation endpoint is not reachable when springdoc is disabled</li>
  */
-@SpringBootTest(classes = AsappTasksServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureRestTestClient
-@Import(TestContainerConfiguration.class)
+@SpringBootTest(classes = AsappConfigServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestPropertySource(properties = { "management.endpoints.web.exposure.include=health,info,prometheus,sbom", "management.endpoint.heapdump.access=none",
-        "management.endpoint.shutdown.access=none", "management.info.env.enabled=false", "springdoc.api-docs.enabled=false",
-        "springdoc.swagger-ui.enabled=false" })
-class SecureByDefaultEndpointsIT {
-
-    @Autowired
-    private RestTestClient restTestClient;
+        "management.endpoint.shutdown.access=none", "management.info.env.enabled=false" })
+class DevToolingLockdownIT {
 
     @LocalManagementPort
     private int managementPort;
@@ -59,43 +47,18 @@ class SecureByDefaultEndpointsIT {
     private String contextPath;
 
     @Value("${spring.security.user.name}")
-    private String managementUsername;
+    private String configUsername;
 
     @Value("${spring.security.user.password}")
-    private String managementPassword;
+    private String configPassword;
 
     private RestTestClient managementRestTestClient;
 
     @BeforeEach
-    void beforeEach() {
+    void setUp() {
         managementRestTestClient = RestTestClient.bindToServer()
                                                  .baseUrl("http://localhost:" + managementPort + contextPath)
                                                  .build();
-    }
-
-    @Nested
-    class SwaggerExposure {
-
-        @Test
-        void ReturnsStatusNotFound_OnSwaggerIndexEndpoint() {
-            // When & Then
-            restTestClient.get()
-                          .uri("/swagger-ui/index.html")
-                          .exchange()
-                          .expectStatus()
-                          .isNotFound();
-        }
-
-        @Test
-        void ReturnsStatusNotFound_OnOpenApiDocs() {
-            // When & Then
-            restTestClient.get()
-                          .uri("/v3/api-docs")
-                          .exchange()
-                          .expectStatus()
-                          .isNotFound();
-        }
-
     }
 
     @Nested
@@ -106,7 +69,7 @@ class SecureByDefaultEndpointsIT {
             // When & Then
             managementRestTestClient.get()
                                     .uri("/actuator")
-                                    .headers(h -> h.setBasicAuth(managementUsername, managementPassword))
+                                    .headers(h -> h.setBasicAuth(configUsername, configPassword))
                                     .exchange()
                                     .expectStatus()
                                     .isOk()
