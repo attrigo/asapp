@@ -36,8 +36,13 @@ import com.bcn.asapp.config.AsappConfigServiceApplication;
  * <li>Actuator root exposes only health, info, prometheus and sbom links when exposure is narrowed</li>
  */
 @SpringBootTest(classes = AsappConfigServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@TestPropertySource(properties = { "management.endpoints.web.exposure.include=health,info,prometheus,sbom", "management.endpoint.heapdump.access=none",
-        "management.endpoint.shutdown.access=none", "management.info.env.enabled=false" })
+// @formatter:off
+@TestPropertySource(properties = {
+        "management.endpoint.heapdump.access=none",
+        "management.endpoint.shutdown.access=none",
+        "management.endpoints.web.exposure.include=health,info,prometheus,sbom",
+        "management.info.env.enabled=false" })
+// @formatter:on
 class DevToolingLockdownIT {
 
     @LocalManagementPort

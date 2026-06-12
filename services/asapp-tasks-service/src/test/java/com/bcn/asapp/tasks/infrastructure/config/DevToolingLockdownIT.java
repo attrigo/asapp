@@ -44,9 +44,15 @@ import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
 @SpringBootTest(classes = AsappTasksServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
 @Import(TestContainerConfiguration.class)
-@TestPropertySource(properties = { "management.endpoints.web.exposure.include=health,info,prometheus,sbom", "management.endpoint.heapdump.access=none",
-        "management.endpoint.shutdown.access=none", "management.info.env.enabled=false", "springdoc.api-docs.enabled=false",
+// @formatter:off
+@TestPropertySource(properties = {
+        "management.endpoint.heapdump.access=none",
+        "management.endpoint.shutdown.access=none",
+        "management.endpoints.web.exposure.include=health,info,prometheus,sbom",
+        "management.info.env.enabled=false",
+        "springdoc.api-docs.enabled=false",
         "springdoc.swagger-ui.enabled=false" })
+// @formatter:on
 class DevToolingLockdownIT {
 
     @Autowired
