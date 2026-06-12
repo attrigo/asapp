@@ -65,7 +65,7 @@ class SecureByDefaultEndpointsIT {
     class ActuatorExposure {
 
         @Test
-        void BodyContainsOnlyHealthInfoPrometheusLinks_ExposureNarrowed() {
+        void ReturnsStatusOkAndBodyContainsOnlyHealthInfoPrometheusSbomLinks_OnActuatorEndpoint() {
             // When & Then
             managementRestTestClient.get()
                                     .uri("/actuator")

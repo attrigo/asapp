@@ -74,10 +74,10 @@ class SecureByDefaultEndpointsIT {
     }
 
     @Nested
-    class Swagger {
+    class SwaggerExposure {
 
         @Test
-        void ReturnsStatusNotFound_SwaggerDisabled() {
+        void ReturnsStatusNotFound_OnSwaggerIndexEndpoint() {
             // When & Then
             restTestClient.get()
                           .uri("/swagger-ui/index.html")
@@ -87,7 +87,7 @@ class SecureByDefaultEndpointsIT {
         }
 
         @Test
-        void ReturnsStatusNotFound_ApiDocsDisabled() {
+        void ReturnsStatusNotFound_OnOpenApiDocs() {
             // When & Then
             restTestClient.get()
                           .uri("/v3/api-docs")
@@ -102,7 +102,7 @@ class SecureByDefaultEndpointsIT {
     class ActuatorExposure {
 
         @Test
-        void BodyContainsOnlyHealthInfoPrometheusLinks_ExposureNarrowed() {
+        void ReturnsStatusOkAndBodyContainsOnlyHealthInfoPrometheusSbomLinks_OnActuatorEndpoint() {
             // When & Then
             managementRestTestClient.get()
                                     .uri("/actuator")
