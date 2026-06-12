@@ -139,12 +139,12 @@ docker-compose down -v
 
 ASAPP uses two orthogonal profile axes — a running service activates one value from each:
 
-| Axis | Values | Controls |
-|------|--------|----------|
-| **Environment** | `dev`, `prod` | Swagger UI, Actuator exposure, heapdump/shutdown access, `info.env`, log verbosity |
-| **Platform** | (default), `docker`, `native` | Service wiring (localhost vs env vars), config-server backend (config-service only) |
+| Axis            | Values                        | Controls                                                                            |
+|-----------------|-------------------------------|-------------------------------------------------------------------------------------|
+| **Environment** | `dev`, `prod`                 | Swagger UI, Actuator exposure, heapdump/shutdown access, `info.env`, log verbosity  |
+| **Platform**    | (default), `docker`, `native` | Service wiring (localhost vs env vars), config-server backend (config-service only) |
 
-The base configuration is **secure-by-default**: with no environment profile active, a service is production-safe — Swagger and the heapdump/shutdown endpoints are off and Actuator exposes only `health`, `info`, `prometheus`, and `sbom`. Activating `dev` re-enables the full tooling.
+The base configuration is **secure-by-default**: with no environment profile active, a service is production-safe — Swagger and Boot-UI are fully off and Actuator exposes only `health`, `info`, `prometheus`, and `sbom`. Activating `dev` re-enables the full tooling.
 
 ### Profile values
 
@@ -429,6 +429,16 @@ Each service provides interactive Swagger UI (available under the `dev` profile 
 | **Authentication** | http://localhost:8080/asapp-authentication-service/swagger-ui.html |
 | **Tasks**          | http://localhost:8081/asapp-tasks-service/swagger-ui.html          |
 | **Users**          | http://localhost:8082/asapp-users-service/swagger-ui.html          |
+
+### BootUI Developer Console
+
+The three API services embed the [BootUI](https://github.com/jdubois/boot-ui) developer console (available under the `dev` profile):
+
+| Service            | BootUI Console                                              |
+|--------------------|-------------------------------------------------------------|
+| **Authentication** | http://localhost:8080/asapp-authentication-service/bootui   |
+| **Tasks**          | http://localhost:8081/asapp-tasks-service/bootui            |
+| **Users**          | http://localhost:8082/asapp-users-service/bootui            |
 
 ### Documentation
 

@@ -148,7 +148,7 @@ class JwtAuthenticationFilterTests {
         }
 
         private static Stream<String> whitelistedUrls() {
-            return Stream.of("/api/auth/login", "/livez", "/readyz", "/swagger-ui/index.html", "/v3/api-docs/openapi.yaml");
+            return Stream.of("/api/auth/login", "/livez", "/readyz", "/swagger-ui/index.html", "/v3/api-docs/openapi.yaml", "/bootui", "/bootui/api/beans");
         }
 
     }

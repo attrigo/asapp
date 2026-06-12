@@ -106,6 +106,12 @@
             <artifactId>postgresql</artifactId>
             <scope>runtime</scope>
         </dependency>
+        <!-- ## Other Dependencies -->
+        <dependency>
+            <groupId>com.julien-dubois.bootui</groupId>
+            <artifactId>bootui-spring-boot-starter</artifactId>
+            <scope>runtime</scope>
+        </dependency>
 
         <!-- # Test Dependencies -->
         <!-- ## Spring Dependencies -->

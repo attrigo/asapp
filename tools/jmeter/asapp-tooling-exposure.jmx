@@ -150,7 +150,7 @@
           <boolProp name="IfController.useExpression">true</boolProp>
         </IfController>
         <hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01 - Auth Swagger UI Exposed">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01 - Auth Swagger UI Exposed" enabled="true">
             <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
             <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
@@ -175,7 +175,7 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02 - Auth OpenAPI Docs Exposed">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02 - Auth OpenAPI Docs Exposed" enabled="true">
             <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
             <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
@@ -200,7 +200,7 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="03 - Auth Actuator Active Profile Is Dev">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="03 - Auth Actuator Active Profile Is Dev" enabled="true">
             <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
             <stringProp name="HTTPSampler.port">${auth.mgmt.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
@@ -234,7 +234,7 @@
             </JSONPathAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="04 - Auth Actuator Full Exposure">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="04 - Auth Actuator Full Exposure" enabled="true">
             <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
             <stringProp name="HTTPSampler.port">${auth.mgmt.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
@@ -293,7 +293,32 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="05 - Tasks Swagger UI Exposed">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="05 - Auth BootUI Console Exposed">
+            <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
+            <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
+            <stringProp name="HTTPSampler.path">${auth.context}/bootui</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Response Code 200" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.custom_message"></stringProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="06 - Tasks Swagger UI Exposed">
             <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
             <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
@@ -318,7 +343,7 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="06 - Tasks OpenAPI Docs Exposed">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="07 - Tasks OpenAPI Docs Exposed">
             <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
             <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
@@ -343,7 +368,7 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="07 - Tasks Actuator Active Profile Is Dev">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="08 - Tasks Actuator Active Profile Is Dev">
             <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
             <stringProp name="HTTPSampler.port">${tasks.mgmt.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
@@ -377,7 +402,7 @@
             </JSONPathAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="08 - Tasks Actuator Full Exposure">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="09 - Tasks Actuator Full Exposure">
             <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
             <stringProp name="HTTPSampler.port">${tasks.mgmt.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
@@ -436,7 +461,32 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="09 - Users Swagger UI Exposed">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="10 - Tasks BootUI Console Exposed">
+            <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
+            <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
+            <stringProp name="HTTPSampler.path">${tasks.context}/bootui</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Response Code 200" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.custom_message"></stringProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="11 - Users Swagger UI Exposed">
             <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
             <stringProp name="HTTPSampler.port">${users.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
@@ -461,7 +511,7 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="10 - Users OpenAPI Docs Exposed">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="12 - Users OpenAPI Docs Exposed">
             <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
             <stringProp name="HTTPSampler.port">${users.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
@@ -486,7 +536,7 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="11 - Users Actuator Active Profile Is Dev">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="13 - Users Actuator Active Profile Is Dev">
             <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
             <stringProp name="HTTPSampler.port">${users.mgmt.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
@@ -520,7 +570,7 @@
             </JSONPathAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="12 - Users Actuator Full Exposure">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="14 - Users Actuator Full Exposure">
             <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
             <stringProp name="HTTPSampler.port">${users.mgmt.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
@@ -579,6 +629,31 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="15 - Users BootUI Console Exposed">
+            <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
+            <stringProp name="HTTPSampler.port">${users.port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
+            <stringProp name="HTTPSampler.path">${users.context}/bootui</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Response Code 200" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="49586">200</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.custom_message"></stringProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
         </hashTree>
         <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Prod Profile (locked down)">
           <stringProp name="IfController.condition">${__groovy(vars.get(&quot;profile&quot;)==&quot;prod&quot;)}</stringProp>
@@ -586,7 +661,7 @@
           <boolProp name="IfController.useExpression">true</boolProp>
         </IfController>
         <hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01 - Auth Swagger UI Locked">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="01 - Auth Swagger UI Locked" enabled="true">
             <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
             <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
@@ -611,7 +686,7 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02 - Auth OpenAPI Docs Locked">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="02 - Auth OpenAPI Docs Locked" enabled="true">
             <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
             <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
@@ -636,7 +711,7 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="03 - Auth Actuator Narrow Exposure">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="03 - Auth Actuator Narrow Exposure" enabled="true">
             <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
             <stringProp name="HTTPSampler.port">${auth.mgmt.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
@@ -674,7 +749,32 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="04 - Tasks Swagger UI Locked">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="04 - Auth BootUI Console Locked">
+            <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
+            <stringProp name="HTTPSampler.port">${auth.port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
+            <stringProp name="HTTPSampler.path">${auth.context}/bootui</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Response Code 401">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="51509">401</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.custom_message"></stringProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">true</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="05 - Tasks Swagger UI Locked">
             <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
             <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
@@ -699,7 +799,7 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="05 - Tasks OpenAPI Docs Locked">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="06 - Tasks OpenAPI Docs Locked">
             <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
             <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
@@ -724,7 +824,7 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="06 - Tasks Actuator Narrow Exposure">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="07 - Tasks Actuator Narrow Exposure">
             <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
             <stringProp name="HTTPSampler.port">${tasks.mgmt.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
@@ -762,7 +862,32 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="07 - Users Swagger UI Locked">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="08 - Tasks BootUI Console Locked">
+            <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
+            <stringProp name="HTTPSampler.port">${tasks.port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
+            <stringProp name="HTTPSampler.path">${tasks.context}/bootui</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Response Code 401" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="51509">401</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.custom_message"></stringProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">true</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="09 - Users Swagger UI Locked">
             <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
             <stringProp name="HTTPSampler.port">${users.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
@@ -787,7 +912,7 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="08 - Users OpenAPI Docs Locked">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="10 - Users OpenAPI Docs Locked">
             <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
             <stringProp name="HTTPSampler.port">${users.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
@@ -812,7 +937,7 @@
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="09 - Users Actuator Narrow Exposure">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="11 - Users Actuator Narrow Exposure">
             <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
             <stringProp name="HTTPSampler.port">${users.mgmt.port}</stringProp>
             <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
@@ -847,6 +972,31 @@
               <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
               <boolProp name="Assertion.assume_success">false</boolProp>
               <intProp name="Assertion.test_type">16</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="12 - Users BootUI Console Locked">
+            <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
+            <stringProp name="HTTPSampler.port">${users.port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
+            <stringProp name="HTTPSampler.path">${users.context}/bootui</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Response Code 401" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="51509">401</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.custom_message"></stringProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">true</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
