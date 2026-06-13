@@ -20,6 +20,7 @@ import static com.bcn.asapp.users.testutil.fixture.DecodedJwtMother.decodedAcces
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 
@@ -103,8 +104,6 @@ class RestClientConfigurationTests {
 
     private String encodedToken;
 
-    private final UUID userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
-
     @BeforeEach
     void beforeEach() throws IOException {
         var decodedJwt = decodedAccessToken();
@@ -139,6 +138,7 @@ class RestClientConfigurationTests {
     @Test
     void InvokesLoadBalancerClient_OnRequest() throws IOException {
         // Given
+        var userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
         server.createContext("/api/tasks/user/" + userId, exchange -> {
             exchange.sendResponseHeaders(200, -1);
             exchange.close();
@@ -150,12 +150,13 @@ class RestClientConfigurationTests {
 
         // Then
         then(loadBalancerClient).should()
-                                .execute(anyString(), any(LoadBalancerRequest.class));
+                                .execute(eq("asapp-tasks-service"), any(LoadBalancerRequest.class));
     }
 
     @Test
     void PropagatesAuthorizationHeader_ValidSecurityContext() throws IOException {
         // Given
+        var userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
         var authorizationHeader = new AtomicReference<String>();
         server.createContext("/api/tasks/user/" + userId, exchange -> {
             authorizationHeader.set(exchange.getRequestHeaders()
@@ -175,6 +176,7 @@ class RestClientConfigurationTests {
     @Test
     void ReturnsResponseWithoutFollowingRedirect_ServerReturnsRedirect() throws IOException {
         // Given
+        var userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
         var redirectCalled = new AtomicBoolean();
         server.createContext("/api/tasks/user/" + userId, exchange -> {
             exchange.getResponseHeaders()
