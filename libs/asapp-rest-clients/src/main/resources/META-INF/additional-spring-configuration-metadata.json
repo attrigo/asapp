@@ -1,9 +1,0 @@
-{
-  "properties": [
-    {
-      "name": "asapp.client.tasks.base-url",
-      "type": "java.lang.String",
-      "description": "Base URL of the Tasks Service."
-    }
-  ]
-}

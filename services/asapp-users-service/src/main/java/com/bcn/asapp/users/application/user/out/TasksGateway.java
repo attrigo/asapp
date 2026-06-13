@@ -42,7 +42,6 @@ public interface TasksGateway {
      *
      * @param userId the user's unique identifier
      * @return a {@link List} of task UUIDs associated with the user, or an empty list if the user has no tasks or if retrieval fails
-     * @throws IllegalArgumentException if userId is {@code null}
      */
     List<UUID> getTaskIdsByUserId(UserId userId);
 

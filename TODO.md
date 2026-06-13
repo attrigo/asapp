@@ -26,7 +26,7 @@
         * [X] Add regression test 
         * [X] Add stress test
     * Improve HTTP clients 
-        * [ ] Refactor REST clients by declarative HTTP clients
+        * [X] Refactor REST clients by declarative HTTP clients
         * [ ] Use circuit breaker pattern
         * [ ] Use retry pattern
     * Profiles
