@@ -19,16 +19,24 @@ package com.bcn.asapp.users.infrastructure.user.out;
 import java.util.List;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestClientException;
 
-import com.bcn.asapp.clients.tasks.TasksClient;
+import com.bcn.asapp.clients.tasks.TasksHttpClient;
+import com.bcn.asapp.clients.tasks.response.TasksByUserIdResponse;
 import com.bcn.asapp.users.application.user.out.TasksGateway;
 import com.bcn.asapp.users.domain.user.UserId;
 
 /**
  * Adapter implementation of {@link TasksGateway} for external calls to tasks-service.
  * <p>
- * Bridges the application layer with the infrastructure layer by translating domain-level requests into external service calls.
+ * Bridges the application layer with the infrastructure layer by delegating to the declarative {@link TasksHttpClient}, mapping task responses to their
+ * identifiers, and degrading gracefully when the Tasks Service is unavailable.
+ * <p>
+ * When communication with the Tasks Service fails (network errors, service unavailability, or invalid responses), this adapter logs a warning and returns an
+ * empty list, preventing cascading failures so the user lookup still succeeds.
  *
  * @since 0.2.0
  * @author attrigo
@@ -36,15 +44,17 @@ import com.bcn.asapp.users.domain.user.UserId;
 @Component
 public class TasksGatewayAdapter implements TasksGateway {
 
-    private final TasksClient tasksClient;
+    private static final Logger logger = LoggerFactory.getLogger(TasksGatewayAdapter.class);
+
+    private final TasksHttpClient tasksHttpClient;
 
     /**
-     * Constructs a new {@code TasksServiceGateway} with required dependencies.
+     * Constructs a new {@code TasksGatewayAdapter} with required dependencies.
      *
-     * @param tasksClient the client for communicating with the tasks-service
+     * @param tasksHttpClient the declarative HTTP client for communicating with the tasks-service
      */
-    public TasksGatewayAdapter(TasksClient tasksClient) {
-        this.tasksClient = tasksClient;
+    public TasksGatewayAdapter(TasksHttpClient tasksHttpClient) {
+        this.tasksHttpClient = tasksHttpClient;
     }
 
     /**
@@ -55,7 +65,22 @@ public class TasksGatewayAdapter implements TasksGateway {
      */
     @Override
     public List<UUID> getTaskIdsByUserId(UserId userId) {
-        return tasksClient.getTaskIdsByUserId(userId.value());
+        try {
+            var tasks = tasksHttpClient.getTasksByUserId(userId.value());
+
+            if (tasks == null) {
+                logger.warn("Received null response body from Tasks Service for user {}. Returning empty list.", userId.value());
+                return List.of();
+            }
+
+            return tasks.stream()
+                        .map(TasksByUserIdResponse::taskId)
+                        .toList();
+
+        } catch (RestClientException e) {
+            logger.warn("Failed to retrieve tasks for user {}: {}. Returning empty list.", userId.value(), e.getMessage());
+            return List.of();
+        }
     }
 
 }
