@@ -28,7 +28,7 @@ import org.springframework.web.service.annotation.HttpExchange;
 import com.bcn.asapp.clients.tasks.response.TasksByUserIdResponse;
 
 /**
- * Declarative HTTP client for the Tasks Service.
+ * Declares the HTTP contract for retrieving task data from the Tasks Service.
  * <p>
  * Defines the HTTP contract for retrieving task data from the Tasks Service as a Spring {@link HttpExchange} interface. A client proxy is created and configured
  * by the consuming service, which owns base-url resolution, authentication propagation, and load balancing.
