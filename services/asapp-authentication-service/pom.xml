@@ -104,12 +104,6 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-        <!-- ## Org Dependencies -->
-        <dependency>
-            <groupId>org.postgresql</groupId>
-            <artifactId>postgresql</artifactId>
-            <scope>runtime</scope>
-        </dependency>
         <!-- ## Other Dependencies -->
         <dependency>
             <groupId>com.julien-dubois.bootui</groupId>
