@@ -123,7 +123,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         Optional<String> optionalBearerToken = getBearerToken(request);
 
         if (optionalBearerToken.isEmpty()) {
-            log.warn("[JWT_FILTER] Authentication failed - reason=Bearer token not found");
+            log.debug("[JWT_FILTER] No Bearer token present, continuing as anonymous request");
             filterChain.doFilter(request, response);
             return;
         }
