@@ -105,7 +105,7 @@ class UserE2EIT {
     @DynamicPropertySource
     static void overrideProperties(DynamicPropertyRegistry registry) {
         mockServerClient = new MockServerClient(mockServerContainer.getHost(), mockServerContainer.getServerPort());
-        registry.add("asapp.client.tasks.base-url", mockServerContainer::getEndpoint);
+        registry.add("spring.http.serviceclient.tasks.base-url", mockServerContainer::getEndpoint);
     }
 
     @Autowired

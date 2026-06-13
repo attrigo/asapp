@@ -300,7 +300,7 @@ asapp/
 ├── central-config/                          # Centralized configuration (Spring Cloud Config native backend)
 ├── libs/                                    # Shared libraries
 │   ├── asapp-commons-url/                   # API endpoint constants
-│   └── asapp-rest-clients/                  # REST client infrastructure
+│   └── asapp-rest-clients/                  # Declarative HTTP client contracts
 ├── services/                                # Microservices
 │   ├── asapp-authentication-service/        # JWT & credentials
 │   ├── asapp-config-service/                # Centralized configuration server
