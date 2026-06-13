@@ -6,10 +6,11 @@ CI: nothing here runs during `mvn verify`).
 - **`asapp-regression.jmx`**: a single deterministic pass over every functional endpoint, with correctness assertions. The automated pre-release go/no-go gate (
   replaces the old manual click-through).
 - **`asapp-stress.jmx`**: the same comprehensive read+write journey run by many concurrent threads (nested random-count loops scale the data volume), for
-  observation in Grafana.
-- **`asapp-tooling-exposure.jmx`**: a black-box check that the project tooling (Swagger UI, OpenAPI docs, Actuator) is exposed as the active environment profile
-  dictates — `--profile dev` asserts it is ON (docs reachable, full Actuator, `dev` active), `--profile prod` asserts it is locked down (docs 404, narrow Actuator,
-  `env` 404).
+  observation in Grafana. The default stack is `docker,dev`, where the BootUI SQL-trace adds minor per-query overhead (as Swagger and DEBUG logging do); for
+  representative numbers run stress against a `docker,prod` stack, where BootUI is force-disabled.
+- **`asapp-tooling-exposure.jmx`**: a black-box check that the project tooling (Swagger UI, OpenAPI docs, Actuator, BootUI console) is exposed as the active
+  environment profile dictates — `--profile dev` asserts it is ON (docs reachable, full Actuator, `dev` active, BootUI console reachable), `--profile prod` asserts
+  it is locked down (docs 404, narrow Actuator, `env` 404, BootUI console 401).
 
 ## Layout
 

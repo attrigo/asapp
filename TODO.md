@@ -12,7 +12,7 @@
 * Functional Improvements
     * [X] Add operation to find tasks by list of ids
     * [X] Add operation to find users by list of ids
-    * [ ] Add boot-ui : https://github.com/jdubois/boot-ui
+    * [X] Add boot-ui (requires dev/prod profiles) : https://github.com/jdubois/boot-ui
 * Technical Improvements
     * Error Handler
         * [X] Return validation errors in a deterministic, sorted order
@@ -41,15 +41,32 @@
 
 ### Analyze
 
-* [ ] Replace Liquibase by Flyway
+* [X] ~~Replace Liquibase by Flyway~~ — Rejected: Flyway is SQL-dialect-first and would couple persistence to PostgreSQL; Liquibase's database-agnostic change abstraction is the deciding factor. Follow-up captured under Database → Database Migrations.
 
 ---
 
 ## Version 0.5.0
 
+### Goal - Upgrade to Spring Boot 4.1
+
+* Upgrade Spring Boot version to 4.1
+    * Bump all maven dependencies
+    * Bump all Docker images dependencies
+    * Replace JUnit 5 by JUnit 6 
+    * Review CVEs
+* Create Skill to automatize the upgrades
+
+---
+
+## Version 0.6.0
+
 ### Goal - Introduce Event-Driven Design
 
 * Send a confirmation notification on user creation
+    * [ ] Publish an event when a user is created
+    * [ ] React to user creation by sending a confirmation notification
+    * [ ] Keep user creation unaffected by notification failures
+    * [ ] Retry failed notification deliveries
 
 ### Quick Wins
 
@@ -65,11 +82,16 @@
 
 ---
 
-## Version 0.6.0
+## Version 0.7.0
 
 ### Goal - Setup OAuth2
 
 * Introduce OAuth2 authentication
+    * [ ] Stand up an OAuth2 authorization server
+    * [ ] Support user login and service-to-service token flows
+    * [ ] Secure services as OAuth2 resource servers
+    * [ ] Retire the custom JWT authentication
+    * [ ] Document the OAuth2 authentication flow
 
 ### Analyze
 
@@ -77,7 +99,7 @@
 
 ---
 
-## Version 0.7.0
+## Version 0.8.0
 
 ### Goal - Adopt Modulith with Domain Events & CQRS
 
@@ -90,7 +112,7 @@
 
 ---
 
-## Version 0.8.0
+## Version 0.9.0
 
 ### Goal - Modularize with custom Starters
 
@@ -103,7 +125,7 @@
 
 ---
 
-## Version 0.9.0
+## Version 0.10.0
 
 ### Goal - Enforce Cross-Service Data Consistency
 
@@ -114,7 +136,7 @@
 
 ---
 
-## Version 0.10.0
+## Version 0.11.0
 
 ### Goal - Improve testing
 
@@ -150,6 +172,14 @@
 * Support dynamic refresh of the expired JWT cleanup scheduler
 * Build a BFF with GraphQL
 * Removes NPEs with JSpecify
+
+### Database
+
+* Database Migrations
+    * Make Liquibase changelogs database-agnostic so persistence stays decoupled from PostgreSQL
+        * Scope or replace the `uuid-ossp` extension and `uuid_generate_v4()` defaults (PostgreSQL-specific)
+        * Provide `dbms`-scoped variants for the `jsonb` columns (JWT access/refresh token claims)
+        * Replace the `pg_available_extensions` precondition checks with portable equivalents
 
 ### Observability
 
