@@ -25,10 +25,10 @@
 
         <!-- # Compile Dependencies -->
         <!-- ## Org Dependencies -->
-        <bootui.version>1.4.0</bootui.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <springdoc-openapi-starter.version>3.0.2</springdoc-openapi-starter.version>
         <!-- ## Other Dependencies -->
+        <bootui.version>1.4.0</bootui.version>
         <nimbus-jose-jwt.version>9.37.4</nimbus-jose-jwt.version>
 
         <!-- # Test Dependencies -->
@@ -81,11 +81,6 @@
             </dependency>
             <!-- ## Org Dependencies -->
             <dependency>
-                <groupId>com.julien-dubois.bootui</groupId>
-                <artifactId>bootui-spring-boot-starter</artifactId>
-                <version>${bootui.version}</version>
-            </dependency>
-            <dependency>
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct</artifactId>
                 <version>${mapstruct.version}</version>
@@ -96,6 +91,11 @@
                 <version>${springdoc-openapi-starter.version}</version>
             </dependency>
             <!-- ## Other Dependencies -->
+            <dependency>
+                <groupId>com.julien-dubois.bootui</groupId>
+                <artifactId>bootui-spring-boot-starter</artifactId>
+                <version>${bootui.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.nimbusds</groupId>
                 <artifactId>nimbus-jose-jwt</artifactId>
