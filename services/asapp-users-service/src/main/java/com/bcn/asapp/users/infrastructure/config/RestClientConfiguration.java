@@ -19,8 +19,9 @@ package com.bcn.asapp.users.infrastructure.config;
 import java.net.http.HttpClient;
 import java.util.Set;
 
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.restclient.autoconfigure.RestClientBuilderConfigurer;
-import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.cloud.client.loadbalancer.LoadBalancerInterceptor;
 import org.springframework.cloud.netflix.eureka.TimeoutProperties;
 import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequestFactorySupplier;
 import org.springframework.context.annotation.Bean;
@@ -28,35 +29,33 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.support.RestClientHttpServiceGroupConfigurer;
+import org.springframework.web.service.registry.ImportHttpServices;
 
+import com.bcn.asapp.clients.tasks.TasksHttpClient;
 import com.bcn.asapp.users.infrastructure.security.client.JwtInterceptor;
 
 /**
- * Configuration class for HTTP REST clients.
+ * Configuration class for HTTP REST clients and declarative HTTP service groups.
  * <p>
- * Registers two {@link RestClient.Builder} beans:
- * <ul>
- * <li>A {@link Primary} plain builder used by Eureka and any unqualified injection point — no interceptors, no custom factory.</li>
- * <li>A {@link LoadBalanced} builder for service-to-service calls — carries a redirect-disabled factory and {@link JwtInterceptor}.</li>
- * </ul>
- * Both builders apply Boot's auto-configured defaults via {@link RestClientBuilderConfigurer}.
+ * Registers the {@code tasks} HTTP service group (the {@link TasksHttpClient} proxy) via {@link ImportHttpServices} and configures its underlying
+ * {@link RestClient} through a {@link RestClientHttpServiceGroupConfigurer}: a redirect-disabled JDK request factory, a {@link JwtInterceptor} for bearer-token
+ * propagation, and — when Spring Cloud LoadBalancer is enabled — the {@link LoadBalancerInterceptor} for Eureka-based service-name resolution.
  * <p>
- * A {@link DefaultEurekaClientHttpRequestFactorySupplier} bean gives Eureka its own isolated HTTP factory, independent of any {@link RestClient.Builder} beans
- * in the context.
+ * A {@link Primary} plain {@link RestClient.Builder} is kept for Eureka and any unqualified injection point, and a
+ * {@link DefaultEurekaClientHttpRequestFactorySupplier} gives Eureka its own isolated HTTP factory.
  *
  * @since 0.2.0
- * @see RestClient
- * @see LoadBalanced
- * @see DefaultEurekaClientHttpRequestFactorySupplier
+ * @see ImportHttpServices
+ * @see RestClientHttpServiceGroupConfigurer
  * @author attrigo
  */
 @Configuration(proxyBeanMethods = false)
+@ImportHttpServices(group = "tasks", types = TasksHttpClient.class)
 public class RestClientConfiguration {
 
     /**
-     * Creates a plain {@link RestClient.Builder} bean used by any unqualified injection point.
-     * <p>
-     * No interceptors or custom factory are applied — only Boot's auto-configured defaults via {@link RestClientBuilderConfigurer}.
+     * Creates a plain {@link RestClient.Builder} bean used by Eureka and any unqualified injection point.
      *
      * @param configurer Boot's auto-configured {@link RestClientBuilderConfigurer}
      * @return a plain {@link RestClient.Builder} carrying Boot defaults only
@@ -68,38 +67,27 @@ public class RestClientConfiguration {
     }
 
     /**
-     * Creates a {@link LoadBalanced} {@link RestClient.Builder} for service-to-service HTTP communication.
+     * Configures the {@code tasks} HTTP service group's {@link RestClient}.
      * <p>
-     * The {@link LoadBalanced} qualifier instructs Spring Cloud to apply a {@code LoadBalancerInterceptor} to this builder, enabling Eureka-based service-name
-     * resolution at request time. The builder is also configured with redirect disabled and a {@link JwtInterceptor} that injects Bearer tokens into outgoing
-     * requests.
+     * Applies a redirect-disabled JDK request factory and the {@link JwtInterceptor}. When a {@link LoadBalancerInterceptor} bean is present (Spring Cloud
+     * LoadBalancer enabled), it is also applied so service-id hosts resolve through Eureka; when absent (e.g. tests with load balancing disabled), the
+     * configured base-url host is called directly.
      *
-     * @param configurer Boot's auto-configured {@link RestClientBuilderConfigurer}
-     * @return a {@link RestClient.Builder} pre-configured with redirect disabled and JWT propagation
+     * @param loadBalancerInterceptor provider for the optional Spring Cloud load-balancer interceptor
+     * @return the group configurer for RestClient-backed HTTP services
      */
     @Bean
-    @LoadBalanced
-    RestClient.Builder loadBalancedRestClientBuilder(RestClientBuilderConfigurer configurer) {
+    RestClientHttpServiceGroupConfigurer tasksHttpServiceGroupConfigurer(ObjectProvider<LoadBalancerInterceptor> loadBalancerInterceptor) {
         var httpClient = HttpClient.newBuilder()
                                    .followRedirects(HttpClient.Redirect.NEVER)
                                    .build();
-        return configurer.configure(RestClient.builder())
-                         .requestFactory(new JdkClientHttpRequestFactory(httpClient))
-                         .requestInterceptor(new JwtInterceptor());
-    }
+        var requestFactory = new JdkClientHttpRequestFactory(httpClient);
 
-    /**
-     * Creates a {@link RestClient} bean ready for service-to-service HTTP communication.
-     * <p>
-     * Builds the final client from the {@link LoadBalanced @LoadBalanced} {@link RestClient.Builder}, which Spring Cloud has already equipped with a
-     * {@code LoadBalancerInterceptor} for Eureka-based service-name resolution.
-     *
-     * @param loadBalancedRestClientBuilder the load-balanced builder provided by {@link #loadBalancedRestClientBuilder(RestClientBuilderConfigurer)}
-     * @return the configured {@link RestClient}
-     */
-    @Bean
-    RestClient restClient(@LoadBalanced RestClient.Builder loadBalancedRestClientBuilder) {
-        return loadBalancedRestClientBuilder.build();
+        return groups -> groups.forEachClient((group, clientBuilder) -> {
+            clientBuilder.requestFactory(requestFactory)
+                         .requestInterceptor(new JwtInterceptor());
+            loadBalancerInterceptor.ifAvailable(clientBuilder::requestInterceptor);
+        });
     }
 
     /**
