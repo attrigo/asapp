@@ -109,7 +109,6 @@
             <groupId>com.julien-dubois.bootui</groupId>
             <artifactId>bootui-spring-boot-starter</artifactId>
             <scope>runtime</scope>
-            <optional>true</optional>
         </dependency>
 
         <!-- # Test Dependencies -->
