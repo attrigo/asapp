@@ -125,7 +125,7 @@ curl -X GET http://localhost:8080/asapp-authentication-service/api/users \
 
 ## Configuration & Profiles
 
-The service is **secure-by-default**: with no environment profile, Swagger UI is off and the Actuator exposes only `health`, `info`, `prometheus`, and `sbom`. Activating `dev` re-enables the full tooling, including the [BootUI](https://github.com/jdubois/boot-ui) developer console at `/bootui` (loopback-only; force-disabled under `prod`).
+The service is **secure-by-default**: with no environment profile, Swagger UI and Boot-UI are fully off and the Actuator exposes only `health`, `info`, `prometheus`, and `sbom`. Activating `dev` re-enables the full tooling.
 
 - **Local** — `mvn spring-boot:run` activates `dev` (wired in the POM).
 - **Docker stack** — `docker,dev`.
@@ -355,14 +355,14 @@ Health probes are on the server port (`8080`) at `/asapp-authentication-service`
 
 ### Documentation
 
-| Artifact        | Location                                                             |
-|-----------------|----------------------------------------------------------------------|
-| REST API docs   | `target/generated-docs/api-guide.html`                               |
+| Artifact        | Location                                                                                |
+|-----------------|-----------------------------------------------------------------------------------------|
+| REST API docs   | `target/generated-docs/api-guide.html`                                                  |
 | Swagger UI      | `http://localhost:8080/asapp-authentication-service/swagger-ui.html` (dev profile only) |
 | BootUI console  | `http://localhost:8080/asapp-authentication-service/bootui` (dev profile only)          |
 | Test coverage   | `target/site/jacoco-aggregate/index.html`                                               |
-| Mutation report | `target/pit-reports/<timestamp>/index.html`                          |
-| Javadoc         | `target/site/apidocs/index.html`                                     |
+| Mutation report | `target/pit-reports/<timestamp>/index.html`                                             |
+| Javadoc         | `target/site/apidocs/index.html`                                                        |
 
 ### Monitoring
 
