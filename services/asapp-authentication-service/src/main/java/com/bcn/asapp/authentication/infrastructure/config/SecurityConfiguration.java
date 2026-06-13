@@ -101,6 +101,11 @@ public class SecurityConfiguration {
      */
     public static final Set<String> MANAGEMENT_WHITELIST_URLS = Set.of("/readyz", "/livez");
 
+    /**
+     * Set of BootUI developer console URL patterns that are excluded from authentication checks.
+     */
+    public static final Set<String> BOOTUI_WHITELIST_URLS = Set.of("/bootui", "/bootui/**");
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;

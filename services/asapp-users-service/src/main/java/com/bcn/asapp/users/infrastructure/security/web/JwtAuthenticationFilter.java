@@ -16,6 +16,7 @@
 
 package com.bcn.asapp.users.infrastructure.security.web;
 
+import static com.bcn.asapp.users.infrastructure.config.SecurityConfiguration.BOOTUI_WHITELIST_URLS;
 import static com.bcn.asapp.users.infrastructure.config.SecurityConfiguration.MANAGEMENT_WHITELIST_URLS;
 import static com.bcn.asapp.users.infrastructure.config.SecurityConfiguration.ROOT_WHITELIST_URLS;
 
@@ -159,7 +160,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      */
     private Set<RequestMatcher> buildExcludedMatchers() {
         var path = PathPatternRequestMatcher.withDefaults();
-        return Stream.of(ROOT_WHITELIST_URLS, MANAGEMENT_WHITELIST_URLS)
+        return Stream.of(ROOT_WHITELIST_URLS, MANAGEMENT_WHITELIST_URLS, BOOTUI_WHITELIST_URLS)
                      .flatMap(Collection::stream)
                      .map(path::matcher)
                      .collect(Collectors.toSet());

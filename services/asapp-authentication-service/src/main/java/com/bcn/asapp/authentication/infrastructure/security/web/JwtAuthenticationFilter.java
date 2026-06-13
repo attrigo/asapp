@@ -18,6 +18,7 @@ package com.bcn.asapp.authentication.infrastructure.security.web;
 
 import static com.bcn.asapp.authentication.infrastructure.config.SecurityConfiguration.API_WHITELIST_POST_URLS;
 import static com.bcn.asapp.authentication.infrastructure.config.SecurityConfiguration.API_WHITELIST_URLS;
+import static com.bcn.asapp.authentication.infrastructure.config.SecurityConfiguration.BOOTUI_WHITELIST_URLS;
 import static com.bcn.asapp.authentication.infrastructure.config.SecurityConfiguration.MANAGEMENT_WHITELIST_URLS;
 import static com.bcn.asapp.authentication.infrastructure.config.SecurityConfiguration.ROOT_WHITELIST_URLS;
 
@@ -164,7 +165,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
      */
     private Set<RequestMatcher> buildExcludedMatchers() {
         var path = PathPatternRequestMatcher.withDefaults();
-        Set<RequestMatcher> matchers = Stream.of(API_WHITELIST_URLS, ROOT_WHITELIST_URLS, MANAGEMENT_WHITELIST_URLS)
+        Set<RequestMatcher> matchers = Stream.of(API_WHITELIST_URLS, ROOT_WHITELIST_URLS, MANAGEMENT_WHITELIST_URLS, BOOTUI_WHITELIST_URLS)
                                              .flatMap(Collection::stream)
                                              .map(path::matcher)
                                              .collect(Collectors.toSet());
