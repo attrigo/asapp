@@ -10,15 +10,14 @@
 
 ## Overview
 
-`asapp-rest-clients` provides reusable REST client infrastructure and service-specific clients for inter-service communication within the ASAPP microservices
+`asapp-rest-clients` provides declarative HTTP client contracts (Spring `@HttpExchange` interfaces) and response DTOs for inter-service communication within the ASAPP microservices
 ecosystem.
 
 **Key Features**:
 
-- ✅ URI building utilities for dynamic service URLs
-- ✅ Pre-configured REST clients for Tasks service
-- ✅ Automatic JWT propagation for service-to-service calls
+- ✅ Declarative `@HttpExchange` client interfaces
 - ✅ Type-safe response models
+- ✅ Wiring-free contracts — base URL, auth, and load balancing are owned by the consuming service
 
 ---
 
@@ -44,30 +43,33 @@ ecosystem.
 2. Configure the base URL in `application.properties`:
 
 ```properties
-asapp.client.tasks.base-url=http://localhost:8081/asapp-tasks-service
+spring.http.serviceclient.tasks.base-url=http://localhost:8081/asapp-tasks-service
 ```
 
 In Docker (`application-docker.properties`):
 
 ```properties
-asapp.client.tasks.base-url=http://asapp-tasks-service:8081/asapp-tasks-service
+spring.http.serviceclient.tasks.base-url=http://asapp-tasks-service/asapp-tasks-service
 ```
 
-3. Inject the client and call it — JWT propagation and base URL resolution are handled automatically:
+3. Register the declarative client in a configuration class and inject it:
 
 ```java
-@Service
-public class MyService {
+@Configuration(proxyBeanMethods = false)
+@ImportHttpServices(group = "tasks", types = TasksHttpClient.class)
+public class HttpClientsConfiguration { }
 
-    private final TasksClient tasksClient;
+@Component
+public class MyAdapter {
 
-    public MyService(TasksClient tasksClient) {
-        this.tasksClient = tasksClient;
+    private final TasksHttpClient tasksHttpClient;
+
+    public MyAdapter(TasksHttpClient tasksHttpClient) {
+        this.tasksHttpClient = tasksHttpClient;
     }
 
-    public void myMethod(UUID userId) {
-        List<UUID> taskIds = tasksClient.getTasksByUserId(userId);
-        // ...
+    public List<TasksByUserIdResponse> myMethod(UUID userId) {
+        return tasksHttpClient.getTasksByUserId(userId);
     }
 }
 ```
@@ -116,7 +118,7 @@ mvn clean verify -Pfull
 
 ### Clients
 
-- `com.bcn.asapp.clients.tasks.TasksClient`
+- `com.bcn.asapp.clients.tasks.TasksHttpClient`
 
 ### Documentation
 
@@ -149,7 +151,7 @@ This library is part of the ASAPP monorepo. See the [main repository](../../READ
 
 ## External Resources
 
-- [Spring RestClient Documentation](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html#rest-restclient)
+- [Spring HTTP Interfaces](https://docs.spring.io/spring-framework/reference/integration/rest-clients.html#rest-http-interface)
 
 ---
 
