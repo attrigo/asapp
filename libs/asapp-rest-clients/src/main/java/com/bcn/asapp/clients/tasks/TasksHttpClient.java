@@ -30,8 +30,8 @@ import com.bcn.asapp.clients.tasks.response.TasksByUserIdResponse;
 /**
  * Declares the HTTP contract for retrieving task data from the Tasks Service.
  * <p>
- * Defines the HTTP contract for retrieving task data from the Tasks Service as a Spring {@link HttpExchange} interface. A client proxy is created and configured
- * by the consuming service, which owns base-url resolution, authentication propagation, and load balancing.
+ * Defines the HTTP contract for retrieving task data from the Tasks Service as a Spring {@link HttpExchange} interface. A client proxy is created and
+ * configured by the consuming service, which owns base-url resolution, authentication propagation, and load balancing.
  *
  * @since 0.4.0
  * @see HttpExchange

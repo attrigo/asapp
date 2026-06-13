@@ -40,7 +40,7 @@ import com.bcn.asapp.users.infrastructure.security.client.JwtInterceptor;
  * <p>
  * Registers the {@code tasks} HTTP service group (the {@link TasksHttpClient} proxy) via {@link ImportHttpServices} and configures its underlying
  * {@link RestClient} through a {@link RestClientHttpServiceGroupConfigurer}: a redirect-disabled JDK request factory, a {@link JwtInterceptor} for bearer-token
- * propagation, and — when Spring Cloud LoadBalancer is enabled — the {@link LoadBalancerInterceptor} for Eureka-based service-name resolution.
+ * propagation, and (when Spring Cloud LoadBalancer is enabled) the {@link LoadBalancerInterceptor} for Eureka-based service-name resolution.
  * <p>
  * A {@link Primary} plain {@link RestClient.Builder} is kept for Eureka and any unqualified injection point, and a
  * {@link DefaultEurekaClientHttpRequestFactorySupplier} gives Eureka its own isolated HTTP factory.
