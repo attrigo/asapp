@@ -40,12 +40,14 @@ import com.bcn.asapp.tasks.testutil.TestContainerConfiguration;
  * <li>Actuator root exposes only health, info, prometheus and sbom links when exposure is narrowed</li>
  * <li>Swagger UI endpoint is not reachable when springdoc is disabled</li>
  * <li>OpenAPI documentation endpoint is not reachable when springdoc is disabled</li>
+ * <li>BootUI developer console endpoints return 401 Unauthorized when BootUI is disabled</li>
  */
 @SpringBootTest(classes = AsappTasksServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
 @Import(TestContainerConfiguration.class)
 // @formatter:off
 @TestPropertySource(properties = {
+        "bootui.enabled=OFF",
         "management.endpoint.heapdump.access=none",
         "management.endpoint.shutdown.access=none",
         "management.endpoints.web.exposure.include=health,info,prometheus,sbom",
@@ -100,6 +102,31 @@ class DevToolingLockdownIT {
                           .exchange()
                           .expectStatus()
                           .isNotFound();
+        }
+
+    }
+
+    @Nested
+    class BootUiExposure {
+
+        @Test
+        void ReturnsStatusUnauthorized_OnBootUiConsoleEndpoint() {
+            // When & Then
+            restTestClient.get()
+                          .uri("/bootui")
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized();
+        }
+
+        @Test
+        void ReturnsStatusUnauthorized_OnBootUiApiEndpoint() {
+            // When & Then
+            restTestClient.get()
+                          .uri("/bootui/api")
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized();
         }
 
     }
