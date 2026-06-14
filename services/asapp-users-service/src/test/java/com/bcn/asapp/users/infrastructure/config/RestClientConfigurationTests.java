@@ -139,6 +139,7 @@ class RestClientConfigurationTests {
     void InvokesLoadBalancerClient_OnRequest() throws IOException {
         // Given
         var userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+
         server.createContext("/api/tasks/user/" + userId, exchange -> {
             exchange.sendResponseHeaders(200, -1);
             exchange.close();
@@ -158,6 +159,7 @@ class RestClientConfigurationTests {
         // Given
         var userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
         var authorizationHeader = new AtomicReference<String>();
+
         server.createContext("/api/tasks/user/" + userId, exchange -> {
             authorizationHeader.set(exchange.getRequestHeaders()
                                             .getFirst("Authorization"));
@@ -178,6 +180,7 @@ class RestClientConfigurationTests {
         // Given
         var userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
         var redirectCalled = new AtomicBoolean();
+
         server.createContext("/api/tasks/user/" + userId, exchange -> {
             exchange.getResponseHeaders()
                     .set("Location", "/redirected");

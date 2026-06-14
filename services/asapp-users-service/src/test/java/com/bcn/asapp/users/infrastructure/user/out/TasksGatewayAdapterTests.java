@@ -61,6 +61,7 @@ class TasksGatewayAdapterTests {
             var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
             var taskId1 = UUID.fromString("660e8400-e29b-41d4-a716-446655440001");
             var taskId2 = UUID.fromString("660e8400-e29b-41d4-a716-446655440002");
+
             given(tasksHttpClient.getTasksByUserId(userId.value())).willReturn(List.of(new TasksByUserIdResponse(taskId1), new TasksByUserIdResponse(taskId2)));
 
             // When
@@ -74,6 +75,7 @@ class TasksGatewayAdapterTests {
         void ReturnsEmptyList_UserHasNoTasks() {
             // Given
             var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+
             given(tasksHttpClient.getTasksByUserId(userId.value())).willReturn(List.of());
 
             // When
@@ -87,6 +89,7 @@ class TasksGatewayAdapterTests {
         void ReturnsEmptyList_NullResponse() {
             // Given
             var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+
             given(tasksHttpClient.getTasksByUserId(userId.value())).willReturn(null);
 
             // When
@@ -100,6 +103,7 @@ class TasksGatewayAdapterTests {
         void ReturnsEmptyList_TasksServiceFails() {
             // Given
             var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+
             given(tasksHttpClient.getTasksByUserId(userId.value())).willThrow(new RestClientException("connection refused"));
 
             // When
