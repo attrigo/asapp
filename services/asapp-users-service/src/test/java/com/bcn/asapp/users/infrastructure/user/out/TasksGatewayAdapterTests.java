@@ -17,6 +17,7 @@
 package com.bcn.asapp.users.infrastructure.user.out;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import static org.mockito.BDDMockito.given;
 
 import java.util.List;
@@ -35,13 +36,13 @@ import com.bcn.asapp.clients.tasks.response.TasksByUserIdResponse;
 import com.bcn.asapp.users.domain.user.UserId;
 
 /**
- * Tests {@link TasksGatewayAdapter} task id mapping and graceful degradation.
+ * Tests {@link TasksGatewayAdapter} task id mapping and failure propagation.
  * <p>
  * Coverage:
  * <li>Maps task responses to their task ids</li>
  * <li>Returns an empty list when the user has no tasks</li>
  * <li>Returns an empty list when the client yields a null response body</li>
- * <li>Returns an empty list when the Tasks Service call fails</li>
+ * <li>Propagates the exception when the Tasks Service call fails</li>
  */
 @ExtendWith(MockitoExtension.class)
 class TasksGatewayAdapterTests {
@@ -100,17 +101,18 @@ class TasksGatewayAdapterTests {
         }
 
         @Test
-        void ReturnsEmptyList_TasksServiceFails() {
+        void ThrowsException_TasksServiceFails() {
             // Given
             var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
 
             given(tasksHttpClient.getTasksByUserId(userId.value())).willThrow(new RestClientException("connection refused"));
 
             // When
-            var actual = tasksGatewayAdapter.getTaskIdsByUserId(userId);
+            var actual = catchThrowable(() -> tasksGatewayAdapter.getTaskIdsByUserId(userId));
 
             // Then
-            assertThat(actual).isEmpty();
+            assertThat(actual).isInstanceOf(RestClientException.class)
+                              .hasMessage("connection refused");
         }
 
     }

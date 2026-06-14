@@ -16,13 +16,19 @@
 
 package com.bcn.asapp.users.infrastructure.user.out;
 
+import static com.bcn.asapp.users.infrastructure.config.TasksHttpClientConfiguration.TASKS_CLIENT_NAME;
+
 import java.util.List;
 import java.util.UUID;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
-import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
+
+import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 import com.bcn.asapp.clients.tasks.TasksHttpClient;
 import com.bcn.asapp.clients.tasks.response.TasksByUserIdResponse;
@@ -32,13 +38,15 @@ import com.bcn.asapp.users.domain.user.UserId;
 /**
  * Adapter implementation of {@link TasksGateway} for external calls to tasks-service.
  * <p>
- * Bridges the application layer with the infrastructure layer by delegating to the declarative {@link TasksHttpClient}, mapping task responses to their
- * identifiers, and degrading gracefully when the Tasks Service is unavailable.
+ * Bridges the application layer with the infrastructure layer by delegating to the declarative {@link TasksHttpClient} and mapping task responses to their
+ * identifiers.
  * <p>
- * When communication with the Tasks Service fails (network errors, service unavailability, or invalid responses), this adapter logs a warning and returns an
- * empty list, preventing cascading failures so the user lookup still succeeds.
+ * The call is guarded by a Resilience4j circuit breaker (instance {@code tasks}): repeated server or I/O errors open the circuit and fast-fail, and the breaker
+ * recovers automatically once the Tasks Service is healthy again. Transient downstream outages degrade to an empty list so the user lookup still succeeds,
+ * while client errors and unexpected failures propagate — see {@code emptyTasksFallback} for the exact classification.
  *
  * @since 0.2.0
+ * @see CircuitBreaker
  * @author attrigo
  */
 @Component
@@ -61,26 +69,49 @@ public class TasksGatewayAdapter implements TasksGateway {
      * Retrieves all task identifiers associated with a specific user by delegating to the tasks-service client.
      *
      * @param userId the user's unique identifier
-     * @return a {@link List} of task UUIDs associated with the user, otherwise an empty list if the user has no tasks or the retrieval fails
+     * @return a {@link List} of task UUIDs associated with the user, or an empty list if the user has no tasks, the response body is null, or the tasks circuit
+     *         breaker degrades a downstream outage (5xx/I/O or open circuit)
      */
     @Override
+    @CircuitBreaker(name = TASKS_CLIENT_NAME, fallbackMethod = "emptyTasksFallback")
     public List<UUID> getTaskIdsByUserId(UserId userId) {
-        try {
-            var tasks = tasksHttpClient.getTasksByUserId(userId.value());
+        var tasks = tasksHttpClient.getTasksByUserId(userId.value());
 
-            if (tasks == null) {
-                logger.warn("Received null response body from Tasks Service for user {}. Returning empty list.", userId.value());
-                return List.of();
-            }
-
-            return tasks.stream()
-                        .map(TasksByUserIdResponse::taskId)
-                        .toList();
-
-        } catch (RestClientException e) {
-            logger.warn("Failed to retrieve tasks for user {}: {}. Returning empty list.", userId.value(), e.getMessage());
+        if (tasks == null) {
+            logger.warn("Received null response body from Tasks Service for user {}. Returning empty list.", userId.value());
             return List.of();
         }
+
+        return tasks.stream()
+                    .map(TasksByUserIdResponse::taskId)
+                    .toList();
+    }
+
+    /**
+     * Returns an empty task id list when the Tasks Service is unavailable or the circuit is open.
+     * <p>
+     * Invoked reflectively by Resilience4j as the {@code tasks} circuit breaker fallback, which classifies the failure:
+     * <ul>
+     * <li>server (5xx) errors ({@link HttpServerErrorException}), I/O failures ({@link ResourceAccessException}), and the open-circuit
+     * {@link CallNotPermittedException} are degraded to an empty list.</li>
+     * <li>client (4xx) errors and any unexpected failure are rethrown so callers and the error handler can surface them.</li>
+     * </ul>
+     *
+     * @param userId the user's unique identifier
+     * @param cause  the failure that triggered the fallback
+     * @return an empty {@link List} when the downstream service is unavailable or the circuit is open
+     * @throws Throwable the original failure when it is not a recoverable downstream outage (e.g. a 4xx client error or a bug)
+     */
+    private List<UUID> emptyTasksFallback(UserId userId, Throwable cause) throws Throwable {
+        if (cause instanceof HttpServerErrorException || cause instanceof ResourceAccessException || cause instanceof CallNotPermittedException) {
+            var className = cause.getClass()
+                                 .getSimpleName();
+            var message = cause.getMessage();
+            logger.warn("Failed to retrieve tasks for user {}: {} - {}. Returning empty list.", userId.value(), className, message);
+            return List.of();
+        }
+
+        throw cause;
     }
 
 }

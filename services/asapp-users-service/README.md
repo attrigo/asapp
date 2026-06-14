@@ -168,6 +168,29 @@ Shared  central-config/application.properties         (base)
 
 **Migrations**: Managed by Liquibase in `src/main/resources/liquibase/db/changelog/`
 
+### Resilience
+
+Outbound gateway calls pass through a Resilience4j **circuit breaker**:
+
+- Repeated 5xx or I/O failures open the breaker, which then fast-fails.
+- While open (or on any single downstream failure) the gateway degrades to an empty result, so the primary request still succeeds.
+- Client (4xx) errors do not count as failures and never trip the breaker.
+- Breaker state and metrics are exported to Prometheus and surfaced as a non-failing `/actuator/health` component.
+
+Tuning lives in `application.properties` under `resilience4j.circuitbreaker.instances.<name>.*`:
+
+| Property                                              | Purpose                                             |
+|-------------------------------------------------------|-----------------------------------------------------|
+| `sliding-window-size`                                 | How many recent calls the breaker looks at          |
+| `minimum-number-of-calls`                             | Minimum calls before the breaker evaluates failures |
+| `failure-rate-threshold`                              | Failure rate (%) that opens the breaker             |
+| `wait-duration-in-open-state`                         | How long it stays open before retrying              |
+| `permitted-number-of-calls-in-half-open-state`        | Trial calls allowed while recovering                |
+| `automatic-transition-from-open-to-half-open-enabled` | Start recovering automatically after the wait       |
+| `register-health-indicator`                           | Show breaker state in the health endpoint           |
+| `allow-health-indicator-to-fail`                      | Whether an open breaker marks health DOWN           |
+| `ignore-exceptions`                                   | Exceptions that don't count as failures             |
+
 ### Project Structure
 
 ```
@@ -202,6 +225,7 @@ src/main/java/com/bcn/asapp/users/
 - **Documentation**: SpringDoc OpenAPI
 - **Observability**: Spring Boot Actuator, Micrometer
 - **REST Clients**: Spring HTTP Interfaces (@HttpExchange)
+- **Resilience**: Resilience4j (circuit breaker)
 
 ---
 
@@ -395,6 +419,7 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 - [Domain-Driven Design](https://martinfowler.com/bliki/DomainDrivenDesign.html)
 - [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
 - [Spring Data JDBC](https://docs.spring.io/spring-data/relational/reference/jdbc.html)
+- [Resilience4j Circuit Breaker](https://resilience4j.readme.io/docs/circuitbreaker)
 - [TestContainers](https://java.testcontainers.org/)
 - [MockServer](https://www.mock-server.com/)
 

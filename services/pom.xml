@@ -30,12 +30,14 @@
         <!-- ## Other Dependencies -->
         <bootui.version>1.4.0</bootui.version>
         <nimbus-jose-jwt.version>9.37.4</nimbus-jose-jwt.version>
+        <resilience4j.version>2.4.0</resilience4j.version>
 
         <!-- # Test Dependencies -->
         <!-- ## Spring Dependencies -->
         <spring-restdocs.version>4.0.0</spring-restdocs.version>
         <!-- ## Org Dependencies -->
         <mockserver-client-java.version>5.15.0</mockserver-client-java.version>
+        <mockserver-netty.version>5.15.0</mockserver-netty.version>
         <testcontainers.version>2.0.4</testcontainers.version>
         <!-- ## Other Dependencies -->
         <json-unit-assertj.version>5.1.1</json-unit-assertj.version>
@@ -101,6 +103,11 @@
                 <artifactId>nimbus-jose-jwt</artifactId>
                 <version>${nimbus-jose-jwt.version}</version>
             </dependency>
+            <dependency>
+                <groupId>io.github.resilience4j</groupId>
+                <artifactId>resilience4j-spring-boot4</artifactId>
+                <version>${resilience4j.version}</version>
+            </dependency>
 
             <!-- # Test Dependencies -->
             <!-- ## Spring Dependencies -->
@@ -115,6 +122,12 @@
                 <groupId>org.mock-server</groupId>
                 <artifactId>mockserver-client-java</artifactId>
                 <version>${mockserver-client-java.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mock-server</groupId>
+                <artifactId>mockserver-netty</artifactId>
+                <version>${mockserver-netty.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
