@@ -20,6 +20,8 @@
     <properties>
         <!-- Dependencies Versions -->
         <!-- # BOM Dependencies -->
+        <!-- ## Resilience4j Dependencies -->
+        <resilience4j.version>2.4.0</resilience4j.version>
         <!-- ## Spring Cloud Dependencies -->
         <spring-cloud.version>2025.1.1</spring-cloud.version>
 
@@ -58,6 +60,14 @@
     <dependencyManagement>
         <dependencies>
             <!-- # BOM Dependencies -->
+            <!-- ## Resilience4j Dependencies -->
+            <dependency>
+                <groupId>io.github.resilience4j</groupId>
+                <artifactId>resilience4j-bom</artifactId>
+                <version>${resilience4j.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
             <!-- ## Spring Cloud Dependencies -->
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
