@@ -168,6 +168,10 @@ Shared  central-config/application.properties         (base)
 
 **Migrations**: Managed by Liquibase in `src/main/resources/liquibase/db/changelog/`
 
+### Resilience
+
+Outbound calls to the Tasks Service go through a Resilience4j **circuit breaker** (instance `tasks`) on the tasks gateway. On repeated I/O or 5xx failures the breaker opens and fast-fails; while open — or on any single downstream failure — the gateway degrades to an empty task list, so user lookups still succeed. Client (4xx) errors do not trip the breaker. Breaker state and metrics are exported to Prometheus, and the breaker contributes a non-failing component to `/actuator/health`. Thresholds are tunable in `application.properties` (`resilience4j.circuitbreaker.instances.tasks.*`).
+
 ### Project Structure
 
 ```
@@ -202,6 +206,7 @@ src/main/java/com/bcn/asapp/users/
 - **Documentation**: SpringDoc OpenAPI
 - **Observability**: Spring Boot Actuator, Micrometer
 - **REST Clients**: Spring HTTP Interfaces (@HttpExchange)
+- **Resilience**: Resilience4j (circuit breaker)
 
 ---
 

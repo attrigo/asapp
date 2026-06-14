@@ -2,7 +2,7 @@
 
 Spring Boot 4.0.5 / Java 25 task management application
 Architecture: Hexagonal (Ports & Adapters) + DDD
-Stack: Spring MVC, Spring Data JDBC · Spring Security (JWT) · PostgreSQL · Redis · Liquibase · Prometheus (9090) · Grafana (3000)
+Stack: Spring MVC, Spring Data JDBC · Spring Security (JWT) · Resilience4j · PostgreSQL · Redis · Liquibase · Prometheus (9090) · Grafana (3000)
 Services: `asapp-authentication-service` (8080/8090), `asapp-config-service` (8888/8898), `asapp-discovery-service` (8761/8791), `asapp-tasks-service` (8081/8091), `asapp-users-service` (8082/8092)
 Libs: `asapp-commons-url` (endpoint URL constants), `asapp-rest-clients` (declarative HTTP client interfaces + DTOs)
 
