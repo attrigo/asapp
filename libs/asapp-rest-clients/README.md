@@ -1,6 +1,6 @@
 # ASAPP REST Clients
 
-> Shared REST client infrastructure and inter-service communication for ASAPP microservices
+> Shared HTTP client contracts and inter-service communication for ASAPP microservices
 
 [![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://www.oracle.com/java/technologies/downloads/#java25)
 [![Maven](https://img.shields.io/badge/Maven-3.9.14+-blue.svg)](https://maven.apache.org/)
@@ -135,7 +135,7 @@ This library is part of the ASAPP monorepo. See the [main repository](../../READ
 
 **Key Guidelines**:
 
-- Add tests for new REST clients
+- Add tests for new HTTP clients
 - Run `mvn spotless:apply` before committing
 - Ensure all tests pass (`mvn verify`)
 - Use Conventional Commits for commit messages
