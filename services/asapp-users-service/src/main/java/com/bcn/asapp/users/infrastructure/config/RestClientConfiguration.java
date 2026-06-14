@@ -83,7 +83,7 @@ public class RestClientConfiguration {
                                    .build();
         var requestFactory = new JdkClientHttpRequestFactory(httpClient);
 
-        return groups -> groups.forEachClient((group, clientBuilder) -> {
+        return groupConfigurer -> groupConfigurer.forEachClient((_, clientBuilder) -> {
             clientBuilder.requestFactory(requestFactory)
                          .requestInterceptor(new JwtInterceptor());
             loadBalancerInterceptor.ifAvailable(clientBuilder::requestInterceptor);
