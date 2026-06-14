@@ -18,10 +18,12 @@ package com.bcn.asapp.clients.tasks;
 
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestToUriTemplate;
+import static org.springframework.test.web.client.response.MockRestResponseCreators.withServerError;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 import java.util.UUID;
@@ -31,6 +33,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestClient;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.support.RestClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
@@ -110,6 +113,53 @@ class TasksHttpClientTests {
 
             // Then
             assertThat(actual).isEmpty();
+
+            server.verify();
+        }
+
+        @Test
+        void ReturnsNull_EmptyBodyResponse() {
+            // Given
+            var userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+            var uri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
+
+            server.expect(requestToUriTemplate(uri, userId.toString()))
+                  .andExpect(method(GET))
+                  .andRespond(withSuccess());
+
+            // When
+            var actual = tasksHttpClient.getTasksByUserId(userId);
+
+            // Then
+            assertThat(actual).isNull();
+
+            server.verify();
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_NullUserId() {
+            // When
+            var thrown = catchThrowable(() -> tasksHttpClient.getTasksByUserId(null));
+
+            // Then
+            assertThat(thrown).isInstanceOf(IllegalArgumentException.class);
+        }
+
+        @Test
+        void Throws_ServerCallFails() {
+            // Given
+            var userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
+            var uri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
+
+            server.expect(requestToUriTemplate(uri, userId.toString()))
+                  .andExpect(method(GET))
+                  .andRespond(withServerError());
+
+            // When
+            var thrown = catchThrowable(() -> tasksHttpClient.getTasksByUserId(userId));
+
+            // Then
+            assertThat(thrown).isInstanceOf(RestClientException.class);
 
             server.verify();
         }
