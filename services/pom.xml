@@ -22,8 +22,6 @@
         <!-- # BOM Dependencies -->
         <!-- ## Spring Cloud Dependencies -->
         <spring-cloud.version>2025.1.1</spring-cloud.version>
-        <!-- ## Other Dependencies -->
-        <resilience4j.version>2.4.0</resilience4j.version>
 
         <!-- # Compile Dependencies -->
         <!-- ## Org Dependencies -->
@@ -32,6 +30,7 @@
         <!-- ## Other Dependencies -->
         <bootui.version>1.4.0</bootui.version>
         <nimbus-jose-jwt.version>9.37.4</nimbus-jose-jwt.version>
+        <resilience4j.version>2.4.0</resilience4j.version>
 
         <!-- # Test Dependencies -->
         <!-- ## Spring Dependencies -->
@@ -65,14 +64,6 @@
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <!-- ## Other Dependencies -->
-            <dependency>
-                <groupId>io.github.resilience4j</groupId>
-                <artifactId>resilience4j-bom</artifactId>
-                <version>${resilience4j.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
