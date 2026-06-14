@@ -31,7 +31,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -57,16 +56,6 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 @SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @Import(TestContainerConfiguration.class)
 @Testcontainers
-// @formatter:off
-@TestPropertySource(properties = {
-        "resilience4j.circuitbreaker.instances.tasks.sliding-window-type=COUNT_BASED",
-        "resilience4j.circuitbreaker.instances.tasks.sliding-window-size=10",
-        "resilience4j.circuitbreaker.instances.tasks.minimum-number-of-calls=5",
-        "resilience4j.circuitbreaker.instances.tasks.failure-rate-threshold=50",
-        "resilience4j.circuitbreaker.instances.tasks.wait-duration-in-open-state=10s",
-        "resilience4j.circuitbreaker.instances.tasks.permitted-number-of-calls-in-half-open-state=3",
-        "resilience4j.circuitbreaker.instances.tasks.ignore-exceptions=org.springframework.web.client.HttpClientErrorException" })
-// @formatter:on
 class TasksGatewayAdapterIT {
 
     @MockitoBean
