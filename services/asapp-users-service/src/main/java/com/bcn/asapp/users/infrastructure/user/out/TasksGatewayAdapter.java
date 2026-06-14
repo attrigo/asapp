@@ -34,11 +34,11 @@ import com.bcn.asapp.users.domain.user.UserId;
  * Adapter implementation of {@link TasksGateway} for external calls to tasks-service.
  * <p>
  * Bridges the application layer with the infrastructure layer by delegating to the declarative {@link TasksHttpClient} and mapping task responses to their
- * identifiers. The call is guarded by a Resilience4j circuit breaker (instance {@code tasks}): repeated I/O or server errors open the circuit and fast-fail,
- * and the breaker recovers automatically once the Tasks Service is healthy again.
+ * identifiers.
  * <p>
- * On any downstream failure or while the circuit is open, the {@code emptyTasksFallback} method logs a warning and returns an empty list, preventing cascading
- * failures so the user lookup still succeeds. Client (4xx) errors do not open the circuit.
+ * The call is guarded by a Resilience4j circuit breaker (instance {@code tasks}): repeated I/O or server errors open the circuit and fast-fail, and the breaker
+ * recovers automatically once the Tasks Service is healthy again. On any downstream failure or while the circuit is open, the {@code emptyTasksFallback} method
+ * logs a warning and returns an empty list, preventing cascading failures so the user lookup still succeeds. Client (4xx) errors do not open the circuit.
  *
  * @since 0.2.0
  * @see CircuitBreaker
@@ -62,10 +62,12 @@ public class TasksGatewayAdapter implements TasksGateway {
 
     /**
      * Retrieves all task identifiers associated with a specific user by delegating to the tasks-service client.
+     * <p>
+     * On a downstream failure the {@code tasks} circuit breaker fallback returns an empty list instead.
      *
      * @param userId the user's unique identifier
-     * @return a {@link List} of task UUIDs associated with the user, or an empty list if the user has no tasks or the response body is null; on a downstream
-     *         failure the {@code tasks} circuit breaker fallback returns an empty list instead
+     * @return a {@link List} of task UUIDs associated with the user, or an empty list if the user has no tasks, the response body is null or the downstream
+     *         service is down.
      */
     @CircuitBreaker(name = "tasks", fallbackMethod = "emptyTasksFallback")
     @Override
@@ -88,12 +90,12 @@ public class TasksGatewayAdapter implements TasksGateway {
      * Invoked reflectively by Resilience4j as the {@code tasks} circuit breaker fallback; the trailing {@link Throwable} carries the downstream failure or the
      * open-circuit {@code CallNotPermittedException}.
      *
-     * @param userId the user's unique identifier
-     * @param t      the failure that triggered the fallback
+     * @param userId    the user's unique identifier
+     * @param throwable the failure that triggered the fallback
      * @return an empty {@link List}
      */
-    private List<UUID> emptyTasksFallback(UserId userId, Throwable t) {
-        logger.warn("Failed to retrieve tasks for user {}: {}. Returning empty list.", userId.value(), t.getMessage());
+    private List<UUID> emptyTasksFallback(UserId userId, Throwable throwable) {
+        logger.warn("Failed to retrieve tasks for user {}: {}. Returning empty list.", userId.value(), throwable.getMessage());
         return List.of();
     }
 
