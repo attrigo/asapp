@@ -17,7 +17,7 @@ ecosystem.
 
 - ✅ Declarative `@HttpExchange` client interfaces
 - ✅ Type-safe response models
-- ✅ Wiring-free contracts — base URL, auth, and load balancing are owned by the consuming service
+- ✅ Wiring-free contracts — base URL, auth, load balancing, and resilience are owned by the consuming service
 
 ---
 

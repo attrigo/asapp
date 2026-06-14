@@ -32,7 +32,12 @@ import com.bcn.asapp.clients.tasks.TasksHttpClient;
  * @author attrigo
  */
 @Configuration(proxyBeanMethods = false)
-@ImportHttpServices(group = "tasks", types = TasksHttpClient.class)
+@ImportHttpServices(group = TasksHttpClientConfiguration.TASKS_CLIENT_NAME, types = TasksHttpClient.class)
 public class TasksHttpClientConfiguration {
+
+    /**
+     * Logical name identifying the tasks-service client, shared across its consumer-side wiring.
+     */
+    public static final String TASKS_CLIENT_NAME = "tasks";
 
 }

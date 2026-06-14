@@ -87,7 +87,8 @@ class ActuatorEndpointsIT {
                                                                                                            "threaddump", "prometheus",
                                                                                                            "metrics-requiredMetricName", "metrics", "sbom-id",
                                                                                                            "sbom", "scheduledtasks", "httpexchanges",
-                                                                                                           "mappings", "refresh"));
+                                                                                                           "mappings", "refresh", "circuitbreakers",
+                                                                                                           "circuitbreakerevents"));
     }
 
     @Test
@@ -122,8 +123,8 @@ class ActuatorEndpointsIT {
                                                                                                    .containsKeys("status", "groups", "components")
                                                                                                    .node("components")
                                                                                                    .isObject()
-                                                                                                   .containsKeys("db", "diskSpace", "livenessState", "ping",
-                                                                                                           "readinessState", "ssl"));
+                                                                                                   .containsKeys("circuitBreakers", "db", "diskSpace",
+                                                                                                           "livenessState", "ping", "readinessState", "ssl"));
     }
 
     @Test
