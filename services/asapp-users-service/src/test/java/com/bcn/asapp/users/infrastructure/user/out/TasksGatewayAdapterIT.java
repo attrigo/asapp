@@ -57,12 +57,17 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 @SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @Import(TestContainerConfiguration.class)
 @Testcontainers
-@TestPropertySource(properties = { "resilience4j.circuitbreaker.instances.tasks.sliding-window-type=COUNT_BASED",
-        "resilience4j.circuitbreaker.instances.tasks.sliding-window-size=10", "resilience4j.circuitbreaker.instances.tasks.minimum-number-of-calls=5",
-        "resilience4j.circuitbreaker.instances.tasks.failure-rate-threshold=50", "resilience4j.circuitbreaker.instances.tasks.wait-duration-in-open-state=10s",
+// @formatter:off
+@TestPropertySource(properties = {
+        "resilience4j.circuitbreaker.instances.tasks.sliding-window-type=COUNT_BASED",
+        "resilience4j.circuitbreaker.instances.tasks.sliding-window-size=10",
+        "resilience4j.circuitbreaker.instances.tasks.minimum-number-of-calls=5",
+        "resilience4j.circuitbreaker.instances.tasks.failure-rate-threshold=50",
+        "resilience4j.circuitbreaker.instances.tasks.wait-duration-in-open-state=10s",
         "resilience4j.circuitbreaker.instances.tasks.permitted-number-of-calls-in-half-open-state=3",
         "resilience4j.circuitbreaker.instances.tasks.ignore-exceptions=org.springframework.web.client.HttpClientErrorException" })
-class TasksGatewayCircuitBreakerIT {
+// @formatter:on
+class TasksGatewayAdapterIT {
 
     @MockitoBean
     private TasksHttpClient tasksHttpClient;
