@@ -47,6 +47,6 @@ public interface TasksHttpClient {
      * @return a {@link List} of task responses belonging to the user; an empty list if the user has no tasks
      */
     @GetExchange(TASKS_GET_BY_USER_ID_FULL_PATH)
-    List<TasksByUserIdResponse> getTasksByUserId(@PathVariable("id") UUID id);
+    List<TasksByUserIdResponse> getTasksByUserId(@PathVariable UUID id);
 
 }
