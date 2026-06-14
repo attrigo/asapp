@@ -104,9 +104,8 @@ class TasksGatewayAdapterTests {
         void ThrowsException_TasksServiceFails() {
             // Given
             var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
-            var tasksServiceError = new RestClientException("connection refused");
 
-            given(tasksHttpClient.getTasksByUserId(userId.value())).willThrow(tasksServiceError);
+            given(tasksHttpClient.getTasksByUserId(userId.value())).willThrow(new RestClientException("connection refused"));
 
             // When
             var actual = catchThrowable(() -> tasksGatewayAdapter.getTaskIdsByUserId(userId));
