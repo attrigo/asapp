@@ -65,11 +65,14 @@ public class RestClientConfiguration {
     /**
      * Configures every declarative HTTP service client group's {@link RestClient}.
      * <p>
-     * Applies a redirect-disabled JDK request factory and the {@link JwtInterceptor} to every client. When a {@link LoadBalancerInterceptor} bean is present
-     * (Spring Cloud LoadBalancer enabled), it is also applied so service-id hosts resolve through Eureka; when absent (e.g. tests with load balancing
-     * disabled), the configured base-url host is called directly.
+     * Applies to each client, in order: a redirect-disabled JDK request factory; the {@link JwtInterceptor}, which propagates the caller's bearer token to the
+     * downstream call; and finally the {@link LoadBalancerInterceptor}, when one is available.
+     * <p>
+     * The interceptor is injected as an {@link ObjectProvider} and applied only when present: Spring Cloud LoadBalancer auto-configures the bean when it is on
+     * the classpath, and the interceptor then resolves a base url that targets a Eureka service id into a concrete instance host and port. Without the bean
+     * (e.g. in tests), the configured base-url host is called directly.
      *
-     * @param loadBalancerInterceptor provider for the optional Spring Cloud load-balancer interceptor
+     * @param loadBalancerInterceptor provider for the optional Spring Cloud load-balancer interceptor that resolves Eureka service ids to instances
      * @return the group configurer for RestClient-backed HTTP services
      */
     @Bean
