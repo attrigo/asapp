@@ -30,28 +30,24 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.support.RestClientHttpServiceGroupConfigurer;
-import org.springframework.web.service.registry.ImportHttpServices;
 
-import com.bcn.asapp.clients.tasks.TasksHttpClient;
 import com.bcn.asapp.users.infrastructure.security.client.JwtInterceptor;
 
 /**
- * Configuration class for HTTP REST clients and declarative HTTP service groups.
+ * Configures HTTP service clients and the shared {@link RestClient} infrastructure.
  * <p>
- * Registers the {@code tasks} HTTP service group (the {@link TasksHttpClient} proxy) via {@link ImportHttpServices} and configures its underlying
- * {@link RestClient} through a {@link RestClientHttpServiceGroupConfigurer}: a redirect-disabled JDK request factory, a {@link JwtInterceptor} for bearer-token
- * propagation, and (when Spring Cloud LoadBalancer is enabled) the {@link LoadBalancerInterceptor} for Eureka-based service-name resolution.
+ * Configures every declarative HTTP service client group through a {@link RestClientHttpServiceGroupConfigurer}: a redirect-disabled JDK request factory, a
+ * {@link JwtInterceptor} for bearer-token propagation, and (when Spring Cloud LoadBalancer is enabled) the {@link LoadBalancerInterceptor} for Eureka-based
+ * service-name resolution.
  * <p>
  * A {@link Primary} plain {@link RestClient.Builder} is kept for Eureka and any unqualified injection point, and a
  * {@link DefaultEurekaClientHttpRequestFactorySupplier} gives Eureka its own isolated HTTP factory.
  *
  * @since 0.2.0
- * @see ImportHttpServices
  * @see RestClientHttpServiceGroupConfigurer
  * @author attrigo
  */
 @Configuration(proxyBeanMethods = false)
-@ImportHttpServices(group = "tasks", types = TasksHttpClient.class)
 public class RestClientConfiguration {
 
     /**
@@ -67,17 +63,17 @@ public class RestClientConfiguration {
     }
 
     /**
-     * Configures the {@code tasks} HTTP service group's {@link RestClient}.
+     * Configures every declarative HTTP service client group's {@link RestClient}.
      * <p>
-     * Applies a redirect-disabled JDK request factory and the {@link JwtInterceptor}. When a {@link LoadBalancerInterceptor} bean is present (Spring Cloud
-     * LoadBalancer enabled), it is also applied so service-id hosts resolve through Eureka; when absent (e.g. tests with load balancing disabled), the
-     * configured base-url host is called directly.
+     * Applies a redirect-disabled JDK request factory and the {@link JwtInterceptor} to every client. When a {@link LoadBalancerInterceptor} bean is present
+     * (Spring Cloud LoadBalancer enabled), it is also applied so service-id hosts resolve through Eureka; when absent (e.g. tests with load balancing
+     * disabled), the configured base-url host is called directly.
      *
      * @param loadBalancerInterceptor provider for the optional Spring Cloud load-balancer interceptor
      * @return the group configurer for RestClient-backed HTTP services
      */
     @Bean
-    RestClientHttpServiceGroupConfigurer tasksHttpServiceGroupConfigurer(ObjectProvider<LoadBalancerInterceptor> loadBalancerInterceptor) {
+    RestClientHttpServiceGroupConfigurer httpServiceGroupConfigurer(ObjectProvider<LoadBalancerInterceptor> loadBalancerInterceptor) {
         var httpClient = HttpClient.newBuilder()
                                    .followRedirects(HttpClient.Redirect.NEVER)
                                    .build();

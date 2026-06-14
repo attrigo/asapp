@@ -77,7 +77,7 @@ class RestClientConfigurationTests {
     @Configuration(proxyBeanMethods = false)
     @ImportAutoConfiguration({ HttpClientAutoConfiguration.class, RestClientAutoConfiguration.class, HttpServiceClientPropertiesAutoConfiguration.class,
             HttpServiceClientAutoConfiguration.class })
-    @Import(RestClientConfiguration.class)
+    @Import({ RestClientConfiguration.class, TasksHttpClientConfiguration.class })
     static class TestApp {
 
         @Bean
