@@ -181,7 +181,6 @@ Tuning lives in `application.properties` under `resilience4j.circuitbreaker.inst
 
 | Property                                              | Purpose                                             |
 |-------------------------------------------------------|-----------------------------------------------------|
-| `sliding-window-type`                                 | How recent calls are tracked — by count or by time  |
 | `sliding-window-size`                                 | How many recent calls the breaker looks at          |
 | `minimum-number-of-calls`                             | Minimum calls before the breaker evaluates failures |
 | `failure-rate-threshold`                              | Failure rate (%) that opens the breaker             |
