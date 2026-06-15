@@ -74,8 +74,8 @@ public class TasksGatewayAdapter implements TasksGateway {
      * @return a {@link List} of task UUIDs associated with the user, or an empty list if the user has no tasks, the response body is null, or the downstream
      *         service is unavailable (5xx/I/O) or its circuit is open
      */
-    @CircuitBreaker(name = "tasks", fallbackMethod = "emptyTasksFallback")
     @Override
+    @CircuitBreaker(name = "tasks", fallbackMethod = "emptyTasksFallback")
     public List<UUID> getTaskIdsByUserId(UserId userId) {
         var tasks = tasksHttpClient.getTasksByUserId(userId.value());
 
@@ -96,19 +96,21 @@ public class TasksGatewayAdapter implements TasksGateway {
      * failures ({@link ResourceAccessException}) and the open-circuit {@link CallNotPermittedException} are degraded to an empty list; client (4xx) errors and
      * any unexpected failure are rethrown so callers and the error handler can surface them.
      *
-     * @param userId    the user's unique identifier
-     * @param throwable the failure that triggered the fallback
+     * @param userId the user's unique identifier
+     * @param cause  the failure that triggered the fallback
      * @return an empty {@link List} when the downstream service is unavailable or the circuit is open
      * @throws Throwable the original failure when it is not a recoverable downstream outage (e.g. a 4xx client error or a bug)
      */
-    private List<UUID> emptyTasksFallback(UserId userId, Throwable throwable) throws Throwable {
-        if (throwable instanceof HttpServerErrorException || throwable instanceof ResourceAccessException || throwable instanceof CallNotPermittedException) {
-
-            logger.warn("Failed to retrieve tasks for user {}: {}. Returning empty list.", userId.value(), throwable.getMessage());
+    private List<UUID> emptyTasksFallback(UserId userId, Throwable cause) throws Throwable {
+        if (cause instanceof HttpServerErrorException || cause instanceof ResourceAccessException || cause instanceof CallNotPermittedException) {
+            var className = cause.getClass()
+                                 .getSimpleName();
+            var message = cause.getMessage();
+            logger.warn("Failed to retrieve tasks for user {}: {} - {}. Returning empty list.", userId.value(), className, message);
             return List.of();
         }
 
-        throw throwable;
+        throw cause;
     }
 
 }
