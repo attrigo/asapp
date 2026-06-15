@@ -23,7 +23,9 @@ import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -53,6 +55,8 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
  * Coverage:
  * <li>Degrades to an empty list on a server or I/O error</li>
  * <li>Opens the circuit and degrades to an empty list once the failure rate threshold is exceeded</li>
+ * <li>Short-circuits to an empty list while the circuit is open</li>
+ * <li>Recovers and closes the circuit after calls succeed in the half-open state</li>
  * <li>Propagates client (4xx) errors without opening the circuit</li>
  * <li>Propagates unexpected errors instead of masking them as an empty list</li>
  */
@@ -117,11 +121,48 @@ class TasksGatewayAdapterIT {
         }
 
         @Test
-        void PropagatesClientError_TasksServiceReturnsClientError() {
+        void ReturnsEmpty_CircuitOpen() {
             // Given
             var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
 
+            circuitBreaker.transitionToOpenState();
+
+            // When
+            var actual = tasksGateway.getTaskIdsByUserId(userId);
+
+            // Then
+            assertThat(actual).isEmpty();
+            then(tasksHttpClient).shouldHaveNoInteractions();
+        }
+
+        @Test
+        void ClosesCircuit_CircuitHalfOpenAndCallsSucceed() {
+            // Given
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+
+            given(tasksHttpClient.getTasksByUserId(userId.value())).willReturn(List.of());
+
+            circuitBreaker.transitionToOpenState();
+            circuitBreaker.transitionToHalfOpenState();
+
+            // When
+            for (int i = 0; i < 3; i++) {
+                tasksGateway.getTaskIdsByUserId(userId);
+            }
+
+            // Then
+            assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
+        }
+
+        @Test
+        void PropagatesClientError_TasksServiceReturnsClientError() {
+            // Given
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var ignoredErrors = new AtomicInteger();
+
             given(tasksHttpClient.getTasksByUserId(userId.value())).willThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
+            circuitBreaker.getEventPublisher()
+                          .onIgnoredError(_ -> ignoredErrors.incrementAndGet());
 
             // When
             var thrown = catchThrowable(() -> tasksGateway.getTaskIdsByUserId(userId));
@@ -129,8 +170,7 @@ class TasksGatewayAdapterIT {
             // Then
             assertThat(thrown).isInstanceOf(HttpClientErrorException.class);
             assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
-            assertThat(circuitBreaker.getMetrics()
-                                     .getNumberOfFailedCalls()).isZero();
+            assertThat(ignoredErrors).hasValue(1);
         }
 
         @Test
