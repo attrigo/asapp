@@ -17,6 +17,7 @@
 package com.bcn.asapp.users.infrastructure.user.out;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.Mockito.times;
@@ -34,6 +35,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
@@ -49,9 +51,10 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
  * Tests {@link TasksGatewayAdapter} circuit breaker behavior through the proxied bean.
  * <p>
  * Coverage:
- * <li>Opens the circuit and stops calling the Tasks Service once the failure rate threshold is exceeded</li>
- * <li>Degrades to an empty list while the circuit is open</li>
- * <li>Does not open the circuit on client (4xx) errors</li>
+ * <li>Degrades to an empty list on a server or I/O error</li>
+ * <li>Opens the circuit and degrades to an empty list once the failure rate threshold is exceeded</li>
+ * <li>Propagates client (4xx) errors without opening the circuit</li>
+ * <li>Propagates unexpected errors instead of masking them as an empty list</li>
  */
 @SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @Import(TestContainerConfiguration.class)
@@ -79,6 +82,21 @@ class TasksGatewayAdapterIT {
     class GetTaskIdsByUserId {
 
         @Test
+        void ReturnsEmpty_TasksServiceNotResponding() {
+            // Given
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+
+            given(tasksHttpClient.getTasksByUserId(userId.value())).willThrow(new ResourceAccessException("Connection refused"));
+
+            // When
+            var actual = tasksGateway.getTaskIdsByUserId(userId);
+
+            // Then
+            assertThat(actual).isEmpty();
+            assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
+        }
+
+        @Test
         void OpensCircuitAndStopsCallingTasksService_FailureRateThresholdExceeded() {
             // Given
             var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
@@ -99,20 +117,35 @@ class TasksGatewayAdapterIT {
         }
 
         @Test
-        void KeepsCircuitClosed_TasksServiceReturnsClientError() {
+        void PropagatesClientError_TasksServiceReturnsClientError() {
             // Given
             var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
 
             given(tasksHttpClient.getTasksByUserId(userId.value())).willThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
 
             // When
-            var actual = tasksGateway.getTaskIdsByUserId(userId);
+            var thrown = catchThrowable(() -> tasksGateway.getTaskIdsByUserId(userId));
 
             // Then
-            assertThat(actual).isEmpty();
+            assertThat(thrown).isInstanceOf(HttpClientErrorException.class);
             assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
             assertThat(circuitBreaker.getMetrics()
                                      .getNumberOfFailedCalls()).isZero();
+        }
+
+        @Test
+        void PropagatesError_TasksServiceFailsUnexpectedly() {
+            // Given
+            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+
+            given(tasksHttpClient.getTasksByUserId(userId.value())).willThrow(new RuntimeException("Unexpected error"));
+
+            // When
+            var thrown = catchThrowable(() -> tasksGateway.getTaskIdsByUserId(userId));
+
+            // Then
+            assertThat(thrown).isInstanceOf(RuntimeException.class)
+                              .hasMessage("Unexpected error");
         }
 
     }
