@@ -38,7 +38,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
@@ -61,7 +60,6 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
  */
 @SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
 @Import(TestContainerConfiguration.class)
-@Testcontainers
 class TasksGatewayAdapterIT {
 
     private static final int MINIMUM_NUMBER_OF_CALLS = 5;
@@ -100,7 +98,8 @@ class TasksGatewayAdapterIT {
 
             // Then
             assertThat(actual).isEmpty();
-            assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
+            assertThat(circuitBreaker.getState()).as("circuit breaker state")
+                                                 .isEqualTo(CircuitBreaker.State.CLOSED);
         }
 
         @Test
@@ -118,7 +117,8 @@ class TasksGatewayAdapterIT {
 
             // Then
             assertThat(actual).isEmpty();
-            assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.OPEN);
+            assertThat(circuitBreaker.getState()).as("circuit breaker state")
+                                                 .isEqualTo(CircuitBreaker.State.OPEN);
             then(tasksHttpClient).should(times(MINIMUM_NUMBER_OF_CALLS))
                                  .getTasksByUserId(userId.value());
         }
@@ -154,7 +154,8 @@ class TasksGatewayAdapterIT {
             }
 
             // Then
-            assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
+            assertThat(circuitBreaker.getState()).as("circuit breaker state")
+                                                 .isEqualTo(CircuitBreaker.State.CLOSED);
         }
 
         @Test
@@ -172,8 +173,10 @@ class TasksGatewayAdapterIT {
 
             // Then
             assertThat(thrown).isInstanceOf(HttpClientErrorException.class);
-            assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
-            assertThat(ignoredErrors).hasValue(1);
+            assertThat(circuitBreaker.getState()).as("circuit breaker state")
+                                                 .isEqualTo(CircuitBreaker.State.CLOSED);
+            assertThat(ignoredErrors).as("ignored client errors")
+                                     .hasValue(1);
         }
 
         @Test
