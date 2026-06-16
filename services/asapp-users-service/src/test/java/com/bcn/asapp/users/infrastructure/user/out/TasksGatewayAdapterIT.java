@@ -16,6 +16,7 @@
 
 package com.bcn.asapp.users.infrastructure.user.out;
 
+import static com.bcn.asapp.users.testutil.fixture.UserMother.aUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.BDDMockito.given;
@@ -24,7 +25,6 @@ import static org.mockito.Mockito.times;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -46,7 +46,6 @@ import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import com.bcn.asapp.clients.tasks.TasksHttpClient;
 import com.bcn.asapp.users.AsappUsersServiceApplication;
 import com.bcn.asapp.users.application.user.out.TasksGateway;
-import com.bcn.asapp.users.domain.user.UserId;
 import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 
 /**
@@ -64,6 +63,10 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 @Import(TestContainerConfiguration.class)
 @Testcontainers
 class TasksGatewayAdapterIT {
+
+    private static final int MINIMUM_NUMBER_OF_CALLS = 5;
+
+    private static final int PERMITTED_CALLS_IN_HALF_OPEN_STATE = 3;
 
     @MockitoBean
     private TasksHttpClient tasksHttpClient;
@@ -88,7 +91,7 @@ class TasksGatewayAdapterIT {
         @Test
         void ReturnsEmpty_TasksServiceNotResponding() {
             // Given
-            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var userId = aUser().getId();
 
             given(tasksHttpClient.getTasksByUserId(userId.value())).willThrow(new ResourceAccessException("Connection refused"));
 
@@ -101,29 +104,29 @@ class TasksGatewayAdapterIT {
         }
 
         @Test
-        void OpensCircuitAndStopsCallingTasksService_FailureRateThresholdExceeded() {
+        void OpensCircuit_FailureRateThresholdExceeded() {
             // Given
-            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var userId = aUser().getId();
 
             given(tasksHttpClient.getTasksByUserId(userId.value())).willThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
 
             // When
-            for (int i = 0; i < 5; i++) {
-                assertThat(tasksGateway.getTaskIdsByUserId(userId)).isEmpty();
+            for (int i = 0; i < MINIMUM_NUMBER_OF_CALLS; i++) {
+                tasksGateway.getTaskIdsByUserId(userId);
             }
             var actual = tasksGateway.getTaskIdsByUserId(userId);
 
             // Then
             assertThat(actual).isEmpty();
             assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.OPEN);
-            then(tasksHttpClient).should(times(5))
+            then(tasksHttpClient).should(times(MINIMUM_NUMBER_OF_CALLS))
                                  .getTasksByUserId(userId.value());
         }
 
         @Test
         void ReturnsEmpty_CircuitOpen() {
             // Given
-            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var userId = aUser().getId();
 
             circuitBreaker.transitionToOpenState();
 
@@ -138,7 +141,7 @@ class TasksGatewayAdapterIT {
         @Test
         void ClosesCircuit_CircuitHalfOpenAndCallsSucceed() {
             // Given
-            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var userId = aUser().getId();
 
             given(tasksHttpClient.getTasksByUserId(userId.value())).willReturn(List.of());
 
@@ -146,7 +149,7 @@ class TasksGatewayAdapterIT {
             circuitBreaker.transitionToHalfOpenState();
 
             // When
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < PERMITTED_CALLS_IN_HALF_OPEN_STATE; i++) {
                 tasksGateway.getTaskIdsByUserId(userId);
             }
 
@@ -157,7 +160,7 @@ class TasksGatewayAdapterIT {
         @Test
         void PropagatesClientError_TasksServiceReturnsClientError() {
             // Given
-            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var userId = aUser().getId();
             var ignoredErrors = new AtomicInteger();
 
             given(tasksHttpClient.getTasksByUserId(userId.value())).willThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
@@ -176,7 +179,7 @@ class TasksGatewayAdapterIT {
         @Test
         void PropagatesError_TasksServiceFailsUnexpectedly() {
             // Given
-            var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
+            var userId = aUser().getId();
 
             given(tasksHttpClient.getTasksByUserId(userId.value())).willThrow(new RuntimeException("Unexpected error"));
 
