@@ -16,6 +16,8 @@
 
 package com.bcn.asapp.users.infrastructure.user.out;
 
+import static com.bcn.asapp.users.infrastructure.config.TasksHttpClientConfiguration.TASKS_CLIENT_NAME;
+
 import java.util.List;
 import java.util.UUID;
 
@@ -75,7 +77,7 @@ public class TasksGatewayAdapter implements TasksGateway {
      *         service is unavailable (5xx/I/O) or its circuit is open
      */
     @Override
-    @CircuitBreaker(name = "tasks", fallbackMethod = "emptyTasksFallback")
+    @CircuitBreaker(name = TASKS_CLIENT_NAME, fallbackMethod = "emptyTasksFallback")
     public List<UUID> getTaskIdsByUserId(UserId userId) {
         var tasks = tasksHttpClient.getTasksByUserId(userId.value());
 
