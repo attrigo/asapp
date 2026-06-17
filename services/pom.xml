@@ -37,6 +37,7 @@
         <spring-restdocs.version>4.0.0</spring-restdocs.version>
         <!-- ## Org Dependencies -->
         <mockserver-client-java.version>5.15.0</mockserver-client-java.version>
+        <mockserver-netty.version>5.15.0</mockserver-netty.version>
         <testcontainers.version>2.0.4</testcontainers.version>
         <!-- ## Other Dependencies -->
         <json-unit-assertj.version>5.1.1</json-unit-assertj.version>
@@ -121,6 +122,12 @@
                 <groupId>org.mock-server</groupId>
                 <artifactId>mockserver-client-java</artifactId>
                 <version>${mockserver-client-java.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mock-server</groupId>
+                <artifactId>mockserver-netty</artifactId>
+                <version>${mockserver-netty.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>

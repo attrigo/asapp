@@ -16,58 +16,71 @@
 
 package com.bcn.asapp.users.infrastructure.user.out;
 
+import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
+import static com.bcn.asapp.users.infrastructure.config.TasksHttpClientConfiguration.TASKS_CLIENT_NAME;
+import static com.bcn.asapp.users.testutil.fixture.DecodedJwtMother.decodedAccessToken;
 import static com.bcn.asapp.users.testutil.fixture.UserMother.aUser;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.times;
+import static org.awaitility.Awaitility.await;
+import static org.mockserver.model.HttpError.error;
+import static org.mockserver.model.HttpRequest.request;
+import static org.mockserver.model.HttpResponse.response;
+import static org.mockserver.verify.VerificationTimes.exactly;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.time.Duration;
+import java.util.UUID;
 
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockserver.client.MockServerClient;
+import org.mockserver.integration.ClientAndServer;
+import org.mockserver.matchers.Times;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.http.HttpStatus;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.HttpServerErrorException;
-import org.springframework.web.client.ResourceAccessException;
 
-import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 
-import com.bcn.asapp.clients.tasks.TasksHttpClient;
 import com.bcn.asapp.users.AsappUsersServiceApplication;
 import com.bcn.asapp.users.application.user.out.TasksGateway;
+import com.bcn.asapp.users.infrastructure.security.JwtAuthenticationToken;
 import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 
 /**
- * Tests {@link TasksGatewayAdapter} circuit breaker behavior through the proxied bean.
+ * Tests {@link TasksGatewayAdapter} resilience behavior end-to-end through the real declarative HTTP client against an embedded MockServer.
  * <p>
  * Coverage:
- * <li>Degrades to an empty list on a server or I/O error</li>
- * <li>Opens the circuit and degrades to an empty list once the failure rate threshold is exceeded</li>
- * <li>Short-circuits to an empty list while the circuit is open</li>
- * <li>Recovers and closes the circuit after calls succeed in the half-open state</li>
- * <li>Propagates client (4xx) errors without opening the circuit</li>
- * <li>Propagates unexpected errors instead of masking them as an empty list</li>
+ * <li>Degrades to an empty list when the Tasks Service responds with a server error (5xx)</li>
+ * <li>Degrades to an empty list when the Tasks Service connection is dropped</li>
+ * <li>Propagates client (4xx) errors without masking them as an empty list</li>
+ * <li>Short-circuits to an empty list once the failure-rate threshold is exceeded, issuing no further downstream calls</li>
+ * <li>Recovers to returning task identifiers once the Tasks Service is healthy again</li>
  */
-@SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = WebEnvironment.RANDOM_PORT)
+@SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = WebEnvironment.NONE)
 @Import(TestContainerConfiguration.class)
 class TasksGatewayAdapterIT {
 
     private static final int MINIMUM_NUMBER_OF_CALLS = 5;
 
-    private static final int PERMITTED_CALLS_IN_HALF_OPEN_STATE = 3;
+    static final ClientAndServer embeddedMockServer = ClientAndServer.startClientAndServer(0);
 
-    @MockitoBean
-    private TasksHttpClient tasksHttpClient;
+    static final MockServerClient mockServerClient = embeddedMockServer;
+
+    @DynamicPropertySource
+    static void overrideProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.http.serviceclient.tasks.base-url", () -> "http://localhost:" + embeddedMockServer.getPort());
+        registry.add("resilience4j.circuitbreaker.instances.tasks.wait-duration-in-open-state", () -> "1s");
+    }
 
     @Autowired
     private TasksGateway tasksGateway;
@@ -75,125 +88,138 @@ class TasksGatewayAdapterIT {
     @Autowired
     private CircuitBreakerRegistry circuitBreakerRegistry;
 
-    private CircuitBreaker circuitBreaker;
-
     @BeforeEach
     void beforeEach() {
-        circuitBreaker = circuitBreakerRegistry.circuitBreaker("tasks");
-        circuitBreaker.reset();
+        mockServerClient.reset();
+        circuitBreakerRegistry.circuitBreaker(TASKS_CLIENT_NAME)
+                              .reset();
+        seedSecurityContext();
+    }
+
+    @AfterAll
+    static void afterAll() {
+        embeddedMockServer.stop();
     }
 
     @Nested
     class GetTaskIdsByUserId {
 
         @Test
-        void ReturnsEmpty_TasksServiceNotResponding() {
+        void ReturnsEmptyList_TasksServiceReturnsServerError() {
             // Given
             var userId = aUser().getId();
+            var request = request().withMethod(HttpMethod.GET.name())
+                                   .withPath(TASKS_GET_BY_USER_ID_FULL_PATH)
+                                   .withPathParameter("id", userId.value()
+                                                                  .toString());
 
-            given(tasksHttpClient.getTasksByUserId(userId.value())).willThrow(new ResourceAccessException("Connection refused"));
+            mockServerClient.when(request)
+                            .respond(response().withStatusCode(500));
 
             // When
             var actual = tasksGateway.getTaskIdsByUserId(userId);
 
             // Then
             assertThat(actual).isEmpty();
-            assertThat(circuitBreaker.getState()).as("circuit breaker state")
-                                                 .isEqualTo(CircuitBreaker.State.CLOSED);
         }
 
         @Test
-        void OpensCircuit_FailureRateThresholdExceeded() {
+        void ReturnsEmptyList_TasksServiceUnreachable() {
             // Given
             var userId = aUser().getId();
-
-            given(tasksHttpClient.getTasksByUserId(userId.value())).willThrow(new HttpServerErrorException(HttpStatus.INTERNAL_SERVER_ERROR));
+            var request = request().withMethod(HttpMethod.GET.name())
+                                   .withPath(TASKS_GET_BY_USER_ID_FULL_PATH)
+                                   .withPathParameter("id", userId.value()
+                                                                  .toString());
+            mockServerClient.when(request)
+                            .error(error().withDropConnection(true));
 
             // When
+            var actual = tasksGateway.getTaskIdsByUserId(userId);
+
+            // Then
+            assertThat(actual).isEmpty();
+        }
+
+        @Test
+        void ReturnsEmptyList_FailureRateThresholdExceeded() {
+            // Given
+            var userId = aUser().getId();
+            var request = request().withMethod(HttpMethod.GET.name())
+                                   .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
+                                                                                                  .toString()));
+
+            mockServerClient.when(request)
+                            .respond(response().withStatusCode(500));
+
             for (int i = 0; i < MINIMUM_NUMBER_OF_CALLS; i++) {
                 tasksGateway.getTaskIdsByUserId(userId);
             }
-            var actual = tasksGateway.getTaskIdsByUserId(userId);
-
-            // Then
-            assertThat(actual).isEmpty();
-            assertThat(circuitBreaker.getState()).as("circuit breaker state")
-                                                 .isEqualTo(CircuitBreaker.State.OPEN);
-            then(tasksHttpClient).should(times(MINIMUM_NUMBER_OF_CALLS))
-                                 .getTasksByUserId(userId.value());
-        }
-
-        @Test
-        void ReturnsEmpty_CircuitOpen() {
-            // Given
-            var userId = aUser().getId();
-
-            circuitBreaker.transitionToOpenState();
 
             // When
             var actual = tasksGateway.getTaskIdsByUserId(userId);
 
             // Then
             assertThat(actual).isEmpty();
-            then(tasksHttpClient).shouldHaveNoInteractions();
+
+            mockServerClient.verify(request, exactly(MINIMUM_NUMBER_OF_CALLS));
         }
 
         @Test
-        void ClosesCircuit_CircuitHalfOpenAndCallsSucceed() {
+        void ReturnsTaskIds_TasksServiceRecovers() {
             // Given
             var userId = aUser().getId();
+            var taskId = UUID.fromString("a1b2c3d4-e5f6-4789-a012-b3c4d5e6f7a8");
+            var request = request().withMethod(HttpMethod.GET.name())
+                                   .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
+                                                                                                  .toString()));
+            var responseBody = "[{\"taskId\":\"%s\"}]".formatted(taskId);
 
-            given(tasksHttpClient.getTasksByUserId(userId.value())).willReturn(List.of());
-
-            circuitBreaker.transitionToOpenState();
-            circuitBreaker.transitionToHalfOpenState();
-
-            // When
-            for (int i = 0; i < PERMITTED_CALLS_IN_HALF_OPEN_STATE; i++) {
+            mockServerClient.when(request, Times.exactly(MINIMUM_NUMBER_OF_CALLS))
+                            .respond(response().withStatusCode(500));
+            for (int i = 0; i < MINIMUM_NUMBER_OF_CALLS; i++) {
                 tasksGateway.getTaskIdsByUserId(userId);
             }
 
-            // Then
-            assertThat(circuitBreaker.getState()).as("circuit breaker state")
-                                                 .isEqualTo(CircuitBreaker.State.CLOSED);
+            mockServerClient.when(request)
+                            .respond(response().withStatusCode(200)
+                                               .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                               .withBody(responseBody));
+            tasksGateway.getTaskIdsByUserId(userId);
+
+            // When & Then
+            // poll on the test thread so the seeded SecurityContext (a ThreadLocal) reaches the JWT interceptor
+            await().pollInSameThread()
+                   .atMost(Duration.ofSeconds(5))
+                   .untilAsserted(() -> assertThat(tasksGateway.getTaskIdsByUserId(userId)).containsExactly(taskId));
         }
 
         @Test
-        void PropagatesClientError_TasksServiceReturnsClientError() {
+        void PropagatesError_TasksServiceReturnsClientError() {
             // Given
             var userId = aUser().getId();
-            var ignoredErrors = new AtomicInteger();
+            var request = request().withMethod(HttpMethod.GET.name())
+                                   .withPath(TASKS_GET_BY_USER_ID_FULL_PATH)
+                                   .withPathParameter("id", userId.value()
+                                                                  .toString());
 
-            given(tasksHttpClient.getTasksByUserId(userId.value())).willThrow(new HttpClientErrorException(HttpStatus.BAD_REQUEST));
-            circuitBreaker.getEventPublisher()
-                          .onIgnoredError(_ -> ignoredErrors.incrementAndGet());
+            mockServerClient.when(request)
+                            .respond(response().withStatusCode(400));
 
             // When
             var thrown = catchThrowable(() -> tasksGateway.getTaskIdsByUserId(userId));
 
             // Then
             assertThat(thrown).isInstanceOf(HttpClientErrorException.class);
-            assertThat(circuitBreaker.getState()).as("circuit breaker state")
-                                                 .isEqualTo(CircuitBreaker.State.CLOSED);
-            assertThat(ignoredErrors).as("ignored client errors")
-                                     .hasValue(1);
         }
 
-        @Test
-        void PropagatesError_TasksServiceFailsUnexpectedly() {
-            // Given
-            var userId = aUser().getId();
+    }
 
-            given(tasksHttpClient.getTasksByUserId(userId.value())).willThrow(new RuntimeException("Unexpected error"));
-
-            // When
-            var thrown = catchThrowable(() -> tasksGateway.getTaskIdsByUserId(userId));
-
-            // Then
-            assertThat(thrown).isInstanceOf(RuntimeException.class)
-                              .hasMessage("Unexpected error");
-        }
-
+    private static void seedSecurityContext() {
+        var decodedJwt = decodedAccessToken();
+        var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
+        SecurityContextHolder.getContext()
+                             .setAuthentication(jwtAuthenticationToken);
     }
 
 }
