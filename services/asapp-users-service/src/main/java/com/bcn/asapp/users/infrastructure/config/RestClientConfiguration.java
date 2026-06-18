@@ -36,12 +36,12 @@ import com.bcn.asapp.users.infrastructure.security.client.JwtInterceptor;
 /**
  * Configures HTTP service clients and the shared {@link RestClient} infrastructure.
  * <p>
- * Configures every declarative HTTP service client group through a {@link RestClientHttpServiceGroupConfigurer}: a redirect-disabled JDK request factory, a
- * {@link JwtInterceptor} for bearer-token propagation, and (when Spring Cloud LoadBalancer is enabled) the {@link LoadBalancerInterceptor} for Eureka-based
- * service-name resolution.
- * <p>
- * A {@link Primary} plain {@link RestClient.Builder} is kept for Eureka and any unqualified injection point, and a
- * {@link DefaultEurekaClientHttpRequestFactorySupplier} gives Eureka its own isolated HTTP factory.
+ * Splits {@link RestClient} setup into two isolated concerns:
+ * <ul>
+ * <li>the declarative HTTP service client groups, configured uniformly through a {@link RestClientHttpServiceGroupConfigurer};</li>
+ * <li>a {@link Primary} plain {@link RestClient.Builder} for Eureka and any unqualified injection point, paired with a dedicated
+ * {@link DefaultEurekaClientHttpRequestFactorySupplier} that keeps Eureka isolated from the application's interceptors.</li>
+ * </ul>
  *
  * @since 0.2.0
  * @see RestClientHttpServiceGroupConfigurer
@@ -65,9 +65,12 @@ public class RestClientConfiguration {
     /**
      * Configures every declarative HTTP service client group's {@link RestClient}.
      * <p>
-     * Applies to each client, in order: a redirect-disabled JDK request factory; the {@link JwtInterceptor}, which propagates the caller's bearer token to the
-     * downstream call; and finally the {@link LoadBalancerInterceptor}, when one is available.
-     * <p>
+     * Applies to each client, in order:
+     * <ol>
+     * <li>a redirect-disabled JDK request factory.</li>
+     * <li>the {@link JwtInterceptor}, which propagates the caller's bearer token to the downstream call.</li>
+     * <li>the {@link LoadBalancerInterceptor}, when one is available.</li>
+     * </ol>
      * The interceptor is injected as an {@link ObjectProvider} and applied only when present: Spring Cloud LoadBalancer auto-configures the bean when it is on
      * the classpath, and the interceptor then resolves a base url that targets a Eureka service id into a concrete instance host and port. Without the bean
      * (e.g. in tests), the configured base-url host is called directly.
