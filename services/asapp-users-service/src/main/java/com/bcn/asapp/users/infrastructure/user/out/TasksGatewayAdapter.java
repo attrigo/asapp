@@ -29,6 +29,7 @@ import org.springframework.web.client.ResourceAccessException;
 
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 
 import com.bcn.asapp.clients.tasks.TasksHttpClient;
 import com.bcn.asapp.clients.tasks.response.TasksByUserIdResponse;
@@ -44,9 +45,14 @@ import com.bcn.asapp.users.domain.user.UserId;
  * The call is guarded by a Resilience4j circuit breaker (instance {@code tasks}): repeated server or I/O errors open the circuit and fast-fail, and the breaker
  * recovers automatically once the Tasks Service is healthy again. Transient downstream outages degrade to an empty list so the user lookup still succeeds,
  * while client errors and unexpected failures propagate — see {@code emptyTasksFallback} for the exact classification.
+ * <p>
+ * Transient server (5xx) and I/O failures are first retried with exponential backoff by a Resilience4j {@link Retry} (instance {@code tasks}), nested
+ * <em>inside</em> the breaker: a momentary blip recovers transparently, and a call that exhausts its retries counts as a single breaker failure. Client (4xx)
+ * errors are not retried. Retry attempts and backoff are tuned under {@code resilience4j.retry.instances.tasks.*}.
  *
  * @since 0.2.0
  * @see CircuitBreaker
+ * @see Retry
  * @author attrigo
  */
 @Component
@@ -74,6 +80,7 @@ public class TasksGatewayAdapter implements TasksGateway {
      */
     @Override
     @CircuitBreaker(name = TASKS_CLIENT_NAME, fallbackMethod = "emptyTasksFallback")
+    @Retry(name = TASKS_CLIENT_NAME)
     public List<UUID> getTaskIdsByUserId(UserId userId) {
         var tasks = tasksHttpClient.getTasksByUserId(userId.value());
 

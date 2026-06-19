@@ -25,7 +25,10 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockserver.model.HttpError.error;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
+import static org.mockserver.verify.VerificationTimes.exactly;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+
+import java.util.UUID;
 
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,15 +36,18 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockserver.client.MockServerClient;
 import org.mockserver.integration.ClientAndServer;
+import org.mockserver.matchers.Times;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.client.HttpClientErrorException;
 
+import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 
 import com.bcn.asapp.users.AsappUsersServiceApplication;
@@ -68,6 +74,7 @@ class TasksGatewayAdapterIT {
     @DynamicPropertySource
     static void overrideProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.http.serviceclient.tasks.base-url", () -> "http://localhost:" + embeddedMockServer.getPort());
+        registry.add("resilience4j.retry.instances.tasks.max-attempts", () -> "3");
     }
 
     @Autowired
@@ -91,6 +98,33 @@ class TasksGatewayAdapterIT {
 
     @Nested
     class GetTaskIdsByUserId {
+
+        @Test
+        void ReturnsTaskIds_TasksServiceRecoversAfterTransientErrors() {
+            // Given
+            var userId = aUser().getId();
+            var taskId = UUID.fromString("660e8400-e29b-41d4-a716-446655440001");
+            var request = request().withMethod(HttpMethod.GET.name())
+                                   .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
+                                                                                                  .toString()));
+
+            mockServerClient.when(request, Times.exactly(2))
+                            .respond(response().withStatusCode(500));
+            mockServerClient.when(request)
+                            .respond(response().withStatusCode(200)
+                                               .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                               .withBody("[{\"taskId\":\"" + taskId + "\"}]"));
+
+            // When
+            var actual = tasksGateway.getTaskIdsByUserId(userId);
+
+            // Then
+            assertThat(actual).containsExactly(taskId);
+            assertThat(circuitBreakerRegistry.circuitBreaker(TASKS_CLIENT_NAME)
+                                             .getState()).isEqualTo(CircuitBreaker.State.CLOSED);
+
+            mockServerClient.verify(request, exactly(3));
+        }
 
         @Test
         void ReturnsEmptyList_TasksServiceReturnsServerError() {
@@ -130,13 +164,35 @@ class TasksGatewayAdapterIT {
         }
 
         @Test
+        void RecordsOneFailurePerCall_ServerErrorsPersist() {
+            // Given
+            var userId = aUser().getId();
+            var request = request().withMethod(HttpMethod.GET.name())
+                                   .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
+                                                                                                  .toString()));
+
+            mockServerClient.when(request)
+                            .respond(response().withStatusCode(500));
+
+            // When
+            var actual = tasksGateway.getTaskIdsByUserId(userId);
+
+            // Then
+            assertThat(actual).isEmpty();
+            assertThat(circuitBreakerRegistry.circuitBreaker(TASKS_CLIENT_NAME)
+                                             .getMetrics()
+                                             .getNumberOfFailedCalls()).isEqualTo(1);
+
+            mockServerClient.verify(request, exactly(3));
+        }
+
+        @Test
         void PropagatesError_TasksServiceReturnsClientError() {
             // Given
             var userId = aUser().getId();
             var request = request().withMethod(HttpMethod.GET.name())
-                                   .withPath(TASKS_GET_BY_USER_ID_FULL_PATH)
-                                   .withPathParameter("id", userId.value()
-                                                                  .toString());
+                                   .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
+                                                                                                  .toString()));
 
             mockServerClient.when(request)
                             .respond(response().withStatusCode(400));
@@ -146,6 +202,8 @@ class TasksGatewayAdapterIT {
 
             // Then
             assertThat(thrown).isInstanceOf(HttpClientErrorException.class);
+
+            mockServerClient.verify(request, exactly(1));
         }
 
     }
