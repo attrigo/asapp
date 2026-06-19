@@ -16,6 +16,7 @@
 
 package com.bcn.asapp.users.infrastructure.config;
 
+import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
 import static com.bcn.asapp.users.infrastructure.config.TasksHttpClientConfiguration.TASKS_CLIENT_NAME;
 import static com.bcn.asapp.users.testutil.fixture.DecodedJwtMother.decodedAccessToken;
 import static com.bcn.asapp.users.testutil.fixture.UserMother.aUser;
@@ -57,8 +58,8 @@ import com.bcn.asapp.users.infrastructure.security.JwtAuthenticationToken;
 import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 
 /**
- * Tests {@link TasksHttpClientConfiguration} circuit breaker state transitions driven by the configured resilience properties, exercised end-to-end through the
- * real declarative HTTP client against an embedded MockServer.
+ * Tests the tasks circuit breaker state transitions driven by the configured resilience properties, exercised end-to-end through the real declarative HTTP
+ * client against an embedded MockServer.
  * <p>
  * Coverage:
  * <li>Keeps the circuit closed while failures stay below the minimum number of calls</li>
@@ -107,7 +108,9 @@ class CircuitBreakerConfigurationIT {
     void KeepsCircuitClosed_FailuresBelowMinimumCalls() {
         // Given
         var userId = aUser().getId();
-        var request = request().withMethod(HttpMethod.GET.name());
+        var request = request().withMethod(HttpMethod.GET.name())
+                               .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
+                                                                                              .toString()));
 
         mockServerClient.when(request)
                         .respond(response().withStatusCode(500));
@@ -126,7 +129,9 @@ class CircuitBreakerConfigurationIT {
     void OpensCircuit_ServerErrorsExceedFailureThreshold() {
         // Given
         var userId = aUser().getId();
-        var request = request().withMethod(HttpMethod.GET.name());
+        var request = request().withMethod(HttpMethod.GET.name())
+                               .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
+                                                                                              .toString()));
 
         openCircuit(userId, request);
 
@@ -144,7 +149,9 @@ class CircuitBreakerConfigurationIT {
     void KeepsCircuitClosed_ClientErrorsExceedFailureThreshold() {
         // Given
         var userId = aUser().getId();
-        var request = request().withMethod(HttpMethod.GET.name());
+        var request = request().withMethod(HttpMethod.GET.name())
+                               .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
+                                                                                              .toString()));
 
         mockServerClient.when(request)
                         .respond(response().withStatusCode(400));
@@ -163,7 +170,9 @@ class CircuitBreakerConfigurationIT {
     void ClosesCircuit_DownstreamServiceRecovers() {
         // Given
         var userId = aUser().getId();
-        var request = request().withMethod(HttpMethod.GET.name());
+        var request = request().withMethod(HttpMethod.GET.name())
+                               .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
+                                                                                              .toString()));
 
         openCircuit(userId, request);
 
