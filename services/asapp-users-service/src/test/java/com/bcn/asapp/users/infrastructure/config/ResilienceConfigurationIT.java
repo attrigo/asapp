@@ -58,20 +58,24 @@ import com.bcn.asapp.users.infrastructure.security.JwtAuthenticationToken;
 import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 
 /**
- * Tests the tasks circuit breaker state transitions driven by the configured resilience properties, exercised end-to-end through the real declarative HTTP
+ * Tests the tasks circuit breaker and retry wiring driven by the configured resilience properties, exercised end-to-end through the real declarative HTTP
  * client against an embedded MockServer.
  * <p>
  * Coverage:
  * <li>Keeps the circuit closed while failures stay below the minimum number of calls</li>
  * <li>Opens the circuit once server errors exceed the failure-rate threshold, issuing no further downstream calls</li>
- * <li>Keeps the circuit closed when client (4xx) errors occur, as the breaker ignores them</li>
+ * <li>Keeps the circuit closed when client (4xx) errors occur, as the breaker ignores them and does not retry them</li>
  * <li>Closes the circuit once the downstream service is healthy again</li>
+ * <li>Retries transient server errors (5xx) until the Tasks Service recovers</li>
+ * <li>Records a single circuit breaker failure when a call exhausts all retries</li>
  */
 @SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = WebEnvironment.NONE)
 @Import(TestContainerConfiguration.class)
-class CircuitBreakerConfigurationIT {
+class ResilienceConfigurationIT {
 
     private static final int MINIMUM_NUMBER_OF_CALLS = 5;
+
+    private static final int MAX_ATTEMPTS = 3;
 
     static final ClientAndServer embeddedMockServer = ClientAndServer.startClientAndServer(0);
 
@@ -81,6 +85,7 @@ class CircuitBreakerConfigurationIT {
     static void overrideProperties(DynamicPropertyRegistry registry) {
         registry.add("spring.http.serviceclient.tasks.base-url", () -> "http://localhost:" + embeddedMockServer.getPort());
         registry.add("resilience4j.circuitbreaker.instances.tasks.wait-duration-in-open-state", () -> "1s");
+        registry.add("resilience4j.retry.instances.tasks.max-attempts", () -> String.valueOf(MAX_ATTEMPTS));
     }
 
     @Autowired
@@ -122,7 +127,7 @@ class CircuitBreakerConfigurationIT {
         // Then
         assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
 
-        mockServerClient.verify(request, exactly(MINIMUM_NUMBER_OF_CALLS - 1));
+        mockServerClient.verify(request, exactly((MINIMUM_NUMBER_OF_CALLS - 1) * MAX_ATTEMPTS));
     }
 
     @Test
@@ -136,13 +141,12 @@ class CircuitBreakerConfigurationIT {
         openCircuit(userId, request);
 
         // When
-        var actual = tasksGateway.getTaskIdsByUserId(userId);
+        tasksGateway.getTaskIdsByUserId(userId);
 
         // Then
-        assertThat(actual).isEmpty();
         assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.OPEN);
 
-        mockServerClient.verify(request, exactly(MINIMUM_NUMBER_OF_CALLS));
+        mockServerClient.verify(request, exactly(MINIMUM_NUMBER_OF_CALLS * MAX_ATTEMPTS));
     }
 
     @Test
@@ -175,27 +179,73 @@ class CircuitBreakerConfigurationIT {
                                                                                               .toString()));
 
         openCircuit(userId, request);
-
         mockServerClient.when(request)
                         .respond(response().withStatusCode(200)
                                            .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                                            .withBody("[]"));
 
         // When & Then
-        // half-opens after the wait-duration, no call needed
+        // after the wait, the breaker half-opens on its own to test recovery; no call is needed to trigger this
         await().atMost(Duration.ofSeconds(3))
                .until(() -> circuitBreaker.getState() == CircuitBreaker.State.HALF_OPEN);
-        // trial successes close it; poll in-thread for the ThreadLocal SecurityContext
+        // successful calls now bring the breaker back to closed; run them on the test thread so the logged-in user (JWT) is available
         await().pollInSameThread()
                .atMost(Duration.ofSeconds(5))
                .untilAsserted(() -> {
+                   // keep calling until enough calls succeed for the breaker to close
                    tasksGateway.getTaskIdsByUserId(userId);
                    assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
                });
     }
 
+    @Test
+    void RetriesCall_TransientDownstreamServerErrors() {
+        // Given
+        var userId = aUser().getId();
+        var request = request().withMethod(HttpMethod.GET.name())
+                               .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
+                                                                                              .toString()));
+
+        mockServerClient.when(request, Times.exactly(2))
+                        .respond(response().withStatusCode(500));
+        mockServerClient.when(request)
+                        .respond(response().withStatusCode(200)
+                                           .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                           .withBody("[]"));
+
+        // When
+        tasksGateway.getTaskIdsByUserId(userId);
+
+        // Then
+        assertThat(circuitBreaker.getMetrics()
+                                 .getNumberOfSuccessfulCalls()).isEqualTo(1);
+
+        mockServerClient.verify(request, exactly(3));
+    }
+
+    @Test
+    void RetriesInsideCircuitBreaker_ServerErrorsPersist() {
+        // Given
+        var userId = aUser().getId();
+        var request = request().withMethod(HttpMethod.GET.name())
+                               .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
+                                                                                              .toString()));
+
+        mockServerClient.when(request)
+                        .respond(response().withStatusCode(500));
+
+        // When
+        tasksGateway.getTaskIdsByUserId(userId);
+
+        // Then
+        assertThat(circuitBreaker.getMetrics()
+                                 .getNumberOfFailedCalls()).isEqualTo(1);
+
+        mockServerClient.verify(request, exactly(3));
+    }
+
     private void openCircuit(UserId userId, HttpRequest request) {
-        mockServerClient.when(request, Times.exactly(MINIMUM_NUMBER_OF_CALLS))
+        mockServerClient.when(request, Times.exactly(MINIMUM_NUMBER_OF_CALLS * MAX_ATTEMPTS))
                         .respond(response().withStatusCode(500));
 
         IntStream.range(0, MINIMUM_NUMBER_OF_CALLS)

@@ -88,7 +88,7 @@ class ActuatorEndpointsIT {
                                                                                                            "metrics-requiredMetricName", "metrics", "sbom-id",
                                                                                                            "sbom", "scheduledtasks", "httpexchanges",
                                                                                                            "mappings", "refresh", "circuitbreakers",
-                                                                                                           "circuitbreakerevents"));
+                                                                                                           "circuitbreakerevents", "retries", "retryevents"));
     }
 
     @Test
