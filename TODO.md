@@ -28,7 +28,7 @@
     * Improve HTTP clients 
         * [X] Refactor REST clients by declarative HTTP clients
         * [X] Use circuit breaker pattern
-        * [ ] Use retry pattern
+        * [X] Use retry pattern
     * Profiles
         * [X] Introduce explicit dev and prod profiles to gate dev-only tooling and align with docker/native
 * CI/CD
