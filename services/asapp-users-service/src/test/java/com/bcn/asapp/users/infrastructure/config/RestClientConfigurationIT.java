@@ -19,7 +19,6 @@ package com.bcn.asapp.users.infrastructure.config;
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
 import static com.bcn.asapp.users.testutil.fixture.DecodedJwtMother.decodedAccessToken;
 import static com.bcn.asapp.users.testutil.fixture.UserMother.aUser;
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 import static org.mockserver.verify.VerificationTimes.exactly;
@@ -96,11 +95,9 @@ class RestClientConfigurationIT {
                                            .withBody("[]"));
 
         // When
-        var actual = tasksHttpClient.getTasksByUserId(userId);
+        tasksHttpClient.getTasksByUserId(userId);
 
         // Then
-        assertThat(actual).isEmpty();
-
         mockServerClient.verify(request, exactly(1));
     }
 

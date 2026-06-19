@@ -24,8 +24,9 @@ import com.bcn.asapp.clients.tasks.TasksHttpClient;
 /**
  * Registers the {@code tasks} HTTP service group.
  * <p>
- * Imports the {@link TasksHttpClient} declarative client as the {@code tasks} HTTP service group via {@link ImportHttpServices}. The group's underlying
- * {@link org.springframework.web.client.RestClient} is configured generically by {@link RestClientConfiguration}.
+ * Imports the {@link TasksHttpClient} declarative client as the {@code tasks} HTTP service group via {@link ImportHttpServices}.
+ * <p>
+ * The underlying Http client is configured generically by {@link RestClientConfiguration}.
  *
  * @since 0.4.0
  * @see ImportHttpServices

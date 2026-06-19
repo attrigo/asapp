@@ -101,7 +101,7 @@ class TasksGatewayAdapterTests {
         }
 
         @Test
-        void ThrowsException_TasksServiceFails() {
+        void ThrowsRestClientException_TasksServiceFails() {
             // Given
             var userId = UserId.of(UUID.fromString("550e8400-e29b-41d4-a716-446655440000"));
 

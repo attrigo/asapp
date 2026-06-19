@@ -40,11 +40,15 @@ import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 import com.bcn.asapp.clients.tasks.response.TasksByUserIdResponse;
 
 /**
- * Tests {@link TasksHttpClient} HTTP request mapping and JSON response deserialization.
+ * Tests {@link TasksHttpClient} HTTP request mapping, JSON response deserialization, and error handling.
  * <p>
  * Coverage:
  * <li>Issues a GET to the tasks-by-user-id path with the user id expanded into the URI template</li>
  * <li>Deserializes the JSON response array into task response records</li>
+ * <li>Returns an empty list when the user has no tasks</li>
+ * <li>Returns null when the response body is empty</li>
+ * <li>Rejects a null user id</li>
+ * <li>Propagates an exception when the server call fails</li>
  */
 class TasksHttpClientTests {
 
@@ -146,7 +150,7 @@ class TasksHttpClientTests {
         }
 
         @Test
-        void Throws_ServerCallFails() {
+        void ThrowsRestClientException_ServerCallFails() {
             // Given
             var userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
             var uri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;

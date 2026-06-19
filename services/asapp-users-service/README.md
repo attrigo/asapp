@@ -191,6 +191,26 @@ Tuning lives in `application.properties` under `resilience4j.circuitbreaker.inst
 | `allow-health-indicator-to-fail`                      | Whether an open breaker marks health DOWN           |
 | `ignore-exceptions`                                   | Exceptions that don't count as failures             |
 
+The same gateway calls are also wrapped in a Resilience4j **retry**, nested **inside** the circuit breaker:
+
+- Transient 5xx or I/O failures are retried with exponential backoff before the breaker sees a failure, so a momentary blip recovers transparently.
+- An exhausted-retry call counts as a **single** breaker failure, so sustained failure still trips it.
+- An open breaker fast-fails before any retry runs.
+- Client (4xx) errors are not retried.
+- Retry metrics are exported to Prometheus (`resilience4j.retry.calls`) and exposed at the `/actuator/retries` and `/actuator/retryevents` endpoints.
+
+Tuning lives in `application.properties` under `resilience4j.retry.instances.<name>.*`:
+
+| Property                         | Purpose                                                      |
+|----------------------------------|--------------------------------------------------------------|
+| `max-attempts`                   | Total attempts including the first call (`1` disables retry) |
+| `wait-duration`                  | Base delay before the first retry                            |
+| `enable-exponential-backoff`     | Grow the delay between retries                               |
+| `exponential-backoff-multiplier` | Factor the delay grows by on each retry                      |
+| `retry-exceptions`               | Exception types that trigger a retry                         |
+
+The breaker is pinned as the outer aspect by swapping the two aspect orders (`resilience4j.circuitbreaker.circuit-breaker-aspect-order` below `resilience4j.retry.retry-aspect-order`).
+
 ### Project Structure
 
 ```
@@ -225,7 +245,7 @@ src/main/java/com/bcn/asapp/users/
 - **Documentation**: SpringDoc OpenAPI
 - **Observability**: Spring Boot Actuator, Micrometer
 - **REST Clients**: Spring HTTP Interfaces (@HttpExchange)
-- **Resilience**: Resilience4j (circuit breaker)
+- **Resilience**: Resilience4j (circuit breaker + retry)
 
 ---
 
@@ -420,6 +440,7 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 - [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
 - [Spring Data JDBC](https://docs.spring.io/spring-data/relational/reference/jdbc.html)
 - [Resilience4j Circuit Breaker](https://resilience4j.readme.io/docs/circuitbreaker)
+- [Resilience4j Retry](https://resilience4j.readme.io/docs/retry)
 - [TestContainers](https://java.testcontainers.org/)
 - [MockServer](https://www.mock-server.com/)
 

@@ -29,6 +29,7 @@ import org.springframework.web.client.ResourceAccessException;
 
 import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 
 import com.bcn.asapp.clients.tasks.TasksHttpClient;
 import com.bcn.asapp.clients.tasks.response.TasksByUserIdResponse;
@@ -41,12 +42,11 @@ import com.bcn.asapp.users.domain.user.UserId;
  * Bridges the application layer with the infrastructure layer by delegating to the declarative {@link TasksHttpClient} and mapping task responses to their
  * identifiers.
  * <p>
- * The call is guarded by a Resilience4j circuit breaker (instance {@code tasks}): repeated server or I/O errors open the circuit and fast-fail, and the breaker
- * recovers automatically once the Tasks Service is healthy again. Transient downstream outages degrade to an empty list so the user lookup still succeeds,
- * while client errors and unexpected failures propagate — see {@code emptyTasksFallback} for the exact classification.
+ * Outbound calls are guarded by Resilience4j (circuit breaker + retry).
  *
  * @since 0.2.0
  * @see CircuitBreaker
+ * @see Retry
  * @author attrigo
  */
 @Component
@@ -67,6 +67,16 @@ public class TasksGatewayAdapter implements TasksGateway {
 
     /**
      * Retrieves all task identifiers associated with a specific user by delegating to the tasks-service client.
+     * <p>
+     * The call is guarded by a Resilience4j circuit breaker and retry mechanism:
+     * <ul>
+     * <li>Circuit breaker: repeated failures open the circuit and fast-fail (a call that exhausts its retries counts as a single failure) recovering
+     * automatically once the Tasks Service is healthy again.</li>
+     * <li>Retry: transient server (5xx) and I/O failures are retried with exponential backoff so a momentary blip recovers transparently; client (4xx) errors
+     * are not retried.</li>
+     * <li>Degradation: failures degrade to an empty list so the user lookup still succeeds, while client and unexpected errors propagate — see
+     * {@code emptyTasksFallback} for the exact classification.</li>
+     * </ul>
      *
      * @param userId the user's unique identifier
      * @return a {@link List} of task UUIDs associated with the user, or an empty list if the user has no tasks, the response body is null, or the tasks circuit
@@ -74,6 +84,7 @@ public class TasksGatewayAdapter implements TasksGateway {
      */
     @Override
     @CircuitBreaker(name = TASKS_CLIENT_NAME, fallbackMethod = "emptyTasksFallback")
+    @Retry(name = TASKS_CLIENT_NAME)
     public List<UUID> getTaskIdsByUserId(UserId userId) {
         var tasks = tasksHttpClient.getTasksByUserId(userId.value());
 
@@ -92,9 +103,9 @@ public class TasksGatewayAdapter implements TasksGateway {
      * <p>
      * Invoked reflectively by Resilience4j as the {@code tasks} circuit breaker fallback, which classifies the failure:
      * <ul>
-     * <li>server (5xx) errors ({@link HttpServerErrorException}), I/O failures ({@link ResourceAccessException}), and the open-circuit
+     * <li>Server (5xx) errors ({@link HttpServerErrorException}), I/O failures ({@link ResourceAccessException}), and the open-circuit
      * {@link CallNotPermittedException} are degraded to an empty list.</li>
-     * <li>client (4xx) errors and any unexpected failure are rethrown so callers and the error handler can surface them.</li>
+     * <li>Client (4xx) errors and any unexpected failure are rethrown so callers and the error handler can surface them.</li>
      * </ul>
      *
      * @param userId the user's unique identifier

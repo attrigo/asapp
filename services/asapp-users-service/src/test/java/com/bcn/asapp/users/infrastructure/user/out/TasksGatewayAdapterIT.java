@@ -17,7 +17,6 @@
 package com.bcn.asapp.users.infrastructure.user.out;
 
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
-import static com.bcn.asapp.users.infrastructure.config.TasksHttpClientConfiguration.TASKS_CLIENT_NAME;
 import static com.bcn.asapp.users.testutil.fixture.DecodedJwtMother.decodedAccessToken;
 import static com.bcn.asapp.users.testutil.fixture.UserMother.aUser;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,8 +40,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.client.HttpClientErrorException;
-
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 
 import com.bcn.asapp.users.AsappUsersServiceApplication;
 import com.bcn.asapp.users.application.user.out.TasksGateway;
@@ -73,14 +70,9 @@ class TasksGatewayAdapterIT {
     @Autowired
     private TasksGateway tasksGateway;
 
-    @Autowired
-    private CircuitBreakerRegistry circuitBreakerRegistry;
-
     @BeforeEach
     void beforeEach() {
         mockServerClient.reset();
-        circuitBreakerRegistry.circuitBreaker(TASKS_CLIENT_NAME)
-                              .reset();
         seedSecurityContext();
     }
 
@@ -134,9 +126,8 @@ class TasksGatewayAdapterIT {
             // Given
             var userId = aUser().getId();
             var request = request().withMethod(HttpMethod.GET.name())
-                                   .withPath(TASKS_GET_BY_USER_ID_FULL_PATH)
-                                   .withPathParameter("id", userId.value()
-                                                                  .toString());
+                                   .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
+                                                                                                  .toString()));
 
             mockServerClient.when(request)
                             .respond(response().withStatusCode(400));
