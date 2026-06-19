@@ -27,7 +27,7 @@
         * [X] Add stress test
     * Improve HTTP clients 
         * [X] Refactor REST clients by declarative HTTP clients
-        * [ ] Use circuit breaker pattern
+        * [X] Use circuit breaker pattern
         * [ ] Use retry pattern
     * Profiles
         * [X] Introduce explicit dev and prod profiles to gate dev-only tooling and align with docker/native
