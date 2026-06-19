@@ -56,11 +56,13 @@ import com.bcn.asapp.users.infrastructure.security.JwtAuthenticationToken;
 import com.bcn.asapp.users.testutil.TestContainerConfiguration;
 
 /**
- * Tests {@link TasksGatewayAdapter} fallback behavior end-to-end through the real declarative HTTP client against an embedded MockServer.
+ * Tests {@link TasksGatewayAdapter} retry and fallback behavior end-to-end through the real declarative HTTP client against an embedded MockServer.
  * <p>
  * Coverage:
+ * <li>Retries transient server errors (5xx) and returns the task ids once the Tasks Service recovers</li>
  * <li>Degrades to an empty list when the Tasks Service responds with a server error (5xx)</li>
  * <li>Degrades to an empty list when the Tasks Service connection is dropped</li>
+ * <li>Records a single circuit breaker failure when a call exhausts all retries</li>
  * <li>Propagates client (4xx) errors without masking them as an empty list</li>
  */
 @SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = WebEnvironment.NONE)
