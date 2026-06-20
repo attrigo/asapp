@@ -193,10 +193,11 @@ Tuning lives in `application.properties` under `resilience4j.circuitbreaker.inst
 
 The same gateway calls are also wrapped in a Resilience4j **retry**, nested **inside** the circuit breaker:
 
-- Transient I/O failures and server (5xx) errors are retried with exponential backoff (default: 2 retries, 200 ms base delay, ×2 multiplier) before the breaker records a failure — a momentary blip recovers transparently.
-- A call that exhausts all retries counts as a **single** breaker failure (the breaker is the outer aspect), so sustained failure still trips the breaker exactly as before.
-- An open breaker fast-fails *before* any retry runs — no hammering a known-down service.
+- Transient 5xx or I/O failures are retried with exponential backoff before the breaker sees a failure, so a momentary blip recovers transparently.
+- An exhausted-retry call counts as a **single** breaker failure, so sustained failure still trips it.
+- An open breaker fast-fails before any retry runs.
 - Client (4xx) errors are not retried.
+- Retry metrics are exported to Prometheus (`resilience4j.retry.calls`) and exposed at the `/actuator/retries` and `/actuator/retryevents` endpoints.
 
 Tuning lives in `application.properties` under `resilience4j.retry.instances.<name>.*`:
 
