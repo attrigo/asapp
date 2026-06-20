@@ -150,7 +150,7 @@ class TasksHttpClientTests {
         }
 
         @Test
-        void Throws_ServerCallFails() {
+        void ThrowsRestClientException_ServerCallFails() {
             // Given
             var userId = UUID.fromString("550e8400-e29b-41d4-a716-446655440000");
             var uri = BASE_URL + TASKS_GET_BY_USER_ID_FULL_PATH;
