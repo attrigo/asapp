@@ -42,13 +42,7 @@ import com.bcn.asapp.users.domain.user.UserId;
  * Bridges the application layer with the infrastructure layer by delegating to the declarative {@link TasksHttpClient} and mapping task responses to their
  * identifiers.
  * <p>
- * The call is guarded by a Resilience4j circuit breaker (instance {@code tasks}): repeated server or I/O errors open the circuit and fast-fail, and the breaker
- * recovers automatically once the Tasks Service is healthy again. Transient downstream outages degrade to an empty list so the user lookup still succeeds,
- * while client errors and unexpected failures propagate — see {@code emptyTasksFallback} for the exact classification.
- * <p>
- * Transient server (5xx) and I/O failures are first retried with exponential backoff by a Resilience4j {@link Retry} (instance {@code tasks}), nested
- * <em>inside</em> the breaker: a momentary blip recovers transparently, and a call that exhausts its retries counts as a single breaker failure. Client (4xx)
- * errors are not retried. Retry attempts and backoff are tuned under {@code resilience4j.retry.instances.tasks.*}.
+ * Outbound calls are guarded by Resilience4j (circuit breaker + retry).
  *
  * @since 0.2.0
  * @see CircuitBreaker
@@ -73,6 +67,17 @@ public class TasksGatewayAdapter implements TasksGateway {
 
     /**
      * Retrieves all task identifiers associated with a specific user by delegating to the tasks-service client.
+     * <p>
+     * The call is guarded by a Resilience4j circuit breaker: repeated server or I/O errors open the circuit and fast-fail, and the breaker recovers
+     * automatically once the Tasks Service is healthy again.
+     * <p>
+     * Transient downstream outages degrade to an empty list so the user lookup still succeeds, while client errors and unexpected failures propagate; see
+     * {@code emptyTasksFallback} for the exact classification.
+     * <p>
+     * Transient server (5xx) and I/O failures are first retried with exponential backoff by a Resilience4j retry: a momentary blip recovers transparently, and
+     * a call that exhausts its retries counts as a single breaker failure.
+     * <p>
+     * Client (4xx) errors are not retried.
      *
      * @param userId the user's unique identifier
      * @return a {@link List} of task UUIDs associated with the user, or an empty list if the user has no tasks, the response body is null, or the tasks circuit
