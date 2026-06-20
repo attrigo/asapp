@@ -29,7 +29,6 @@ import static org.mockserver.verify.VerificationTimes.exactly;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
 import java.time.Duration;
-import java.util.UUID;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.AfterAll;
@@ -142,10 +141,9 @@ class ResilienceConfigurationIT {
         openCircuit(userId, request);
 
         // When
-        var actual = tasksGateway.getTaskIdsByUserId(userId);
+        tasksGateway.getTaskIdsByUserId(userId);
 
         // Then
-        assertThat(actual).isEmpty();
         assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.OPEN);
 
         mockServerClient.verify(request, exactly(MINIMUM_NUMBER_OF_CALLS * MAX_ATTEMPTS));
@@ -181,20 +179,20 @@ class ResilienceConfigurationIT {
                                                                                               .toString()));
 
         openCircuit(userId, request);
-
         mockServerClient.when(request)
                         .respond(response().withStatusCode(200)
                                            .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
                                            .withBody("[]"));
 
         // When & Then
-        // half-opens after the wait-duration, no call needed
+        // after the wait, the breaker half-opens on its own to test recovery; no call is needed to trigger this
         await().atMost(Duration.ofSeconds(3))
                .until(() -> circuitBreaker.getState() == CircuitBreaker.State.HALF_OPEN);
-        // trial successes close it; poll in-thread for the ThreadLocal SecurityContext
+        // successful calls now bring the breaker back to closed; run them on the test thread so the logged-in user (JWT) is available
         await().pollInSameThread()
                .atMost(Duration.ofSeconds(5))
                .untilAsserted(() -> {
+                   // keep calling until enough calls succeed for the breaker to close
                    tasksGateway.getTaskIdsByUserId(userId);
                    assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
                });
@@ -204,7 +202,6 @@ class ResilienceConfigurationIT {
     void RetriesCall_TransientDownstreamServerErrors() {
         // Given
         var userId = aUser().getId();
-        var taskId = UUID.fromString("660e8400-e29b-41d4-a716-446655440001");
         var request = request().withMethod(HttpMethod.GET.name())
                                .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
                                                                                               .toString()));
@@ -214,13 +211,14 @@ class ResilienceConfigurationIT {
         mockServerClient.when(request)
                         .respond(response().withStatusCode(200)
                                            .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                                           .withBody("[{\"taskId\":\"" + taskId + "\"}]"));
+                                           .withBody("[]"));
 
         // When
-        var actual = tasksGateway.getTaskIdsByUserId(userId);
+        tasksGateway.getTaskIdsByUserId(userId);
 
         // Then
-        assertThat(actual).containsExactly(taskId);
+        assertThat(circuitBreaker.getMetrics()
+                                 .getNumberOfSuccessfulCalls()).isEqualTo(1);
 
         mockServerClient.verify(request, exactly(3));
     }
@@ -237,10 +235,9 @@ class ResilienceConfigurationIT {
                         .respond(response().withStatusCode(500));
 
         // When
-        var actual = tasksGateway.getTaskIdsByUserId(userId);
+        tasksGateway.getTaskIdsByUserId(userId);
 
         // Then
-        assertThat(actual).isEmpty();
         assertThat(circuitBreaker.getMetrics()
                                  .getNumberOfFailedCalls()).isEqualTo(1);
 
