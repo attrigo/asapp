@@ -16,6 +16,7 @@
 
 package com.bcn.asapp.users.infrastructure.user.mapper;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.mapstruct.Mapper;
@@ -102,6 +103,7 @@ public interface UserMapper {
     @Mapping(target = "email", source = "user.email")
     @Mapping(target = "phoneNumber", source = "user.phoneNumber")
     @Mapping(target = "taskIds", source = "taskIds")
+    @Mapping(target = "warnings", source = "tasksAvailable")
     GetUserByIdResponse toGetUserByIdResponse(UserWithTasksResult result);
 
     /**
@@ -139,5 +141,15 @@ public interface UserMapper {
      */
     @Mapping(target = "userId", source = "id")
     UpdateUserResponse toUpdateUserResponse(User user);
+
+    /**
+     * Derives the response warning codes from the task-availability flag.
+     *
+     * @param tasksAvailable whether tasks were successfully retrieved
+     * @return an empty list when available, or a single {@code tasks_unavailable} code when not
+     */
+    default List<String> toWarnings(boolean tasksAvailable) {
+        return tasksAvailable ? List.of() : List.of(WarningCodes.TASKS_UNAVAILABLE);
+    }
 
 }

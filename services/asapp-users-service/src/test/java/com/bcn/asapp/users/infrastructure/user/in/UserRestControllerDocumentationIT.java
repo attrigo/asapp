@@ -100,7 +100,7 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                        .value();
             var taskIds = List.<UUID>of();
             var userWithTasksResult = UserWithTasksResult.available(user, List.of());
-            var response = new GetUserByIdResponse(userIdValue, firstNameValue, lastNameValue, emailValue, phoneNumberValue, taskIds);
+            var response = new GetUserByIdResponse(userIdValue, firstNameValue, lastNameValue, emailValue, phoneNumberValue, taskIds, List.of());
 
             given(readUserUseCase.getUserById(any(UUID.class))).willReturn(Optional.of(userWithTasksResult));
             given(userMapper.toGetUserByIdResponse(any(UserWithTasksResult.class))).willReturn(response);
