@@ -211,7 +211,7 @@ Tuning lives in `application.properties` under `resilience4j.retry.instances.<na
 
 The breaker is pinned as the outer aspect by swapping the two aspect orders (`resilience4j.circuitbreaker.circuit-breaker-aspect-order` below `resilience4j.retry.retry-aspect-order`).
 
-Outbound calls also carry transport **timeouts** (`1s` connect, `2s` read), set via `spring.http.clients.*`. A slow downstream times out as a transient I/O failure, so it follows the same retry-then-breaker path as an explicit error — a fully unresponsive one is bounded at roughly `3 × read-timeout + backoff` before degrading to an empty result.
+Outbound calls also carry transport **timeouts**, set via `spring.http.clients.*`. A slow downstream times out as a transient I/O failure, so it follows the same retry-then-breaker path as an explicit error — a fully unresponsive one is bounded at roughly `3 × read-timeout + backoff` before degrading to an empty result.
 
 | Property                              | Purpose                                       |
 |---------------------------------------|-----------------------------------------------|
