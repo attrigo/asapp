@@ -29,6 +29,7 @@ import static org.mockserver.verify.VerificationTimes.exactly;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.AfterAll;
@@ -62,12 +63,21 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
  * client against an embedded MockServer.
  * <p>
  * Coverage:
+ * <ul>
  * <li>Keeps the circuit closed while failures stay below the minimum number of calls</li>
  * <li>Opens the circuit once server errors exceed the failure-rate threshold, issuing no further downstream calls</li>
  * <li>Keeps the circuit closed when client (4xx) errors occur, as the breaker ignores them and does not retry them</li>
  * <li>Closes the circuit once the downstream service is healthy again</li>
  * <li>Retries transient server errors (5xx) until the Tasks Service recovers</li>
  * <li>Records a single circuit breaker failure when a call exhausts all retries</li>
+ * <li>Records a single circuit breaker failure when a downstream read times out</li>
+ * </ul>
+ * <p>
+ * A connect timeout is not covered separately:
+ * <ul>
+ * <li>Requires a blackhole-socket complex setup.</li>
+ * <li>It shares the read-timeout path (same I/O failure, retry, circuit breaker, degrade-to-empty) verified above.</li>
+ * </ul>
  */
 @SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = WebEnvironment.NONE)
 @Import(TestContainerConfiguration.class)
@@ -86,6 +96,7 @@ class ResilienceConfigurationIT {
         registry.add("spring.http.serviceclient.tasks.base-url", () -> "http://localhost:" + embeddedMockServer.getPort());
         registry.add("resilience4j.circuitbreaker.instances.tasks.wait-duration-in-open-state", () -> "1s");
         registry.add("resilience4j.retry.instances.tasks.max-attempts", () -> String.valueOf(MAX_ATTEMPTS));
+        registry.add("spring.http.clients.read-timeout", () -> "500ms");
     }
 
     @Autowired
@@ -131,25 +142,6 @@ class ResilienceConfigurationIT {
     }
 
     @Test
-    void OpensCircuit_ServerErrorsExceedFailureThreshold() {
-        // Given
-        var userId = aUser().getId();
-        var request = request().withMethod(HttpMethod.GET.name())
-                               .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
-                                                                                              .toString()));
-
-        openCircuit(userId, request);
-
-        // When
-        tasksGateway.getTaskIdsByUserId(userId);
-
-        // Then
-        assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.OPEN);
-
-        mockServerClient.verify(request, exactly(MINIMUM_NUMBER_OF_CALLS * MAX_ATTEMPTS));
-    }
-
-    @Test
     void KeepsCircuitClosed_ClientErrorsExceedFailureThreshold() {
         // Given
         var userId = aUser().getId();
@@ -168,6 +160,31 @@ class ResilienceConfigurationIT {
         assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
 
         mockServerClient.verify(request, exactly(MINIMUM_NUMBER_OF_CALLS));
+    }
+
+    @Test
+    void RetriesCall_TransientDownstreamServerErrors() {
+        // Given
+        var userId = aUser().getId();
+        var request = request().withMethod(HttpMethod.GET.name())
+                               .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
+                                                                                              .toString()));
+
+        mockServerClient.when(request, Times.exactly(2))
+                        .respond(response().withStatusCode(500));
+        mockServerClient.when(request)
+                        .respond(response().withStatusCode(200)
+                                           .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                           .withBody("[]"));
+
+        // When
+        tasksGateway.getTaskIdsByUserId(userId);
+
+        // Then
+        assertThat(circuitBreaker.getMetrics()
+                                 .getNumberOfSuccessfulCalls()).isEqualTo(1);
+
+        mockServerClient.verify(request, exactly(3));
     }
 
     @Test
@@ -199,28 +216,22 @@ class ResilienceConfigurationIT {
     }
 
     @Test
-    void RetriesCall_TransientDownstreamServerErrors() {
+    void OpensCircuit_ServerErrorsExceedFailureThreshold() {
         // Given
         var userId = aUser().getId();
         var request = request().withMethod(HttpMethod.GET.name())
                                .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
                                                                                               .toString()));
 
-        mockServerClient.when(request, Times.exactly(2))
-                        .respond(response().withStatusCode(500));
-        mockServerClient.when(request)
-                        .respond(response().withStatusCode(200)
-                                           .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                                           .withBody("[]"));
+        openCircuit(userId, request);
 
         // When
         tasksGateway.getTaskIdsByUserId(userId);
 
         // Then
-        assertThat(circuitBreaker.getMetrics()
-                                 .getNumberOfSuccessfulCalls()).isEqualTo(1);
+        assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.OPEN);
 
-        mockServerClient.verify(request, exactly(3));
+        mockServerClient.verify(request, exactly(MINIMUM_NUMBER_OF_CALLS * MAX_ATTEMPTS));
     }
 
     @Test
@@ -242,6 +253,30 @@ class ResilienceConfigurationIT {
                                  .getNumberOfFailedCalls()).isEqualTo(1);
 
         mockServerClient.verify(request, exactly(3));
+    }
+
+    @Test
+    void RetriesInsideCircuitBreaker_DownstreamReadTimesOut() {
+        // Given
+        var userId = aUser().getId();
+        var request = request().withMethod(HttpMethod.GET.name())
+                               .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
+                                                                                              .toString()));
+
+        mockServerClient.when(request)
+                        .respond(response().withStatusCode(200)
+                                           .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                           .withBody("[]")
+                                           .withDelay(TimeUnit.SECONDS, 1));
+
+        // When
+        tasksGateway.getTaskIdsByUserId(userId);
+
+        // Then
+        assertThat(circuitBreaker.getMetrics()
+                                 .getNumberOfFailedCalls()).isEqualTo(1);
+
+        mockServerClient.verify(request, exactly(MAX_ATTEMPTS));
     }
 
     private void openCircuit(UserId userId, HttpRequest request) {
