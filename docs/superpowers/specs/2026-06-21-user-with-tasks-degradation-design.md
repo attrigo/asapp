@@ -310,11 +310,18 @@ the handler. No new `@ExceptionHandler` is needed. The existing `503` mapping
   `GetUserByIdResponse`.
 - **`TODO.md`:** tick line 33 and drop its two decision sub-bullets (decisions
   recorded here).
-- **`.claude/rules/`** (gated — text **prepared** for the developer to apply):
-  a short note (in `ports-adapters.md` or `development-patterns.md`) that the
-  degrade-vs-fail policy belongs in the application service, reached via a typed
-  gateway exception (`TasksUnavailableException`), while the adapter owns only the
-  resilience mechanism.
+- **`.claude/rules/`** (gated — text **prepared** for the developer to apply; not
+  edited directly per the auto-mode permission gate). Two complementary additions:
+  - **`rest.md`** — a new *"Partial Success / Degraded Responses"* section
+    documenting the response-shape convention: soft-dependency outage → `200` with
+    the primary data + an optional `warnings` array of machine-readable codes
+    (omitted on the happy path via `@JsonInclude(NON_EMPTY)`); the unavailable
+    field is `null` (distinguishable from a genuine empty value); codes name the
+    missing data, never internal services.
+  - **`ports-adapters.md`** (or `development-patterns.md`) — a note that the
+    degrade-vs-fail policy belongs in the application service, reached via a typed
+    gateway exception (`TasksUnavailableException`), while the adapter owns only
+    the resilience mechanism.
 
 ---
 
