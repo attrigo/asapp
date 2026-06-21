@@ -1,7 +1,7 @@
 # User-with-Tasks Degradation Behaviour — Design
 
 **Date:** 2026-06-21
-**Status:** Draft
+**Status:** Implemented
 **Targets:** `asapp-users-service` (`TasksGatewayAdapter`, `TasksGateway`, `ReadUserService`, `UserWithTasksResult`, `UserMapper`, `GetUserByIdResponse`, new `TasksUnavailableException`, new `WarningCodes`, plus tests + REST docs)
 
 ---

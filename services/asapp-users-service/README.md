@@ -170,7 +170,7 @@ Shared  central-config/application.properties         (base)
 
 ### Resilience
 
-Outbound calls to the Tasks service run through a stack of Resilience4j **aspects**: a circuit breaker wrapping a retry — over an HTTP client with connect/read **timeouts**. The intent: a slow or failing Tasks service degrades to an empty task list instead of failing the user request.
+Outbound calls to the Tasks service run through a stack of Resilience4j **aspects**: a circuit breaker wrapping a retry — over an HTTP client with connect/read **timeouts**. The intent: a slow or failing Tasks service degrades to a partial response — the user is returned with `taskIds: null` and a `warnings: ["tasks_unavailable"]` entry — instead of failing the user request.
 
 ```
 Circuit Breaker          trips on sustained failure/latency, then fast-fails
@@ -182,7 +182,7 @@ Circuit Breaker          trips on sustained failure/latency, then fast-fails
 #### Circuit breaker
 
 - Repeated 5xx, I/O failures, or sustained latency open the breaker, which then fast-fails.
-- While open (or on any single failure) the gateway degrades to an empty result, so the request still succeeds.
+- While open (or on any single failure) the application service degrades the read — the user is returned with `taskIds: null` and a `tasks_unavailable` warning — so the request still succeeds.
 - Client (4xx) errors never count as failures.
 
 Configured under `resilience4j.circuitbreaker.instances.<name>.*`:
