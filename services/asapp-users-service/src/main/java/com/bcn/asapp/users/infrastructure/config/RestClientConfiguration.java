@@ -64,24 +64,19 @@ public class RestClientConfiguration {
     }
 
     /**
-     * Configures every declarative HTTP service client group's {@link RestClient}.
-     * <p>
-     * Applies to each client, in order:
+     * Configures every declarative HTTP client group's {@link RestClient}, applying in order:
      * <ol>
-     * <li>A JDK request factory built from the property-bound {@link HttpClientSettings} (connect/read timeouts and redirect handling come from {@code
-     * spring.http.clients.*}).</li>
-     * <li>The {@link JwtInterceptor}, which propagates the caller's bearer token to the downstream call.</li>
-     * <li>The {@link LoadBalancerInterceptor}, when one is available.</li>
+     * <li>A JDK request factory from {@link HttpClientSettings} ({@code spring.http.clients.*});</li>
+     * <li>The {@link JwtInterceptor} to propagate the caller's bearer token;</li>
+     * <li>The optional {@link LoadBalancerInterceptor}, when present.</li>
      * </ol>
      * <p>
-     * The interceptor is injected as an {@link ObjectProvider} and applied only when present: Spring Cloud LoadBalancer auto-configures the bean when it is on
-     * the classpath, and the interceptor then resolves a base url that targets a Eureka service id into a concrete instance host and port. Without the bean
-     * (e.g. in tests), the configured base-url host is called directly.
+     * Injected via {@link ObjectProvider}, the load-balancer interceptor resolves Eureka service ids to instances when present; otherwise the configured
+     * base-url host is called directly.
      *
-     * @param loadBalancerInterceptor provider for the optional Spring Cloud load-balancer interceptor that resolves Eureka service ids to instances
-     * @param httpClientSettings      the property-bound HTTP client settings ({@code spring.http.clients.*}) carrying connect/read timeouts and redirect
-     *                                handling
-     * @return the group configurer for RestClient-backed HTTP services
+     * @param loadBalancerInterceptor optional Eureka-aware load-balancer interceptor
+     * @param httpClientSettings      property-bound HTTP client settings carrying client configurations
+     * @return the RestClient group configurer
      */
     @Bean
     RestClientHttpServiceGroupConfigurer httpServiceGroupConfigurer(ObjectProvider<LoadBalancerInterceptor> loadBalancerInterceptor,
