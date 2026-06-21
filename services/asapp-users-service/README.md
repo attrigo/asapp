@@ -211,6 +211,14 @@ Tuning lives in `application.properties` under `resilience4j.retry.instances.<na
 
 The breaker is pinned as the outer aspect by swapping the two aspect orders (`resilience4j.circuitbreaker.circuit-breaker-aspect-order` below `resilience4j.retry.retry-aspect-order`).
 
+Outbound calls also carry transport **timeouts** (`1s` connect, `2s` read), set via `spring.http.clients.*`. A downstream that is *slow* rather than failing now times out as a transient I/O failure — which is retried and, on exhaustion, counts as a single breaker failure — so the breaker reacts to latency, not just to explicit errors. Because retry wraps the call, a fully unresponsive downstream is bounded at roughly `3 × read-timeout + backoff` before degrading to an empty result, after which the open breaker fast-fails.
+
+| Property                              | Purpose                                       |
+|---------------------------------------|-----------------------------------------------|
+| `spring.http.clients.connect-timeout` | How long to wait to establish the connection  |
+| `spring.http.clients.read-timeout`    | How long to wait for the response             |
+| `spring.http.clients.redirects`       | Whether the client follows HTTP redirects     |
+
 ### Project Structure
 
 ```
