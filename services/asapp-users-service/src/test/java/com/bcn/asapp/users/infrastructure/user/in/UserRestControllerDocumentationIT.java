@@ -156,7 +156,7 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                    // @formatter:off
                        document("get-user-by-id-tasks-unavailable",
                            relaxedResponseFields(
-                                   fieldWithPath("taskIds").description("Null because tasks-service is unavailable").type(JsonFieldType.ARRAY).optional(),
+                                   fieldWithPath("taskIds").description("Null because tasks-service is unavailable").type(JsonFieldType.NULL).optional(),
                                    fieldWithPath("warnings").description("Machine-readable degradation codes; contains tasks_unavailable")
                            )
                        )

@@ -95,7 +95,7 @@ public interface UserMapper {
      * Combines user information with task references into a single response.
      *
      * @param result the {@link UserWithTasksResult} containing user and task information
-     * @return the {@link GetUserByIdResponse} with user data and task IDs
+     * @return the {@link GetUserByIdResponse} with user data, task IDs, and any degradation warnings
      */
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "firstName", source = "user.firstName")

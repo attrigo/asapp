@@ -78,7 +78,7 @@ If tasks-service is unavailable, the user is still returned (HTTP 200) with `tas
 
 operation::get-user-by-id[snippets='path-parameters,http-request,response-fields,curl-request,http-response']
 
-When tasks-service is unavailable the response is degraded as follows:
+When tasks-service is unavailable, the response is degraded as follows:
 
 operation::get-user-by-id-tasks-unavailable[snippets='http-response']
 
