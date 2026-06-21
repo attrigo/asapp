@@ -2,7 +2,7 @@
 
 **Date:** 2026-06-21
 **Status:** Draft
-**Targets:** `asapp-users-service` (`TasksGatewayAdapter`, `TasksGateway`, `ReadUserService`, `UserWithTasksResult`, `UserMapper`, `GetUserByIdResponse`, new `TasksUnavailableException`, plus tests + REST docs)
+**Targets:** `asapp-users-service` (`TasksGatewayAdapter`, `TasksGateway`, `ReadUserService`, `UserWithTasksResult`, `UserMapper`, `GetUserByIdResponse`, new `TasksUnavailableException`, new `WarningCodes`, plus tests + REST docs)
 
 ---
 
@@ -230,15 +230,25 @@ public record GetUserByIdResponse(
   violate the `rest.md` "no `@JsonProperty` renaming" rule.)
 - `taskIds` is now nullable (semantically `null` = unavailable). Javadoc updated.
 
-### 3.7 Mapper — `UserMapper`
+### 3.7 Mapper — `UserMapper` (+ `WarningCodes`)
 
 - `taskIds` continues to map 1:1 (`null` flows through to the response).
-- `warnings` is derived from `tasksAvailable` via a `default` helper that returns
-  the fixed code list:
+- `warnings` is derived from `tasksAvailable` via a `default` helper.
+- The warning **code constant lives in a dedicated package-private holder**,
+  `infrastructure/user/mapper/WarningCodes`, co-located with its only consumer
+  (the mapper) — mirroring `ErrorMessages` sitting with `GlobalExceptionHandler`,
+  and consistent with the project's per-vocabulary constant holders
+  (`JwtClaimNames`, `JwtTypeNames`, …). Promote to a shared/public location only
+  if a second consumer ever appears (YAGNI).
 
 ```java
-String TASKS_UNAVAILABLE_WARNING = "tasks_unavailable";
+// infrastructure/user/mapper/WarningCodes.java
+final class WarningCodes {
+    static final String TASKS_UNAVAILABLE = "tasks_unavailable";
+    private WarningCodes() {}
+}
 
+// UserMapper
 @Mapping(target = "userId", source = "user.id")
 ... (existing user field mappings) ...
 @Mapping(target = "taskIds", source = "taskIds")
@@ -246,13 +256,13 @@ String TASKS_UNAVAILABLE_WARNING = "tasks_unavailable";
 GetUserByIdResponse toGetUserByIdResponse(UserWithTasksResult result);
 
 default List<String> toWarnings(boolean tasksAvailable) {
-    return tasksAvailable ? List.of() : List.of(TASKS_UNAVAILABLE_WARNING);
+    return tasksAvailable ? List.of() : List.of(WarningCodes.TASKS_UNAVAILABLE);
 }
 ```
 
-The warning **code constant lives in infrastructure** (the mapper), not the
-application layer. See §10 for the MapStruct boolean→`List<String>` resolution
-open question.
+The application layer carries only the semantic `tasksAvailable` flag; this code
+string is infrastructure-only. See §9 for the MapStruct boolean→`List<String>`
+resolution open question.
 
 ### 3.8 `GlobalExceptionHandler` — no change
 
@@ -344,7 +354,8 @@ the handler. No new `@ExceptionHandler` is needed. The existing `503` mapping
 5. `ReadUserService`: catch the exception → degraded result; update Javadoc.
 6. `GetUserByIdResponse`: add `warnings` (`@JsonInclude(NON_EMPTY)`); `taskIds`
    nullable.
-7. `UserMapper`: derive `warnings` from `tasksAvailable`.
+7. `UserMapper`: add the package-private `WarningCodes` holder; derive `warnings`
+   from `tasksAvailable`.
 8. Tests (§4).
 9. Verify (`mvn clean verify`; confirm before slow ITs).
 10. Docs (§5); prepare the `.claude/rules` text for the developer.
