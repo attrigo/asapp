@@ -15,8 +15,8 @@ description: >
 
 Integrate a finished task into the **local** `main` branch: mark its design spec implemented, squash
 all the task's commits into one commit on `main`, and keep the implementation plan on the task branch
-only. Runs end-to-end without a confirmation gate and **never pushes** — everything is local and
-revertible.
+only. Runs end-to-end without a confirmation gate and **never pushes** — every git action is local and
+revertible (the sole exception is the final SDD-scratch cleanup).
 
 **Core principle — the end-state is a contract.** When this skill finishes:
 
@@ -41,6 +41,7 @@ revertible.
 ### Step 0: Resolve, detect, capture revert anchors
 
 - **Resolve** the task branch (current branch or the argument), the task slug, and the matching files: spec `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md` and plan `docs/superpowers/plans/YYYY-MM-DD-<slug>.md`. If branch, spec, or plan can't be resolved unambiguously, **stop and ask** — do not guess before mutating.
+- **Locate the SDD record** — `.superpowers/sdd/` (untracked working dir): `progress.md` plus the per-task `*-brief.md`/`*-report.md`. It captures intent, decisions, and deviations, and feeds Steps 1, 2, and 4. If it is absent, fall back to commits alone.
 - **Capture revert anchors** and surface them to the user immediately:
   ```bash
   PRE_MAIN=$(git rev-parse main)      # main tip before the merge
@@ -51,7 +52,7 @@ revertible.
 
 ### Step 1: Analyze the task's commits and context
 
-Read `git log main..<branch>` and the diffs to find where the implementation diverged from the design. Capture each delta by the durable artifacts it touched (files, classes, config, tests), not commit hashes. Delegate to a **read-only review agent** (`architect-reviewer` / `code-reviewer` / `Explore`) or do it inline.
+Find where the implementation diverged from the design, drawing on **both** sources: the SDD record in `.superpowers/sdd/` (`progress.md` + the `*-report.md`s — intent, decisions, deviations) **and** `git log main..<branch>` + the diffs (which also carry the manual-review changes made *after* the SDD run). Capture each delta by the durable artifacts it touched (files, classes, config, tests), **not commit hashes** — the SDD files contain hashes, so do not copy them through. Delegate to a **read-only review agent** (`architect-reviewer` / `code-reviewer` / `Explore`) or do it inline.
 
 ### Step 2: Mark the spec implemented
 
@@ -69,7 +70,7 @@ Commit **only the spec file**, message built with `draft-commit-msg`, following 
 
 ### Step 4: Draft the squash message
 
-Build the squash message with `draft-commit-msg` skill, using the Step 1 analysis and the full task range (`git log main..<branch>` + the squashed diff).
+Build the squash message with `draft-commit-msg`, using the Step 1 analysis (the SDD record + git) and the full task range (`git log main..<branch>` + the squashed diff).
 
 ### Step 5: Squash-merge into main, excluding the plan
 
@@ -96,16 +97,25 @@ git commit -m "docs(<scope>): add <task> implementation plan"
 git checkout main
 ```
 
-### Step 7: Verify invariants and report
+### Step 7: Verify invariants
 
-- **Verify** and show the results:
+Run and show the results:
+```bash
+git cat-file -e main:docs/superpowers/plans/<plan> 2>/dev/null && echo "FAIL: plan on main" || echo "OK: plan absent from main"
+git log main -1 --stat        # the squash commit, includes the spec
+git log <branch> -1 --stat    # the plan as the last branch commit
+```
+If any invariant **fails**, stop and report — **do not clean up**.
+
+### Step 8: Clear the SDD record, then report
+
+- **Only once the invariants pass**, delete the SDD working content — it is untracked scaffolding and its essence is now in the spec notes + the squash commit. Preserve the `.gitignore` marker:
   ```bash
-  git cat-file -e main:docs/superpowers/plans/<plan> 2>/dev/null && echo "FAIL: plan on main" || echo "OK: plan absent from main"
-  git log main -1 --stat        # the squash commit, includes the spec
-  git log <branch> -1 --stat    # the plan as the last branch commit
+  [ -d .superpowers/sdd ] && find .superpowers/sdd -mindepth 1 ! -name .gitignore -delete
   ```
-- **Report**: what landed on `main` (the squash commit), what the branch now holds, and the spec status change.
-- **Revert instructions** (nothing was pushed — see *Reverting*).
+  This is the **only non-git-revertible** action — which is why it runs last, after a clean close.
+- **Report**: what landed on `main` (the squash commit), what the branch holds, the spec status change, and that `.superpowers/sdd` was cleared.
+- **Revert instructions** (git actions only — see *Reverting*; the cleared SDD files are not recoverable).
 - Remind the user: pushing `main` and the task branch is their manual step.
 
 ## Plan handling
@@ -137,11 +147,13 @@ git checkout main && git reset --hard $PRE_MAIN
 git checkout <branch> && git reset --hard $PRE_BRANCH
 ```
 
+> The Step 8 `.superpowers/sdd` cleanup is **not** covered by this — those files are untracked and gone for good. That is why it runs only after the invariants pass.
+
 ## Delegation & tools — quick reference
 
 | Situation | Use |
 |-----------|-----|
-| Analyze the task's commits/diffs — what shipped and the deltas (read-only) | `architect-reviewer` / `code-reviewer` / `Explore` |
+| Analyze the SDD record (`.superpowers/sdd/`) + commits/diffs — what shipped and the deltas (read-only) | `architect-reviewer` / `code-reviewer` / `Explore` |
 | Update the spec file — Status + post-impl notes (writing only, no code review) | `documentation-engineer` |
 | Build the spec / squash / plan commit messages | `draft-commit-msg` skill |
 | Locate the spec/plan or understand a commit | `Explore` |
@@ -155,6 +167,8 @@ Pick the **most specific** agent from `.claude/agents/`; `general-purpose` is a 
 - **Capture `PRE_MAIN` and `PRE_BRANCH` before any mutation** — revert depends on them.
 - **The spec lands on main; the plan never lands on main** — verify both before reporting done.
 - **One squash commit on main** for the whole task; messages built with `draft-commit-msg`.
+- **Source the spec notes and squash message from `.superpowers/sdd/` + git** — but never copy SDD commit hashes into the spec.
+- **Clear `.superpowers/sdd` last** — only after the invariants pass; it is the one non-git-revertible action, and `.gitignore` is preserved.
 - **Abort, don't guess** — on a merge conflict or an unresolved spec/plan/branch, stop and report.
 
 ## Common mistakes
@@ -169,3 +183,5 @@ Pick the **most specific** agent from `.claude/agents/`; `general-purpose` is a 
 | Auto-resolving a squash merge conflict | `git merge --abort` and report. |
 | Multiple commits on main for one task | Use `git merge --squash` → one commit. |
 | Hand-writing the squash message | Build it with `draft-commit-msg` from the full task range. |
+| Clearing `.superpowers/sdd` before the close verifies, or deleting its `.gitignore` | Clear it only after Step 7 passes; keep `.gitignore`. |
+| Ignoring the SDD record and reading only commits | Use `.superpowers/sdd/` too — it captures decisions and deviations the commits don't. |
