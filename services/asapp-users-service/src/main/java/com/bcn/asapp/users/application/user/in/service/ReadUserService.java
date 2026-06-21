@@ -130,7 +130,7 @@ public class ReadUserService implements ReadUserUseCase {
      */
     private UserWithTasksResult enrichUserWithTasks(User user) {
         var taskIds = tasksGateway.getTaskIdsByUserId(user.getId());
-        return new UserWithTasksResult(user, taskIds);
+        return UserWithTasksResult.available(user, taskIds);
     }
 
 }
