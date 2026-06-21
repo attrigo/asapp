@@ -63,6 +63,7 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
  * client against an embedded MockServer.
  * <p>
  * Coverage:
+ * <ul>
  * <li>Keeps the circuit closed while failures stay below the minimum number of calls</li>
  * <li>Opens the circuit once server errors exceed the failure-rate threshold, issuing no further downstream calls</li>
  * <li>Keeps the circuit closed when client (4xx) errors occur, as the breaker ignores them and does not retry them</li>
@@ -70,10 +71,13 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
  * <li>Retries transient server errors (5xx) until the Tasks Service recovers</li>
  * <li>Records a single circuit breaker failure when a call exhausts all retries</li>
  * <li>Records a single circuit breaker failure when a downstream read times out</li>
+ * </ul>
  * <p>
  * A connect timeout is not covered separately:
+ * <ul>
  * <li>Requires a blackhole-socket complex setup.</li>
  * <li>It shares the read-timeout path (same I/O failure, retry, circuit breaker, degrade-to-empty) verified above.</li>
+ * </ul>
  */
 @SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = WebEnvironment.NONE)
 @Import(TestContainerConfiguration.class)
