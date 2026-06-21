@@ -1,7 +1,7 @@
 # Timeouts on the Tasks HTTP Client — Design
 
 **Date:** 2026-06-21
-**Status:** Draft
+**Status:** Implemented
 **Targets:** `asapp-users-service` (`RestClientConfiguration`, `application.properties` ×2, `ResilienceConfigurationIT`, docs)
 
 ---
@@ -390,3 +390,23 @@ retried + failed calls and, if sustained, a breaker state transition. The
 - Docs updated per §7; `.claude/rules` addendum prepared for the developer; TODO line 32
   ticked.
 - `mvn clean verify` is green.
+
+---
+
+## 11. Post-implementation notes
+
+This spec and its plan (`docs/superpowers/plans/2026-06-21-http-client-timeouts.md`) were written before implementation. The core change shipped substantially as designed — the hand-built JDK `HttpClient` in `RestClientConfiguration.httpServiceGroupConfigurer` was replaced by `ClientHttpRequestFactoryBuilder.jdk().build(httpClientSettings)` driven by property-bound `HttpClientSettings`, giving the tasks call connect/read timeouts that fold latency into the retry + circuit-breaker chain.
+
+The canonical implementation is the current state of `RestClientConfiguration`, the two `application.properties` files, `ResilienceConfigurationIT`, and `services/asapp-users-service/README.md` on this branch, not this document.
+
+Notable deltas:
+
+- **Property prefix is `spring.http.clients.*` (plural), not `spring.http.client.*` (reverses §2.1, §4, §10).** The spec wrote the prefix in the singular throughout, but the binding property in Boot 4.0.5 is the plural form. Shipped uniformly in the plural across `services/asapp-users-service/src/main/resources/application.properties`, `services/asapp-users-service/src/test/resources/application.properties`, the `RestClientConfiguration.httpServiceGroupConfigurer` Javadoc, the `ResilienceConfigurationIT` `@DynamicPropertySource` override (`spring.http.clients.read-timeout=500ms`), and the README property table. The three keys (`connect-timeout=1s`, `read-timeout=2s`, `redirects=dont-follow`) are otherwise exactly as designed.
+
+- **The timeout IT is named and shaped after its retry-inside-breaker sibling, not `DegradesToEmpty` (reverses §5, §10).** The spec proposed `DegradesToEmpty_DownstreamReadTimesOut` asserting an empty-list result plus three attempts plus one breaker failure. Shipped in `ResilienceConfigurationIT` as `RetriesInsideCircuitBreaker_DownstreamReadTimesOut`, asserting `circuitBreaker.getMetrics().getNumberOfFailedCalls() == 1` and exactly `MAX_ATTEMPTS` (3) downstream hits against a `withDelay(TimeUnit.SECONDS, 1)` stub — dropping the explicit empty-list assertion to mirror the existing `RetriesInsideCircuitBreaker_*` test it sits beside. Same proof (read timeout → ResourceAccessException → retried → one recorded failure), aligned naming.
+
+- **The users-service README Resilience section was restructured and the literal timeout values dropped (reverses §7).** The spec asked for a sentence stating "a 1s connect / 2s read timeout." Shipped in `services/asapp-users-service/README.md` as a restructured Resilience section: a layered ASCII stack diagram (Circuit Breaker → Retry → HTTP timeouts → Tasks service) with `#### Circuit breaker`, `#### Retry`, and `#### Timeout` subsections and a `spring.http.clients.*` property table. It describes the timeouts qualitatively and omits the literal `1s`/`2s` values, keeping them solely in `application.properties` as the single source of truth (per `.claude/rules/configuration.md`).
+
+- **The deliberate absence of a dedicated connect-timeout IT is documented in the test Javadoc (extends §5).** Beyond the spec, the `ResilienceConfigurationIT` class Javadoc now states why a connect timeout is not covered separately: it would need a blackhole-socket setup, and it shares the read-timeout path (same I/O failure → retry → breaker → degrade-to-empty) already verified. The existing resilience ITs were also reordered success-first per `.claude/rules/testing-*.md`.
+
+For future HTTP-client or resilience-config edits, treat `RestClientConfiguration`, the `spring.http.clients.*` entries in both `application.properties` files, `ResilienceConfigurationIT`, and the users-service README as the template; this spec is preserved as a record of the original design intent.
