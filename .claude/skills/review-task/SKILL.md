@@ -39,27 +39,26 @@ surfaces three kinds of findings: real **issues**, **missing/incomplete/improvab
 
 ## Process
 
-### Step 1: Locate, gather context, confirm ONCE
+### Step 1: Locate and determine review scope
 
-Do all of this up front, then present **one** confirmation. Do not review anything yet.
+Do all of this up front. Do not review anything yet.
 
-1. **Resolve the task** — turn the input (line number, or quoted/named text) into a single `TODO.md` entry. If ambiguous, show candidates and confirm.
-2. **Determine the review scope** — the files touched on the current branch: `git diff main...HEAD --name-only`. This is what the reviewers focus on (app-aware, but diff-centred).
-3. **Note supporting context** (paths only — do not open the files):
-   - **Spec** — `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md` matched to the task slug.
-   - **Plan** — `docs/superpowers/plans/YYYY-MM-DD-<slug>.md` matched to the task slug (may not exist).
-4. **Confirm** — present the task, the review scope (touched files/areas), and the matched spec/plan paths. Wait for the user to confirm or correct.
+1. **Resolve the task** — turn the input (line number, or quoted/named text) into a single `TODO.md` entry.
+2. **Determine the review scope** — the files touched on the current branch, **excluding the design docs**: `git diff main...HEAD --name-only -- . ':(exclude)docs/superpowers/**'`. This diff is the **anchor** for the review (see *Review depth* in Step 2).
+3. **Confirm only if in doubt** — if the task and review scope are unambiguous, state your read in one line and go straight to Step 2. **Stop and confirm only when the task match is genuinely ambiguous.** Don't over-ask.
 
-> **Never read the full spec or plan** — they are too big. Reviewers load only the slice they need.
+> **Ignore the design docs.** `docs/superpowers/` (spec and plan) is excluded from the review — do not review them or flag the spec as outdated or drifted from the code. That reconciliation happens at close (`close-task` adds the post-implementation notes).
 
 ### Step 2: Delegate the review — fan out, then consolidate
 
-Dispatch review subagents **in parallel** over the branch diff, each returning concise findings (not file dumps):
+Dispatch review subagents **in parallel** over the branch diff (design docs excluded), each returning concise findings (not file dumps):
 
-- **Always:** `code-reviewer` (line-level quality) **and** `architect-reviewer` (layering, design, drift from the spec).
+- **Always:** `code-reviewer` (line-level quality) **and** `architect-reviewer` (layering, design, structural concerns).
 - **Conditionally:** `security-auditor` — **only when security-relevant files changed**: auth or security config, JWT/token handling, filter chains, crypto, secrets, or new endpoints.
 
-Each reviewer classifies its findings into the three buckets (issue / missing-improvable / out-of-scope) and suggests a priority, effort, impact, and scope. Then **consolidate**: dedupe overlaps, merge into one list, assign each finding an `ID`.
+**Review depth — diff-anchored, looking outward as needed.** Each reviewer reads the **full content of the changed files** (not just the diff hunks) and follows into **directly-related code reachable from the diff** — callers, collaborators, the tests that cover the change, and the config it depends on — far enough to judge correctness and completeness. It is **not** a whole-repo audit: only what the diff reaches. This outward reach is what surfaces the *missing/incomplete* findings (an un-updated caller, an absent test, a config that should have changed).
+
+Tell every reviewer to **judge the code on its own merits** and to **ignore the spec and plan** — no "spec is outdated" or implementation-vs-spec drift findings. Each reviewer classifies its findings into the three buckets (issue / missing-improvable / out-of-scope) and suggests a priority, effort, impact, and scope. Then **consolidate**: dedupe overlaps, merge into one list, assign each finding an `ID`.
 
 ### Step 3: Present the prioritized table
 
@@ -123,8 +122,8 @@ Pick the **most specific** agent from `.claude/agents/`; `general-purpose` is a 
 
 - **Review and log only** — never change code, never commit, never push.
 - The **only file you may edit is `TODO.md`**, and only after the user selects findings.
-- **One up-front confirmation** (Step 1), then proceed.
-- **Never fully read the spec or plan** — reviewers load only the slice they need.
+- **Confirm in Step 1 only when the task match is in doubt** — otherwise state your read and proceed.
+- **Ignore the spec and plan** — exclude `docs/superpowers/` from review; never flag the spec as outdated or drifted (reconciled at close).
 - **Keep the main context clean** — delegate the review to subagents.
 - **Do not close the task or merge** — that is the user's manual step.
 
@@ -135,7 +134,7 @@ Pick the **most specific** agent from `.claude/agents/`; `general-purpose` is a 
 | Changing code or committing | This skill only reviews and logs; `resolve-review-issues` does the fixing. |
 | Editing `TODO.md` before the user selects | Present table → wait for selection → then log. |
 | Running one big review in the main session | Fan out to review subagents; consolidate; keep context clean. |
-| Reading the whole spec or plan | Reviewers load only the slice they need. |
+| Flagging the spec as outdated or drifted | Ignore the design docs; the spec is reconciled at close via post-implementation notes. |
 | Heavy jargon in the table or entries | One short plain sentence each — triage, not internals docs. |
 | Logging every finding | Log only the findings the user selected. |
 | Putting out-of-scope items under the task | Only in-scope goes under the task; out-of-scope goes to its section. |

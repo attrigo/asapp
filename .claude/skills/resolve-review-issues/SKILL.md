@@ -38,17 +38,17 @@ main context clean.
 
 ## Process
 
-### Step 1: Locate, gather context, confirm ONCE
+### Step 1: Locate and gather context
 
-Do all of this up front, then present **one** confirmation. Do not solution anything yet.
+Do all of this up front. Do not solution anything yet.
 
-1. **Resolve the task** — turn the input (line number, or quoted/named text) into a single `TODO.md` entry. If the match is ambiguous, show candidates and confirm.
+1. **Resolve the task** — turn the input (line number, or quoted/named text) into a single `TODO.md` entry.
 2. **Enumerate the issues** — read the bullets logged beneath the task. These are the review issues you added (distinct from the implementation subtasks — usually appended after them, or grouped under an `Issues:`/`Review:` label). List them in order; do **not** analyze them.
 3. **Auto-discover supporting context** (note paths only — do not open the files yet):
    - **Spec** — `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md` matched to the task slug.
    - **Plan** — `docs/superpowers/plans/YYYY-MM-DD-<slug>.md` matched to the task slug (may not exist).
    - **Commit range** — from `git log`, the contiguous block of recent commits implementing the task. Propose `<first>..<last>`.
-4. **Confirm** — present the task, the **ordered issue list**, the matched spec/plan paths, and the proposed commit range. Wait for the user to confirm or correct. This single confirmation replaces the manual fill-in-the-blanks.
+4. **Confirm only if in doubt** — if the task, issue list, spec/plan, and commit range are unambiguous, state your read in one line and go straight to Step 2.
 
 > **Never read the full spec or plan** — they are too big. Only their paths matter here; the relevant slice is loaded per-issue by the exploration subagent.
 
