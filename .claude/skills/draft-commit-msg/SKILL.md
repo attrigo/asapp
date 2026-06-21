@@ -1,10 +1,10 @@
 ---
-name: commit-msg
+name: draft-commit-msg
 description: >
   Generates a conventional commit message from session changes.
   Use when the user wants to generate a commit message, write a commit, draft a git commit,
   summarize changes for a commit, or asks what their commit message should say.
-  Triggers: /commit-msg, commit message, conventional commit, git message, summarize changes.
+  Triggers: /draft-commit-msg, commit message, conventional commit, git message, summarize changes.
   Do NOT use for actually committing, staging, or pushing code — this skill only generates message text.
 ---
 
@@ -14,7 +14,7 @@ Generate a conventional commit message based on changes made during this Claude 
 
 ## Usage
 
-- `/commit-msg` - Generate commit message from session changes
+- `/draft-commit-msg` - Generate commit message from session changes
 
 ## Conventional Commit Format
 
