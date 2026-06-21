@@ -75,7 +75,7 @@ public class RestClientConfiguration {
      * base-url host is called directly.
      *
      * @param loadBalancerInterceptor optional Eureka-aware load-balancer interceptor
-     * @param httpClientSettings      property-bound HTTP client settings carrying client configurations
+     * @param httpClientSettings      HTTP client settings bound from {@code spring.http.clients.*}, applied to the JDK request factory
      * @return the RestClient group configurer
      */
     @Bean
