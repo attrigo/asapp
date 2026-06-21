@@ -170,14 +170,22 @@ Shared  central-config/application.properties         (base)
 
 ### Resilience
 
-Outbound gateway calls pass through a Resilience4j **circuit breaker**:
+Outbound calls to the Tasks service run through a stack of Resilience4j **aspects**: a circuit breaker wrapping a retry — over an HTTP client with connect/read **timeouts**. The intent: a slow or failing Tasks service degrades to an empty task list instead of failing the user request.
 
-- Repeated 5xx or I/O failures open the breaker, which then fast-fails.
-- While open (or on any single downstream failure) the gateway degrades to an empty result, so the primary request still succeeds.
-- Client (4xx) errors do not count as failures and never trip the breaker.
-- Breaker state and metrics are exported to Prometheus and surfaced as a non-failing `/actuator/health` component.
+```
+Circuit Breaker          trips on sustained failure/latency, then fast-fails
+└─ Retry                 retries transient faults with backoff
+   └─ HTTP timeouts      connect/read deadlines on the call
+      └─ Tasks service
+```
 
-Tuning lives in `application.properties` under `resilience4j.circuitbreaker.instances.<name>.*`:
+#### Circuit breaker
+
+- Repeated 5xx, I/O failures, or sustained latency open the breaker, which then fast-fails.
+- While open (or on any single failure) the gateway degrades to an empty result, so the request still succeeds.
+- Client (4xx) errors never count as failures.
+
+Configured under `resilience4j.circuitbreaker.instances.<name>.*`:
 
 | Property                                              | Purpose                                             |
 |-------------------------------------------------------|-----------------------------------------------------|
@@ -191,15 +199,13 @@ Tuning lives in `application.properties` under `resilience4j.circuitbreaker.inst
 | `allow-health-indicator-to-fail`                      | Whether an open breaker marks health DOWN           |
 | `ignore-exceptions`                                   | Exceptions that don't count as failures             |
 
-The same gateway calls are also wrapped in a Resilience4j **retry**, nested **inside** the circuit breaker:
+#### Retry
 
-- Transient 5xx or I/O failures are retried with exponential backoff before the breaker sees a failure, so a momentary blip recovers transparently.
-- An exhausted-retry call counts as a **single** breaker failure, so sustained failure still trips it.
-- An open breaker fast-fails before any retry runs.
+- Transient 5xx, I/O, or timeout faults are retried with exponential backoff, so a momentary blip recovers transparently.
+- An exhausted retry counts as a single breaker failure; an open breaker fast-fails before any retry runs.
 - Client (4xx) errors are not retried.
-- Retry metrics are exported to Prometheus (`resilience4j.retry.calls`) and exposed at the `/actuator/retries` and `/actuator/retryevents` endpoints.
 
-Tuning lives in `application.properties` under `resilience4j.retry.instances.<name>.*`:
+Configured under `resilience4j.retry.instances.<name>.*`:
 
 | Property                         | Purpose                                                      |
 |----------------------------------|--------------------------------------------------------------|
@@ -209,7 +215,21 @@ Tuning lives in `application.properties` under `resilience4j.retry.instances.<na
 | `exponential-backoff-multiplier` | Factor the delay grows by on each retry                      |
 | `retry-exceptions`               | Exception types that trigger a retry                         |
 
-The breaker is pinned as the outer aspect by swapping the two aspect orders (`resilience4j.circuitbreaker.circuit-breaker-aspect-order` below `resilience4j.retry.retry-aspect-order`).
+#### Timeout
+
+- Connect and read deadlines bound how long an outbound call can block.
+- A slow downstream hits the read timeout and surfaces as a transient I/O failure, handled like any other fault.
+- Redirects are disabled, so the client never silently follows a 3xx.
+
+Configured under `spring.http.clients.*`:
+
+| Property                              | Purpose                                       |
+|---------------------------------------|-----------------------------------------------|
+| `spring.http.clients.connect-timeout` | How long to wait to establish the connection  |
+| `spring.http.clients.read-timeout`    | How long to wait for the response             |
+| `spring.http.clients.redirects`       | Whether the client follows HTTP redirects     |
+
+State and metrics surface via Prometheus and the `/actuator/health`, `/actuator/retries`, and `/actuator/retryevents` endpoints.
 
 ### Project Structure
 
