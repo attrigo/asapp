@@ -172,7 +172,7 @@ Shared  central-config/application.properties         (base)
 
 Outbound gateway calls pass through a Resilience4j **circuit breaker**:
 
-- Repeated 5xx or I/O failures open the breaker, which then fast-fails.
+- Repeated 5xx, I/O failures, or sustained latency open the breaker, which then fast-fails.
 - While open (or on any single downstream failure) the gateway degrades to an empty result, so the primary request still succeeds.
 - Client (4xx) errors do not count as failures and never trip the breaker.
 - Breaker state and metrics are exported to Prometheus and surfaced as a non-failing `/actuator/health` component.
