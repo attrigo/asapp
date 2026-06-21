@@ -138,25 +138,6 @@ class ResilienceConfigurationIT {
     }
 
     @Test
-    void OpensCircuit_ServerErrorsExceedFailureThreshold() {
-        // Given
-        var userId = aUser().getId();
-        var request = request().withMethod(HttpMethod.GET.name())
-                               .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
-                                                                                              .toString()));
-
-        openCircuit(userId, request);
-
-        // When
-        tasksGateway.getTaskIdsByUserId(userId);
-
-        // Then
-        assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.OPEN);
-
-        mockServerClient.verify(request, exactly(MINIMUM_NUMBER_OF_CALLS * MAX_ATTEMPTS));
-    }
-
-    @Test
     void KeepsCircuitClosed_ClientErrorsExceedFailureThreshold() {
         // Given
         var userId = aUser().getId();
@@ -175,6 +156,31 @@ class ResilienceConfigurationIT {
         assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
 
         mockServerClient.verify(request, exactly(MINIMUM_NUMBER_OF_CALLS));
+    }
+
+    @Test
+    void RetriesCall_TransientDownstreamServerErrors() {
+        // Given
+        var userId = aUser().getId();
+        var request = request().withMethod(HttpMethod.GET.name())
+                               .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
+                                                                                              .toString()));
+
+        mockServerClient.when(request, Times.exactly(2))
+                        .respond(response().withStatusCode(500));
+        mockServerClient.when(request)
+                        .respond(response().withStatusCode(200)
+                                           .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                           .withBody("[]"));
+
+        // When
+        tasksGateway.getTaskIdsByUserId(userId);
+
+        // Then
+        assertThat(circuitBreaker.getMetrics()
+                                 .getNumberOfSuccessfulCalls()).isEqualTo(1);
+
+        mockServerClient.verify(request, exactly(3));
     }
 
     @Test
@@ -206,28 +212,22 @@ class ResilienceConfigurationIT {
     }
 
     @Test
-    void RetriesCall_TransientDownstreamServerErrors() {
+    void OpensCircuit_ServerErrorsExceedFailureThreshold() {
         // Given
         var userId = aUser().getId();
         var request = request().withMethod(HttpMethod.GET.name())
                                .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
                                                                                               .toString()));
 
-        mockServerClient.when(request, Times.exactly(2))
-                        .respond(response().withStatusCode(500));
-        mockServerClient.when(request)
-                        .respond(response().withStatusCode(200)
-                                           .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-                                           .withBody("[]"));
+        openCircuit(userId, request);
 
         // When
         tasksGateway.getTaskIdsByUserId(userId);
 
         // Then
-        assertThat(circuitBreaker.getMetrics()
-                                 .getNumberOfSuccessfulCalls()).isEqualTo(1);
+        assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.OPEN);
 
-        mockServerClient.verify(request, exactly(3));
+        mockServerClient.verify(request, exactly(MINIMUM_NUMBER_OF_CALLS * MAX_ATTEMPTS));
     }
 
     @Test
