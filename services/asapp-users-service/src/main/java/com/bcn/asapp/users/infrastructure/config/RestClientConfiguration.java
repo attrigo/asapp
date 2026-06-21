@@ -16,10 +16,11 @@
 
 package com.bcn.asapp.users.infrastructure.config;
 
-import java.net.http.HttpClient;
 import java.util.Set;
 
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder;
+import org.springframework.boot.http.client.HttpClientSettings;
 import org.springframework.boot.restclient.autoconfigure.RestClientBuilderConfigurer;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerInterceptor;
 import org.springframework.cloud.netflix.eureka.TimeoutProperties;
@@ -27,7 +28,6 @@ import org.springframework.cloud.netflix.eureka.http.DefaultEurekaClientHttpRequ
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
-import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.support.RestClientHttpServiceGroupConfigurer;
 
@@ -68,7 +68,8 @@ public class RestClientConfiguration {
      * <p>
      * Applies to each client, in order:
      * <ol>
-     * <li>A redirect-disabled JDK request factory.</li>
+     * <li>A JDK request factory built from the property-bound {@link HttpClientSettings} (connect/read timeouts and redirect handling come from {@code
+     * spring.http.clients.*}).</li>
      * <li>The {@link JwtInterceptor}, which propagates the caller's bearer token to the downstream call.</li>
      * <li>The {@link LoadBalancerInterceptor}, when one is available.</li>
      * </ol>
@@ -78,14 +79,15 @@ public class RestClientConfiguration {
      * (e.g. in tests), the configured base-url host is called directly.
      *
      * @param loadBalancerInterceptor provider for the optional Spring Cloud load-balancer interceptor that resolves Eureka service ids to instances
+     * @param httpClientSettings      the property-bound HTTP client settings ({@code spring.http.clients.*}) carrying connect/read timeouts and redirect
+     *                                handling
      * @return the group configurer for RestClient-backed HTTP services
      */
     @Bean
-    RestClientHttpServiceGroupConfigurer httpServiceGroupConfigurer(ObjectProvider<LoadBalancerInterceptor> loadBalancerInterceptor) {
-        var httpClient = HttpClient.newBuilder()
-                                   .followRedirects(HttpClient.Redirect.NEVER)
-                                   .build();
-        var requestFactory = new JdkClientHttpRequestFactory(httpClient);
+    RestClientHttpServiceGroupConfigurer httpServiceGroupConfigurer(ObjectProvider<LoadBalancerInterceptor> loadBalancerInterceptor,
+            HttpClientSettings httpClientSettings) {
+        var requestFactory = ClientHttpRequestFactoryBuilder.jdk()
+                                                            .build(httpClientSettings);
 
         return groupConfigurer -> groupConfigurer.forEachClient((_, clientBuilder) -> {
             clientBuilder.requestFactory(requestFactory)

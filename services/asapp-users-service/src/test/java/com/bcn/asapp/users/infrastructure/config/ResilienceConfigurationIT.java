@@ -29,6 +29,7 @@ import static org.mockserver.verify.VerificationTimes.exactly;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
 import java.time.Duration;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.AfterAll;
@@ -68,6 +69,7 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
  * <li>Closes the circuit once the downstream service is healthy again</li>
  * <li>Retries transient server errors (5xx) until the Tasks Service recovers</li>
  * <li>Records a single circuit breaker failure when a call exhausts all retries</li>
+ * <li>Records a single circuit breaker failure when a downstream read times out</li>
  */
 @SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = WebEnvironment.NONE)
 @Import(TestContainerConfiguration.class)
@@ -86,6 +88,7 @@ class ResilienceConfigurationIT {
         registry.add("spring.http.serviceclient.tasks.base-url", () -> "http://localhost:" + embeddedMockServer.getPort());
         registry.add("resilience4j.circuitbreaker.instances.tasks.wait-duration-in-open-state", () -> "1s");
         registry.add("resilience4j.retry.instances.tasks.max-attempts", () -> String.valueOf(MAX_ATTEMPTS));
+        registry.add("spring.http.clients.read-timeout", () -> "500ms");
     }
 
     @Autowired
@@ -242,6 +245,30 @@ class ResilienceConfigurationIT {
                                  .getNumberOfFailedCalls()).isEqualTo(1);
 
         mockServerClient.verify(request, exactly(3));
+    }
+
+    @Test
+    void RetriesInsideCircuitBreaker_DownstreamReadTimesOut() {
+        // Given
+        var userId = aUser().getId();
+        var request = request().withMethod(HttpMethod.GET.name())
+                               .withPath(TASKS_GET_BY_USER_ID_FULL_PATH.replace("{id}", userId.value()
+                                                                                              .toString()));
+
+        mockServerClient.when(request)
+                        .respond(response().withStatusCode(200)
+                                           .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+                                           .withBody("[]")
+                                           .withDelay(TimeUnit.SECONDS, 1));
+
+        // When
+        tasksGateway.getTaskIdsByUserId(userId);
+
+        // Then
+        assertThat(circuitBreaker.getMetrics()
+                                 .getNumberOfFailedCalls()).isEqualTo(1);
+
+        mockServerClient.verify(request, exactly(MAX_ATTEMPTS));
     }
 
     private void openCircuit(UserId userId, HttpRequest request) {
