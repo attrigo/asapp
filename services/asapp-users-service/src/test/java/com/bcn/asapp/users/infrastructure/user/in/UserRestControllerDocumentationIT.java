@@ -52,6 +52,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 
@@ -120,7 +121,43 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                    fieldWithPath("lastName").description("The user's last name"),
                                    fieldWithPath("email").description("The user's email address"),
                                    fieldWithPath("phoneNumber").description("The user's phone number"),
-                                   fieldWithPath("taskIds").description("The identifiers of tasks associated with the user")
+                                   fieldWithPath("taskIds").description("The identifiers of tasks associated with the user, or null when tasks-service is unavailable"),
+                                   fieldWithPath("warnings").description("Machine-readable degradation codes (e.g. tasks_unavailable); omitted when none").type(JsonFieldType.ARRAY).optional()
+                           )
+                       )
+                       // @formatter:on
+                   );
+        }
+
+        @Test
+        void DocumentsGetUserById_TasksUnavailable() throws Exception {
+            // Given
+            var user = aUser();
+            var userIdValue = user.getId()
+                                  .value();
+            var response = new GetUserByIdResponse(userIdValue, user.getFirstName()
+                                                                    .value(),
+                    user.getLastName()
+                        .value(),
+                    user.getEmail()
+                        .value(),
+                    user.getPhoneNumber()
+                        .value(),
+                    null, List.of("tasks_unavailable"));
+
+            given(readUserUseCase.getUserById(any(UUID.class))).willReturn(Optional.of(UserWithTasksResult.unavailable(user)));
+            given(userMapper.toGetUserByIdResponse(any(UserWithTasksResult.class))).willReturn(response);
+
+            // When & Then
+            mockMvc.perform(get(USERS_GET_BY_ID_FULL_PATH, userIdValue).accept(APPLICATION_JSON)
+                                                                       .header(AUTHORIZATION, "Bearer sample.access.token"))
+                   .andExpect(status().isOk())
+                   .andDo(
+                   // @formatter:off
+                       document("get-user-by-id-tasks-unavailable",
+                           relaxedResponseFields(
+                                   fieldWithPath("taskIds").description("Null because tasks-service is unavailable").type(JsonFieldType.ARRAY).optional(),
+                                   fieldWithPath("warnings").description("Machine-readable degradation codes; contains tasks_unavailable")
                            )
                        )
                        // @formatter:on
