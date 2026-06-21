@@ -70,6 +70,10 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
  * <li>Retries transient server errors (5xx) until the Tasks Service recovers</li>
  * <li>Records a single circuit breaker failure when a call exhausts all retries</li>
  * <li>Records a single circuit breaker failure when a downstream read times out</li>
+ * <p>
+ * A connect timeout is not covered separately:
+ * <li>Requires a blackhole-socket complex setup.</li>
+ * <li>It shares the read-timeout path (same I/O failure, retry, circuit breaker, degrade-to-empty) verified above.</li>
  */
 @SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = WebEnvironment.NONE)
 @Import(TestContainerConfiguration.class)
