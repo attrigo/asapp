@@ -23,9 +23,9 @@
     * JSON Naming
         * [X] Enforce request/response camelCase globally
     * Load Tests via JMeter
-        * [X] Add regression test 
+        * [X] Add regression test
         * [X] Add stress test
-    * Improve HTTP clients 
+    * Improve HTTP clients
         * [X] Refactor REST clients by declarative HTTP clients
         * [X] Use circuit breaker pattern
         * [X] Use retry pattern
@@ -34,41 +34,44 @@
         * [X] Rename library asapp-rest-clients to asapp-http-clients
     * Profiles
         * [X] Introduce explicit dev and prod profiles to gate dev-only tooling and align with docker/native
-* Test
-    * [ ] Rewrite asserts to use extracting() whenever possible
-    * [ ] Rewrite E2EIT to assert Json instead of Java DTOs
-* CI/CD
-    * [X] Update commit-msg skill to include a bulleted body in generated commit messages
-    * [X] ~~Change commit-msg to perform all operations in a dedicated agent and then response with the message~~
-* Tools
-    * [X] Support fixup! commits in the commit-msg git hook
-    * [ ] Make commit-msg git hook compatible with Linux (WSDL) 
-* Docs
-    * [ ] Remove all reference to "docs/guidelines/" from README 
-    * [ ] Add missing reference to Boot-UI
-    * [ ] Add Setup section to Javadocs of all test classes
-    * [ ] Add Javadoc to all custom public constructors to recommend use factory methods
-    * [ ] Synchronize api-guide.adoc files with OpenApi docs
-* AI Code Assistant
-    * [ ] Create custom Skill to review a task
-    * [ ] Create custom Skill to resolve identified issues
-    * [ ] Create custom Skill to close a task
+    * Other
+        * [ ] Rename all references from com.bcn to com.attrigo
+    * Test
+        * [ ] Rewrite asserts to use extracting() whenever possible
+        * [ ] Rewrite E2EIT to assert Json instead of Java DTOs
+    * CI/CD
+        * [X] Update commit-msg skill to include a bulleted body in generated commit messages
+        * [X] ~~Change commit-msg to perform all operations in a dedicated agent and then response with the message~~
+    * Tools
+        * [X] Support fixup! commits in the commit-msg git hook
+        * [ ] Make commit-msg git hook compatible with Linux (WSDL)
+    * Docs
+        * [ ] Remove all reference to "docs/guidelines/" from README
+        * [ ] Add missing reference to Boot-UI in README
+        * [ ] Add Setup section to Javadocs of all test classes
+        * [ ] Add Javadoc to all custom public constructors to recommend use factory methods
+        * [ ] Synchronize api-guide.adoc files with OpenApi docs
+    * AI Code Assistant
+        * [X] Create custom Skill to review a task
+        * [X] Create custom Skill to resolve identified issues
+        * [X] Create custom Skill to close a task
 
 ### Analyze
 
-* [X] ~~Replace Liquibase by Flyway~~ — Rejected: Flyway is SQL-dialect-first and would couple persistence to PostgreSQL; Liquibase's database-agnostic change abstraction is the deciding factor. Follow-up captured under Database → Database Migrations.
+* [X] ~~Replace Liquibase by Flyway~~ — Rejected: Flyway is SQL-dialect-first and would couple persistence to PostgreSQL; Liquibase's database-agnostic change
+  abstraction is the deciding factor. Follow-up captured under Database → Database Migrations.
 
 ---
 
-## Version 0.6.0
+## Version 0.5.0
 
 ### Goal - Tech upgrade
 
 * [ ] Replace Maven by Gradle
 * [ ] Create Skills to automatize the project's tech upgrades
     * [ ] Create Skill to upgrade Spring Boot and dependencies version
-       * Check for Migration guides
-       * Produce a design file (kind of superpowers brainstorming)
+        * Check for Migration guides
+        * Produce a design file (kind of superpowers brainstorming)
     * [ ] Create Skill to upgrade Java version
     * [ ] Create Skill to upgrade infrastructure version (Gradle version/wrapper, Docker images, GitHub actions, etc)
 * [ ] Upgrade Spring Boot version to 4.1
@@ -87,15 +90,15 @@
 
 ---
 
-## Version 0.7.0
+## Version 0.6.0
 
 ### Goal - Introduce Event-Driven Design
 
 * [ ] Send a confirmation notification on user creation
-   * [ ] Publish an event when a user is created
-   * [ ] React to user creation by sending a confirmation notification
-   * [ ] Keep user creation unaffected by notification failures
-   * [ ] Retry failed notification deliveries
+    * [ ] Publish an event when a user is created
+    * [ ] React to user creation by sending a confirmation notification
+    * [ ] Keep user creation unaffected by notification failures
+    * [ ] Retry failed notification deliveries
 
 ### Quick Wins
 
@@ -103,16 +106,16 @@
 
 ---
 
-## Version 0.8.0
+## Version 0.7.0
 
 ### Goal - Setup OAuth2
 
 * [ ] Introduce OAuth2 authentication
-   * [ ] Stand up an OAuth2 authorization server
-   * [ ] Support user login and service-to-service token flows
-   * [ ] Secure services as OAuth2 resource servers
-   * [ ] Retire the custom JWT authentication
-   * [ ] Document the OAuth2 authentication flow
+    * [ ] Stand up an OAuth2 authorization server
+    * [ ] Support user login and service-to-service token flows
+    * [ ] Secure services as OAuth2 resource servers
+    * [ ] Retire the custom JWT authentication
+    * [ ] Document the OAuth2 authentication flow
 
 ### Quick Wins
 
@@ -121,33 +124,34 @@
 
 ---
 
-## Version 0.9.0
+## Version 0.8.0
 
 ### Goal - Adopt Modulith with Domain Events & CQRS
 
 * [ ] Introduce modularization with Spring Modulith (ArchUnit & JMolecules)
-   * [ ] Add an ArchUnit/test asserting every request DTO `@JsonProperty` value equals the camelCase of its Java component name (already enforced per service by `JsonNamingConventionTest`; fold into the Modulith ArchUnit suite)
+    * [ ] Add an ArchUnit/test asserting every request DTO `@JsonProperty` value equals the camelCase of its Java component name (already enforced per service
+      by `JsonNamingConventionTest`; fold into the Modulith ArchUnit suite)
 * [ ] Adopt domain events following DDD principles
-   * [ ] Handle domain CUD operations via events
-   * [ ] Use CQRS pattern
-   * [ ] Externalize domain events to RabbitMQ for cross-service synchronization
+    * [ ] Handle domain CUD operations via events
+    * [ ] Use CQRS pattern
+    * [ ] Externalize domain events to RabbitMQ for cross-service synchronization
 
 ---
 
-## Version 0.10.0
+## Version 0.9.0
 
 ### Goal - Modularize with custom Starters
 
 * [ ] Create custom architecture based on Spring starters
-   * [ ] Create custom starter for Web
-   * [ ] Create custom starter for Security
-   * [ ] Create custom starter for Data
-   * [ ] Create custom starter for Observability
-   * [ ] Create custom starter for Testing
+    * [ ] Create custom starter for Web
+    * [ ] Create custom starter for Security
+    * [ ] Create custom starter for Data
+    * [ ] Create custom starter for Observability
+    * [ ] Create custom starter for Testing
 
 ---
 
-## Version 0.11.0
+## Version 0.10.0
 
 ### Goal - Enforce Cross-Service Data Consistency
 
@@ -158,7 +162,7 @@
 
 ---
 
-## Version 0.12.0
+## Version 0.11.0
 
 ### Goal - Improve testing
 
@@ -244,7 +248,6 @@
 * Support patch version releases in the release skill
 
 #### Infrastructure
-
 
 #### Tools
 
