@@ -44,3 +44,11 @@ paths:
 - Validation errors extend `ProblemDetail` with a `fieldErrors` property containing a list of `RequestValidationError(field, message)`
 - Always set `title` and `detail` via `ProblemDetail.forStatusAndDetail(...)`
 - 5xx responses in `GlobalExceptionHandler` add `"critical": true` to `ProblemDetail` for monitoring alerts
+
+## Partial Success / Degraded Responses
+
+- When an endpoint enriches its primary resource with a **non-critical** secondary source and that source is unavailable, return `200` with the primary data and signal the degradation — never silently return an empty/default value, never fail the whole request for a soft dependency
+- Signal via an optional `warnings` array of machine-readable string codes (e.g. `tasks_unavailable`); omit the field on the happy path (`@JsonInclude(NON_EMPTY)`)
+- The unavailable field is `null` (not `[]`/`0`) so it stays distinguishable from a genuine empty value
+- Warning codes name the missing **data**, never internal services/topology — consistent with the error handler's no-internal-disclosure stance
+- The degrade-vs-fail decision (soft vs hard dependency) is an application-service policy, not an adapter concern — see `ports-adapters.md`

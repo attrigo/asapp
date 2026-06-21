@@ -47,6 +47,7 @@ paths:
 - Only translate infrastructure exceptions into application exceptions when the application service needs to catch them (e.g., `TokenStoreException`). Everything else propagates to `GlobalExceptionHandler` or Spring Security filters
 - Never wrap `BadCredentialsException` or Spring's `AuthenticationException` subtypes — Spring Security filters run before `DispatcherServlet`; wrapping breaks the filter chain
 - Exception placement: directly in the functional package (e.g., `application/authentication/`)
+- Resilience policy split: the adapter owns the *mechanism* (circuit breaker, retry, timeout) and translates a downstream outage into a typed gateway exception (e.g. `TasksUnavailableException`); the *degrade-vs-fail policy* belongs in the application service that catches it.
 - Exception hierarchy:
 
 | Type | Extends | Location | Example |
