@@ -1,10 +1,9 @@
 ---
 name: review-task
 description: >
-  Performs a final, delegated review of a task's branch and logs the chosen findings into TODO.md,
-  before the task is closed.
-  Use when the implementation and your earlier fix pass for a TODO.md task are done and you want a fresh,
-  thorough review of the current branch — surfacing bugs, gaps, and improvement ideas — before closing it.
+  Use when the implementation and your earlier fix pass for a TODO.md task are done and you want a
+  fresh, thorough review of the current branch — surfacing bugs, gaps, and improvement ideas — before
+  closing it.
   Triggers: /review-task, final review, review the branch before closing, review the current status of
   the app, find issues and improvements before I close this task, audit the changes.
   Do NOT use to fix or commit anything (it only reviews and logs — use resolve-review-issues to fix the
@@ -14,28 +13,19 @@ description: >
 
 # Review Task
 
-The final review gate before you close a task. Delegate a thorough review of the
-current branch, present **one** prioritized findings table, then log the findings you pick into
-`TODO.md`. Pairs with `resolve-review-issues`, which fixes the in-scope findings afterwards.
+The final review gate before a task closes. Delegate a thorough review of the current branch to
+subagents, present **one** prioritized findings table, then log the findings you select into `TODO.md`.
 
-**Core principle:** this skill **reviews and logs only** — it changes **no code** and makes **no
-commits**. The only file it edits is `TODO.md`, and only after you select which findings to keep. It
-surfaces three kinds of findings: real **issues**, **missing/incomplete/improvable** work, and
-**out-of-scope ideas** for later.
+**Core principle:** review and log **only** — change no code, make no commits. The only file you
+edit is `TODO.md`, and only after the user selects findings. Surface three kinds: real **issues**,
+**missing/incomplete/improvable** work, and **out-of-scope ideas** for later. `resolve-review-issues`
+fixes the in-scope findings afterwards.
 
 ## Usage
 
 - `/review-task <line-number>` — review the branch for the task at that line of `TODO.md`
 - `/review-task <quoted or named task>` — locate the matching task, then review
 - `/review-task` (no argument) — ask which task
-
-## This skill is NOT
-
-- **Not a fixer** — it logs findings; use `resolve-review-issues` to resolve them (your point 9).
-- **Not your manual first review** — this is the delegated *final* pass before close.
-- **Not task decomposition** — to split or rewrite a backlog entry, use `refine-task`.
-- **Not a PR reviewer** — for an external pull request, use the PR review tools.
-- **Never changes code and never commits or pushes.**
 
 ## Process
 
@@ -47,8 +37,6 @@ Do all of this up front. Do not review anything yet.
 2. **Determine the review scope** — the files touched on the current branch, **excluding the design docs**: `git diff main...HEAD --name-only -- . ':(exclude)docs/superpowers/**'`. This diff is the **anchor** for the review (see *Review depth* in Step 2).
 3. **Confirm only if in doubt** — if the task and review scope are unambiguous, state your read in one line and go straight to Step 2. **Stop and confirm only when the task match is genuinely ambiguous.** Don't over-ask.
 
-> **Ignore the design docs.** `docs/superpowers/` (spec and plan) is excluded from the review — do not review them or flag the spec as outdated or drifted from the code. That reconciliation happens at close (`close-task` adds the post-implementation notes).
-
 ### Step 2: Delegate the review — fan out, then consolidate
 
 Dispatch review subagents **in parallel** over the branch diff (design docs excluded), each returning concise findings (not file dumps):
@@ -56,9 +44,19 @@ Dispatch review subagents **in parallel** over the branch diff (design docs excl
 - **Always:** `code-reviewer` (line-level quality) **and** `architect-reviewer` (layering, design, structural concerns).
 - **Conditionally:** `security-auditor` — **only when security-relevant files changed**: auth or security config, JWT/token handling, filter chains, crypto, secrets, or new endpoints.
 
-**Review depth — diff-anchored, looking outward as needed.** Each reviewer reads the **full content of the changed files** (not just the diff hunks) and follows into **directly-related code reachable from the diff** — callers, collaborators, the tests that cover the change, and the config it depends on — far enough to judge correctness and completeness. It is **not** a whole-repo audit: only what the diff reaches. This outward reach is what surfaces the *missing/incomplete* findings (an un-updated caller, an absent test, a config that should have changed).
+**Review depth — diff-anchored:**
 
-Tell every reviewer to **judge the code on its own merits** and to **ignore the spec and plan** — no "spec is outdated" or implementation-vs-spec drift findings. Each reviewer classifies its findings into the three buckets (issue / missing-improvable / out-of-scope) and suggests a priority, effort, impact, and scope. Then **consolidate**: dedupe overlaps, merge into one list, assign each finding an `ID`.
+- Read the **full changed files**, not just the diff hunks.
+- Follow outward only into code the diff reaches — callers, collaborators, covering tests, dependent config — enough to judge correctness and completeness. Not a whole-repo audit.
+- This outward reach surfaces the *missing/incomplete* findings: an un-updated caller, an absent test, a config that should have changed.
+
+Tell every reviewer to:
+
+- **Judge the code on its own merits** — ignore the spec and plan; no "spec is outdated" or drift findings.
+- **Classify each finding** into one of the three buckets (issue / missing-improvable / out-of-scope).
+- **Suggest** a priority, effort, impact, and scope per finding.
+
+Then **consolidate** the returns: dedupe overlaps, merge into one list, assign each an `ID`.
 
 ### Step 3: Present the prioritized table
 
@@ -77,32 +75,29 @@ Ask the user which findings to log (`AskUserQuestion` or a clear numbered list).
 
 ### Step 5: Log the selected findings to `TODO.md`
 
-Log **only the selected findings** — this is the only file write.
+Log **only the selected findings**.
 
-- **In scope** → new `* [ ] <finding>` child bullets directly under the task entry, after its existing subtasks, matching indentation. This is exactly the format `resolve-review-issues` reads.
-- **Out of scope** → the most appropriate existing section/subsection (e.g. `Security`, `Observability`, `Tech`, `CI/CD`, `Tools`, `Doc`, or the relevant version). If no fitting section exists, **propose a new section and confirm before creating it.**
+- **In scope** → a plain `*` bullet nested one level under the subtask it concerns:
+
+  ```markdown
+  * <main task>
+      * [ ] <subtask the finding concerns>
+          * <in-scope finding>
+  ```
+
+- **Out of scope** → a normal entry in the most appropriate existing section (e.g. `Security`, `Observability`, `Tech`, `CI/CD`, `Tools`, `Doc`, or the relevant version); if none fits, **propose a new section and confirm before creating it**:
+
+  ```markdown
+  ### <Section>
+  * <out-of-scope finding>
+  ```
+
 - Word each entry like `refine-task` conventions: imperative, ~10 words, plain language, sentence case, no trailing period. Preserve file structure; touch only the relevant spots.
 
 ### Step 6: Wrap-up
 
 - Summarize what was logged and where (in-scope under the task; out-of-scope → which sections).
 - Remind the user: nothing was committed; next is `resolve-review-issues` to fix the in-scope findings, then their manual close (merge, etc.).
-
-## TODO insertion patterns
-
-In scope — under the task:
-```markdown
-* <task>
-    * [X] <existing subtask>
-    * [ ] <new in-scope finding>
-```
-
-Out of scope — existing or new section:
-```markdown
-### <Section>
-* <existing entry>
-* <new out-of-scope finding>
-```
 
 ## Delegation & tools — quick reference
 
@@ -131,12 +126,7 @@ Pick the **most specific** agent from `.claude/agents/`; `general-purpose` is a 
 
 | Mistake | Fix |
 |---------|-----|
-| Changing code or committing | This skill only reviews and logs; `resolve-review-issues` does the fixing. |
 | Editing `TODO.md` before the user selects | Present table → wait for selection → then log. |
-| Running one big review in the main session | Fan out to review subagents; consolidate; keep context clean. |
-| Flagging the spec as outdated or drifted | Ignore the design docs; the spec is reconciled at close via post-implementation notes. |
-| Heavy jargon in the table or entries | One short plain sentence each — triage, not internals docs. |
-| Logging every finding | Log only the findings the user selected. |
 | Putting out-of-scope items under the task | Only in-scope goes under the task; out-of-scope goes to its section. |
-| Creating a new section silently | Propose and confirm a new section before adding to it. |
-| Closing or merging the task at the end | That is the user's manual step. |
+| Creating a new section silently | Propose and confirm before adding to it. |
+| Heavy jargon in the table or entries | One short plain sentence each — triage, not internals docs. |
