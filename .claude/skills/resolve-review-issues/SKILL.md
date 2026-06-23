@@ -87,7 +87,11 @@ For the current issue:
 - **b. Explore (delegate)** — dispatch a subagent to investigate the involved code, the relevant commits from the range, and **only the relevant slice** of the spec/plan. Pick the most specific agent. It returns a concise findings report — not file dumps.
 - **c. Propose** — from the findings, propose one or several solutions **with a recommended one**, via `AskUserQuestion`. Name the trade-offs briefly.
 - **d. Wait** — wait for the user's choice. **Do not modify any file before this.**
-- **e. Apply (delegate)** — dispatch the most specific specialist subagent to apply the chosen fix. Follow `.claude/rules/` and TDD where code is involved. Use IntelliJ MCP for IDE-grade operations (safe rename refactor, reformat, inspections) when appropriate.
+- **e. Apply** — how you apply depends on whether the fix changes runtime behavior:
+  - **Behavioral fix** (bug fix, logic change, new validation or edge case): **drive `superpowers:test-driven-development` from the main context** — it owns the RED→GREEN→refactor loop and its checkpoints. The TDD skill delegates the small concrete steps — authoring the failing test, then the production fix — to the most specific specialist subagent.
+  - **Non-behavioral fix** (docs, comments, formatting, config without logic, pure rename): dispatch the most specific specialist subagent to apply the change directly.
+  - Always follow `.claude/rules/`.
+  - Use IntelliJ MCP for IDE-grade operations (safe rename refactor, reformat, inspections) when appropriate.
 - **f. Review & approve** — show the user what changed (diff/summary). Wait for approval. If changes are requested, iterate (back to **e**) before committing.
 - **g. Commit** — build the message with the `draft-commit-msg` skill, then commit **only this issue's changes**. One issue = one commit. Then remove the resolved issue bullet from `TODO.md`.
 - **h. Continue** — move to the next issue. Repeat until none remain.
@@ -118,7 +122,7 @@ Pick the **most specific** agent from `.claude/agents/`; `general-purpose` is a 
 - **Never modify a file until the user approves the chosen solution** for the current issue.
 - **One issue at a time** — Step 1 only *enumerates* the issues; never analyze or propose solutions for all of them up front.
 - **Never fully read the spec or plan** — load only the slice an issue needs, via the exploration subagent.
-- **Keep the main context clean** — delegate both exploration and fixes to subagents.
+- **Keep the main context clean** — delegate exploration and fix authoring to subagents; the main context orchestrates.
 - **One issue → one commit**, message built with `draft-commit-msg`.
 - **Do not close the parent task or merge** — that is the user's manual step.
 
