@@ -67,6 +67,7 @@ import com.bcn.asapp.users.infrastructure.user.in.response.GetAllUsersResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUserByIdResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUsersByIdsResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
+import com.bcn.asapp.users.infrastructure.user.in.response.WarningDetail;
 import com.bcn.asapp.users.testutil.RestDocsConstrainedFields;
 import com.bcn.asapp.users.testutil.RestDocsWebMvcTestContext;
 
@@ -121,8 +122,12 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                    fieldWithPath("lastName").description("The user's last name"),
                                    fieldWithPath("email").description("The user's email address"),
                                    fieldWithPath("phoneNumber").description("The user's phone number"),
-                                   fieldWithPath("taskIds").description("The identifiers of tasks associated with the user, or null when tasks-service is unavailable"),
-                                   fieldWithPath("warnings").description("Machine-readable degradation codes (e.g. tasks_unavailable); omitted when none").type(JsonFieldType.ARRAY).optional()
+                                   fieldWithPath("taskIds").description("The identifiers of tasks associated with the user; empty when tasks-service is unavailable"),
+                                   fieldWithPath("warnings").description("Structured degradation warnings; omitted when none").type(JsonFieldType.ARRAY).optional(),
+                                   fieldWithPath("warnings[].code").description("Machine-readable code identifying the degradation type (e.g. tasks_unavailable)").type(JsonFieldType.STRING).optional(),
+                                   fieldWithPath("warnings[].field").description("The response field affected by the degradation").type(JsonFieldType.STRING).optional(),
+                                   fieldWithPath("warnings[].message").description("Human-readable description of the degradation").type(JsonFieldType.STRING).optional(),
+                                   fieldWithPath("warnings[].retryable").description("Whether the client may retry the request to obtain complete data").type(JsonFieldType.BOOLEAN).optional()
                            )
                        )
                        // @formatter:on
@@ -135,6 +140,7 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
             var user = aUser();
             var userIdValue = user.getId()
                                   .value();
+            var warning = new WarningDetail("tasks_unavailable", "taskIds", "Tasks could not be retrieved and may be incomplete.", true);
             var response = new GetUserByIdResponse(userIdValue, user.getFirstName()
                                                                     .value(),
                     user.getLastName()
@@ -143,7 +149,7 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                         .value(),
                     user.getPhoneNumber()
                         .value(),
-                    null, List.of("tasks_unavailable"));
+                    List.of(), List.of(warning));
 
             given(readUserUseCase.getUserById(any(UUID.class))).willReturn(Optional.of(UserWithTasksResult.unavailable(user)));
             given(userMapper.toGetUserByIdResponse(any(UserWithTasksResult.class))).willReturn(response);
@@ -156,8 +162,12 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                    // @formatter:off
                        document("get-user-by-id-tasks-unavailable",
                            relaxedResponseFields(
-                                   fieldWithPath("taskIds").description("Null because tasks-service is unavailable").type(JsonFieldType.NULL).optional(),
-                                   fieldWithPath("warnings").description("Machine-readable degradation codes; contains tasks_unavailable")
+                                   fieldWithPath("taskIds").description("Empty because tasks-service is unavailable"),
+                                   fieldWithPath("warnings").description("Structured degradation warnings; present because tasks-service is unavailable").type(JsonFieldType.ARRAY),
+                                   fieldWithPath("warnings[].code").description("Machine-readable code identifying the degradation type (e.g. tasks_unavailable)"),
+                                   fieldWithPath("warnings[].field").description("The response field affected by the degradation"),
+                                   fieldWithPath("warnings[].message").description("Human-readable description of the degradation"),
+                                   fieldWithPath("warnings[].retryable").description("Whether the client may retry the request to obtain complete data")
                            )
                        )
                        // @formatter:on

@@ -71,6 +71,7 @@ import com.bcn.asapp.users.infrastructure.user.in.response.GetAllUsersResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUserByIdResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUsersByIdsResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
+import com.bcn.asapp.users.infrastructure.user.in.response.WarningDetail;
 import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserEntity;
 import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserRepository;
 import com.bcn.asapp.users.testutil.TestContainerConfiguration;
@@ -203,8 +204,9 @@ class UserE2EIT {
             // Given
             var createdUser = createUser();
             var userId = createdUser.id();
+            var warning = new WarningDetail("tasks_unavailable", "taskIds", "Tasks could not be retrieved and may be incomplete.", true);
             var response = new GetUserByIdResponse(createdUser.id(), createdUser.firstName(), createdUser.lastName(), createdUser.email(),
-                    createdUser.phoneNumber(), null, List.of("tasks_unavailable"));
+                    createdUser.phoneNumber(), Collections.emptyList(), List.of(warning));
 
             mockRequestToGetTasksByUserIdWithServerErrorResponse(userId);
 

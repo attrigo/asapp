@@ -29,8 +29,8 @@ import com.fasterxml.jackson.annotation.JsonInclude;
  * @param lastName    the user's last name
  * @param email       the user's email
  * @param phoneNumber the user's phone number
- * @param taskIds     the user's task identifiers, or {@code null} when tasks-service is unavailable
- * @param warnings    machine-readable degradation codes (e.g. {@code tasks_unavailable}); omitted when empty
+ * @param taskIds     the user's task identifiers, or an empty list when tasks-service is unavailable
+ * @param warnings    structured non-fatal degradation warnings; omitted when empty
  * @since 0.2.0
  * @author attrigo
  */
@@ -41,5 +41,5 @@ public record GetUserByIdResponse(
         String email,
         String phoneNumber,
         List<UUID> taskIds,
-        @JsonInclude(JsonInclude.Include.NON_EMPTY) List<String> warnings
+        @JsonInclude(JsonInclude.Include.NON_EMPTY) List<WarningDetail> warnings
 ) {}

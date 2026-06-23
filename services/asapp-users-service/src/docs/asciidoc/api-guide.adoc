@@ -74,7 +74,8 @@ All endpoints require Bearer token authentication.
 === Get User by ID
 
 Retrieves detailed information about a specific user by their unique identifier, including a list of associated task identifiers.
-If tasks-service is unavailable, the user is still returned (HTTP 200) with `taskIds` set to `null` and a `warnings` array containing `tasks_unavailable`.
+If tasks-service is unavailable, the user is still returned (HTTP 200) with `taskIds` as an empty array and a `warnings` array containing a structured `tasks_unavailable` object.
+Because an empty `taskIds` is indistinguishable from a user who genuinely has no tasks, clients must inspect `warnings` to detect degradation.
 
 operation::get-user-by-id[snippets='path-parameters,http-request,response-fields,curl-request,http-response']
 

@@ -45,10 +45,14 @@ The `TODO` entry frames two decisions, both resolved during brainstorming:
 
 1. **Behaviour: treat tasks as a SOFT dependency → partial-success `200`.** The
    user record is available; only the secondary enrichment failed. Return the
-   user with `"taskIds": null` and an explicit, optional warning:
-   `"warnings": ["tasks_unavailable"]`. The `warnings` key is **omitted entirely
-   on the happy path**. This fixes the silent-empty bug while preserving the
-   useful user data (never `503`, never silent `[]`).
+   user with `"taskIds": []` and an explicit, optional warning object. The
+   `warnings` key is **omitted entirely on the happy path**
+   (`@JsonInclude(NON_EMPTY)`). This fixes the silent-empty bug while preserving
+   the useful user data (never `503`, never silent `[]`).
+
+   Because `taskIds` is `[]` on degradation (not `null`), an empty `taskIds` is
+   intentionally **indistinguishable from a user who genuinely has no tasks**.
+   Clients **must** inspect `warnings` to detect degradation.
 
    **Response shape:**
    ```json
@@ -58,8 +62,12 @@ The `TODO` entry frames two decisions, both resolved during brainstorming:
 
    // tasks-service unavailable (degraded)
    200 OK
-   { "userId": "...", "firstName": "Jane", ..., "taskIds": null,
-     "warnings": ["tasks_unavailable"] }
+   { "userId": "...", "firstName": "Jane", ..., "taskIds": [],
+     "warnings": [
+       { "code": "tasks_unavailable", "field": "taskIds",
+         "message": "Tasks could not be retrieved and may be incomplete.",
+         "retryable": true }
+     ] }
    ```
 
 2. **Placement: split the resilience MECHANISM from the degrade POLICY.**
@@ -80,8 +88,11 @@ The `TODO` entry frames two decisions, both resolved during brainstorming:
    `tasks_unavailable` warning code. The application layer knows no HTTP/JSON
    vocabulary.
 
-4. **Bare string warning codes**, not `{code, detail}` objects — sufficient for a
-   single failure mode; fits the project's fixed-code-constant style.
+4. **Structured warning objects** — each warning is `{ "code": "...", "field":
+   "...", "message": "...", "retryable": <bool> }`. This aligns with the
+   project's RFC 7807 `ProblemDetail` error style: `ProblemDetail` covers hard
+   failures; `WarningDetail` (the same shape applied to soft degradations) covers
+   partial successes. Consistent vocabulary across both failure modes.
 
 ### Research backing (verified 2026-06)
 
@@ -190,12 +201,12 @@ public record UserWithTasksResult(User user, List<UUID> taskIds, boolean tasksAv
 
     public UserWithTasksResult {
         validateUserIsNotNull(user);
-        // invariant: available ⇒ taskIds non-null;  unavailable ⇒ taskIds null
+        // invariant: available ⇒ taskIds non-null;  unavailable ⇒ taskIds empty list
         if (tasksAvailable && taskIds == null) {
             throw new IllegalArgumentException("Task IDs list must not be null when tasks are available");
         }
-        if (!tasksAvailable && taskIds != null) {
-            throw new IllegalArgumentException("Task IDs list must be null when tasks are unavailable");
+        if (!tasksAvailable && taskIds != null && !taskIds.isEmpty()) {
+            throw new IllegalArgumentException("Task IDs list must be empty when tasks are unavailable");
         }
     }
 
@@ -204,7 +215,7 @@ public record UserWithTasksResult(User user, List<UUID> taskIds, boolean tasksAv
     }
 
     public static UserWithTasksResult unavailable(User user) {
-        return new UserWithTasksResult(user, null, false);
+        return new UserWithTasksResult(user, List.of(), false);
     }
 }
 ```
@@ -221,19 +232,23 @@ public record GetUserByIdResponse(
         String lastName,
         String email,
         String phoneNumber,
-        List<UUID> taskIds,                                  // null when degraded
-        @JsonInclude(JsonInclude.Include.NON_EMPTY) List<String> warnings) {}
+        List<UUID> taskIds,
+        @JsonInclude(JsonInclude.Include.NON_EMPTY) List<WarningDetail> warnings) {}
 ```
 
 - `warnings` is omitted from the JSON when null/empty (`NON_EMPTY`) → clean happy
   path. (`@JsonInclude` is an inclusion policy, not a rename, so it does not
   violate the `rest.md` "no `@JsonProperty` renaming" rule.)
-- `taskIds` is now nullable (semantically `null` = unavailable). Javadoc updated.
+- `taskIds` is `[]` when degraded (not `null`); clients must inspect `warnings`
+  to distinguish degradation from a genuine no-tasks user. Javadoc updated.
+- Each `WarningDetail` carries `code`, `field`, `message`, and `retryable`,
+  mirroring the `ProblemDetail` style used for hard failures.
 
 ### 3.7 Mapper — `UserMapper` (+ `WarningCodes`)
 
-- `taskIds` continues to map 1:1 (`null` flows through to the response).
-- `warnings` is derived from `tasksAvailable` via a `default` helper.
+- `taskIds` continues to map 1:1 (empty list flows through to the response).
+- `warnings` is derived from `tasksAvailable` via a `default` helper that
+  constructs the structured `WarningDetail` object.
 - The warning **code constant lives in a dedicated package-private holder**,
   `infrastructure/user/mapper/WarningCodes`, co-located with its only consumer
   (the mapper) — mirroring `ErrorMessages` sitting with `GlobalExceptionHandler`,
@@ -255,14 +270,21 @@ final class WarningCodes {
 @Mapping(target = "warnings", source = "tasksAvailable")
 GetUserByIdResponse toGetUserByIdResponse(UserWithTasksResult result);
 
-default List<String> toWarnings(boolean tasksAvailable) {
-    return tasksAvailable ? List.of() : List.of(WarningCodes.TASKS_UNAVAILABLE);
+default List<WarningDetail> toWarnings(boolean tasksAvailable) {
+    if (tasksAvailable) {
+        return List.of();
+    }
+    return List.of(new WarningDetail(
+            WarningCodes.TASKS_UNAVAILABLE,
+            "taskIds",
+            "Tasks could not be retrieved and may be incomplete.",
+            true));
 }
 ```
 
-The application layer carries only the semantic `tasksAvailable` flag; this code
-string is infrastructure-only. See §9 for the MapStruct boolean→`List<String>`
-resolution open question.
+The application layer carries only the semantic `tasksAvailable` flag; the
+structured warning object is infrastructure-only vocabulary. See §9 for the
+MapStruct boolean→`List<WarningDetail>` resolution open question.
 
 ### 3.8 `GlobalExceptionHandler` — no change
 
@@ -283,14 +305,16 @@ the handler. No new `@ExceptionHandler` is needed. The existing `503` mapping
   `PropagatesError_TasksServiceReturnsClientError` case stays.
 - **`ReadUserServiceTests`** (Mockito): add — gateway returns ids → result
   `available` with ids and `tasksAvailable == true`; gateway throws
-  `TasksUnavailableException` → result `unavailable` (`taskIds == null`,
+  `TasksUnavailableException` → result `unavailable` (`taskIds == []`,
   `tasksAvailable == false`).
 - **`UserWithTasksResult` tests:** invariants — `available` requires non-null
-  taskIds; `unavailable` yields null taskIds; null user throws. (Add a
+  taskIds; `unavailable` yields empty `taskIds`; null user throws. (Add a
   `UserWithTasksResultTests` if none exists.)
 - **`UserRestControllerIT`** (`@WebMvcTest`): happy path → `taskIds` populated,
   **no `warnings` key**; degraded path (stub `ReadUserUseCase` → `unavailable`
-  result) → `taskIds: null` + `warnings: ["tasks_unavailable"]`.
+  result) → `taskIds: []` + `warnings: [{ "code": "tasks_unavailable",
+  "field": "taskIds", "message": "Tasks could not be retrieved and may be
+  incomplete.", "retryable": true }]`.
 - **`UserRestControllerDocumentationIT` + `api-guide.adoc`:** document the new
   `warnings` field and partial-success semantics.
 - **Verify:** `mvn clean verify`. ITs are slow — confirm with the developer before
@@ -301,10 +325,11 @@ the handler. No new `@ExceptionHandler` is needed. The existing `503` mapping
 ## 5. Documentation
 
 - **`api-guide.adoc`** (`src/docs/asciidoc`): update the *get user by id* section —
-  new `warnings` field, `taskIds` nullable, partial-success-on-degradation note.
+  new `warnings` field, `taskIds` empty (not null) on degradation, partial-success note.
 - **`services/asapp-users-service/README.md`:** update the resilience/degradation
-  description (currently "degrades to an empty task list") → now surfaces a
-  `tasks_unavailable` warning with `taskIds: null`; user lookup still succeeds.
+  description → now surfaces a structured `tasks_unavailable` warning with
+  `taskIds: []`; user lookup still succeeds. Clients must inspect `warnings` to
+  distinguish degradation from a genuine no-tasks user.
 - **Javadoc:** `TasksGatewayAdapter` (class + fallback), `TasksGateway` port,
   `ReadUserService` / `ReadUserUseCase`, `UserWithTasksResult`,
   `GetUserByIdResponse`.
@@ -314,10 +339,10 @@ the handler. No new `@ExceptionHandler` is needed. The existing `503` mapping
   edited directly per the auto-mode permission gate). Two complementary additions:
   - **`rest.md`** — a new *"Partial Success / Degraded Responses"* section
     documenting the response-shape convention: soft-dependency outage → `200` with
-    the primary data + an optional `warnings` array of machine-readable codes
-    (omitted on the happy path via `@JsonInclude(NON_EMPTY)`); the unavailable
-    field is `null` (distinguishable from a genuine empty value); codes name the
-    missing data, never internal services.
+    the primary data + an optional `warnings` array of structured `WarningDetail`
+    objects (omitted on the happy path via `@JsonInclude(NON_EMPTY)`); the degraded
+    field uses its natural empty value (`[]`), with the warning as the degradation
+    signal; the code names the missing data, never internal services.
   - **`ports-adapters.md`** (or `development-patterns.md`) — a note that the
     degrade-vs-fail policy belongs in the application service, reached via a typed
     gateway exception (`TasksUnavailableException`), while the adapter owns only
@@ -333,17 +358,19 @@ the handler. No new `@ExceptionHandler` is needed. The existing `503` mapping
   unchanged; only the fallback's *outcome* changes (empty list → typed
   exception).
 - Applying the pattern to other endpoints — none other call the gateway.
-- Structured warning objects (`{code, detail}`) — bare codes chosen (§2.4).
+- Promoting `WarningDetail` to a shared library location — single consumer rule (YAGNI); revisit if a second consumer appears.
 
 ---
 
 ## 7. Acceptance criteria
 
-- `GET /users/{id}` with tasks-service down → `200 OK`, `taskIds: null`,
-  `warnings: ["tasks_unavailable"]`.
+- `GET /users/{id}` with tasks-service down → `200 OK`, `taskIds: []`,
+  `warnings: [{ "code": "tasks_unavailable", "field": "taskIds", "message":
+  "Tasks could not be retrieved and may be incomplete.", "retryable": true }]`.
 - Happy path → `taskIds` populated, **no `warnings` key** in the JSON.
-- Genuine no-tasks user → `200 OK`, `taskIds: []`, no `warnings` (distinct from
-  degraded).
+- Genuine no-tasks user → `200 OK`, `taskIds: []`, no `warnings`. Because
+  `taskIds` is `[]` in both cases, clients **must** inspect `warnings` to detect
+  degradation.
 - 4xx and unexpected errors from tasks-service still propagate (unchanged).
 - Degrade policy lives in `ReadUserService` via `TasksUnavailableException`; the
   adapter only translates the outage. Circuit breaker / retry / timeout mechanism
@@ -359,8 +386,7 @@ the handler. No new `@ExceptionHandler` is needed. The existing `503` mapping
 3. Port `TasksGateway`: update contract Javadoc.
 4. `UserWithTasksResult`: add `tasksAvailable` + factory methods + invariant.
 5. `ReadUserService`: catch the exception → degraded result; update Javadoc.
-6. `GetUserByIdResponse`: add `warnings` (`@JsonInclude(NON_EMPTY)`); `taskIds`
-   nullable.
+6. `GetUserByIdResponse`: add `warnings` (`List<WarningDetail>`, `@JsonInclude(NON_EMPTY)`); `taskIds` always non-null (empty list on degradation).
 7. `UserMapper`: add the package-private `WarningCodes` holder; derive `warnings`
    from `tasksAvailable`.
 8. Tests (§4).
@@ -372,9 +398,10 @@ the handler. No new `@ExceptionHandler` is needed. The existing `503` mapping
 
 ## 9. Open questions for the plan
 
-- **MapStruct boolean→`List<String>`:** confirm `toWarnings(boolean)` is resolved
-  for `@Mapping(target = "warnings", source = "tasksAvailable")` by type; if
-  ambiguous, fall back to `expression = "java(...)"` or a `@Named` qualifier.
+- **MapStruct boolean→`List<WarningDetail>`:** confirm `toWarnings(boolean)` is
+  resolved for `@Mapping(target = "warnings", source = "tasksAvailable")` by
+  type; if ambiguous, fall back to `expression = "java(...)"` or a `@Named`
+  qualifier.
 - **`@JsonInclude` on a record component:** confirm Jackson honours
   component-level `@JsonInclude(NON_EMPTY)` (vs. needing it on the accessor /
   type); verify the happy path truly omits the key in a serialization test.

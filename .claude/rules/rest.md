@@ -48,7 +48,7 @@ paths:
 ## Partial Success / Degraded Responses
 
 - When an endpoint enriches its primary resource with a **non-critical** secondary source and that source is unavailable, return `200` with the primary data and signal the degradation — never silently return an empty/default value, never fail the whole request for a soft dependency
-- Signal via an optional `warnings` array of machine-readable string codes (e.g. `tasks_unavailable`); omit the field on the happy path (`@JsonInclude(NON_EMPTY)`)
-- The unavailable field is `null` (not `[]`/`0`) so it stays distinguishable from a genuine empty value
-- Warning codes name the missing **data**, never internal services/topology — consistent with the error handler's no-internal-disclosure stance
+- Signal via an optional `warnings` array of structured `WarningDetail` objects — `{ code, field, message, retryable }`; omit the field on the happy path (`@JsonInclude(NON_EMPTY)`). The structured shape mirrors the RFC 7807 `ProblemDetail` error contract — `ProblemDetail` for hard failures, `WarningDetail` for soft degradations
+- The degraded field uses its natural empty value (`[]`/`0`), not `null`; clients detect degradation via the presence of a matching `warnings` entry, never by null-checking the field — an empty value is intentionally indistinguishable from a genuine empty result, so the warning is the single source of truth
+- The warning `code` names the missing **data**, never internal services/topology (consistent with the error handler's no-internal-disclosure stance) and uses the same lowercase snake casing as error codes (e.g. `tasks_unavailable`); `field` identifies the affected response field
 - The degrade-vs-fail decision (soft vs hard dependency) is an application-service policy, not an adapter concern — see `ports-adapters.md`

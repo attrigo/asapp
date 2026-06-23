@@ -33,6 +33,7 @@ import com.bcn.asapp.users.infrastructure.user.in.response.GetAllUsersResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUserByIdResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUsersByIdsResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
+import com.bcn.asapp.users.infrastructure.user.in.response.WarningDetail;
 import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserEntity;
 
 /**
@@ -102,7 +103,7 @@ public interface UserMapper {
     @Mapping(target = "lastName", source = "user.lastName")
     @Mapping(target = "email", source = "user.email")
     @Mapping(target = "phoneNumber", source = "user.phoneNumber")
-    @Mapping(target = "taskIds", source = "taskIds")
+    @Mapping(target = "taskIds", expression = "java(result.taskIds() != null ? result.taskIds() : java.util.List.of())")
     @Mapping(target = "warnings", source = "tasksAvailable")
     GetUserByIdResponse toGetUserByIdResponse(UserWithTasksResult result);
 
@@ -143,13 +144,13 @@ public interface UserMapper {
     UpdateUserResponse toUpdateUserResponse(User user);
 
     /**
-     * Derives the response warning codes from the task-availability flag.
+     * Derives the structured response warnings from the task-availability flag.
      *
      * @param tasksAvailable whether tasks were successfully retrieved
-     * @return an empty list when available, or a single {@code tasks_unavailable} code when not
+     * @return an empty list when available, or a single {@link WarningDetail} when not
      */
-    default List<String> toWarnings(boolean tasksAvailable) {
-        return tasksAvailable ? List.of() : List.of(WarningCodes.TASKS_UNAVAILABLE);
+    default List<WarningDetail> toWarnings(boolean tasksAvailable) {
+        return tasksAvailable ? List.of() : List.of(new WarningDetail(WarningCodes.TASKS_UNAVAILABLE, "taskIds", WarningMessages.TASKS_UNAVAILABLE, true));
     }
 
 }
