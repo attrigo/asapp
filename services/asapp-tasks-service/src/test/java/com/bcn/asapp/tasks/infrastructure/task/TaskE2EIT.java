@@ -89,12 +89,15 @@ class TaskE2EIT {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
-    private final String encodedAccessToken = encodedAccessToken();
+    private String encodedAccessToken;
 
-    private final String bearerToken = "Bearer " + encodedAccessToken;
+    private String bearerToken;
 
     @BeforeEach
     void beforeEach() {
+        encodedAccessToken = encodedAccessToken();
+        bearerToken = "Bearer " + encodedAccessToken;
+
         taskRepository.deleteAll();
 
         assertThat(redisTemplate.getConnectionFactory()).isNotNull();
