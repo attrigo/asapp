@@ -59,20 +59,22 @@ final class TestFactoryConstants {
 
     static final Long EXPIRATION_TIME_MILLIS = 300000L; // 5 minutes
 
+    static final Long MIN_TOKEN_VALIDITY_MILLIS = 120000L; // 2 minutes
+
     static final Long TOKEN_EXPIRED_OFFSET_MILLIS = 60000L; // 1 minute
 
     /**
-     * Generate a random issue-at timestamp between now and 4.5 minutes before now.
+     * Generate a random issue-at timestamp in the recent past.
      * <p>
-     * This utility ensures tokens are issued within a realistic timeframe relative to their expiration time.
+     * Randomizing the issue time keeps generated tokens distinct, while the window guarantees each token keeps at least {@code MIN_TOKEN_VALIDITY_MILLIS} of
+     * validity so it never expires mid-test.
      *
-     * @return random Instant between (now - 4.5 minutes) and now
+     * @return random Instant between (now - (EXPIRATION_TIME_MILLIS - MIN_TOKEN_VALIDITY_MILLIS)) and now
      */
     static Instant generateRandomIssueAt() {
         var now = Instant.now();
-        var fourMinsAgo = Instant.now()
-                                 .minusMillis(EXPIRATION_TIME_MILLIS - 30000);
-        var startMillis = fourMinsAgo.toEpochMilli();
+        var earliestIssueAt = now.minusMillis(EXPIRATION_TIME_MILLIS - MIN_TOKEN_VALIDITY_MILLIS);
+        var startMillis = earliestIssueAt.toEpochMilli();
         var endMillis = now.toEpochMilli();
         var randomMillis = ThreadLocalRandom.current()
                                             .nextLong(startMillis, endMillis + 1);
