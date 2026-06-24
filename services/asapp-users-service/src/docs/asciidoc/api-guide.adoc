@@ -79,10 +79,6 @@ Because an empty `taskIds` is indistinguishable from a user who genuinely has no
 
 operation::get-user-by-id[snippets='path-parameters,http-request,response-fields,curl-request,http-response']
 
-When tasks-service is unavailable, the response is degraded as follows:
-
-operation::get-user-by-id-tasks-unavailable[snippets='http-response']
-
 [[resources-users-get-by-ids]]
 === Get Users by IDs
 

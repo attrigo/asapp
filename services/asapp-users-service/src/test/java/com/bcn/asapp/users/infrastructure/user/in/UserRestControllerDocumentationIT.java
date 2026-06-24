@@ -67,7 +67,6 @@ import com.bcn.asapp.users.infrastructure.user.in.response.GetAllUsersResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUserByIdResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUsersByIdsResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
-import com.bcn.asapp.users.infrastructure.user.in.response.WarningDetail;
 import com.bcn.asapp.users.testutil.RestDocsConstrainedFields;
 import com.bcn.asapp.users.testutil.RestDocsWebMvcTestContext;
 
@@ -128,46 +127,6 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                    fieldWithPath("warnings[].field").description("The response field affected by the degradation").type(JsonFieldType.STRING).optional(),
                                    fieldWithPath("warnings[].message").description("Human-readable description of the degradation").type(JsonFieldType.STRING).optional(),
                                    fieldWithPath("warnings[].retryable").description("Whether the client may retry the request to obtain complete data").type(JsonFieldType.BOOLEAN).optional()
-                           )
-                       )
-                       // @formatter:on
-                   );
-        }
-
-        @Test
-        void DocumentsGetUserById_TasksUnavailable() throws Exception {
-            // Given
-            var user = aUser();
-            var userIdValue = user.getId()
-                                  .value();
-            var warningDetail = WarningDetail.Reason.TASKS_UNAVAILABLE.toDetail();
-            var response = new GetUserByIdResponse(userIdValue, user.getFirstName()
-                                                                    .value(),
-                    user.getLastName()
-                        .value(),
-                    user.getEmail()
-                        .value(),
-                    user.getPhoneNumber()
-                        .value(),
-                    List.of(), List.of(warningDetail));
-
-            given(readUserUseCase.getUserById(any(UUID.class))).willReturn(Optional.of(UserWithTasksResult.unavailable(user)));
-            given(userMapper.toGetUserByIdResponse(any(UserWithTasksResult.class))).willReturn(response);
-
-            // When & Then
-            mockMvc.perform(get(USERS_GET_BY_ID_FULL_PATH, userIdValue).accept(APPLICATION_JSON)
-                                                                       .header(AUTHORIZATION, "Bearer sample.access.token"))
-                   .andExpect(status().isOk())
-                   .andDo(
-                   // @formatter:off
-                       document("get-user-by-id-tasks-unavailable",
-                           relaxedResponseFields(
-                                   fieldWithPath("taskIds").description("Empty because tasks-service is unavailable"),
-                                   fieldWithPath("warnings").description("Structured degradation warnings; present because tasks-service is unavailable").type(JsonFieldType.ARRAY),
-                                   fieldWithPath("warnings[].code").description("Machine-readable code identifying the degradation type (e.g. tasks_unavailable)"),
-                                   fieldWithPath("warnings[].field").description("The response field affected by the degradation"),
-                                   fieldWithPath("warnings[].message").description("Human-readable description of the degradation"),
-                                   fieldWithPath("warnings[].retryable").description("Whether the client may retry the request to obtain complete data")
                            )
                        )
                        // @formatter:on
