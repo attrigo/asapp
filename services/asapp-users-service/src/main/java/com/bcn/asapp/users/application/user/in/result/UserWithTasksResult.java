@@ -73,12 +73,25 @@ public record UserWithTasksResult(
         return new UserWithTasksResult(user, null, false);
     }
 
+    /**
+     * Validates that the user is present.
+     *
+     * @param user the user entity to check
+     * @throws IllegalArgumentException if {@code user} is {@code null}
+     */
     private static void validateUserIsNotNull(User user) {
         if (user == null) {
             throw new IllegalArgumentException("User must not be null");
         }
     }
 
+    /**
+     * Validates that the task identifiers are consistent with the tasks-service availability flag.
+     *
+     * @param taskIds               the task identifiers to check
+     * @param tasksServiceAvailable the tasks-service availability flag
+     * @throws IllegalArgumentException if {@code taskIds} is {@code null} when tasks-service is available, or non-{@code null} when it is unavailable
+     */
     private static void validateTaskIdsConsistency(List<UUID> taskIds, boolean tasksServiceAvailable) {
         if (tasksServiceAvailable && taskIds == null) {
             throw new IllegalArgumentException("Task IDs list must not be null when tasks are available");
