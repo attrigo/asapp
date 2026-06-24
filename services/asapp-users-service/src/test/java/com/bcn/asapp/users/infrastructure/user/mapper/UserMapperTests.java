@@ -51,7 +51,7 @@ class UserMapperTests {
             // Given
             var user = aUser();
             var degradedResult = UserWithTasksResult.unavailable(user);
-            var expectedWarning = new WarningDetail(WarningCodes.TASKS_UNAVAILABLE, "taskIds", WarningMessages.TASKS_UNAVAILABLE, true);
+            var expectedWarning = WarningDetail.Reason.TASKS_UNAVAILABLE.toDetail();
 
             // When
             var actual = userMapper.toGetUserByIdResponse(degradedResult);

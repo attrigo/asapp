@@ -31,4 +31,42 @@ public record WarningDetail(
         String field,
         String message,
         boolean retryable
-) {}
+) {
+
+    /**
+     * Catalogs all known degradation warning reasons, each carrying its own code, field, message, and retryability.
+     *
+     * @since 0.4.0
+     * @author attrigo
+     */
+    public enum Reason {
+
+        TASKS_UNAVAILABLE("tasks_unavailable", "taskIds", "Tasks could not be retrieved and may be incomplete.", true);
+
+        private final String code;
+
+        private final String field;
+
+        private final String message;
+
+        private final boolean retryable;
+
+        Reason(String code, String field, String message, boolean retryable) {
+            this.code = code;
+            this.field = field;
+            this.message = message;
+            this.retryable = retryable;
+        }
+
+        /**
+         * Creates a {@link WarningDetail} instance from this warning reason.
+         *
+         * @return a new {@link WarningDetail} populated with this reason's values
+         */
+        public WarningDetail toDetail() {
+            return new WarningDetail(code, field, message, retryable);
+        }
+
+    }
+
+}
