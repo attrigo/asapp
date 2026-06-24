@@ -27,21 +27,21 @@ import com.bcn.asapp.users.domain.user.User;
  * Represents the result of a query that combines user data from the User bounded context with task identifiers from the Task bounded context. It serves as a
  * read model that aggregates information from these sources while maintaining loose coupling between bounded contexts.
  *
- * @param user           the {@link User} domain entity containing core user information
- * @param taskIds        a {@link List} of task UUIDs associated with the user, or {@code null} when tasks are unavailable
- * @param tasksAvailable whether the task references were successfully retrieved; {@code false} indicates degraded data
+ * @param user                  the {@link User} domain entity containing core user information
+ * @param taskIds               a {@link List} of task UUIDs associated with the user, or {@code null} when tasks are unavailable
+ * @param tasksServiceAvailable whether the task references were successfully retrieved; {@code false} indicates degraded data
  * @since 0.2.0
  * @author attrigo
  */
 public record UserWithTasksResult(
         User user,
         List<UUID> taskIds,
-        boolean tasksAvailable
+        boolean tasksServiceAvailable
 ) {
 
     public UserWithTasksResult {
         validateUserIsNotNull(user);
-        validateTaskIdsConsistency(taskIds, tasksAvailable);
+        validateTaskIdsConsistency(taskIds, tasksServiceAvailable);
     }
 
     /**
@@ -71,11 +71,11 @@ public record UserWithTasksResult(
         }
     }
 
-    private static void validateTaskIdsConsistency(List<UUID> taskIds, boolean tasksAvailable) {
-        if (tasksAvailable && taskIds == null) {
+    private static void validateTaskIdsConsistency(List<UUID> taskIds, boolean tasksServiceAvailable) {
+        if (tasksServiceAvailable && taskIds == null) {
             throw new IllegalArgumentException("Task IDs list must not be null when tasks are available");
         }
-        if (!tasksAvailable && taskIds != null) {
+        if (!tasksServiceAvailable && taskIds != null) {
             throw new IllegalArgumentException("Task IDs list must be null when tasks are unavailable");
         }
     }

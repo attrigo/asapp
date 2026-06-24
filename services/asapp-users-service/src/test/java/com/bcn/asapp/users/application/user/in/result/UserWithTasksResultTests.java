@@ -59,7 +59,7 @@ class UserWithTasksResultTests {
                 // @formatter:off
                 softly.assertThat(actual.user()).as("user").isEqualTo(user);
                 softly.assertThat(actual.taskIds()).as("task IDs").containsExactly(taskId1, taskId2);
-                softly.assertThat(actual.tasksAvailable()).as("tasks availability").isTrue();
+                softly.assertThat(actual.tasksServiceAvailable()).as("tasks service availability").isTrue();
                 // @formatter:on
             });
         }
@@ -77,7 +77,7 @@ class UserWithTasksResultTests {
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.taskIds()).as("task IDs").isEmpty();
-                softly.assertThat(actual.tasksAvailable()).as("tasks availability").isTrue();
+                softly.assertThat(actual.tasksServiceAvailable()).as("tasks service availability").isTrue();
                 // @formatter:on
             });
         }
@@ -95,7 +95,7 @@ class UserWithTasksResultTests {
                 // @formatter:off
                 softly.assertThat(actual.user()).as("user").isEqualTo(user);
                 softly.assertThat(actual.taskIds()).as("task IDs").isNull();
-                softly.assertThat(actual.tasksAvailable()).as("tasks availability").isFalse();
+                softly.assertThat(actual.tasksServiceAvailable()).as("tasks service availability").isFalse();
                 // @formatter:on
             });
         }

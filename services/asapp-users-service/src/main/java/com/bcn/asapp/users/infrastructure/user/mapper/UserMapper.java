@@ -104,7 +104,7 @@ public interface UserMapper {
     @Mapping(target = "email", source = "user.email")
     @Mapping(target = "phoneNumber", source = "user.phoneNumber")
     @Mapping(target = "taskIds", expression = "java(toResponseTaskIds(result))")
-    @Mapping(target = "warnings", source = "tasksAvailable")
+    @Mapping(target = "warnings", source = "tasksServiceAvailable")
     GetUserByIdResponse toGetUserByIdResponse(UserWithTasksResult result);
 
     /**
@@ -156,11 +156,11 @@ public interface UserMapper {
     /**
      * Derives the structured response warnings from the task-availability flag.
      *
-     * @param tasksAvailable whether tasks were successfully retrieved
+     * @param tasksServiceAvailable whether tasks were successfully retrieved
      * @return an empty list when available, or a single {@link WarningDetail} when not
      */
-    default List<WarningDetail> toWarningDetails(boolean tasksAvailable) {
-        return tasksAvailable ? List.of() : List.of(WarningDetail.Reason.TASKS_UNAVAILABLE.toDetail());
+    default List<WarningDetail> toWarningDetails(boolean tasksServiceAvailable) {
+        return tasksServiceAvailable ? List.of() : List.of(WarningDetail.Reason.TASKS_UNAVAILABLE.toDetail());
     }
 
 }
