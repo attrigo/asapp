@@ -77,7 +77,8 @@ public interface UserRestAPI {
      * <p>
      * This endpoint retrieves user information along with a list of task identifiers associated with the user.
      * <p>
-     * If tasks-service is unavailable, the endpoint still returns 200 OK with the user, an empty task list, and a {@code warnings} array describing the degradation.
+     * If tasks-service is unavailable, the endpoint still returns 200 OK with the user, an empty task list, and a {@code warnings} array describing the
+     * degradation.
      * <p>
      * Response codes:
      * <ul>
