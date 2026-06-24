@@ -133,7 +133,7 @@ class ReadUserServiceTests {
         }
 
         @Test
-        void ReturnsDegradedResult_TasksUnavailable() {
+        void ReturnsUserWithUnavailableTasks_TasksServiceUnavailable() {
             // Given
             var user = aUser();
             var userId = user.getId();
