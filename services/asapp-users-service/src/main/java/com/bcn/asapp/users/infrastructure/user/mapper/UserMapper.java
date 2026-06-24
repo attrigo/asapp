@@ -159,7 +159,7 @@ public interface UserMapper {
      * @param tasksAvailable whether tasks were successfully retrieved
      * @return an empty list when available, or a single {@link WarningDetail} when not
      */
-    default List<WarningDetail> toWarnings(boolean tasksAvailable) {
+    default List<WarningDetail> toWarningDetails(boolean tasksAvailable) {
         return tasksAvailable ? List.of() : List.of(WarningDetail.Reason.TASKS_UNAVAILABLE.toDetail());
     }
 

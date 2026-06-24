@@ -204,9 +204,9 @@ class UserE2EIT {
             // Given
             var createdUser = createUser();
             var userId = createdUser.id();
-            var warning = new WarningDetail("tasks_unavailable", "taskIds", "Tasks could not be retrieved and may be incomplete.", true);
+            var warningDetail = new WarningDetail("tasks_unavailable", "taskIds", "Tasks could not be retrieved and may be incomplete.", true);
             var response = new GetUserByIdResponse(createdUser.id(), createdUser.firstName(), createdUser.lastName(), createdUser.email(),
-                    createdUser.phoneNumber(), Collections.emptyList(), List.of(warning));
+                    createdUser.phoneNumber(), Collections.emptyList(), List.of(warningDetail));
 
             mockRequestToGetTasksByUserIdWithServerErrorResponse(userId);
 

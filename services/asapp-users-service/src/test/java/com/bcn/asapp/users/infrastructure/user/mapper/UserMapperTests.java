@@ -51,7 +51,7 @@ class UserMapperTests {
             // Given
             var user = aUser();
             var degradedResult = UserWithTasksResult.unavailable(user);
-            var expectedWarning = WarningDetail.Reason.TASKS_UNAVAILABLE.toDetail();
+            var expectedWarningDetail = WarningDetail.Reason.TASKS_UNAVAILABLE.toDetail();
 
             // When
             var actual = userMapper.toGetUserByIdResponse(degradedResult);
@@ -60,7 +60,7 @@ class UserMapperTests {
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.taskIds()).as("task IDs").isEmpty();
-                softly.assertThat(actual.warnings()).as("degradation warnings").containsExactly(expectedWarning);
+                softly.assertThat(actual.warnings()).as("degradation warnings").containsExactly(expectedWarningDetail);
                 // @formatter:on
             });
         }

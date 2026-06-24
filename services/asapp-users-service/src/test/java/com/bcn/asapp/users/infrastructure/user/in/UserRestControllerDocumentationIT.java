@@ -140,7 +140,7 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
             var user = aUser();
             var userIdValue = user.getId()
                                   .value();
-            var warning = new WarningDetail("tasks_unavailable", "taskIds", "Tasks could not be retrieved and may be incomplete.", true);
+            var warningDetail = new WarningDetail("tasks_unavailable", "taskIds", "Tasks could not be retrieved and may be incomplete.", true);
             var response = new GetUserByIdResponse(userIdValue, user.getFirstName()
                                                                     .value(),
                     user.getLastName()
@@ -149,7 +149,7 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                         .value(),
                     user.getPhoneNumber()
                         .value(),
-                    List.of(), List.of(warning));
+                    List.of(), List.of(warningDetail));
 
             given(readUserUseCase.getUserById(any(UUID.class))).willReturn(Optional.of(UserWithTasksResult.unavailable(user)));
             given(userMapper.toGetUserByIdResponse(any(UserWithTasksResult.class))).willReturn(response);
