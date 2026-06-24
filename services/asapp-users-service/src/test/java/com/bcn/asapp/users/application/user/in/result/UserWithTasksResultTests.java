@@ -35,8 +35,8 @@ import org.junit.jupiter.api.Test;
  * <li>Creates an available result with user and empty task list</li>
  * <li>Creates an unavailable result with null task list</li>
  * <li>Rejects null user</li>
- * <li>Rejects null task identifiers when tasks are available</li>
- * <li>Rejects non-null task identifiers when tasks are unavailable</li>
+ * <li>Rejects null task identifiers when tasks service is available</li>
+ * <li>Rejects non-null task identifiers when tasks service is unavailable</li>
  */
 class UserWithTasksResultTests {
 
@@ -44,7 +44,7 @@ class UserWithTasksResultTests {
     class CreateUserWithTasksResult {
 
         @Test
-        void ReturnsAvailableResult_ValidUserAndTaskIds() {
+        void ReturnsUserWithTasksResult_ValidUserAndTaskIds() {
             // Given
             var user = aUser();
             var taskId1 = UUID.fromString("a1b2c3d4-e5f6-4789-abcd-ef0123456789");
@@ -65,7 +65,7 @@ class UserWithTasksResultTests {
         }
 
         @Test
-        void ReturnsAvailableResult_ValidUserAndEmptyTaskIds() {
+        void ReturnsUserWithTasksResult_ValidUserAndEmptyTaskIds() {
             // Given
             var user = aUser();
             var taskIds = List.<UUID>of();
@@ -83,7 +83,7 @@ class UserWithTasksResultTests {
         }
 
         @Test
-        void ReturnsUnavailableResult_TasksUnavailable() {
+        void ReturnsUserWithTasksResult_TasksServiceUnavailable() {
             // Given
             var user = aUser();
 
@@ -111,7 +111,7 @@ class UserWithTasksResultTests {
         }
 
         @Test
-        void ThrowsIllegalArgumentException_NullTaskIdsWhenAvailable() {
+        void ThrowsIllegalArgumentException_NullTaskIdsWhenTasksServiceAvailable() {
             // Given
             var user = aUser();
 
@@ -124,7 +124,7 @@ class UserWithTasksResultTests {
         }
 
         @Test
-        void ThrowsIllegalArgumentException_NonNullTaskIdsWhenUnavailable() {
+        void ThrowsIllegalArgumentException_NonNullTaskIdsWhenTasksServiceUnavailable() {
             // Given
             var user = aUser();
 
