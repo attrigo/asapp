@@ -200,7 +200,7 @@ class UserE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndBodyWithTasksUnavailableWarning_UserExistsAndTasksServiceFails(CapturedOutput output) {
+        void ReturnsStatusOKAndBodyWithFoundUserWithEmptyTaskListAndWarning_UserExistsAndTasksServiceFails(CapturedOutput output) {
             // Given
             var createdUser = createUser();
             var userId = createdUser.id();
