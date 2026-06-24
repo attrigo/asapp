@@ -103,7 +103,7 @@ public interface UserMapper {
     @Mapping(target = "lastName", source = "user.lastName")
     @Mapping(target = "email", source = "user.email")
     @Mapping(target = "phoneNumber", source = "user.phoneNumber")
-    @Mapping(target = "taskIds", expression = "java(result.taskIds() != null ? result.taskIds() : java.util.List.of())")
+    @Mapping(target = "taskIds", expression = "java(toResponseTaskIds(result))")
     @Mapping(target = "warnings", source = "tasksAvailable")
     GetUserByIdResponse toGetUserByIdResponse(UserWithTasksResult result);
 
@@ -142,6 +142,16 @@ public interface UserMapper {
      */
     @Mapping(target = "userId", source = "id")
     UpdateUserResponse toUpdateUserResponse(User user);
+
+    /**
+     * Coalesces the degraded null task references into an empty list for the response.
+     *
+     * @param result the {@link UserWithTasksResult} carrying the task references
+     * @return the task IDs when present, or an empty list when degraded
+     */
+    default List<UUID> toResponseTaskIds(UserWithTasksResult result) {
+        return result.taskIds() != null ? result.taskIds() : List.of();
+    }
 
     /**
      * Derives the structured response warnings from the task-availability flag.
