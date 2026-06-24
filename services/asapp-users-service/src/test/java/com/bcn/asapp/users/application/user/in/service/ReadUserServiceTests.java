@@ -92,6 +92,7 @@ class ReadUserServiceTests {
                 // @formatter:off
                 softly.assertThat(actual.get().user()).as("user").isEqualTo(user);
                 softly.assertThat(actual.get().taskIds()).as("task IDs").isEmpty();
+                softly.assertThat(actual.get().tasksServiceAvailable()).as("tasks service availability").isTrue();
                 // @formatter:on
             });
 
@@ -123,6 +124,7 @@ class ReadUserServiceTests {
                 softly.assertThat(actual.get().user()).as("user").isEqualTo(user);
                 softly.assertThat(actual.get().taskIds()).as("task IDs").hasSize(2);
                 softly.assertThat(actual.get().taskIds()).as("task IDs").contains(taskId1, taskId2);
+                softly.assertThat(actual.get().tasksServiceAvailable()).as("tasks service availability").isTrue();
                 // @formatter:on
             });
 
