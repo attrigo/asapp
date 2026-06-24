@@ -141,8 +141,8 @@ class ReadUserServiceTests {
             var userId = user.getId();
 
             given(userRepository.findById(userId)).willReturn(Optional.of(user));
-            willThrow(new TasksUnavailableException("Tasks Service is unavailable", new RuntimeException("boom"))).given(tasksGateway)
-                                                                                                                  .getTaskIdsByUserId(userId);
+            willThrow(new TasksUnavailableException("Tasks Service is unavailable", new RuntimeException("Connection refused"))).given(tasksGateway)
+                                                                                                                                .getTaskIdsByUserId(userId);
 
             // When
             var actual = readUserService.getUserById(userId.value());
