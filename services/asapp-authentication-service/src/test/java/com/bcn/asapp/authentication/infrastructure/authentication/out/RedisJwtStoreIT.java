@@ -177,11 +177,11 @@ class RedisJwtStoreIT {
             var refreshTokenTtl = redisTemplate.getExpire(refreshTokenKey, TimeUnit.SECONDS);
             // TTL range explanation:
             // - Maximum (300s): Token issued now expires in 5 minutes (300 seconds)
-            // - Minimum (25s): Token issued 4.5 minutes ago has ~30 seconds remaining minus execution overhead
+            // - Minimum (100s): Token issued at the earliest point in the issue-at window retains at least 2 minutes, minus execution overhead
             assertSoftly(softly -> {
                 // @formatter:off
-                softly.assertThat(accessTokenTtl).as("access token TTL").isBetween(25L, 300L);
-                softly.assertThat(refreshTokenTtl).as("refresh token TTL").isBetween(25L, 300L);
+                softly.assertThat(accessTokenTtl).as("access token TTL").isBetween(100L, 300L);
+                softly.assertThat(refreshTokenTtl).as("refresh token TTL").isBetween(100L, 300L);
                 // @formatter:on
             });
         }
