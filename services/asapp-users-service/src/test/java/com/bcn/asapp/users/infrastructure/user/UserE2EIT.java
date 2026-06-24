@@ -204,7 +204,7 @@ class UserE2EIT {
             // Given
             var createdUser = createUser();
             var userId = createdUser.id();
-            var warningDetail = new WarningDetail("tasks_unavailable", "taskIds", "Tasks could not be retrieved and may be incomplete.", true);
+            var warningDetail = WarningDetail.Reason.TASKS_UNAVAILABLE.toDetail();
             var response = new GetUserByIdResponse(createdUser.id(), createdUser.firstName(), createdUser.lastName(), createdUser.email(),
                     createdUser.phoneNumber(), Collections.emptyList(), List.of(warningDetail));
 

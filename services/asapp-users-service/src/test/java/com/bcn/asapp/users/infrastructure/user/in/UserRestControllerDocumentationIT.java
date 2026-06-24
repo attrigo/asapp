@@ -140,7 +140,7 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
             var user = aUser();
             var userIdValue = user.getId()
                                   .value();
-            var warningDetail = new WarningDetail("tasks_unavailable", "taskIds", "Tasks could not be retrieved and may be incomplete.", true);
+            var warningDetail = WarningDetail.Reason.TASKS_UNAVAILABLE.toDetail();
             var response = new GetUserByIdResponse(userIdValue, user.getFirstName()
                                                                     .value(),
                     user.getLastName()
