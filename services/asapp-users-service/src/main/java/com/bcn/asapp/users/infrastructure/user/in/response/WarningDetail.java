@@ -51,6 +51,14 @@ public record WarningDetail(
 
         private final boolean retryable;
 
+        /**
+         * Constructs a new {@code Reason} with the attributes of a degradation warning.
+         *
+         * @param code      the machine-readable warning code identifying the degradation type
+         * @param field     the response field affected by the degradation
+         * @param message   the human-readable description of the degradation
+         * @param retryable whether the client may retry the request to obtain complete data
+         */
         Reason(String code, String field, String message, boolean retryable) {
             this.code = code;
             this.field = field;
