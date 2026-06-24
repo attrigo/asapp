@@ -39,6 +39,14 @@ public record UserWithTasksResult(
         boolean tasksServiceAvailable
 ) {
 
+    /**
+     * Constructs a new {@code UserWithTasksResult} instance and validates its integrity.
+     *
+     * @param user                  the user entity to validate and store
+     * @param taskIds               the task identifiers to validate and store
+     * @param tasksServiceAvailable the tasks-service availability flag to validate and store
+     * @throws IllegalArgumentException if {@code user} is {@code null}, or if {@code taskIds} is inconsistent with {@code tasksServiceAvailable}
+     */
     public UserWithTasksResult {
         validateUserIsNotNull(user);
         validateTaskIdsConsistency(taskIds, tasksServiceAvailable);
