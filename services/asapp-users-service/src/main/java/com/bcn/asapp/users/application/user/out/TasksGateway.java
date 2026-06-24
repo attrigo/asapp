@@ -19,6 +19,7 @@ package com.bcn.asapp.users.application.user.out;
 import java.util.List;
 import java.util.UUID;
 
+import com.bcn.asapp.users.application.user.TasksUnavailableException;
 import com.bcn.asapp.users.domain.user.UserId;
 
 /**
@@ -42,7 +43,7 @@ public interface TasksGateway {
      *
      * @param userId the user's unique identifier
      * @return a {@link List} of task UUIDs associated with the user, or an empty list if the user has no tasks
-     * @throws com.bcn.asapp.users.application.user.TasksUnavailableException if tasks-service is unavailable
+     * @throws TasksUnavailableException if tasks-service is unavailable
      */
     List<UUID> getTaskIdsByUserId(UserId userId);
 
