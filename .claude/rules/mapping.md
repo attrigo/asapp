@@ -12,6 +12,7 @@ paths:
 - Entity → domain mapping uses `@ObjectFactory`
 - Declare `@Mapping(target = "field", ignore = true)` for every domain field — required even when `@ObjectFactory` handles construction
 - Enum mappers: add `@ValueMapping(source = ANY_REMAINING, target = THROW_EXCEPTION)` to reject unmapped values at runtime
+- Keep `@Mapping` declarative — avoid non-trivial inline `expression = "java(...)"`; move logic to a `default`/`@Named` helper, or use `defaultValue`/`defaultExpression` for null fallbacks
 
 ## Value Object Mappers
 

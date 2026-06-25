@@ -22,6 +22,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 import com.bcn.asapp.users.application.ApplicationService;
+import com.bcn.asapp.users.application.user.TasksUnavailableException;
 import com.bcn.asapp.users.application.user.in.ReadUserUseCase;
 import com.bcn.asapp.users.application.user.in.result.UserWithTasksResult;
 import com.bcn.asapp.users.application.user.out.TasksGateway;
@@ -68,7 +69,7 @@ public class ReadUserService implements ReadUserUseCase {
      * <li>Wraps result in {@link UserWithTasksResult}</li>
      * </ol>
      * <p>
-     * If task retrieval fails or the tasks-service is unavailable, the result will contain the user with an empty task list, allowing graceful degradation.
+     * If tasks-service is unavailable, the result is returned with tasks marked unavailable (no task identifiers), allowing graceful degradation.
      *
      * @param id the user's unique identifier
      * @return an {@link Optional} containing the {@link UserWithTasksResult} if found, {@link Optional#empty} otherwise
@@ -123,14 +124,18 @@ public class ReadUserService implements ReadUserUseCase {
      * <p>
      * Queries the tasks-service via gateway to retrieve associated task IDs and combines with user data.
      * <p>
-     * If task retrieval fails, returns user with empty task list (graceful degradation).
+     * If tasks-service is unavailable, returns the user with tasks marked unavailable (no task identifiers).
      *
      * @param user the user to enrich
-     * @return a {@link UserWithTasksResult} containing user and associated task IDs
+     * @return a {@link UserWithTasksResult} containing user and associated task IDs, or a degraded result if tasks-service is unavailable
      */
     private UserWithTasksResult enrichUserWithTasks(User user) {
-        var taskIds = tasksGateway.getTaskIdsByUserId(user.getId());
-        return new UserWithTasksResult(user, taskIds);
+        try {
+            var taskIds = tasksGateway.getTaskIdsByUserId(user.getId());
+            return UserWithTasksResult.available(user, taskIds);
+        } catch (TasksUnavailableException _) {
+            return UserWithTasksResult.unavailable(user);
+        }
     }
 
 }

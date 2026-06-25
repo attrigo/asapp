@@ -39,6 +39,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.bcn.asapp.users.application.user.TasksUnavailableException;
 import com.bcn.asapp.users.application.user.out.TasksGateway;
 import com.bcn.asapp.users.application.user.out.UserRepository;
 import com.bcn.asapp.users.domain.user.UserId;
@@ -56,6 +57,7 @@ import com.bcn.asapp.users.domain.user.UserId;
  * <li>Returns user collection when querying all users</li>
  * <li>Enriches user data with associated task identifiers via external gateway</li>
  * <li>Propagates task gateway failures to the caller</li>
+ * <li>Returns a degraded result when tasks-service is unavailable</li>
  */
 @ExtendWith(MockitoExtension.class)
 class ReadUserServiceTests {
@@ -90,6 +92,7 @@ class ReadUserServiceTests {
                 // @formatter:off
                 softly.assertThat(actual.get().user()).as("user").isEqualTo(user);
                 softly.assertThat(actual.get().taskIds()).as("task IDs").isEmpty();
+                softly.assertThat(actual.get().tasksServiceAvailable()).as("tasks service availability").isTrue();
                 // @formatter:on
             });
 
@@ -121,6 +124,36 @@ class ReadUserServiceTests {
                 softly.assertThat(actual.get().user()).as("user").isEqualTo(user);
                 softly.assertThat(actual.get().taskIds()).as("task IDs").hasSize(2);
                 softly.assertThat(actual.get().taskIds()).as("task IDs").contains(taskId1, taskId2);
+                softly.assertThat(actual.get().tasksServiceAvailable()).as("tasks service availability").isTrue();
+                // @formatter:on
+            });
+
+            then(userRepository).should(times(1))
+                                .findById(userId);
+            then(tasksGateway).should(times(1))
+                              .getTaskIdsByUserId(userId);
+        }
+
+        @Test
+        void ReturnsUserWithUnavailableTasks_TasksServiceUnavailable() {
+            // Given
+            var user = aUser();
+            var userId = user.getId();
+
+            given(userRepository.findById(userId)).willReturn(Optional.of(user));
+            willThrow(new TasksUnavailableException("Tasks Service is unavailable", new RuntimeException("Connection refused"))).given(tasksGateway)
+                                                                                                                                .getTaskIdsByUserId(userId);
+
+            // When
+            var actual = readUserService.getUserById(userId.value());
+
+            // Then
+            assertThat(actual).isPresent();
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual.get().user()).as("user").isEqualTo(user);
+                softly.assertThat(actual.get().taskIds()).as("task IDs").isNull();
+                softly.assertThat(actual.get().tasksServiceAvailable()).as("tasks service availability").isFalse();
                 // @formatter:on
             });
 

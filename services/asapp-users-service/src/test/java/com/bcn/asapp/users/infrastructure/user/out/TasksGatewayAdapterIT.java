@@ -40,8 +40,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 
 import com.bcn.asapp.users.AsappUsersServiceApplication;
+import com.bcn.asapp.users.application.user.TasksUnavailableException;
 import com.bcn.asapp.users.application.user.out.TasksGateway;
 import com.bcn.asapp.users.infrastructure.security.JwtAuthenticationToken;
 import com.bcn.asapp.users.testutil.TestContainerConfiguration;
@@ -50,8 +53,8 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
  * Tests {@link TasksGatewayAdapter} fallback behavior end-to-end through the real declarative HTTP client against an embedded MockServer.
  * <p>
  * Coverage:
- * <li>Degrades to an empty list when the Tasks Service responds with a server error (5xx)</li>
- * <li>Degrades to an empty list when the Tasks Service connection is dropped</li>
+ * <li>Signals tasks unavailable when the Tasks Service responds with a server error (5xx)</li>
+ * <li>Signals tasks unavailable when the Tasks Service connection is dropped</li>
  * <li>Propagates client (4xx) errors without masking them as an empty list</li>
  */
 @SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = WebEnvironment.NONE)
@@ -85,7 +88,7 @@ class TasksGatewayAdapterIT {
     class GetTaskIdsByUserId {
 
         @Test
-        void ReturnsEmptyList_TasksServiceReturnsServerError() {
+        void ThrowsTasksUnavailableException_TasksServiceReturnsServerError() {
             // Given
             var userId = aUser().getId();
             var request = request().withMethod(HttpMethod.GET.name())
@@ -97,14 +100,16 @@ class TasksGatewayAdapterIT {
                             .respond(response().withStatusCode(500));
 
             // When
-            var actual = tasksGateway.getTaskIdsByUserId(userId);
+            var actual = catchThrowable(() -> tasksGateway.getTaskIdsByUserId(userId));
 
             // Then
-            assertThat(actual).isEmpty();
+            assertThat(actual).isInstanceOf(TasksUnavailableException.class)
+                              .hasMessage("Tasks Service is unavailable")
+                              .hasCauseInstanceOf(HttpServerErrorException.class);
         }
 
         @Test
-        void ReturnsEmptyList_TasksServiceUnreachable() {
+        void ThrowsTasksUnavailableException_UnreachableTasksService() {
             // Given
             var userId = aUser().getId();
             var request = request().withMethod(HttpMethod.GET.name())
@@ -115,10 +120,12 @@ class TasksGatewayAdapterIT {
                             .error(error().withDropConnection(true));
 
             // When
-            var actual = tasksGateway.getTaskIdsByUserId(userId);
+            var actual = catchThrowable(() -> tasksGateway.getTaskIdsByUserId(userId));
 
             // Then
-            assertThat(actual).isEmpty();
+            assertThat(actual).isInstanceOf(TasksUnavailableException.class)
+                              .hasMessage("Tasks Service is unavailable")
+                              .hasCauseInstanceOf(ResourceAccessException.class);
         }
 
         @Test

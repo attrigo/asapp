@@ -71,6 +71,7 @@ import com.bcn.asapp.users.infrastructure.user.in.response.GetAllUsersResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUserByIdResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUsersByIdsResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
+import com.bcn.asapp.users.infrastructure.user.in.response.WarningDetail;
 import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserEntity;
 import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserRepository;
 import com.bcn.asapp.users.testutil.TestContainerConfiguration;
@@ -81,7 +82,7 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
  * Coverage:
  * <li>Rejects all operations without valid JWT authentication</li>
  * <li>Retrieves user by identifier returning 404 when not found, user when exists</li>
- * <li>Retrieves user with task enrichment via external gateway (graceful degradation on failure)</li>
+ * <li>Retrieves user with task enrichment via external gateway (partial-success degradation surfacing a task_ids_unavailable warning on failure)</li>
  * <li>Retrieves users by identifier list, omitting unknown ids and deduplicating</li>
  * <li>Retrieves all users returning empty or collection</li>
  * <li>Creates user persisting to database and returning assigned identifier</li>
@@ -141,7 +142,7 @@ class UserE2EIT {
             var createdUser = createUser();
             var userId = createdUser.id();
             var response = new GetUserByIdResponse(createdUser.id(), createdUser.firstName(), createdUser.lastName(), createdUser.email(),
-                    createdUser.phoneNumber(), Collections.emptyList());
+                    createdUser.phoneNumber(), Collections.emptyList(), null);
 
             mockRequestToGetTasksByUserIdWithOkResponse(userId, Collections.emptyList());
 
@@ -163,8 +164,7 @@ class UserE2EIT {
             assertThat(actual).isEqualTo(response);
 
             // Assert no warning logs appear for a successful empty response
-            assertThat(output.getAll()).doesNotContain("Failed to retrieve tasks")
-                                       .doesNotContain("Returning empty list");
+            assertThat(output.getAll()).doesNotContain("Tasks Service unavailable for user");
         }
 
         @Test
@@ -177,7 +177,7 @@ class UserE2EIT {
             var taskId3 = UUID.fromString("f5a6b7c8-d9e0-4f1a-2b3c-4d5e6f7a8b9c");
             var taskIds = List.of(taskId1, taskId2, taskId3);
             var response = new GetUserByIdResponse(createdUser.id(), createdUser.firstName(), createdUser.lastName(), createdUser.email(),
-                    createdUser.phoneNumber(), taskIds);
+                    createdUser.phoneNumber(), taskIds, null);
 
             mockRequestToGetTasksByUserIdWithOkResponse(userId, taskIds);
 
@@ -200,12 +200,13 @@ class UserE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndBodyWithFoundUserWithoutTasks_UserExistsAndTasksServiceFails(CapturedOutput output) {
+        void ReturnsStatusOKAndBodyWithFoundUserWithEmptyTaskListAndWarning_UserExistsAndTasksServiceFails(CapturedOutput output) {
             // Given
             var createdUser = createUser();
             var userId = createdUser.id();
+            var warningDetail = WarningDetail.Reason.TASK_IDS_UNAVAILABLE.toDetail();
             var response = new GetUserByIdResponse(createdUser.id(), createdUser.firstName(), createdUser.lastName(), createdUser.email(),
-                    createdUser.phoneNumber(), Collections.emptyList());
+                    createdUser.phoneNumber(), Collections.emptyList(), List.of(warningDetail));
 
             mockRequestToGetTasksByUserIdWithServerErrorResponse(userId);
 
@@ -226,9 +227,8 @@ class UserE2EIT {
             // Then
             assertThat(actual).isEqualTo(response);
 
-            // Assert warning logs appear due to service failure
-            assertThat(output.getAll()).contains("Failed to retrieve tasks for user " + createdUser.id())
-                                       .contains("Returning empty list");
+            // Assert the degradation is logged for operators
+            assertThat(output.getAll()).contains("Tasks Service unavailable for user " + createdUser.id());
         }
 
         @Test

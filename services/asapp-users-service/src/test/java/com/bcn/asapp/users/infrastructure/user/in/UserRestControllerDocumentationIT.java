@@ -52,6 +52,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.dao.DataRetrievalFailureException;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.security.test.context.support.WithAnonymousUser;
 import org.springframework.security.test.context.support.WithMockUser;
 
@@ -99,8 +100,8 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
             var phoneNumberValue = user.getPhoneNumber()
                                        .value();
             var taskIds = List.<UUID>of();
-            var userWithTasksResult = new UserWithTasksResult(user, List.of());
-            var response = new GetUserByIdResponse(userIdValue, firstNameValue, lastNameValue, emailValue, phoneNumberValue, taskIds);
+            var userWithTasksResult = UserWithTasksResult.available(user, List.of());
+            var response = new GetUserByIdResponse(userIdValue, firstNameValue, lastNameValue, emailValue, phoneNumberValue, taskIds, List.of());
 
             given(readUserUseCase.getUserById(any(UUID.class))).willReturn(Optional.of(userWithTasksResult));
             given(userMapper.toGetUserByIdResponse(any(UserWithTasksResult.class))).willReturn(response);
@@ -120,7 +121,12 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                    fieldWithPath("lastName").description("The user's last name"),
                                    fieldWithPath("email").description("The user's email address"),
                                    fieldWithPath("phoneNumber").description("The user's phone number"),
-                                   fieldWithPath("taskIds").description("The identifiers of tasks associated with the user")
+                                   fieldWithPath("taskIds").description("The identifiers of tasks associated with the user; empty when tasks-service is unavailable"),
+                                   fieldWithPath("warnings").description("Structured degradation warnings; omitted when none").type(JsonFieldType.ARRAY).optional(),
+                                   fieldWithPath("warnings[].code").description("Machine-readable code identifying the degradation type (e.g. task_ids_unavailable)").type(JsonFieldType.STRING).optional(),
+                                   fieldWithPath("warnings[].field").description("The response field affected by the degradation").type(JsonFieldType.STRING).optional(),
+                                   fieldWithPath("warnings[].message").description("Human-readable description of the degradation").type(JsonFieldType.STRING).optional(),
+                                   fieldWithPath("warnings[].retryable").description("Whether the client may retry the request to obtain complete data").type(JsonFieldType.BOOLEAN).optional()
                            )
                        )
                        // @formatter:on

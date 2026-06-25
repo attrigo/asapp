@@ -19,6 +19,7 @@ package com.bcn.asapp.users.application.user.out;
 import java.util.List;
 import java.util.UUID;
 
+import com.bcn.asapp.users.application.user.TasksUnavailableException;
 import com.bcn.asapp.users.domain.user.UserId;
 
 /**
@@ -37,11 +38,12 @@ public interface TasksGateway {
      * This method queries the tasks-service to obtain references to all tasks belonging to the specified user. Only task identifiers are returned, maintaining
      * loose coupling between bounded contexts.
      * <p>
-     * The implementation should handle communication failures gracefully, either by returning an empty list or propagating an appropriate exception based on
-     * the desired error handling strategy.
+     * When tasks-service is unavailable (server error, I/O failure, or open circuit), the implementation throws {@link TasksUnavailableException} so the caller
+     * can decide how to degrade. A genuine empty result (the user has no tasks) is returned as an empty list.
      *
      * @param userId the user's unique identifier
-     * @return a {@link List} of task UUIDs associated with the user, or an empty list if the user has no tasks or if retrieval fails
+     * @return a {@link List} of task UUIDs associated with the user, or an empty list if the user has no tasks
+     * @throws TasksUnavailableException if tasks-service is unavailable
      */
     List<UUID> getTaskIdsByUserId(UserId userId);
 
