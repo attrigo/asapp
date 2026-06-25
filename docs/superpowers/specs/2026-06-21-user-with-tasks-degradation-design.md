@@ -408,3 +408,57 @@ the handler. No new `@ExceptionHandler` is needed. The existing `503` mapping
 - Whether to add a dedicated `UserMapper` unit test for the warning derivation or
   cover it solely through `UserRestControllerIT`.
 - `.claude/rules` placement — `ports-adapters.md` vs `development-patterns.md`.
+
+---
+
+## 10. Post-implementation notes
+
+This spec and its plan (`docs/superpowers/plans/2026-06-21-user-with-tasks-degradation.md`)
+were written before implementation. The core change shipped substantially as designed —
+tasks are now a soft dependency: the adapter translates a downstream outage into a typed
+`TasksUnavailableException`, `ReadUserService` catches it and returns a degraded result, and
+`GET /users/{id}` answers `200 OK` with `taskIds: []` plus an optional `warnings` array that
+is omitted on the happy path. The external response contract of §2.1 / §7 holds exactly, as
+`UserE2EIT` confirms.
+
+Beyond the wire contract, the canonical implementation is the current state of the source on
+this branch — `TasksGatewayAdapter`, `TasksUnavailableException`, `ReadUserService`,
+`UserWithTasksResult`, `UserMapper`, `WarningDetail`, and `GetUserByIdResponse`, plus their
+tests — not this document.
+
+Notable deltas:
+
+- **Warning catalog moved from a `WarningCodes` string holder into a `WarningDetail.Reason`
+  enum (reverses §3.7 and the `WarningCodes` mention in the Targets line / §8).** The design
+  put a package-private `infrastructure/user/mapper/WarningCodes` holding only the code
+  string, with the mapper assembling the `WarningDetail` from inline literals. The
+  implementation instead catalogs the whole warning — code, field, message, retryable — in a
+  `Reason` enum nested in the `WarningDetail` response record
+  (`infrastructure/user/in/response/WarningDetail.java`) exposing a `toDetail()` factory;
+  `WarningCodes` was never created. `UserMapper.toWarningDetails(boolean)` now returns
+  `WarningDetail.Reason.TASK_IDS_UNAVAILABLE.toDetail()`. This keeps the full warning
+  vocabulary in one typed place beside the DTO it builds, rather than a bare constant plus
+  scattered literals.
+
+- **Warning code renamed `tasks_unavailable` → `task_ids_unavailable` (revises §2.1, §3.6–§3.7,
+  §4, §7).** The code now names the missing data, not the downstream service, per the `rest.md`
+  partial-success convention ("the code names the missing data, never internal services"). It
+  is defined on `WarningDetail.Reason.TASK_IDS_UNAVAILABLE`.
+
+- **Availability flag renamed `tasksAvailable` → `tasksServiceAvailable` (revises §2.3, §3.5,
+  §3.7).** `UserWithTasksResult` and the `UserMapper`
+  `@Mapping(target = "warnings", source = "tasksServiceAvailable")` use the longer name, which
+  states plainly that the flag tracks the service's reachability.
+
+- **Degraded `taskIds` is modeled as `null` in the application result and coalesced to `[]`
+  only at the mapper, not `[]` end-to-end (reverses §3.5, revises §3.7's "maps 1:1").**
+  `UserWithTasksResult.unavailable(user)` now stores `null`, and the invariant requires
+  `taskIds` be `null` when unavailable (was: empty list). The null→`[]` translation is an
+  infrastructure decision made by the `@Named("toTaskIdsUUID")` helper in `UserMapper`; the
+  application layer represents "no data" as absence. The wire contract is unchanged — the
+  degraded response is still `taskIds: []` plus the warning (asserted in `UserE2EIT`).
+
+For future degradation / partial-success edits, treat the source on this branch —
+`WarningDetail` (and its `Reason` enum), `UserMapper`, `UserWithTasksResult`, and the
+`rest.md` "Partial Success / Degraded Responses" convention — as the template; this spec is
+preserved as a record of the original design intent.
