@@ -104,7 +104,7 @@ public interface UserMapper {
     @Mapping(target = "lastName", source = "user.lastName")
     @Mapping(target = "email", source = "user.email")
     @Mapping(target = "phoneNumber", source = "user.phoneNumber")
-    @Mapping(target = "taskIds", source = "taskIds", qualifiedByName = "toResponseTaskIds")
+    @Mapping(target = "taskIds", source = "taskIds", qualifiedByName = "toTaskIdsUUID")
     @Mapping(target = "warnings", source = "tasksServiceAvailable")
     GetUserByIdResponse toGetUserByIdResponse(UserWithTasksResult result);
 
@@ -145,20 +145,20 @@ public interface UserMapper {
     UpdateUserResponse toUpdateUserResponse(User user);
 
     /**
-     * Coalesces the degraded null task references into an empty list for the response.
+     * Maps the task identifiers to the response task ID list.
      *
-     * @param taskIds the task ID list from the result, or {@code null} when degraded
-     * @return the task IDs when present, or an empty list when degraded
+     * @param taskIds the task identifiers
+     * @return the task identifiers, or an empty list when {@code null}
      */
-    @Named("toResponseTaskIds")
-    default List<UUID> toResponseTaskIds(List<UUID> taskIds) {
+    @Named("toTaskIdsUUID")
+    default List<UUID> toTaskIdsUUID(List<UUID> taskIds) {
         return taskIds != null ? taskIds : List.of();
     }
 
     /**
-     * Derives the structured response warnings from the task-availability flag.
+     * Maps the tasks-service availability flag to the response warnings.
      *
-     * @param tasksServiceAvailable whether tasks were successfully retrieved
+     * @param tasksServiceAvailable the tasks-service availability flag
      * @return an empty list when available, or a single {@link WarningDetail} when not
      */
     default List<WarningDetail> toWarningDetails(boolean tasksServiceAvailable) {
