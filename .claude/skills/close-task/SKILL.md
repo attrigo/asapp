@@ -28,6 +28,23 @@ SDD-scratch cleanup).
 
 ## Process (end-to-end, no gate, no push)
 
+**Track progress with the task tool.** Before Step 0, create these ten tasks; mark each
+`in_progress` when you start it and `completed` when it's done:
+
+1. Resolve, detect, capture revert anchors (Step 0)
+2. Analyze the task's context (Step 1)
+3. Mark the spec implemented (Step 2)
+4. Commit the spec (Step 3)
+5. Draft the squash message (Step 4)
+6. Squash-merge into main, excluding the plan (Step 5)
+7. Commit the plan as the last branch commit (Step 6)
+8. Verify invariants (Step 7)
+9. Clear the SDD record (Step 8)
+10. Wrap-up (Step 9)
+
+If the close aborts (a Step 5 merge conflict or a failed Step 7 invariant), leave the current
+task `in_progress` so the stopping point — and what has already been mutated — stays visible.
+
 ### Step 0: Resolve, detect, capture revert anchors
 
 - **Resolve** — from the current branch or the argument (stop and ask if any is ambiguous; don't guess before mutating):
