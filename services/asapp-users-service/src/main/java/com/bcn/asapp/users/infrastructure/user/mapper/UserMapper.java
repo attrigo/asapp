@@ -21,6 +21,7 @@ import java.util.UUID;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
 import com.bcn.asapp.users.application.user.in.command.CreateUserCommand;
 import com.bcn.asapp.users.application.user.in.command.UpdateUserCommand;
@@ -103,7 +104,7 @@ public interface UserMapper {
     @Mapping(target = "lastName", source = "user.lastName")
     @Mapping(target = "email", source = "user.email")
     @Mapping(target = "phoneNumber", source = "user.phoneNumber")
-    @Mapping(target = "taskIds", expression = "java(toResponseTaskIds(result))")
+    @Mapping(target = "taskIds", source = "taskIds", qualifiedByName = "toResponseTaskIds")
     @Mapping(target = "warnings", source = "tasksServiceAvailable")
     GetUserByIdResponse toGetUserByIdResponse(UserWithTasksResult result);
 
@@ -146,11 +147,12 @@ public interface UserMapper {
     /**
      * Coalesces the degraded null task references into an empty list for the response.
      *
-     * @param result the {@link UserWithTasksResult} carrying the task references
+     * @param taskIds the task ID list from the result, or {@code null} when degraded
      * @return the task IDs when present, or an empty list when degraded
      */
-    default List<UUID> toResponseTaskIds(UserWithTasksResult result) {
-        return result.taskIds() != null ? result.taskIds() : List.of();
+    @Named("toResponseTaskIds")
+    default List<UUID> toResponseTaskIds(List<UUID> taskIds) {
+        return taskIds != null ? taskIds : List.of();
     }
 
     /**
