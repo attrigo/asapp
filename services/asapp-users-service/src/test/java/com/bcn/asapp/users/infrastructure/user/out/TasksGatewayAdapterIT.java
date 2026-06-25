@@ -40,6 +40,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 
 import com.bcn.asapp.users.AsappUsersServiceApplication;
 import com.bcn.asapp.users.application.user.TasksUnavailableException;
@@ -101,7 +103,9 @@ class TasksGatewayAdapterIT {
             var actual = catchThrowable(() -> tasksGateway.getTaskIdsByUserId(userId));
 
             // Then
-            assertThat(actual).isInstanceOf(TasksUnavailableException.class);
+            assertThat(actual).isInstanceOf(TasksUnavailableException.class)
+                              .hasMessage("Tasks Service is unavailable")
+                              .hasCauseInstanceOf(HttpServerErrorException.class);
         }
 
         @Test
@@ -119,7 +123,9 @@ class TasksGatewayAdapterIT {
             var actual = catchThrowable(() -> tasksGateway.getTaskIdsByUserId(userId));
 
             // Then
-            assertThat(actual).isInstanceOf(TasksUnavailableException.class);
+            assertThat(actual).isInstanceOf(TasksUnavailableException.class)
+                              .hasMessage("Tasks Service is unavailable")
+                              .hasCauseInstanceOf(ResourceAccessException.class);
         }
 
         @Test
