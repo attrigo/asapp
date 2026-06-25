@@ -137,7 +137,7 @@ git status --porcelain
 - Reference issues when applicable: `Closes #123`, `Refs #456`
 
 **Body format** (when a body is included):
-- Optional lead paragraph (1-3 sentences) explaining the WHY — motivation, root cause, or constraint. Omit when the subject already conveys the why and the bullets stand on their own.
+- Optional lead paragraph (1-3 sentences) explaining the WHY — motivation, root cause, or constraint. Write it on a single line; do not hard-wrap at any column. Omit when the subject already conveys the why and the bullets stand on their own.
 - Required bulleted list of changes (one or more bullets):
   - Marker: `-` followed by a single space
   - First letter capitalized
@@ -232,8 +232,7 @@ Generated commit message:
 ```
 fix(security): drop AuthenticationManager bean from tasks and users
 
-Exposing @Bean AuthenticationManager in a proxyBeanMethods=false class
-caused a StackOverflowError in the actuator filter chain.
+Exposing @Bean AuthenticationManager in a proxyBeanMethods=false class caused a StackOverflowError in the actuator filter chain.
 
 - Drop the AuthenticationManager bean from tasks and users services
 - Keep the bean in authentication service where CredentialsAuthenticatorAdapter requires it
