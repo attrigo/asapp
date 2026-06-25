@@ -82,7 +82,7 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
  * Coverage:
  * <li>Rejects all operations without valid JWT authentication</li>
  * <li>Retrieves user by identifier returning 404 when not found, user when exists</li>
- * <li>Retrieves user with task enrichment via external gateway (partial-success degradation surfacing a tasks_unavailable warning on failure)</li>
+ * <li>Retrieves user with task enrichment via external gateway (partial-success degradation surfacing a task_ids_unavailable warning on failure)</li>
  * <li>Retrieves users by identifier list, omitting unknown ids and deduplicating</li>
  * <li>Retrieves all users returning empty or collection</li>
  * <li>Creates user persisting to database and returning assigned identifier</li>
@@ -204,7 +204,7 @@ class UserE2EIT {
             // Given
             var createdUser = createUser();
             var userId = createdUser.id();
-            var warningDetail = WarningDetail.Reason.TASKS_UNAVAILABLE.toDetail();
+            var warningDetail = WarningDetail.Reason.TASK_IDS_UNAVAILABLE.toDetail();
             var response = new GetUserByIdResponse(createdUser.id(), createdUser.firstName(), createdUser.lastName(), createdUser.email(),
                     createdUser.phoneNumber(), Collections.emptyList(), List.of(warningDetail));
 

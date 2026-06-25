@@ -123,7 +123,7 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                    fieldWithPath("phoneNumber").description("The user's phone number"),
                                    fieldWithPath("taskIds").description("The identifiers of tasks associated with the user; empty when tasks-service is unavailable"),
                                    fieldWithPath("warnings").description("Structured degradation warnings; omitted when none").type(JsonFieldType.ARRAY).optional(),
-                                   fieldWithPath("warnings[].code").description("Machine-readable code identifying the degradation type (e.g. tasks_unavailable)").type(JsonFieldType.STRING).optional(),
+                                   fieldWithPath("warnings[].code").description("Machine-readable code identifying the degradation type (e.g. task_ids_unavailable)").type(JsonFieldType.STRING).optional(),
                                    fieldWithPath("warnings[].field").description("The response field affected by the degradation").type(JsonFieldType.STRING).optional(),
                                    fieldWithPath("warnings[].message").description("Human-readable description of the degradation").type(JsonFieldType.STRING).optional(),
                                    fieldWithPath("warnings[].retryable").description("Whether the client may retry the request to obtain complete data").type(JsonFieldType.BOOLEAN).optional()

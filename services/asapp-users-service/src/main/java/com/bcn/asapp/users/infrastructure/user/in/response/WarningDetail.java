@@ -41,7 +41,7 @@ public record WarningDetail(
      */
     public enum Reason {
 
-        TASKS_UNAVAILABLE("tasks_unavailable", "taskIds", "Tasks could not be retrieved and may be incomplete.", true);
+        TASK_IDS_UNAVAILABLE("task_ids_unavailable", "taskIds", "Tasks could not be retrieved and may be incomplete.", true);
 
         private final String code;
 
