@@ -134,7 +134,6 @@ public class ReadUserService implements ReadUserUseCase {
             var taskIds = tasksGateway.getTaskIdsByUserId(user.getId());
             return UserWithTasksResult.available(user, taskIds);
         } catch (TasksUnavailableException _) {
-            // The adapter already logs the outage; staying silent here avoids double-logging the same event.
             return UserWithTasksResult.unavailable(user);
         }
     }
