@@ -29,6 +29,17 @@ fixes the in-scope findings afterwards.
 
 ## Process
 
+**Track progress with the task tool.** Before Step 1, create these four tasks; mark each
+`in_progress` when you start it and `completed` when it's done:
+
+1. Locate task and determine review scope        (Step 1)
+2. Run the review — fan out, then consolidate     (Step 2)
+3. Present findings and get the user's selection  (Steps 3–4)
+4. Log selected findings to `TODO.md`             (Step 5)
+
+Keep Task 3 `in_progress` across the wait for the user's selection; move to Task 4 only
+once they answer. Step 6 (wrap-up) completes Task 4.
+
 ### Step 1: Locate and determine review scope
 
 Do all of this up front. Do not review anything yet.
