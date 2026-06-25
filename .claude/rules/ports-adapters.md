@@ -55,3 +55,8 @@ paths:
 | Persistence-specific | `PersistenceException` | `application/<aggregate>/` | `AuthenticationPersistenceException` |
 | Orchestration base | `RuntimeException` | `application/<aggregate>/` | `AuthenticationException` |
 | Orchestration subtype | Orchestration base | `application/<aggregate>/` | `AuthenticationNotFoundException` |
+
+## Resilience
+
+- The adapter owns the resilience mechanism and translates a downstream outage into a typed gateway exception (e.g. `TasksUnavailableException`)
+- Whether that outage degrades the response or fails the request is the application service's policy, never the adapter's

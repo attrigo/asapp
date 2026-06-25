@@ -77,7 +77,8 @@ public interface UserRestAPI {
      * <p>
      * This endpoint retrieves user information along with a list of task identifiers associated with the user.
      * <p>
-     * If task retrieval fails, the response will contain the user with an empty task list (graceful degradation).
+     * If tasks-service is unavailable, the endpoint still returns 200 OK with the user, an empty task list, and a {@code warnings} array describing the
+     * degradation.
      * <p>
      * Response codes:
      * <ul>
@@ -93,7 +94,7 @@ public interface UserRestAPI {
      */
     @GetMapping(value = USERS_GET_BY_ID_PATH, produces = "application/json")
     @Operation(summary = "Gets a user by their unique identifier with task references", description = "Retrieves detailed information about a specific user by their unique identifier, including a list of associated task identifiers. This endpoint requires authentication.")
-    @ApiResponse(responseCode = "200", description = "User found (with or without tasks)", content = {
+    @ApiResponse(responseCode = "200", description = "User found (with or without tasks); includes a warnings array when task data could not be retrieved", content = {
             @Content(schema = @Schema(implementation = GetUserByIdResponse.class)) })
     @ApiResponse(responseCode = "400", description = "Invalid user identifier format", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })

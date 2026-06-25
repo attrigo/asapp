@@ -44,3 +44,11 @@ paths:
 - Validation errors extend `ProblemDetail` with a `fieldErrors` property containing a list of `RequestValidationError(field, message)`
 - Always set `title` and `detail` via `ProblemDetail.forStatusAndDetail(...)`
 - 5xx responses in `GlobalExceptionHandler` add `"critical": true` to `ProblemDetail` for monitoring alerts
+
+## Partial Success / Degraded Responses
+
+- Degrade-vs-fail is an application-service policy, decided per dependency (see `ports-adapters.md`)
+- Soft (non-critical) dependency → return `200` with the primary data and a `warnings` entry; hard (critical) dependency → fail with a `ProblemDetail` error
+- When the degraded data field is a collection, return it empty rather than null so clients avoid null-checks
+- The warnings array is itself the degradation signal — omit it when empty, so its presence alone marks a degraded response
+- A warning `code` names the missing data, never an internal service or topology

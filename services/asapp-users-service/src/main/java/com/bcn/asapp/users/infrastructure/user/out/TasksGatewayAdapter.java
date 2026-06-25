@@ -33,6 +33,7 @@ import io.github.resilience4j.retry.annotation.Retry;
 
 import com.bcn.asapp.clients.tasks.TasksHttpClient;
 import com.bcn.asapp.clients.tasks.response.TasksByUserIdResponse;
+import com.bcn.asapp.users.application.user.TasksUnavailableException;
 import com.bcn.asapp.users.application.user.out.TasksGateway;
 import com.bcn.asapp.users.domain.user.UserId;
 
@@ -74,16 +75,15 @@ public class TasksGatewayAdapter implements TasksGateway {
      * automatically once the Tasks Service is healthy again.</li>
      * <li>Retry: transient server (5xx) and I/O failures are retried with exponential backoff so a momentary blip recovers transparently; client (4xx) errors
      * are not retried.</li>
-     * <li>Degradation: failures degrade to an empty list so the user lookup still succeeds, while client and unexpected errors propagate — see
-     * {@code emptyTasksFallback} for the exact classification.</li>
+     * <li>Degradation: outages (5xx, I/O failures, and open-circuit) are translated into a {@link TasksUnavailableException} so the caller can decide how to
+     * degrade, while client and unexpected errors propagate — see {@code tasksUnavailableFallback} for the exact classification.</li>
      * </ul>
      *
      * @param userId the user's unique identifier
-     * @return a {@link List} of task UUIDs associated with the user, or an empty list if the user has no tasks, the response body is null, or the tasks circuit
-     *         breaker degrades a downstream outage (5xx/I/O or open circuit)
+     * @return a {@link List} of task UUIDs associated with the user, or an empty list if the user has no tasks or the response body is null
      */
     @Override
-    @CircuitBreaker(name = TASKS_CLIENT_NAME, fallbackMethod = "emptyTasksFallback")
+    @CircuitBreaker(name = TASKS_CLIENT_NAME, fallbackMethod = "tasksUnavailableFallback")
     @Retry(name = TASKS_CLIENT_NAME)
     public List<UUID> getTaskIdsByUserId(UserId userId) {
         var tasks = tasksHttpClient.getTasksByUserId(userId.value());
@@ -99,27 +99,28 @@ public class TasksGatewayAdapter implements TasksGateway {
     }
 
     /**
-     * Returns an empty task id list when the Tasks Service is unavailable or the circuit is open.
+     * Translates a tasks-service outage into a {@link TasksUnavailableException}, or rethrows non-outage failures.
      * <p>
-     * Invoked reflectively by Resilience4j as the {@code tasks} circuit breaker fallback, which classifies the failure:
+     * Invoked reflectively by Resilience4j as the {@code tasks} circuit breaker fallback:
      * <ul>
      * <li>Server (5xx) errors ({@link HttpServerErrorException}), I/O failures ({@link ResourceAccessException}), and the open-circuit
-     * {@link CallNotPermittedException} are degraded to an empty list.</li>
+     * {@link CallNotPermittedException} are translated into a {@link TasksUnavailableException} so the application service can degrade gracefully.</li>
      * <li>Client (4xx) errors and any unexpected failure are rethrown so callers and the error handler can surface them.</li>
      * </ul>
      *
      * @param userId the user's unique identifier
      * @param cause  the failure that triggered the fallback
-     * @return an empty {@link List} when the downstream service is unavailable or the circuit is open
-     * @throws Throwable the original failure when it is not a recoverable downstream outage (e.g. a 4xx client error or a bug)
+     * @return never returns normally for an outage
+     * @throws TasksUnavailableException when the downstream service is unavailable or the circuit is open
+     * @throws Throwable                 the original failure when it is not a recoverable downstream outage (e.g. a 4xx client error or a bug)
      */
-    private List<UUID> emptyTasksFallback(UserId userId, Throwable cause) throws Throwable {
+    private List<UUID> tasksUnavailableFallback(UserId userId, Throwable cause) throws Throwable {
         if (cause instanceof HttpServerErrorException || cause instanceof ResourceAccessException || cause instanceof CallNotPermittedException) {
             var className = cause.getClass()
                                  .getSimpleName();
             var message = cause.getMessage();
-            logger.warn("Failed to retrieve tasks for user {}: {} - {}. Returning empty list.", userId.value(), className, message);
-            return List.of();
+            logger.warn("Tasks Service unavailable for user {}: {} - {}.", userId.value(), className, message);
+            throw new TasksUnavailableException("Tasks Service is unavailable", cause);
         }
 
         throw cause;

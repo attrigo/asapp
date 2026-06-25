@@ -19,6 +19,8 @@ package com.bcn.asapp.users.infrastructure.user.in.response;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+
 /**
  * Response for retrieving a user by its unique identifier.
  *
@@ -27,7 +29,8 @@ import java.util.UUID;
  * @param lastName    the user's last name
  * @param email       the user's email
  * @param phoneNumber the user's phone number
- * @param taskIds     the user's task identifiers
+ * @param taskIds     the user's task identifiers, or an empty list when tasks-service is unavailable
+ * @param warnings    structured non-fatal degradation warnings; omitted when empty
  * @since 0.2.0
  * @author attrigo
  */
@@ -37,5 +40,6 @@ public record GetUserByIdResponse(
         String lastName,
         String email,
         String phoneNumber,
-        List<UUID> taskIds
+        List<UUID> taskIds,
+        @JsonInclude(JsonInclude.Include.NON_EMPTY) List<WarningDetail> warnings
 ) {}

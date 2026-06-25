@@ -30,6 +30,7 @@
         * [X] Use circuit breaker pattern
         * [X] Use retry pattern
         * [X] Add timeouts to HTTP client
+        * [X] Review the user-with-tasks degradation behavior when tasks-service is unavailable
     * Profiles
         * [X] Introduce explicit dev and prod profiles to gate dev-only tooling and align with docker/native
 * CI/CD

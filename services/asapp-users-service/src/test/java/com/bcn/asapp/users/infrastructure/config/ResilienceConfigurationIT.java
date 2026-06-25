@@ -53,6 +53,7 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 
 import com.bcn.asapp.users.AsappUsersServiceApplication;
+import com.bcn.asapp.users.application.user.TasksUnavailableException;
 import com.bcn.asapp.users.application.user.out.TasksGateway;
 import com.bcn.asapp.users.domain.user.UserId;
 import com.bcn.asapp.users.infrastructure.security.JwtAuthenticationToken;
@@ -76,7 +77,7 @@ import com.bcn.asapp.users.testutil.TestContainerConfiguration;
  * A connect timeout is not covered separately:
  * <ul>
  * <li>Requires a blackhole-socket complex setup.</li>
- * <li>It shares the read-timeout path (same I/O failure, retry, circuit breaker, degrade-to-empty) verified above.</li>
+ * <li>It shares the read-timeout path (same I/O failure, retry, circuit breaker, translate-to-TasksUnavailableException) verified above.</li>
  * </ul>
  */
 @SpringBootTest(classes = AsappUsersServiceApplication.class, webEnvironment = WebEnvironment.NONE)
@@ -133,7 +134,7 @@ class ResilienceConfigurationIT {
 
         // When
         IntStream.range(0, MINIMUM_NUMBER_OF_CALLS - 1)
-                 .forEach(_ -> tasksGateway.getTaskIdsByUserId(userId));
+                 .forEach(_ -> assertThat(catchThrowable(() -> tasksGateway.getTaskIdsByUserId(userId))).isInstanceOf(TasksUnavailableException.class));
 
         // Then
         assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.CLOSED);
@@ -226,9 +227,10 @@ class ResilienceConfigurationIT {
         openCircuit(userId, request);
 
         // When
-        tasksGateway.getTaskIdsByUserId(userId);
+        var actual = catchThrowable(() -> tasksGateway.getTaskIdsByUserId(userId));
 
         // Then
+        assertThat(actual).isInstanceOf(TasksUnavailableException.class);
         assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.OPEN);
 
         mockServerClient.verify(request, exactly(MINIMUM_NUMBER_OF_CALLS * MAX_ATTEMPTS));
@@ -246,9 +248,10 @@ class ResilienceConfigurationIT {
                         .respond(response().withStatusCode(500));
 
         // When
-        tasksGateway.getTaskIdsByUserId(userId);
+        var actual = catchThrowable(() -> tasksGateway.getTaskIdsByUserId(userId));
 
         // Then
+        assertThat(actual).isInstanceOf(TasksUnavailableException.class);
         assertThat(circuitBreaker.getMetrics()
                                  .getNumberOfFailedCalls()).isEqualTo(1);
 
@@ -270,9 +273,10 @@ class ResilienceConfigurationIT {
                                            .withDelay(TimeUnit.SECONDS, 1));
 
         // When
-        tasksGateway.getTaskIdsByUserId(userId);
+        var actual = catchThrowable(() -> tasksGateway.getTaskIdsByUserId(userId));
 
         // Then
+        assertThat(actual).isInstanceOf(TasksUnavailableException.class);
         assertThat(circuitBreaker.getMetrics()
                                  .getNumberOfFailedCalls()).isEqualTo(1);
 
@@ -284,7 +288,7 @@ class ResilienceConfigurationIT {
                         .respond(response().withStatusCode(500));
 
         IntStream.range(0, MINIMUM_NUMBER_OF_CALLS)
-                 .forEach(_ -> tasksGateway.getTaskIdsByUserId(userId));
+                 .forEach(_ -> assertThat(catchThrowable(() -> tasksGateway.getTaskIdsByUserId(userId))).isInstanceOf(TasksUnavailableException.class));
 
         assertThat(circuitBreaker.getState()).isEqualTo(CircuitBreaker.State.OPEN);
     }

@@ -16,10 +16,12 @@
 
 package com.bcn.asapp.users.infrastructure.user.mapper;
 
+import java.util.List;
 import java.util.UUID;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
 import com.bcn.asapp.users.application.user.in.command.CreateUserCommand;
 import com.bcn.asapp.users.application.user.in.command.UpdateUserCommand;
@@ -32,6 +34,7 @@ import com.bcn.asapp.users.infrastructure.user.in.response.GetAllUsersResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUserByIdResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.GetUsersByIdsResponse;
 import com.bcn.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
+import com.bcn.asapp.users.infrastructure.user.in.response.WarningDetail;
 import com.bcn.asapp.users.infrastructure.user.persistence.JdbcUserEntity;
 
 /**
@@ -94,14 +97,15 @@ public interface UserMapper {
      * Combines user information with task references into a single response.
      *
      * @param result the {@link UserWithTasksResult} containing user and task information
-     * @return the {@link GetUserByIdResponse} with user data and task IDs
+     * @return the {@link GetUserByIdResponse} with user data, task IDs, and any degradation warnings
      */
     @Mapping(target = "userId", source = "user.id")
     @Mapping(target = "firstName", source = "user.firstName")
     @Mapping(target = "lastName", source = "user.lastName")
     @Mapping(target = "email", source = "user.email")
     @Mapping(target = "phoneNumber", source = "user.phoneNumber")
-    @Mapping(target = "taskIds", source = "taskIds")
+    @Mapping(target = "taskIds", source = "taskIds", qualifiedByName = "toTaskIdsUUID")
+    @Mapping(target = "warnings", source = "tasksServiceAvailable")
     GetUserByIdResponse toGetUserByIdResponse(UserWithTasksResult result);
 
     /**
@@ -139,5 +143,26 @@ public interface UserMapper {
      */
     @Mapping(target = "userId", source = "id")
     UpdateUserResponse toUpdateUserResponse(User user);
+
+    /**
+     * Maps the task identifiers to the response task ID list.
+     *
+     * @param taskIds the task identifiers
+     * @return the task identifiers, or an empty list when {@code null}
+     */
+    @Named("toTaskIdsUUID")
+    default List<UUID> toTaskIdsUUID(List<UUID> taskIds) {
+        return taskIds != null ? taskIds : List.of();
+    }
+
+    /**
+     * Maps the tasks-service availability flag to the response warnings.
+     *
+     * @param tasksServiceAvailable the tasks-service availability flag
+     * @return an empty list when available, or a single {@link WarningDetail} when not
+     */
+    default List<WarningDetail> toWarningDetails(boolean tasksServiceAvailable) {
+        return tasksServiceAvailable ? List.of() : List.of(WarningDetail.Reason.TASK_IDS_UNAVAILABLE.toDetail());
+    }
 
 }

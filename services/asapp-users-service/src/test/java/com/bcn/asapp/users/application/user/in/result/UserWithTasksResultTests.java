@@ -31,10 +31,12 @@ import org.junit.jupiter.api.Test;
  * Tests {@link UserWithTasksResult} construction and null validation.
  * <p>
  * Coverage:
- * <li>Creates result with user and task identifiers</li>
- * <li>Creates result with user and empty task list</li>
+ * <li>Creates an available result with user and task identifiers</li>
+ * <li>Creates an available result with user and empty task list</li>
+ * <li>Creates an unavailable result with null task list</li>
  * <li>Rejects null user</li>
- * <li>Rejects null task identifier list</li>
+ * <li>Rejects null task identifiers when tasks service is available</li>
+ * <li>Rejects non-null task identifiers when tasks service is unavailable</li>
  */
 class UserWithTasksResultTests {
 
@@ -50,13 +52,14 @@ class UserWithTasksResultTests {
             var taskIds = List.of(taskId1, taskId2);
 
             // When
-            var actual = new UserWithTasksResult(user, taskIds);
+            var actual = UserWithTasksResult.available(user, taskIds);
 
             // Then
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.user()).as("user").isEqualTo(user);
                 softly.assertThat(actual.taskIds()).as("task IDs").containsExactly(taskId1, taskId2);
+                softly.assertThat(actual.tasksServiceAvailable()).as("tasks service availability").isTrue();
                 // @formatter:on
             });
         }
@@ -68,24 +71,40 @@ class UserWithTasksResultTests {
             var taskIds = List.<UUID>of();
 
             // When
-            var actual = new UserWithTasksResult(user, taskIds);
+            var actual = UserWithTasksResult.available(user, taskIds);
 
             // Then
             assertSoftly(softly -> {
                 // @formatter:off
                 softly.assertThat(actual.user()).as("user").isEqualTo(user);
                 softly.assertThat(actual.taskIds()).as("task IDs").isEmpty();
+                softly.assertThat(actual.tasksServiceAvailable()).as("tasks service availability").isTrue();
+                // @formatter:on
+            });
+        }
+
+        @Test
+        void ReturnsUserWithTasksResult_TasksServiceUnavailable() {
+            // Given
+            var user = aUser();
+
+            // When
+            var actual = UserWithTasksResult.unavailable(user);
+
+            // Then
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(actual.user()).as("user").isEqualTo(user);
+                softly.assertThat(actual.taskIds()).as("task IDs").isNull();
+                softly.assertThat(actual.tasksServiceAvailable()).as("tasks service availability").isFalse();
                 // @formatter:on
             });
         }
 
         @Test
         void ThrowsIllegalArgumentException_NullUser() {
-            // Given
-            var taskIds = List.<UUID>of();
-
             // When
-            var actual = catchThrowable(() -> new UserWithTasksResult(null, taskIds));
+            var actual = catchThrowable(() -> UserWithTasksResult.available(null, List.<UUID>of()));
 
             // Then
             assertThat(actual).isInstanceOf(IllegalArgumentException.class)
@@ -93,16 +112,29 @@ class UserWithTasksResultTests {
         }
 
         @Test
-        void ThrowsIllegalArgumentException_NullTaskIds() {
+        void ThrowsIllegalArgumentException_NullTaskIdsWhenTasksServiceAvailable() {
             // Given
             var user = aUser();
 
             // When
-            var actual = catchThrowable(() -> new UserWithTasksResult(user, null));
+            var actual = catchThrowable(() -> new UserWithTasksResult(user, null, true));
 
             // Then
             assertThat(actual).isInstanceOf(IllegalArgumentException.class)
-                              .hasMessage("Task IDs list must not be null");
+                              .hasMessage("Task IDs list must not be null when tasks are available");
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_NonNullTaskIdsWhenTasksServiceUnavailable() {
+            // Given
+            var user = aUser();
+
+            // When
+            var actual = catchThrowable(() -> new UserWithTasksResult(user, List.<UUID>of(), false));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Task IDs list must be null when tasks are unavailable");
         }
 
     }
