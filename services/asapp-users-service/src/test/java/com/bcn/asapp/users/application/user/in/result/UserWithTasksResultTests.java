@@ -76,6 +76,7 @@ class UserWithTasksResultTests {
             // Then
             assertSoftly(softly -> {
                 // @formatter:off
+                softly.assertThat(actual.user()).as("user").isEqualTo(user);
                 softly.assertThat(actual.taskIds()).as("task IDs").isEmpty();
                 softly.assertThat(actual.tasksServiceAvailable()).as("tasks service availability").isTrue();
                 // @formatter:on
