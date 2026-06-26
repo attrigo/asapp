@@ -30,6 +30,9 @@ import com.attrigo.asapp.config.AsappConfigServiceApplication;
 /**
  * Tests actuator endpoint content exposed by the application.
  * <p>
+ * Setup:
+ * <li>Loads the full config server context on a random port and builds a REST client targeting the management port before each test</li>
+ * <p>
  * Coverage:
  * <li>Actuator root exposes all expected endpoint links</li>
  * <li>Health endpoint returns status and groups without authentication</li>

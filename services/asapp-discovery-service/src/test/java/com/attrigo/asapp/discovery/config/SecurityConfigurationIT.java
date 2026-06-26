@@ -35,6 +35,9 @@ import com.attrigo.asapp.discovery.AsappDiscoveryServiceApplication;
 /**
  * Tests {@link SecurityConfiguration} HTTP Basic authentication rules enforced by the application.
  * <p>
+ * Setup:
+ * <li>Loads the full discovery server context on a random port with an auto-configured REST client</li>
+ * <p>
  * Coverage:
  * <li>Rejects Eureka endpoint requests without credentials</li>
  * <li>Rejects Eureka endpoint requests with invalid credentials</li>

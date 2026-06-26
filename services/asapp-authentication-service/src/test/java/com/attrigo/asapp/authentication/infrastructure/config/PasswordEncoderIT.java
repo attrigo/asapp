@@ -48,6 +48,10 @@ import com.attrigo.asapp.authentication.testutil.TestContainerConfiguration;
 /**
  * Tests {@link DelegatingPasswordEncoder} multi-format password authentication.
  * <p>
+ * Setup:
+ * <li>Loads the full application context backed by a Testcontainers PostgreSQL instance and an embedded Redis</li>
+ * <li>Clears the authentication and user tables and flushes the token store before each test</li>
+ * <p>
  * Coverage:
  * <li>Authenticates users with bcrypt-encoded passwords</li>
  * <li>Authenticates users with argon2-encoded passwords</li>

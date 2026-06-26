@@ -18,6 +18,7 @@ Suffixes: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-
 - Exception: E2EIT classes use `Tests <what>` without `{@link}` (no single class under test)
 - Summary describes what's tested, not what the class is — use concrete terms (validation, factory methods, equality, compensation), avoid DDD jargon (encapsulates, protects boundaries)
 - Coverage list items MUST NOT reference class names, fields or methods — describe behaviors instead
+- Optional Setup list before Coverage: add when a class has meaningful shared setup (avoid wiring mock); describe behaviorally (no class/field/method names)
 
 ### 1.2 Annotation Ordering
 

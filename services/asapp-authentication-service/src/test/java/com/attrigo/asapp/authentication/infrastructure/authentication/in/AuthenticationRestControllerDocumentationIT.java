@@ -52,6 +52,10 @@ import com.attrigo.asapp.authentication.testutil.RestDocsWebMvcTestContext;
 /**
  * Tests {@link AuthenticationRestController} REST API documentation.
  * <p>
+ * Setup:
+ * <li>Loads the web layer with a mock MVC environment and mocked service collaborators</li>
+ * <li>Configures REST Docs documentation support before each test</li>
+ * <p>
  * Coverage:
  * <li>Generates API documentation snippets for all authentication endpoints and error responses</li>
  * <li>Documents request fields and response fields</li>

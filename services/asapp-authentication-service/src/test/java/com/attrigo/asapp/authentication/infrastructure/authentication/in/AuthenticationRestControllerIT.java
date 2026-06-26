@@ -32,6 +32,9 @@ import com.attrigo.asapp.authentication.testutil.WebMvcTestContext;
 /**
  * Tests {@link AuthenticationRestController} request validation and error responses.
  * <p>
+ * Setup:
+ * <li>Loads the web layer with a mock MVC environment and mocked service collaborators</li>
+ * <p>
  * Coverage:
  * <li>Validates request content type (JSON required for POST operations)</li>
  * <li>Validates request body presence and structure</li>

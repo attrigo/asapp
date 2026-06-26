@@ -79,6 +79,10 @@ import com.attrigo.asapp.users.testutil.TestContainerConfiguration;
 /**
  * Tests end-to-end user management workflows including CRUD operations and task enrichment.
  * <p>
+ * Setup:
+ * <li>Loads the full application context backed by a Testcontainers PostgreSQL instance, an embedded Redis, and a containerized mock server</li>
+ * <li>Clears the user table, resets the mock server, and seeds a valid access token in the store before each test</li>
+ * <p>
  * Coverage:
  * <li>Rejects all operations without valid JWT authentication</li>
  * <li>Retrieves user by identifier returning 404 when not found, user when exists</li>

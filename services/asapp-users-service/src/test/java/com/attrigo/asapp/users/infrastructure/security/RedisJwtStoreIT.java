@@ -33,6 +33,10 @@ import com.attrigo.asapp.users.testutil.TestContainerConfiguration;
 /**
  * Tests {@link RedisJwtStore} token existence checks against Redis.
  * <p>
+ * Setup:
+ * <li>Loads the full application context backed by a Testcontainers PostgreSQL instance and an embedded Redis</li>
+ * <li>Clears the token store before each test</li>
+ * <p>
  * Coverage:
  * <li>Verifies token existence check returns false when token not present in Redis</li>
  * <li>Verifies token existence check returns true when token stored in Redis</li>

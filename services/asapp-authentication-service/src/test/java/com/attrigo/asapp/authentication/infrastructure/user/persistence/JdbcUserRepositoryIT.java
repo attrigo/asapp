@@ -36,6 +36,10 @@ import com.attrigo.asapp.authentication.testutil.TestContainerConfiguration;
 /**
  * Tests {@link JdbcUserRepository} CRUD operations and cascading cleanup against PostgreSQL.
  * <p>
+ * Setup:
+ * <li>Loads the data JDBC slice backed by a Testcontainers PostgreSQL instance</li>
+ * <li>Clears the authentication and user tables before each test</li>
+ * <p>
  * Coverage:
  * <li>Persists and retrieves user credentials by multiple identifiers (ID, username)</li>
  * <li>Deletes user with cascading cleanup to authentication records</li>

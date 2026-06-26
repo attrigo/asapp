@@ -41,6 +41,10 @@ import com.attrigo.asapp.authentication.testutil.TestContainerConfiguration;
 /**
  * Tests {@link RedisJwtStore} token activation, existence checks, and TTL expiration against Redis.
  * <p>
+ * Setup:
+ * <li>Loads the full application context backed by a Testcontainers PostgreSQL instance and an embedded Redis</li>
+ * <li>Flushes the token store before each test</li>
+ * <p>
  * Coverage:
  * <li>Activates token pairs in Redis with calculated TTL from expiration timestamps</li>
  * <li>Verifies token existence checks return correct status</li>

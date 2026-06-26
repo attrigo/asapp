@@ -31,6 +31,9 @@ import com.attrigo.asapp.discovery.AsappDiscoveryServiceApplication;
 /**
  * Tests Eureka server endpoints exposed by the application.
  * <p>
+ * Setup:
+ * <li>Loads the full discovery server context on a random port with an auto-configured REST client</li>
+ * <p>
  * Coverage:
  * <li>Eureka apps endpoint returns a valid response with an applications registry when valid credentials are provided</li>
  */

@@ -44,6 +44,10 @@ import com.attrigo.asapp.users.testutil.TestContainerConfiguration;
 /**
  * Tests {@link SecurityConfiguration} JWT API authentication and actuator, Swagger and OpenAPI endpoint access control.
  * <p>
+ * Setup:
+ * <li>Loads the full application context backed by a Testcontainers PostgreSQL instance and an embedded Redis</li>
+ * <li>Clears the token store before each test</li>
+ * <p>
  * Coverage:
  * <li>Rejects API requests without Authorization header</li>
  * <li>Rejects API requests with malformed, expired, unsigned, or invalid signature tokens</li>

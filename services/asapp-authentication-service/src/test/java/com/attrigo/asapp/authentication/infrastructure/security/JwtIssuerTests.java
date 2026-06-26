@@ -59,6 +59,9 @@ import com.attrigo.asapp.authentication.domain.user.Username;
 /**
  * Tests {@link JwtIssuer} token generation, claim population, and cryptographic signing.
  * <p>
+ * Setup:
+ * <li>Builds the issuer with a real MAC signer before each test</li>
+ * <p>
  * Coverage:
  * <li>Generates access and refresh tokens with distinct type headers and expiration times</li>
  * <li>Includes mandatory claims (subject, role, token_use) in both token types</li>

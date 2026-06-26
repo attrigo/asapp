@@ -30,6 +30,9 @@ import com.attrigo.asapp.config.AsappConfigServiceApplication;
 /**
  * Tests Spring Cloud Config Server endpoints exposed by the application.
  * <p>
+ * Setup:
+ * <li>Loads the full config server context on a random port with an auto-configured REST client</li>
+ * <p>
  * Coverage:
  * <li>Config endpoint returns a valid response for a known application and profile</li>
  */

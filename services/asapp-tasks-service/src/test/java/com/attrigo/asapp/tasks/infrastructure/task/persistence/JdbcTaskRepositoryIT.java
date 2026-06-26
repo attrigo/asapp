@@ -35,6 +35,10 @@ import com.attrigo.asapp.tasks.testutil.TestContainerConfiguration;
 /**
  * Tests {@link JdbcTaskRepository} query and delete operations against PostgreSQL.
  * <p>
+ * Setup:
+ * <li>Loads the data JDBC slice backed by a Testcontainers PostgreSQL instance</li>
+ * <li>Clears the task table before each test</li>
+ * <p>
  * Coverage:
  * <li>Queries tasks by user ownership returning empty when none found</li>
  * <li>Queries tasks by user ownership returning all matching tasks</li>

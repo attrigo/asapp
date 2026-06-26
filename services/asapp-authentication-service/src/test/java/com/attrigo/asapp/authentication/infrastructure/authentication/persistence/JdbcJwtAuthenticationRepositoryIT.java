@@ -42,6 +42,10 @@ import com.attrigo.asapp.authentication.testutil.TestContainerConfiguration;
 /**
  * Tests {@link JdbcJwtAuthenticationRepository} CRUD operations and query strategies against PostgreSQL.
  * <p>
+ * Setup:
+ * <li>Loads the data JDBC slice backed by a Testcontainers PostgreSQL instance</li>
+ * <li>Clears the authentication and user tables before each test</li>
+ * <p>
  * Coverage:
  * <li>Persists and retrieves authentication sessions by multiple identifiers (ID, access token, refresh token)</li>
  * <li>Queries authentications by user identifier and expiration criteria</li>

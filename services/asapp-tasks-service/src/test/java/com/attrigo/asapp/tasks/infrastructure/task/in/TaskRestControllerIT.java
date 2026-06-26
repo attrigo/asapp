@@ -45,6 +45,9 @@ import com.attrigo.asapp.tasks.testutil.WebMvcTestContext;
 /**
  * Tests {@link TaskRestController} request validation and error responses.
  * <p>
+ * Setup:
+ * <li>Loads the web layer with a mock MVC environment and mocked service collaborators</li>
+ * <p>
  * Coverage:
  * <li>Validates path parameter format (UUID required for task and user IDs)</li>
  * <li>Validates request content type (JSON required for POST/PUT operations)</li>

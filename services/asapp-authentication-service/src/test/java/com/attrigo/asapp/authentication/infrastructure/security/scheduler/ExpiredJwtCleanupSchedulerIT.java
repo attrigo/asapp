@@ -37,6 +37,10 @@ import com.attrigo.asapp.authentication.testutil.TestContainerConfiguration;
 /**
  * Tests {@link ExpiredJwtCleanupScheduler} expired authentication cleanup from database.
  * <p>
+ * Setup:
+ * <li>Loads the full application context backed by a Testcontainers PostgreSQL instance</li>
+ * <li>Clears the authentication and user tables before each test</li>
+ * <p>
  * Coverage:
  * <li>Deletes authentications where refresh token expired before current time</li>
  * <li>Preserves authentications where refresh token not yet expired</li>

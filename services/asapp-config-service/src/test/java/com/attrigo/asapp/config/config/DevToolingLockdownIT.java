@@ -32,6 +32,10 @@ import com.attrigo.asapp.config.AsappConfigServiceApplication;
 /**
  * Tests that Actuator exposure is locked down without the dev profile.
  * <p>
+ * Setup:
+ * <li>Loads the full config server context on a random port with narrowed actuator exposure and builds a REST client targeting the management port before each
+ * test</li>
+ * <p>
  * Coverage:
  * <li>Actuator root exposes only health, info, prometheus and sbom links when exposure is narrowed</li>
  */

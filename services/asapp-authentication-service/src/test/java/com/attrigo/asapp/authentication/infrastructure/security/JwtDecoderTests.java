@@ -40,6 +40,9 @@ import com.nimbusds.jose.crypto.MACVerifier;
 /**
  * Tests {@link JwtDecoder} token validation, signature verification, and claim extraction.
  * <p>
+ * Setup:
+ * <li>Builds the decoder with a real MAC verifier before each test</li>
+ * <p>
  * Coverage:
  * <li>Rejects malformed token structure</li>
  * <li>Rejects tokens with invalid cryptographic signature</li>

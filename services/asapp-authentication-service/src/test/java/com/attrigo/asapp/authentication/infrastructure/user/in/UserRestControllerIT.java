@@ -43,6 +43,9 @@ import com.attrigo.asapp.authentication.testutil.WebMvcTestContext;
 /**
  * Tests {@link UserRestController} request validation and error responses.
  * <p>
+ * Setup:
+ * <li>Loads the web layer with a mock MVC environment and mocked service collaborators</li>
+ * <p>
  * Coverage:
  * <li>Validates path parameter format (UUID required for user IDs)</li>
  * <li>Validates request content type (JSON required for POST/PUT operations)</li>

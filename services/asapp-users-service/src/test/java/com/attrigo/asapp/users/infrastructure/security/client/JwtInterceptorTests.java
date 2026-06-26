@@ -44,6 +44,9 @@ import com.attrigo.asapp.users.infrastructure.security.JwtAuthenticationToken;
 /**
  * Tests {@link JwtInterceptor} JWT propagation to outgoing requests.
  * <p>
+ * Setup:
+ * <li>Resets the security context and installs a mock context before each test</li>
+ * <p>
  * Coverage:
  * <li>Rejects requests when authentication missing from security context</li>
  * <li>Rejects requests when authentication is not JWT-based</li>
