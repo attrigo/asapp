@@ -229,16 +229,16 @@ Listed highest-precedence first; `application-<profile>` rows apply only when th
 
 ### Docker Environment Variables
 
-| Variable                 | Description                           | Default                        |
-|--------------------------|---------------------------------------|--------------------------------|
-| `JAVA_OPTS`              | JVM runtime options                   | (see docker-compose.yaml)      |
-| `SPRING_PROFILES_ACTIVE` | Active Spring profiles                | `native,docker,dev`            |
-| `SERVER_PORT`            | HTTP server port                      | `8888`                         |
-| `MANAGEMENT_PORT`        | Actuator management port              | `8898`                         |
-| `SERVICE_USERNAME`       | HTTP Basic username for all endpoints | `user`                         |
-| `SERVICE_PASSWORD`       | HTTP Basic password for all endpoints | `secret`                       |
-| `THC_PORT`               | Health check port for readiness       | `8888`                         |
-| `THC_PATH`               | Health check path for readiness       | `/asapp-config-service/readyz` |
+| Variable                 | Description                           |
+|--------------------------|---------------------------------------|
+| `JAVA_OPTS`              | JVM runtime options                   |
+| `SPRING_PROFILES_ACTIVE` | Active Spring profiles                |
+| `SERVER_PORT`            | HTTP server port                      |
+| `SERVICE_USERNAME`       | HTTP Basic username for all endpoints |
+| `SERVICE_PASSWORD`       | HTTP Basic password for all endpoints |
+| `MANAGEMENT_PORT`        | Actuator management port              |
+| `THC_PORT`               | Health check port for readiness       |
+| `THC_PATH`               | Health check path for readiness       |
 
 ### API Endpoints
 

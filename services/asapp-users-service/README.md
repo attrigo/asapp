@@ -346,30 +346,38 @@ Listed highest-precedence first; `application-<profile>` rows apply only when th
 
 ### Docker Environment Variables
 
-| Variable                      | Description                                | Default                                                            |
-|-------------------------------|--------------------------------------------|--------------------------------------------------------------------|
-| `JAVA_OPTS`                   | JVM runtime options                        | (see docker-compose.yaml)                                          |
-| `SPRING_PROFILES_ACTIVE`      | Active Spring profiles                     | `docker,dev`                                                       |
-| `SERVER_PORT`                 | HTTP server port                           | `8082`                                                             |
-| `MANAGEMENT_PORT`             | Actuator management port                   | `8092`                                                             |
-| `DB_HOST`                     | PostgreSQL hostname                        | `asapp-users-postgres-db`                                          |
-| `DB_PORT`                     | PostgreSQL port                            | `5432`                                                             |
-| `DB_NAME`                     | PostgreSQL database name                   | `usersdb`                                                          |
-| `DB_USERNAME`                 | PostgreSQL username                        | `user`                                                             |
-| `DB_PASSWORD`                 | PostgreSQL password                        | `secret`                                                           |
-| `REDIS_HOST`                  | Redis hostname                             | `asapp-redis`                                                      |
-| `REDIS_PORT`                  | Redis port                                 | `6379`                                                             |
-| `REDIS_PASSWORD`              | Redis password                             | `secret`                                                           |
-| `CONFIG_SERVER_URI`           | Config server base URI                     | `http://asapp-config-service:8888/asapp-config-service`            |
-| `CONFIG_SERVER_USERNAME`      | Config server HTTP Basic username          | `user`                                                             |
-| `CONFIG_SERVER_PASSWORD`      | Config server HTTP Basic password          | `secret`                                                           |
-| `DISCOVERY_HOST`              | Eureka server hostname                     | `asapp-discovery-service:8761/asapp-discovery-service`             |
-| `DISCOVERY_USERNAME`          | Eureka server username                     | `user`                                                             |
-| `DISCOVERY_PASSWORD`          | Eureka server password                     | `secret`                                                           |
-| `SERVICE_USERNAME`            | HTTP Basic username for actuator endpoints | `user`                                                             |
-| `SERVICE_PASSWORD`            | HTTP Basic password for actuator endpoints | `secret`                                                           |
-| `ASAPP_SECURITY_JWT_SECRET`   | HMAC-SHA secret for signing JWT tokens     | `qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi` |
-| `ASAPP_CLIENT_TASKS_BASE_URL` | Tasks service base URL                     | `http://asapp-tasks-service/asapp-tasks-service`                   |
+| Variable                               | Description                                |
+|----------------------------------------|--------------------------------------------|
+| `JAVA_OPTS`                            | JVM runtime options                        |
+| `SPRING_PROFILES_ACTIVE`               | Active Spring profiles                     |
+| `CONFIG_SERVER_URI`                    | Config server base URI                     |
+| `CONFIG_SERVER_USERNAME`               | Config server HTTP Basic username          |
+| `CONFIG_SERVER_PASSWORD`               | Config server HTTP Basic password          |
+| `SERVER_PORT`                          | HTTP server port                           |
+| `SERVICE_USERNAME`                     | HTTP Basic username for actuator endpoints |
+| `SERVICE_PASSWORD`                     | HTTP Basic password for actuator endpoints |
+| `DB_HOST`                              | PostgreSQL hostname                        |
+| `DB_PORT`                              | PostgreSQL port                            |
+| `DB_NAME`                              | PostgreSQL database name                   |
+| `DB_USERNAME`                          | PostgreSQL username                        |
+| `DB_PASSWORD`                          | PostgreSQL password                        |
+| `REDIS_HOST`                           | Redis hostname                             |
+| `REDIS_PORT`                           | Redis port                                 |
+| `REDIS_PASSWORD`                       | Redis password                             |
+| `MANAGEMENT_PORT`                      | Actuator management port                   |
+| `DISCOVERY_HOST`                       | Eureka server hostname                     |
+| `DISCOVERY_USERNAME`                   | Eureka server username                     |
+| `DISCOVERY_PASSWORD`                   | Eureka server password                     |
+| `TASKS_CB_SLIDING_WINDOW_SIZE`         | Circuit breaker sliding window size        |
+| `TASKS_CB_MINIMUM_NUMBER_OF_CALLS`     | Min calls before evaluating failure rate   |
+| `TASKS_CB_FAILURE_RATE_THRESHOLD`      | Failure rate % that opens the circuit      |
+| `TASKS_CB_WAIT_DURATION_IN_OPEN_STATE` | Time the circuit stays open                |
+| `TASKS_RETRY_MAX_ATTEMPTS`             | Max retry attempts per call                |
+| `TASKS_RETRY_WAIT_DURATION`            | Base wait between retry attempts           |
+| `HTTP_CLIENT_CONNECT_TIMEOUT`          | HTTP client connection timeout             |
+| `HTTP_CLIENT_READ_TIMEOUT`             | HTTP client read timeout                   |
+| `HTTP_CLIENT_TASKS_BASE_URL`           | Tasks service base URL                     |
+| `ASAPP_SECURITY_JWT_SECRET`            | HMAC-SHA secret for signing JWT tokens     |
 
 ### API Endpoints
 

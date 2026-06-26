@@ -293,33 +293,33 @@ Listed highest-precedence first; `application-<profile>` rows apply only when th
 
 ### Docker Environment Variables
 
-| Variable                                       | Description                                   | Default                                                            |
-|------------------------------------------------|-----------------------------------------------|--------------------------------------------------------------------|
-| `JAVA_OPTS`                                    | JVM runtime options                           | (see docker-compose.yaml)                                          |
-| `SPRING_PROFILES_ACTIVE`                       | Active Spring profiles                        | `docker,dev`                                                       |
-| `SERVER_PORT`                                  | HTTP server port                              | `8080`                                                             |
-| `MANAGEMENT_PORT`                              | Actuator management port                      | `8090`                                                             |
-| `DB_HOST`                                      | PostgreSQL hostname                           | `asapp-authentication-postgres-db`                                 |
-| `DB_PORT`                                      | PostgreSQL port                               | `5432`                                                             |
-| `DB_NAME`                                      | PostgreSQL database name                      | `authenticationdb`                                                 |
-| `DB_USERNAME`                                  | PostgreSQL username                           | `user`                                                             |
-| `DB_PASSWORD`                                  | PostgreSQL password                           | `secret`                                                           |
-| `REDIS_HOST`                                   | Redis hostname                                | `asapp-redis`                                                      |
-| `REDIS_PORT`                                   | Redis port                                    | `6379`                                                             |
-| `REDIS_PASSWORD`                               | Redis password                                | `secret`                                                           |
-| `CONFIG_SERVER_URI`                            | Config server base URI                        | `http://asapp-config-service:8888/asapp-config-service`            |
-| `CONFIG_SERVER_USERNAME`                       | Config server HTTP Basic username             | `user`                                                             |
-| `CONFIG_SERVER_PASSWORD`                       | Config server HTTP Basic password             | `secret`                                                           |
-| `DISCOVERY_HOST`                               | Eureka server hostname                        | `asapp-discovery-service:8761/asapp-discovery-service`             |
-| `DISCOVERY_USERNAME`                           | Eureka server username                        | `user`                                                             |
-| `DISCOVERY_PASSWORD`                           | Eureka server password                        | `secret`                                                           |
-| `SERVICE_USERNAME`                             | HTTP Basic username for actuator endpoints    | `user`                                                             |
-| `SERVICE_PASSWORD`                             | HTTP Basic password for actuator endpoints    | `secret`                                                           |
-| `ASAPP_SECURITY_JWT_SECRET`                    | HMAC-SHA secret for signing JWT tokens        | `qPxa4PP692Q4fx6voNBX25WoQrzjCoLWLW3VnABjZaOImy0cQaTad5DqBZk3qPxi` |
-| `ASAPP_SECURITY_ACCESS_TOKEN_EXPIRATION_TIME`  | Access token expiration in milliseconds       | `300000`                                                           |
-| `ASAPP_SECURITY_REFRESH_TOKEN_EXPIRATION_TIME` | Refresh token expiration in milliseconds      | `3600000`                                                          |
-| `ASAPP_SECURITY_JWT_CLEANUP_ENABLED`           | Enable expired JWT cleanup background job     | `true`                                                             |
-| `ASAPP_SECURITY_JWT_CLEANUP_CRON_EXPRESSION`   | Cron expression for expired token cleanup job | `0 0 2 * * ?`                                                      |
+| Variable                                       | Description                                   |
+|------------------------------------------------|-----------------------------------------------|
+| `JAVA_OPTS`                                    | JVM runtime options                           |
+| `SPRING_PROFILES_ACTIVE`                       | Active Spring profiles                        |
+| `CONFIG_SERVER_URI`                            | Config server base URI                        |
+| `CONFIG_SERVER_USERNAME`                       | Config server HTTP Basic username             |
+| `CONFIG_SERVER_PASSWORD`                       | Config server HTTP Basic password             |
+| `SERVER_PORT`                                  | HTTP server port                              |
+| `SERVICE_USERNAME`                             | HTTP Basic username for actuator endpoints    |
+| `SERVICE_PASSWORD`                             | HTTP Basic password for actuator endpoints    |
+| `DB_HOST`                                      | PostgreSQL hostname                           |
+| `DB_PORT`                                      | PostgreSQL port                               |
+| `DB_NAME`                                      | PostgreSQL database name                      |
+| `DB_USERNAME`                                  | PostgreSQL username                           |
+| `DB_PASSWORD`                                  | PostgreSQL password                           |
+| `REDIS_HOST`                                   | Redis hostname                                |
+| `REDIS_PORT`                                   | Redis port                                    |
+| `REDIS_PASSWORD`                               | Redis password                                |
+| `MANAGEMENT_PORT`                              | Actuator management port                      |
+| `DISCOVERY_HOST`                               | Eureka server hostname                        |
+| `DISCOVERY_USERNAME`                           | Eureka server username                        |
+| `DISCOVERY_PASSWORD`                           | Eureka server password                        |
+| `ASAPP_SECURITY_JWT_SECRET`                    | HMAC-SHA secret for signing JWT tokens        |
+| `ASAPP_SECURITY_ACCESS_TOKEN_EXPIRATION_TIME`  | Access token expiration in milliseconds       |
+| `ASAPP_SECURITY_REFRESH_TOKEN_EXPIRATION_TIME` | Refresh token expiration in milliseconds      |
+| `ASAPP_SECURITY_JWT_CLEANUP_ENABLED`           | Enable expired JWT cleanup background job     |
+| `ASAPP_SECURITY_JWT_CLEANUP_CRON_EXPRESSION`   | Cron expression for expired token cleanup job |
 
 ### API Endpoints
 

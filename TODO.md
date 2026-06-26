@@ -51,7 +51,7 @@
         * [X] Add Setup section to Javadocs of all test classes
         * [X] Add Javadoc to all custom public constructors to recommend use factory methods
         * [X] Synchronize api-guide.adoc files with OpenApi docs
-        * [ ] Update ### Docker Environment Variables with Resilience props in READMEs (sort them)
+        * [X] Update ### Docker Environment Variables with Resilience props in READMEs (sort them)
     * AI Code Assistant
         * [X] Create custom Skill to review a task
         * [X] Create custom Skill to resolve identified issues
