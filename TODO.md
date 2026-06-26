@@ -46,7 +46,7 @@
         * [X] Support fixup! commits in the commit-msg git hook
         * [ ] Make commit-msg git hook compatible with Linux (WSDL)
     * Docs
-        * [ ] Remove all reference to "docs/guidelines/" from README
+        * [X] Remove all reference to "docs/guidelines/" from README
         * [ ] Add missing reference to Boot-UI in README
         * [ ] Add Setup section to Javadocs of all test classes
         * [ ] Add Javadoc to all custom public constructors to recommend use factory methods

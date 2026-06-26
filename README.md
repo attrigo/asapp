@@ -582,16 +582,6 @@ The command applies AI editorial judgment to the generated changelog and asks fo
 
 ## Related Documentation
 
-### For Developers
-
-Comprehensive guides for working with ASAPP:
-
-- [Architecture & Domain Design](docs/guidelines/architecture.md) - Hexagonal layers, DDD patterns
-- [Testing Strategy](docs/guidelines/testing.md) - Test types, coverage, tools
-- [API Conventions](docs/guidelines/api-conventions.md) - REST patterns, DTOs, OpenAPI
-- [Code Style & Build](docs/guidelines/code-style.md) - Formatting, git hooks, commands
-- [Development Workflows](docs/guidelines/development-patterns.md) - Adding features, releases
-
 ### For AI Assistants
 
 - [CLAUDE.md](CLAUDE.md) — Guidance for AI tools like Claude Code
