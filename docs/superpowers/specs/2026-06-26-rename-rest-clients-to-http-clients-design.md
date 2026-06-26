@@ -1,7 +1,7 @@
 # Rename `asapp-rest-clients` → `asapp-http-clients` — Design
 
 **Date:** 2026-06-26
-**Status:** Approved
+**Status:** Implemented
 **Targets:** `libs/asapp-http-clients` (module dir + `pom.xml`), `libs/pom.xml`, `services/pom.xml`, `asapp-users-service/pom.xml`, docs (`README.md` ×4, `CLAUDE.md`), `TODO.md`
 
 ---
@@ -64,3 +64,15 @@ every reference point (module reactor, dependencyManagement, consumer dependency
 and the existing build/tests must pass. A green build is the end-to-end proof the
 rename is wired correctly. A repo-wide search for `asapp-rest-clients` must return
 zero hits outside the historical specs.
+
+## 5. Post-implementation notes
+
+This spec was written before implementation; no separate plan file was produced for this small, well-scoped rename. The core change shipped substantially as designed — the module directory, the Maven coordinate, every reactor/dependency reference, the docs prose, and the `TODO.md` checkbox were all renamed `asapp-rest-clients` → `asapp-http-clients` exactly as specified, and the build is green with zero `asapp-rest-clients` references outside historical specs.
+
+As always, the canonical implementation is the current state of the renamed `libs/asapp-http-clients` module and its `asapp-users-service` consumer on this branch, not this document.
+
+Notable deltas:
+
+- **Java package renamed `com.bcn.asapp.clients` → `com.bcn.asapp.http.clients` (reverses § 3 "Out of scope").** The original design kept the package as-is, judging a rename to be pure churn. A post-implementation review flagged the asymmetry between the new module name (`asapp-http-clients`) and the unchanged package (`...clients`), and the decision was reversed so the package matches the module. This touched the library sources (`TasksHttpClient`, `TasksByUserIdResponse`, `TasksHttpClientTests`), the `asapp-users-service` consumers (`TasksHttpClientConfiguration`, `TasksGatewayAdapter`, `RestClientConfigurationIT`, `TasksGatewayAdapterTests`), and the library `README.md`.
+
+For future client-library edits, treat the `com.bcn.asapp.http.clients` sources and the consumer imports as the template; this spec is preserved as a record of the original design intent.
