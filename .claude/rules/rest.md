@@ -34,8 +34,9 @@ paths:
 
 ## Spring REST Docs
 
-- Whenever a `*RestAPI.java` changes, update its `api-guide.adoc` section to keep description, status codes, and parameters in sync
-- Strip "This endpoint requires authentication." from adoc descriptions; authentication scope is already stated in the Overview
+- `api-guide.adoc` and the OpenAPI annotations are one source of truth: each endpoint's adoc prose MUST be verbatim-identical to its `@Operation(description = ...)`
+- "This endpoint requires authentication." (or equivalents) MUST NOT appear in the `@Operation` description or the adoc prose — auth scope is conveyed by `@SecurityRequirement` and the Overview
+- Whenever a `*RestAPI.java` or its `api-guide.adoc` changes, update the other to keep description, status codes, and parameters in sync
 
 ## Error Response Format
 

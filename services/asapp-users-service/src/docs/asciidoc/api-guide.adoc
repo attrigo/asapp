@@ -60,8 +60,8 @@ All endpoints require Bearer token authentication.
 | `404 Not Found`
 | The requested resource did not exist
 
-| `409 Conflict`
-| The request could not be completed due to a conflict with the current state of the resource
+| `500 Internal Server Error`
+| An unexpected server-side failure occurred
 |===
 
 [[resources]]
@@ -84,7 +84,7 @@ operation::get-user-by-id[snippets='path-parameters,http-request,response-fields
 
 Retrieves a list of users whose identifiers are in the provided `ids` query parameter.
 Missing identifiers are silently omitted; the response order is not guaranteed.
-Duplicate identifiers are deduplicated. The list must contain between 1 and 50 identifiers.
+Duplicate identifiers are deduplicated server-side. The list must contain between 1 and 50 identifiers.
 
 operation::get-users-by-ids[snippets='query-parameters,http-request,response-fields,curl-request,http-response']
 

@@ -57,8 +57,8 @@ This service manages authentication operations (token issuance, refresh, revocat
 | `404 Not Found`
 | The requested resource did not exist
 
-| `409 Conflict`
-| The request could not be completed due to a conflict with the current state of the resource
+| `500 Internal Server Error`
+| An unexpected server-side failure occurred
 
 | `503 Service Unavailable`
 | The service is temporarily unavailable due to an external dependency failure
@@ -75,7 +75,7 @@ Authentication endpoints handle JWT token issuance, refresh, and revocation.
 [[resources-authentication-authenticate]]
 === Authenticate
 
-Authenticates a user by validating their credentials, returning a new JWT token pair (access and refresh tokens).
+Authenticates a user by validating their credentials. Upon successful authentication, it generates and returns a new JWT authentication token pair (access and refresh tokens).
 Each authentication creates a new session; previous sessions remain valid until they expire or are explicitly revoked.
 
 operation::authenticate[snippets='request-fields,http-request,response-fields,curl-request,http-response']
@@ -92,7 +92,7 @@ operation::refresh-authentication[snippets='request-fields,http-request,response
 === Revoke Authentication
 
 Invalidates the current JWT authentication by revoking the provided access token.
-Prevents further use of the token for accessing protected resources.
+This effectively logs out the user and prevents further use of the token for accessing protected resources.
 
 operation::revoke-authentication[snippets='request-fields,http-request,curl-request,http-response']
 

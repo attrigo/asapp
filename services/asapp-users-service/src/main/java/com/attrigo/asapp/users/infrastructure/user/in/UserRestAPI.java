@@ -93,7 +93,7 @@ public interface UserRestAPI {
      * @return a {@link ResponseEntity} wrapping the {@link GetUserByIdResponse} if found, otherwise wrapping empty
      */
     @GetMapping(value = USERS_GET_BY_ID_PATH, produces = "application/json")
-    @Operation(summary = "Gets a user by their unique identifier with task references", description = "Retrieves detailed information about a specific user by their unique identifier, including a list of associated task identifiers. This endpoint requires authentication.")
+    @Operation(summary = "Gets a user by their unique identifier with task references", description = "Retrieves detailed information about a specific user by their unique identifier, including a list of associated task identifiers. If tasks-service is unavailable, the request still succeeds with an empty `taskIds` and a `task_ids_unavailable` warning in the `warnings` array. Because an empty `taskIds` is indistinguishable from a user who genuinely has no tasks, clients must inspect `warnings` to detect degradation.")
     @ApiResponse(responseCode = "200", description = "User found (with or without tasks); includes a warnings array when task data could not be retrieved", content = {
             @Content(schema = @Schema(implementation = GetUserByIdResponse.class)) })
     @ApiResponse(responseCode = "400", description = "Invalid user identifier format", content = {
@@ -121,7 +121,7 @@ public interface UserRestAPI {
      */
     @GetMapping(value = USERS_GET_ALL_PATH, params = USERS_IDS_PARAM, produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Gets users by their unique identifiers", description = "Retrieves a list of users whose identifiers are in the provided list. This endpoint requires authentication. Missing identifiers are silently omitted; the response order is not guaranteed. Duplicate identifiers are deduplicated server-side. The list must contain between 1 and 50 identifiers.")
+    @Operation(summary = "Gets users by their unique identifiers", description = "Retrieves a list of users whose identifiers are in the provided `ids` query parameter. Missing identifiers are silently omitted; the response order is not guaranteed. Duplicate identifiers are deduplicated server-side. The list must contain between 1 and 50 identifiers.")
     @ApiResponse(responseCode = "200", description = "Users found", content = { @Content(schema = @Schema(implementation = GetUsersByIdsResponse.class)) })
     @ApiResponse(responseCode = "400", description = "User identifiers list is empty, exceeds 50 elements, or contains a malformed UUID", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
@@ -146,7 +146,7 @@ public interface UserRestAPI {
      */
     @GetMapping(value = USERS_GET_ALL_PATH, params = "!ids", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Gets all users", description = "Retrieves a list of all registered users in the system. This endpoint requires authentication. If no users exist, an empty array is returned.")
+    @Operation(summary = "Gets all users", description = "Retrieves a list of all registered users in the system. If no users exist, an empty array is returned.")
     @ApiResponse(responseCode = "200", description = "Users retrieved successfully", content = {
             @Content(schema = @Schema(implementation = GetAllUsersResponse.class)) })
     @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
@@ -171,7 +171,7 @@ public interface UserRestAPI {
      */
     @PostMapping(value = USERS_CREATE_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Creates a new user", description = "Creates a new user in the system with the provided user information. This endpoint requires authentication. Returns the user identifier. Use GET endpoint to retrieve full user details.")
+    @Operation(summary = "Creates a new user", description = "Creates a new user in the system with the provided user information. Returns the user identifier. Use the GET endpoint to retrieve full user details.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User creation request containing all necessary user information", required = true, content = @Content(schema = @Schema(implementation = CreateUserRequest.class)))
     @ApiResponse(responseCode = "201", description = "User created successfully", content = {
             @Content(schema = @Schema(implementation = CreateUserResponse.class)) })
@@ -200,7 +200,7 @@ public interface UserRestAPI {
      * @return a {@link ResponseEntity} wrapping the {@link UpdateUserResponse} with the user identifier if found, otherwise wrapping empty
      */
     @PutMapping(value = USERS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
-    @Operation(summary = "Updates an existing user by their unique identifier", description = "Updates the information of an existing user identified by their unique identifier. This endpoint requires authentication. Only the fields provided in the request will be updated. Returns the user identifier. Use GET endpoint to retrieve full user details.")
+    @Operation(summary = "Updates an existing user by their unique identifier", description = "Updates the information of an existing user identified by their unique identifier. Only the fields provided in the request will be updated. Returns the user identifier. Use the GET endpoint to retrieve full user details.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User update request containing the user information to be modified", required = true, content = @Content(schema = @Schema(implementation = UpdateUserRequest.class)))
     @ApiResponse(responseCode = "200", description = "User updated successfully", content = {
             @Content(schema = @Schema(implementation = UpdateUserResponse.class)) })
@@ -230,7 +230,7 @@ public interface UserRestAPI {
      * @return a {@link ResponseEntity} wrapping empty upon successful deletion
      */
     @DeleteMapping(value = USERS_DELETE_BY_ID_PATH, produces = "application/json")
-    @Operation(summary = "Deletes a user by their unique identifier", description = "Removes a user from the system by their unique identifier. This endpoint requires authentication. This operation cannot be undone.")
+    @Operation(summary = "Deletes a user by their unique identifier", description = "Removes a user from the system by their unique identifier. This operation cannot be undone.")
     @ApiResponse(responseCode = "204", description = "User deleted successfully", content = { @Content })
     @ApiResponse(responseCode = "400", description = "Invalid user identifier format", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
