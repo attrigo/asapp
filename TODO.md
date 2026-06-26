@@ -37,7 +37,7 @@
     * Other
         * [X] Rename all references from com.bcn to com.attrigo
     * Test
-        * [ ] Rewrite asserts to use extracting() whenever possible
+        * [X] Standardize extracting() usage
         * [ ] Rewrite E2EIT to assert Json instead of Java DTOs
     * CI/CD
         * [X] Update commit-msg skill to include a bulleted body in generated commit messages

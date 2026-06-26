@@ -102,6 +102,7 @@ Suffixes: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-
 - Use AssertJ assertions exclusively, NOT JUnit assertions
 - Use `catchThrowable()` for exception testing, NOT `assertThatThrownBy()` or `assertThrows()`
 - Chain `catchThrowable()` with `.isInstanceOf(Type.class).hasMessage()` — use `hasMessageContaining()` only when the message includes dynamic values
+- Reserve `extracting()` for projecting fields from collections; assert single-object fields with direct getters
 - Use `assertSoftly()` when asserting 3 or more properties on the same result — navigating into nested properties still counts as asserting on the same root
 - Assertions on different root variables (e.g., `actual` vs `captor.getValue()`) are separate groups
 - When using `assertSoftly()`, `.as()` descriptions are MANDATORY for each assertion — `.as()` MUST be placed BEFORE the assertion method (silently ignored if placed after)

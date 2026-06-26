@@ -523,9 +523,8 @@ class UserE2EIT {
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isNotNull()
-                              .extracting(CreateUserResponse::userId)
-                              .isNotNull();
+            assertThat(actual).isNotNull();
+            assertThat(actual.userId()).isNotNull();
 
             // Assert the user has been created
             var createdUser = userRepository.findById(actual.userId());
@@ -588,9 +587,8 @@ class UserE2EIT {
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isNotNull()
-                              .extracting(UpdateUserResponse::userId)
-                              .isEqualTo(createdUser.id());
+            assertThat(actual).isNotNull();
+            assertThat(actual.userId()).isEqualTo(createdUser.id());
 
             // Assert the user has been updated
             var updatedUser = userRepository.findById(actual.userId());
