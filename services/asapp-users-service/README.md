@@ -234,7 +234,7 @@ State and metrics surface via Prometheus and the `/actuator/health`, `/actuator/
 ### Project Structure
 
 ```
-src/main/java/com/bcn/asapp/users/
+src/main/java/com/attrigo/asapp/users/
 ├── domain/                           # Pure business logic
 │   └── user/                         # User aggregate (profile)
 ├── application/                      # Use cases

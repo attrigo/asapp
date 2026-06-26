@@ -1,0 +1,134 @@
+/**
+* Copyright 2023 the original author or authors.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     https://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+package com.attrigo.asapp.tasks.infrastructure.security;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
+/**
+ * Infrastructure component responsible for orchestrating JWT verification through a 3-step validation process.
+ * <p>
+ * Provides the infrastructure capability to verify JWTs using {@link JwtDecoder} and {@link RedisJwtStore}.
+ * <p>
+ * Performs three-step validation: cryptographic verification via {@link JwtDecoder}, token type check, and session validation via {@link RedisJwtStore}.
+ *
+ * @since 0.2.0
+ * @author attrigo
+ */
+@Component
+public class JwtVerifier {
+
+    private static final Logger logger = LoggerFactory.getLogger(JwtVerifier.class);
+
+    private final JwtDecoder jwtDecoder;
+
+    private final RedisJwtStore redisJwtStore;
+
+    /**
+     * Constructs a new {@code JwtVerifier} with required dependencies.
+     *
+     * @param jwtDecoder    the JWT decoder for decoding and validating tokens
+     * @param redisJwtStore the Redis JWT store for checking token revocation status
+     */
+    public JwtVerifier(JwtDecoder jwtDecoder, RedisJwtStore redisJwtStore) {
+        this.jwtDecoder = jwtDecoder;
+        this.redisJwtStore = redisJwtStore;
+    }
+
+    /**
+     * Verifies an access token.
+     * <p>
+     * Validates the token's signature, expiration, revocation status, and type, then returns the validated decoded JWT.
+     * <p>
+     * Performs three verification steps:
+     * <ol>
+     * <li>Decodes the token and validates its cryptographic signature and expiration</li>
+     * <li>Verifies the token type is an access token (not refresh token)</li>
+     * <li>Checks the authentication session exists in the active token store</li>
+     * </ol>
+     *
+     * @param accessToken the encoded access token to verify
+     * @return the {@link DecodedJwt} containing the decoded JWT data
+     * @throws InvalidJwtException             if the token is invalid or verification fails
+     * @throws AuthenticationNotFoundException if the authentication session is not found
+     * @throws UnexpectedJwtTypeException      if the token is not an access token
+     */
+    public DecodedJwt verifyAccessToken(String accessToken) {
+        logger.debug("[JWT_VERIFIER] Verifying access token");
+
+        try {
+            var decodedJwt = decodeToken(accessToken);
+            verifyAccessTokenType(decodedJwt);
+            checkAccessTokenInActiveStore(accessToken);
+
+            return decodedJwt;
+
+        } catch (UnexpectedJwtTypeException | AuthenticationNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            var message = "Access token is not valid: %s".formatted(accessToken);
+            throw new InvalidJwtException(message, e);
+        }
+    }
+
+    /**
+     * Decodes and cryptographically validates the JWT.
+     * <p>
+     * Verification step 1: Validates the token's signature using the configured signing key and checks the expiration timestamp.
+     *
+     * @param accessToken the encoded token string to decode
+     * @return the {@link DecodedJwt} containing the decoded token data and claims
+     * @throws InvalidJwtException if the token signature is invalid or the token is expired
+     */
+    private DecodedJwt decodeToken(String accessToken) {
+        logger.trace("[JWT_VERIFIER] Step 1/3: Decoding and validating token");
+        return jwtDecoder.decode(accessToken);
+    }
+
+    /**
+     * Verifies the token type is an access token.
+     * <p>
+     * Verification step 2: Checks the token_use claim to ensure this is an access token and not a refresh token.
+     *
+     * @param decodedJwt the decoded JWT to verify
+     * @throws UnexpectedJwtTypeException if the token is not an access token
+     */
+    private void verifyAccessTokenType(DecodedJwt decodedJwt) {
+        logger.trace("[JWT_VERIFIER] Step 2/3: Verifying token type is ACCESS");
+        if (!decodedJwt.isAccessToken()) {
+            throw new UnexpectedJwtTypeException("JWT %s is not an access token".formatted(decodedJwt.encodedToken()));
+        }
+    }
+
+    /**
+     * Checks the authentication session exists in the active token store.
+     * <p>
+     * Verification step 3: Queries the fast-access store (Redis) to verify the token has not been revoked and the authentication session is still active.
+     *
+     * @param accessToken the encoded token string to check
+     * @throws AuthenticationNotFoundException if the authentication session is not found (token revoked or expired)
+     */
+    private void checkAccessTokenInActiveStore(String accessToken) {
+        logger.trace("[JWT_VERIFIER] Step 3/3: Checking access token exists in store");
+        var isTokenActive = redisJwtStore.accessTokenExists(accessToken);
+        if (!isTokenActive) {
+            throw new AuthenticationNotFoundException("Authentication session not found in store for access token: %s".formatted(accessToken));
+        }
+    }
+
+}

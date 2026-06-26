@@ -8,7 +8,7 @@ paths:
 New classes follow this package structure:
 
 ```
-com.bcn.asapp.<service>/
+com.attrigo.asapp.<service>/
 ├── domain/<aggregate>/
 ├── application/<aggregate>/
 │   ├── in/

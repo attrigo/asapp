@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.bcn.asapp</groupId>
+        <groupId>com.attrigo.asapp</groupId>
         <artifactId>asapp-services</artifactId>
         <version>0.4.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -20,11 +20,11 @@
         <!-- # Compile Dependencies -->
         <!-- ## ASAPP Dependencies -->
         <dependency>
-            <groupId>com.bcn.asapp</groupId>
+            <groupId>com.attrigo.asapp</groupId>
             <artifactId>asapp-commons-url</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.bcn.asapp</groupId>
+            <groupId>com.attrigo.asapp</groupId>
             <artifactId>asapp-http-clients</artifactId>
         </dependency>
         <!-- ## Spring Boot Dependencies -->
@@ -285,12 +285,12 @@
                 <artifactId>pitest-maven</artifactId>
                 <configuration>
                     <targetClasses>
-                        <param>com.bcn.asapp.users.domain.*</param>
-                        <param>com.bcn.asapp.users.application.*.in.service.*</param>
+                        <param>com.attrigo.asapp.users.domain.*</param>
+                        <param>com.attrigo.asapp.users.application.*.in.service.*</param>
                     </targetClasses>
                     <targetTests>
-                        <param>com.bcn.asapp.users.domain.*</param>
-                        <param>com.bcn.asapp.users.application.*.in.service.*</param>
+                        <param>com.attrigo.asapp.users.domain.*</param>
+                        <param>com.attrigo.asapp.users.application.*.in.service.*</param>
                     </targetTests>
                 </configuration>
             </plugin>

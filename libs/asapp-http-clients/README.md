@@ -34,7 +34,7 @@ ecosystem.
 
 ```xml
 <dependency>
-    <groupId>com.bcn.asapp</groupId>
+    <groupId>com.attrigo.asapp</groupId>
     <artifactId>asapp-http-clients</artifactId>
     <version>${asapp.version}</version>
 </dependency>
@@ -118,7 +118,7 @@ mvn clean verify -Pfull
 
 ### Clients
 
-- `com.bcn.asapp.http.clients.tasks.TasksHttpClient`
+- `com.attrigo.asapp.http.clients.tasks.TasksHttpClient`
 
 ### Documentation
 
