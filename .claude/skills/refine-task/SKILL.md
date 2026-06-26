@@ -29,6 +29,17 @@ Turn one vague, high-level `TODO.md` entry into a clearer **parent task** plus a
 
 ## Process
 
+### Step 0: Set up progress tracking
+
+**Before any other step**, create these four tracking tasks with the task tool; mark each `in_progress` when you start it and `completed` when it's done:
+
+1. Locate the task and clarify intent (Steps 1–2)
+2. Gather project context (Step 3)
+3. Compose the refined block — parent, subtasks, and extras (Steps 4–6)
+4. Propose and edit `TODO.md` on approval (Delivery)
+
+Keep Task 4 `in_progress` across the wait for the user's approval; mark it `completed` only once the edit lands or the user declines.
+
 ### Step 1: Locate and read the task
 
 - Resolve the input to a single `TODO.md` entry: a line number, or quoted/named text matched against the file.
@@ -135,6 +146,7 @@ Rationale: the source leaf `* [ ] Replace Liquibase by Flyway` becomes a bare gr
 
 | Mistake | Fix |
 |---------|-----|
+| Starting Step 1 before creating the four tracking tasks | Do Step 0 first — create the tasks, then begin. |
 | Subtasks name libraries, config keys, annotations, or file paths | That is *how*. Restate as a scoped outcome in plain language. |
 | Subtasks are full sentences with colons and embedded lists | Compress to ~10-word imperative phrases; one unit per line. |
 | 10+ micro-steps mirroring an implementation plan | You dropped a level. Pull back up to backlog-sized outcomes (aim 2–6). |
