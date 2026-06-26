@@ -38,7 +38,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
-import com.bcn.asapp.clients.tasks.TasksHttpClient;
+import com.bcn.asapp.http.clients.tasks.TasksHttpClient;
 import com.bcn.asapp.users.AsappUsersServiceApplication;
 import com.bcn.asapp.users.infrastructure.security.JwtAuthenticationToken;
 import com.bcn.asapp.users.testutil.TestContainerConfiguration;

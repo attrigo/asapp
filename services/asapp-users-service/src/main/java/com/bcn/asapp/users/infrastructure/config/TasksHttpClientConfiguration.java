@@ -19,7 +19,7 @@ package com.bcn.asapp.users.infrastructure.config;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.service.registry.ImportHttpServices;
 
-import com.bcn.asapp.clients.tasks.TasksHttpClient;
+import com.bcn.asapp.http.clients.tasks.TasksHttpClient;
 
 /**
  * Registers the {@code tasks} HTTP service group.

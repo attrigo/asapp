@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.clients.tasks.response;
+package com.bcn.asapp.http.clients.tasks.response;
 
 import java.util.UUID;
 

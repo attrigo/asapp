@@ -25,7 +25,7 @@
         </dependency>
         <dependency>
             <groupId>com.bcn.asapp</groupId>
-            <artifactId>asapp-rest-clients</artifactId>
+            <artifactId>asapp-http-clients</artifactId>
         </dependency>
         <!-- ## Spring Boot Dependencies -->
         <dependency>

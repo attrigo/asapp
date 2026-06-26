@@ -31,7 +31,7 @@
         * [X] Use retry pattern
         * [X] Add timeouts to HTTP client
         * [X] Review the user-with-tasks degradation behavior when tasks-service is unavailable
-        * [ ] Rename library asapp-rest-clients to asapp-http-clients
+        * [X] Rename library asapp-rest-clients to asapp-http-clients
     * Profiles
         * [X] Introduce explicit dev and prod profiles to gate dev-only tooling and align with docker/native
 * Test
