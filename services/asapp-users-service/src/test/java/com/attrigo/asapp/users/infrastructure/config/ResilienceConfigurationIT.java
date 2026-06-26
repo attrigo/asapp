@@ -63,6 +63,10 @@ import com.attrigo.asapp.users.testutil.TestContainerConfiguration;
  * Tests the tasks circuit breaker and retry wiring driven by the configured resilience properties, exercised end-to-end through the real declarative HTTP
  * client against an embedded MockServer.
  * <p>
+ * Setup:
+ * <li>Loads the full application context backed by a Testcontainers PostgreSQL instance and an embedded mock server</li>
+ * <li>Resets the mock server, circuit breaker, and seeds an authenticated security context before each test</li>
+ * <p>
  * Coverage:
  * <ul>
  * <li>Keeps the circuit closed while failures stay below the minimum number of calls</li>

@@ -64,6 +64,10 @@ import com.attrigo.asapp.tasks.testutil.TestContainerConfiguration;
 /**
  * Tests end-to-end task management workflows including CRUD operations and ownership queries.
  * <p>
+ * Setup:
+ * <li>Loads the full application context backed by a Testcontainers PostgreSQL instance and an embedded Redis</li>
+ * <li>Clears task data and seeds a valid access token in the Redis store before each test</li>
+ * <p>
  * Coverage:
  * <li>Rejects all operations without valid JWT authentication</li>
  * <li>Retrieves task by identifier returning 404 when not found, task when exists</li>

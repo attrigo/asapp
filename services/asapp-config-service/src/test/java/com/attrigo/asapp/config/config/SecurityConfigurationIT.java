@@ -35,6 +35,9 @@ import com.attrigo.asapp.config.AsappConfigServiceApplication;
 /**
  * Tests {@link SecurityConfiguration} HTTP Basic authentication rules enforced by the application.
  * <p>
+ * Setup:
+ * <li>Loads the full config server context on a random port with an auto-configured REST client</li>
+ * <p>
  * Coverage:
  * <li>Rejects config endpoint requests without credentials</li>
  * <li>Rejects config endpoint requests with invalid credentials</li>

@@ -47,6 +47,10 @@ import com.attrigo.asapp.users.testutil.TestContainerConfiguration;
  * Tests {@link RestClientConfiguration} HTTP service group wiring, exercised end-to-end through the real declarative HTTP client against an embedded
  * MockServer.
  * <p>
+ * Setup:
+ * <li>Loads the full application context backed by a Testcontainers PostgreSQL instance and an embedded mock server</li>
+ * <li>Resets the mock server and seeds an authenticated security context before each test</li>
+ * <p>
  * Coverage:
  * <li>Routes outgoing requests through the load balancer to the resolved service instance when load balancing is enabled</li>
  * <li>Returns redirect responses from downstream services as-is without following them</li>

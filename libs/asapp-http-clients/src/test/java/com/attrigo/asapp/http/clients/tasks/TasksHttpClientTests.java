@@ -42,6 +42,9 @@ import com.attrigo.asapp.http.clients.tasks.response.TasksByUserIdResponse;
 /**
  * Tests {@link TasksHttpClient} HTTP request mapping, JSON response deserialization, and error handling.
  * <p>
+ * Setup:
+ * <li>Binds a mock REST server to the HTTP client before each test</li>
+ * <p>
  * Coverage:
  * <li>Issues a GET to the tasks-by-user-id path with the user id expanded into the URI template</li>
  * <li>Deserializes the JSON response array into task response records</li>

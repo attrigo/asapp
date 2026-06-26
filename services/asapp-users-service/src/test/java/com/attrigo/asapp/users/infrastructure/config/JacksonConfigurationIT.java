@@ -42,6 +42,9 @@ import tools.jackson.databind.exc.InvalidFormatException;
 /**
  * Tests {@link ObjectMapper} JSON serialization configuration and temporal format handling.
  * <p>
+ * Setup:
+ * <li>Loads the web MVC slice with the application properties configuration</li>
+ * <p>
  * Coverage:
  * <li>Excludes null values from JSON output</li>
  * <li>Includes empty collections in JSON output</li>

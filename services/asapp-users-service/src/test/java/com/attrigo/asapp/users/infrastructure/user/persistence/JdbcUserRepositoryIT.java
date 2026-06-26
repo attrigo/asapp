@@ -34,6 +34,10 @@ import com.attrigo.asapp.users.testutil.TestContainerConfiguration;
 /**
  * Tests {@link JdbcUserRepository} delete operations against PostgreSQL.
  * <p>
+ * Setup:
+ * <li>Loads the data JDBC slice backed by a Testcontainers PostgreSQL instance</li>
+ * <li>Clears the user table before each test</li>
+ * <p>
  * Coverage:
  * <li>Deletes user by identifier returning zero when not found</li>
  * <li>Deletes user by identifier returning count when successfully deleted</li>

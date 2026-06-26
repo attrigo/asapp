@@ -73,6 +73,10 @@ import com.attrigo.asapp.tasks.testutil.RestDocsWebMvcTestContext;
 /**
  * Tests {@link TaskRestController} REST API documentation.
  * <p>
+ * Setup:
+ * <li>Loads the web layer with a mock MVC environment and mocked service collaborators</li>
+ * <li>Configures REST Docs documentation support before each test</li>
+ * <p>
  * Coverage:
  * <li>Generates API documentation snippets for all task endpoints and error responses</li>
  * <li>Documents path parameters, request fields, and response fields</li>

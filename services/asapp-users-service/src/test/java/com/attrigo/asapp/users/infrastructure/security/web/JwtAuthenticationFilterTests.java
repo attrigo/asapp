@@ -56,6 +56,9 @@ import com.attrigo.asapp.users.infrastructure.security.UnexpectedJwtTypeExceptio
 /**
  * Tests {@link JwtAuthenticationFilter} request exclusion and JWT authentication processing.
  * <p>
+ * Setup:
+ * <li>Clears the security context before each test</li>
+ * <p>
  * Coverage:
  * <li>Skips filter for whitelisted URL patterns</li>
  * <li>Applies filter to protected URL patterns</li>

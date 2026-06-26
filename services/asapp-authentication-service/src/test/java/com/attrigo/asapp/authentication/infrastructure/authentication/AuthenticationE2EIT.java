@@ -66,6 +66,10 @@ import com.attrigo.asapp.authentication.testutil.TestContainerConfiguration;
 /**
  * Tests end-to-end authentication workflows including token issuance, refresh, and revocation.
  * <p>
+ * Setup:
+ * <li>Loads the full application context backed by a Testcontainers PostgreSQL instance and an embedded Redis</li>
+ * <li>Clears the authentication and user tables and flushes the token store before each test</li>
+ * <p>
  * Coverage:
  * <li>Authenticates user credentials generating JWT pair persisted to database and activated in Redis</li>
  * <li>Refreshes authentication rotating token pair with old tokens deactivated and new tokens activated</li>

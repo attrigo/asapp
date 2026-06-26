@@ -36,6 +36,10 @@ import com.attrigo.asapp.users.testutil.TestContainerConfiguration;
 /**
  * Tests that dev-only tooling is locked down without the dev profile.
  * <p>
+ * Setup:
+ * <li>Loads the full application context backed by a Testcontainers PostgreSQL instance</li>
+ * <li>Builds the management REST client before each test</li>
+ * <p>
  * Coverage:
  * <li>Actuator root exposes only health, info, prometheus and sbom links when exposure is narrowed</li>
  * <li>Swagger UI endpoint is not reachable when springdoc is disabled</li>

@@ -52,6 +52,10 @@ import com.attrigo.asapp.users.testutil.TestContainerConfiguration;
 /**
  * Tests {@link TasksGatewayAdapter} fallback behavior end-to-end through the real declarative HTTP client against an embedded MockServer.
  * <p>
+ * Setup:
+ * <li>Loads the full application context backed by a Testcontainers PostgreSQL instance and an embedded mock server</li>
+ * <li>Resets the mock server and seeds an authenticated security context before each test</li>
+ * <p>
  * Coverage:
  * <li>Signals tasks unavailable when the Tasks Service responds with a server error (5xx)</li>
  * <li>Signals tasks unavailable when the Tasks Service connection is dropped</li>

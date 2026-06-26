@@ -32,6 +32,10 @@ import com.attrigo.asapp.tasks.testutil.TestContainerConfiguration;
 /**
  * Tests actuator endpoint content exposed by the application.
  * <p>
+ * Setup:
+ * <li>Loads the full application context backed by a Testcontainers PostgreSQL instance and an embedded Redis</li>
+ * <li>Builds the management REST client bound to the management port before each test</li>
+ * <p>
  * Coverage:
  * <li>Actuator root exposes all expected endpoint links</li>
  * <li>Health endpoint returns status and groups without authentication</li>

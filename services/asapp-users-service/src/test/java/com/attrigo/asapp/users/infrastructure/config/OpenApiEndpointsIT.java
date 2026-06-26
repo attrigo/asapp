@@ -32,6 +32,9 @@ import com.attrigo.asapp.users.testutil.TestContainerConfiguration;
 /**
  * Tests OpenAPI and Swagger UI endpoint content exposed by the application.
  * <p>
+ * Setup:
+ * <li>Loads the full application context backed by a Testcontainers PostgreSQL instance</li>
+ * <p>
  * Coverage:
  * <li>Swagger UI index page returns HTML content</li>
  * <li>OpenAPI documentation endpoint returns a specification with the expected API info and security scheme</li>
