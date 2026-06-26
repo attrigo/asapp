@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.bcn.asapp</groupId>
+        <groupId>com.attrigo.asapp</groupId>
         <artifactId>asapp-services</artifactId>
         <version>0.4.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
@@ -20,7 +20,7 @@
         <!-- # Compile Dependencies -->
         <!-- ## ASAPP Dependencies -->
         <dependency>
-            <groupId>com.bcn.asapp</groupId>
+            <groupId>com.attrigo.asapp</groupId>
             <artifactId>asapp-commons-url</artifactId>
         </dependency>
         <!-- ## Spring Boot Dependencies -->
@@ -240,12 +240,12 @@
                 <artifactId>pitest-maven</artifactId>
                 <configuration>
                     <targetClasses>
-                        <param>com.bcn.asapp.tasks.domain.*</param>
-                        <param>com.bcn.asapp.tasks.application.*.in.service.*</param>
+                        <param>com.attrigo.asapp.tasks.domain.*</param>
+                        <param>com.attrigo.asapp.tasks.application.*.in.service.*</param>
                     </targetClasses>
                     <targetTests>
-                        <param>com.bcn.asapp.tasks.domain.*</param>
-                        <param>com.bcn.asapp.tasks.application.*.in.service.*</param>
+                        <param>com.attrigo.asapp.tasks.domain.*</param>
+                        <param>com.attrigo.asapp.tasks.application.*.in.service.*</param>
                     </targetTests>
                 </configuration>
             </plugin>

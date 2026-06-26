@@ -1,0 +1,50 @@
+/**
+* Copyright 2023 the original author or authors.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     https://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+package com.attrigo.asapp.tasks.infrastructure.task.mapper;
+
+import org.mapstruct.ObjectFactory;
+import org.springframework.stereotype.Component;
+
+import com.attrigo.asapp.tasks.domain.task.Task;
+import com.attrigo.asapp.tasks.domain.task.TaskFactory;
+import com.attrigo.asapp.tasks.infrastructure.task.persistence.JdbcTaskEntity;
+
+/**
+ * MapStruct object factory for mapping between {@link Task} domain entities and {@link JdbcTaskEntity} database entities.
+ * <p>
+ * Ensures that domain entities are created through their proper factory methods with complete validation, maintaining domain integrity during mapping.
+ *
+ * @since 0.2.0
+ * @author attrigo
+ */
+@Component
+public class TaskObjectFactory {
+
+    /**
+     * Creates a domain {@link Task} from a database {@link JdbcTaskEntity} entity.
+     * <p>
+     * Maps entity fields to value objects and reconstitutes a task using the domain's factory method.
+     *
+     * @param source the {@link JdbcTaskEntity} database entity
+     * @return the {@link Task} domain entity
+     */
+    @ObjectFactory
+    public Task toTask(JdbcTaskEntity source) {
+        return TaskFactory.reconstitute(source.id(), source.userId(), source.title(), source.description(), source.startDate(), source.endDate());
+    }
+
+}

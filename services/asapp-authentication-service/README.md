@@ -180,7 +180,7 @@ Shared  central-config/application.properties                  (base)
 ### Project Structure
 
 ```
-src/main/java/com/bcn/asapp/authentication/
+src/main/java/com/attrigo/asapp/authentication/
 ├── domain/                           # Pure business logic
 │   ├── user/                         # User aggregate
 │   └── authentication/               # JwtAuthentication aggregate

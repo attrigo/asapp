@@ -93,9 +93,9 @@ Confirm the root `pom.xml` now reads `<version>X.Y.Z</version>` (no SNAPSHOT).
 In each of the three service `OpenApiConfiguration.java` files, update the `version` attribute in `@Info(...)` to the **release version**:
 
 ```
-services/asapp-authentication-service/src/main/java/com/bcn/asapp/authentication/infrastructure/config/OpenApiConfiguration.java
-services/asapp-tasks-service/src/main/java/com/bcn/asapp/tasks/infrastructure/config/OpenApiConfiguration.java
-services/asapp-users-service/src/main/java/com/bcn/asapp/users/infrastructure/config/OpenApiConfiguration.java
+services/asapp-authentication-service/src/main/java/com/attrigo/asapp/authentication/infrastructure/config/OpenApiConfiguration.java
+services/asapp-tasks-service/src/main/java/com/attrigo/asapp/tasks/infrastructure/config/OpenApiConfiguration.java
+services/asapp-users-service/src/main/java/com/attrigo/asapp/users/infrastructure/config/OpenApiConfiguration.java
 ```
 
 Replace `version = "OLD_VERSION"` → `version = "X.Y.Z"` in the `@OpenAPIDefinition` annotation.
@@ -167,9 +167,9 @@ Confirm the root `pom.xml` now reads the next SNAPSHOT version (e.g. `0.4.0-SNAP
 In each of the three service `OpenApiConfiguration.java` files, update the `version` attribute in `@Info(...)` to the **next SNAPSHOT version**:
 
 ```
-services/asapp-authentication-service/src/main/java/com/bcn/asapp/authentication/infrastructure/config/OpenApiConfiguration.java
-services/asapp-tasks-service/src/main/java/com/bcn/asapp/tasks/infrastructure/config/OpenApiConfiguration.java
-services/asapp-users-service/src/main/java/com/bcn/asapp/users/infrastructure/config/OpenApiConfiguration.java
+services/asapp-authentication-service/src/main/java/com/attrigo/asapp/authentication/infrastructure/config/OpenApiConfiguration.java
+services/asapp-tasks-service/src/main/java/com/attrigo/asapp/tasks/infrastructure/config/OpenApiConfiguration.java
+services/asapp-users-service/src/main/java/com/attrigo/asapp/users/infrastructure/config/OpenApiConfiguration.java
 ```
 
 Replace `version = "X.Y.Z"` → `version = "X.Y+1.0-SNAPSHOT"` in the `@OpenAPIDefinition` annotation.

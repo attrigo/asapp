@@ -174,7 +174,7 @@ Shared  central-config/application.properties         (base)
 ### Project Structure
 
 ```
-src/main/java/com/bcn/asapp/tasks/
+src/main/java/com/attrigo/asapp/tasks/
 ├── domain/                           # Pure business logic
 │   └── task/                         # Task aggregate
 ├── application/                      # Use cases

@@ -35,7 +35,7 @@
     * Profiles
         * [X] Introduce explicit dev and prod profiles to gate dev-only tooling and align with docker/native
     * Other
-        * [ ] Rename all references from com.bcn to com.attrigo
+        * [X] Rename all references from com.bcn to com.attrigo
     * Test
         * [ ] Rewrite asserts to use extracting() whenever possible
         * [ ] Rewrite E2EIT to assert Json instead of Java DTOs

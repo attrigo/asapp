@@ -36,7 +36,7 @@ services and eliminates hardcoded URL strings.
 
 ```xml
 <dependency>
-    <groupId>com.bcn.asapp</groupId>
+    <groupId>com.attrigo.asapp</groupId>
     <artifactId>asapp-commons-url</artifactId>
     <version>${asapp.version}</version>
 </dependency>
@@ -46,13 +46,13 @@ services and eliminates hardcoded URL strings.
 
 ```java
 // In a controller — use relative paths
-import static com.bcn.asapp.url.authentication.AuthenticationRestAPIURL.*;
+import static com.attrigo.asapp.url.authentication.AuthenticationRestAPIURL.*;
 
 @PostMapping(AUTH_TOKEN_PATH)
 public MyResponse myEndpoint(@RequestBody MyRequest request) { ... }
 
 // In a REST client — use full paths
-import static com.bcn.asapp.url.tasks.TaskRestAPIURL.*;
+import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.*;
 
 restClient.post()
           .uri(TASKS_CREATE_FULL_PATH)
@@ -88,9 +88,9 @@ mvn spotless:apply
 
 ### Constants
 
-- `com.bcn.asapp.url.authentication.AuthenticationRestAPIURL`
-- `com.bcn.asapp.url.tasks.TaskRestAPIURL`
-- `com.bcn.asapp.url.users.UserRestAPIURL`
+- `com.attrigo.asapp.url.authentication.AuthenticationRestAPIURL`
+- `com.attrigo.asapp.url.tasks.TaskRestAPIURL`
+- `com.attrigo.asapp.url.users.UserRestAPIURL`
 
 ### Documentation
 

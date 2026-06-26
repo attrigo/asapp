@@ -1,0 +1,144 @@
+/**
+* Copyright 2023 the original author or authors.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     https://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+package com.attrigo.asapp.authentication.application.user.in.service;
+
+import java.util.Optional;
+
+import com.attrigo.asapp.authentication.application.ApplicationService;
+import com.attrigo.asapp.authentication.application.user.in.UpdateUserUseCase;
+import com.attrigo.asapp.authentication.application.user.in.command.UpdateUserCommand;
+import com.attrigo.asapp.authentication.application.user.out.UserRepository;
+import com.attrigo.asapp.authentication.domain.user.EncodedPassword;
+import com.attrigo.asapp.authentication.domain.user.PasswordService;
+import com.attrigo.asapp.authentication.domain.user.RawPassword;
+import com.attrigo.asapp.authentication.domain.user.Role;
+import com.attrigo.asapp.authentication.domain.user.User;
+import com.attrigo.asapp.authentication.domain.user.UserId;
+import com.attrigo.asapp.authentication.domain.user.Username;
+
+/**
+ * Application service responsible for orchestrating user update operations.
+ * <p>
+ * Coordinates the user update workflow including retrieval, password encoding, user update, and persistence.
+ * <p>
+ * <strong>Orchestration Flow:</strong>
+ * <ol>
+ * <li>Retrieves existing user from repository by ID</li>
+ * <li>Returns empty if user not found</li>
+ * <li>Encodes raw password</li>
+ * <li>Updates user with new credentials</li>
+ * <li>Persists updated user to repository</li>
+ * </ol>
+ *
+ * @since 0.2.0
+ * @author attrigo
+ */
+@ApplicationService
+public class UpdateUserService implements UpdateUserUseCase {
+
+    private final PasswordService passwordService;
+
+    private final UserRepository userRepository;
+
+    /**
+     * Constructs a new {@code UpdateUserService} with required dependencies.
+     *
+     * @param passwordService the password encoding service for securing user passwords
+     * @param userRepository  the repository for user data access
+     */
+    public UpdateUserService(PasswordService passwordService, UserRepository userRepository) {
+        this.passwordService = passwordService;
+        this.userRepository = userRepository;
+    }
+
+    /**
+     * Updates an existing user based on the provided command.
+     * <p>
+     * Orchestrates the complete user update workflow: retrieval, password encoding, user update, and persistence.
+     *
+     * @param command the {@link UpdateUserCommand} containing user update data
+     * @return an {@link Optional} containing the updated {@link User} if found, {@link Optional#empty} if user does not exist
+     * @throws IllegalArgumentException if any data within the command is invalid (blank username, invalid email format, weak password, invalid role, etc.)
+     */
+    @Override
+    public Optional<User> updateUserById(UpdateUserCommand command) {
+        var userId = UserId.of(command.userId());
+
+        var optionalUser = retrieveUser(userId);
+        if (optionalUser.isEmpty()) {
+            return Optional.empty();
+        }
+
+        var currentUser = optionalUser.get();
+        var newUsername = Username.of(command.username());
+        var newRawPassword = RawPassword.of(command.password());
+        var newRole = Role.valueOf(command.role());
+
+        var encodedPassword = encodePassword(newRawPassword);
+
+        updateUserData(currentUser, newUsername, encodedPassword, newRole);
+
+        var updatedUser = persistUser(currentUser);
+        return Optional.of(updatedUser);
+    }
+
+    /**
+     * Retrieves user from repository by identifier.
+     *
+     * @param userId the user's unique identifier
+     * @return an {@link Optional} containing the {@link User} if found, {@link Optional#empty} otherwise
+     */
+    private Optional<User> retrieveUser(UserId userId) {
+        return userRepository.findById(userId);
+    }
+
+    /**
+     * Encodes raw password using password service.
+     *
+     * @param rawPassword the raw password
+     * @return encoded password
+     */
+    private EncodedPassword encodePassword(RawPassword rawPassword) {
+        return passwordService.encode(rawPassword);
+    }
+
+    /**
+     * Updates user domain object with new values.
+     * <p>
+     * Delegates to the domain update method to modify user credentials and role.
+     *
+     * @param user            the user domain object to update
+     * @param username        the new username
+     * @param encodedPassword the new encoded password
+     * @param role            the new role
+     * @throws IllegalArgumentException if any value object validation fails
+     */
+    private void updateUserData(User user, Username username, EncodedPassword encodedPassword, Role role) {
+        user.update(username, encodedPassword, role);
+    }
+
+    /**
+     * Persists updated user to repository.
+     *
+     * @param user the user domain object to persist
+     * @return the persisted {@link User}
+     */
+    private User persistUser(User user) {
+        return userRepository.save(user);
+    }
+
+}
