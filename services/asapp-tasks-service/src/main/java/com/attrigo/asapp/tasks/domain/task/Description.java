@@ -33,6 +33,8 @@ public record Description(
 
     /**
      * Constructs a new {@code Description} instance and validates its integrity.
+     * <p>
+     * Prefer the factory methods {@link #of(String)} or {@link #ofNullable(String)} over direct instantiation.
      *
      * @param description the description value to validate and store
      * @throws IllegalArgumentException if the description is {@code null} or blank

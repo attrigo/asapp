@@ -47,6 +47,8 @@ public record UserAuthentication(
     /**
      * Constructs a new {@code UserAuthentication} instance and validates its integrity.
      * <p>
+     * Prefer the factory methods {@link #unAuthenticated(Username, RawPassword)} or {@link #authenticated(UserId, Username, Role)} over direct instantiation.
+     * <p>
      * Validation rules depend on the authentication state:
      * <ul>
      * <li>Authenticated: userId and role must not be {@code null}, username required</li>

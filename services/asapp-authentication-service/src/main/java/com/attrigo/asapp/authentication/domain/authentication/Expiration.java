@@ -36,6 +36,8 @@ public record Expiration(
 
     /**
      * Constructs a new {@code Expiration} instance and validates its integrity.
+     * <p>
+     * Prefer the factory methods {@link #of(Issued, Long)} or {@link #of(Date)} over direct instantiation.
      *
      * @param expiration the expiration instant to validate and store
      * @throws IllegalArgumentException if the expiration instant is {@code null}

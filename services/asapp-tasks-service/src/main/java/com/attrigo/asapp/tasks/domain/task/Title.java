@@ -33,6 +33,8 @@ public record Title(
 
     /**
      * Constructs a new {@code Title} instance and validates its integrity.
+     * <p>
+     * Prefer the factory method {@link #of(String)} over direct instantiation.
      *
      * @param title the title value to validate and store
      * @throws IllegalArgumentException if the title is {@code null} or blank

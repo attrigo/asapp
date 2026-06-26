@@ -37,6 +37,8 @@ public record JwtAuthenticationId(
 
     /**
      * Constructs a new {@code JwtAuthenticationId} instance and validates its integrity.
+     * <p>
+     * Prefer the factory method {@link #of(UUID)} over direct instantiation.
      *
      * @param id the UUID value to validate and store
      * @throws IllegalArgumentException if the id is {@code null}

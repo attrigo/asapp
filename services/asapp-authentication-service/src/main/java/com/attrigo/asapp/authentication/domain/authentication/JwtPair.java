@@ -35,6 +35,8 @@ public record JwtPair(
 
     /**
      * Constructs a new {@code JwtPair} instance and validates its integrity.
+     * <p>
+     * Prefer the factory method {@link #of(Jwt, Jwt)} over direct instantiation.
      *
      * @param accessToken  the access token to validate and store
      * @param refreshToken the refresh token to validate and store

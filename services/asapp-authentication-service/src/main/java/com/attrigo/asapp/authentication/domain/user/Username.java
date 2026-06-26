@@ -40,6 +40,8 @@ public record Username(
 
     /**
      * Constructs a new {@code Username} instance and validates its integrity.
+     * <p>
+     * Prefer the factory method {@link #of(String)} over direct instantiation.
      *
      * @param username the username value to validate and store
      * @throws InvalidUsernameException if the username is {@code null}, blank, or does not match the email pattern

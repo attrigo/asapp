@@ -33,6 +33,8 @@ public record EncodedToken(
 
     /**
      * Constructs a new {@code EncodedToken} instance and validates its integrity.
+     * <p>
+     * Prefer the factory method {@link #of(String)} over direct instantiation.
      *
      * @param token the encoded token to validate and store
      * @throws InvalidEncodedTokenException if the token is {@code null} or blank

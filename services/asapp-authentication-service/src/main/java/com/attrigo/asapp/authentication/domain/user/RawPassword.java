@@ -43,6 +43,8 @@ public record RawPassword(
 
     /**
      * Constructs a new {@code RawPassword} instance and validates its integrity.
+     * <p>
+     * Prefer the factory method {@link #of(String)} over direct instantiation.
      *
      * @param password the raw password value to validate and store
      * @throws InvalidPasswordException if the password is {@code null}, blank, or outside the valid length range

@@ -33,6 +33,8 @@ public record Subject(
 
     /**
      * Constructs a new {@code Subject} instance and validates its integrity.
+     * <p>
+     * Prefer the factory method {@link #of(String)} over direct instantiation.
      *
      * @param subject the subject value to validate and store
      * @throws IllegalArgumentException if the subject is {@code null}, blank, or does not match the email pattern
