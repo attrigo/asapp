@@ -510,9 +510,8 @@ class TaskE2EIT {
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isNotNull()
-                              .extracting(CreateTaskResponse::taskId)
-                              .isNotNull();
+            assertThat(actual).isNotNull();
+            assertThat(actual.taskId()).isNotNull();
 
             // Assert the task has been created
             var createdTask = taskRepository.findById(actual.taskId());
@@ -582,9 +581,8 @@ class TaskE2EIT {
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isNotNull()
-                              .extracting(UpdateTaskResponse::taskId)
-                              .isEqualTo(createdTask.id());
+            assertThat(actual).isNotNull();
+            assertThat(actual.taskId()).isEqualTo(createdTask.id());
 
             // Assert the task has been updated
             var updatedTask = taskRepository.findById(actual.taskId());

@@ -966,24 +966,25 @@ class AuthenticationE2EIT {
         assertSoftly(softly -> {
             // @formatter:off
             softly.assertThat(actualAuthentication).as("authentication").isNotEmpty();
-            softly.assertThat(actualAuthentication).get()
-                  .extracting(JdbcJwtAuthenticationEntity::accessToken)
-                  .satisfies(actualAccessToken -> softly.assertThat(actualAccessToken.token()).as("access token value").isEqualTo(expectedAccessToken),
-                          actualAccessToken -> softly.assertThat(actualAccessToken.type()).as("access token type").isEqualTo(ACCESS_TOKEN.type()),
-                          actualAccessToken -> softly.assertThat(actualAccessToken.subject()).as("access token subject").isEqualTo(expectedUsername),
-                          actualAccessToken -> softly.assertThat(actualAccessToken.claims().claims().get(TOKEN_USE)).as("access token use claim").isEqualTo(ACCESS_TOKEN_USE),
-                          actualAccessToken -> softly.assertThat(actualAccessToken.claims().claims().get(ROLE)).as("access token role claim").isEqualTo(expectedRole),
-                          actualAccessToken -> softly.assertThat(actualAccessToken.issued()).as("access token issued").isNotNull(),
-                          actualAccessToken -> softly.assertThat(actualAccessToken.expiration()).as("access token expiration").isNotNull());
-            softly.assertThat(actualAuthentication).get()
-                  .extracting(JdbcJwtAuthenticationEntity::refreshToken)
-                  .satisfies(actualRefreshToken -> softly.assertThat(actualRefreshToken.token()).as("refresh token value").isEqualTo(expectedRefreshToken),
-                          actualRefreshToken -> softly.assertThat(actualRefreshToken.type()).as("refresh token type").isEqualTo(REFRESH_TOKEN.type()),
-                          actualRefreshToken -> softly.assertThat(actualRefreshToken.subject()).as("refresh token subject").isEqualTo(expectedUsername),
-                          actualRefreshToken -> softly.assertThat(actualRefreshToken.claims().claims().get(TOKEN_USE)).as("refresh token use claim").isEqualTo(REFRESH_TOKEN_USE),
-                          actualRefreshToken -> softly.assertThat(actualRefreshToken.claims().claims().get(ROLE)).as("refresh token role claim").isEqualTo(expectedRole),
-                          actualRefreshToken -> softly.assertThat(actualRefreshToken.issued()).as("refresh token issued").isNotNull(),
-                          actualRefreshToken -> softly.assertThat(actualRefreshToken.expiration()).as("refresh token expiration").isNotNull());
+
+            var actualEntity = actualAuthentication.orElseThrow();
+            var actualAccessToken = actualEntity.accessToken();
+            softly.assertThat(actualAccessToken.token()).as("access token value").isEqualTo(expectedAccessToken);
+            softly.assertThat(actualAccessToken.type()).as("access token type").isEqualTo(ACCESS_TOKEN.type());
+            softly.assertThat(actualAccessToken.subject()).as("access token subject").isEqualTo(expectedUsername);
+            softly.assertThat(actualAccessToken.claims().claims().get(TOKEN_USE)).as("access token use claim").isEqualTo(ACCESS_TOKEN_USE);
+            softly.assertThat(actualAccessToken.claims().claims().get(ROLE)).as("access token role claim").isEqualTo(expectedRole);
+            softly.assertThat(actualAccessToken.issued()).as("access token issued").isNotNull();
+            softly.assertThat(actualAccessToken.expiration()).as("access token expiration").isNotNull();
+
+            var actualRefreshToken = actualEntity.refreshToken();
+            softly.assertThat(actualRefreshToken.token()).as("refresh token value").isEqualTo(expectedRefreshToken);
+            softly.assertThat(actualRefreshToken.type()).as("refresh token type").isEqualTo(REFRESH_TOKEN.type());
+            softly.assertThat(actualRefreshToken.subject()).as("refresh token subject").isEqualTo(expectedUsername);
+            softly.assertThat(actualRefreshToken.claims().claims().get(TOKEN_USE)).as("refresh token use claim").isEqualTo(REFRESH_TOKEN_USE);
+            softly.assertThat(actualRefreshToken.claims().claims().get(ROLE)).as("refresh token role claim").isEqualTo(expectedRole);
+            softly.assertThat(actualRefreshToken.issued()).as("refresh token issued").isNotNull();
+            softly.assertThat(actualRefreshToken.expiration()).as("refresh token expiration").isNotNull();
             // @formatter:on
         });
     }
