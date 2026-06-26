@@ -83,7 +83,7 @@ public interface UserRestAPI {
      */
     @GetMapping(value = USERS_GET_BY_ID_PATH, produces = "application/json")
     @SecurityRequirement(name = "Bearer Authentication")
-    @Operation(summary = "Gets a user by their unique identifier", description = "Retrieves detailed information about a specific user by their unique identifier. This endpoint requires authentication.")
+    @Operation(summary = "Gets a user by their unique identifier", description = "Retrieves detailed information about a specific user by their unique identifier.")
     @ApiResponse(responseCode = "200", description = "User found", content = { @Content(schema = @Schema(implementation = GetUserByIdResponse.class)) })
     @ApiResponse(responseCode = "400", description = "Invalid user identifier format", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
@@ -109,7 +109,7 @@ public interface UserRestAPI {
     @GetMapping(value = USERS_GET_ALL_PATH, produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @SecurityRequirement(name = "Bearer Authentication")
-    @Operation(summary = "Gets all users", description = "Retrieves a list of all registered users in the system. This endpoint requires authentication. If no users exist, an empty array is returned.")
+    @Operation(summary = "Gets all users", description = "Retrieves a list of all registered users in the system. If no users exist, an empty array is returned.")
     @ApiResponse(responseCode = "200", description = "Users retrieved successfully", content = {
             @Content(schema = @Schema(implementation = GetAllUsersResponse.class)) })
     @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
@@ -134,7 +134,7 @@ public interface UserRestAPI {
      */
     @PostMapping(value = USERS_CREATE_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Creates a new user", description = "Creates a new user account in the system with the provided user information. Returns the user identifier. Use GET endpoint to retrieve full user details.")
+    @Operation(summary = "Creates a new user", description = "Creates a new user account in the system with the provided user information. Returns the user identifier. Use the GET endpoint to retrieve full user details.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User creation request containing all necessary user information", required = true, content = @Content(schema = @Schema(implementation = CreateUserRequest.class)))
     @ApiResponse(responseCode = "201", description = "User created successfully", content = {
             @Content(schema = @Schema(implementation = CreateUserResponse.class)) })
@@ -164,7 +164,7 @@ public interface UserRestAPI {
      */
     @PutMapping(value = USERS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
     @SecurityRequirement(name = "Bearer Authentication")
-    @Operation(summary = "Updates an existing user by their unique identifier", description = "Updates the information of an existing user identified by their unique identifier. This endpoint requires authentication. Only the fields provided in the request will be updated. Returns the user identifier. Use GET endpoint to retrieve full user details.")
+    @Operation(summary = "Updates an existing user by their unique identifier", description = "Updates the information of an existing user identified by their unique identifier. Only the fields provided in the request will be updated. Returns the user identifier. Use the GET endpoint to retrieve full user details.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "User update request containing the user information to be modified", required = true, content = @Content(schema = @Schema(implementation = UpdateUserRequest.class)))
     @ApiResponse(responseCode = "200", description = "User updated successfully", content = {
             @Content(schema = @Schema(implementation = UpdateUserResponse.class)) })
@@ -198,7 +198,7 @@ public interface UserRestAPI {
      */
     @DeleteMapping(value = USERS_DELETE_BY_ID_PATH, produces = "application/json")
     @SecurityRequirement(name = "Bearer Authentication")
-    @Operation(summary = "Deletes a user by their unique identifier", description = "Removes a user from the system by their unique identifier. This endpoint requires authentication. Removes user's authentications before deletion. This operation cannot be undone.")
+    @Operation(summary = "Deletes a user by their unique identifier", description = "Removes a user from the system by their unique identifier. Removes the user's authentications before deletion. This operation cannot be undone.")
     @ApiResponse(responseCode = "204", description = "User deleted successfully", content = { @Content })
     @ApiResponse(responseCode = "400", description = "Invalid user identifier format", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })

@@ -90,7 +90,7 @@ public interface TaskRestAPI {
      * @return a {@link ResponseEntity} wrapping the {@link GetTaskByIdResponse} if found, otherwise wrapping empty
      */
     @GetMapping(value = TASKS_GET_BY_ID_PATH, produces = "application/json")
-    @Operation(summary = "Gets a task by their unique identifier", description = "Retrieves detailed information about a specific task by their unique identifier. This endpoint requires authentication.")
+    @Operation(summary = "Gets a task by their unique identifier", description = "Retrieves detailed information about a specific task by their unique identifier.")
     @ApiResponse(responseCode = "200", description = "Task found", content = { @Content(schema = @Schema(implementation = GetTaskByIdResponse.class)) })
     @ApiResponse(responseCode = "400", description = "Invalid task identifier format", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
@@ -117,7 +117,7 @@ public interface TaskRestAPI {
      */
     @GetMapping(value = TASKS_GET_ALL_PATH, params = TASKS_IDS_PARAM, produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Gets tasks by their unique identifiers", description = "Retrieves a list of tasks whose identifiers are in the provided list. This endpoint requires authentication. Missing identifiers are silently omitted; the response order is not guaranteed. Duplicate identifiers are deduplicated server-side. The list must contain between 1 and 50 identifiers.")
+    @Operation(summary = "Gets tasks by their unique identifiers", description = "Retrieves a list of tasks whose identifiers are in the provided `ids` query parameter. Missing identifiers are silently omitted; the response order is not guaranteed. Duplicate identifiers are deduplicated server-side. The list must contain between 1 and 50 identifiers.")
     @ApiResponse(responseCode = "200", description = "Tasks found", content = { @Content(schema = @Schema(implementation = GetTasksByIdsResponse.class)) })
     @ApiResponse(responseCode = "400", description = "Task identifiers list is empty, exceeds 50 elements, or contains a malformed UUID", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
@@ -144,7 +144,7 @@ public interface TaskRestAPI {
      */
     @GetMapping(value = TASKS_GET_BY_USER_ID_PATH, produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Gets all tasks for a specific user by their unique identifier", description = "Retrieves a list of all tasks belonging to a specific user identified by their unique identifier. This endpoint requires authentication. If no tasks exist for the user, an empty array is returned.")
+    @Operation(summary = "Gets all tasks for a specific user by their unique identifier", description = "Retrieves a list of all tasks belonging to a specific user identified by their unique identifier. If no tasks exist for the user, an empty array is returned.")
     @ApiResponse(responseCode = "200", description = "Tasks found for the user", content = {
             @Content(schema = @Schema(implementation = GetTasksByUserIdResponse.class)) })
     @ApiResponse(responseCode = "400", description = "Invalid user identifier format", content = {
@@ -169,7 +169,7 @@ public interface TaskRestAPI {
      */
     @GetMapping(value = TASKS_GET_ALL_PATH, params = "!ids", produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Gets all tasks", description = "Retrieves a list of all registered tasks in the system. This endpoint requires authentication. If no tasks exist, an empty array is returned.")
+    @Operation(summary = "Gets all tasks", description = "Retrieves a list of all registered tasks in the system. If no tasks exist, an empty array is returned.")
     @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully", content = {
             @Content(schema = @Schema(implementation = GetAllTasksResponse.class)) })
     @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
@@ -194,7 +194,7 @@ public interface TaskRestAPI {
      */
     @PostMapping(value = TASKS_CREATE_PATH, consumes = "application/json", produces = "application/json")
     @ResponseStatus(HttpStatus.CREATED)
-    @Operation(summary = "Creates a new task", description = "Creates a new task in the system with the provided task information. This endpoint requires authentication. Returns the task identifier. Use GET endpoint to retrieve full task details.")
+    @Operation(summary = "Creates a new task", description = "Creates a new task in the system with the provided task information. Returns the task identifier. Use the GET endpoint to retrieve full task details.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Task creation request containing all necessary task information", required = true, content = @Content(schema = @Schema(implementation = CreateTaskRequest.class)))
     @ApiResponse(responseCode = "201", description = "Task created successfully", content = {
             @Content(schema = @Schema(implementation = CreateTaskResponse.class)) })
@@ -223,7 +223,7 @@ public interface TaskRestAPI {
      * @return a {@link ResponseEntity} wrapping the {@link UpdateTaskResponse} with the task identifier if found, otherwise wrapping empty
      */
     @PutMapping(value = TASKS_UPDATE_BY_ID_PATH, consumes = "application/json", produces = "application/json")
-    @Operation(summary = "Updates an existing task by their unique identifier", description = "Updates the information of an existing task identified by their unique identifier. This endpoint requires authentication. Only the fields provided in the request will be updated. Returns the task identifier. Use GET endpoint to retrieve full task details.")
+    @Operation(summary = "Updates an existing task by their unique identifier", description = "Updates the information of an existing task identified by their unique identifier. Only the fields provided in the request will be updated. Returns the task identifier. Use the GET endpoint to retrieve full task details.")
     @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "Task update request containing the task information to be modified", required = true, content = @Content(schema = @Schema(implementation = UpdateTaskRequest.class)))
     @ApiResponse(responseCode = "200", description = "Task updated successfully", content = {
             @Content(schema = @Schema(implementation = UpdateTaskResponse.class)) })
@@ -253,7 +253,7 @@ public interface TaskRestAPI {
      * @return a {@link ResponseEntity} wrapping empty upon successful deletion
      */
     @DeleteMapping(value = TASKS_DELETE_BY_ID_PATH, produces = "application/json")
-    @Operation(summary = "Deletes a task by their unique identifier", description = "Removes a task from the system by their unique identifier. This endpoint requires authentication. This operation cannot be undone.")
+    @Operation(summary = "Deletes a task by their unique identifier", description = "Removes a task from the system by their unique identifier. This operation cannot be undone.")
     @ApiResponse(responseCode = "204", description = "Task deleted successfully", content = { @Content })
     @ApiResponse(responseCode = "400", description = "Invalid task identifier format", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
