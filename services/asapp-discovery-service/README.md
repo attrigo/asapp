@@ -200,19 +200,19 @@ Listed highest-precedence first; `application-<profile>` rows apply only when th
 
 ### Docker Environment Variables
 
-| Variable                 | Description                                       | Default                                                |
-|--------------------------|---------------------------------------------------|--------------------------------------------------------|
-| `JAVA_OPTS`              | JVM runtime options                               | (see docker-compose.yaml)                              |
-| `SPRING_PROFILES_ACTIVE` | Active Spring profiles                            | `docker,dev`                                           |
-| `SERVER_PORT`            | HTTP server port                                  | `8761`                                                 |
-| `MANAGEMENT_PORT`        | Actuator management port                          | `8791`                                                 |
-| `DISCOVERY_HOST`         | Eureka server host used for self-registration URL | `asapp-discovery-service:8761/asapp-discovery-service` |
-| `DISCOVERY_USERNAME`     | Username used in the Eureka `defaultZone` URL     | `user`                                                 |
-| `DISCOVERY_PASSWORD`     | Password used in the Eureka `defaultZone` URL     | `secret`                                               |
-| `SERVICE_USERNAME`       | HTTP Basic username for all endpoints             | `user`                                                 |
-| `SERVICE_PASSWORD`       | HTTP Basic password for all endpoints             | `secret`                                               |
-| `THC_PORT`               | Health check port for readiness                   | `8761`                                                 |
-| `THC_PATH`               | Health check path for readiness                   | `/asapp-discovery-service/readyz`                      |
+| Variable                 | Description                                       |
+|--------------------------|---------------------------------------------------|
+| `JAVA_OPTS`              | JVM runtime options                               |
+| `SPRING_PROFILES_ACTIVE` | Active Spring profiles                            |
+| `SERVER_PORT`            | HTTP server port                                  |
+| `SERVICE_USERNAME`       | HTTP Basic username for all endpoints             |
+| `SERVICE_PASSWORD`       | HTTP Basic password for all endpoints             |
+| `DISCOVERY_HOST`         | Eureka server host used for self-registration URL |
+| `DISCOVERY_USERNAME`     | Username used in the Eureka `defaultZone` URL     |
+| `DISCOVERY_PASSWORD`     | Password used in the Eureka `defaultZone` URL     |
+| `MANAGEMENT_PORT`        | Actuator management port                          |
+| `THC_PORT`               | Health check port for readiness                   |
+| `THC_PATH`               | Health check path for readiness                   |
 
 ### API Endpoints
 
