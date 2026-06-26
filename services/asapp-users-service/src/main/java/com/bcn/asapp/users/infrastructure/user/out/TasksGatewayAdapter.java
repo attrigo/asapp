@@ -31,8 +31,8 @@ import io.github.resilience4j.circuitbreaker.CallNotPermittedException;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 
-import com.bcn.asapp.clients.tasks.TasksHttpClient;
-import com.bcn.asapp.clients.tasks.response.TasksByUserIdResponse;
+import com.bcn.asapp.http.clients.tasks.TasksHttpClient;
+import com.bcn.asapp.http.clients.tasks.response.TasksByUserIdResponse;
 import com.bcn.asapp.users.application.user.TasksUnavailableException;
 import com.bcn.asapp.users.application.user.out.TasksGateway;
 import com.bcn.asapp.users.domain.user.UserId;

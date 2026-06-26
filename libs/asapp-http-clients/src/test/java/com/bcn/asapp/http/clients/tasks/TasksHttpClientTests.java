@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.clients.tasks;
+package com.bcn.asapp.http.clients.tasks;
 
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +37,7 @@ import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.support.RestClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
-import com.bcn.asapp.clients.tasks.response.TasksByUserIdResponse;
+import com.bcn.asapp.http.clients.tasks.response.TasksByUserIdResponse;
 
 /**
  * Tests {@link TasksHttpClient} HTTP request mapping, JSON response deserialization, and error handling.

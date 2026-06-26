@@ -118,7 +118,7 @@ mvn clean verify -Pfull
 
 ### Clients
 
-- `com.bcn.asapp.clients.tasks.TasksHttpClient`
+- `com.bcn.asapp.http.clients.tasks.TasksHttpClient`
 
 ### Documentation
 
