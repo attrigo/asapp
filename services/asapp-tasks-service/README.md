@@ -394,6 +394,7 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 - [Spring Boot Documentation](https://docs.spring.io/spring-boot/docs/current/reference/htmlsingle/)
 - [Spring Data JDBC](https://docs.spring.io/spring-data/relational/reference/jdbc.html)
 - [Liquibase](https://docs.liquibase.com/)
+- [BootUI](https://github.com/jdubois/boot-ui)
 
 ---
 

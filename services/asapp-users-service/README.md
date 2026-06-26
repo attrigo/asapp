@@ -463,6 +463,7 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 - [Resilience4j Retry](https://resilience4j.readme.io/docs/retry)
 - [TestContainers](https://java.testcontainers.org/)
 - [MockServer](https://www.mock-server.com/)
+- [BootUI](https://github.com/jdubois/boot-ui)
 
 ---
 
