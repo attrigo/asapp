@@ -28,44 +28,44 @@ SDD-scratch cleanup).
 
 ## Process (end-to-end, no gate, no push)
 
-**Track progress with the task tool.** Before Step 0, create these ten tasks; mark each
-`in_progress` when you start it and `completed` when it's done:
+### Step 0: Set up progress tracking
 
-1. Resolve, detect, capture revert anchors (Step 0)
-2. Analyze the task's context (Step 1)
-3. Mark the spec implemented (Step 2)
-4. Commit the spec (Step 3)
-5. Draft the squash message (Step 4)
-6. Squash-merge into main, excluding the plan (Step 5)
-7. Commit the plan as the last branch commit (Step 6)
-8. Verify invariants (Step 7)
-9. Clear the SDD record (Step 8)
-10. Wrap-up (Step 9)
+**Before any other step**, create these ten tracking tasks with the task tool; mark each `in_progress` when you start it and `completed` when it's done:
 
-If the close aborts (a Step 5 merge conflict or a failed Step 7 invariant), leave the current
-task `in_progress` so the stopping point — and what has already been mutated — stays visible.
+1. Resolve, detect, capture revert anchors (Step 1)
+2. Analyze the task's context (Step 2)
+3. Mark the spec implemented (Step 3)
+4. Commit the spec (Step 4)
+5. Draft the squash message (Step 5)
+6. Squash-merge into main (Step 6)
+7. Commit the plan as the last branch commit (Step 7)
+8. Verify invariants (Step 8)
+9. Clear the SDD record (Step 9)
+10. Wrap-up (Step 10)
 
-### Step 0: Resolve, detect, capture revert anchors
+If the close aborts (a Step 6 merge conflict or a failed Step 8 invariant), leave the current task `in_progress` so the stopping point — and what has already been mutated — stays visible.
+
+### Step 1: Resolve, detect, capture revert anchors
 
 - **Resolve** — from the current branch or the argument (stop and ask if any is ambiguous; don't guess before mutating):
    - The task branch
    - The task slug
    - The spec — `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md`
    - The plan — `docs/superpowers/plans/YYYY-MM-DD-<slug>.md`
-- **Locate the SDD record** — `.superpowers/sdd/` (untracked working dir): `progress.md` plus the per-task `*-brief.md`/`*-report.md`. It captures intent, decisions, and deviations, and feeds Steps 1, 2, and 4. If it is absent, fall back to commits alone.
+- **Locate the SDD record** — `.superpowers/sdd/` (untracked working dir): `progress.md` plus the per-task `*-brief.md`/`*-report.md`. It captures intent, decisions, and deviations, and feeds Steps 2, 3, and 5. If it is absent, fall back to commits alone.
 - **Capture revert anchors** and surface them to the user immediately:
   ```bash
   PRE_MAIN=$(git rev-parse main)      # main tip before the merge
   PRE_BRANCH=$(git rev-parse HEAD)    # task branch tip before closing
   ```
-- **Detect the plan's state** — committed on the branch, or uncommitted/untracked (drives Step 5). See *Plan handling*.
+- **Detect the plan's state** — committed on the branch, or uncommitted/untracked (drives Step 6). See *Plan handling*.
 - **Preconditions** — abort with a clear message if any fail (a safety check, not a gate):
    - On the task branch
    - Working tree has no unrelated uncommitted changes
    - `main` exists
    - The branch is not already merged
 
-### Step 1: Analyze the task's context
+### Step 2: Analyze the task's context
 
 Find where the implementation diverged from the design.
 
@@ -75,25 +75,25 @@ Find where the implementation diverged from the design.
 - **Capture each delta by the durable artifacts it touched** (files, classes, config, tests), **not commit hashes** — the SDD files contain hashes; do not copy them through.
 - **Delegate** to a read-only review agent (`architect-reviewer` / `code-reviewer` / `Explore`), or do it inline.
 
-### Step 2: Mark the spec implemented
+### Step 3: Mark the spec implemented
 
-Dispatch `documentation-engineer` to update **only the spec file** from the Step 1 analysis:
+Dispatch `documentation-engineer` to update **only the spec file** from the Step 2 analysis:
 
 - Changes the header `**Status**:` from `Proposed`/`Draft` → `Implemented`, and
 - Appends a `## N. Post-implementation notes` section (N = next section number) per the *Post-implementation notes recipe*.
 
 (If the spec is already `Implemented`, skip this step and reuse the existing notes.)
 
-### Step 3: Commit the spec (on the task branch)
+### Step 4: Commit the spec (on the task branch)
 
 Commit **only the spec file**, message built with `draft-commit-msg`, following the reference style:
 `docs(<scope>): mark <task> design spec as implemented`.
 
-### Step 4: Draft the squash message
+### Step 5: Draft the squash message
 
-Build the squash message with `draft-commit-msg`, using the Step 1 analysis (the SDD record + git) and the full task range (`git log main..<branch>` + the squashed diff).
+Build the squash message with `draft-commit-msg`, using the Step 2 analysis (the SDD record + git) and the full task range (`git log main..<branch>` + the squashed diff).
 
-### Step 5: Squash-merge into main, excluding the plan
+### Step 6: Squash-merge into main, excluding the plan
 
 ```bash
 git checkout main
@@ -102,12 +102,12 @@ git merge --squash <branch>
 #   plan already committed on the branch (now staged by the merge):
 git restore --staged --worktree -- docs/superpowers/plans/<plan>
 #   plan uncommitted/untracked: nothing was staged — skip the restore
-git commit -F <squash-message>      # the message from Step 4 (overrides MERGE_MSG)
+git commit -F <squash-message>      # the message from Step 5 (overrides MERGE_MSG)
 ```
 
 If the squash merge **conflicts**, run `git merge --abort` and report — do not guess resolutions.
 
-### Step 6: Commit the plan as the last branch commit
+### Step 7: Commit the plan as the last branch commit
 
 ```bash
 git checkout <branch>
@@ -118,7 +118,7 @@ git commit -m "docs(<scope>): add <task> implementation plan"
 git checkout main
 ```
 
-### Step 7: Verify invariants
+### Step 8: Verify invariants
 
 Run and show the results:
 ```bash
@@ -128,7 +128,7 @@ git log <branch> -1 --stat    # the plan as the last branch commit
 ```
 If any invariant **fails**, stop and report — **do not clean up**.
 
-### Step 8: Clear the SDD record
+### Step 9: Clear the SDD record
 
 **Only once the invariants pass**, delete the SDD working content — it is untracked scaffolding and its essence is now in the spec notes + the squash commit. Preserve the `.gitignore` marker:
 ```bash
@@ -136,7 +136,7 @@ If any invariant **fails**, stop and report — **do not clean up**.
 ```
 This is the **only non-git-revertible** action — which is why it runs last, after a clean close.
 
-### Step 9: Wrap-up
+### Step 10: Wrap-up
 
 - **Report**: what landed on `main` (the squash commit), what the branch holds, the spec status change, and that `.superpowers/sdd` was cleared.
 - **Revert instructions** (git actions only — see *Reverting*; the cleared SDD files are not recoverable).
@@ -146,10 +146,10 @@ This is the **only non-git-revertible** action — which is why it runs last, af
 
 | Plan state at closing | How it lands on the branch | How it's kept off main |
 |-----------------------|----------------------------|------------------------|
-| **Uncommitted / untracked** (the clean default) | Committed in Step 6, so it is the last commit | `git merge --squash` never staged it — auto-excluded |
+| **Uncommitted / untracked** (the clean default) | Committed in Step 7, so it is the last commit | `git merge --squash` never staged it — auto-excluded |
 | **Already committed** | Already in branch history | `git merge --squash` staged it → `git restore --staged --worktree` drops it from main's commit |
 
-The canonical flow assumes the plan is **uncommitted** at closing (committed last, in Step 6). The already-committed path is the safety net; if committing the spec in Step 3 leaves the plan no longer the last commit, **report it — never rewrite history to reorder.**
+The canonical flow assumes the plan is **uncommitted** at closing (committed last, in Step 7). The already-committed path is the safety net; if committing the spec in Step 4 leaves the plan no longer the last commit, **report it — never rewrite history to reorder.**
 
 ## Post-implementation notes recipe
 
@@ -167,11 +167,11 @@ The `## N. Post-implementation notes` section states, in order:
 ```bash
 # Undo the squash merge on main:
 git checkout main && git reset --hard $PRE_MAIN
-# Undo the plan commit on the branch (only if Step 6 added it):
+# Undo the plan commit on the branch (only if Step 7 added it):
 git checkout <branch> && git reset --hard $PRE_BRANCH
 ```
 
-> The Step 8 `.superpowers/sdd` cleanup is **not** covered by this — those files are untracked and gone for good. That is why it runs only after the invariants pass.
+> The Step 9 `.superpowers/sdd` cleanup is **not** covered by this — those files are untracked and gone for good. That is why it runs only after the invariants pass.
 
 ## Delegation & tools — quick reference
 
@@ -199,7 +199,8 @@ Pick the **most specific** agent from `.claude/agents/`; `general-purpose` is a 
 
 | Mistake | Fix |
 |---------|-----|
+| Starting Step 1 before creating the ten tracking tasks | Do Step 0 first — create the tasks, then begin. |
 | Plan file ends up on main | Detect its state; `git restore --staged --worktree` it out of the squash, or commit it only after the merge. |
-| Forgetting to capture revert anchors | Record `PRE_MAIN`/`PRE_BRANCH` in Step 0, before mutating. |
+| Forgetting to capture revert anchors | Record `PRE_MAIN`/`PRE_BRANCH` in Step 1, before mutating. |
 | Auto-resolving a squash merge conflict | `git merge --abort` and report. |
-| Clearing `.superpowers/sdd` before the close verifies, or deleting its `.gitignore` | Clear it only after Step 7 passes; keep `.gitignore`. |
+| Clearing `.superpowers/sdd` before the close verifies, or deleting its `.gitignore` | Clear it only after Step 8 passes; keep `.gitignore`. |

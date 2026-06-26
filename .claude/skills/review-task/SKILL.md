@@ -29,16 +29,16 @@ fixes the in-scope findings afterwards.
 
 ## Process
 
-**Track progress with the task tool.** Before Step 1, create these four tasks; mark each
-`in_progress` when you start it and `completed` when it's done:
+### Step 0: Set up progress tracking
 
-1. Locate task and determine review scope        (Step 1)
-2. Run the review — fan out, then consolidate     (Step 2)
-3. Present findings and get the user's selection  (Steps 3–4)
-4. Log selected findings to `TODO.md`             (Step 5)
+**Before any other step**, create these four tracking tasks with the task tool; mark each `in_progress` when you start it and `completed` when it's done:
 
-Keep Task 3 `in_progress` across the wait for the user's selection; move to Task 4 only
-once they answer. Step 6 (wrap-up) completes Task 4.
+1. Locate task and determine review scope (Step 1)
+2. Run the review and consolidate (Step 2)
+3. Present findings and user selection (Steps 3–4)
+4. Log selected findings to `TODO.md` (Step 5)
+
+Keep Task 3 `in_progress` across the wait for the user's selection; move to Task 4 only  once they answer. Step 6 (wrap-up) completes Task 4.
 
 ### Step 1: Locate and determine review scope
 
@@ -137,6 +137,7 @@ Pick the **most specific** agent from `.claude/agents/`; `general-purpose` is a 
 
 | Mistake | Fix |
 |---------|-----|
+| Starting Step 1 before creating the four tracking tasks | Do Step 0 first — create the tasks, then begin. |
 | Editing `TODO.md` before the user selects | Present table → wait for selection → then log. |
 | Putting out-of-scope items under the task | Only in-scope goes under the task; out-of-scope goes to its section. |
 | Creating a new section silently | Propose and confirm before adding to it. |
