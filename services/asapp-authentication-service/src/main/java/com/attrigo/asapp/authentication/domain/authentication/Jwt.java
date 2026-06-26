@@ -53,6 +53,8 @@ public record Jwt(
     /**
      * Constructs a new {@code Jwt} instance and validates its integrity.
      * <p>
+     * Prefer the factory method {@link #of(EncodedToken, JwtType, Subject, JwtClaims, Issued, Expiration)} over direct instantiation.
+     * <p>
      * Validates that all required fields are present, type consistency between JWT type and token_use claim, and temporal ordering of timestamps.
      *
      * @param encodedToken the serialized JWT

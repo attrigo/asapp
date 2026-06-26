@@ -36,6 +36,8 @@ public record Issued(
 
     /**
      * Constructs a new {@code Issued} instance and validates its integrity.
+     * <p>
+     * Prefer the factory methods {@link #now()}, {@link #of(Instant)}, or {@link #of(Date)} over direct instantiation.
      *
      * @param issued the issued instant to validate and store
      * @throws IllegalArgumentException if the issued instant is {@code null}

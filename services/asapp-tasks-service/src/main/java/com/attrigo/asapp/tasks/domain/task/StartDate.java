@@ -35,6 +35,8 @@ public record StartDate(
 
     /**
      * Constructs a new {@code StartDate} instance and validates its integrity.
+     * <p>
+     * Prefer the factory methods {@link #of(Instant)} or {@link #ofNullable(Instant)} over direct instantiation.
      *
      * @param startDate the start date instant to validate and store
      * @throws IllegalArgumentException if the start date instant is {@code null}

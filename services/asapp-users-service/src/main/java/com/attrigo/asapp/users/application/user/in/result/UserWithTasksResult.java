@@ -41,6 +41,8 @@ public record UserWithTasksResult(
 
     /**
      * Constructs a new {@code UserWithTasksResult} instance and validates its integrity.
+     * <p>
+     * Prefer the factory methods {@link #available(User, List)} or {@link #unavailable(User)} over direct instantiation.
      *
      * @param user                  the user entity to validate and store
      * @param taskIds               the task identifiers to validate and store

@@ -39,6 +39,8 @@ public record JwtClaims(
     /**
      * Constructs a new {@code JwtClaims} instance and validates its integrity.
      * <p>
+     * Prefer the factory methods {@link #of(Map)} or {@link #of(String, Object, String, Object)} over direct instantiation.
+     * <p>
      * Creates an immutable copy of the provided claims map.
      *
      * @param claims the claims map to validate and store

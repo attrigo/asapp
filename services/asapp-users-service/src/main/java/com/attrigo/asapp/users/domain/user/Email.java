@@ -40,6 +40,8 @@ public record Email(
 
     /**
      * Constructs a new {@code Email} instance and validates its integrity.
+     * <p>
+     * Prefer the factory method {@link #of(String)} over direct instantiation.
      *
      * @param email the email value to validate and store
      * @throws IllegalArgumentException if the email is {@code null}, blank, or does not match the email pattern

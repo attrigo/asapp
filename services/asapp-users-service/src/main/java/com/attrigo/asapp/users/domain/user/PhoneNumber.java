@@ -40,6 +40,8 @@ public record PhoneNumber(
 
     /**
      * Constructs a new {@code PhoneNumber} instance and validates its integrity.
+     * <p>
+     * Prefer the factory method {@link #of(String)} over direct instantiation.
      *
      * @param phoneNumber the phone number value to validate and store
      * @throws IllegalArgumentException if the phone number is {@code null}, blank, or does not match the phone number pattern

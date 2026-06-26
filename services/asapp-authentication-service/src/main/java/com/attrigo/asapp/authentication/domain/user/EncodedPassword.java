@@ -41,6 +41,8 @@ public record EncodedPassword(
 
     /**
      * Constructs a new {@code EncodedPassword} instance and validates its integrity.
+     * <p>
+     * Prefer the factory method {@link #of(String)} over direct instantiation.
      *
      * @param password the encoded password value to validate and store
      * @throws IllegalArgumentException if the password is {@code null}, blank, or does not match the required pattern

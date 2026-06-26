@@ -33,6 +33,8 @@ public record FirstName(
 
     /**
      * Constructs a new {@code FirstName} instance and validates its integrity.
+     * <p>
+     * Prefer the factory method {@link #of(String)} over direct instantiation.
      *
      * @param firstName the first name value to validate and store
      * @throws IllegalArgumentException if the first name is {@code null} or blank
