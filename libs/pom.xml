@@ -78,7 +78,7 @@
 
     <modules>
         <module>asapp-commons-url</module>
-        <module>asapp-rest-clients</module>
+        <module>asapp-http-clients</module>
     </modules>
 
 </project>

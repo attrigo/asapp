@@ -264,7 +264,7 @@ src/main/java/com/bcn/asapp/users/
 - **Testing**: JUnit 5, AssertJ, TestContainers, PITest
 - **Documentation**: SpringDoc OpenAPI
 - **Observability**: Spring Boot Actuator, Micrometer
-- **REST Clients**: Spring HTTP Interfaces (@HttpExchange)
+- **HTTP Clients**: Spring HTTP Interfaces (@HttpExchange)
 - **Resilience**: Resilience4j (circuit breaker + retry)
 
 ---
@@ -422,7 +422,7 @@ Health probes are on the server port (`8082`) at `/asapp-users-service` and are 
 **Internal Dependencies**:
 
 - `asapp-commons-url` - Endpoint constants
-- `asapp-rest-clients` - Tasks service HTTP client contract
+- `asapp-http-clients` - Tasks service HTTP client contract
 
 **External Dependencies**:
 

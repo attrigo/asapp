@@ -31,8 +31,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.web.client.RestClientException;
 
-import com.bcn.asapp.clients.tasks.TasksHttpClient;
-import com.bcn.asapp.clients.tasks.response.TasksByUserIdResponse;
+import com.bcn.asapp.http.clients.tasks.TasksHttpClient;
+import com.bcn.asapp.http.clients.tasks.response.TasksByUserIdResponse;
 import com.bcn.asapp.users.domain.user.UserId;
 
 /**

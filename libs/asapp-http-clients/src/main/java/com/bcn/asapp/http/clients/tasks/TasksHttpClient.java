@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.bcn.asapp.clients.tasks;
+package com.bcn.asapp.http.clients.tasks;
 
 import static com.bcn.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
 
@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.HttpExchange;
 
-import com.bcn.asapp.clients.tasks.response.TasksByUserIdResponse;
+import com.bcn.asapp.http.clients.tasks.response.TasksByUserIdResponse;
 
 /**
  * Declares the HTTP contract for retrieving task data from the Tasks Service.
