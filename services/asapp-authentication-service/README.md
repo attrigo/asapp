@@ -413,6 +413,7 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 - [Spring Security](https://docs.spring.io/spring-security/reference/)
 - [Nimbus JOSE+JWT](https://connect2id.com/products/nimbus-jose-jwt)
 - [Liquibase](https://docs.liquibase.com/)
+- [BootUI](https://github.com/jdubois/boot-ui)
 
 ---
 

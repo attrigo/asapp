@@ -47,10 +47,11 @@
         * [ ] Make commit-msg git hook compatible with Linux (WSDL)
     * Docs
         * [X] Remove all reference to "docs/guidelines/" from README
-        * [ ] Add missing reference to Boot-UI in README
+        * [X] Add missing reference to Boot-UI in README
         * [ ] Add Setup section to Javadocs of all test classes
         * [ ] Add Javadoc to all custom public constructors to recommend use factory methods
         * [ ] Synchronize api-guide.adoc files with OpenApi docs
+        * [ ] Update ### Docker Environment Variables with Resilience props in READMEs (sort them)
     * AI Code Assistant
         * [X] Create custom Skill to review a task
         * [X] Create custom Skill to resolve identified issues
