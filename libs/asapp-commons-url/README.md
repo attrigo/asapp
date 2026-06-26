@@ -114,7 +114,7 @@ This library is part of the ASAPP monorepo. See the [main repository](../../READ
 ## Related Documentation
 
 - [ASAPP Main Repository](../../README.md)
-- [REST Clients](../asapp-rest-clients/README.md)
+- [HTTP Clients](../asapp-http-clients/README.md)
 
 ---
 

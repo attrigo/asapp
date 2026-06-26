@@ -1,4 +1,4 @@
-# ASAPP REST Clients
+# ASAPP HTTP Clients
 
 > Shared HTTP client contracts and inter-service communication for ASAPP microservices
 
@@ -10,7 +10,7 @@
 
 ## Overview
 
-`asapp-rest-clients` provides declarative HTTP client contracts (Spring `@HttpExchange` interfaces) and response DTOs for inter-service communication within the ASAPP microservices
+`asapp-http-clients` provides declarative HTTP client contracts (Spring `@HttpExchange` interfaces) and response DTOs for inter-service communication within the ASAPP microservices
 ecosystem.
 
 **Key Features**:
@@ -35,7 +35,7 @@ ecosystem.
 ```xml
 <dependency>
     <groupId>com.bcn.asapp</groupId>
-    <artifactId>asapp-rest-clients</artifactId>
+    <artifactId>asapp-http-clients</artifactId>
     <version>${asapp.version}</version>
 </dependency>
 ```
@@ -157,7 +157,7 @@ This library is part of the ASAPP monorepo. See the [main repository](../../READ
 
 ## License
 
-ASAPP REST Clients is Open Source software released under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0).
+ASAPP HTTP Clients is Open Source software released under the [Apache 2.0 license](https://www.apache.org/licenses/LICENSE-2.0).
 
 ---
 

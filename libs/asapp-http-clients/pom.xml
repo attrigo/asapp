@@ -12,9 +12,9 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>asapp-rest-clients</artifactId>
-    <name>asapp-rest-clients</name>
-    <description>ASAPP REST clients library</description>
+    <artifactId>asapp-http-clients</artifactId>
+    <name>asapp-http-clients</name>
+    <description>ASAPP HTTP clients library</description>
     <packaging>jar</packaging>
 
     <properties>

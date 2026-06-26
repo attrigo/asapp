@@ -78,7 +78,7 @@
             </dependency>
             <dependency>
                 <groupId>com.bcn.asapp</groupId>
-                <artifactId>asapp-rest-clients</artifactId>
+                <artifactId>asapp-http-clients</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- ## Org Dependencies -->
