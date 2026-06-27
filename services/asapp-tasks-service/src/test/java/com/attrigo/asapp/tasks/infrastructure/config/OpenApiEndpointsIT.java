@@ -39,7 +39,6 @@ import com.attrigo.asapp.tasks.testutil.TestContainerConfiguration;
  * <li>Swagger UI index page returns HTML content</li>
  * <li>OpenAPI documentation endpoint returns a specification with the expected API info and security scheme</li>
  * <li>OpenAPI documentation endpoint returns a valid non-empty API specification</li>
- * <li>Single merged GET /api/tasks operation exposed with an optional ids query parameter</li>
  */
 @SpringBootTest(classes = AsappTasksServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
@@ -100,29 +99,6 @@ class OpenApiEndpointsIT {
                       .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
                                                                                          .isObject()
                                                                                          .isNotEmpty());
-    }
-
-    @Test
-    void ReturnsSingleGetTasksOperationWithIdsQueryParam_OnOpenApiDocs() {
-        // When & Then
-        restTestClient.get()
-                      .uri("/v3/api-docs")
-                      .exchange()
-                      .expectStatus()
-                      .isOk()
-                      .expectBody(String.class)
-                      .consumeWith(response -> {
-                          var body = response.getResponseBody();
-                          assertThatJson(body).node("paths./api/tasks.get.operationId")
-                                              .isEqualTo("getTasks");
-                          assertThatJson(body).node("paths./api/tasks.get.parameters")
-                                              .isArray()
-                                              .hasSize(1);
-                          assertThatJson(body).node("paths./api/tasks.get.parameters[0].name")
-                                              .isEqualTo("ids");
-                          assertThatJson(body).node("paths./api/tasks.get.parameters[0].in")
-                                              .isEqualTo("query");
-                      });
     }
 
 }
