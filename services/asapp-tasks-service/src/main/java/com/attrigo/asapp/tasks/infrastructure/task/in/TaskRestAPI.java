@@ -100,34 +100,6 @@ public interface TaskRestAPI {
     ResponseEntity<GetTaskByIdResponse> getTaskById(@PathVariable @Parameter(description = "Identifier of the task to get") UUID id);
 
     /**
-     * Gets tasks, optionally filtered by their unique identifiers.
-     * <p>
-     * Response codes:
-     * <ul>
-     * <li>200-OK: Tasks retrieved successfully.</li>
-     * <li>400-BAD_REQUEST: ids is empty, exceeds 50 elements, or contains a malformed UUID.</li>
-     * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
-     * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during retrieval.</li>
-     * </ul>
-     *
-     * @param ids the optional list of task identifiers to filter by (1 to 50 elements); when {@code null} all tasks are returned
-     * @return a {@link List} of {@link GetTasksResponse} containing the tasks found, or an empty list if none match; missing identifiers are silently omitted
-     */
-    @GetMapping(value = TASKS_GET_ALL_PATH, produces = "application/json")
-    @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Gets tasks", description = "Retrieves tasks from the system. By default returns all registered tasks; when the `ids` query parameter is supplied, returns only the tasks whose identifiers are in the list. Missing identifiers are silently omitted; the response order is not guaranteed. Duplicate identifiers are deduplicated server-side. The `ids` list, when present, must contain between 1 and 50 identifiers. If no tasks match, an empty array is returned.")
-    @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully", content = {
-            @Content(schema = @Schema(implementation = GetTasksResponse.class)) })
-    @ApiResponse(responseCode = "400", description = "Task identifiers list is empty, exceeds 50 elements, or contains a malformed UUID", content = {
-            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
-            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "500", description = "An internal error occurred during retrieval", content = {
-            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    List<GetTasksResponse> getTasks(
-            @RequestParam(name = TASKS_IDS_PARAM, required = false) @Parameter(description = "Optional list of task identifiers to filter by; omit to return all tasks") @Size(min = 1, max = 50, message = "Tasks identifiers list must contain between 1 and 50 elements") List<UUID> ids);
-
-    /**
      * Gets all tasks for a specific user by their unique identifier.
      * <p>
      * Response codes:
@@ -153,6 +125,34 @@ public interface TaskRestAPI {
     @ApiResponse(responseCode = "500", description = "An internal error occurred during retrieval", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     List<GetTasksByUserIdResponse> getTasksByUserId(@PathVariable @Parameter(description = "Identifier of the user whose tasks to retrieve") UUID id);
+
+    /**
+     * Gets tasks, optionally filtered by their unique identifiers.
+     * <p>
+     * Response codes:
+     * <ul>
+     * <li>200-OK: Tasks retrieved successfully.</li>
+     * <li>400-BAD_REQUEST: ids is empty, exceeds 50 elements, or contains a malformed UUID.</li>
+     * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
+     * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during retrieval.</li>
+     * </ul>
+     *
+     * @param ids the optional list of task identifiers to filter by (1 to 50 elements); when {@code null} all tasks are returned
+     * @return a {@link List} of {@link GetTasksResponse} containing the tasks found, or an empty list if none match; missing identifiers are silently omitted
+     */
+    @GetMapping(value = TASKS_GET_ALL_PATH, produces = "application/json")
+    @ResponseStatus(HttpStatus.OK)
+    @Operation(summary = "Gets tasks", description = "Retrieves tasks from the system. By default, returns all registered tasks; when the `ids` query parameter is supplied, returns only the tasks whose identifiers are in the list. Missing identifiers are silently omitted; the response order is not guaranteed. Duplicate identifiers are deduplicated server-side. The `ids` list, when present, must contain between 1 and 50 identifiers. If no tasks match, an empty array is returned.")
+    @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully", content = {
+            @Content(schema = @Schema(implementation = GetTasksResponse.class)) })
+    @ApiResponse(responseCode = "400", description = "Task identifiers list is empty, exceeds 50 elements, or contains a malformed UUID", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    @ApiResponse(responseCode = "500", description = "An internal error occurred during retrieval", content = {
+            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
+    List<GetTasksResponse> getTasks(
+            @RequestParam(name = TASKS_IDS_PARAM, required = false) @Parameter(description = "Optional list of task identifiers to filter by; omit to return all tasks") @Size(min = 1, max = 50, message = "Tasks identifiers list must contain between 1 and 50 elements") List<UUID> ids);
 
     /**
      * Creates a new task.

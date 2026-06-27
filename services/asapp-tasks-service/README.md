@@ -310,14 +310,14 @@ Listed highest-precedence first; `application-<profile>` rows apply only when th
 
 **Task Endpoints**
 
-| Method | Endpoint               | Description          | Auth Required |
-|--------|------------------------|----------------------|---------------|
-| POST   | `/api/tasks`           | Create task          | ✅             |
+| Method | Endpoint               | Description                   | Auth Required |
+|--------|------------------------|-------------------------------|---------------|
+| POST   | `/api/tasks`           | Create task                   | ✅             |
 | GET    | `/api/tasks`           | Get tasks (optionally by IDs) | ✅             |
-| GET    | `/api/tasks/{id}`      | Get task by ID       | ✅             |
-| GET    | `/api/tasks/user/{id}` | Get tasks by user ID | ✅             |
-| PUT    | `/api/tasks/{id}`      | Update task          | ✅             |
-| DELETE | `/api/tasks/{id}`      | Delete task          | ✅             |
+| GET    | `/api/tasks/{id}`      | Get task by ID                | ✅             |
+| GET    | `/api/tasks/user/{id}` | Get tasks by user ID          | ✅             |
+| PUT    | `/api/tasks/{id}`      | Update task                   | ✅             |
+| DELETE | `/api/tasks/{id}`      | Delete task                   | ✅             |
 
 **Management Endpoints**
 

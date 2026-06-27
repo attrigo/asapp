@@ -383,13 +383,13 @@ Listed highest-precedence first; `application-<profile>` rows apply only when th
 
 **User Endpoints**
 
-| Method | Endpoint          | Description                 | Auth Required |
-|--------|-------------------|-----------------------------|---------------|
-| POST   | `/api/users`      | Create user profile         | ✅             |
+| Method | Endpoint          | Description                   | Auth Required |
+|--------|-------------------|-------------------------------|---------------|
+| POST   | `/api/users`      | Create user profile           | ✅             |
 | GET    | `/api/users`      | Get users (optionally by IDs) | ✅             |
-| GET    | `/api/users/{id}` | Get user by ID (with tasks) | ✅             |
-| PUT    | `/api/users/{id}` | Update user profile         | ✅             |
-| DELETE | `/api/users/{id}` | Delete user                 | ✅             |
+| GET    | `/api/users/{id}` | Get user by ID (with tasks)   | ✅             |
+| PUT    | `/api/users/{id}` | Update user profile           | ✅             |
+| DELETE | `/api/users/{id}` | Delete user                   | ✅             |
 
 **Management Endpoints**
 
