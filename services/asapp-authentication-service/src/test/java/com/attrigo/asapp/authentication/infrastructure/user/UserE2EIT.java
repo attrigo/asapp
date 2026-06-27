@@ -92,13 +92,11 @@ class UserE2EIT {
     @Autowired
     private RestTestClient restTestClient;
 
-    private String encodedAccessToken;
-
     private String bearerToken;
 
     @BeforeEach
     void beforeEach() {
-        encodedAccessToken = encodedAccessToken();
+        var encodedAccessToken = encodedAccessToken();
         bearerToken = "Bearer " + encodedAccessToken;
 
         jwtAuthenticationRepository.deleteAll();
