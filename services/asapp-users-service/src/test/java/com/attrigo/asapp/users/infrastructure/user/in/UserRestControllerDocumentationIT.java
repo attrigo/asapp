@@ -102,7 +102,7 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                  .value();
             var phoneNumberValue = user.getPhoneNumber()
                                        .value();
-            var taskIds = List.<UUID>of();
+            var taskIds = List.of(UUID.randomUUID(), UUID.randomUUID());
             var userWithTasksResult = UserWithTasksResult.available(user, List.of());
             var response = new GetUserByIdResponse(userIdValue, firstNameValue, lastNameValue, emailValue, phoneNumberValue, taskIds, List.of());
 
