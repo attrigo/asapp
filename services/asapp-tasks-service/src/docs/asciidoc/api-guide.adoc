@@ -87,10 +87,8 @@ operation::get-tasks-by-user-id[snippets='path-parameters,http-request,response-
 [[resources-tasks-get]]
 === Get Tasks
 
-Retrieves tasks from the system. By default, returns all registered tasks; when the `ids` query parameter is supplied, returns only the tasks whose identifiers are in the list.
-Missing identifiers are silently omitted; the response order is not guaranteed.
-Duplicate identifiers are deduplicated server-side. The `ids` list, when present, must contain between 1 and 50 identifiers.
-If no tasks match, an empty array is returned.
+Retrieves tasks from the system. By default returns all tasks; when the `ids` query parameter is supplied, returns only the tasks whose identifiers are in the list.
+Duplicate identifiers are ignored. Returns an empty array if no tasks match.
 
 operation::get-tasks[snippets='query-parameters,http-request,response-fields,curl-request,http-response']
 

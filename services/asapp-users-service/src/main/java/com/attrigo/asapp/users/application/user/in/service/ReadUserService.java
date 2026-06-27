@@ -91,9 +91,11 @@ public class ReadUserService implements ReadUserUseCase {
 
     /**
      * Retrieves users by their unique identifiers.
+     * <p>
+     * Duplicate identifiers are ignored.
      *
-     * @param ids the list of user identifiers; duplicates are deduped
-     * @return a {@link List} of {@link User} entities found; missing ids are silently omitted
+     * @param ids the identifiers of the users to retrieve
+     * @return a {@link List} of {@link User} entities found, or an empty list if none match
      * @throws IllegalArgumentException if any id is invalid
      */
     @Override

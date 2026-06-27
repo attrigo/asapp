@@ -137,12 +137,12 @@ public interface TaskRestAPI {
      * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during retrieval.</li>
      * </ul>
      *
-     * @param ids the optional list of task identifiers to filter by (1 to 50 elements); when {@code null} all tasks are returned
-     * @return a {@link List} of {@link GetTasksResponse} containing the tasks found, or an empty list if none match; missing identifiers are silently omitted
+     * @param ids the identifiers of the tasks to return; omit to return all tasks
+     * @return a {@link List} of {@link GetTasksResponse} with the matching tasks, or an empty list if none match
      */
     @GetMapping(value = TASKS_GET_ALL_PATH, produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Gets tasks", description = "Retrieves tasks from the system. By default, returns all registered tasks; when the `ids` query parameter is supplied, returns only the tasks whose identifiers are in the list. Missing identifiers are silently omitted; the response order is not guaranteed. Duplicate identifiers are deduplicated server-side. The `ids` list, when present, must contain between 1 and 50 identifiers. If no tasks match, an empty array is returned.")
+    @Operation(summary = "Gets tasks, optionally filtered by their unique identifiers", description = "Retrieves tasks from the system. By default returns all tasks; when the `ids` query parameter is supplied, returns only the tasks whose identifiers are in the list. Duplicate identifiers are ignored. Returns an empty array if no tasks match.")
     @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully", content = {
             @Content(schema = @Schema(implementation = GetTasksResponse.class)) })
     @ApiResponse(responseCode = "400", description = "Task identifiers list is empty, exceeds 50 elements, or contains a malformed UUID", content = {

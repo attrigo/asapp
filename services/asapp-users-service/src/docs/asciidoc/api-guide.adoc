@@ -82,10 +82,8 @@ operation::get-user-by-id[snippets='path-parameters,http-request,response-fields
 [[resources-users-get]]
 === Get Users
 
-Retrieves users from the system. By default, returns all registered users; when the `ids` query parameter is supplied, returns only the users whose identifiers are in the list.
-Missing identifiers are silently omitted; the response order is not guaranteed.
-Duplicate identifiers are deduplicated server-side. The `ids` list, when present, must contain between 1 and 50 identifiers.
-If no users match, an empty array is returned.
+Retrieves users from the system. By default returns all users; when the `ids` query parameter is supplied, returns only the users whose identifiers are in the list.
+Duplicate identifiers are ignored. Returns an empty array if no users match.
 
 operation::get-users[snippets='query-parameters,http-request,response-fields,curl-request,http-response']
 

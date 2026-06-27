@@ -110,8 +110,8 @@ public class TaskRestController implements TaskRestAPI {
     /**
      * Gets tasks, optionally filtered by their unique identifiers.
      *
-     * @param ids the optional list of task identifiers to filter by; when {@code null} all tasks are returned
-     * @return a {@link List} of {@link GetTasksResponse} containing the tasks found, or an empty list if none match; missing identifiers are silently omitted
+     * @param ids the identifiers of the tasks to return; omit to return all tasks
+     * @return a {@link List} of {@link GetTasksResponse} with the matching tasks, or an empty list if none match
      */
     @Override
     public List<GetTasksResponse> getTasks(List<UUID> ids) {

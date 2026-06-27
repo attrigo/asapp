@@ -114,12 +114,12 @@ public interface UserRestAPI {
      * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during retrieval.</li>
      * </ul>
      *
-     * @param ids the optional list of user identifiers to filter by (1 to 50 elements); when {@code null} all users are returned
-     * @return a {@link List} of {@link GetUsersResponse} containing the users found, or an empty list if none match; missing identifiers are silently omitted
+     * @param ids the identifiers of the users to return; omit to return all users
+     * @return a {@link List} of {@link GetUsersResponse} with the matching users, or an empty list if none match
      */
     @GetMapping(value = USERS_GET_ALL_PATH, produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Gets users", description = "Retrieves users from the system. By default, returns all registered users; when the `ids` query parameter is supplied, returns only the users whose identifiers are in the list. Missing identifiers are silently omitted; the response order is not guaranteed. Duplicate identifiers are deduplicated server-side. The `ids` list, when present, must contain between 1 and 50 identifiers. If no users match, an empty array is returned.")
+    @Operation(summary = "Gets users, optionally filtered by their unique identifiers", description = "Retrieves users from the system. By default returns all users; when the `ids` query parameter is supplied, returns only the users whose identifiers are in the list. Duplicate identifiers are ignored. Returns an empty array if no users match.")
     @ApiResponse(responseCode = "200", description = "Users retrieved successfully", content = {
             @Content(schema = @Schema(implementation = GetUsersResponse.class)) })
     @ApiResponse(responseCode = "400", description = "User identifiers list is empty, exceeds 50 elements, or contains a malformed UUID", content = {
