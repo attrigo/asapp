@@ -38,7 +38,7 @@
         * [X] Rename all references from com.bcn to com.attrigo
     * Test
         * [X] Standardize extracting() usage
-        * [ ] Rewrite E2EIT to assert Json instead of Java DTOs
+        * [X] Rewrite E2EIT to assert Json instead of Java DTOs
     * CI/CD
         * [X] Update commit-msg skill to include a bulleted body in generated commit messages
         * [X] ~~Change commit-msg to perform all operations in a dedicated agent and then response with the message~~

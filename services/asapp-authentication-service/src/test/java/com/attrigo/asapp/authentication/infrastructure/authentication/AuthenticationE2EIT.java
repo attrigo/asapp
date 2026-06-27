@@ -35,6 +35,7 @@ import static com.attrigo.asapp.authentication.testutil.fixture.UserMother.aUser
 import static com.attrigo.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_REFRESH_TOKEN_FULL_PATH;
 import static com.attrigo.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_REVOKE_FULL_PATH;
 import static com.attrigo.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_TOKEN_FULL_PATH;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
@@ -51,12 +52,12 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
+import com.jayway.jsonpath.JsonPath;
+
 import com.attrigo.asapp.authentication.AsappAuthenticationServiceApplication;
 import com.attrigo.asapp.authentication.infrastructure.authentication.in.request.AuthenticateRequest;
 import com.attrigo.asapp.authentication.infrastructure.authentication.in.request.RefreshAuthenticationRequest;
 import com.attrigo.asapp.authentication.infrastructure.authentication.in.request.RevokeAuthenticationRequest;
-import com.attrigo.asapp.authentication.infrastructure.authentication.in.response.AuthenticateResponse;
-import com.attrigo.asapp.authentication.infrastructure.authentication.in.response.RefreshAuthenticationResponse;
 import com.attrigo.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationEntity;
 import com.attrigo.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationRepository;
 import com.attrigo.asapp.authentication.infrastructure.user.persistence.JdbcUserEntity;
@@ -131,14 +132,18 @@ class AuthenticationE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(AuthenticateResponse.class)
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isNotNull();
-            assertAPIResponse(actual.accessToken(), actual.refreshToken(), createdUser);
-            assertAuthenticationExist(actual.accessToken(), actual.refreshToken(), createdUser);
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("accessToken", "refreshToken");
+
+            String actualAccessToken = JsonPath.read(actual, "$.accessToken");
+            String actualRefreshToken = JsonPath.read(actual, "$.refreshToken");
+            assertAPIResponse(actualAccessToken, actualRefreshToken, createdUser);
+            assertAuthenticationExist(actualAccessToken, actualRefreshToken, createdUser);
         }
 
         @Test
@@ -160,14 +165,18 @@ class AuthenticationE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(AuthenticateResponse.class)
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isNotNull();
-            assertAPIResponse(actual.accessToken(), actual.refreshToken(), createdUser);
-            assertAuthenticationExist(actual.accessToken(), actual.refreshToken(), createdUser);
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("accessToken", "refreshToken");
+
+            String actualAccessToken = JsonPath.read(actual, "$.accessToken");
+            String actualRefreshToken = JsonPath.read(actual, "$.refreshToken");
+            assertAPIResponse(actualAccessToken, actualRefreshToken, createdUser);
+            assertAuthenticationExist(actualAccessToken, actualRefreshToken, createdUser);
         }
 
         @Test
@@ -190,14 +199,18 @@ class AuthenticationE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(AuthenticateResponse.class)
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isNotNull();
-            assertAPIResponse(actual.accessToken(), actual.refreshToken(), createdUser);
-            assertAuthenticationExist(actual.accessToken(), actual.refreshToken(), createdUser);
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("accessToken", "refreshToken");
+
+            String actualAccessToken = JsonPath.read(actual, "$.accessToken");
+            String actualRefreshToken = JsonPath.read(actual, "$.refreshToken");
+            assertAPIResponse(actualAccessToken, actualRefreshToken, createdUser);
+            assertAuthenticationExist(actualAccessToken, actualRefreshToken, createdUser);
             assertAuthenticationExist(accessToken.token(), refreshToken.token(), createdUser);
         }
 
@@ -207,27 +220,26 @@ class AuthenticationE2EIT {
             var authenticateRequestBody = new AuthenticateRequest("invalid_username", "TEST@09_password?!");
 
             // When
-            restTestClient.post()
-                          .uri(AUTH_TOKEN_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(authenticateRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .jsonPath("$.title")
-                          .isEqualTo("Authentication Failed")
-                          .jsonPath("$.status")
-                          .isEqualTo(401)
-                          .jsonPath("$.detail")
-                          .isEqualTo("Invalid credentials")
-                          .jsonPath("$.error")
-                          .isEqualTo("invalid_grant")
-                          .jsonPath("$.instance")
-                          .isEqualTo("/asapp-authentication-service/api/auth/token");
+            var actual = restTestClient.post()
+                                       .uri(AUTH_TOKEN_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(authenticateRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
+            assertThatJson(actual).isObject()
+                                  .containsEntry("title", "Authentication Failed")
+                                  .containsEntry("status", 401)
+                                  .containsEntry("detail", "Invalid credentials")
+                                  .containsEntry("error", "invalid_grant")
+                                  .containsEntry("instance", "/asapp-authentication-service/api/auth/token");
+
             assertAuthenticationNotExist();
         }
 
@@ -299,14 +311,18 @@ class AuthenticationE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(RefreshAuthenticationResponse.class)
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isNotNull();
-            assertAPIResponse(actual.accessToken(), actual.refreshToken(), createdUser);
-            assertAuthenticationExist(actual.accessToken(), actual.refreshToken(), createdUser);
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("accessToken", "refreshToken");
+
+            String actualAccessToken = JsonPath.read(actual, "$.accessToken");
+            String actualRefreshToken = JsonPath.read(actual, "$.refreshToken");
+            assertAPIResponse(actualAccessToken, actualRefreshToken, createdUser);
+            assertAuthenticationExist(actualAccessToken, actualRefreshToken, createdUser);
             assertAuthenticationNotExist(accessToken.token(), refreshToken.token());
         }
 
@@ -334,14 +350,18 @@ class AuthenticationE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(RefreshAuthenticationResponse.class)
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isNotNull();
-            assertAPIResponse(actual.accessToken(), actual.refreshToken(), createdUser);
-            assertAuthenticationExist(actual.accessToken(), actual.refreshToken(), createdUser);
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("accessToken", "refreshToken");
+
+            String actualAccessToken = JsonPath.read(actual, "$.accessToken");
+            String actualRefreshToken = JsonPath.read(actual, "$.refreshToken");
+            assertAPIResponse(actualAccessToken, actualRefreshToken, createdUser);
+            assertAuthenticationExist(actualAccessToken, actualRefreshToken, createdUser);
             assertAuthenticationNotExist(accessToken1.token(), refreshToken1.token());
             assertAuthenticationExist(accessToken2.token(), refreshToken2.token(), createdUser);
         }
@@ -352,29 +372,28 @@ class AuthenticationE2EIT {
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest("invalid_refresh_token");
 
             // When
-            restTestClient.post()
-                          .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(refreshAuthenticationRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectHeader()
-                          .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                          .expectBody()
-                          .jsonPath("$.title")
-                          .isEqualTo("Authentication Failed")
-                          .jsonPath("$.status")
-                          .isEqualTo(401)
-                          .jsonPath("$.detail")
-                          .isEqualTo("Invalid credentials")
-                          .jsonPath("$.error")
-                          .isEqualTo("invalid_grant")
-                          .jsonPath("$.instance")
-                          .isEqualTo("/asapp-authentication-service/api/auth/refresh");
+            var actual = restTestClient.post()
+                                       .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(refreshAuthenticationRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
+            assertThatJson(actual).isObject()
+                                  .containsEntry("title", "Authentication Failed")
+                                  .containsEntry("status", 401)
+                                  .containsEntry("detail", "Invalid credentials")
+                                  .containsEntry("error", "invalid_grant")
+                                  .containsEntry("instance", "/asapp-authentication-service/api/auth/refresh");
+
             assertAuthenticationNotExist();
         }
 
@@ -385,29 +404,28 @@ class AuthenticationE2EIT {
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(encodedAccessToken);
 
             // When
-            restTestClient.post()
-                          .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(refreshAuthenticationRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectHeader()
-                          .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                          .expectBody()
-                          .jsonPath("$.title")
-                          .isEqualTo("Authentication Failed")
-                          .jsonPath("$.status")
-                          .isEqualTo(401)
-                          .jsonPath("$.detail")
-                          .isEqualTo("Invalid token")
-                          .jsonPath("$.error")
-                          .isEqualTo("invalid_grant")
-                          .jsonPath("$.instance")
-                          .isEqualTo("/asapp-authentication-service/api/auth/refresh");
+            var actual = restTestClient.post()
+                                       .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(refreshAuthenticationRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
+            assertThatJson(actual).isObject()
+                                  .containsEntry("title", "Authentication Failed")
+                                  .containsEntry("status", 401)
+                                  .containsEntry("detail", "Invalid token")
+                                  .containsEntry("error", "invalid_grant")
+                                  .containsEntry("instance", "/asapp-authentication-service/api/auth/refresh");
+
             assertAuthenticationNotExist();
         }
 
@@ -420,29 +438,28 @@ class AuthenticationE2EIT {
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(encodedRefreshToken);
 
             // When
-            restTestClient.post()
-                          .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(refreshAuthenticationRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectHeader()
-                          .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                          .expectBody()
-                          .jsonPath("$.title")
-                          .isEqualTo("Authentication Failed")
-                          .jsonPath("$.status")
-                          .isEqualTo(401)
-                          .jsonPath("$.detail")
-                          .isEqualTo("Invalid credentials")
-                          .jsonPath("$.error")
-                          .isEqualTo("invalid_grant")
-                          .jsonPath("$.instance")
-                          .isEqualTo("/asapp-authentication-service/api/auth/refresh");
+            var actual = restTestClient.post()
+                                       .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(refreshAuthenticationRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
+            assertThatJson(actual).isObject()
+                                  .containsEntry("title", "Authentication Failed")
+                                  .containsEntry("status", 401)
+                                  .containsEntry("detail", "Invalid credentials")
+                                  .containsEntry("error", "invalid_grant")
+                                  .containsEntry("instance", "/asapp-authentication-service/api/auth/refresh");
+
             assertAuthenticationNotExist();
         }
 
@@ -455,29 +472,28 @@ class AuthenticationE2EIT {
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(encodedRefreshToken);
 
             // When
-            restTestClient.post()
-                          .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(refreshAuthenticationRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectHeader()
-                          .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                          .expectBody()
-                          .jsonPath("$.title")
-                          .isEqualTo("Authentication Failed")
-                          .jsonPath("$.status")
-                          .isEqualTo(401)
-                          .jsonPath("$.detail")
-                          .isEqualTo("Invalid credentials")
-                          .jsonPath("$.error")
-                          .isEqualTo("invalid_grant")
-                          .jsonPath("$.instance")
-                          .isEqualTo("/asapp-authentication-service/api/auth/refresh");
+            var actual = restTestClient.post()
+                                       .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(refreshAuthenticationRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
+            assertThatJson(actual).isObject()
+                                  .containsEntry("title", "Authentication Failed")
+                                  .containsEntry("status", 401)
+                                  .containsEntry("detail", "Invalid credentials")
+                                  .containsEntry("error", "invalid_grant")
+                                  .containsEntry("instance", "/asapp-authentication-service/api/auth/refresh");
+
             assertAuthenticationNotExist();
         }
 
@@ -488,29 +504,28 @@ class AuthenticationE2EIT {
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(encodedRefreshToken);
 
             // When
-            restTestClient.post()
-                          .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(refreshAuthenticationRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectHeader()
-                          .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                          .expectBody()
-                          .jsonPath("$.title")
-                          .isEqualTo("Authentication Failed")
-                          .jsonPath("$.status")
-                          .isEqualTo(401)
-                          .jsonPath("$.detail")
-                          .isEqualTo("Invalid credentials")
-                          .jsonPath("$.error")
-                          .isEqualTo("invalid_grant")
-                          .jsonPath("$.instance")
-                          .isEqualTo("/asapp-authentication-service/api/auth/refresh");
+            var actual = restTestClient.post()
+                                       .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(refreshAuthenticationRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
+            assertThatJson(actual).isObject()
+                                  .containsEntry("title", "Authentication Failed")
+                                  .containsEntry("status", 401)
+                                  .containsEntry("detail", "Invalid credentials")
+                                  .containsEntry("error", "invalid_grant")
+                                  .containsEntry("instance", "/asapp-authentication-service/api/auth/refresh");
+
             assertAuthenticationNotExist();
         }
 
@@ -526,29 +541,28 @@ class AuthenticationE2EIT {
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken.token());
 
             // When
-            restTestClient.post()
-                          .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(refreshAuthenticationRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectHeader()
-                          .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                          .expectBody()
-                          .jsonPath("$.title")
-                          .isEqualTo("Authentication Failed")
-                          .jsonPath("$.status")
-                          .isEqualTo(401)
-                          .jsonPath("$.detail")
-                          .isEqualTo("Invalid credentials")
-                          .jsonPath("$.error")
-                          .isEqualTo("invalid_grant")
-                          .jsonPath("$.instance")
-                          .isEqualTo("/asapp-authentication-service/api/auth/refresh");
+            var actual = restTestClient.post()
+                                       .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(refreshAuthenticationRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
+            assertThatJson(actual).isObject()
+                                  .containsEntry("title", "Authentication Failed")
+                                  .containsEntry("status", 401)
+                                  .containsEntry("detail", "Invalid credentials")
+                                  .containsEntry("error", "invalid_grant")
+                                  .containsEntry("instance", "/asapp-authentication-service/api/auth/refresh");
+
             assertAuthenticationExistInDB(accessToken.token(), refreshToken.token(), createdUser);
             assertAuthenticationNotExistInRedis(accessToken.token(), refreshToken.token());
         }
@@ -565,29 +579,28 @@ class AuthenticationE2EIT {
             var refreshAuthenticationRequestBody = new RefreshAuthenticationRequest(refreshToken.token());
 
             // When
-            restTestClient.post()
-                          .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(refreshAuthenticationRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectHeader()
-                          .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                          .expectBody()
-                          .jsonPath("$.title")
-                          .isEqualTo("Authentication Failed")
-                          .jsonPath("$.status")
-                          .isEqualTo(401)
-                          .jsonPath("$.detail")
-                          .isEqualTo("Invalid credentials")
-                          .jsonPath("$.error")
-                          .isEqualTo("invalid_grant")
-                          .jsonPath("$.instance")
-                          .isEqualTo("/asapp-authentication-service/api/auth/refresh");
+            var actual = restTestClient.post()
+                                       .uri(AUTH_REFRESH_TOKEN_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(refreshAuthenticationRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
+            assertThatJson(actual).isObject()
+                                  .containsEntry("title", "Authentication Failed")
+                                  .containsEntry("status", 401)
+                                  .containsEntry("detail", "Invalid credentials")
+                                  .containsEntry("error", "invalid_grant")
+                                  .containsEntry("instance", "/asapp-authentication-service/api/auth/refresh");
+
             assertAuthenticationNotExistInDB(accessToken.token(), refreshToken.token());
             assertAuthenticationExistInRedis(accessToken.token(), refreshToken.token());
         }
@@ -657,29 +670,28 @@ class AuthenticationE2EIT {
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest("invalid_access_token");
 
             // When
-            restTestClient.post()
-                          .uri(AUTH_REVOKE_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(revokeAuthenticationRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectHeader()
-                          .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                          .expectBody()
-                          .jsonPath("$.title")
-                          .isEqualTo("Authentication Failed")
-                          .jsonPath("$.status")
-                          .isEqualTo(401)
-                          .jsonPath("$.detail")
-                          .isEqualTo("Invalid credentials")
-                          .jsonPath("$.error")
-                          .isEqualTo("invalid_grant")
-                          .jsonPath("$.instance")
-                          .isEqualTo("/asapp-authentication-service/api/auth/revoke");
+            var actual = restTestClient.post()
+                                       .uri(AUTH_REVOKE_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(revokeAuthenticationRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
+            assertThatJson(actual).isObject()
+                                  .containsEntry("title", "Authentication Failed")
+                                  .containsEntry("status", 401)
+                                  .containsEntry("detail", "Invalid credentials")
+                                  .containsEntry("error", "invalid_grant")
+                                  .containsEntry("instance", "/asapp-authentication-service/api/auth/revoke");
+
             assertAuthenticationNotExist();
         }
 
@@ -690,29 +702,28 @@ class AuthenticationE2EIT {
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(encodedRefreshToken);
 
             // When
-            restTestClient.post()
-                          .uri(AUTH_REVOKE_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(revokeAuthenticationRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectHeader()
-                          .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                          .expectBody()
-                          .jsonPath("$.title")
-                          .isEqualTo("Authentication Failed")
-                          .jsonPath("$.status")
-                          .isEqualTo(401)
-                          .jsonPath("$.detail")
-                          .isEqualTo("Invalid token")
-                          .jsonPath("$.error")
-                          .isEqualTo("invalid_grant")
-                          .jsonPath("$.instance")
-                          .isEqualTo("/asapp-authentication-service/api/auth/revoke");
+            var actual = restTestClient.post()
+                                       .uri(AUTH_REVOKE_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(revokeAuthenticationRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
+            assertThatJson(actual).isObject()
+                                  .containsEntry("title", "Authentication Failed")
+                                  .containsEntry("status", 401)
+                                  .containsEntry("detail", "Invalid token")
+                                  .containsEntry("error", "invalid_grant")
+                                  .containsEntry("instance", "/asapp-authentication-service/api/auth/revoke");
+
             assertAuthenticationNotExist();
         }
 
@@ -725,29 +736,28 @@ class AuthenticationE2EIT {
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(encodedAccessToken);
 
             // When
-            restTestClient.post()
-                          .uri(AUTH_REVOKE_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(revokeAuthenticationRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectHeader()
-                          .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                          .expectBody()
-                          .jsonPath("$.title")
-                          .isEqualTo("Authentication Failed")
-                          .jsonPath("$.status")
-                          .isEqualTo(401)
-                          .jsonPath("$.detail")
-                          .isEqualTo("Invalid credentials")
-                          .jsonPath("$.error")
-                          .isEqualTo("invalid_grant")
-                          .jsonPath("$.instance")
-                          .isEqualTo("/asapp-authentication-service/api/auth/revoke");
+            var actual = restTestClient.post()
+                                       .uri(AUTH_REVOKE_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(revokeAuthenticationRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
+            assertThatJson(actual).isObject()
+                                  .containsEntry("title", "Authentication Failed")
+                                  .containsEntry("status", 401)
+                                  .containsEntry("detail", "Invalid credentials")
+                                  .containsEntry("error", "invalid_grant")
+                                  .containsEntry("instance", "/asapp-authentication-service/api/auth/revoke");
+
             assertAuthenticationNotExist();
         }
 
@@ -760,29 +770,28 @@ class AuthenticationE2EIT {
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(encodedAccessToken);
 
             // When
-            restTestClient.post()
-                          .uri(AUTH_REVOKE_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(revokeAuthenticationRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectHeader()
-                          .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                          .expectBody()
-                          .jsonPath("$.title")
-                          .isEqualTo("Authentication Failed")
-                          .jsonPath("$.status")
-                          .isEqualTo(401)
-                          .jsonPath("$.detail")
-                          .isEqualTo("Invalid credentials")
-                          .jsonPath("$.error")
-                          .isEqualTo("invalid_grant")
-                          .jsonPath("$.instance")
-                          .isEqualTo("/asapp-authentication-service/api/auth/revoke");
+            var actual = restTestClient.post()
+                                       .uri(AUTH_REVOKE_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(revokeAuthenticationRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
+            assertThatJson(actual).isObject()
+                                  .containsEntry("title", "Authentication Failed")
+                                  .containsEntry("status", 401)
+                                  .containsEntry("detail", "Invalid credentials")
+                                  .containsEntry("error", "invalid_grant")
+                                  .containsEntry("instance", "/asapp-authentication-service/api/auth/revoke");
+
             assertAuthenticationNotExist();
         }
 
@@ -793,29 +802,28 @@ class AuthenticationE2EIT {
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(encodedAccessToken);
 
             // When
-            restTestClient.post()
-                          .uri(AUTH_REVOKE_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(revokeAuthenticationRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectHeader()
-                          .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                          .expectBody()
-                          .jsonPath("$.title")
-                          .isEqualTo("Authentication Failed")
-                          .jsonPath("$.status")
-                          .isEqualTo(401)
-                          .jsonPath("$.detail")
-                          .isEqualTo("Invalid credentials")
-                          .jsonPath("$.error")
-                          .isEqualTo("invalid_grant")
-                          .jsonPath("$.instance")
-                          .isEqualTo("/asapp-authentication-service/api/auth/revoke");
+            var actual = restTestClient.post()
+                                       .uri(AUTH_REVOKE_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(revokeAuthenticationRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
+            assertThatJson(actual).isObject()
+                                  .containsEntry("title", "Authentication Failed")
+                                  .containsEntry("status", 401)
+                                  .containsEntry("detail", "Invalid credentials")
+                                  .containsEntry("error", "invalid_grant")
+                                  .containsEntry("instance", "/asapp-authentication-service/api/auth/revoke");
+
             assertAuthenticationNotExist();
         }
 
@@ -831,29 +839,28 @@ class AuthenticationE2EIT {
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken.token());
 
             // When
-            restTestClient.post()
-                          .uri(AUTH_REVOKE_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(revokeAuthenticationRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectHeader()
-                          .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                          .expectBody()
-                          .jsonPath("$.title")
-                          .isEqualTo("Authentication Failed")
-                          .jsonPath("$.status")
-                          .isEqualTo(401)
-                          .jsonPath("$.detail")
-                          .isEqualTo("Invalid credentials")
-                          .jsonPath("$.error")
-                          .isEqualTo("invalid_grant")
-                          .jsonPath("$.instance")
-                          .isEqualTo("/asapp-authentication-service/api/auth/revoke");
+            var actual = restTestClient.post()
+                                       .uri(AUTH_REVOKE_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(revokeAuthenticationRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
+            assertThatJson(actual).isObject()
+                                  .containsEntry("title", "Authentication Failed")
+                                  .containsEntry("status", 401)
+                                  .containsEntry("detail", "Invalid credentials")
+                                  .containsEntry("error", "invalid_grant")
+                                  .containsEntry("instance", "/asapp-authentication-service/api/auth/revoke");
+
             assertAuthenticationExistInDB(accessToken.token(), refreshToken.token(), createdUser);
             assertAuthenticationNotExistInRedis(accessToken.token(), refreshToken.token());
         }
@@ -870,29 +877,28 @@ class AuthenticationE2EIT {
             var revokeAuthenticationRequestBody = new RevokeAuthenticationRequest(accessToken.token());
 
             // When
-            restTestClient.post()
-                          .uri(AUTH_REVOKE_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(revokeAuthenticationRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectHeader()
-                          .contentType(MediaType.APPLICATION_PROBLEM_JSON)
-                          .expectBody()
-                          .jsonPath("$.title")
-                          .isEqualTo("Authentication Failed")
-                          .jsonPath("$.status")
-                          .isEqualTo(401)
-                          .jsonPath("$.detail")
-                          .isEqualTo("Invalid credentials")
-                          .jsonPath("$.error")
-                          .isEqualTo("invalid_grant")
-                          .jsonPath("$.instance")
-                          .isEqualTo("/asapp-authentication-service/api/auth/revoke");
+            var actual = restTestClient.post()
+                                       .uri(AUTH_REVOKE_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(revokeAuthenticationRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
+            assertThatJson(actual).isObject()
+                                  .containsEntry("title", "Authentication Failed")
+                                  .containsEntry("status", 401)
+                                  .containsEntry("detail", "Invalid credentials")
+                                  .containsEntry("error", "invalid_grant")
+                                  .containsEntry("instance", "/asapp-authentication-service/api/auth/revoke");
+
             assertAuthenticationNotExistInDB(accessToken.token(), refreshToken.token());
             assertAuthenticationExistInRedis(accessToken.token(), refreshToken.token());
         }

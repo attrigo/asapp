@@ -29,11 +29,11 @@ import static com.attrigo.asapp.url.authentication.UserRestAPIURL.USERS_DELETE_B
 import static com.attrigo.asapp.url.authentication.UserRestAPIURL.USERS_GET_ALL_FULL_PATH;
 import static com.attrigo.asapp.url.authentication.UserRestAPIURL.USERS_GET_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.url.authentication.UserRestAPIURL.USERS_UPDATE_BY_ID_FULL_PATH;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
-import java.util.List;
 import java.util.UUID;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -43,21 +43,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.client.RestTestClient;
+
+import com.jayway.jsonpath.JsonPath;
 
 import com.attrigo.asapp.authentication.AsappAuthenticationServiceApplication;
 import com.attrigo.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationEntity;
 import com.attrigo.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationRepository;
 import com.attrigo.asapp.authentication.infrastructure.user.in.request.CreateUserRequest;
 import com.attrigo.asapp.authentication.infrastructure.user.in.request.UpdateUserRequest;
-import com.attrigo.asapp.authentication.infrastructure.user.in.response.CreateUserResponse;
-import com.attrigo.asapp.authentication.infrastructure.user.in.response.GetAllUsersResponse;
-import com.attrigo.asapp.authentication.infrastructure.user.in.response.GetUserByIdResponse;
-import com.attrigo.asapp.authentication.infrastructure.user.in.response.UpdateUserResponse;
 import com.attrigo.asapp.authentication.infrastructure.user.persistence.JdbcUserEntity;
 import com.attrigo.asapp.authentication.infrastructure.user.persistence.JdbcUserRepository;
 import com.attrigo.asapp.authentication.testutil.TestContainerConfiguration;
@@ -125,7 +122,6 @@ class UserE2EIT {
             // Given
             var createdUser = createUser();
             var userId = createdUser.id();
-            var response = new GetUserByIdResponse(createdUser.id(), createdUser.username(), "*****", createdUser.role());
 
             // When
             var actual = restTestClient.get()
@@ -137,12 +133,19 @@ class UserE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(GetUserByIdResponse.class)
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isEqualTo(response);
+            // @formatter:off
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("userId", "username", "password", "role")
+                                  .containsEntry("userId", createdUser.id().toString())
+                                  .containsEntry("username", createdUser.username())
+                                  .containsEntry("password", "*****")
+                                  .containsEntry("role", createdUser.role());
+            // @formatter:on
         }
 
         @Test
@@ -195,9 +198,6 @@ class UserE2EIT {
             var createdUser1 = createUser(user1);
             var createdUser2 = createUser(user2);
             var createdUser3 = createUser(user3);
-            var response1 = new GetAllUsersResponse(createdUser1.id(), createdUser1.username(), "*****", createdUser1.role());
-            var response2 = new GetAllUsersResponse(createdUser2.id(), createdUser2.username(), "*****", createdUser2.role());
-            var response3 = new GetAllUsersResponse(createdUser3.id(), createdUser3.username(), "*****", createdUser3.role());
 
             // When
             var actual = restTestClient.get()
@@ -209,12 +209,33 @@ class UserE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(new ParameterizedTypeReference<List<GetAllUsersResponse>>() {})
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
+
             // Then
-            assertThat(actual).hasSize(3)
-                              .containsExactlyInAnyOrder(response1, response2, response3);
+            // @formatter:off
+            assertThatJson(actual).isArray()
+                                  .satisfiesExactlyInAnyOrder(
+                                          user -> assertThatJson(user).isObject()
+                                                                             .containsOnlyKeys("userId", "username", "password", "role")
+                                                                             .containsEntry("userId", createdUser1.id().toString())
+                                                                             .containsEntry("username", createdUser1.username())
+                                                                             .containsEntry("password", "*****")
+                                                                             .containsEntry("role", createdUser1.role()),
+                                          user -> assertThatJson(user).isObject()
+                                                                             .containsOnlyKeys("userId", "username", "password", "role")
+                                                                             .containsEntry("userId", createdUser2.id().toString())
+                                                                             .containsEntry("username", createdUser2.username())
+                                                                             .containsEntry("password", "*****")
+                                                                             .containsEntry("role", createdUser2.role()),
+                                          user -> assertThatJson(user).isObject()
+                                                                             .containsOnlyKeys("userId", "username", "password", "role")
+                                                                             .containsEntry("userId", createdUser3.id().toString())
+                                                                             .containsEntry("username", createdUser3.username())
+                                                                             .containsEntry("password", "*****")
+                                                                             .containsEntry("role", createdUser3.role()));
+            // @formatter:on
         }
 
         @Test
@@ -229,12 +250,13 @@ class UserE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(new ParameterizedTypeReference<List<GetAllUsersResponse>>() {})
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isEmpty();
+            assertThatJson(actual).isArray()
+                                  .isEmpty();
         }
 
         @Test
@@ -271,20 +293,21 @@ class UserE2EIT {
                                        .isCreated()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(CreateUserResponse.class)
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isNotNull();
-            assertThat(actual.userId()).isNotNull();
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("userId");
 
             // Assert the user has been created
-            var createdUser = userRepository.findById(actual.userId());
+            var actualUserId = UUID.fromString(JsonPath.read(actual, "$.userId"));
+            var createdUser = userRepository.findById(actualUserId);
             assertThat(createdUser).isPresent();
             assertSoftly(softly -> {
                 // @formatter:off
-                softly.assertThat(createdUser.get().id()).as("id").isEqualTo(actual.userId());
+                softly.assertThat(createdUser.get().id()).as("id").isEqualTo(actualUserId);
                 softly.assertThat(createdUser.get().username()).as("username").isEqualTo(createUserRequestBody.username());
                 softly.assertThat(createdUser.get().password()).as("password").isNotNull();
                 softly.assertThat(createdUser.get().role()).as("role").isEqualTo(createUserRequestBody.role());
@@ -316,20 +339,21 @@ class UserE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(UpdateUserResponse.class)
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isNotNull();
-            assertThat(actual.userId()).isEqualTo(createdUser.id());
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("userId")
+                                  .containsEntry("userId", userId.toString());
 
             // Assert the user has been updated
-            var updatedUser = userRepository.findById(actual.userId());
+            var updatedUser = userRepository.findById(userId);
             assertThat(updatedUser).isPresent();
             assertSoftly(softly -> {
                 // @formatter:off
-                softly.assertThat(updatedUser.get().id()).as("id").isEqualTo(actual.userId());
+                softly.assertThat(updatedUser.get().id()).as("id").isEqualTo(userId);
                 softly.assertThat(updatedUser.get().username()).as("username").isEqualTo(updateUserRequest.username());
                 softly.assertThat(updatedUser.get().password()).as("password").isNotNull().isNotEqualTo(createdUser.password());
                 softly.assertThat(updatedUser.get().role()).as("role").isEqualTo(updateUserRequest.role());
