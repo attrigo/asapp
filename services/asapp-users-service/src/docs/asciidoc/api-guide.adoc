@@ -79,22 +79,15 @@ Because an empty `taskIds` is indistinguishable from a user who genuinely has no
 
 operation::get-user-by-id[snippets='path-parameters,http-request,response-fields,curl-request,http-response']
 
-[[resources-users-get-by-ids]]
-=== Get Users by IDs
+[[resources-users-get]]
+=== Get Users
 
-Retrieves a list of users whose identifiers are in the provided `ids` query parameter.
+Retrieves users from the system. By default returns all registered users; when the `ids` query parameter is supplied, returns only the users whose identifiers are in the list.
 Missing identifiers are silently omitted; the response order is not guaranteed.
-Duplicate identifiers are deduplicated server-side. The list must contain between 1 and 50 identifiers.
+Duplicate identifiers are deduplicated server-side. The `ids` list, when present, must contain between 1 and 50 identifiers.
+If no users match, an empty array is returned.
 
-operation::get-users-by-ids[snippets='query-parameters,http-request,response-fields,curl-request,http-response']
-
-[[resources-users-get-all]]
-=== Get All Users
-
-Retrieves a list of all registered users in the system.
-If no users exist, an empty array is returned.
-
-operation::get-all-users[snippets='http-request,response-fields,curl-request,http-response']
+operation::get-users[snippets='query-parameters,http-request,response-fields,curl-request,http-response']
 
 [[resources-users-create]]
 === Create User

@@ -19,17 +19,17 @@ package com.attrigo.asapp.users.infrastructure.user.in.response;
 import java.util.UUID;
 
 /**
- * Response for retrieving users by a list of unique identifiers.
+ * Response for retrieving users.
  *
  * @param userId      the user's unique identifier
  * @param firstName   the user's first name
  * @param lastName    the user's last name
  * @param email       the user's email
  * @param phoneNumber the user's phone number
- * @since 0.4.0
+ * @since 0.2.0
  * @author attrigo
  */
-public record GetUsersByIdsResponse(
+public record GetUsersResponse(
         UUID userId,
         String firstName,
         String lastName,

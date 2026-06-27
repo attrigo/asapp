@@ -29,7 +29,7 @@ service to provide aggregated user data.
 
 - **Create User**: Register new user profile
 - **Get User by ID**: Retrieve user profile with tasks; includes tasks from Tasks service
-- **Get All Users**: List all user profiles without tasks
+- **Get Users**: List all user profiles (without tasks), optionally filtered by a list of IDs
 - **Update User**: Modify firstName, lastName, email, and phoneNumber
 - **Delete User**: Remove user profile
 
@@ -386,7 +386,7 @@ Listed highest-precedence first; `application-<profile>` rows apply only when th
 | Method | Endpoint          | Description                 | Auth Required |
 |--------|-------------------|-----------------------------|---------------|
 | POST   | `/api/users`      | Create user profile         | ✅             |
-| GET    | `/api/users`      | Get all users               | ✅             |
+| GET    | `/api/users`      | Get users (optionally by IDs) | ✅             |
 | GET    | `/api/users/{id}` | Get user by ID (with tasks) | ✅             |
 | PUT    | `/api/users/{id}` | Update user profile         | ✅             |
 | DELETE | `/api/users/{id}` | Delete user                 | ✅             |

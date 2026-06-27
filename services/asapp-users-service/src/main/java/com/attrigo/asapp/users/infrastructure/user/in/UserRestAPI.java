@@ -48,15 +48,13 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Size;
 
 import com.attrigo.asapp.users.infrastructure.user.in.request.CreateUserRequest;
 import com.attrigo.asapp.users.infrastructure.user.in.request.UpdateUserRequest;
 import com.attrigo.asapp.users.infrastructure.user.in.response.CreateUserResponse;
-import com.attrigo.asapp.users.infrastructure.user.in.response.GetAllUsersResponse;
 import com.attrigo.asapp.users.infrastructure.user.in.response.GetUserByIdResponse;
-import com.attrigo.asapp.users.infrastructure.user.in.response.GetUsersByIdsResponse;
+import com.attrigo.asapp.users.infrastructure.user.in.response.GetUsersResponse;
 import com.attrigo.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
 
 /**
@@ -106,54 +104,32 @@ public interface UserRestAPI {
     ResponseEntity<GetUserByIdResponse> getUserById(@PathVariable @Parameter(description = "Identifier of the user to get") UUID id);
 
     /**
-     * Gets users by their unique identifiers.
+     * Gets users, optionally filtered by their unique identifiers.
      * <p>
      * Response codes:
      * <ul>
-     * <li>200-OK: Users found.</li>
+     * <li>200-OK: Users retrieved successfully.</li>
      * <li>400-BAD_REQUEST: ids is empty, exceeds 50 elements, or contains a malformed UUID.</li>
      * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
      * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during retrieval.</li>
      * </ul>
      *
-     * @param ids the list of user identifiers (1 to 50 elements)
-     * @return a {@link List} of {@link GetUsersByIdsResponse} containing the users found; missing identifiers are silently omitted
+     * @param ids the optional list of user identifiers to filter by (1 to 50 elements); when {@code null} all users are returned
+     * @return a {@link List} of {@link GetUsersResponse} containing the users found, or an empty list if none match; missing identifiers are silently omitted
      */
-    @GetMapping(value = USERS_GET_ALL_PATH, params = USERS_IDS_PARAM, produces = "application/json")
+    @GetMapping(value = USERS_GET_ALL_PATH, produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Gets users by their unique identifiers", description = "Retrieves a list of users whose identifiers are in the provided `ids` query parameter. Missing identifiers are silently omitted; the response order is not guaranteed. Duplicate identifiers are deduplicated server-side. The list must contain between 1 and 50 identifiers.")
-    @ApiResponse(responseCode = "200", description = "Users found", content = { @Content(schema = @Schema(implementation = GetUsersByIdsResponse.class)) })
+    @Operation(summary = "Gets users", description = "Retrieves users from the system. By default returns all registered users; when the `ids` query parameter is supplied, returns only the users whose identifiers are in the list. Missing identifiers are silently omitted; the response order is not guaranteed. Duplicate identifiers are deduplicated server-side. The `ids` list, when present, must contain between 1 and 50 identifiers. If no users match, an empty array is returned.")
+    @ApiResponse(responseCode = "200", description = "Users retrieved successfully", content = {
+            @Content(schema = @Schema(implementation = GetUsersResponse.class)) })
     @ApiResponse(responseCode = "400", description = "User identifiers list is empty, exceeds 50 elements, or contains a malformed UUID", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "500", description = "An internal error occurred during retrieval", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    List<GetUsersByIdsResponse> getUsersByIds(
-            @RequestParam(USERS_IDS_PARAM) @Parameter(description = "List of user identifiers") @NotEmpty(message = "Users identifiers list must not be empty") @Size(max = 50, message = "Users identifiers list must contain at most 50 elements") List<UUID> ids);
-
-    /**
-     * Gets all users.
-     * <p>
-     * Response codes:
-     * <ul>
-     * <li>200-OK: Users retrieved successfully.</li>
-     * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
-     * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during retrieval.</li>
-     * </ul>
-     *
-     * @return a {@link List} of {@link GetAllUsersResponse} containing all users found, or an empty list if no users exist
-     */
-    @GetMapping(value = USERS_GET_ALL_PATH, params = "!ids", produces = "application/json")
-    @ResponseStatus(HttpStatus.OK)
-    @Operation(summary = "Gets all users", description = "Retrieves a list of all registered users in the system. If no users exist, an empty array is returned.")
-    @ApiResponse(responseCode = "200", description = "Users retrieved successfully", content = {
-            @Content(schema = @Schema(implementation = GetAllUsersResponse.class)) })
-    @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
-            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "500", description = "An internal error occurred during retrieval", content = {
-            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    List<GetAllUsersResponse> getAllUsers();
+    List<GetUsersResponse> getUsers(
+            @RequestParam(name = USERS_IDS_PARAM, required = false) @Parameter(description = "Optional list of user identifiers to filter by; omit to return all users") @Size(min = 1, max = 50, message = "Users identifiers list must contain between 1 and 50 elements") List<UUID> ids);
 
     /**
      * Creates a new user.
