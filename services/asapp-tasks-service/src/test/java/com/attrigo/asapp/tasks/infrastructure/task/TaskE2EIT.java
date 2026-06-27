@@ -178,6 +178,113 @@ class TaskE2EIT {
     }
 
     @Nested
+    class GetTasksByUserId {
+
+        @Test
+        void ReturnsStatusOKAndBodyWithFoundTasks_TasksExistForUserId() {
+            // Given
+            var userId = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
+            var task1 = aTaskBuilder().withUserId(userId)
+                                      .withTitle("Title1")
+                                      .buildJdbc();
+            var task2 = aTaskBuilder().withUserId(userId)
+                                      .withTitle("Title2")
+                                      .buildJdbc();
+            var task3 = aTaskBuilder().withUserId(userId)
+                                      .withTitle("Title3")
+                                      .buildJdbc();
+            var createdTask1 = createTask(task1);
+            var createdTask2 = createTask(task2);
+            var createdTask3 = createTask(task3);
+
+            // When
+            var actual = restTestClient.get()
+                                       .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userId)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            // @formatter:off
+            assertThatJson(actual).isArray()
+                                  .satisfiesExactlyInAnyOrder(
+                                          task -> assertThatJson(task).isObject()
+                                                                      .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                      .containsEntry("taskId", createdTask1.id().toString())
+                                                                      .containsEntry("userId", createdTask1.userId().toString())
+                                                                      .containsEntry("title", createdTask1.title())
+                                                                      .containsEntry("description", createdTask1.description())
+                                                                      .containsEntry("startDate", createdTask1.startDate().toString())
+                                                                      .containsEntry("endDate", createdTask1.endDate().toString()),
+                                          task -> assertThatJson(task).isObject()
+                                                                      .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                      .containsEntry("taskId", createdTask2.id().toString())
+                                                                      .containsEntry("userId", createdTask2.userId().toString())
+                                                                      .containsEntry("title", createdTask2.title())
+                                                                      .containsEntry("description", createdTask2.description())
+                                                                      .containsEntry("startDate", createdTask2.startDate().toString())
+                                                                      .containsEntry("endDate", createdTask2.endDate().toString()),
+                                          task -> assertThatJson(task).isObject()
+                                                                      .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                      .containsEntry("taskId", createdTask3.id().toString())
+                                                                      .containsEntry("userId", createdTask3.userId().toString())
+                                                                      .containsEntry("title", createdTask3.title())
+                                                                      .containsEntry("description", createdTask3.description())
+                                                                      .containsEntry("startDate", createdTask3.startDate().toString())
+                                                                      .containsEntry("endDate", createdTask3.endDate().toString()));
+            // @formatter:on
+        }
+
+        @Test
+        void ReturnsStatusOKAndEmptyBody_TasksNotExistForUserId() {
+            // Given
+            var userId = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
+
+            // When
+            var actual = restTestClient.get()
+                                       .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userId)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertThatJson(actual).isArray()
+                                  .isEmpty();
+        }
+
+        @Test
+        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
+            // Given
+            var userId = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
+
+            // When & Then
+            restTestClient.get()
+                          .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userId)
+                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                          .exchange()
+                          .expectStatus()
+                          .isUnauthorized()
+                          .expectBody()
+                          .isEmpty();
+        }
+
+    }
+
+    @Nested
     class GetTasks {
 
         @Test
@@ -441,113 +548,6 @@ class TaskE2EIT {
             // When & Then
             restTestClient.get()
                           .uri(uriFunction)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
-        }
-
-    }
-
-    @Nested
-    class GetTasksByUserId {
-
-        @Test
-        void ReturnsStatusOKAndBodyWithFoundTasks_TasksExistForUserId() {
-            // Given
-            var userId = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
-            var task1 = aTaskBuilder().withUserId(userId)
-                                      .withTitle("Title1")
-                                      .buildJdbc();
-            var task2 = aTaskBuilder().withUserId(userId)
-                                      .withTitle("Title2")
-                                      .buildJdbc();
-            var task3 = aTaskBuilder().withUserId(userId)
-                                      .withTitle("Title3")
-                                      .buildJdbc();
-            var createdTask1 = createTask(task1);
-            var createdTask2 = createTask(task2);
-            var createdTask3 = createTask(task3);
-
-            // When
-            var actual = restTestClient.get()
-                                       .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userId)
-                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                       .exchange()
-                                       .expectStatus()
-                                       .isOk()
-                                       .expectHeader()
-                                       .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(String.class)
-                                       .returnResult()
-                                       .getResponseBody();
-
-            // Then
-            // @formatter:off
-            assertThatJson(actual).isArray()
-                                  .satisfiesExactlyInAnyOrder(
-                                          task -> assertThatJson(task).isObject()
-                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
-                                                                             .containsEntry("taskId", createdTask1.id().toString())
-                                                                             .containsEntry("userId", createdTask1.userId().toString())
-                                                                             .containsEntry("title", createdTask1.title())
-                                                                             .containsEntry("description", createdTask1.description())
-                                                                             .containsEntry("startDate", createdTask1.startDate().toString())
-                                                                             .containsEntry("endDate", createdTask1.endDate().toString()),
-                                          task -> assertThatJson(task).isObject()
-                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
-                                                                             .containsEntry("taskId", createdTask2.id().toString())
-                                                                             .containsEntry("userId", createdTask2.userId().toString())
-                                                                             .containsEntry("title", createdTask2.title())
-                                                                             .containsEntry("description", createdTask2.description())
-                                                                             .containsEntry("startDate", createdTask2.startDate().toString())
-                                                                             .containsEntry("endDate", createdTask2.endDate().toString()),
-                                          task -> assertThatJson(task).isObject()
-                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
-                                                                             .containsEntry("taskId", createdTask3.id().toString())
-                                                                             .containsEntry("userId", createdTask3.userId().toString())
-                                                                             .containsEntry("title", createdTask3.title())
-                                                                             .containsEntry("description", createdTask3.description())
-                                                                             .containsEntry("startDate", createdTask3.startDate().toString())
-                                                                             .containsEntry("endDate", createdTask3.endDate().toString()));
-            // @formatter:on
-        }
-
-        @Test
-        void ReturnsStatusOKAndEmptyBody_TasksNotExistForUserId() {
-            // Given
-            var userId = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
-
-            // When
-            var actual = restTestClient.get()
-                                       .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userId)
-                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                       .exchange()
-                                       .expectStatus()
-                                       .isOk()
-                                       .expectHeader()
-                                       .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(String.class)
-                                       .returnResult()
-                                       .getResponseBody();
-
-            // Then
-            assertThatJson(actual).isArray()
-                                  .isEmpty();
-        }
-
-        @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
-            // Given
-            var userId = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
-
-            // When & Then
-            restTestClient.get()
-                          .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userId)
                           .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                           .exchange()
                           .expectStatus()

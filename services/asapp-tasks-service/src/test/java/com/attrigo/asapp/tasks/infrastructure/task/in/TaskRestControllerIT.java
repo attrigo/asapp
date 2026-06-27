@@ -104,6 +104,50 @@ class TaskRestControllerIT extends WebMvcTestContext {
     }
 
     @Nested
+    class GetTasksByUserId {
+
+        @Test
+        void ReturnsStatusNotFoundAndBodyWithProblemDetail_MissingUserId() {
+            // Given
+            var requestBuilder = get(TASKS_ROOT_PATH + "/user/");
+
+            // When & Then
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.NOT_FOUND)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> assertThatJson(json).isObject()
+                                                                .containsEntry("title", "Not Found")
+                                                                .containsEntry("status", 404)
+                                                                .containsEntry("detail", "No static resource api/tasks/user.")
+                                                                .containsEntry("instance", "/api/tasks/user/"));
+        }
+
+        @Test
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidUserId() {
+            // Given
+            var userId = 1L;
+            var requestBuilder = get(TASKS_GET_BY_USER_ID_FULL_PATH, userId);
+
+            // When & Then
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> assertThatJson(json).isObject()
+                                                                .containsEntry("title", "Bad Request")
+                                                                .containsEntry("status", 400)
+                                                                .containsEntry("detail", "Failed to convert 'id' with value: '1'")
+                                                                .containsEntry("instance", "/api/tasks/user/1"));
+        }
+
+    }
+
+    @Nested
     class GetTasks {
 
         @Test
@@ -187,50 +231,6 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                                 .containsEntry("status", 400)
                                                                 .containsEntry("detail", "Failed to convert 'ids' with value: '1'")
                                                                 .containsEntry("instance", "/api/tasks"));
-        }
-
-    }
-
-    @Nested
-    class GetTasksByUserId {
-
-        @Test
-        void ReturnsStatusNotFoundAndBodyWithProblemDetail_MissingUserId() {
-            // Given
-            var requestBuilder = get(TASKS_ROOT_PATH + "/user/");
-
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.NOT_FOUND)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Not Found")
-                                                                .containsEntry("status", 404)
-                                                                .containsEntry("detail", "No static resource api/tasks/user.")
-                                                                .containsEntry("instance", "/api/tasks/user/"));
-        }
-
-        @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidUserId() {
-            // Given
-            var userId = 1L;
-            var requestBuilder = get(TASKS_GET_BY_USER_ID_FULL_PATH, userId);
-
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Bad Request")
-                                                                .containsEntry("status", 400)
-                                                                .containsEntry("detail", "Failed to convert 'id' with value: '1'")
-                                                                .containsEntry("instance", "/api/tasks/user/1"));
         }
 
     }
