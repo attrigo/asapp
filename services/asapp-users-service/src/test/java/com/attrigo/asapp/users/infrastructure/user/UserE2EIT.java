@@ -28,6 +28,7 @@ import static com.attrigo.asapp.users.infrastructure.security.RedisJwtStore.ACCE
 import static com.attrigo.asapp.users.testutil.fixture.EncodedTokenMother.encodedAccessToken;
 import static com.attrigo.asapp.users.testutil.fixture.UserMother.aJdbcUser;
 import static com.attrigo.asapp.users.testutil.fixture.UserMother.aUserBuilder;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.mockserver.matchers.Times.once;
@@ -35,9 +36,11 @@ import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
+import java.net.URI;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -50,7 +53,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -58,19 +60,17 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.client.RestTestClient;
+import org.springframework.web.util.UriBuilder;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.mockserver.MockServerContainer;
 import org.testcontainers.utility.DockerImageName;
 
+import com.jayway.jsonpath.JsonPath;
+
 import com.attrigo.asapp.users.AsappUsersServiceApplication;
 import com.attrigo.asapp.users.infrastructure.user.in.request.CreateUserRequest;
 import com.attrigo.asapp.users.infrastructure.user.in.request.UpdateUserRequest;
-import com.attrigo.asapp.users.infrastructure.user.in.response.CreateUserResponse;
-import com.attrigo.asapp.users.infrastructure.user.in.response.GetAllUsersResponse;
-import com.attrigo.asapp.users.infrastructure.user.in.response.GetUserByIdResponse;
-import com.attrigo.asapp.users.infrastructure.user.in.response.GetUsersByIdsResponse;
-import com.attrigo.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
 import com.attrigo.asapp.users.infrastructure.user.in.response.WarningDetail;
 import com.attrigo.asapp.users.infrastructure.user.persistence.JdbcUserEntity;
 import com.attrigo.asapp.users.infrastructure.user.persistence.JdbcUserRepository;
@@ -144,8 +144,6 @@ class UserE2EIT {
             // Given
             var createdUser = createUser();
             var userId = createdUser.id();
-            var response = new GetUserByIdResponse(createdUser.id(), createdUser.firstName(), createdUser.lastName(), createdUser.email(),
-                    createdUser.phoneNumber(), Collections.emptyList(), null);
 
             mockRequestToGetTasksByUserIdWithOkResponse(userId, Collections.emptyList());
 
@@ -159,12 +157,23 @@ class UserE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(GetUserByIdResponse.class)
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isEqualTo(response);
+            // @formatter:off
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber", "taskIds")
+                                  .containsEntry("userId", createdUser.id().toString())
+                                  .containsEntry("firstName", createdUser.firstName())
+                                  .containsEntry("lastName", createdUser.lastName())
+                                  .containsEntry("email", createdUser.email())
+                                  .containsEntry("phoneNumber", createdUser.phoneNumber());
+            assertThatJson(actual).node("taskIds")
+                                  .isArray()
+                                  .isEmpty();
+            // @formatter:on
 
             // Assert no warning logs appear for a successful empty response
             assertThat(output.getAll()).doesNotContain("Tasks Service unavailable for user");
@@ -179,8 +188,6 @@ class UserE2EIT {
             var taskId2 = UUID.fromString("e4f5a6b7-c8d9-4e0f-1a2b-3c4d5e6f7a8b");
             var taskId3 = UUID.fromString("f5a6b7c8-d9e0-4f1a-2b3c-4d5e6f7a8b9c");
             var taskIds = List.of(taskId1, taskId2, taskId3);
-            var response = new GetUserByIdResponse(createdUser.id(), createdUser.firstName(), createdUser.lastName(), createdUser.email(),
-                    createdUser.phoneNumber(), taskIds, null);
 
             mockRequestToGetTasksByUserIdWithOkResponse(userId, taskIds);
 
@@ -194,12 +201,23 @@ class UserE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(GetUserByIdResponse.class)
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isEqualTo(response);
+            // @formatter:off
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber", "taskIds")
+                                  .containsEntry("userId", createdUser.id().toString())
+                                  .containsEntry("firstName", createdUser.firstName())
+                                  .containsEntry("lastName", createdUser.lastName())
+                                  .containsEntry("email", createdUser.email())
+                                  .containsEntry("phoneNumber", createdUser.phoneNumber());
+            assertThatJson(actual).node("taskIds")
+                                  .isArray()
+                                  .containsExactlyInAnyOrder(taskId1.toString(), taskId2.toString(), taskId3.toString());
+            // @formatter:on
         }
 
         @Test
@@ -208,8 +226,6 @@ class UserE2EIT {
             var createdUser = createUser();
             var userId = createdUser.id();
             var warningDetail = WarningDetail.Reason.TASK_IDS_UNAVAILABLE.toDetail();
-            var response = new GetUserByIdResponse(createdUser.id(), createdUser.firstName(), createdUser.lastName(), createdUser.email(),
-                    createdUser.phoneNumber(), Collections.emptyList(), List.of(warningDetail));
 
             mockRequestToGetTasksByUserIdWithServerErrorResponse(userId);
 
@@ -223,12 +239,32 @@ class UserE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(GetUserByIdResponse.class)
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isEqualTo(response);
+            // @formatter:off
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber", "taskIds", "warnings")
+                                  .containsEntry("userId", createdUser.id().toString())
+                                  .containsEntry("firstName", createdUser.firstName())
+                                  .containsEntry("lastName", createdUser.lastName())
+                                  .containsEntry("email", createdUser.email())
+                                  .containsEntry("phoneNumber", createdUser.phoneNumber());
+            assertThatJson(actual).node("taskIds")
+                                  .isArray()
+                                  .isEmpty();
+            assertThatJson(actual).node("warnings")
+                                  .isArray()
+                                  .satisfiesExactlyInAnyOrder(
+                                          warning -> assertThatJson(warning).isObject()
+                                                                                   .containsOnlyKeys("code", "field", "message", "retryable")
+                                                                                   .containsEntry("code", warningDetail.code())
+                                                                                   .containsEntry("field", warningDetail.field())
+                                                                                   .containsEntry("message", warningDetail.message())
+                                                                                   .containsEntry("retryable", warningDetail.retryable()));
+            // @formatter:on
 
             // Assert the degradation is logged for operators
             assertThat(output.getAll()).contains("Tasks Service unavailable for user " + createdUser.id());
@@ -283,16 +319,13 @@ class UserE2EIT {
             var createdUser2 = createUser(user2);
             var userId1 = createdUser1.id();
             var userId2 = createdUser2.id();
-            var response1 = new GetUsersByIdsResponse(userId1, createdUser1.firstName(), createdUser1.lastName(), createdUser1.email(),
-                    createdUser1.phoneNumber());
-            var response2 = new GetUsersByIdsResponse(userId2, createdUser2.firstName(), createdUser2.lastName(), createdUser2.email(),
-                    createdUser2.phoneNumber());
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
+                                                                            .queryParam(USERS_IDS_PARAM, userId1 + "," + userId2)
+                                                                            .build();
 
             // When
             var actual = restTestClient.get()
-                                       .uri(uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
-                                                                    .queryParam(USERS_IDS_PARAM, userId1 + "," + userId2)
-                                                                    .build())
+                                       .uri(uriFunction)
                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                        .exchange()
@@ -300,12 +333,29 @@ class UserE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(new ParameterizedTypeReference<List<GetUsersByIdsResponse>>() {})
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).containsExactlyInAnyOrder(response1, response2);
+            // @formatter:off
+            assertThatJson(actual).isArray()
+                                  .satisfiesExactlyInAnyOrder(
+                                          user -> assertThatJson(user).isObject()
+                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                             .containsEntry("userId", createdUser1.id().toString())
+                                                                             .containsEntry("firstName", createdUser1.firstName())
+                                                                             .containsEntry("lastName", createdUser1.lastName())
+                                                                             .containsEntry("email", createdUser1.email())
+                                                                             .containsEntry("phoneNumber", createdUser1.phoneNumber()),
+                                          user -> assertThatJson(user).isObject()
+                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                             .containsEntry("userId", createdUser2.id().toString())
+                                                                             .containsEntry("firstName", createdUser2.firstName())
+                                                                             .containsEntry("lastName", createdUser2.lastName())
+                                                                             .containsEntry("email", createdUser2.email())
+                                                                             .containsEntry("phoneNumber", createdUser2.phoneNumber()));
+            // @formatter:on
         }
 
         @Test
@@ -314,13 +364,13 @@ class UserE2EIT {
             var createdUser = createUser();
             var userId1 = createdUser.id();
             var userId2 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
-            var response = new GetUsersByIdsResponse(userId1, createdUser.firstName(), createdUser.lastName(), createdUser.email(), createdUser.phoneNumber());
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
+                                                                            .queryParam(USERS_IDS_PARAM, userId1 + "," + userId2)
+                                                                            .build();
 
             // When
             var actual = restTestClient.get()
-                                       .uri(uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
-                                                                    .queryParam(USERS_IDS_PARAM, userId1 + "," + userId2)
-                                                                    .build())
+                                       .uri(uriFunction)
                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                        .exchange()
@@ -328,12 +378,22 @@ class UserE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(new ParameterizedTypeReference<List<GetUsersByIdsResponse>>() {})
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).containsExactlyInAnyOrder(response);
+            // @formatter:off
+            assertThatJson(actual).isArray()
+                                  .satisfiesExactlyInAnyOrder(
+                                          user -> assertThatJson(user).isObject()
+                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                             .containsEntry("userId", userId1.toString())
+                                                                             .containsEntry("firstName", createdUser.firstName())
+                                                                             .containsEntry("lastName", createdUser.lastName())
+                                                                             .containsEntry("email", createdUser.email())
+                                                                             .containsEntry("phoneNumber", createdUser.phoneNumber()));
+            // @formatter:on
         }
 
         @Test
@@ -341,12 +401,13 @@ class UserE2EIT {
             // Given
             var userId1 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
             var userId2 = UUID.fromString("68699b10-b665-4378-baea-a44b4be287f9");
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
+                                                                            .queryParam(USERS_IDS_PARAM, userId1 + "," + userId2)
+                                                                            .build();
 
             // When
             var actual = restTestClient.get()
-                                       .uri(uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
-                                                                    .queryParam(USERS_IDS_PARAM, userId1 + "," + userId2)
-                                                                    .build())
+                                       .uri(uriFunction)
                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                        .exchange()
@@ -354,12 +415,13 @@ class UserE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(new ParameterizedTypeReference<List<GetUsersByIdsResponse>>() {})
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isEmpty();
+            assertThatJson(actual).isArray()
+                                  .isEmpty();
         }
 
         @Test
@@ -373,16 +435,13 @@ class UserE2EIT {
             var createdUser2 = createUser(user2);
             var userId1 = createdUser1.id();
             var userId2 = createdUser2.id();
-            var response1 = new GetUsersByIdsResponse(userId1, createdUser1.firstName(), createdUser1.lastName(), createdUser1.email(),
-                    createdUser1.phoneNumber());
-            var response2 = new GetUsersByIdsResponse(userId2, createdUser2.firstName(), createdUser2.lastName(), createdUser2.email(),
-                    createdUser2.phoneNumber());
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
+                                                                            .queryParam(USERS_IDS_PARAM, userId1 + "," + userId1 + "," + userId2)
+                                                                            .build();
 
             // When
             var actual = restTestClient.get()
-                                       .uri(uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
-                                                                    .queryParam(USERS_IDS_PARAM, userId1 + "," + userId1 + "," + userId2)
-                                                                    .build())
+                                       .uri(uriFunction)
                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                        .exchange()
@@ -390,24 +449,42 @@ class UserE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(new ParameterizedTypeReference<List<GetUsersByIdsResponse>>() {})
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).containsExactlyInAnyOrder(response1, response2);
+            // @formatter:off
+            assertThatJson(actual).isArray()
+                                  .satisfiesExactlyInAnyOrder(
+                                          user -> assertThatJson(user).isObject()
+                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                             .containsEntry("userId", createdUser1.id().toString())
+                                                                             .containsEntry("firstName", createdUser1.firstName())
+                                                                             .containsEntry("lastName", createdUser1.lastName())
+                                                                             .containsEntry("email", createdUser1.email())
+                                                                             .containsEntry("phoneNumber", createdUser1.phoneNumber()),
+                                          user -> assertThatJson(user).isObject()
+                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                             .containsEntry("userId", createdUser2.id().toString())
+                                                                             .containsEntry("firstName", createdUser2.firstName())
+                                                                             .containsEntry("lastName", createdUser2.lastName())
+                                                                             .containsEntry("email", createdUser2.email())
+                                                                             .containsEntry("phoneNumber", createdUser2.phoneNumber()));
+            // @formatter:on
         }
 
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // Given
             var userId = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
+                                                                            .queryParam(USERS_IDS_PARAM, userId)
+                                                                            .build();
 
             // When & Then
             restTestClient.get()
-                          .uri(uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
-                                                       .queryParam(USERS_IDS_PARAM, userId)
-                                                       .build())
+                          .uri(uriFunction)
                           .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                           .exchange()
                           .expectStatus()
@@ -433,12 +510,6 @@ class UserE2EIT {
             var createdUser1 = createUser(user1);
             var createdUser2 = createUser(user2);
             var createdUser3 = createUser(user3);
-            var response1 = new GetAllUsersResponse(createdUser1.id(), createdUser1.firstName(), createdUser1.lastName(), createdUser1.email(),
-                    createdUser1.phoneNumber());
-            var response2 = new GetAllUsersResponse(createdUser2.id(), createdUser2.firstName(), createdUser2.lastName(), createdUser2.email(),
-                    createdUser2.phoneNumber());
-            var response3 = new GetAllUsersResponse(createdUser3.id(), createdUser3.firstName(), createdUser3.lastName(), createdUser3.email(),
-                    createdUser3.phoneNumber());
 
             // When
             var actual = restTestClient.get()
@@ -450,13 +521,36 @@ class UserE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(new ParameterizedTypeReference<List<GetAllUsersResponse>>() {})
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).hasSize(3)
-                              .containsExactlyInAnyOrder(response1, response2, response3);
+            // @formatter:off
+            assertThatJson(actual).isArray()
+                                  .satisfiesExactlyInAnyOrder(
+                                          user -> assertThatJson(user).isObject()
+                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                             .containsEntry("userId", createdUser1.id().toString())
+                                                                             .containsEntry("firstName", createdUser1.firstName())
+                                                                             .containsEntry("lastName", createdUser1.lastName())
+                                                                             .containsEntry("email", createdUser1.email())
+                                                                             .containsEntry("phoneNumber", createdUser1.phoneNumber()),
+                                          user -> assertThatJson(user).isObject()
+                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                             .containsEntry("userId", createdUser2.id().toString())
+                                                                             .containsEntry("firstName", createdUser2.firstName())
+                                                                             .containsEntry("lastName", createdUser2.lastName())
+                                                                             .containsEntry("email", createdUser2.email())
+                                                                             .containsEntry("phoneNumber", createdUser2.phoneNumber()),
+                                          user -> assertThatJson(user).isObject()
+                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                             .containsEntry("userId", createdUser3.id().toString())
+                                                                             .containsEntry("firstName", createdUser3.firstName())
+                                                                             .containsEntry("lastName", createdUser3.lastName())
+                                                                             .containsEntry("email", createdUser3.email())
+                                                                             .containsEntry("phoneNumber", createdUser3.phoneNumber()));
+            // @formatter:on
         }
 
         @Test
@@ -471,12 +565,13 @@ class UserE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(new ParameterizedTypeReference<List<GetAllUsersResponse>>() {})
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isEmpty();
+            assertThatJson(actual).isArray()
+                                  .isEmpty();
         }
 
         @Test
@@ -514,24 +609,25 @@ class UserE2EIT {
                                        .isCreated()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(CreateUserResponse.class)
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isNotNull();
-            assertThat(actual.userId()).isNotNull();
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("userId");
 
             // Assert the user has been created
-            var createdUser = userRepository.findById(actual.userId());
+            var actualUserId = UUID.fromString(JsonPath.read(actual, "$.userId"));
+            var createdUser = userRepository.findById(actualUserId);
             assertThat(createdUser).isPresent();
             assertSoftly(softly -> {
                 // @formatter:off
-                softly.assertThat(createdUser.get().id()).as("id").isEqualTo(actual.userId());
+                softly.assertThat(createdUser.get().id()).as("id").isEqualTo(actualUserId);
                 softly.assertThat(createdUser.get().firstName()).as("firstName").isEqualTo(createUserRequestBody.firstName());
                 softly.assertThat(createdUser.get().lastName()).as("lastName").isEqualTo(createUserRequestBody.lastName());
                 softly.assertThat(createdUser.get().email()).as("email").isEqualTo(createUserRequestBody.email());
-                softly.assertThat(createdUser.get().phoneNumber()).as("phoneNumber") .isEqualTo(createUserRequestBody.phoneNumber());
+                softly.assertThat(createdUser.get().phoneNumber()).as("phoneNumber").isEqualTo(createUserRequestBody.phoneNumber());
                 // @formatter:on
             });
         }
@@ -578,20 +674,21 @@ class UserE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(UpdateUserResponse.class)
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isNotNull();
-            assertThat(actual.userId()).isEqualTo(createdUser.id());
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("userId")
+                                  .containsEntry("userId", userId.toString());
 
             // Assert the user has been updated
-            var updatedUser = userRepository.findById(actual.userId());
+            var updatedUser = userRepository.findById(userId);
             assertThat(updatedUser).isPresent();
             assertSoftly(softly -> {
                 // @formatter:off
-                softly.assertThat(updatedUser.get().id()).as("id").isEqualTo(actual.userId());
+                softly.assertThat(updatedUser.get().id()).as("id").isEqualTo(userId);
                 softly.assertThat(updatedUser.get().firstName()).as("firstName").isEqualTo(updateUserRequest.firstName());
                 softly.assertThat(updatedUser.get().lastName()).as("lastName").isEqualTo(updateUserRequest.lastName());
                 softly.assertThat(updatedUser.get().email()).as("email").isEqualTo(updateUserRequest.email());

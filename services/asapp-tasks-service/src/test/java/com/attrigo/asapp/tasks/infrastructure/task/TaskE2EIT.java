@@ -28,13 +28,15 @@ import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_ID_FULL_PA
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_IDS_PARAM;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_UPDATE_BY_ID_FULL_PATH;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 
+import java.net.URI;
 import java.time.Instant;
-import java.util.List;
 import java.util.UUID;
+import java.util.function.Function;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
@@ -43,20 +45,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.client.RestTestClient;
+import org.springframework.web.util.UriBuilder;
+
+import com.jayway.jsonpath.JsonPath;
 
 import com.attrigo.asapp.tasks.AsappTasksServiceApplication;
 import com.attrigo.asapp.tasks.infrastructure.task.in.request.CreateTaskRequest;
 import com.attrigo.asapp.tasks.infrastructure.task.in.request.UpdateTaskRequest;
-import com.attrigo.asapp.tasks.infrastructure.task.in.response.CreateTaskResponse;
-import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetAllTasksResponse;
-import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTaskByIdResponse;
-import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTasksByIdsResponse;
-import com.attrigo.asapp.tasks.infrastructure.task.in.response.UpdateTaskResponse;
 import com.attrigo.asapp.tasks.infrastructure.task.persistence.JdbcTaskEntity;
 import com.attrigo.asapp.tasks.infrastructure.task.persistence.JdbcTaskRepository;
 import com.attrigo.asapp.tasks.testutil.TestContainerConfiguration;
@@ -114,8 +113,6 @@ class TaskE2EIT {
             // Given
             var createdTask = createTask();
             var taskId = createdTask.id();
-            var response = new GetTaskByIdResponse(createdTask.id(), createdTask.userId(), createdTask.title(), createdTask.description(),
-                    createdTask.startDate(), createdTask.endDate());
 
             // When
             var actual = restTestClient.get()
@@ -127,12 +124,21 @@ class TaskE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(GetTaskByIdResponse.class)
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isEqualTo(response);
+            // @formatter:off
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                  .containsEntry("taskId", createdTask.id().toString())
+                                  .containsEntry("userId", createdTask.userId().toString())
+                                  .containsEntry("title", createdTask.title())
+                                  .containsEntry("description", createdTask.description())
+                                  .containsEntry("startDate", createdTask.startDate().toString())
+                                  .containsEntry("endDate", createdTask.endDate().toString());
+            // @formatter:on
         }
 
         @Test
@@ -184,16 +190,13 @@ class TaskE2EIT {
             var createdTask2 = createTask(task2);
             var taskId1 = createdTask1.id();
             var taskId2 = createdTask2.id();
-            var response1 = new GetTasksByIdsResponse(taskId1, createdTask1.userId(), createdTask1.title(), createdTask1.description(),
-                    createdTask1.startDate(), createdTask1.endDate());
-            var response2 = new GetTasksByIdsResponse(taskId2, createdTask2.userId(), createdTask2.title(), createdTask2.description(),
-                    createdTask2.startDate(), createdTask2.endDate());
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
+                                                                            .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId2)
+                                                                            .build();
 
             // When
             var actual = restTestClient.get()
-                                       .uri(uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
-                                                                    .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId2)
-                                                                    .build())
+                                       .uri(uriFunction)
                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                        .exchange()
@@ -201,12 +204,31 @@ class TaskE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(new ParameterizedTypeReference<List<GetTasksByIdsResponse>>() {})
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).containsExactlyInAnyOrder(response1, response2);
+            // @formatter:off
+            assertThatJson(actual).isArray()
+                                  .satisfiesExactlyInAnyOrder(
+                                          task -> assertThatJson(task).isObject()
+                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                             .containsEntry("taskId", createdTask1.id().toString())
+                                                                             .containsEntry("userId", createdTask1.userId().toString())
+                                                                             .containsEntry("title", createdTask1.title())
+                                                                             .containsEntry("description", createdTask1.description())
+                                                                             .containsEntry("startDate", createdTask1.startDate().toString())
+                                                                             .containsEntry("endDate", createdTask1.endDate().toString()),
+                                          task -> assertThatJson(task).isObject()
+                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                             .containsEntry("taskId", createdTask2.id().toString())
+                                                                             .containsEntry("userId", createdTask2.userId().toString())
+                                                                             .containsEntry("title", createdTask2.title())
+                                                                             .containsEntry("description", createdTask2.description())
+                                                                             .containsEntry("startDate", createdTask2.startDate().toString())
+                                                                             .containsEntry("endDate", createdTask2.endDate().toString()));
+            // @formatter:on
         }
 
         @Test
@@ -215,14 +237,13 @@ class TaskE2EIT {
             var createdTask = createTask();
             var taskId1 = createTask().id();
             var taskId2 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
-            var response = new GetTasksByIdsResponse(taskId1, createdTask.userId(), createdTask.title(), createdTask.description(), createdTask.startDate(),
-                    createdTask.endDate());
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
+                                                                            .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId2)
+                                                                            .build();
 
             // When
             var actual = restTestClient.get()
-                                       .uri(uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
-                                                                    .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId2)
-                                                                    .build())
+                                       .uri(uriFunction)
                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                        .exchange()
@@ -230,12 +251,23 @@ class TaskE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(new ParameterizedTypeReference<List<GetTasksByIdsResponse>>() {})
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).containsExactlyInAnyOrder(response);
+            // @formatter:off
+            assertThatJson(actual).isArray()
+                                  .satisfiesExactlyInAnyOrder(
+                                          task -> assertThatJson(task).isObject()
+                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                             .containsEntry("taskId", taskId1.toString())
+                                                                             .containsEntry("userId", createdTask.userId().toString())
+                                                                             .containsEntry("title", createdTask.title())
+                                                                             .containsEntry("description", createdTask.description())
+                                                                             .containsEntry("startDate", createdTask.startDate().toString())
+                                                                             .containsEntry("endDate", createdTask.endDate().toString()));
+            // @formatter:on
         }
 
         @Test
@@ -243,12 +275,13 @@ class TaskE2EIT {
             // Given
             var taskId1 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
             var taskId2 = UUID.fromString("68699b10-b665-4378-baea-a44b4be287f9");
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
+                                                                            .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId2)
+                                                                            .build();
 
             // When
             var actual = restTestClient.get()
-                                       .uri(uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
-                                                                    .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId2)
-                                                                    .build())
+                                       .uri(uriFunction)
                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                        .exchange()
@@ -256,12 +289,13 @@ class TaskE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(new ParameterizedTypeReference<List<GetTasksByIdsResponse>>() {})
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isEmpty();
+            assertThatJson(actual).isArray()
+                                  .isEmpty();
         }
 
         @Test
@@ -275,16 +309,13 @@ class TaskE2EIT {
             var createdTask2 = createTask(task2);
             var taskId1 = createdTask1.id();
             var taskId2 = createdTask2.id();
-            var response1 = new GetTasksByIdsResponse(taskId1, createdTask1.userId(), createdTask1.title(), createdTask1.description(),
-                    createdTask1.startDate(), createdTask1.endDate());
-            var response2 = new GetTasksByIdsResponse(taskId2, createdTask2.userId(), createdTask2.title(), createdTask2.description(),
-                    createdTask2.startDate(), createdTask2.endDate());
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
+                                                                            .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId1 + "," + taskId2)
+                                                                            .build();
 
             // When
             var actual = restTestClient.get()
-                                       .uri(uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
-                                                                    .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId1 + "," + taskId2)
-                                                                    .build())
+                                       .uri(uriFunction)
                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                        .exchange()
@@ -292,24 +323,44 @@ class TaskE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(new ParameterizedTypeReference<List<GetTasksByIdsResponse>>() {})
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).containsExactlyInAnyOrder(response1, response2);
+            // @formatter:off
+            assertThatJson(actual).isArray()
+                                  .satisfiesExactlyInAnyOrder(
+                                          task -> assertThatJson(task).isObject()
+                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                             .containsEntry("taskId", createdTask1.id().toString())
+                                                                             .containsEntry("userId", createdTask1.userId().toString())
+                                                                             .containsEntry("title", createdTask1.title())
+                                                                             .containsEntry("description", createdTask1.description())
+                                                                             .containsEntry("startDate", createdTask1.startDate().toString())
+                                                                             .containsEntry("endDate", createdTask1.endDate().toString()),
+                                          task -> assertThatJson(task).isObject()
+                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                             .containsEntry("taskId", createdTask2.id().toString())
+                                                                             .containsEntry("userId", createdTask2.userId().toString())
+                                                                             .containsEntry("title", createdTask2.title())
+                                                                             .containsEntry("description", createdTask2.description())
+                                                                             .containsEntry("startDate", createdTask2.startDate().toString())
+                                                                             .containsEntry("endDate", createdTask2.endDate().toString()));
+            // @formatter:on
         }
 
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // Given
             var taskId = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
+                                                                            .queryParam(TASKS_IDS_PARAM, taskId)
+                                                                            .build();
 
             // When & Then
             restTestClient.get()
-                          .uri(uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
-                                                       .queryParam(TASKS_IDS_PARAM, taskId)
-                                                       .build())
+                          .uri(uriFunction)
                           .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                           .exchange()
                           .expectStatus()
@@ -339,12 +390,6 @@ class TaskE2EIT {
             var createdTask1 = createTask(task1);
             var createdTask2 = createTask(task2);
             var createdTask3 = createTask(task3);
-            var response1 = new GetAllTasksResponse(createdTask1.id(), createdTask1.userId(), createdTask1.title(), createdTask1.description(),
-                    createdTask1.startDate(), createdTask1.endDate());
-            var response2 = new GetAllTasksResponse(createdTask2.id(), createdTask2.userId(), createdTask2.title(), createdTask2.description(),
-                    createdTask2.startDate(), createdTask2.endDate());
-            var response3 = new GetAllTasksResponse(createdTask3.id(), createdTask3.userId(), createdTask3.title(), createdTask3.description(),
-                    createdTask3.startDate(), createdTask3.endDate());
 
             // When
             var actual = restTestClient.get()
@@ -356,13 +401,39 @@ class TaskE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(new ParameterizedTypeReference<List<GetAllTasksResponse>>() {})
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).hasSize(3)
-                              .containsExactlyInAnyOrder(response1, response2, response3);
+            // @formatter:off
+            assertThatJson(actual).isArray()
+                                  .satisfiesExactlyInAnyOrder(
+                                          task -> assertThatJson(task).isObject()
+                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                             .containsEntry("taskId", createdTask1.id().toString())
+                                                                             .containsEntry("userId", createdTask1.userId().toString())
+                                                                             .containsEntry("title", createdTask1.title())
+                                                                             .containsEntry("description", createdTask1.description())
+                                                                             .containsEntry("startDate", createdTask1.startDate().toString())
+                                                                             .containsEntry("endDate", createdTask1.endDate().toString()),
+                                          task -> assertThatJson(task).isObject()
+                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                             .containsEntry("taskId", createdTask2.id().toString())
+                                                                             .containsEntry("userId", createdTask2.userId().toString())
+                                                                             .containsEntry("title", createdTask2.title())
+                                                                             .containsEntry("description", createdTask2.description())
+                                                                             .containsEntry("startDate", createdTask2.startDate().toString())
+                                                                             .containsEntry("endDate", createdTask2.endDate().toString()),
+                                          task -> assertThatJson(task).isObject()
+                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                             .containsEntry("taskId", createdTask3.id().toString())
+                                                                             .containsEntry("userId", createdTask3.userId().toString())
+                                                                             .containsEntry("title", createdTask3.title())
+                                                                             .containsEntry("description", createdTask3.description())
+                                                                             .containsEntry("startDate", createdTask3.startDate().toString())
+                                                                             .containsEntry("endDate", createdTask3.endDate().toString()));
+            // @formatter:on
         }
 
         @Test
@@ -380,12 +451,13 @@ class TaskE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(new ParameterizedTypeReference<List<GetAllTasksResponse>>() {})
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isEmpty();
+            assertThatJson(actual).isArray()
+                                  .isEmpty();
         }
 
         @Test
@@ -421,12 +493,6 @@ class TaskE2EIT {
             var createdTask1 = createTask(task1);
             var createdTask2 = createTask(task2);
             var createdTask3 = createTask(task3);
-            var response1 = new GetAllTasksResponse(createdTask1.id(), createdTask1.userId(), createdTask1.title(), createdTask1.description(),
-                    createdTask1.startDate(), createdTask1.endDate());
-            var response2 = new GetAllTasksResponse(createdTask2.id(), createdTask2.userId(), createdTask2.title(), createdTask2.description(),
-                    createdTask2.startDate(), createdTask2.endDate());
-            var response3 = new GetAllTasksResponse(createdTask3.id(), createdTask3.userId(), createdTask3.title(), createdTask3.description(),
-                    createdTask3.startDate(), createdTask3.endDate());
 
             // When
             var actual = restTestClient.get()
@@ -438,13 +504,39 @@ class TaskE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(new ParameterizedTypeReference<List<GetAllTasksResponse>>() {})
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).hasSize(3)
-                              .containsExactlyInAnyOrder(response1, response2, response3);
+            // @formatter:off
+            assertThatJson(actual).isArray()
+                                  .satisfiesExactlyInAnyOrder(
+                                          task -> assertThatJson(task).isObject()
+                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                             .containsEntry("taskId", createdTask1.id().toString())
+                                                                             .containsEntry("userId", createdTask1.userId().toString())
+                                                                             .containsEntry("title", createdTask1.title())
+                                                                             .containsEntry("description", createdTask1.description())
+                                                                             .containsEntry("startDate", createdTask1.startDate().toString())
+                                                                             .containsEntry("endDate", createdTask1.endDate().toString()),
+                                          task -> assertThatJson(task).isObject()
+                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                             .containsEntry("taskId", createdTask2.id().toString())
+                                                                             .containsEntry("userId", createdTask2.userId().toString())
+                                                                             .containsEntry("title", createdTask2.title())
+                                                                             .containsEntry("description", createdTask2.description())
+                                                                             .containsEntry("startDate", createdTask2.startDate().toString())
+                                                                             .containsEntry("endDate", createdTask2.endDate().toString()),
+                                          task -> assertThatJson(task).isObject()
+                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                             .containsEntry("taskId", createdTask3.id().toString())
+                                                                             .containsEntry("userId", createdTask3.userId().toString())
+                                                                             .containsEntry("title", createdTask3.title())
+                                                                             .containsEntry("description", createdTask3.description())
+                                                                             .containsEntry("startDate", createdTask3.startDate().toString())
+                                                                             .containsEntry("endDate", createdTask3.endDate().toString()));
+            // @formatter:on
         }
 
         @Test
@@ -459,12 +551,13 @@ class TaskE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(new ParameterizedTypeReference<List<GetAllTasksResponse>>() {})
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isEmpty();
+            assertThatJson(actual).isArray()
+                                  .isEmpty();
         }
 
         @Test
@@ -505,20 +598,21 @@ class TaskE2EIT {
                                        .isCreated()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(CreateTaskResponse.class)
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isNotNull();
-            assertThat(actual.taskId()).isNotNull();
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("taskId");
 
             // Assert the task has been created
-            var createdTask = taskRepository.findById(actual.taskId());
+            var actualTaskId = UUID.fromString(JsonPath.read(actual, "$.taskId"));
+            var createdTask = taskRepository.findById(actualTaskId);
             assertThat(createdTask).isPresent();
             assertSoftly(softly -> {
                 // @formatter:off
-                softly.assertThat(createdTask.get().id()).as("id").isEqualTo(actual.taskId());
+                softly.assertThat(createdTask.get().id()).as("id").isEqualTo(actualTaskId);
                 softly.assertThat(createdTask.get().userId()).as("userId").isEqualTo(UUID.fromString(createTaskRequestBody.userId()));
                 softly.assertThat(createdTask.get().title()).as("title").isEqualTo(createTaskRequestBody.title());
                 softly.assertThat(createdTask.get().description()).as("description").isEqualTo(createTaskRequestBody.description());
@@ -576,20 +670,21 @@ class TaskE2EIT {
                                        .isOk()
                                        .expectHeader()
                                        .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(UpdateTaskResponse.class)
+                                       .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertThat(actual).isNotNull();
-            assertThat(actual.taskId()).isEqualTo(createdTask.id());
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("taskId")
+                                  .containsEntry("taskId", taskId.toString());
 
             // Assert the task has been updated
-            var updatedTask = taskRepository.findById(actual.taskId());
+            var updatedTask = taskRepository.findById(taskId);
             assertThat(updatedTask).isPresent();
             assertSoftly(softly -> {
                 // @formatter:off
-                softly.assertThat(updatedTask.get().id()).as("id").isEqualTo(actual.taskId());
+                softly.assertThat(updatedTask.get().id()).as("id").isEqualTo(taskId);
                 softly.assertThat(updatedTask.get().userId()).as("userId").isEqualTo(UUID.fromString(updateTaskRequest.userId()));
                 softly.assertThat(updatedTask.get().title()).as("title").isEqualTo(updateTaskRequest.title());
                 softly.assertThat(updatedTask.get().description()).as("description").isEqualTo(updateTaskRequest.description());
