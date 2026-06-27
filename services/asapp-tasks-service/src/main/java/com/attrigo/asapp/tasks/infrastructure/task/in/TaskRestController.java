@@ -31,10 +31,9 @@ import com.attrigo.asapp.tasks.application.task.in.UpdateTaskUseCase;
 import com.attrigo.asapp.tasks.infrastructure.task.in.request.CreateTaskRequest;
 import com.attrigo.asapp.tasks.infrastructure.task.in.request.UpdateTaskRequest;
 import com.attrigo.asapp.tasks.infrastructure.task.in.response.CreateTaskResponse;
-import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetAllTasksResponse;
 import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTaskByIdResponse;
-import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTasksByIdsResponse;
 import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTasksByUserIdResponse;
+import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTasksResponse;
 import com.attrigo.asapp.tasks.infrastructure.task.in.response.UpdateTaskResponse;
 import com.attrigo.asapp.tasks.infrastructure.task.mapper.TaskMapper;
 
@@ -95,17 +94,18 @@ public class TaskRestController implements TaskRestAPI {
     }
 
     /**
-     * Gets tasks by their unique identifiers.
+     * Gets tasks, optionally filtered by their unique identifiers.
      *
-     * @param ids the list of task identifiers
-     * @return a {@link List} of {@link GetTasksByIdsResponse} containing the tasks found; missing identifiers are silently omitted
+     * @param ids the optional list of task identifiers to filter by; when {@code null} all tasks are returned
+     * @return a {@link List} of {@link GetTasksResponse} containing the tasks found, or an empty list if none match; missing identifiers are silently omitted
      */
     @Override
-    public List<GetTasksByIdsResponse> getTasksByIds(List<UUID> ids) {
-        return readTaskUseCase.getTasksByIds(ids)
-                              .stream()
-                              .map(taskMapper::toGetTasksByIdsResponse)
-                              .toList();
+    public List<GetTasksResponse> getTasks(List<UUID> ids) {
+        var tasks = ids == null ? readTaskUseCase.getAllTasks() : readTaskUseCase.getTasksByIds(ids);
+
+        return tasks.stream()
+                    .map(taskMapper::toGetTasksResponse)
+                    .toList();
     }
 
     /**
@@ -119,19 +119,6 @@ public class TaskRestController implements TaskRestAPI {
         return readTaskUseCase.getTasksByUserId(id)
                               .stream()
                               .map(taskMapper::toGetTasksByUserIdResponse)
-                              .toList();
-    }
-
-    /**
-     * Gets all tasks from the system.
-     *
-     * @return a {@link List} of {@link GetAllTasksResponse} containing all tasks found, or an empty list if no tasks exist
-     */
-    @Override
-    public List<GetAllTasksResponse> getAllTasks() {
-        return readTaskUseCase.getAllTasks()
-                              .stream()
-                              .map(taskMapper::toGetAllTasksResponse)
                               .toList();
     }
 

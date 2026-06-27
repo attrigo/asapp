@@ -27,10 +27,9 @@ import com.attrigo.asapp.tasks.domain.task.Task;
 import com.attrigo.asapp.tasks.infrastructure.task.in.request.CreateTaskRequest;
 import com.attrigo.asapp.tasks.infrastructure.task.in.request.UpdateTaskRequest;
 import com.attrigo.asapp.tasks.infrastructure.task.in.response.CreateTaskResponse;
-import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetAllTasksResponse;
 import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTaskByIdResponse;
-import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTasksByIdsResponse;
 import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTasksByUserIdResponse;
+import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTasksResponse;
 import com.attrigo.asapp.tasks.infrastructure.task.in.response.UpdateTaskResponse;
 import com.attrigo.asapp.tasks.infrastructure.task.persistence.JdbcTaskEntity;
 
@@ -99,15 +98,6 @@ public interface TaskMapper {
     GetTaskByIdResponse toGetTaskByIdResponse(Task task);
 
     /**
-     * Maps a domain {@link Task} to a {@link GetTasksByIdsResponse}.
-     *
-     * @param task the {@link Task} domain entity
-     * @return the {@link GetTasksByIdsResponse}
-     */
-    @Mapping(target = "taskId", source = "id")
-    GetTasksByIdsResponse toGetTasksByIdsResponse(Task task);
-
-    /**
      * Maps a domain {@link Task} to a {@link GetTasksByUserIdResponse}.
      *
      * @param task the {@link Task} domain entity
@@ -117,13 +107,13 @@ public interface TaskMapper {
     GetTasksByUserIdResponse toGetTasksByUserIdResponse(Task task);
 
     /**
-     * Maps a domain {@link Task} to a {@link GetAllTasksResponse}.
+     * Maps a domain {@link Task} to a {@link GetTasksResponse}.
      *
      * @param task the {@link Task} domain entity
-     * @return the {@link GetAllTasksResponse}
+     * @return the {@link GetTasksResponse}
      */
     @Mapping(target = "taskId", source = "id")
-    GetAllTasksResponse toGetAllTasksResponse(Task task);
+    GetTasksResponse toGetTasksResponse(Task task);
 
     /**
      * Maps a domain {@link Task} to a {@link CreateTaskResponse}.

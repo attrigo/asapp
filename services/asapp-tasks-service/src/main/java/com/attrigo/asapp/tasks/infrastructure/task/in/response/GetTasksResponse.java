@@ -20,7 +20,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * Response for retrieving tasks by a list of unique identifiers.
+ * Response for retrieving tasks.
  *
  * @param taskId      the task's unique identifier
  * @param userId      the task's user unique identifier
@@ -28,10 +28,10 @@ import java.util.UUID;
  * @param description the task's description
  * @param startDate   the task's start date
  * @param endDate     the task's end date
- * @since 0.4.0
+ * @since 0.2.0
  * @author attrigo
  */
-public record GetTasksByIdsResponse(
+public record GetTasksResponse(
         UUID taskId,
         UUID userId,
         String title,

@@ -28,8 +28,6 @@ public class TaskRestAPIURL {
 
     public static final String TASKS_GET_BY_ID_PATH = "/{id}";
 
-    public static final String TASKS_GET_BY_IDS_PATH = "";
-
     public static final String TASKS_GET_BY_USER_ID_PATH = "/user/{id}";
 
     public static final String TASKS_GET_ALL_PATH = "";
@@ -41,8 +39,6 @@ public class TaskRestAPIURL {
     public static final String TASKS_DELETE_BY_ID_PATH = "/{id}";
 
     public static final String TASKS_GET_BY_ID_FULL_PATH = TASKS_ROOT_PATH + TASKS_GET_BY_ID_PATH;
-
-    public static final String TASKS_GET_BY_IDS_FULL_PATH = TASKS_ROOT_PATH + TASKS_GET_BY_IDS_PATH;
 
     public static final String TASKS_GET_ALL_FULL_PATH = TASKS_ROOT_PATH + TASKS_GET_ALL_PATH;
 

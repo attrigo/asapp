@@ -18,7 +18,7 @@ package com.attrigo.asapp.tasks.infrastructure.task.in;
 
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_CREATE_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_DELETE_BY_ID_FULL_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_IDS_FULL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_ALL_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_IDS_PARAM;
@@ -104,12 +104,12 @@ class TaskRestControllerIT extends WebMvcTestContext {
     }
 
     @Nested
-    class GetTasksByIds {
+    class GetTasks {
 
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_MissingTasksIds() {
             // Given
-            var requestBuilder = get(TASKS_GET_BY_IDS_FULL_PATH).param(TASKS_IDS_PARAM, "");
+            var requestBuilder = get(TASKS_GET_ALL_FULL_PATH).param(TASKS_IDS_PARAM, "");
 
             // When & Then
             mockMvcTester.perform(requestBuilder)
@@ -131,7 +131,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "ids")
-                                                 .containsEntry("message", "Tasks identifiers list must not be empty");
+                                                 .containsEntry("message", "Tasks identifiers list must contain between 1 and 50 elements");
                          });
         }
 
@@ -143,7 +143,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                    .map(UUID::toString)
                                    .reduce((a, b) -> a + "," + b)
                                    .orElseThrow();
-            var requestBuilder = get(TASKS_GET_BY_IDS_FULL_PATH).param(TASKS_IDS_PARAM, taskIds);
+            var requestBuilder = get(TASKS_GET_ALL_FULL_PATH).param(TASKS_IDS_PARAM, taskIds);
 
             // When & Then
             mockMvcTester.perform(requestBuilder)
@@ -165,7 +165,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "ids")
-                                                 .containsEntry("message", "Tasks identifiers list must contain at most 50 elements");
+                                                 .containsEntry("message", "Tasks identifiers list must contain between 1 and 50 elements");
                          });
         }
 
@@ -173,7 +173,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidTaskId() {
             // Given
             var taskIds = "1";
-            var requestBuilder = get(TASKS_GET_BY_IDS_FULL_PATH).param(TASKS_IDS_PARAM, taskIds);
+            var requestBuilder = get(TASKS_GET_ALL_FULL_PATH).param(TASKS_IDS_PARAM, taskIds);
 
             // When & Then
             mockMvcTester.perform(requestBuilder)

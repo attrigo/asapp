@@ -30,7 +30,7 @@ work items with titles, descriptions, and date ranges.
 - **Create Task**: Create new task for a user
 - **Get Task by ID**: Retrieve specific task
 - **Get Tasks by User ID**: Retrieve all tasks for a user
-- **Get All Tasks**: List all tasks in system
+- **Get Tasks**: List all tasks, optionally filtered by a list of IDs
 - **Update Task**: Modify task title, description, and dates
 - **Delete Task**: Remove task
 
@@ -313,7 +313,7 @@ Listed highest-precedence first; `application-<profile>` rows apply only when th
 | Method | Endpoint               | Description          | Auth Required |
 |--------|------------------------|----------------------|---------------|
 | POST   | `/api/tasks`           | Create task          | ✅             |
-| GET    | `/api/tasks`           | Get all tasks        | ✅             |
+| GET    | `/api/tasks`           | Get tasks (optionally by IDs) | ✅             |
 | GET    | `/api/tasks/{id}`      | Get task by ID       | ✅             |
 | GET    | `/api/tasks/user/{id}` | Get tasks by user ID | ✅             |
 | PUT    | `/api/tasks/{id}`      | Update task          | ✅             |

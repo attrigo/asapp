@@ -23,7 +23,6 @@ import static com.attrigo.asapp.tasks.testutil.fixture.TaskMother.aTaskBuilder;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_CREATE_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_DELETE_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_ALL_FULL_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_IDS_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_IDS_PARAM;
@@ -70,9 +69,9 @@ import com.attrigo.asapp.tasks.testutil.TestContainerConfiguration;
  * Coverage:
  * <li>Rejects all operations without valid JWT authentication</li>
  * <li>Retrieves task by identifier returning 404 when not found, task when exists</li>
- * <li>Retrieves tasks by identifier list, omitting unknown ids and deduplicating</li>
+ * <li>Retrieves all tasks when no ids filter supplied, returning empty or full collection</li>
+ * <li>Retrieves tasks filtered by ids list, omitting unknown ids and deduplicating duplicates</li>
  * <li>Retrieves tasks by user ownership returning empty or collection</li>
- * <li>Retrieves all tasks across users returning empty or collection</li>
  * <li>Creates task persisting to database and returning assigned identifier</li>
  * <li>Updates existing task persisting changes and returning updated data</li>
  * <li>Deletes existing task removing from database</li>
@@ -179,10 +178,68 @@ class TaskE2EIT {
     }
 
     @Nested
-    class GetTasksByIds {
+    class GetTasks {
 
         @Test
-        void ReturnsStatusOKAndBodyWithFoundTasks_AllTasksExist() {
+        void ReturnsStatusOKAndBodyWithAllTasks_NoIdsFilter() {
+            // Given
+            var task1 = aTaskBuilder().withTitle("Title1")
+                                      .buildJdbc();
+            var task2 = aTaskBuilder().withTitle("Title2")
+                                      .buildJdbc();
+            var task3 = aTaskBuilder().withTitle("Title3")
+                                      .buildJdbc();
+            var createdTask1 = createTask(task1);
+            var createdTask2 = createTask(task2);
+            var createdTask3 = createTask(task3);
+
+            // When
+            var actual = restTestClient.get()
+                                       .uri(TASKS_GET_ALL_FULL_PATH)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            // @formatter:off
+            assertThatJson(actual).isArray()
+                                  .satisfiesExactlyInAnyOrder(
+                                          task -> assertThatJson(task).isObject()
+                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                             .containsEntry("taskId", createdTask1.id().toString())
+                                                                             .containsEntry("userId", createdTask1.userId().toString())
+                                                                             .containsEntry("title", createdTask1.title())
+                                                                             .containsEntry("description", createdTask1.description())
+                                                                             .containsEntry("startDate", createdTask1.startDate().toString())
+                                                                             .containsEntry("endDate", createdTask1.endDate().toString()),
+                                          task -> assertThatJson(task).isObject()
+                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                             .containsEntry("taskId", createdTask2.id().toString())
+                                                                             .containsEntry("userId", createdTask2.userId().toString())
+                                                                             .containsEntry("title", createdTask2.title())
+                                                                             .containsEntry("description", createdTask2.description())
+                                                                             .containsEntry("startDate", createdTask2.startDate().toString())
+                                                                             .containsEntry("endDate", createdTask2.endDate().toString()),
+                                          task -> assertThatJson(task).isObject()
+                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                             .containsEntry("taskId", createdTask3.id().toString())
+                                                                             .containsEntry("userId", createdTask3.userId().toString())
+                                                                             .containsEntry("title", createdTask3.title())
+                                                                             .containsEntry("description", createdTask3.description())
+                                                                             .containsEntry("startDate", createdTask3.startDate().toString())
+                                                                             .containsEntry("endDate", createdTask3.endDate().toString()));
+            // @formatter:on
+        }
+
+        @Test
+        void ReturnsStatusOKAndBodyWithFoundTasks_AllIdsExist() {
             // Given
             var task1 = aTaskBuilder().withTitle("Title1")
                                       .buildJdbc();
@@ -192,7 +249,7 @@ class TaskE2EIT {
             var createdTask2 = createTask(task2);
             var taskId1 = createdTask1.id();
             var taskId2 = createdTask2.id();
-            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_ALL_FULL_PATH)
                                                                             .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId2)
                                                                             .build();
 
@@ -234,12 +291,12 @@ class TaskE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndBodyWithFoundTasks_SomeTasksExist() {
+        void ReturnsStatusOKAndBodyWithFoundTasks_SomeIdsExist() {
             // Given
             var createdTask = createTask();
             var taskId1 = createTask().id();
             var taskId2 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
-            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_ALL_FULL_PATH)
                                                                             .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId2)
                                                                             .build();
 
@@ -273,34 +330,6 @@ class TaskE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndEmptyBody_TasksNotExist() {
-            // Given
-            var taskId1 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
-            var taskId2 = UUID.fromString("68699b10-b665-4378-baea-a44b4be287f9");
-            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
-                                                                            .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId2)
-                                                                            .build();
-
-            // When
-            var actual = restTestClient.get()
-                                       .uri(uriFunction)
-                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                       .exchange()
-                                       .expectStatus()
-                                       .isOk()
-                                       .expectHeader()
-                                       .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(String.class)
-                                       .returnResult()
-                                       .getResponseBody();
-
-            // Then
-            assertThatJson(actual).isArray()
-                                  .isEmpty();
-        }
-
-        @Test
         void ReturnsStatusOKAndBodyWithFoundTasksOnce_DuplicateIds() {
             // Given
             var task1 = aTaskBuilder().withTitle("Title1")
@@ -311,7 +340,7 @@ class TaskE2EIT {
             var createdTask2 = createTask(task2);
             var taskId1 = createdTask1.id();
             var taskId2 = createdTask2.id();
-            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_ALL_FULL_PATH)
                                                                             .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId1 + "," + taskId2)
                                                                             .build();
 
@@ -353,10 +382,59 @@ class TaskE2EIT {
         }
 
         @Test
+        void ReturnsStatusOKAndEmptyBody_NoIdsFilterAndTasksNotExist() {
+            // When
+            var actual = restTestClient.get()
+                                       .uri(TASKS_GET_ALL_FULL_PATH)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertThatJson(actual).isArray()
+                                  .isEmpty();
+        }
+
+        @Test
+        void ReturnsStatusOKAndEmptyBody_IdsNotExist() {
+            // Given
+            var taskId1 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
+            var taskId2 = UUID.fromString("68699b10-b665-4378-baea-a44b4be287f9");
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_ALL_FULL_PATH)
+                                                                            .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId2)
+                                                                            .build();
+
+            // When
+            var actual = restTestClient.get()
+                                       .uri(uriFunction)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertThatJson(actual).isArray()
+                                  .isEmpty();
+        }
+
+        @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
             // Given
             var taskId = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
-            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_BY_IDS_FULL_PATH)
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_ALL_FULL_PATH)
                                                                             .queryParam(TASKS_IDS_PARAM, taskId)
                                                                             .build();
 
@@ -470,103 +548,6 @@ class TaskE2EIT {
             // When & Then
             restTestClient.get()
                           .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userId)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
-        }
-
-    }
-
-    @Nested
-    class GetAllTasks {
-
-        @Test
-        void ReturnsStatusOKAndBodyWithFoundTasks_TasksExist() {
-            // Given
-            var task1 = aTaskBuilder().withTitle("Title1")
-                                      .buildJdbc();
-            var task2 = aTaskBuilder().withTitle("Title2")
-                                      .buildJdbc();
-            var task3 = aTaskBuilder().withTitle("Title3")
-                                      .buildJdbc();
-            var createdTask1 = createTask(task1);
-            var createdTask2 = createTask(task2);
-            var createdTask3 = createTask(task3);
-
-            // When
-            var actual = restTestClient.get()
-                                       .uri(TASKS_GET_ALL_FULL_PATH)
-                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                       .exchange()
-                                       .expectStatus()
-                                       .isOk()
-                                       .expectHeader()
-                                       .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(String.class)
-                                       .returnResult()
-                                       .getResponseBody();
-
-            // Then
-            // @formatter:off
-            assertThatJson(actual).isArray()
-                                  .satisfiesExactlyInAnyOrder(
-                                          task -> assertThatJson(task).isObject()
-                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
-                                                                             .containsEntry("taskId", createdTask1.id().toString())
-                                                                             .containsEntry("userId", createdTask1.userId().toString())
-                                                                             .containsEntry("title", createdTask1.title())
-                                                                             .containsEntry("description", createdTask1.description())
-                                                                             .containsEntry("startDate", createdTask1.startDate().toString())
-                                                                             .containsEntry("endDate", createdTask1.endDate().toString()),
-                                          task -> assertThatJson(task).isObject()
-                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
-                                                                             .containsEntry("taskId", createdTask2.id().toString())
-                                                                             .containsEntry("userId", createdTask2.userId().toString())
-                                                                             .containsEntry("title", createdTask2.title())
-                                                                             .containsEntry("description", createdTask2.description())
-                                                                             .containsEntry("startDate", createdTask2.startDate().toString())
-                                                                             .containsEntry("endDate", createdTask2.endDate().toString()),
-                                          task -> assertThatJson(task).isObject()
-                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
-                                                                             .containsEntry("taskId", createdTask3.id().toString())
-                                                                             .containsEntry("userId", createdTask3.userId().toString())
-                                                                             .containsEntry("title", createdTask3.title())
-                                                                             .containsEntry("description", createdTask3.description())
-                                                                             .containsEntry("startDate", createdTask3.startDate().toString())
-                                                                             .containsEntry("endDate", createdTask3.endDate().toString()));
-            // @formatter:on
-        }
-
-        @Test
-        void ReturnsStatusOKAndEmptyBody_TasksNotExist() {
-            // When
-            var actual = restTestClient.get()
-                                       .uri(TASKS_GET_ALL_FULL_PATH)
-                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                       .exchange()
-                                       .expectStatus()
-                                       .isOk()
-                                       .expectHeader()
-                                       .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(String.class)
-                                       .returnResult()
-                                       .getResponseBody();
-
-            // Then
-            assertThatJson(actual).isArray()
-                                  .isEmpty();
-        }
-
-        @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
-            // When & Then
-            restTestClient.get()
-                          .uri(TASKS_GET_ALL_FULL_PATH)
                           .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                           .exchange()
                           .expectStatus()
