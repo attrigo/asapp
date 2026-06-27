@@ -122,13 +122,11 @@ class UserE2EIT {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
-    private String encodedAccessToken;
-
     private String bearerToken;
 
     @BeforeEach
     void beforeEach() {
-        encodedAccessToken = encodedAccessToken();
+        var encodedAccessToken = encodedAccessToken();
         bearerToken = "Bearer " + encodedAccessToken;
 
         userRepository.deleteAll();
