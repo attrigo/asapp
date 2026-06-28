@@ -19,7 +19,6 @@ package com.attrigo.asapp.users.infrastructure.user.in;
 import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_CREATE_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_DELETE_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_GET_ALL_FULL_PATH;
-import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_GET_BY_IDS_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_GET_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_IDS_PARAM;
 import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_UPDATE_BY_ID_FULL_PATH;
@@ -63,9 +62,8 @@ import com.attrigo.asapp.users.domain.user.User;
 import com.attrigo.asapp.users.infrastructure.user.in.request.CreateUserRequest;
 import com.attrigo.asapp.users.infrastructure.user.in.request.UpdateUserRequest;
 import com.attrigo.asapp.users.infrastructure.user.in.response.CreateUserResponse;
-import com.attrigo.asapp.users.infrastructure.user.in.response.GetAllUsersResponse;
 import com.attrigo.asapp.users.infrastructure.user.in.response.GetUserByIdResponse;
-import com.attrigo.asapp.users.infrastructure.user.in.response.GetUsersByIdsResponse;
+import com.attrigo.asapp.users.infrastructure.user.in.response.GetUsersResponse;
 import com.attrigo.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
 import com.attrigo.asapp.users.testutil.RestDocsConstrainedFields;
 import com.attrigo.asapp.users.testutil.RestDocsWebMvcTestContext;
@@ -139,10 +137,10 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
     }
 
     @Nested
-    class GetUsersByIds {
+    class GetUsers {
 
         @Test
-        void DocumentsGetUsersByIds() throws Exception {
+        void DocumentsGetUsers_WithIds() throws Exception {
             // Given
             var user = aUser();
             var userIdValue = user.getId()
@@ -155,21 +153,21 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                  .value();
             var phoneNumberValue = user.getPhoneNumber()
                                        .value();
-            var response = new GetUsersByIdsResponse(userIdValue, firstNameValue, lastNameValue, emailValue, phoneNumberValue);
+            var response = new GetUsersResponse(userIdValue, firstNameValue, lastNameValue, emailValue, phoneNumberValue);
 
             given(readUserUseCase.getUsersByIds(anyList())).willReturn(List.of(user));
-            given(userMapper.toGetUsersByIdsResponse(any(User.class))).willReturn(response);
+            given(userMapper.toGetUsersResponse(any(User.class))).willReturn(response);
 
             // When & Then
-            mockMvc.perform(get(USERS_GET_BY_IDS_FULL_PATH).param(USERS_IDS_PARAM, userIdValue.toString())
-                                                           .accept(APPLICATION_JSON)
-                                                           .header(AUTHORIZATION, "Bearer sample.access.token"))
+            mockMvc.perform(get(USERS_GET_ALL_FULL_PATH).param(USERS_IDS_PARAM, userIdValue.toString())
+                                                        .accept(APPLICATION_JSON)
+                                                        .header(AUTHORIZATION, "Bearer sample.access.token"))
                    .andExpect(status().isOk())
                    .andDo(
                    // @formatter:off
-                       document("get-users-by-ids",
+                       document("get-users",
                                requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
-                               queryParameters(parameterWithName("ids").description("Comma-separated list of user identifiers (1 to 50 elements)")),
+                               queryParameters(parameterWithName("ids").description("Optional list of user identifiers to filter by; omit to return all users")),
                                responseFields(
                                        fieldWithPath("[].userId").description("The user's unique identifier"),
                                        fieldWithPath("[].firstName").description("The user's first name"),
@@ -181,13 +179,8 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                    );
         }
 
-    }
-
-    @Nested
-    class GetAllUsers {
-
         @Test
-        void DocumentsGetAllUsers() throws Exception {
+        void DocumentsGetUsers_NoIds() throws Exception {
             // Given
             var user = aUser();
             var userIdValue = user.getId()
@@ -200,10 +193,10 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                  .value();
             var phoneNumberValue = user.getPhoneNumber()
                                        .value();
-            var response = new GetAllUsersResponse(userIdValue, firstNameValue, lastNameValue, emailValue, phoneNumberValue);
+            var response = new GetUsersResponse(userIdValue, firstNameValue, lastNameValue, emailValue, phoneNumberValue);
 
             given(readUserUseCase.getAllUsers()).willReturn(List.of(user));
-            given(userMapper.toGetAllUsersResponse(any(User.class))).willReturn(response);
+            given(userMapper.toGetUsersResponse(any(User.class))).willReturn(response);
 
             // When & Then
             mockMvc.perform(get(USERS_GET_ALL_FULL_PATH).accept(APPLICATION_JSON)
@@ -211,17 +204,16 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isOk())
                    .andDo(
                    // @formatter:off
-                       document("get-all-users",
-                           requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
-                           responseFields(
-                                   fieldWithPath("[].userId").description("The user's unique identifier"),
-                                   fieldWithPath("[].firstName").description("The user's first name"),
-                                   fieldWithPath("[].lastName").description("The user's last name"),
-                                   fieldWithPath("[].email").description("The user's email address"),
-                                   fieldWithPath("[].phoneNumber").description("The user's phone number")
-                           )
+                       document("get-users-all",
+                               requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
+                               responseFields(
+                                       fieldWithPath("[].userId").description("The user's unique identifier"),
+                                       fieldWithPath("[].firstName").description("The user's first name"),
+                                       fieldWithPath("[].lastName").description("The user's last name"),
+                                       fieldWithPath("[].email").description("The user's email address"),
+                                       fieldWithPath("[].phoneNumber").description("The user's phone number"))
                        )
-                       // @formatter:on
+                   // @formatter:on
                    );
         }
 
@@ -388,7 +380,7 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
         @Test
         void DocumentsRequestParamValidationFailure() throws Exception {
             // When & Then
-            mockMvc.perform(get(USERS_GET_BY_IDS_FULL_PATH).param(USERS_IDS_PARAM, ""))
+            mockMvc.perform(get(USERS_GET_ALL_FULL_PATH).param(USERS_IDS_PARAM, ""))
                    .andExpect(status().isBadRequest())
                    .andDo(
                    // @formatter:off

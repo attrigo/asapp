@@ -45,7 +45,7 @@ public interface TaskRepository {
      * Finds tasks by their unique identifiers.
      *
      * @param taskIds the collection of task identifiers
-     * @return a {@link Collection} of {@link Task} entities found; missing identifiers are silently omitted
+     * @return a {@link Collection} of {@link Task} entities found
      */
     Collection<Task> findByIds(Collection<TaskId> taskIds);
 

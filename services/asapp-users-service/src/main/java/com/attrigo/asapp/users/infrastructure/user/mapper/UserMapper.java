@@ -30,9 +30,8 @@ import com.attrigo.asapp.users.domain.user.User;
 import com.attrigo.asapp.users.infrastructure.user.in.request.CreateUserRequest;
 import com.attrigo.asapp.users.infrastructure.user.in.request.UpdateUserRequest;
 import com.attrigo.asapp.users.infrastructure.user.in.response.CreateUserResponse;
-import com.attrigo.asapp.users.infrastructure.user.in.response.GetAllUsersResponse;
 import com.attrigo.asapp.users.infrastructure.user.in.response.GetUserByIdResponse;
-import com.attrigo.asapp.users.infrastructure.user.in.response.GetUsersByIdsResponse;
+import com.attrigo.asapp.users.infrastructure.user.in.response.GetUsersResponse;
 import com.attrigo.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
 import com.attrigo.asapp.users.infrastructure.user.in.response.WarningDetail;
 import com.attrigo.asapp.users.infrastructure.user.persistence.JdbcUserEntity;
@@ -109,22 +108,13 @@ public interface UserMapper {
     GetUserByIdResponse toGetUserByIdResponse(UserWithTasksResult result);
 
     /**
-     * Maps a domain {@link User} to a {@link GetUsersByIdsResponse}.
+     * Maps a domain {@link User} to a {@link GetUsersResponse}.
      *
      * @param user the {@link User} domain entity
-     * @return the {@link GetUsersByIdsResponse}
+     * @return the {@link GetUsersResponse}
      */
     @Mapping(target = "userId", source = "id")
-    GetUsersByIdsResponse toGetUsersByIdsResponse(User user);
-
-    /**
-     * Maps a domain {@link User} to a {@link GetAllUsersResponse}.
-     *
-     * @param user the {@link User} domain entity
-     * @return the {@link GetAllUsersResponse}
-     */
-    @Mapping(target = "userId", source = "id")
-    GetAllUsersResponse toGetAllUsersResponse(User user);
+    GetUsersResponse toGetUsersResponse(User user);
 
     /**
      * Maps a domain {@link User} to a {@link CreateUserResponse}.

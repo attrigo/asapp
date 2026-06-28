@@ -31,10 +31,9 @@ import com.attrigo.asapp.tasks.application.task.in.UpdateTaskUseCase;
 import com.attrigo.asapp.tasks.infrastructure.task.in.request.CreateTaskRequest;
 import com.attrigo.asapp.tasks.infrastructure.task.in.request.UpdateTaskRequest;
 import com.attrigo.asapp.tasks.infrastructure.task.in.response.CreateTaskResponse;
-import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetAllTasksResponse;
 import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTaskByIdResponse;
-import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTasksByIdsResponse;
 import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTasksByUserIdResponse;
+import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTasksResponse;
 import com.attrigo.asapp.tasks.infrastructure.task.in.response.UpdateTaskResponse;
 import com.attrigo.asapp.tasks.infrastructure.task.mapper.TaskMapper;
 
@@ -95,20 +94,6 @@ public class TaskRestController implements TaskRestAPI {
     }
 
     /**
-     * Gets tasks by their unique identifiers.
-     *
-     * @param ids the list of task identifiers
-     * @return a {@link List} of {@link GetTasksByIdsResponse} containing the tasks found; missing identifiers are silently omitted
-     */
-    @Override
-    public List<GetTasksByIdsResponse> getTasksByIds(List<UUID> ids) {
-        return readTaskUseCase.getTasksByIds(ids)
-                              .stream()
-                              .map(taskMapper::toGetTasksByIdsResponse)
-                              .toList();
-    }
-
-    /**
      * Gets all tasks for a specific user by their unique identifier.
      *
      * @param id the user's unique identifier
@@ -123,16 +108,18 @@ public class TaskRestController implements TaskRestAPI {
     }
 
     /**
-     * Gets all tasks from the system.
+     * Gets tasks, optionally filtered by their unique identifiers.
      *
-     * @return a {@link List} of {@link GetAllTasksResponse} containing all tasks found, or an empty list if no tasks exist
+     * @param ids the identifiers of the tasks
+     * @return a {@link List} of {@link GetTasksResponse} with the matching tasks, or an empty list if none match
      */
     @Override
-    public List<GetAllTasksResponse> getAllTasks() {
-        return readTaskUseCase.getAllTasks()
-                              .stream()
-                              .map(taskMapper::toGetAllTasksResponse)
-                              .toList();
+    public List<GetTasksResponse> getTasks(List<UUID> ids) {
+        var tasks = ids == null ? readTaskUseCase.getAllTasks() : readTaskUseCase.getTasksByIds(ids);
+
+        return tasks.stream()
+                    .map(taskMapper::toGetTasksResponse)
+                    .toList();
     }
 
     /**

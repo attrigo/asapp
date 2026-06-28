@@ -14,28 +14,25 @@
 * limitations under the License.
 */
 
-package com.attrigo.asapp.tasks.infrastructure.task.in.response;
+package com.attrigo.asapp.users.infrastructure.user.in.response;
 
-import java.time.Instant;
 import java.util.UUID;
 
 /**
- * Response for retrieving tasks by a list of unique identifiers.
+ * Response for retrieving users.
  *
- * @param taskId      the task's unique identifier
- * @param userId      the task's user unique identifier
- * @param title       the task's title
- * @param description the task's description
- * @param startDate   the task's start date
- * @param endDate     the task's end date
- * @since 0.4.0
+ * @param userId      the user's unique identifier
+ * @param firstName   the user's first name
+ * @param lastName    the user's last name
+ * @param email       the user's email
+ * @param phoneNumber the user's phone number
+ * @since 0.2.0
  * @author attrigo
  */
-public record GetTasksByIdsResponse(
-        UUID taskId,
+public record GetUsersResponse(
         UUID userId,
-        String title,
-        String description,
-        Instant startDate,
-        Instant endDate
+        String firstName,
+        String lastName,
+        String email,
+        String phoneNumber
 ) {}

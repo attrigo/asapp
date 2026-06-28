@@ -20,7 +20,6 @@ import static com.attrigo.asapp.tasks.testutil.fixture.TaskMother.aTask;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_CREATE_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_DELETE_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_ALL_FULL_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_IDS_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_IDS_PARAM;
@@ -62,10 +61,9 @@ import com.attrigo.asapp.tasks.domain.task.Task;
 import com.attrigo.asapp.tasks.infrastructure.task.in.request.CreateTaskRequest;
 import com.attrigo.asapp.tasks.infrastructure.task.in.request.UpdateTaskRequest;
 import com.attrigo.asapp.tasks.infrastructure.task.in.response.CreateTaskResponse;
-import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetAllTasksResponse;
 import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTaskByIdResponse;
-import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTasksByIdsResponse;
 import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTasksByUserIdResponse;
+import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTasksResponse;
 import com.attrigo.asapp.tasks.infrastructure.task.in.response.UpdateTaskResponse;
 import com.attrigo.asapp.tasks.testutil.RestDocsConstrainedFields;
 import com.attrigo.asapp.tasks.testutil.RestDocsWebMvcTestContext;
@@ -134,54 +132,6 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
     }
 
     @Nested
-    class GetTasksByIds {
-
-        @Test
-        void DocumentsGetTasksByIds() throws Exception {
-            // Given
-            var task = aTask();
-            var taskIdValue = task.getId()
-                                  .value();
-            var taskUserIdValue = task.getUserId()
-                                      .value();
-            var taskTitleValue = task.getTitle()
-                                     .value();
-            var taskDescriptionValue = task.getDescription()
-                                           .value();
-            var taskStartDateValue = task.getStartDate()
-                                         .value();
-            var taskEndDateValue = task.getEndDate()
-                                       .value();
-            var response = new GetTasksByIdsResponse(taskIdValue, taskUserIdValue, taskTitleValue, taskDescriptionValue, taskStartDateValue, taskEndDateValue);
-
-            given(readTaskUseCase.getTasksByIds(anyList())).willReturn(List.of(task));
-            given(taskMapper.toGetTasksByIdsResponse(any(Task.class))).willReturn(response);
-
-            // When & Then
-            mockMvc.perform(get(TASKS_GET_BY_IDS_FULL_PATH).param(TASKS_IDS_PARAM, taskIdValue.toString())
-                                                           .accept(APPLICATION_JSON)
-                                                           .header(AUTHORIZATION, "Bearer sample.access.token"))
-                   .andExpect(status().isOk())
-                   .andDo(
-                   // @formatter:off
-                       document("get-tasks-by-ids",
-                               requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
-                               queryParameters(parameterWithName("ids").description("Comma-separated list of task identifiers (1 to 50 elements)")),
-                               responseFields(
-                                       fieldWithPath("[].taskId").description("The task's unique identifier"),
-                                       fieldWithPath("[].userId").description("The task's owner unique identifier"),
-                                       fieldWithPath("[].title").description("The task's title"),
-                                       fieldWithPath("[].description").description("The task's description"),
-                                       fieldWithPath("[].startDate").description("The task's start date in ISO 8601 format"),
-                                       fieldWithPath("[].endDate").description("The task's end date in ISO 8601 format"))
-                       )
-                   // @formatter:on
-                   );
-        }
-
-    }
-
-    @Nested
     class GetTasksByUserId {
 
         @Test
@@ -231,10 +181,10 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
     }
 
     @Nested
-    class GetAllTasks {
+    class GetTasks {
 
         @Test
-        void DocumentsGetAllTasks() throws Exception {
+        void DocumentsGetTasks_WithIds() throws Exception {
             // Given
             var task = aTask();
             var taskIdValue = task.getId()
@@ -249,10 +199,53 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                                          .value();
             var taskEndDateValue = task.getEndDate()
                                        .value();
-            var response = new GetAllTasksResponse(taskIdValue, taskUserIdValue, taskTitleValue, taskDescriptionValue, taskStartDateValue, taskEndDateValue);
+            var response = new GetTasksResponse(taskIdValue, taskUserIdValue, taskTitleValue, taskDescriptionValue, taskStartDateValue, taskEndDateValue);
+
+            given(readTaskUseCase.getTasksByIds(anyList())).willReturn(List.of(task));
+            given(taskMapper.toGetTasksResponse(any(Task.class))).willReturn(response);
+
+            // When & Then
+            mockMvc.perform(get(TASKS_GET_ALL_FULL_PATH).param(TASKS_IDS_PARAM, taskIdValue.toString())
+                                                        .accept(APPLICATION_JSON)
+                                                        .header(AUTHORIZATION, "Bearer sample.access.token"))
+                   .andExpect(status().isOk())
+                   .andDo(
+                   // @formatter:off
+                           document("get-tasks",
+                                   requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
+                                   queryParameters(parameterWithName("ids").description("Optional list of task identifiers to filter by; omit to return all tasks")),
+                                   responseFields(
+                                           fieldWithPath("[].taskId").description("The task's unique identifier"),
+                                           fieldWithPath("[].userId").description("The task's owner unique identifier"),
+                                           fieldWithPath("[].title").description("The task's title"),
+                                           fieldWithPath("[].description").description("The task's description"),
+                                           fieldWithPath("[].startDate").description("The task's start date in ISO 8601 format"),
+                                           fieldWithPath("[].endDate").description("The task's end date in ISO 8601 format"))
+                           )
+                           // @formatter:on
+                   );
+        }
+
+        @Test
+        void DocumentsGetTasks_NoIds() throws Exception {
+            // Given
+            var task = aTask();
+            var taskIdValue = task.getId()
+                                  .value();
+            var taskUserIdValue = task.getUserId()
+                                      .value();
+            var taskTitleValue = task.getTitle()
+                                     .value();
+            var taskDescriptionValue = task.getDescription()
+                                           .value();
+            var taskStartDateValue = task.getStartDate()
+                                         .value();
+            var taskEndDateValue = task.getEndDate()
+                                       .value();
+            var response = new GetTasksResponse(taskIdValue, taskUserIdValue, taskTitleValue, taskDescriptionValue, taskStartDateValue, taskEndDateValue);
 
             given(readTaskUseCase.getAllTasks()).willReturn(List.of(task));
-            given(taskMapper.toGetAllTasksResponse(any(Task.class))).willReturn(response);
+            given(taskMapper.toGetTasksResponse(any(Task.class))).willReturn(response);
 
             // When & Then
             mockMvc.perform(get(TASKS_GET_ALL_FULL_PATH).accept(APPLICATION_JSON)
@@ -260,18 +253,17 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isOk())
                    .andDo(
                    // @formatter:off
-                       document("get-all-tasks",
-                           requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
-                           responseFields(
-                                   fieldWithPath("[].taskId").description("The task's unique identifier"),
-                                   fieldWithPath("[].userId").description("The task's owner unique identifier"),
-                                   fieldWithPath("[].title").description("The task's title"),
-                                   fieldWithPath("[].description").description("The task's description"),
-                                   fieldWithPath("[].startDate").description("The task's start date in ISO 8601 format"),
-                                   fieldWithPath("[].endDate").description("The task's end date in ISO 8601 format")
+                           document("get-tasks-all",
+                                   requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
+                                   responseFields(
+                                           fieldWithPath("[].taskId").description("The task's unique identifier"),
+                                           fieldWithPath("[].userId").description("The task's owner unique identifier"),
+                                           fieldWithPath("[].title").description("The task's title"),
+                                           fieldWithPath("[].description").description("The task's description"),
+                                           fieldWithPath("[].startDate").description("The task's start date in ISO 8601 format"),
+                                           fieldWithPath("[].endDate").description("The task's end date in ISO 8601 format"))
                            )
-                       )
-                       // @formatter:on
+                           // @formatter:on
                    );
         }
 
@@ -449,7 +441,7 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
         @Test
         void DocumentsRequestParamValidationFailure() throws Exception {
             // When & Then
-            mockMvc.perform(get(TASKS_GET_BY_IDS_FULL_PATH).param(TASKS_IDS_PARAM, ""))
+            mockMvc.perform(get(TASKS_GET_ALL_FULL_PATH).param(TASKS_IDS_PARAM, ""))
                    .andExpect(status().isBadRequest())
                    .andDo(
                    // @formatter:off

@@ -18,7 +18,7 @@ package com.attrigo.asapp.tasks.infrastructure.task.in;
 
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_CREATE_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_DELETE_BY_ID_FULL_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_IDS_FULL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_ALL_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_IDS_PARAM;
@@ -104,94 +104,6 @@ class TaskRestControllerIT extends WebMvcTestContext {
     }
 
     @Nested
-    class GetTasksByIds {
-
-        @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_MissingTasksIds() {
-            // Given
-            var requestBuilder = get(TASKS_GET_BY_IDS_FULL_PATH).param(TASKS_IDS_PARAM, "");
-
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> {
-                             assertThatJson(json).isObject()
-                                                 .containsEntry("title", "Bad Request")
-                                                 .containsEntry("status", 400)
-                                                 .containsEntry("detail", "Request validation failed")
-                                                 .containsEntry("error", "invalid_request")
-                                                 .containsEntry("instance", "/api/tasks");
-                             assertThatJson(json).node("fieldErrors")
-                                                 .isArray()
-                                                 .hasSize(1);
-                             assertThatJson(json).node("fieldErrors[0]")
-                                                 .isObject()
-                                                 .containsEntry("field", "ids")
-                                                 .containsEntry("message", "Tasks identifiers list must not be empty");
-                         });
-        }
-
-        @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_ExceedTasksIds() {
-            // Given
-            var taskIds = IntStream.range(0, 51)
-                                   .mapToObj(_ -> UUID.randomUUID())
-                                   .map(UUID::toString)
-                                   .reduce((a, b) -> a + "," + b)
-                                   .orElseThrow();
-            var requestBuilder = get(TASKS_GET_BY_IDS_FULL_PATH).param(TASKS_IDS_PARAM, taskIds);
-
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> {
-                             assertThatJson(json).isObject()
-                                                 .containsEntry("title", "Bad Request")
-                                                 .containsEntry("status", 400)
-                                                 .containsEntry("detail", "Request validation failed")
-                                                 .containsEntry("error", "invalid_request")
-                                                 .containsEntry("instance", "/api/tasks");
-                             assertThatJson(json).node("fieldErrors")
-                                                 .isArray()
-                                                 .hasSize(1);
-                             assertThatJson(json).node("fieldErrors[0]")
-                                                 .isObject()
-                                                 .containsEntry("field", "ids")
-                                                 .containsEntry("message", "Tasks identifiers list must contain at most 50 elements");
-                         });
-        }
-
-        @Test
-        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidTaskId() {
-            // Given
-            var taskIds = "1";
-            var requestBuilder = get(TASKS_GET_BY_IDS_FULL_PATH).param(TASKS_IDS_PARAM, taskIds);
-
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Bad Request")
-                                                                .containsEntry("status", 400)
-                                                                .containsEntry("detail", "Failed to convert 'ids' with value: '1'")
-                                                                .containsEntry("instance", "/api/tasks"));
-        }
-
-    }
-
-    @Nested
     class GetTasksByUserId {
 
         @Test
@@ -231,6 +143,94 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                                 .containsEntry("status", 400)
                                                                 .containsEntry("detail", "Failed to convert 'id' with value: '1'")
                                                                 .containsEntry("instance", "/api/tasks/user/1"));
+        }
+
+    }
+
+    @Nested
+    class GetTasks {
+
+        @Test
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_MissingTasksIds() {
+            // Given
+            var requestBuilder = get(TASKS_GET_ALL_FULL_PATH).param(TASKS_IDS_PARAM, "");
+
+            // When & Then
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> {
+                             assertThatJson(json).isObject()
+                                                 .containsEntry("title", "Bad Request")
+                                                 .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
+                                                 .containsEntry("instance", "/api/tasks");
+                             assertThatJson(json).node("fieldErrors")
+                                                 .isArray()
+                                                 .hasSize(1);
+                             assertThatJson(json).node("fieldErrors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "ids")
+                                                 .containsEntry("message", "Tasks identifiers list must contain between 1 and 50 elements");
+                         });
+        }
+
+        @Test
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_ExceedTasksIds() {
+            // Given
+            var taskIds = IntStream.range(0, 51)
+                                   .mapToObj(_ -> UUID.randomUUID())
+                                   .map(UUID::toString)
+                                   .reduce((a, b) -> a + "," + b)
+                                   .orElseThrow();
+            var requestBuilder = get(TASKS_GET_ALL_FULL_PATH).param(TASKS_IDS_PARAM, taskIds);
+
+            // When & Then
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> {
+                             assertThatJson(json).isObject()
+                                                 .containsEntry("title", "Bad Request")
+                                                 .containsEntry("status", 400)
+                                                 .containsEntry("detail", "Request validation failed")
+                                                 .containsEntry("error", "invalid_request")
+                                                 .containsEntry("instance", "/api/tasks");
+                             assertThatJson(json).node("fieldErrors")
+                                                 .isArray()
+                                                 .hasSize(1);
+                             assertThatJson(json).node("fieldErrors[0]")
+                                                 .isObject()
+                                                 .containsEntry("field", "ids")
+                                                 .containsEntry("message", "Tasks identifiers list must contain between 1 and 50 elements");
+                         });
+        }
+
+        @Test
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidTaskId() {
+            // Given
+            var taskIds = "1";
+            var requestBuilder = get(TASKS_GET_ALL_FULL_PATH).param(TASKS_IDS_PARAM, taskIds);
+
+            // When & Then
+            mockMvcTester.perform(requestBuilder)
+                         .assertThat()
+                         .hasStatus(HttpStatus.BAD_REQUEST)
+                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                         .bodyJson()
+                         .convertTo(String.class)
+                         .satisfies(json -> assertThatJson(json).isObject()
+                                                                .containsEntry("title", "Bad Request")
+                                                                .containsEntry("status", 400)
+                                                                .containsEntry("detail", "Failed to convert 'ids' with value: '1'")
+                                                                .containsEntry("instance", "/api/tasks"));
         }
 
     }
