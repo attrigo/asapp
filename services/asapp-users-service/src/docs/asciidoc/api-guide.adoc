@@ -85,7 +85,13 @@ operation::get-user-by-id[snippets='path-parameters,http-request,response-fields
 Retrieves users from the system. By default returns all users; when the `ids` query parameter is supplied, returns only the users whose identifiers are in the list.
 Duplicate identifiers are ignored. Returns an empty array if no users match.
 
+Filter by identifiers:
+
 operation::get-users[snippets='query-parameters,http-request,response-fields,curl-request,http-response']
+
+Return all users:
+
+operation::get-users-all[snippets='http-request,response-fields,curl-request,http-response']
 
 [[resources-users-create]]
 === Create User

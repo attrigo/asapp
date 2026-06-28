@@ -140,7 +140,7 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
     class GetUsers {
 
         @Test
-        void DocumentsGetUsers() throws Exception {
+        void DocumentsGetUsers_WithIds() throws Exception {
             // Given
             var user = aUser();
             var userIdValue = user.getId()
@@ -168,6 +168,44 @@ class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                        document("get-users",
                                requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
                                queryParameters(parameterWithName("ids").description("Optional list of user identifiers to filter by; omit to return all users")),
+                               responseFields(
+                                       fieldWithPath("[].userId").description("The user's unique identifier"),
+                                       fieldWithPath("[].firstName").description("The user's first name"),
+                                       fieldWithPath("[].lastName").description("The user's last name"),
+                                       fieldWithPath("[].email").description("The user's email address"),
+                                       fieldWithPath("[].phoneNumber").description("The user's phone number"))
+                       )
+                   // @formatter:on
+                   );
+        }
+
+        @Test
+        void DocumentsGetUsers_NoIds() throws Exception {
+            // Given
+            var user = aUser();
+            var userIdValue = user.getId()
+                                  .value();
+            var firstNameValue = user.getFirstName()
+                                     .value();
+            var lastNameValue = user.getLastName()
+                                    .value();
+            var emailValue = user.getEmail()
+                                 .value();
+            var phoneNumberValue = user.getPhoneNumber()
+                                       .value();
+            var response = new GetUsersResponse(userIdValue, firstNameValue, lastNameValue, emailValue, phoneNumberValue);
+
+            given(readUserUseCase.getAllUsers()).willReturn(List.of(user));
+            given(userMapper.toGetUsersResponse(any(User.class))).willReturn(response);
+
+            // When & Then
+            mockMvc.perform(get(USERS_GET_ALL_FULL_PATH).accept(APPLICATION_JSON)
+                                                        .header(AUTHORIZATION, "Bearer sample.access.token"))
+                   .andExpect(status().isOk())
+                   .andDo(
+                   // @formatter:off
+                       document("get-users-all",
+                               requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
                                responseFields(
                                        fieldWithPath("[].userId").description("The user's unique identifier"),
                                        fieldWithPath("[].firstName").description("The user's first name"),

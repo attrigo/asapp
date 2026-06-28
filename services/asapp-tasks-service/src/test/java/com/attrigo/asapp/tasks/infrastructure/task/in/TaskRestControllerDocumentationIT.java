@@ -184,7 +184,7 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
     class GetTasks {
 
         @Test
-        void DocumentsGetTasks() throws Exception {
+        void DocumentsGetTasks_WithIds() throws Exception {
             // Given
             var task = aTask();
             var taskIdValue = task.getId()
@@ -214,6 +214,47 @@ class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
                            document("get-tasks",
                                    requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
                                    queryParameters(parameterWithName("ids").description("Optional list of task identifiers to filter by; omit to return all tasks")),
+                                   responseFields(
+                                           fieldWithPath("[].taskId").description("The task's unique identifier"),
+                                           fieldWithPath("[].userId").description("The task's owner unique identifier"),
+                                           fieldWithPath("[].title").description("The task's title"),
+                                           fieldWithPath("[].description").description("The task's description"),
+                                           fieldWithPath("[].startDate").description("The task's start date in ISO 8601 format"),
+                                           fieldWithPath("[].endDate").description("The task's end date in ISO 8601 format"))
+                           )
+                           // @formatter:on
+                   );
+        }
+
+        @Test
+        void DocumentsGetTasks_NoIds() throws Exception {
+            // Given
+            var task = aTask();
+            var taskIdValue = task.getId()
+                                  .value();
+            var taskUserIdValue = task.getUserId()
+                                      .value();
+            var taskTitleValue = task.getTitle()
+                                     .value();
+            var taskDescriptionValue = task.getDescription()
+                                           .value();
+            var taskStartDateValue = task.getStartDate()
+                                         .value();
+            var taskEndDateValue = task.getEndDate()
+                                       .value();
+            var response = new GetTasksResponse(taskIdValue, taskUserIdValue, taskTitleValue, taskDescriptionValue, taskStartDateValue, taskEndDateValue);
+
+            given(readTaskUseCase.getAllTasks()).willReturn(List.of(task));
+            given(taskMapper.toGetTasksResponse(any(Task.class))).willReturn(response);
+
+            // When & Then
+            mockMvc.perform(get(TASKS_GET_ALL_FULL_PATH).accept(APPLICATION_JSON)
+                                                        .header(AUTHORIZATION, "Bearer sample.access.token"))
+                   .andExpect(status().isOk())
+                   .andDo(
+                   // @formatter:off
+                           document("get-tasks-all",
+                                   requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
                                    responseFields(
                                            fieldWithPath("[].taskId").description("The task's unique identifier"),
                                            fieldWithPath("[].userId").description("The task's owner unique identifier"),

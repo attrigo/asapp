@@ -90,7 +90,13 @@ operation::get-tasks-by-user-id[snippets='path-parameters,http-request,response-
 Retrieves tasks from the system. By default returns all tasks; when the `ids` query parameter is supplied, returns only the tasks whose identifiers are in the list.
 Duplicate identifiers are ignored. Returns an empty array if no tasks match.
 
+Filter by identifiers:
+
 operation::get-tasks[snippets='query-parameters,http-request,response-fields,curl-request,http-response']
+
+Return all tasks:
+
+operation::get-tasks-all[snippets='http-request,response-fields,curl-request,http-response']
 
 [[resources-tasks-create]]
 === Create Task
