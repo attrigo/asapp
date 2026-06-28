@@ -1,7 +1,7 @@
 # Merge `getAll` + `getAllByIds` into one endpoint — design spec
 
 **Date**: 2026-06-27
-**Status**: Designed
+**Status**: Implemented
 **Owner**: Antonio Trigo
 **Source**: `TODO.md` v0.4.0 → Quick Wins → Functional Improvements → "Join tasks and users getAll and getAllByIds endpoints into one unique endpoint (avoid swagger collision)"
 **Services affected**: `asapp-tasks-service`, `asapp-users-service`
@@ -254,3 +254,23 @@ refactor(api): merge get-all and get-by-ids into one endpoint
 ```
 
 The TODO.md tick lands in a follow-up release-housekeeping commit, consistent with the existing pattern.
+
+## 12. Post-implementation notes
+
+This spec and its plan (`docs/superpowers/plans/2026-06-27-merge-getall-getbyids-endpoints.md`) were written before implementation. The core change shipped substantially as designed — both `asapp-tasks-service` and `asapp-users-service` collapsed their `getAll*`/`get*ByIds` pair into a single `getTasks(List<UUID> ids)` / `getUsers(List<UUID> ids)` handler on `GET /api/tasks` / `GET /api/users` with an optional `@Size(min=1, max=50)` `ids` param; the `params="!ids"/"ids"` split was dropped so OpenAPI exposes one operation per collection; `GetAllTasksResponse`/`GetAllUsersResponse` were renamed to `GetTasksResponse`/`GetUsersResponse` and the by-ids response records plus their mapper methods removed; the `*_GET_BY_IDS_*` URL constants were removed; the `api-guide.adoc` sections were merged and the READMEs reworded; and the web-tier tests were consolidated onto the single endpoint.
+
+The canonical implementation is the current state of the real artifacts on this branch — the merged `TaskRestAPI`/`TaskRestController` and `UserRestAPI`/`UserRestController`, the `GetTasksResponse`/`GetUsersResponse` records, `TaskMapper`/`UserMapper`, the `*RestAPIURL` constants, the `api-guide.adoc` guides, and the consolidated `*RestControllerIT`/`*RestControllerDocumentationIT`/`*E2EIT`/`*RestControllerTests` test classes — not this document.
+
+Notable deltas:
+
+- **Controller unit tests added (beyond §7's web-tier test list).** New `TaskRestControllerTests.java` and `UserRestControllerTests.java` were added to unit-test the `ids == null` dispatch (return-all vs. filter-by-ids) directly at the controller layer. Spec §7 enumerated only the WebMvc `*RestControllerIT`, `*RestControllerDocumentationIT`, and `*E2EIT` work and stated the service-layer unit tests stay untouched; these controller unit tests are an addition surfaced during review.
+
+- **`OpenApiEndpointsIT` left byte-identical to main (reverses §7.4).** Implementation first added a `ReturnsSingleGet…OperationWithIdsQueryParam_OnOpenApiDocs` assertion, then review removed it as obsolete; net, `OpenApiEndpointsIT` in both services is unchanged from `main`. The single-merged-operation guarantee is exercised through the `*RestControllerDocumentationIT` and `*E2EIT` surface instead of a dedicated OpenAPI-shape assertion.
+
+- **Javadoc tidy reached the application and persistence layers (narrow doc-only exception to §5).** Wording-only edits landed in `ReadTaskUseCase`/`ReadUserUseCase`, `ReadTaskService`/`ReadUserService`, `TaskRepository`/`UserRepository`, and `TaskRepositoryAdapter`/`UserRepositoryAdapter` (javadoc on the get-by-ids / get-by-user reads). §5 declared these layers untouched; no signatures, behavior, or transaction scope changed, so the structural claim of §5 holds — only the javadoc moved.
+
+- **E2E assertions hardened (beyond §7.3's "merge the cases").** `TaskE2EIT`/`UserE2EIT` now assert the matched entity itself in the some-ids-exist case (closing a weakness where assertions passed only because the task factory produced field-identical defaults) and exercise the plain return-all path in the missing-authorization case.
+
+- **Presentation ordering and doc wording iterated (no §-level reversal).** The get endpoints were reordered and the `getTasksByUserId` tests placed before the merged `getTasks` tests; the `@Operation` description and matching `api-guide.adoc` prose were refined (documenting the no-`ids` return-all path and clarifying the 400 `ids` wording) while preserving the rule that the adoc prose equals the `@Operation` description verbatim. The draft wording proposed in §4.6 is therefore superseded by the shipped `@Operation`/adoc text.
+
+For future get-endpoint edits, treat the merged `*RestAPI`/`*RestController`, the `GetTasksResponse`/`GetUsersResponse` records, and the consolidated web-tier tests as the template; this spec is preserved as a record of the original design intent.
