@@ -400,8 +400,8 @@ class TaskE2EIT {
         @Test
         void ReturnsStatusOKAndBodyWithFoundTasks_SomeIdsExist() {
             // Given
-            var createdTask = createTask();
-            var taskId1 = createTask().id();
+            var createdTask1 = createTask();
+            var taskId1 = createdTask1.id();
             var taskId2 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
             Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_ALL_FULL_PATH)
                                                                             .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId2)
@@ -428,11 +428,11 @@ class TaskE2EIT {
                                           task -> assertThatJson(task).isObject()
                                                                              .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
                                                                              .containsEntry("taskId", taskId1.toString())
-                                                                             .containsEntry("userId", createdTask.userId().toString())
-                                                                             .containsEntry("title", createdTask.title())
-                                                                             .containsEntry("description", createdTask.description())
-                                                                             .containsEntry("startDate", createdTask.startDate().toString())
-                                                                             .containsEntry("endDate", createdTask.endDate().toString()));
+                                                                             .containsEntry("userId", createdTask1.userId().toString())
+                                                                             .containsEntry("title", createdTask1.title())
+                                                                             .containsEntry("description", createdTask1.description())
+                                                                             .containsEntry("startDate", createdTask1.startDate().toString())
+                                                                             .containsEntry("endDate", createdTask1.endDate().toString()));
             // @formatter:on
         }
 

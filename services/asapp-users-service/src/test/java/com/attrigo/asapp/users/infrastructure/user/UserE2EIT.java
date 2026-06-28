@@ -416,8 +416,8 @@ class UserE2EIT {
         @Test
         void ReturnsStatusOKAndBodyWithFoundUsers_SomeIdsExist() {
             // Given
-            var createdUser = createUser();
-            var userId1 = createdUser.id();
+            var createdUser1 = createUser();
+            var userId1 = createdUser1.id();
             var userId2 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
             Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_ALL_FULL_PATH)
                                                                             .queryParam(USERS_IDS_PARAM, userId1 + "," + userId2)
@@ -444,10 +444,10 @@ class UserE2EIT {
                                           user -> assertThatJson(user).isObject()
                                                                              .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
                                                                              .containsEntry("userId", userId1.toString())
-                                                                             .containsEntry("firstName", createdUser.firstName())
-                                                                             .containsEntry("lastName", createdUser.lastName())
-                                                                             .containsEntry("email", createdUser.email())
-                                                                             .containsEntry("phoneNumber", createdUser.phoneNumber()));
+                                                                             .containsEntry("firstName", createdUser1.firstName())
+                                                                             .containsEntry("lastName", createdUser1.lastName())
+                                                                             .containsEntry("email", createdUser1.email())
+                                                                             .containsEntry("phoneNumber", createdUser1.phoneNumber()));
             // @formatter:on
         }
 
