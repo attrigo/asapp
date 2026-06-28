@@ -109,7 +109,7 @@ public interface UserRestAPI {
      * Response codes:
      * <ul>
      * <li>200-OK: Users retrieved successfully.</li>
-     * <li>400-BAD_REQUEST: ids is empty, exceeds 50 elements, or contains a malformed UUID.</li>
+     * <li>400-BAD_REQUEST: ids is present but empty, exceeds 50 elements, or contains a malformed UUID.</li>
      * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
      * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during retrieval.</li>
      * </ul>
@@ -122,7 +122,7 @@ public interface UserRestAPI {
     @Operation(summary = "Gets users, optionally filtered by their unique identifiers", description = "Retrieves users from the system. By default returns all users; when the `ids` query parameter is supplied, returns only the users whose identifiers are in the list. Duplicate identifiers are ignored. Returns an empty array if no users match.")
     @ApiResponse(responseCode = "200", description = "Users retrieved successfully", content = {
             @Content(schema = @Schema(implementation = GetUsersResponse.class)) })
-    @ApiResponse(responseCode = "400", description = "User identifiers list is empty, exceeds 50 elements, or contains a malformed UUID", content = {
+    @ApiResponse(responseCode = "400", description = "User identifiers list is present but empty, exceeds 50 elements, or contains a malformed UUID", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })

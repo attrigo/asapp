@@ -132,7 +132,7 @@ public interface TaskRestAPI {
      * Response codes:
      * <ul>
      * <li>200-OK: Tasks retrieved successfully.</li>
-     * <li>400-BAD_REQUEST: ids is empty, exceeds 50 elements, or contains a malformed UUID.</li>
+     * <li>400-BAD_REQUEST: ids is present but empty, exceeds 50 elements, or contains a malformed UUID.</li>
      * <li>401-UNAUTHORIZED: Authentication required or failed.</li>
      * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during retrieval.</li>
      * </ul>
@@ -145,7 +145,7 @@ public interface TaskRestAPI {
     @Operation(summary = "Gets tasks, optionally filtered by their unique identifiers", description = "Retrieves tasks from the system. By default returns all tasks; when the `ids` query parameter is supplied, returns only the tasks whose identifiers are in the list. Duplicate identifiers are ignored. Returns an empty array if no tasks match.")
     @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully", content = {
             @Content(schema = @Schema(implementation = GetTasksResponse.class)) })
-    @ApiResponse(responseCode = "400", description = "Task identifiers list is empty, exceeds 50 elements, or contains a malformed UUID", content = {
+    @ApiResponse(responseCode = "400", description = "Task identifiers list is present but empty, exceeds 50 elements, or contains a malformed UUID", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "401", description = "Authentication required or failed", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
