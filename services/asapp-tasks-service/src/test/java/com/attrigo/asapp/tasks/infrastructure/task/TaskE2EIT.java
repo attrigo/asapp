@@ -539,15 +539,9 @@ class TaskE2EIT {
 
         @Test
         void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
-            // Given
-            var taskId = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
-            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_ALL_FULL_PATH)
-                                                                            .queryParam(TASKS_IDS_PARAM, taskId)
-                                                                            .build();
-
             // When & Then
             restTestClient.get()
-                          .uri(uriFunction)
+                          .uri(TASKS_GET_ALL_FULL_PATH)
                           .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                           .exchange()
                           .expectStatus()
