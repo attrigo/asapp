@@ -17,7 +17,7 @@ mvn spotless:check
 echo ""
 
 # Define file extensions to check (keep in sync!)
-FILE_EXTENSIONS='java|xml|yml|yaml|properties|txt|md|sh|sql|json|js|ts|css|html'
+FILE_EXTENSIONS='java|xml|jmx|yml|yaml|properties|txt|md|adoc|sh|sql|json|js|ts|css|html'
 
 echo "Checking line endings of staged files are Unix (LF):"
 
@@ -44,7 +44,7 @@ if [ -n "$staged_files" ]; then
         echo "To fix a specific file:"
         echo -e "${BLUE}  dos2unix <filename>${NC}"
         echo "To fix all files in the project:"
-        echo -e "${BLUE}  git ls-files | grep -E '\\.(java|xml|yml|yaml|properties|txt|md|sh|sql|json|js|ts|css|html)$' | xargs dos2unix${NC}"
+        echo -e "${BLUE}  git ls-files | grep -E '\\.(java|xml|jmx|yml|yaml|properties|txt|md|adoc|sh|sql|json|js|ts|css|html)$' | xargs dos2unix${NC}"
         exit 1
     fi
 

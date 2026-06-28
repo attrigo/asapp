@@ -35,8 +35,6 @@
         * [X] Rename library asapp-rest-clients to asapp-http-clients
     * Profiles
         * [X] Introduce explicit dev and prod profiles to gate dev-only tooling and align with docker/native
-    * Other
-        * [X] Rename all references from com.bcn to com.attrigo
     * Test
         * [X] Standardize extracting() usage
         * [X] Rewrite E2EIT to assert Json instead of Java DTOs
@@ -45,7 +43,7 @@
         * [X] ~~Change commit-msg to perform all operations in a dedicated agent and then response with the message~~
     * Tools
         * [X] Support fixup! commits in the commit-msg git hook
-        * [ ] Make commit-msg git hook compatible with Linux (WSDL)
+        * [X] Make commit-msg git hook compatible with Linux (WSDL)
     * Docs
         * [X] Remove all reference to "docs/guidelines/" from README
         * [X] Add missing reference to Boot-UI in README
@@ -57,6 +55,14 @@
         * [X] Create custom Skill to review a task
         * [X] Create custom Skill to resolve identified issues
         * [X] Create custom Skill to close a task
+    * Other
+        * [X] Rename all references from com.bcn to com.attrigo
+        - [ ] Rename RestApi classes by Api?
+        - [ ] Enrich Javadoc of RestApi methods with OpenApi @Operation description vlaue
+        - [ ] Remove Javadoc of implementation classes when their interface says the same (same content)
+        - [ ] Test OpenApi properly exposes contract/endpoints in OpenApiEndpointsIT (modify ReturnsStatusOkAndBodyWithApiSpec_OnOpenApiDocs to assert response contains only business operations)
+        - [ ] Add task progress to both release Claude commands
+        - [ ] Improve release skill to add specs files in version folder
 
 ### Analyze
 
