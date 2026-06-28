@@ -100,7 +100,7 @@ public class UserRestController implements UserRestAPI {
     /**
      * Gets users, optionally filtered by their unique identifiers.
      *
-     * @param ids the identifiers of the users to return; omit to return all users
+     * @param ids the identifiers of the users
      * @return a {@link List} of {@link GetUsersResponse} with the matching users, or an empty list if none match
      */
     @Override

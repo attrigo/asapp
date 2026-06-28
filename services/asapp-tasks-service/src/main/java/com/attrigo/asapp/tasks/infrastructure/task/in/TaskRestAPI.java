@@ -137,7 +137,7 @@ public interface TaskRestAPI {
      * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during retrieval.</li>
      * </ul>
      *
-     * @param ids the identifiers of the tasks to return; omit to return all tasks
+     * @param ids the identifiers of the tasks
      * @return a {@link List} of {@link GetTasksResponse} with the matching tasks, or an empty list if none match
      */
     @GetMapping(value = TASKS_GET_ALL_PATH, produces = "application/json")

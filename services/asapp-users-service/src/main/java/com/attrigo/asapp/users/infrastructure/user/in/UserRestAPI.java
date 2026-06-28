@@ -114,7 +114,7 @@ public interface UserRestAPI {
      * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during retrieval.</li>
      * </ul>
      *
-     * @param ids the identifiers of the users to return; omit to return all users
+     * @param ids the identifiers of the users
      * @return a {@link List} of {@link GetUsersResponse} with the matching users, or an empty list if none match
      */
     @GetMapping(value = USERS_GET_ALL_PATH, produces = "application/json")

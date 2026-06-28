@@ -46,7 +46,7 @@ public interface ReadTaskUseCase {
      * <p>
      * Duplicate identifiers are ignored.
      *
-     * @param ids the identifiers of the tasks to retrieve
+     * @param ids the identifiers of the tasks
      * @return a {@link List} of {@link Task} entities found, or an empty list if none match
      * @throws IllegalArgumentException if any id is invalid
      */
@@ -56,7 +56,7 @@ public interface ReadTaskUseCase {
      * Retrieves all tasks for a specific user by their unique identifier.
      *
      * @param userId the user's unique identifier
-     * @return a {@link List} of {@link Task} entities belonging to the user
+     * @return a {@link List} of {@link Task} entities belonging to the user, or an empty list if no tasks exist
      * @throws IllegalArgumentException if the userId is invalid
      */
     List<Task> getTasksByUserId(UUID userId);

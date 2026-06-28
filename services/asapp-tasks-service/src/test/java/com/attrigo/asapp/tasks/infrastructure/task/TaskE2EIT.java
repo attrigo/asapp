@@ -216,29 +216,29 @@ class TaskE2EIT {
             assertThatJson(actual).isArray()
                                   .satisfiesExactlyInAnyOrder(
                                           task -> assertThatJson(task).isObject()
-                                                                      .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
-                                                                      .containsEntry("taskId", createdTask1.id().toString())
-                                                                      .containsEntry("userId", createdTask1.userId().toString())
-                                                                      .containsEntry("title", createdTask1.title())
-                                                                      .containsEntry("description", createdTask1.description())
-                                                                      .containsEntry("startDate", createdTask1.startDate().toString())
-                                                                      .containsEntry("endDate", createdTask1.endDate().toString()),
+                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                             .containsEntry("taskId", createdTask1.id().toString())
+                                                                             .containsEntry("userId", createdTask1.userId().toString())
+                                                                             .containsEntry("title", createdTask1.title())
+                                                                             .containsEntry("description", createdTask1.description())
+                                                                             .containsEntry("startDate", createdTask1.startDate().toString())
+                                                                             .containsEntry("endDate", createdTask1.endDate().toString()),
                                           task -> assertThatJson(task).isObject()
-                                                                      .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
-                                                                      .containsEntry("taskId", createdTask2.id().toString())
-                                                                      .containsEntry("userId", createdTask2.userId().toString())
-                                                                      .containsEntry("title", createdTask2.title())
-                                                                      .containsEntry("description", createdTask2.description())
-                                                                      .containsEntry("startDate", createdTask2.startDate().toString())
-                                                                      .containsEntry("endDate", createdTask2.endDate().toString()),
+                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                             .containsEntry("taskId", createdTask2.id().toString())
+                                                                             .containsEntry("userId", createdTask2.userId().toString())
+                                                                             .containsEntry("title", createdTask2.title())
+                                                                             .containsEntry("description", createdTask2.description())
+                                                                             .containsEntry("startDate", createdTask2.startDate().toString())
+                                                                             .containsEntry("endDate", createdTask2.endDate().toString()),
                                           task -> assertThatJson(task).isObject()
-                                                                      .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
-                                                                      .containsEntry("taskId", createdTask3.id().toString())
-                                                                      .containsEntry("userId", createdTask3.userId().toString())
-                                                                      .containsEntry("title", createdTask3.title())
-                                                                      .containsEntry("description", createdTask3.description())
-                                                                      .containsEntry("startDate", createdTask3.startDate().toString())
-                                                                      .containsEntry("endDate", createdTask3.endDate().toString()));
+                                                                             .containsOnlyKeys("taskId", "userId", "title", "description", "startDate", "endDate")
+                                                                             .containsEntry("taskId", createdTask3.id().toString())
+                                                                             .containsEntry("userId", createdTask3.userId().toString())
+                                                                             .containsEntry("title", createdTask3.title())
+                                                                             .containsEntry("description", createdTask3.description())
+                                                                             .containsEntry("startDate", createdTask3.startDate().toString())
+                                                                             .containsEntry("endDate", createdTask3.endDate().toString()));
             // @formatter:on
         }
 
@@ -288,7 +288,7 @@ class TaskE2EIT {
     class GetTasks {
 
         @Test
-        void ReturnsStatusOKAndBodyWithAllTasks_NoIdsFilter() {
+        void ReturnsStatusOKAndBodyWithAllTasks_NoIdsAndTasksExist() {
             // Given
             var task1 = aTaskBuilder().withTitle("Title1")
                                       .buildJdbc();
@@ -489,7 +489,7 @@ class TaskE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndEmptyBody_NoIdsFilterAndTasksNotExist() {
+        void ReturnsStatusOKAndEmptyBody_NoIdsAndTasksNotExist() {
             // When
             var actual = restTestClient.get()
                                        .uri(TASKS_GET_ALL_FULL_PATH)

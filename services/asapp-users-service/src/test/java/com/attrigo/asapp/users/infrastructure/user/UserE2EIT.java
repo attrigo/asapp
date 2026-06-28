@@ -309,7 +309,7 @@ class UserE2EIT {
     class GetUsers {
 
         @Test
-        void ReturnsStatusOKAndBodyWithAllUsers_NoIdsFilter() {
+        void ReturnsStatusOKAndBodyWithAllUsers_NoIdsAndUsersExist() {
             // Given
             var user1 = aUserBuilder().withEmail("user1@asapp.com")
                                       .buildJdbc();
@@ -502,7 +502,7 @@ class UserE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndEmptyBody_NoIdsFilterAndUsersNotExist() {
+        void ReturnsStatusOKAndEmptyBody_NoIdsAndUsersNotExist() {
             // When
             var actual = restTestClient.get()
                                        .uri(USERS_GET_ALL_FULL_PATH)
