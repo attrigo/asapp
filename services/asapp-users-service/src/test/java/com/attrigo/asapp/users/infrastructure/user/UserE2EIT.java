@@ -20,7 +20,6 @@ import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FU
 import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_CREATE_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_DELETE_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_GET_ALL_FULL_PATH;
-import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_GET_BY_IDS_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_GET_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_IDS_PARAM;
 import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_UPDATE_BY_ID_FULL_PATH;
@@ -87,8 +86,7 @@ import com.attrigo.asapp.users.testutil.TestContainerConfiguration;
  * <li>Rejects all operations without valid JWT authentication</li>
  * <li>Retrieves user by identifier returning 404 when not found, user when exists</li>
  * <li>Retrieves user with task enrichment via external gateway (partial-success degradation surfacing a task_ids_unavailable warning on failure)</li>
- * <li>Retrieves users by identifier list, omitting unknown ids and deduplicating</li>
- * <li>Retrieves all users returning empty or collection</li>
+ * <li>Retrieves users with optional ids filter: all users when no ids supplied, filtered set when ids supplied, omitting unknown ids and deduplicating</li>
  * <li>Creates user persisting to database and returning assigned identifier</li>
  * <li>Updates existing user persisting changes and returning updated data</li>
  * <li>Deletes existing user removing from database</li>
@@ -308,200 +306,10 @@ class UserE2EIT {
     }
 
     @Nested
-    class GetUsersByIds {
+    class GetUsers {
 
         @Test
-        void ReturnsStatusOKAndBodyWithFoundUsers_AllUsersExist() {
-            // Given
-            var user1 = aUserBuilder().withEmail("user1@asapp.com")
-                                      .buildJdbc();
-            var user2 = aUserBuilder().withEmail("user2@asapp.com")
-                                      .buildJdbc();
-            var createdUser1 = createUser(user1);
-            var createdUser2 = createUser(user2);
-            var userId1 = createdUser1.id();
-            var userId2 = createdUser2.id();
-            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
-                                                                            .queryParam(USERS_IDS_PARAM, userId1 + "," + userId2)
-                                                                            .build();
-
-            // When
-            var actual = restTestClient.get()
-                                       .uri(uriFunction)
-                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                       .exchange()
-                                       .expectStatus()
-                                       .isOk()
-                                       .expectHeader()
-                                       .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(String.class)
-                                       .returnResult()
-                                       .getResponseBody();
-
-            // Then
-            // @formatter:off
-            assertThatJson(actual).isArray()
-                                  .satisfiesExactlyInAnyOrder(
-                                          user -> assertThatJson(user).isObject()
-                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
-                                                                             .containsEntry("userId", createdUser1.id().toString())
-                                                                             .containsEntry("firstName", createdUser1.firstName())
-                                                                             .containsEntry("lastName", createdUser1.lastName())
-                                                                             .containsEntry("email", createdUser1.email())
-                                                                             .containsEntry("phoneNumber", createdUser1.phoneNumber()),
-                                          user -> assertThatJson(user).isObject()
-                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
-                                                                             .containsEntry("userId", createdUser2.id().toString())
-                                                                             .containsEntry("firstName", createdUser2.firstName())
-                                                                             .containsEntry("lastName", createdUser2.lastName())
-                                                                             .containsEntry("email", createdUser2.email())
-                                                                             .containsEntry("phoneNumber", createdUser2.phoneNumber()));
-            // @formatter:on
-        }
-
-        @Test
-        void ReturnsStatusOKAndBodyWithFoundUsers_SomeUsersExist() {
-            // Given
-            var createdUser = createUser();
-            var userId1 = createdUser.id();
-            var userId2 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
-            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
-                                                                            .queryParam(USERS_IDS_PARAM, userId1 + "," + userId2)
-                                                                            .build();
-
-            // When
-            var actual = restTestClient.get()
-                                       .uri(uriFunction)
-                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                       .exchange()
-                                       .expectStatus()
-                                       .isOk()
-                                       .expectHeader()
-                                       .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(String.class)
-                                       .returnResult()
-                                       .getResponseBody();
-
-            // Then
-            // @formatter:off
-            assertThatJson(actual).isArray()
-                                  .satisfiesExactlyInAnyOrder(
-                                          user -> assertThatJson(user).isObject()
-                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
-                                                                             .containsEntry("userId", userId1.toString())
-                                                                             .containsEntry("firstName", createdUser.firstName())
-                                                                             .containsEntry("lastName", createdUser.lastName())
-                                                                             .containsEntry("email", createdUser.email())
-                                                                             .containsEntry("phoneNumber", createdUser.phoneNumber()));
-            // @formatter:on
-        }
-
-        @Test
-        void ReturnsStatusOKAndEmptyBody_UsersNotExist() {
-            // Given
-            var userId1 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
-            var userId2 = UUID.fromString("68699b10-b665-4378-baea-a44b4be287f9");
-            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
-                                                                            .queryParam(USERS_IDS_PARAM, userId1 + "," + userId2)
-                                                                            .build();
-
-            // When
-            var actual = restTestClient.get()
-                                       .uri(uriFunction)
-                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                       .exchange()
-                                       .expectStatus()
-                                       .isOk()
-                                       .expectHeader()
-                                       .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(String.class)
-                                       .returnResult()
-                                       .getResponseBody();
-
-            // Then
-            assertThatJson(actual).isArray()
-                                  .isEmpty();
-        }
-
-        @Test
-        void ReturnsStatusOKAndBodyWithFoundUsersOnce_DuplicateIds() {
-            // Given
-            var user1 = aUserBuilder().withEmail("user1@asapp.com")
-                                      .buildJdbc();
-            var user2 = aUserBuilder().withEmail("user2@asapp.com")
-                                      .buildJdbc();
-            var createdUser1 = createUser(user1);
-            var createdUser2 = createUser(user2);
-            var userId1 = createdUser1.id();
-            var userId2 = createdUser2.id();
-            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
-                                                                            .queryParam(USERS_IDS_PARAM, userId1 + "," + userId1 + "," + userId2)
-                                                                            .build();
-
-            // When
-            var actual = restTestClient.get()
-                                       .uri(uriFunction)
-                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                                       .exchange()
-                                       .expectStatus()
-                                       .isOk()
-                                       .expectHeader()
-                                       .contentType(MediaType.APPLICATION_JSON)
-                                       .expectBody(String.class)
-                                       .returnResult()
-                                       .getResponseBody();
-
-            // Then
-            // @formatter:off
-            assertThatJson(actual).isArray()
-                                  .satisfiesExactlyInAnyOrder(
-                                          user -> assertThatJson(user).isObject()
-                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
-                                                                             .containsEntry("userId", createdUser1.id().toString())
-                                                                             .containsEntry("firstName", createdUser1.firstName())
-                                                                             .containsEntry("lastName", createdUser1.lastName())
-                                                                             .containsEntry("email", createdUser1.email())
-                                                                             .containsEntry("phoneNumber", createdUser1.phoneNumber()),
-                                          user -> assertThatJson(user).isObject()
-                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
-                                                                             .containsEntry("userId", createdUser2.id().toString())
-                                                                             .containsEntry("firstName", createdUser2.firstName())
-                                                                             .containsEntry("lastName", createdUser2.lastName())
-                                                                             .containsEntry("email", createdUser2.email())
-                                                                             .containsEntry("phoneNumber", createdUser2.phoneNumber()));
-            // @formatter:on
-        }
-
-        @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
-            // Given
-            var userId = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
-            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_BY_IDS_FULL_PATH)
-                                                                            .queryParam(USERS_IDS_PARAM, userId)
-                                                                            .build();
-
-            // When & Then
-            restTestClient.get()
-                          .uri(uriFunction)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
-        }
-
-    }
-
-    @Nested
-    class GetAllUsers {
-
-        @Test
-        void ReturnsStatusOKAndBodyWithFoundUsers_UsersExist() {
+        void ReturnsStatusOKAndBodyWithAllUsers_NoIdsAndUsersExist() {
             // Given
             var user1 = aUserBuilder().withEmail("user1@asapp.com")
                                       .buildJdbc();
@@ -556,10 +364,176 @@ class UserE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndEmptyBody_UsersNotExist() {
+        void ReturnsStatusOKAndBodyWithFoundUsers_AllIdsExist() {
+            // Given
+            var user1 = aUserBuilder().withEmail("user1@asapp.com")
+                                      .buildJdbc();
+            var user2 = aUserBuilder().withEmail("user2@asapp.com")
+                                      .buildJdbc();
+            var createdUser1 = createUser(user1);
+            var createdUser2 = createUser(user2);
+            var userId1 = createdUser1.id();
+            var userId2 = createdUser2.id();
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_ALL_FULL_PATH)
+                                                                            .queryParam(USERS_IDS_PARAM, userId1 + "," + userId2)
+                                                                            .build();
+
+            // When
+            var actual = restTestClient.get()
+                                       .uri(uriFunction)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            // @formatter:off
+            assertThatJson(actual).isArray()
+                                  .satisfiesExactlyInAnyOrder(
+                                          user -> assertThatJson(user).isObject()
+                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                             .containsEntry("userId", createdUser1.id().toString())
+                                                                             .containsEntry("firstName", createdUser1.firstName())
+                                                                             .containsEntry("lastName", createdUser1.lastName())
+                                                                             .containsEntry("email", createdUser1.email())
+                                                                             .containsEntry("phoneNumber", createdUser1.phoneNumber()),
+                                          user -> assertThatJson(user).isObject()
+                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                             .containsEntry("userId", createdUser2.id().toString())
+                                                                             .containsEntry("firstName", createdUser2.firstName())
+                                                                             .containsEntry("lastName", createdUser2.lastName())
+                                                                             .containsEntry("email", createdUser2.email())
+                                                                             .containsEntry("phoneNumber", createdUser2.phoneNumber()));
+            // @formatter:on
+        }
+
+        @Test
+        void ReturnsStatusOKAndBodyWithFoundUsers_SomeIdsExist() {
+            // Given
+            var createdUser1 = createUser();
+            var userId1 = createdUser1.id();
+            var userId2 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_ALL_FULL_PATH)
+                                                                            .queryParam(USERS_IDS_PARAM, userId1 + "," + userId2)
+                                                                            .build();
+
+            // When
+            var actual = restTestClient.get()
+                                       .uri(uriFunction)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            // @formatter:off
+            assertThatJson(actual).isArray()
+                                  .satisfiesExactlyInAnyOrder(
+                                          user -> assertThatJson(user).isObject()
+                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                             .containsEntry("userId", userId1.toString())
+                                                                             .containsEntry("firstName", createdUser1.firstName())
+                                                                             .containsEntry("lastName", createdUser1.lastName())
+                                                                             .containsEntry("email", createdUser1.email())
+                                                                             .containsEntry("phoneNumber", createdUser1.phoneNumber()));
+            // @formatter:on
+        }
+
+        @Test
+        void ReturnsStatusOKAndBodyWithFoundUsersOnce_DuplicateIds() {
+            // Given
+            var user1 = aUserBuilder().withEmail("user1@asapp.com")
+                                      .buildJdbc();
+            var user2 = aUserBuilder().withEmail("user2@asapp.com")
+                                      .buildJdbc();
+            var createdUser1 = createUser(user1);
+            var createdUser2 = createUser(user2);
+            var userId1 = createdUser1.id();
+            var userId2 = createdUser2.id();
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_ALL_FULL_PATH)
+                                                                            .queryParam(USERS_IDS_PARAM, userId1 + "," + userId1 + "," + userId2)
+                                                                            .build();
+
+            // When
+            var actual = restTestClient.get()
+                                       .uri(uriFunction)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            // @formatter:off
+            assertThatJson(actual).isArray()
+                                  .satisfiesExactlyInAnyOrder(
+                                          user -> assertThatJson(user).isObject()
+                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                             .containsEntry("userId", createdUser1.id().toString())
+                                                                             .containsEntry("firstName", createdUser1.firstName())
+                                                                             .containsEntry("lastName", createdUser1.lastName())
+                                                                             .containsEntry("email", createdUser1.email())
+                                                                             .containsEntry("phoneNumber", createdUser1.phoneNumber()),
+                                          user -> assertThatJson(user).isObject()
+                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                             .containsEntry("userId", createdUser2.id().toString())
+                                                                             .containsEntry("firstName", createdUser2.firstName())
+                                                                             .containsEntry("lastName", createdUser2.lastName())
+                                                                             .containsEntry("email", createdUser2.email())
+                                                                             .containsEntry("phoneNumber", createdUser2.phoneNumber()));
+            // @formatter:on
+        }
+
+        @Test
+        void ReturnsStatusOKAndEmptyBody_NoIdsAndUsersNotExist() {
             // When
             var actual = restTestClient.get()
                                        .uri(USERS_GET_ALL_FULL_PATH)
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertThatJson(actual).isArray()
+                                  .isEmpty();
+        }
+
+        @Test
+        void ReturnsStatusOKAndEmptyBody_IdsNotExist() {
+            // Given
+            var userId1 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
+            var userId2 = UUID.fromString("68699b10-b665-4378-baea-a44b4be287f9");
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_ALL_FULL_PATH)
+                                                                            .queryParam(USERS_IDS_PARAM, userId1 + "," + userId2)
+                                                                            .build();
+
+            // When
+            var actual = restTestClient.get()
+                                       .uri(uriFunction)
                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                        .exchange()

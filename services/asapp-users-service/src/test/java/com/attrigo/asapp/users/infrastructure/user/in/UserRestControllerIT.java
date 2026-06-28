@@ -18,7 +18,7 @@ package com.attrigo.asapp.users.infrastructure.user.in;
 
 import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_CREATE_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_DELETE_BY_ID_FULL_PATH;
-import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_GET_BY_IDS_FULL_PATH;
+import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_GET_ALL_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_GET_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_IDS_PARAM;
 import static com.attrigo.asapp.url.users.UserRestAPIURL.USERS_ROOT_PATH;
@@ -104,12 +104,12 @@ class UserRestControllerIT extends WebMvcTestContext {
     }
 
     @Nested
-    class GetUsersByIds {
+    class GetUsers {
 
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_MissingUsersIds() {
             // Given
-            var requestBuilder = get(USERS_GET_BY_IDS_FULL_PATH).param(USERS_IDS_PARAM, "");
+            var requestBuilder = get(USERS_GET_ALL_FULL_PATH).param(USERS_IDS_PARAM, "");
 
             // When & Then
             mockMvcTester.perform(requestBuilder)
@@ -131,7 +131,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "ids")
-                                                 .containsEntry("message", "Users identifiers list must not be empty");
+                                                 .containsEntry("message", "Users identifiers list must contain between 1 and 50 elements");
                          });
         }
 
@@ -143,7 +143,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                                    .map(UUID::toString)
                                    .reduce((a, b) -> a + "," + b)
                                    .orElseThrow();
-            var requestBuilder = get(USERS_GET_BY_IDS_FULL_PATH).param(USERS_IDS_PARAM, userIds);
+            var requestBuilder = get(USERS_GET_ALL_FULL_PATH).param(USERS_IDS_PARAM, userIds);
 
             // When & Then
             mockMvcTester.perform(requestBuilder)
@@ -165,7 +165,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                              assertThatJson(json).node("fieldErrors[0]")
                                                  .isObject()
                                                  .containsEntry("field", "ids")
-                                                 .containsEntry("message", "Users identifiers list must contain at most 50 elements");
+                                                 .containsEntry("message", "Users identifiers list must contain between 1 and 50 elements");
                          });
         }
 
@@ -173,7 +173,7 @@ class UserRestControllerIT extends WebMvcTestContext {
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidUserId() {
             // Given
             var userIds = "1";
-            var requestBuilder = get(USERS_GET_BY_IDS_FULL_PATH).param(USERS_IDS_PARAM, userIds);
+            var requestBuilder = get(USERS_GET_ALL_FULL_PATH).param(USERS_IDS_PARAM, userIds);
 
             // When & Then
             mockMvcTester.perform(requestBuilder)

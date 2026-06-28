@@ -12,6 +12,7 @@
 * Functional Improvements
     * [X] Add operation to find tasks by list of ids
     * [X] Add operation to find users by list of ids
+    * [X] Join tasks and users getAll and getAllByIds endpoints into one unique endpoint (avoid swagger collision)
     * [X] Add boot-ui (requires dev/prod profiles) : https://github.com/jdubois/boot-ui
 * Technical Improvements
     * Error Handler

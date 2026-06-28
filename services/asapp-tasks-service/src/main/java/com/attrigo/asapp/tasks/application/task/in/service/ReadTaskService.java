@@ -66,9 +66,11 @@ public class ReadTaskService implements ReadTaskUseCase {
 
     /**
      * Retrieves tasks by their unique identifiers.
+     * <p>
+     * Duplicate identifiers are ignored.
      *
-     * @param ids the list of task identifiers; duplicates are deduped
-     * @return a {@link List} of {@link Task} entities found; missing ids are silently omitted
+     * @param ids the identifiers of the tasks
+     * @return a {@link List} of {@link Task} entities found, or an empty list if none match
      * @throws IllegalArgumentException if any id is invalid
      */
     @Override
@@ -86,7 +88,7 @@ public class ReadTaskService implements ReadTaskUseCase {
      * Retrieves all tasks for a specific user by their unique identifier.
      *
      * @param userId the user's unique identifier
-     * @return a {@link List} of {@link Task} entities belonging to the user
+     * @return a {@link List} of {@link Task} entities belonging to the user, or an empty list if no tasks exist
      * @throws IllegalArgumentException if the userId is invalid
      */
     @Override

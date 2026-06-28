@@ -31,9 +31,8 @@ import com.attrigo.asapp.users.application.user.in.UpdateUserUseCase;
 import com.attrigo.asapp.users.infrastructure.user.in.request.CreateUserRequest;
 import com.attrigo.asapp.users.infrastructure.user.in.request.UpdateUserRequest;
 import com.attrigo.asapp.users.infrastructure.user.in.response.CreateUserResponse;
-import com.attrigo.asapp.users.infrastructure.user.in.response.GetAllUsersResponse;
 import com.attrigo.asapp.users.infrastructure.user.in.response.GetUserByIdResponse;
-import com.attrigo.asapp.users.infrastructure.user.in.response.GetUsersByIdsResponse;
+import com.attrigo.asapp.users.infrastructure.user.in.response.GetUsersResponse;
 import com.attrigo.asapp.users.infrastructure.user.in.response.UpdateUserResponse;
 import com.attrigo.asapp.users.infrastructure.user.mapper.UserMapper;
 
@@ -99,30 +98,18 @@ public class UserRestController implements UserRestAPI {
     }
 
     /**
-     * Gets users by their unique identifiers.
+     * Gets users, optionally filtered by their unique identifiers.
      *
-     * @param ids the list of user identifiers
-     * @return a {@link List} of {@link GetUsersByIdsResponse} containing the users found; missing identifiers are silently omitted
+     * @param ids the identifiers of the users
+     * @return a {@link List} of {@link GetUsersResponse} with the matching users, or an empty list if none match
      */
     @Override
-    public List<GetUsersByIdsResponse> getUsersByIds(List<UUID> ids) {
-        return readUserUseCase.getUsersByIds(ids)
-                              .stream()
-                              .map(userMapper::toGetUsersByIdsResponse)
-                              .toList();
-    }
+    public List<GetUsersResponse> getUsers(List<UUID> ids) {
+        var users = ids == null ? readUserUseCase.getAllUsers() : readUserUseCase.getUsersByIds(ids);
 
-    /**
-     * Gets all users from the system.
-     *
-     * @return a {@link List} of {@link GetAllUsersResponse} containing all users found, or an empty list if no users exist
-     */
-    @Override
-    public List<GetAllUsersResponse> getAllUsers() {
-        return readUserUseCase.getAllUsers()
-                              .stream()
-                              .map(userMapper::toGetAllUsersResponse)
-                              .toList();
+        return users.stream()
+                    .map(userMapper::toGetUsersResponse)
+                    .toList();
     }
 
     /**

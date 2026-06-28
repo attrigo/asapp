@@ -76,15 +76,6 @@ Retrieves detailed information about a specific task by their unique identifier.
 
 operation::get-task-by-id[snippets='path-parameters,http-request,response-fields,curl-request,http-response']
 
-[[resources-tasks-get-by-ids]]
-=== Get Tasks by IDs
-
-Retrieves a list of tasks whose identifiers are in the provided `ids` query parameter.
-Missing identifiers are silently omitted; the response order is not guaranteed.
-Duplicate identifiers are deduplicated server-side. The list must contain between 1 and 50 identifiers.
-
-operation::get-tasks-by-ids[snippets='query-parameters,http-request,response-fields,curl-request,http-response']
-
 [[resources-tasks-get-by-user-id]]
 === Get Tasks by User ID
 
@@ -93,13 +84,19 @@ If no tasks exist for the user, an empty array is returned.
 
 operation::get-tasks-by-user-id[snippets='path-parameters,http-request,response-fields,curl-request,http-response']
 
-[[resources-tasks-get-all]]
-=== Get All Tasks
+[[resources-tasks-get]]
+=== Get Tasks
 
-Retrieves a list of all registered tasks in the system.
-If no tasks exist, an empty array is returned.
+Retrieves tasks from the system. By default returns all tasks; when the `ids` query parameter is supplied, returns only the tasks whose identifiers are in the list.
+Duplicate identifiers are ignored. Returns an empty array if no tasks match.
 
-operation::get-all-tasks[snippets='http-request,response-fields,curl-request,http-response']
+Filter by identifiers:
+
+operation::get-tasks[snippets='query-parameters,http-request,response-fields,curl-request,http-response']
+
+Return all tasks:
+
+operation::get-tasks-all[snippets='http-request,response-fields,curl-request,http-response']
 
 [[resources-tasks-create]]
 === Create Task
