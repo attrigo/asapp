@@ -16,6 +16,9 @@
 
 package com.attrigo.asapp.tasks.infrastructure.config;
 
+import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_ALL_FULL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_BY_USER_ID_FULL_PATH;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -38,7 +41,7 @@ import com.attrigo.asapp.tasks.testutil.TestContainerConfiguration;
  * Coverage:
  * <li>Swagger UI index page returns HTML content</li>
  * <li>OpenAPI documentation endpoint returns a specification with the expected API info and security scheme</li>
- * <li>OpenAPI documentation endpoint returns a valid non-empty API specification</li>
+ * <li>OpenAPI documentation endpoint exposes only the service's business operation paths and methods</li>
  */
 @SpringBootTest(classes = AsappTasksServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureRestTestClient
@@ -88,7 +91,7 @@ class OpenApiEndpointsIT {
     }
 
     @Test
-    void ReturnsStatusOkAndBodyWithApiSpec_OnOpenApiDocs() {
+    void ReturnsStatusOkAndBodyExposesOnlyBusinessOperations_OnOpenApiDocs() {
         // When & Then
         restTestClient.get()
                       .uri("/v3/api-docs")
@@ -96,9 +99,24 @@ class OpenApiEndpointsIT {
                       .expectStatus()
                       .isOk()
                       .expectBody(String.class)
-                      .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
-                                                                                         .isObject()
-                                                                                         .isNotEmpty());
+                      .consumeWith(response -> {
+                          var body = response.getResponseBody();
+                          assertThatJson(body).node("paths")
+                                              .isObject()
+                                              .containsOnlyKeys(TASKS_GET_ALL_FULL_PATH, TASKS_GET_BY_ID_FULL_PATH, TASKS_GET_BY_USER_ID_FULL_PATH);
+                          assertThatJson(body).node("paths")
+                                              .node(TASKS_GET_ALL_FULL_PATH)
+                                              .isObject()
+                                              .containsOnlyKeys("get", "post");
+                          assertThatJson(body).node("paths")
+                                              .node(TASKS_GET_BY_ID_FULL_PATH)
+                                              .isObject()
+                                              .containsOnlyKeys("get", "put", "delete");
+                          assertThatJson(body).node("paths")
+                                              .node(TASKS_GET_BY_USER_ID_FULL_PATH)
+                                              .isObject()
+                                              .containsOnlyKeys("get");
+                      });
     }
 
 }
