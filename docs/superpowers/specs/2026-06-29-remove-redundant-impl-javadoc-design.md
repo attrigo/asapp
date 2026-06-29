@@ -1,5 +1,7 @@
 # Remove Redundant Implementation Javadoc
 
+**Status**: Implemented
+
 ## Context
 
 Across the three services, ~50 implementation files carry `@Override` methods whose
@@ -93,3 +95,19 @@ Add one bullet to the `## Javadoc` section of `.claude/rules/code-style.md`:
   `code-style.md` is sufficient; a reliable "no Javadoc on `@Override`" check is brittle and
   would false-positive on the keep-and-extend case.
 - No changes to interface/port Javadoc content.
+
+## Post-implementation notes
+
+This spec and its plan (`docs/superpowers/plans/2026-06-29-remove-redundant-impl-javadoc.md`) were written before implementation. The core change shipped substantially as designed — redundant `@Override` implementation Javadoc that merely repeats the implemented port/interface contract was removed across all three services (asapp-tasks-service, asapp-users-service, asapp-authentication-service); the keep-and-extend safety valve using `{@inheritDoc}` was applied only where an implementation documents behavior beyond the contract; the convention bullet was added to `.claude/rules/code-style.md`; and the `TaskApi.createTask` `@return` "information"/"identifier" drift resolved automatically once the controller copy was deleted.
+
+The canonical implementation is the current state of the implementation files across the three services (the use-case services, output adapters, and REST controllers) on this branch, not this document.
+
+Notable deltas:
+
+- **Convention bullet shortened (refines the "## Convention rule" section).** The spec prescribed a two-sentence bullet for the `## Javadoc` section of `.claude/rules/code-style.md` that included standard-Javadoc-mechanics prose ("omit the comment and let Javadoc inherit it"). At the developer's request the bullet added to `code-style.md` was shortened to state the policy only, dropping the mechanics explanation, consistent with the project's rule-authoring convention that rules capture decisions rather than restate inferable mechanics.
+
+- **Not strictly comment-only (refines the "## Goal" / "No behavior or generated-doc changes" claim).** The spec framed the work as pure comment removal. In practice, deleting `@throws` and `{@link}` Javadoc left several imports unused, so eight orphaned imports were removed across four asapp-authentication-service files — `AuthenticateService`, `RevokeAuthenticationService`, `DeleteUserService`, and `TokenVerifierAdapter`. These are code (import) lines, a necessary follow-up the spec did not anticipate; behavior is still unchanged.
+
+- **Post-review prose trims to the keep-and-extend blocks (refines the "## Criterion: redundant-subset" safety-valve intent).** The valve is meant to retain only the additive part of a kept comment. Two retained keep-and-extend blocks still echoed a little port-contract prose and were trimmed to additive-only so `{@inheritDoc}` carries the contract: the `TasksGatewayAdapter.getTaskIdsByUserId` degradation bullet (asapp-users-service) and `RedisJwtStore`'s `delete`/`accessTokenExists`/`refreshTokenExists` comments (asapp-authentication-service).
+
+For future Javadoc edits, treat the implementation files across the three services (services, adapters, controllers) and the `## Javadoc` rule in `.claude/rules/code-style.md` as the template; this spec is preserved as a record of the original design intent.
