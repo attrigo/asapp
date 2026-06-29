@@ -16,14 +16,14 @@
 
 package com.attrigo.asapp.tasks.infrastructure.task.in;
 
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_CREATE_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_DELETE_BY_ID_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_ALL_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_ID_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_IDS_PARAM;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_ROOT_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_UPDATE_BY_ID_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_CREATE_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_DELETE_BY_ID_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_GET_ALL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_GET_BY_ID_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_GET_BY_USER_ID_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_IDS_PARAM;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_ROOT_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_UPDATE_BY_ID_PATH;
 
 import java.util.List;
 import java.util.UUID;

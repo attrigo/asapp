@@ -16,12 +16,12 @@
 
 package com.attrigo.asapp.authentication.infrastructure.user.in;
 
-import static com.attrigo.asapp.url.authentication.UserRestAPIURL.USERS_CREATE_PATH;
-import static com.attrigo.asapp.url.authentication.UserRestAPIURL.USERS_DELETE_BY_ID_PATH;
-import static com.attrigo.asapp.url.authentication.UserRestAPIURL.USERS_GET_ALL_PATH;
-import static com.attrigo.asapp.url.authentication.UserRestAPIURL.USERS_GET_BY_ID_PATH;
-import static com.attrigo.asapp.url.authentication.UserRestAPIURL.USERS_ROOT_PATH;
-import static com.attrigo.asapp.url.authentication.UserRestAPIURL.USERS_UPDATE_BY_ID_PATH;
+import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_CREATE_PATH;
+import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_DELETE_BY_ID_PATH;
+import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_GET_ALL_PATH;
+import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_GET_BY_ID_PATH;
+import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_ROOT_PATH;
+import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_UPDATE_BY_ID_PATH;
 
 import java.util.List;
 import java.util.UUID;

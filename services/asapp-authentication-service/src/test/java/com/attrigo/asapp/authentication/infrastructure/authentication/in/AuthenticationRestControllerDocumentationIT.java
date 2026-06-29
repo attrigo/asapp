@@ -17,9 +17,9 @@
 package com.attrigo.asapp.authentication.infrastructure.authentication.in;
 
 import static com.attrigo.asapp.authentication.testutil.fixture.JwtAuthenticationMother.anAuthenticatedJwtAuthentication;
-import static com.attrigo.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_REFRESH_TOKEN_FULL_PATH;
-import static com.attrigo.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_REVOKE_FULL_PATH;
-import static com.attrigo.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_TOKEN_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.AuthenticationAPIURL.AUTH_REFRESH_TOKEN_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.AuthenticationAPIURL.AUTH_REVOKE_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.AuthenticationAPIURL.AUTH_TOKEN_FULL_PATH;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;

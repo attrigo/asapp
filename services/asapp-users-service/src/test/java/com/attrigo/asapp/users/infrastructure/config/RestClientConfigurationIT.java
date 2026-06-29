@@ -16,7 +16,7 @@
 
 package com.attrigo.asapp.users.infrastructure.config;
 
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
 import static com.attrigo.asapp.users.testutil.fixture.DecodedJwtMother.decodedAccessToken;
 import static com.attrigo.asapp.users.testutil.fixture.UserMother.aUser;
 import static org.mockserver.model.HttpRequest.request;

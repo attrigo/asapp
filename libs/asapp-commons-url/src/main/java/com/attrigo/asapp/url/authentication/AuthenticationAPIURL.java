@@ -22,7 +22,7 @@ package com.attrigo.asapp.url.authentication;
  * @since 0.2.0
  * @author attrigo
  */
-public class AuthenticationRestAPIURL {
+public class AuthenticationAPIURL {
 
     public static final String AUTH_ROOT_PATH = "/api/auth";
 
@@ -38,6 +38,6 @@ public class AuthenticationRestAPIURL {
 
     public static final String AUTH_REVOKE_FULL_PATH = AUTH_ROOT_PATH + AUTH_REVOKE_PATH;
 
-    private AuthenticationRestAPIURL() {}
+    private AuthenticationAPIURL() {}
 
 }

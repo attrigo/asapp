@@ -16,10 +16,10 @@
 
 package com.attrigo.asapp.authentication.infrastructure.authentication.in;
 
-import static com.attrigo.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_REFRESH_TOKEN_PATH;
-import static com.attrigo.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_REVOKE_PATH;
-import static com.attrigo.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_ROOT_PATH;
-import static com.attrigo.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_TOKEN_PATH;
+import static com.attrigo.asapp.url.authentication.AuthenticationAPIURL.AUTH_REFRESH_TOKEN_PATH;
+import static com.attrigo.asapp.url.authentication.AuthenticationAPIURL.AUTH_REVOKE_PATH;
+import static com.attrigo.asapp.url.authentication.AuthenticationAPIURL.AUTH_ROOT_PATH;
+import static com.attrigo.asapp.url.authentication.AuthenticationAPIURL.AUTH_TOKEN_PATH;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
