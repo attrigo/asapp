@@ -61,6 +61,9 @@ public interface AuthenticationApi {
      * Each authentication creates a new session with fresh tokens. Previous authentications for the user remain valid until they expire or are explicitly
      * revoked, allowing multiple concurrent sessions.
      * <p>
+     * Authenticates a user by validating their credentials. Upon successful authentication, it generates and returns a new JWT authentication token pair
+     * (access and refresh tokens). Each authentication creates a new session; previous sessions remain valid until they expire or are explicitly revoked.
+     * <p>
      * Response codes:
      * <ul>
      * <li>200-OK: The user has been authenticated successfully.</li>
@@ -94,6 +97,9 @@ public interface AuthenticationApi {
      * <p>
      * Updates the existing session with new tokens, invalidating the old ones.
      * <p>
+     * Updates the existing session with new JWTs (both access and refresh), invalidating the old ones. Used to extend the session without requiring the user to
+     * re-authenticate.
+     * <p>
      * Response codes:
      * <ul>
      * <li>200-OK: The JWT authentication has been refreshed successfully.</li>
@@ -126,6 +132,9 @@ public interface AuthenticationApi {
      * Revokes a JWT authentication using an access token.
      * <p>
      * Invalidates the JWT authentication, effectively logging out the user.
+     * <p>
+     * Invalidates the current JWT authentication by revoking the provided access token. This effectively logs out the user and prevents further use of the
+     * token for accessing protected resources.
      * <p>
      * Response codes:
      * <ul>

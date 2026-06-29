@@ -80,6 +80,10 @@ public interface UserApi {
      * If tasks-service is unavailable, the endpoint still returns 200 OK with the user, an empty task list, and a {@code warnings} array describing the
      * degradation.
      * <p>
+     * Retrieves detailed information about a specific user by their unique identifier, including a list of associated task identifiers. If tasks-service is
+     * unavailable, the request still succeeds with an empty {@code taskIds} and a {@code task_ids_unavailable} warning in the {@code warnings} array. Because
+     * an empty {@code taskIds} is indistinguishable from a user who genuinely has no tasks, clients must inspect {@code warnings} to detect degradation.
+     * <p>
      * Response codes:
      * <ul>
      * <li>200-OK: User found (with or without tasks).</li>
@@ -107,6 +111,9 @@ public interface UserApi {
 
     /**
      * Gets users, optionally filtered by their unique identifiers.
+     * <p>
+     * Retrieves users from the system. By default returns all users; when the {@code ids} query parameter is supplied, returns only the users whose identifiers
+     * are in the list. Duplicate identifiers are ignored. Returns an empty array if no users match.
      * <p>
      * Response codes:
      * <ul>
@@ -136,6 +143,8 @@ public interface UserApi {
     /**
      * Creates a new user.
      * <p>
+     * Creates a new user in the system with the provided user information. Returns the user identifier. Use the GET endpoint to retrieve full user details.
+     * <p>
      * Response codes:
      * <ul>
      * <li>201-CREATED: User created successfully.</li>
@@ -163,6 +172,9 @@ public interface UserApi {
 
     /**
      * Updates an existing user by their unique identifier.
+     * <p>
+     * Updates the information of an existing user identified by their unique identifier. Only the fields provided in the request will be updated. Returns the
+     * user identifier. Use the GET endpoint to retrieve full user details.
      * <p>
      * Response codes:
      * <ul>
@@ -194,6 +206,8 @@ public interface UserApi {
 
     /**
      * Deletes a user by their unique identifier.
+     * <p>
+     * Removes a user from the system by their unique identifier. This operation cannot be undone.
      * <p>
      * Response codes:
      * <ul>
