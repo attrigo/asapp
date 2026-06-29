@@ -62,6 +62,8 @@ import com.attrigo.asapp.tasks.infrastructure.task.in.response.UpdateTaskRespons
 /**
  * API contract for task management operations.
  * <p>
+ * Serves as the service's inbound HTTP entry point, implemented by the controller.
+ * <p>
  * Defines the HTTP endpoints for CRUD operations on tasks, including OpenAPI documentation.
  *
  * @since 0.2.0

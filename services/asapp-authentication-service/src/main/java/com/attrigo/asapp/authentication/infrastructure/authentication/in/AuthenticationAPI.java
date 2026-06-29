@@ -44,6 +44,8 @@ import com.attrigo.asapp.authentication.infrastructure.authentication.in.respons
 /**
  * API contract for authentication operations.
  * <p>
+ * Serves as the service's inbound HTTP entry point, implemented by the controller.
+ * <p>
  * Defines the HTTP endpoints for JWT authentication operations, including OpenAPI documentation.
  *
  * @since 0.2.0
