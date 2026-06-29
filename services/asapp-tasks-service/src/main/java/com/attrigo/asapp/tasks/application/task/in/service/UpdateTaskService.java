@@ -63,15 +63,6 @@ public class UpdateTaskService implements UpdateTaskUseCase {
         this.taskRepository = taskRepository;
     }
 
-    /**
-     * Updates an existing task based on the provided command.
-     * <p>
-     * Orchestrates the complete task update workflow: retrieval, validation, transformation, domain update, and persistence.
-     *
-     * @param command the {@link UpdateTaskCommand} containing task update data
-     * @return an {@link Optional} containing the updated {@link Task} if found, {@link Optional#empty()} if task does not exist
-     * @throws IllegalArgumentException if any data within the command is invalid (blank title, invalid task ID, invalid dates, etc.)
-     */
     @Override
     @Transactional
     public Optional<Task> updateTaskById(UpdateTaskCommand command) {

@@ -53,15 +53,6 @@ public class DeleteTaskService implements DeleteTaskUseCase {
         this.taskRepository = taskRepository;
     }
 
-    /**
-     * Deletes an existing task by its unique identifier.
-     * <p>
-     * Orchestrates the task deletion workflow: identifier transformation and deletion.
-     *
-     * @param id the task's unique identifier as UUID
-     * @return {@code true} if the task was successfully deleted, {@code false} if task was not found
-     * @throws IllegalArgumentException if the id is null or invalid
-     */
     @Override
     @Transactional
     public Boolean deleteTaskById(UUID id) {
