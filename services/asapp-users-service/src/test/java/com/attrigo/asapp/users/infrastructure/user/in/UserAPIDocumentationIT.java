@@ -69,7 +69,7 @@ import com.attrigo.asapp.users.testutil.RestDocsConstrainedFields;
 import com.attrigo.asapp.users.testutil.RestDocsWebMvcTestContext;
 
 /**
- * Tests {@link UserRestController} REST API documentation.
+ * Tests {@link UserAPI} contract documentation.
  * <p>
  * Setup:
  * <li>Loads the web layer with a mock MVC environment, mocked service collaborators, and REST Docs documentation support configured before each test</li>
@@ -81,7 +81,7 @@ import com.attrigo.asapp.users.testutil.RestDocsWebMvcTestContext;
  * <li>Covers error responses for validation failures, unauthorized access, not found, and server errors</li>
  */
 @WithMockUser
-class UserRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
+class UserAPIDocumentationIT extends RestDocsWebMvcTestContext {
 
     @Nested
     class GetUserById {

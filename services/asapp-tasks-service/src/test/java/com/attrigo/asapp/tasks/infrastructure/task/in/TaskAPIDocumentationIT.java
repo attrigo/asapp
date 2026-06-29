@@ -69,7 +69,7 @@ import com.attrigo.asapp.tasks.testutil.RestDocsConstrainedFields;
 import com.attrigo.asapp.tasks.testutil.RestDocsWebMvcTestContext;
 
 /**
- * Tests {@link TaskRestController} REST API documentation.
+ * Tests {@link TaskAPI} contract documentation.
  * <p>
  * Setup:
  * <li>Loads the web layer with a mock MVC environment and mocked service collaborators</li>
@@ -82,7 +82,7 @@ import com.attrigo.asapp.tasks.testutil.RestDocsWebMvcTestContext;
  * <li>Covers error responses for validation failures, unauthorized access, not found, and server errors</li>
  */
 @WithMockUser
-class TaskRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
+class TaskAPIDocumentationIT extends RestDocsWebMvcTestContext {
 
     @Nested
     class GetTaskById {
