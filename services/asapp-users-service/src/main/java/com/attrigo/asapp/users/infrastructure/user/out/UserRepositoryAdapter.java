@@ -54,24 +54,12 @@ public class UserRepositoryAdapter implements UserRepository {
         this.userMapper = userMapper;
     }
 
-    /**
-     * Finds a user by their unique identifier.
-     *
-     * @param userId the user's unique identifier
-     * @return an {@link Optional} containing the {@link User} if found, {@link Optional#empty} otherwise
-     */
     @Override
     public Optional<User> findById(UserId userId) {
         return userRepository.findById(userId.value())
                              .map(userMapper::toUser);
     }
 
-    /**
-     * Finds users by their unique identifiers.
-     *
-     * @param userIds the collection of user identifiers
-     * @return a {@link Collection} of {@link User} entities found
-     */
     @Override
     public Collection<User> findByIds(Collection<UserId> userIds) {
         var ids = userIds.stream()
@@ -84,11 +72,6 @@ public class UserRepositoryAdapter implements UserRepository {
                              .toList();
     }
 
-    /**
-     * Retrieves all users from the repository.
-     *
-     * @return a {@link Collection} of all {@link User} entities
-     */
     @Override
     public Collection<User> findAll() {
         return userRepository.findAll()
@@ -97,16 +80,6 @@ public class UserRepositoryAdapter implements UserRepository {
                              .toList();
     }
 
-    /**
-     * Saves a user to the repository.
-     * <p>
-     * If the user is new (without ID), it will be persisted and returned with a generated ID.
-     * <p>
-     * If the user is reconstituted (with ID), it will be updated.
-     *
-     * @param user the {@link User} to save
-     * @return the saved {@link User} with a persistent ID
-     */
     @Override
     public User save(User user) {
         var userToSave = userMapper.toJdbcUserEntity(user);
@@ -116,12 +89,6 @@ public class UserRepositoryAdapter implements UserRepository {
         return userMapper.toUser(userSaved);
     }
 
-    /**
-     * Deletes a user by their unique identifier.
-     *
-     * @param userId the user's unique identifier
-     * @return {@code true} if the user was deleted, {@code false} if not found
-     */
     @Override
     public Boolean deleteById(UserId userId) {
         return userRepository.deleteUserById(userId.value()) > 0;
