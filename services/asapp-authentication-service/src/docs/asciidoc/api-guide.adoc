@@ -11,7 +11,7 @@
 [[overview]]
 = Overview
 
-API documentation for the ASAPP Authentication Service.
+API contract documentation for the ASAPP Authentication Service.
 This service manages authentication operations (token issuance, refresh, revocation) and user account management.
 
 [[overview-http-verbs]]
