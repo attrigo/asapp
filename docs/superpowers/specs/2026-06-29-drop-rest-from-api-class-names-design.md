@@ -1,7 +1,7 @@
 # Drop "Rest" from API-contract class names — design spec
 
 **Date**: 2026-06-29
-**Status**: Approved (not yet implemented)
+**Status**: Implemented
 **Owner**: Antonio Trigo
 **Source**: `TODO.md` v0.4.0 → Quick Wins → Technical Improvements → Other → "Remove "Rest" word in non-involved Rest classes "*RestAPI" classes by "*API" and "*RestAPIURL" by "*APIURL""
 **Services affected**: `asapp-authentication-service`, `asapp-tasks-service`, `asapp-users-service`, `asapp-commons-url`, `asapp-http-clients`
@@ -117,3 +117,15 @@ Per the project's Maven policy, commands that execute integration/E2E tests are 
 - **`*API.java` glob over-match.** After the rename the only `*API.java` files under `infrastructure/**` are the four renamed interfaces, so the updated `.claude/rules/rest.md` glob matches exactly them (verified: no other `…API.java` class exists in those packages).
 - **Missed reference.** Mitigated by a final repo-wide search for `RestAPI`/`RestAPIURL` after the edits — only `TODO.md` (the task entry) and the frozen historical specs should remain.
 - **Stale generated REST Docs snippets.** Snippet IDs (`get-task-by-id`, …) are string literals inside the doc tests, not derived from class names, so renaming the test class does not change `api-guide.adoc` output.
+
+## 10. Post-implementation notes
+
+This spec and its plan (`docs/superpowers/plans/2026-06-29-drop-rest-from-api-class-names.md`) were written before implementation. The core change shipped substantially as designed — the `*RestAPI` interfaces, `*RestAPIURL` constant classes, and `*RestControllerDocumentationIT` tests were renamed to drop the redundant `Rest` token, every reference was updated, and the `Rest`-keeps list in §6 was honoured. As built, the canonical implementation is the current state of the renamed classes, the `asapp-commons-url` README, the three services' `api-guide.adoc` files, the `*API` interface Javadoc, and `.claude/rules/rest.md` + `.claude/agents/code-reviewer.md` on this branch — not this document.
+
+A post-implementation review pass extended the `Rest`-scrub into prose that the original spec had deliberately left untouched. **Notable deltas:**
+
+- **README prose was rewritten (reverses §3 "No README prose change").** §3 kept "REST API endpoint constants" in `libs/asapp-commons-url/README.md` as accurate English, planning to change only class-name references. On review, the redundant `Rest` token read inconsistently against the new `*APIURL` class names, so the tagline and Overview prose were changed to "Centralized endpoint URL constants" — aligning the README's wording with the renamed classes it documents.
+- **`api-guide.adoc` overview lines were scrubbed (not covered by the spec).** The spec only addressed the AsciiDoc guides in §9 (confirming snippet IDs are unaffected). Each service's `src/docs/asciidoc/api-guide.adoc` Overview line was changed from "REST API documentation for the ASAPP <X> Service." to "API contract documentation for the ASAPP <X> Service.", carrying the contract-vs-adapter framing of §6 through to the published guide prose.
+- **An inbound-HTTP-entry-point note was added to the interfaces (beyond §5's prose scrub).** §5 only removed the two `REST` prose hits from each interface's Javadoc summary and `@Tag`. Each of the four `*API` interfaces (`TaskAPI`, `AuthenticationAPI`, and both `UserAPI`) additionally gained the Javadoc line "Serves as the service's inbound HTTP entry point, implemented by the controller.", clarifying the interface's role now that its name no longer carries `Rest`.
+
+For future API-naming or doc edits, treat the renamed classes, the README, the `api-guide.adoc` guides, and the `*API` interface Javadoc on this branch as the template; this spec is preserved as a record of the original design intent.
