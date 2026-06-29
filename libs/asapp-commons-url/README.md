@@ -1,6 +1,6 @@
 # ASAPP Commons URL
 
-> Centralized API endpoint constants for the ASAPP microservices ecosystem
+> Centralized endpoint URL constants for the ASAPP microservices ecosystem
 
 [![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://www.oracle.com/java/technologies/downloads/#java25)
 [![Maven](https://img.shields.io/badge/Maven-3.9.14+-blue.svg)](https://maven.apache.org/)
@@ -10,7 +10,7 @@
 
 ## Overview
 
-`asapp-commons-url` is a shared library that provides type-safe, centralized API endpoint constants for all ASAPP services. It ensures consistency across
+`asapp-commons-url` is a shared library that provides type-safe, centralized endpoint URL constants for all ASAPP services. It ensures consistency across
 services and eliminates hardcoded URL strings.
 
 **Key Features**:
