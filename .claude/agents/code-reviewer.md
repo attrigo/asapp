@@ -36,7 +36,7 @@ Project rule routing:
 - `maven.md`: paths `**/pom.xml`
 - `ports-adapters.md`: paths `**/application/**/*.java`, `**/infrastructure/**/*.java`
 - `repository.md`: paths `**/*Repository.java`, `**/*Entity.java`
-- `rest.md`: paths `**/infrastructure/**/*RestAPI.java`, `**/infrastructure/**/*RestController.java`, `**/infrastructure/**/*Request.java`, `**/infrastructure/**/*Response.java`, `**/infrastructure/error/**`, `**/asapp-commons-url/**/*.java`, `**/src/docs/asciidoc/api-guide.adoc`
+- `rest.md`: paths `**/infrastructure/**/*API.java`, `**/infrastructure/**/*RestController.java`, `**/infrastructure/**/*Request.java`, `**/infrastructure/**/*Response.java`, `**/infrastructure/error/**`, `**/asapp-commons-url/**/*.java`, `**/src/docs/asciidoc/api-guide.adoc`
 - `testing-core.md`: paths `**/test/**/*.java`, `**/*Tests.java`, `**/*IT.java`, `**/*E2EIT.java`
 - `testing-factories.md`: paths `**/testutil/**/*Mother.java`, `**/testutil/**/Mother.java`
 - `testing-integration.md`: paths `**/*IT.java`, `**/*E2EIT.java`

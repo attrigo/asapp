@@ -47,7 +47,7 @@ import com.attrigo.asapp.tasks.infrastructure.task.mapper.TaskMapper;
  */
 @RestController
 @Validated
-public class TaskRestController implements TaskRestAPI {
+public class TaskRestController implements TaskAPI {
 
     private final ReadTaskUseCase readTaskUseCase;
 

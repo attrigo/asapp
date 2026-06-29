@@ -22,7 +22,7 @@ package com.attrigo.asapp.url.users;
  * @since 0.2.0
  * @author attrigo
  */
-public class UserRestAPIURL {
+public class UserAPIURL {
 
     public static final String USERS_ROOT_PATH = "/api/users";
 
@@ -48,6 +48,6 @@ public class UserRestAPIURL {
 
     public static final String USERS_IDS_PARAM = "ids";
 
-    private UserRestAPIURL() {}
+    private UserAPIURL() {}
 
 }

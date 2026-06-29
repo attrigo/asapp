@@ -16,14 +16,14 @@
 
 package com.attrigo.asapp.tasks.infrastructure.task.in;
 
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_CREATE_FULL_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_DELETE_BY_ID_FULL_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_ALL_FULL_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_ID_FULL_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_IDS_PARAM;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_ROOT_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_UPDATE_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_CREATE_FULL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_DELETE_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_GET_ALL_FULL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_GET_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_IDS_PARAM;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_ROOT_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_UPDATE_BY_ID_FULL_PATH;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;

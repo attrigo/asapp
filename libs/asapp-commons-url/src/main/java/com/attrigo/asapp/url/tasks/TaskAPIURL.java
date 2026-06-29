@@ -22,7 +22,7 @@ package com.attrigo.asapp.url.tasks;
  * @since 0.1.0
  * @author attrigo
  */
-public class TaskRestAPIURL {
+public class TaskAPIURL {
 
     public static final String TASKS_ROOT_PATH = "/api/tasks";
 
@@ -52,6 +52,6 @@ public class TaskRestAPIURL {
 
     public static final String TASKS_IDS_PARAM = "ids";
 
-    private TaskRestAPIURL() {}
+    private TaskAPIURL() {}
 
 }

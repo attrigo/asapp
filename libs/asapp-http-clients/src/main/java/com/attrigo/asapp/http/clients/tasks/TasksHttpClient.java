@@ -16,7 +16,7 @@
 
 package com.attrigo.asapp.http.clients.tasks;
 
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
 
 import java.util.List;
 import java.util.UUID;

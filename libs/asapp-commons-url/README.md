@@ -1,6 +1,6 @@
 # ASAPP Commons URL
 
-> Centralized REST API endpoint constants for the ASAPP microservices ecosystem
+> Centralized endpoint URL constants for the ASAPP microservices ecosystem
 
 [![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://www.oracle.com/java/technologies/downloads/#java25)
 [![Maven](https://img.shields.io/badge/Maven-3.9.14+-blue.svg)](https://maven.apache.org/)
@@ -10,7 +10,7 @@
 
 ## Overview
 
-`asapp-commons-url` is a shared library that provides type-safe, centralized REST API endpoint constants for all ASAPP services. It ensures consistency across
+`asapp-commons-url` is a shared library that provides type-safe, centralized endpoint URL constants for all ASAPP services. It ensures consistency across
 services and eliminates hardcoded URL strings.
 
 **Key Features**:
@@ -46,13 +46,13 @@ services and eliminates hardcoded URL strings.
 
 ```java
 // In a controller — use relative paths
-import static com.attrigo.asapp.url.authentication.AuthenticationRestAPIURL.*;
+import static com.attrigo.asapp.url.authentication.AuthenticationAPIURL.*;
 
 @PostMapping(AUTH_TOKEN_PATH)
 public MyResponse myEndpoint(@RequestBody MyRequest request) { ... }
 
 // In a REST client — use full paths
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.*;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.*;
 
 restClient.post()
           .uri(TASKS_CREATE_FULL_PATH)
@@ -88,9 +88,9 @@ mvn spotless:apply
 
 ### Constants
 
-- `com.attrigo.asapp.url.authentication.AuthenticationRestAPIURL`
-- `com.attrigo.asapp.url.tasks.TaskRestAPIURL`
-- `com.attrigo.asapp.url.users.UserRestAPIURL`
+- `com.attrigo.asapp.url.authentication.AuthenticationAPIURL`
+- `com.attrigo.asapp.url.tasks.TaskAPIURL`
+- `com.attrigo.asapp.url.users.UserAPIURL`
 
 ### Documentation
 

@@ -16,14 +16,14 @@
 
 package com.attrigo.asapp.tasks.infrastructure.task.in;
 
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_CREATE_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_DELETE_BY_ID_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_ALL_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_ID_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_GET_BY_USER_ID_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_IDS_PARAM;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_ROOT_PATH;
-import static com.attrigo.asapp.url.tasks.TaskRestAPIURL.TASKS_UPDATE_BY_ID_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_CREATE_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_DELETE_BY_ID_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_GET_ALL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_GET_BY_ID_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_GET_BY_USER_ID_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_IDS_PARAM;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_ROOT_PATH;
+import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_UPDATE_BY_ID_PATH;
 
 import java.util.List;
 import java.util.UUID;
@@ -60,7 +60,9 @@ import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTasksResponse;
 import com.attrigo.asapp.tasks.infrastructure.task.in.response.UpdateTaskResponse;
 
 /**
- * REST API contract for task management operations.
+ * API contract for task management operations.
+ * <p>
+ * Serves as the service's inbound HTTP entry point, implemented by the controller.
  * <p>
  * Defines the HTTP endpoints for CRUD operations on tasks, including OpenAPI documentation.
  *
@@ -68,9 +70,9 @@ import com.attrigo.asapp.tasks.infrastructure.task.in.response.UpdateTaskRespons
  * @author attrigo
  */
 @RequestMapping(TASKS_ROOT_PATH)
-@Tag(name = "Task Operations", description = "REST API contract for managing tasks")
+@Tag(name = "Task Operations", description = "API contract for managing tasks")
 @SecurityRequirement(name = "Bearer Authentication")
-public interface TaskRestAPI {
+public interface TaskAPI {
 
     /**
      * Gets a task by their unique identifier.
