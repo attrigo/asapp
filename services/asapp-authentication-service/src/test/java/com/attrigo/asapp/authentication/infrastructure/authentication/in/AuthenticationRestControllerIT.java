@@ -16,9 +16,9 @@
 
 package com.attrigo.asapp.authentication.infrastructure.authentication.in;
 
-import static com.attrigo.asapp.url.authentication.AuthenticationAPIURL.AUTH_REFRESH_TOKEN_FULL_PATH;
-import static com.attrigo.asapp.url.authentication.AuthenticationAPIURL.AUTH_REVOKE_FULL_PATH;
-import static com.attrigo.asapp.url.authentication.AuthenticationAPIURL.AUTH_TOKEN_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.AuthenticationApiUrl.AUTH_REFRESH_TOKEN_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.AuthenticationApiUrl.AUTH_REVOKE_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.AuthenticationApiUrl.AUTH_TOKEN_FULL_PATH;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 

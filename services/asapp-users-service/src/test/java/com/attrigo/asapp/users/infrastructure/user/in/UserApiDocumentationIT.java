@@ -16,12 +16,12 @@
 
 package com.attrigo.asapp.users.infrastructure.user.in;
 
-import static com.attrigo.asapp.url.users.UserAPIURL.USERS_CREATE_FULL_PATH;
-import static com.attrigo.asapp.url.users.UserAPIURL.USERS_DELETE_BY_ID_FULL_PATH;
-import static com.attrigo.asapp.url.users.UserAPIURL.USERS_GET_ALL_FULL_PATH;
-import static com.attrigo.asapp.url.users.UserAPIURL.USERS_GET_BY_ID_FULL_PATH;
-import static com.attrigo.asapp.url.users.UserAPIURL.USERS_IDS_PARAM;
-import static com.attrigo.asapp.url.users.UserAPIURL.USERS_UPDATE_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.users.UserApiUrl.USERS_CREATE_FULL_PATH;
+import static com.attrigo.asapp.url.users.UserApiUrl.USERS_DELETE_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_ALL_FULL_PATH;
+import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.users.UserApiUrl.USERS_IDS_PARAM;
+import static com.attrigo.asapp.url.users.UserApiUrl.USERS_UPDATE_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.users.testutil.fixture.UserMother.aUser;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -69,7 +69,7 @@ import com.attrigo.asapp.users.testutil.RestDocsConstrainedFields;
 import com.attrigo.asapp.users.testutil.RestDocsWebMvcTestContext;
 
 /**
- * Tests {@link UserAPI} contract documentation.
+ * Tests {@link UserApi} contract documentation.
  * <p>
  * Setup:
  * <li>Loads the web layer with a mock MVC environment, mocked service collaborators, and REST Docs documentation support configured before each test</li>
@@ -81,7 +81,7 @@ import com.attrigo.asapp.users.testutil.RestDocsWebMvcTestContext;
  * <li>Covers error responses for validation failures, unauthorized access, not found, and server errors</li>
  */
 @WithMockUser
-class UserAPIDocumentationIT extends RestDocsWebMvcTestContext {
+class UserApiDocumentationIT extends RestDocsWebMvcTestContext {
 
     @Nested
     class GetUserById {

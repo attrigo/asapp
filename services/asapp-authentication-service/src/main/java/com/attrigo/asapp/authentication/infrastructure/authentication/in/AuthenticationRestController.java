@@ -37,7 +37,7 @@ import com.attrigo.asapp.authentication.infrastructure.authentication.mapper.Jwt
  * @author attrigo
  */
 @RestController
-public class AuthenticationRestController implements AuthenticationAPI {
+public class AuthenticationRestController implements AuthenticationApi {
 
     private final AuthenticateUseCase authenticateUseCase;
 

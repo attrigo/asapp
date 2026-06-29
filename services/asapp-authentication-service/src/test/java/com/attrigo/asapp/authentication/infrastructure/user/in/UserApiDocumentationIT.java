@@ -17,11 +17,11 @@
 package com.attrigo.asapp.authentication.infrastructure.user.in;
 
 import static com.attrigo.asapp.authentication.testutil.fixture.UserMother.anActiveUser;
-import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_CREATE_FULL_PATH;
-import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_DELETE_BY_ID_FULL_PATH;
-import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_GET_ALL_FULL_PATH;
-import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_GET_BY_ID_FULL_PATH;
-import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_UPDATE_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.UserApiUrl.USERS_CREATE_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.UserApiUrl.USERS_DELETE_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.UserApiUrl.USERS_GET_ALL_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.UserApiUrl.USERS_GET_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.UserApiUrl.USERS_UPDATE_BY_ID_FULL_PATH;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
@@ -65,7 +65,7 @@ import com.attrigo.asapp.authentication.testutil.RestDocsConstrainedFields;
 import com.attrigo.asapp.authentication.testutil.RestDocsWebMvcTestContext;
 
 /**
- * Tests {@link UserAPI} contract documentation.
+ * Tests {@link UserApi} contract documentation.
  * <p>
  * Setup:
  * <li>Loads the web layer with a mock MVC environment and mocked service collaborators</li>
@@ -78,7 +78,7 @@ import com.attrigo.asapp.authentication.testutil.RestDocsWebMvcTestContext;
  * <li>Covers error responses for validation failures, unauthorized access, not found, server errors, and service unavailability</li>
  */
 @WithMockUser
-class UserAPIDocumentationIT extends RestDocsWebMvcTestContext {
+class UserApiDocumentationIT extends RestDocsWebMvcTestContext {
 
     @Nested
     class GetUserById {

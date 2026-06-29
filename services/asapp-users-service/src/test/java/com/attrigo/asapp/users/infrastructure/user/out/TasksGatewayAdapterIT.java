@@ -16,7 +16,7 @@
 
 package com.attrigo.asapp.users.infrastructure.user.out;
 
-import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_BY_USER_ID_FULL_PATH;
 import static com.attrigo.asapp.users.testutil.fixture.DecodedJwtMother.decodedAccessToken;
 import static com.attrigo.asapp.users.testutil.fixture.UserMother.aUser;
 import static org.assertj.core.api.Assertions.assertThat;

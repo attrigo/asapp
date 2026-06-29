@@ -16,12 +16,12 @@
 
 package com.attrigo.asapp.authentication.infrastructure.user.in;
 
-import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_CREATE_PATH;
-import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_DELETE_BY_ID_PATH;
-import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_GET_ALL_PATH;
-import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_GET_BY_ID_PATH;
-import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_ROOT_PATH;
-import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_UPDATE_BY_ID_PATH;
+import static com.attrigo.asapp.url.authentication.UserApiUrl.USERS_CREATE_PATH;
+import static com.attrigo.asapp.url.authentication.UserApiUrl.USERS_DELETE_BY_ID_PATH;
+import static com.attrigo.asapp.url.authentication.UserApiUrl.USERS_GET_ALL_PATH;
+import static com.attrigo.asapp.url.authentication.UserApiUrl.USERS_GET_BY_ID_PATH;
+import static com.attrigo.asapp.url.authentication.UserApiUrl.USERS_ROOT_PATH;
+import static com.attrigo.asapp.url.authentication.UserApiUrl.USERS_UPDATE_BY_ID_PATH;
 
 import java.util.List;
 import java.util.UUID;
@@ -66,7 +66,7 @@ import com.attrigo.asapp.authentication.infrastructure.user.in.response.UpdateUs
  */
 @RequestMapping(USERS_ROOT_PATH)
 @Tag(name = "User Operations", description = "API contract for managing users")
-public interface UserAPI {
+public interface UserApi {
 
     /**
      * Gets a user by their unique identifier.

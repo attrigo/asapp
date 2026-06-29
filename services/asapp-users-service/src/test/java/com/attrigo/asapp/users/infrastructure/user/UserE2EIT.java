@@ -16,13 +16,13 @@
 
 package com.attrigo.asapp.users.infrastructure.user;
 
-import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_GET_BY_USER_ID_FULL_PATH;
-import static com.attrigo.asapp.url.users.UserAPIURL.USERS_CREATE_FULL_PATH;
-import static com.attrigo.asapp.url.users.UserAPIURL.USERS_DELETE_BY_ID_FULL_PATH;
-import static com.attrigo.asapp.url.users.UserAPIURL.USERS_GET_ALL_FULL_PATH;
-import static com.attrigo.asapp.url.users.UserAPIURL.USERS_GET_BY_ID_FULL_PATH;
-import static com.attrigo.asapp.url.users.UserAPIURL.USERS_IDS_PARAM;
-import static com.attrigo.asapp.url.users.UserAPIURL.USERS_UPDATE_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_BY_USER_ID_FULL_PATH;
+import static com.attrigo.asapp.url.users.UserApiUrl.USERS_CREATE_FULL_PATH;
+import static com.attrigo.asapp.url.users.UserApiUrl.USERS_DELETE_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_ALL_FULL_PATH;
+import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.users.UserApiUrl.USERS_IDS_PARAM;
+import static com.attrigo.asapp.url.users.UserApiUrl.USERS_UPDATE_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.users.infrastructure.security.RedisJwtStore.ACCESS_TOKEN_PREFIX;
 import static com.attrigo.asapp.users.testutil.fixture.EncodedTokenMother.encodedAccessToken;
 import static com.attrigo.asapp.users.testutil.fixture.UserMother.aJdbcUser;

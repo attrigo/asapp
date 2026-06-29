@@ -22,7 +22,7 @@ package com.attrigo.asapp.url.authentication;
  * @since 0.2.0
  * @author attrigo
  */
-public class UserAPIURL {
+public class UserApiUrl {
 
     public static final String USERS_ROOT_PATH = "/api/users";
 
@@ -46,6 +46,6 @@ public class UserAPIURL {
 
     public static final String USERS_DELETE_BY_ID_FULL_PATH = USERS_ROOT_PATH + USERS_DELETE_BY_ID_PATH;
 
-    private UserAPIURL() {}
+    private UserApiUrl() {}
 
 }
