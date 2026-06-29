@@ -76,7 +76,7 @@ public class RedisJwtStore implements TokenStore {
     /**
      * {@inheritDoc}
      * <p>
-     * Verifies token presence without retrieving its value, providing fast O(1) lookup.
+     * Resolves in O(1) without retrieving the token value.
      * <p>
      * <strong>Redis Operations:</strong>
      * <ul>
@@ -93,7 +93,7 @@ public class RedisJwtStore implements TokenStore {
     /**
      * {@inheritDoc}
      * <p>
-     * Verifies token presence without retrieving its value, providing fast O(1) lookup.
+     * Resolves in O(1) without retrieving the token value.
      * <p>
      * <strong>Redis Operations:</strong>
      * <ul>
@@ -150,7 +150,7 @@ public class RedisJwtStore implements TokenStore {
     /**
      * {@inheritDoc}
      * <p>
-     * Both tokens are removed atomically using Redis pipelining.
+     * Performed atomically using Redis pipelining.
      * <p>
      * <strong>Redis Operations:</strong>
      * <ul>

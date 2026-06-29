@@ -75,8 +75,8 @@ public class TasksGatewayAdapter implements TasksGateway {
      * automatically once the Tasks Service is healthy again.</li>
      * <li>Retry: transient server (5xx) and I/O failures are retried with exponential backoff so a momentary blip recovers transparently; client (4xx) errors
      * are not retried.</li>
-     * <li>Degradation: outages (5xx, I/O failures, and open-circuit) are translated into a {@link TasksUnavailableException} so the caller can decide how to
-     * degrade, while client and unexpected errors propagate — see {@code tasksUnavailableFallback} for the exact classification.</li>
+     * <li>Degradation: client (4xx) and unexpected errors are not treated as outages and propagate directly — see {@code tasksUnavailableFallback} for the
+     * exact classification.</li>
      * </ul>
      * An empty list is also returned when the response body itself is {@code null}.
      */
