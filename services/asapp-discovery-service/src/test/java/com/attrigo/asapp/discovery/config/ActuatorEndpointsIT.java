@@ -66,89 +66,101 @@ class ActuatorEndpointsIT {
 
     @Test
     void ReturnsStatusOkAndBodyContainsAllActuatorLinks_OnActuatorEndpoint() {
-        // When & Then
-        managementRestTestClient.get()
-                                .uri("/actuator")
-                                .headers(h -> h.setBasicAuth(configUsername, configPassword))
-                                .exchange()
-                                .expectStatus()
-                                .isOk()
-                                .expectBody(String.class)
-                                .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
-                                                                                                   .isObject()
-                                                                                                   .containsKeys("_links")
-                                                                                                   .node("_links")
-                                                                                                   .isObject()
-                                                                                                   .containsKeys("self", "beans", "health", "health-path",
-                                                                                                           "info", "conditions", "shutdown", "configprops",
-                                                                                                           "configprops-prefix", "env", "env-toMatch",
-                                                                                                           "loggers", "loggers-name", "heapdump", "threaddump",
-                                                                                                           "metrics-requiredMetricName", "metrics", "sbom-id",
-                                                                                                           "sbom", "scheduledtasks", "mappings"));
+        // When
+        var actual = managementRestTestClient.get()
+                                             .uri("/actuator")
+                                             .headers(h -> h.setBasicAuth(configUsername, configPassword))
+                                             .exchange()
+                                             .expectStatus()
+                                             .isOk()
+                                             .expectBody(String.class)
+                                             .returnResult()
+                                             .getResponseBody();
+
+        // Then
+        assertThatJson(actual).isObject()
+                              .containsKeys("_links")
+                              .node("_links")
+                              .isObject()
+                              .containsKeys("self", "beans", "health", "health-path", "info", "conditions", "shutdown", "configprops", "configprops-prefix",
+                                      "env", "env-toMatch", "loggers", "loggers-name", "heapdump", "threaddump", "metrics-requiredMetricName", "metrics",
+                                      "sbom-id", "sbom", "scheduledtasks", "mappings");
     }
 
     @Test
     void ReturnsStatusOkAndBodyContainsStatusAndGroups_OnHealthEndpointWithoutCredentials() {
-        // When & Then
-        managementRestTestClient.get()
-                                .uri("/actuator/health")
-                                .exchange()
-                                .expectStatus()
-                                .isOk()
-                                .expectBody(String.class)
-                                .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
-                                                                                                   .isObject()
-                                                                                                   .containsKeys("status", "groups")
-                                                                                                   .node("groups")
-                                                                                                   .isArray()
-                                                                                                   .contains("liveness", "readiness"));
+        // When
+        var actual = managementRestTestClient.get()
+                                             .uri("/actuator/health")
+                                             .exchange()
+                                             .expectStatus()
+                                             .isOk()
+                                             .expectBody(String.class)
+                                             .returnResult()
+                                             .getResponseBody();
+
+        // Then
+        assertThatJson(actual).isObject()
+                              .containsKeys("status", "groups")
+                              .node("groups")
+                              .isArray()
+                              .contains("liveness", "readiness");
     }
 
     @Test
     void ReturnsStatusOkAndBodyContainsStatus_OnHealthEndpointWithCredentials() {
-        // When & Then
-        managementRestTestClient.get()
-                                .uri("/actuator/health")
-                                .headers(h -> h.setBasicAuth(configUsername, configPassword))
-                                .exchange()
-                                .expectStatus()
-                                .isOk()
-                                .expectBody(String.class)
-                                .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
-                                                                                                   .isObject()
-                                                                                                   .containsKeys("status"));
+        // When
+        var actual = managementRestTestClient.get()
+                                             .uri("/actuator/health")
+                                             .headers(h -> h.setBasicAuth(configUsername, configPassword))
+                                             .exchange()
+                                             .expectStatus()
+                                             .isOk()
+                                             .expectBody(String.class)
+                                             .returnResult()
+                                             .getResponseBody();
+
+        // Then
+        assertThatJson(actual).isObject()
+                              .containsKeys("status");
     }
 
     @Test
     void ReturnsStatusOkAndBodyContainsGitBuildJavaOsProcessDetails_OnInfoEndpoint() {
-        // When & Then
-        managementRestTestClient.get()
-                                .uri("/actuator/info")
-                                .headers(h -> h.setBasicAuth(configUsername, configPassword))
-                                .exchange()
-                                .expectStatus()
-                                .isOk()
-                                .expectBody(String.class)
-                                .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
-                                                                                                   .isObject()
-                                                                                                   .containsKeys("git", "build", "java", "os", "process"));
+        // When
+        var actual = managementRestTestClient.get()
+                                             .uri("/actuator/info")
+                                             .headers(h -> h.setBasicAuth(configUsername, configPassword))
+                                             .exchange()
+                                             .expectStatus()
+                                             .isOk()
+                                             .expectBody(String.class)
+                                             .returnResult()
+                                             .getResponseBody();
+
+        // Then
+        assertThatJson(actual).isObject()
+                              .containsKeys("git", "build", "java", "os", "process");
     }
 
     @Test
     void ReturnsStatusOkAndBodyContainsSBOMIds_OnSBOMEndpoint() {
-        // When & Then
-        managementRestTestClient.get()
-                                .uri("/actuator/sbom")
-                                .headers(h -> h.setBasicAuth(configUsername, configPassword))
-                                .exchange()
-                                .expectStatus()
-                                .isOk()
-                                .expectBody(String.class)
-                                .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
-                                                                                                   .isObject()
-                                                                                                   .containsKeys("ids")
-                                                                                                   .node("ids")
-                                                                                                   .isArray());
+        // When
+        var actual = managementRestTestClient.get()
+                                             .uri("/actuator/sbom")
+                                             .headers(h -> h.setBasicAuth(configUsername, configPassword))
+                                             .exchange()
+                                             .expectStatus()
+                                             .isOk()
+                                             .expectBody(String.class)
+                                             .returnResult()
+                                             .getResponseBody();
+
+        // Then
+        assertThatJson(actual).isObject()
+                              .containsKeys("ids")
+                              .node("ids")
+                              .isArray();
     }
 
 }

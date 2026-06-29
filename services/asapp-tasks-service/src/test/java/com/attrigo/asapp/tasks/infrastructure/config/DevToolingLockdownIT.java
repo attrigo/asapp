@@ -140,19 +140,21 @@ class DevToolingLockdownIT {
 
         @Test
         void ReturnsStatusOkAndBodyContainsOnlyHealthInfoPrometheusSbomLinks_OnActuatorEndpoint() {
-            // When & Then
-            managementRestTestClient.get()
-                                    .uri("/actuator")
-                                    .headers(h -> h.setBasicAuth(managementUsername, managementPassword))
-                                    .exchange()
-                                    .expectStatus()
-                                    .isOk()
-                                    .expectBody(String.class)
-                                    .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
-                                                                                                       .node("_links")
-                                                                                                       .isObject()
-                                                                                                       .containsOnlyKeys("self", "health", "health-path",
-                                                                                                               "info", "prometheus", "sbom", "sbom-id"));
+            // When
+            var actual = managementRestTestClient.get()
+                                                 .uri("/actuator")
+                                                 .headers(h -> h.setBasicAuth(managementUsername, managementPassword))
+                                                 .exchange()
+                                                 .expectStatus()
+                                                 .isOk()
+                                                 .expectBody(String.class)
+                                                 .returnResult()
+                                                 .getResponseBody();
+
+            // Then
+            assertThatJson(actual).node("_links")
+                                  .isObject()
+                                  .containsOnlyKeys("self", "health", "health-path", "info", "prometheus", "sbom", "sbom-id");
         }
 
     }

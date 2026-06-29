@@ -52,18 +52,21 @@ class EurekaServerEndpointsIT {
 
     @Test
     void ReturnsStatusOkAndBodyContainsApplications_ValidCredentialsOnEurekaAppsEndpoint() {
-        // When & Then
-        restTestClient.get()
-                      .uri("/eureka/apps")
-                      .accept(MediaType.APPLICATION_JSON)
-                      .headers(h -> h.setBasicAuth(discoveryUsername, discoveryPassword))
-                      .exchange()
-                      .expectStatus()
-                      .isOk()
-                      .expectBody(String.class)
-                      .consumeWith(response -> assertThatJson(response.getResponseBody()).isNotNull()
-                                                                                         .node("applications")
-                                                                                         .isPresent());
+        // When
+        var actual = restTestClient.get()
+                                   .uri("/eureka/apps")
+                                   .accept(MediaType.APPLICATION_JSON)
+                                   .headers(h -> h.setBasicAuth(discoveryUsername, discoveryPassword))
+                                   .exchange()
+                                   .expectStatus()
+                                   .isOk()
+                                   .expectBody(String.class)
+                                   .returnResult()
+                                   .getResponseBody();
+
+        // Then
+        assertThatJson(actual).node("applications")
+                              .isPresent();
     }
 
 }

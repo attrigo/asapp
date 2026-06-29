@@ -19,6 +19,7 @@ package com.attrigo.asapp.authentication.infrastructure.config;
 import static com.attrigo.asapp.authentication.testutil.fixture.UserMother.aJdbcUser;
 import static com.attrigo.asapp.authentication.testutil.fixture.UserMother.aUserBuilder;
 import static com.attrigo.asapp.url.authentication.AuthenticationApiUrl.AUTH_TOKEN_FULL_PATH;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -39,7 +40,6 @@ import org.springframework.test.web.servlet.client.RestTestClient;
 
 import com.attrigo.asapp.authentication.AsappAuthenticationServiceApplication;
 import com.attrigo.asapp.authentication.infrastructure.authentication.in.request.AuthenticateRequest;
-import com.attrigo.asapp.authentication.infrastructure.authentication.in.response.AuthenticateResponse;
 import com.attrigo.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationRepository;
 import com.attrigo.asapp.authentication.infrastructure.user.persistence.JdbcUserEntity;
 import com.attrigo.asapp.authentication.infrastructure.user.persistence.JdbcUserRepository;
@@ -97,18 +97,24 @@ class PasswordEncoderIT {
             var createdUser = createUser();
             var authenticateRequestBody = new AuthenticateRequest(createdUser.username(), "TEST@09_password?!");
 
-            // When & Then
-            restTestClient.post()
-                          .uri(AUTH_TOKEN_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(authenticateRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isOk()
-                          .expectHeader()
-                          .contentType(MediaType.APPLICATION_JSON)
-                          .expectBody(AuthenticateResponse.class);
+            // When
+            var actual = restTestClient.post()
+                                       .uri(AUTH_TOKEN_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(authenticateRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("accessToken", "refreshToken");
         }
 
         @Test
@@ -120,18 +126,24 @@ class PasswordEncoderIT {
             var createdUser = createUser(user);
             var authenticateRequestBody = new AuthenticateRequest(createdUser.username(), "TEST@09_password?!");
 
-            // When & Then
-            restTestClient.post()
-                          .uri(AUTH_TOKEN_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(authenticateRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isOk()
-                          .expectHeader()
-                          .contentType(MediaType.APPLICATION_JSON)
-                          .expectBody(AuthenticateResponse.class);
+            // When
+            var actual = restTestClient.post()
+                                       .uri(AUTH_TOKEN_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(authenticateRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("accessToken", "refreshToken");
         }
 
         @Test
@@ -143,18 +155,24 @@ class PasswordEncoderIT {
             var createdUser = createUser(user);
             var authenticateRequestBody = new AuthenticateRequest(createdUser.username(), "TEST@09_password?!");
 
-            // When & Then
-            restTestClient.post()
-                          .uri(AUTH_TOKEN_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(authenticateRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isOk()
-                          .expectHeader()
-                          .contentType(MediaType.APPLICATION_JSON)
-                          .expectBody(AuthenticateResponse.class);
+            // When
+            var actual = restTestClient.post()
+                                       .uri(AUTH_TOKEN_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(authenticateRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("accessToken", "refreshToken");
         }
 
         @Test
@@ -166,18 +184,24 @@ class PasswordEncoderIT {
             var createdUser = createUser(user);
             var authenticateRequestBody = new AuthenticateRequest(createdUser.username(), "TEST@09_password?!");
 
-            // When & Then
-            restTestClient.post()
-                          .uri(AUTH_TOKEN_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(authenticateRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isOk()
-                          .expectHeader()
-                          .contentType(MediaType.APPLICATION_JSON)
-                          .expectBody(AuthenticateResponse.class);
+            // When
+            var actual = restTestClient.post()
+                                       .uri(AUTH_TOKEN_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(authenticateRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isOk()
+                                       .expectHeader()
+                                       .contentType(MediaType.APPLICATION_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertThatJson(actual).isObject()
+                                  .containsOnlyKeys("accessToken", "refreshToken");
         }
 
     }
