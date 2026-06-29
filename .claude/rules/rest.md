@@ -1,6 +1,6 @@
 ---
 paths:
-  - "**/infrastructure/**/*RestAPI.java"
+  - "**/infrastructure/**/*API.java"
   - "**/infrastructure/**/*RestController.java"
   - "**/infrastructure/**/*Request.java"
   - "**/infrastructure/**/*Response.java"
@@ -18,7 +18,7 @@ paths:
 - Centralized in `libs/asapp-commons-url` — never hardcode paths in controllers
 - Constant naming: `<DOMAIN_PLURAL>_<VERB>_<QUALIFIER>_PATH` for relative paths; append `_FULL_PATH` for absolute
 
-## REST API Interface Pattern
+## API Interface Pattern
 
 - OpenAPI annotations (`@Tag`, `@Operation`, `@ApiResponse`) go on the interface, not the controller
 - Use `@ResponseStatus` for fixed HTTP status; use `ResponseEntity` without `@ResponseStatus` when the status is determined programmatically
@@ -36,7 +36,7 @@ paths:
 
 - `api-guide.adoc` and the OpenAPI annotations are one source of truth: each endpoint's adoc prose MUST be verbatim-identical to its `@Operation(description = ...)`
 - "This endpoint requires authentication." (or equivalents) MUST NOT appear in the `@Operation` description or the adoc prose — auth scope is conveyed by `@SecurityRequirement` and the Overview
-- Whenever a `*RestAPI.java` or its `api-guide.adoc` changes, update the other to keep description, status codes, and parameters in sync
+- Whenever a `*API.java` or its `api-guide.adoc` changes, update the other to keep description, status codes, and parameters in sync
 
 ## Error Response Format
 
