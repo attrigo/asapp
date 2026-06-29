@@ -52,3 +52,4 @@ if (type == ACCESS_TOKEN && !ACCESS_TOKEN_USE.equals(tokenUseClaim)
 - `@since` is mandatory on all production public classes and interfaces — use the module's current POM version (e.g., `@since 0.2.0`)
 - `@see` ONLY for framework/library classes (Spring, MapStruct)
 - Summary line must start with a verb: "Stores…", "Validates…", "Handles…"
+- Don't restate an interface/superclass method's contract on an `@Override`; document only behavior beyond it (using `{@inheritDoc}`)

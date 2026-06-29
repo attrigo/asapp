@@ -77,17 +77,6 @@ public class UserRestController implements UserApi {
         this.userMapper = userMapper;
     }
 
-    /**
-     * Gets a user by their unique identifier, enriched with task references.
-     * <p>
-     * This endpoint returns user information along with a list of task identifiers associated with the user.
-     * <p>
-     * If tasks-service is unavailable, the endpoint still returns 200 OK with the user, an empty task list, and a {@code warnings} array describing the
-     * degradation.
-     *
-     * @param id the user's unique identifier
-     * @return a {@link ResponseEntity} wrapping the {@link GetUserByIdResponse} if found, otherwise wrapping empty
-     */
     @Override
     public ResponseEntity<GetUserByIdResponse> getUserById(UUID id) {
         return readUserUseCase.getUserById(id)
@@ -97,12 +86,6 @@ public class UserRestController implements UserApi {
                                                              .build());
     }
 
-    /**
-     * Gets users, optionally filtered by their unique identifiers.
-     *
-     * @param ids the identifiers of the users
-     * @return a {@link List} of {@link GetUsersResponse} with the matching users, or an empty list if none match
-     */
     @Override
     public List<GetUsersResponse> getUsers(List<UUID> ids) {
         var users = ids == null ? readUserUseCase.getAllUsers() : readUserUseCase.getUsersByIds(ids);
@@ -112,12 +95,6 @@ public class UserRestController implements UserApi {
                     .toList();
     }
 
-    /**
-     * Creates a new user in the system. Response codes:
-     *
-     * @param request the {@link CreateUserRequest} containing user data
-     * @return the {@link CreateUserResponse} containing the created user's information
-     */
     @Override
     public CreateUserResponse createUser(CreateUserRequest request) {
         var command = userMapper.toCreateUserCommand(request);
@@ -127,13 +104,6 @@ public class UserRestController implements UserApi {
         return userMapper.toCreateUserResponse(userCreated);
     }
 
-    /**
-     * Updates an existing user by their unique identifier.
-     *
-     * @param id      the user's unique identifier
-     * @param request the {@link UpdateUserRequest} containing updated user data
-     * @return a {@link ResponseEntity} wrapping the {@link UpdateUserResponse} if found, otherwise wrapping empty
-     */
     @Override
     public ResponseEntity<UpdateUserResponse> updateUserById(UUID id, UpdateUserRequest request) {
         var command = userMapper.toUpdateUserCommand(id, request);
@@ -145,12 +115,6 @@ public class UserRestController implements UserApi {
                                                                .build());
     }
 
-    /**
-     * Deletes a user by their unique identifier.
-     *
-     * @param id the user's unique identifier
-     * @return a {@link ResponseEntity} wrapping empty upon successful deletion
-     */
     @Override
     public ResponseEntity<Void> deleteUserById(UUID id) {
         boolean userHasBeenDeleted = deleteUserUseCase.deleteUserById(id);

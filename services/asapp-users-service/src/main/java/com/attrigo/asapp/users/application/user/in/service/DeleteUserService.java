@@ -53,15 +53,6 @@ public class DeleteUserService implements DeleteUserUseCase {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Deletes an existing user by its unique identifier.
-     * <p>
-     * Orchestrates the user deletion workflow: identifier transformation and deletion.
-     *
-     * @param id the user's unique identifier as UUID
-     * @return {@code true} if the user was successfully deleted, {@code false} if user was not found
-     * @throws IllegalArgumentException if the id is null or invalid
-     */
     @Override
     @Transactional
     public Boolean deleteUserById(UUID id) {
