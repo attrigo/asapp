@@ -44,7 +44,7 @@ import com.attrigo.asapp.authentication.infrastructure.user.mapper.UserMapper;
  * @author attrigo
  */
 @RestController
-public class UserRestController implements UserAPI {
+public class UserRestController implements UserApi {
 
     private final ReadUserUseCase readUserUseCase;
 

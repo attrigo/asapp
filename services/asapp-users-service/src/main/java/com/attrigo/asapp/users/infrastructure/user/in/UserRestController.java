@@ -46,7 +46,7 @@ import com.attrigo.asapp.users.infrastructure.user.mapper.UserMapper;
  */
 @RestController
 @Validated
-public class UserRestController implements UserAPI {
+public class UserRestController implements UserApi {
 
     private final ReadUserUseCase readUserUseCase;
 

@@ -16,14 +16,14 @@
 
 package com.attrigo.asapp.tasks.infrastructure.task.in;
 
-import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_CREATE_PATH;
-import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_DELETE_BY_ID_PATH;
-import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_GET_ALL_PATH;
-import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_GET_BY_ID_PATH;
-import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_GET_BY_USER_ID_PATH;
-import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_IDS_PARAM;
-import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_ROOT_PATH;
-import static com.attrigo.asapp.url.tasks.TaskAPIURL.TASKS_UPDATE_BY_ID_PATH;
+import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_CREATE_PATH;
+import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_DELETE_BY_ID_PATH;
+import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_ALL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_BY_ID_PATH;
+import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_BY_USER_ID_PATH;
+import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_IDS_PARAM;
+import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_ROOT_PATH;
+import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_UPDATE_BY_ID_PATH;
 
 import java.util.List;
 import java.util.UUID;
@@ -72,7 +72,7 @@ import com.attrigo.asapp.tasks.infrastructure.task.in.response.UpdateTaskRespons
 @RequestMapping(TASKS_ROOT_PATH)
 @Tag(name = "Task Operations", description = "API contract for managing tasks")
 @SecurityRequirement(name = "Bearer Authentication")
-public interface TaskAPI {
+public interface TaskApi {
 
     /**
      * Gets a task by their unique identifier.

@@ -18,7 +18,7 @@ package com.attrigo.asapp.authentication.infrastructure.config;
 
 import static com.attrigo.asapp.authentication.testutil.fixture.UserMother.aJdbcUser;
 import static com.attrigo.asapp.authentication.testutil.fixture.UserMother.aUserBuilder;
-import static com.attrigo.asapp.url.authentication.AuthenticationAPIURL.AUTH_TOKEN_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.AuthenticationApiUrl.AUTH_TOKEN_FULL_PATH;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.BeforeEach;

@@ -24,11 +24,11 @@ import static com.attrigo.asapp.authentication.testutil.fixture.EncodedTokenMoth
 import static com.attrigo.asapp.authentication.testutil.fixture.JwtAuthenticationMother.aJwtAuthenticationBuilder;
 import static com.attrigo.asapp.authentication.testutil.fixture.UserMother.aJdbcUser;
 import static com.attrigo.asapp.authentication.testutil.fixture.UserMother.aUserBuilder;
-import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_CREATE_FULL_PATH;
-import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_DELETE_BY_ID_FULL_PATH;
-import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_GET_ALL_FULL_PATH;
-import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_GET_BY_ID_FULL_PATH;
-import static com.attrigo.asapp.url.authentication.UserAPIURL.USERS_UPDATE_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.UserApiUrl.USERS_CREATE_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.UserApiUrl.USERS_DELETE_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.UserApiUrl.USERS_GET_ALL_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.UserApiUrl.USERS_GET_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.UserApiUrl.USERS_UPDATE_BY_ID_FULL_PATH;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.SoftAssertions.assertSoftly;

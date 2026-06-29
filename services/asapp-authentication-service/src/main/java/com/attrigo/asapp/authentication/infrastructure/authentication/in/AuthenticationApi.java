@@ -16,10 +16,10 @@
 
 package com.attrigo.asapp.authentication.infrastructure.authentication.in;
 
-import static com.attrigo.asapp.url.authentication.AuthenticationAPIURL.AUTH_REFRESH_TOKEN_PATH;
-import static com.attrigo.asapp.url.authentication.AuthenticationAPIURL.AUTH_REVOKE_PATH;
-import static com.attrigo.asapp.url.authentication.AuthenticationAPIURL.AUTH_ROOT_PATH;
-import static com.attrigo.asapp.url.authentication.AuthenticationAPIURL.AUTH_TOKEN_PATH;
+import static com.attrigo.asapp.url.authentication.AuthenticationApiUrl.AUTH_REFRESH_TOKEN_PATH;
+import static com.attrigo.asapp.url.authentication.AuthenticationApiUrl.AUTH_REVOKE_PATH;
+import static com.attrigo.asapp.url.authentication.AuthenticationApiUrl.AUTH_ROOT_PATH;
+import static com.attrigo.asapp.url.authentication.AuthenticationApiUrl.AUTH_TOKEN_PATH;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
@@ -53,7 +53,7 @@ import com.attrigo.asapp.authentication.infrastructure.authentication.in.respons
  */
 @RequestMapping(AUTH_ROOT_PATH)
 @Tag(name = "Authentication operations", description = "API contract for authentication operations")
-public interface AuthenticationAPI {
+public interface AuthenticationApi {
 
     /**
      * Authenticates a user with the given credentials and provides a new JWT authentication.
