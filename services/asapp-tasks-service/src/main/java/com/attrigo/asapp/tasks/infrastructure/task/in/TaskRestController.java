@@ -78,12 +78,6 @@ public class TaskRestController implements TaskApi {
         this.taskMapper = taskMapper;
     }
 
-    /**
-     * Gets a task by their unique identifier.
-     *
-     * @param id the task's unique identifier
-     * @return a {@link ResponseEntity} wrapping the {@link GetTaskByIdResponse} if found, otherwise wrapping empty
-     */
     @Override
     public ResponseEntity<GetTaskByIdResponse> getTaskById(UUID id) {
         return readTaskUseCase.getTaskById(id)
@@ -93,12 +87,6 @@ public class TaskRestController implements TaskApi {
                                                              .build());
     }
 
-    /**
-     * Gets all tasks for a specific user by their unique identifier.
-     *
-     * @param id the user's unique identifier
-     * @return a {@link List} of {@link GetTasksByUserIdResponse} containing all tasks for the user, or an empty list if no tasks exist
-     */
     @Override
     public List<GetTasksByUserIdResponse> getTasksByUserId(UUID id) {
         return readTaskUseCase.getTasksByUserId(id)
@@ -107,12 +95,6 @@ public class TaskRestController implements TaskApi {
                               .toList();
     }
 
-    /**
-     * Gets tasks, optionally filtered by their unique identifiers.
-     *
-     * @param ids the identifiers of the tasks
-     * @return a {@link List} of {@link GetTasksResponse} with the matching tasks, or an empty list if none match
-     */
     @Override
     public List<GetTasksResponse> getTasks(List<UUID> ids) {
         var tasks = ids == null ? readTaskUseCase.getAllTasks() : readTaskUseCase.getTasksByIds(ids);
@@ -122,12 +104,6 @@ public class TaskRestController implements TaskApi {
                     .toList();
     }
 
-    /**
-     * Creates a new task in the system. Response codes:
-     *
-     * @param request the {@link CreateTaskRequest} containing task data
-     * @return the {@link CreateTaskResponse} containing the created task's information
-     */
     @Override
     public CreateTaskResponse createTask(CreateTaskRequest request) {
         var command = taskMapper.toCreateTaskCommand(request);
@@ -137,13 +113,6 @@ public class TaskRestController implements TaskApi {
         return taskMapper.toCreateTaskResponse(taskCreated);
     }
 
-    /**
-     * Updates an existing task by their unique identifier.
-     *
-     * @param id      the task's unique identifier
-     * @param request the {@link UpdateTaskRequest} containing updated task data
-     * @return a {@link ResponseEntity} wrapping the {@link UpdateTaskResponse} if found, otherwise wrapping empty
-     */
     @Override
     public ResponseEntity<UpdateTaskResponse> updateTaskById(UUID id, UpdateTaskRequest request) {
         var command = taskMapper.toUpdateTaskCommand(id, request);
@@ -155,12 +124,6 @@ public class TaskRestController implements TaskApi {
                                                                .build());
     }
 
-    /**
-     * Deletes a task by their unique identifier.
-     *
-     * @param id the task's unique identifier
-     * @return a {@link ResponseEntity} wrapping empty upon successful deletion
-     */
     @Override
     public ResponseEntity<Void> deleteTaskById(UUID id) {
         boolean taskHasBeenDeleted = deleteTaskUseCase.deleteTaskById(id);

@@ -50,13 +50,6 @@ public class ReadTaskService implements ReadTaskUseCase {
         this.taskRepository = taskRepository;
     }
 
-    /**
-     * Retrieves a task by their unique identifier.
-     *
-     * @param id the task's unique identifier
-     * @return an {@link Optional} containing the {@link Task} if found, {@link Optional#empty} otherwise
-     * @throws IllegalArgumentException if the id is invalid
-     */
     @Override
     public Optional<Task> getTaskById(UUID id) {
         var taskId = TaskId.of(id);
@@ -64,15 +57,6 @@ public class ReadTaskService implements ReadTaskUseCase {
         return this.taskRepository.findById(taskId);
     }
 
-    /**
-     * Retrieves tasks by their unique identifiers.
-     * <p>
-     * Duplicate identifiers are ignored.
-     *
-     * @param ids the identifiers of the tasks
-     * @return a {@link List} of {@link Task} entities found, or an empty list if none match
-     * @throws IllegalArgumentException if any id is invalid
-     */
     @Override
     public List<Task> getTasksByIds(List<UUID> ids) {
         var taskIds = ids.stream()
@@ -84,13 +68,6 @@ public class ReadTaskService implements ReadTaskUseCase {
                              .toList();
     }
 
-    /**
-     * Retrieves all tasks for a specific user by their unique identifier.
-     *
-     * @param userId the user's unique identifier
-     * @return a {@link List} of {@link Task} entities belonging to the user, or an empty list if no tasks exist
-     * @throws IllegalArgumentException if the userId is invalid
-     */
     @Override
     public List<Task> getTasksByUserId(UUID userId) {
         var userIdObj = UserId.of(userId);
@@ -100,11 +77,6 @@ public class ReadTaskService implements ReadTaskUseCase {
                              .toList();
     }
 
-    /**
-     * Retrieves all tasks from the system.
-     *
-     * @return a {@link List} of all {@link Task} entities
-     */
     @Override
     public List<Task> getAllTasks() {
         return taskRepository.findAll()

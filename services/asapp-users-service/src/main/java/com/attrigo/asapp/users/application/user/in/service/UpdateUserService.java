@@ -62,15 +62,6 @@ public class UpdateUserService implements UpdateUserUseCase {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Updates an existing user based on the provided command.
-     * <p>
-     * Orchestrates the complete user update workflow: retrieval, validation, transformation, domain update, and persistence.
-     *
-     * @param command the {@link UpdateUserCommand} containing user update data
-     * @return an {@link Optional} containing the updated {@link User} if found, {@link Optional#empty()} if user does not exist
-     * @throws IllegalArgumentException if any data within the command is invalid (blank names, invalid email format, invalid user ID, etc.)
-     */
     @Override
     @Transactional
     public Optional<User> updateUserById(UpdateUserCommand command) {

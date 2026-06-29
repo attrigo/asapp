@@ -60,15 +60,6 @@ public class CreateUserService implements CreateUserUseCase {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Creates a new user based on the provided command.
-     * <p>
-     * Orchestrates the complete user creation workflow: password encoding, user creation, and persistence.
-     *
-     * @param command the {@link CreateUserCommand} containing user registration data
-     * @return the created {@link User} with a generated persistent ID
-     * @throws IllegalArgumentException if any data within the command is invalid (blank username, invalid email format, weak password, invalid role, etc.)
-     */
     @Override
     public User createUser(CreateUserCommand command) {
         var username = Username.of(command.username());

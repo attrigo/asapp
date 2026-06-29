@@ -56,23 +56,12 @@ public class UserRepositoryAdapter implements UserRepository {
         this.userMapper = userMapper;
     }
 
-    /**
-     * Finds a user by their unique identifier.
-     *
-     * @param userId the user's unique identifier
-     * @return an {@link Optional} containing the {@link User} if found, {@link Optional#empty} otherwise
-     */
     @Override
     public Optional<User> findById(UserId userId) {
         return userRepository.findById(userId.value())
                              .map(userMapper::toUser);
     }
 
-    /**
-     * Retrieves all users from the repository.
-     *
-     * @return a {@link Collection} of all {@link User} entities
-     */
     @Override
     public Collection<User> findAll() {
         return userRepository.findAll()
@@ -81,16 +70,6 @@ public class UserRepositoryAdapter implements UserRepository {
                              .toList();
     }
 
-    /**
-     * Saves a user to the repository.
-     * <p>
-     * If the user is inactive (without ID), it will be persisted and returned with a generated ID.
-     * <p>
-     * If the user is active (with ID), it will be updated.
-     *
-     * @param user the {@link User} to save
-     * @return the saved {@link User} with a persistent ID
-     */
     @Override
     public User save(User user) {
         var userToSave = userMapper.toJdbcUserEntity(user);
@@ -101,10 +80,8 @@ public class UserRepositoryAdapter implements UserRepository {
     }
 
     /**
-     * Deletes a user by their unique identifier.
+     * {@inheritDoc}
      *
-     * @param userId the user's unique identifier
-     * @return {@code true} if the user was deleted, {@code false} if not found
      * @throws UserPersistenceException if the database operation fails
      */
     @Override

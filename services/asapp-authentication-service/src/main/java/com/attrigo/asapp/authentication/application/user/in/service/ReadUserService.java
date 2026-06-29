@@ -48,15 +48,6 @@ public class ReadUserService implements ReadUserUseCase {
         this.userRepository = userRepository;
     }
 
-    /**
-     * Retrieves a user by their unique identifier.
-     * <p>
-     * Orchestrates the user retrieval workflow: identifier transformation and repository query.
-     *
-     * @param id the user's unique identifier
-     * @return an {@link Optional} containing the {@link User} if found, {@link Optional#empty} otherwise
-     * @throws IllegalArgumentException if the id is invalid
-     */
     @Override
     public Optional<User> getUserById(UUID id) {
         var userId = UserId.of(id);
@@ -64,11 +55,6 @@ public class ReadUserService implements ReadUserUseCase {
         return this.userRepository.findById(userId);
     }
 
-    /**
-     * Retrieves all users from the system.
-     *
-     * @return a {@link List} of all {@link User} entities
-     */
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll()

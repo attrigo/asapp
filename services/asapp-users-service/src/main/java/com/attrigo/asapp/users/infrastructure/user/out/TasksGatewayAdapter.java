@@ -67,7 +67,7 @@ public class TasksGatewayAdapter implements TasksGateway {
     }
 
     /**
-     * Retrieves all task identifiers associated with a specific user by delegating to the tasks-service client.
+     * {@inheritDoc}
      * <p>
      * The call is guarded by a Resilience4j circuit breaker and retry mechanism:
      * <ul>
@@ -75,12 +75,10 @@ public class TasksGatewayAdapter implements TasksGateway {
      * automatically once the Tasks Service is healthy again.</li>
      * <li>Retry: transient server (5xx) and I/O failures are retried with exponential backoff so a momentary blip recovers transparently; client (4xx) errors
      * are not retried.</li>
-     * <li>Degradation: outages (5xx, I/O failures, and open-circuit) are translated into a {@link TasksUnavailableException} so the caller can decide how to
-     * degrade, while client and unexpected errors propagate — see {@code tasksUnavailableFallback} for the exact classification.</li>
+     * <li>Degradation: client (4xx) and unexpected errors are not treated as outages and propagate directly — see {@code tasksUnavailableFallback} for the
+     * exact classification.</li>
      * </ul>
-     *
-     * @param userId the user's unique identifier
-     * @return a {@link List} of task UUIDs associated with the user, or an empty list if the user has no tasks or the response body is null
+     * An empty list is also returned when the response body itself is {@code null}.
      */
     @Override
     @CircuitBreaker(name = TASKS_CLIENT_NAME, fallbackMethod = "tasksUnavailableFallback")

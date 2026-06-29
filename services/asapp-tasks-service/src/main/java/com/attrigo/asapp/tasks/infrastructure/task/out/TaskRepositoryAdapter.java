@@ -55,24 +55,12 @@ public class TaskRepositoryAdapter implements TaskRepository {
         this.taskMapper = taskMapper;
     }
 
-    /**
-     * Finds a task by their unique identifier.
-     *
-     * @param taskId the task's unique identifier
-     * @return an {@link Optional} containing the {@link Task} if found, {@link Optional#empty} otherwise
-     */
     @Override
     public Optional<Task> findById(TaskId taskId) {
         return taskRepository.findById(taskId.value())
                              .map(taskMapper::toTask);
     }
 
-    /**
-     * Finds tasks by their unique identifiers.
-     *
-     * @param taskIds the collection of task identifiers
-     * @return a {@link Collection} of {@link Task} entities found
-     */
     @Override
     public Collection<Task> findByIds(Collection<TaskId> taskIds) {
         var ids = taskIds.stream()
@@ -85,12 +73,6 @@ public class TaskRepositoryAdapter implements TaskRepository {
                              .toList();
     }
 
-    /**
-     * Finds all tasks by their user's unique identifier.
-     *
-     * @param userId the user's unique identifier
-     * @return a {@link Collection} of {@link Task} entities belonging to the user
-     */
     @Override
     public Collection<Task> findByUserId(UserId userId) {
         return taskRepository.findByUserId(userId.value())
@@ -99,11 +81,6 @@ public class TaskRepositoryAdapter implements TaskRepository {
                              .toList();
     }
 
-    /**
-     * Retrieves all tasks from the repository.
-     *
-     * @return a {@link Collection} of all {@link Task} entities
-     */
     @Override
     public Collection<Task> findAll() {
         return taskRepository.findAll()
@@ -112,16 +89,6 @@ public class TaskRepositoryAdapter implements TaskRepository {
                              .toList();
     }
 
-    /**
-     * Saves a task to the repository.
-     * <p>
-     * If the task is new (without ID), it will be persisted and returned with a generated ID.
-     * <p>
-     * If the task is reconstituted (with ID), it will be updated.
-     *
-     * @param task the {@link Task} to save
-     * @return the saved {@link Task} with a persistent ID
-     */
     @Override
     public Task save(Task task) {
         var taskToSave = taskMapper.toJdbcTaskEntity(task);
@@ -131,12 +98,6 @@ public class TaskRepositoryAdapter implements TaskRepository {
         return taskMapper.toTask(taskSaved);
     }
 
-    /**
-     * Deletes a task by their unique identifier.
-     *
-     * @param taskId the task's unique identifier
-     * @return {@code true} if the task was deleted, {@code false} if not found
-     */
     @Override
     public Boolean deleteById(TaskId taskId) {
         return taskRepository.deleteTaskById(taskId.value()) > 0;

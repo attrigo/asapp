@@ -22,7 +22,6 @@ import java.util.UUID;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.attrigo.asapp.authentication.application.ApplicationService;
-import com.attrigo.asapp.authentication.application.PersistenceException;
 import com.attrigo.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.attrigo.asapp.authentication.application.authentication.out.TokenStore;
 import com.attrigo.asapp.authentication.application.user.in.DeleteUserUseCase;
@@ -71,19 +70,6 @@ public class DeleteUserService implements DeleteUserUseCase {
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }
 
-    /**
-     * Deletes an existing user by its unique identifier.
-     * <p>
-     * Orchestrates the user deletion workflow: removal from repository, then token revocation from fast-access store.
-     * <p>
-     * Repository operations run first within the transaction. Token deactivation is performed only after successful deletion, so no compensation is required if
-     * repository operations fail.
-     *
-     * @param id the user's unique identifier
-     * @return {@code true} if the user was deleted, {@code false} if not found
-     * @throws IllegalArgumentException if the id is invalid
-     * @throws PersistenceException     if user or authentication deletion fails
-     */
     @Override
     @Transactional
     public Boolean deleteUserById(UUID id) {

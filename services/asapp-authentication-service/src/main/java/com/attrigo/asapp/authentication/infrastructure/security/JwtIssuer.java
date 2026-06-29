@@ -101,12 +101,6 @@ public class JwtIssuer implements TokenIssuer {
         this.refreshTokenExpirationTime = refreshTokenExpirationTime;
     }
 
-    /**
-     * Issues a JWT pair (access and refresh tokens) for an authenticated user.
-     *
-     * @param userAuthentication the {@link UserAuthentication} containing user data
-     * @return the generated {@link JwtPair} containing both access and refresh tokens
-     */
     @Override
     public JwtPair issueTokenPair(UserAuthentication userAuthentication) {
         logger.trace("[JWT_ISSUER] Issuing token pair for username={}", userAuthentication.username());
@@ -118,13 +112,6 @@ public class JwtIssuer implements TokenIssuer {
         return issueTokenPair(subject, role);
     }
 
-    /**
-     * Issues a JWT pair (access and refresh tokens) for a subject and role.
-     *
-     * @param subject the {@link Subject} identifier
-     * @param role    the {@link Role}
-     * @return the generated {@link JwtPair} containing both access and refresh tokens
-     */
     @Override
     public JwtPair issueTokenPair(Subject subject, Role role) {
         logger.trace("[JWT_ISSUER] Issuing token pair for subject={} and role={}", subject, role);

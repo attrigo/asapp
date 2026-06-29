@@ -65,13 +65,8 @@ public class CredentialsAuthenticatorAdapter implements CredentialsAuthenticator
     }
 
     /**
-     * Authenticates a user based on provided credentials.
-     * <p>
-     * Validates the user's credentials using Spring Security, then extracts and returns an authenticated user with identity and role information.
+     * {@inheritDoc}
      *
-     * @param username the {@link Username} to authenticate
-     * @param password the {@link RawPassword} to validate
-     * @return the {@link UserAuthentication} containing authenticated user data with ID and role
      * @throws BadCredentialsException if authentication fails
      */
     @Override

@@ -56,25 +56,6 @@ public class ReadUserService implements ReadUserUseCase {
         this.tasksGateway = tasksGateway;
     }
 
-    /**
-     * Retrieves a user by their unique identifier, enriched with task references.
-     * <p>
-     * Orchestrates data retrieval from multiple sources: retrieves user from repository and enriches with task IDs from tasks-service.
-     * <p>
-     * <strong>Orchestration Flow:</strong>
-     * <ol>
-     * <li>Retrieves user from repository by ID</li>
-     * <li>Returns empty if user not found</li>
-     * <li>Enriches user with task IDs from tasks-service via gateway</li>
-     * <li>Wraps result in {@link UserWithTasksResult}</li>
-     * </ol>
-     * <p>
-     * If tasks-service is unavailable, the result is returned with tasks marked unavailable (no task identifiers), allowing graceful degradation.
-     *
-     * @param id the user's unique identifier
-     * @return an {@link Optional} containing the {@link UserWithTasksResult} if found, {@link Optional#empty} otherwise
-     * @throws IllegalArgumentException if the id is invalid
-     */
     @Override
     public Optional<UserWithTasksResult> getUserById(UUID id) {
         var userId = UserId.of(id);
@@ -89,15 +70,6 @@ public class ReadUserService implements ReadUserUseCase {
         return Optional.of(result);
     }
 
-    /**
-     * Retrieves users by their unique identifiers.
-     * <p>
-     * Duplicate identifiers are ignored.
-     *
-     * @param ids the identifiers of the users
-     * @return a {@link List} of {@link User} entities found, or an empty list if none match
-     * @throws IllegalArgumentException if any id is invalid
-     */
     @Override
     public List<User> getUsersByIds(List<UUID> ids) {
         var userIds = ids.stream()
@@ -109,11 +81,6 @@ public class ReadUserService implements ReadUserUseCase {
                              .toList();
     }
 
-    /**
-     * Retrieves all users from the system.
-     *
-     * @return a {@link List} of all {@link User} entities
-     */
     @Override
     public List<User> getAllUsers() {
         return userRepository.findAll()

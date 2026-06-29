@@ -53,15 +53,6 @@ public class CreateTaskService implements CreateTaskUseCase {
         this.taskRepository = taskRepository;
     }
 
-    /**
-     * Creates a new task based on the provided command.
-     * <p>
-     * Orchestrates the complete task creation workflow: domain object creation and persistence.
-     *
-     * @param command the {@link CreateTaskCommand} containing task registration data
-     * @return the created {@link Task} with a generated persistent ID
-     * @throws IllegalArgumentException if any data within the command is invalid (blank title, invalid dates, etc.)
-     */
     @Override
     @Transactional
     public Task createTask(CreateTaskCommand command) {

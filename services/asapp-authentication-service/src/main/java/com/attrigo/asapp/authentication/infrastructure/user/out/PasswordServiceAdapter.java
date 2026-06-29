@@ -48,10 +48,8 @@ public class PasswordServiceAdapter implements PasswordService {
     }
 
     /**
-     * Encodes a raw password into its hashed representation.
+     * {@inheritDoc}
      *
-     * @param rawPassword the {@link RawPassword} to encode
-     * @return the {@link EncodedPassword} with algorithm prefix
      * @throws IllegalArgumentException if the raw password is invalid
      */
     @Override
