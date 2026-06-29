@@ -57,10 +57,10 @@
         * [X] Create custom Skill to close a task
     * Other
         * [X] Rename all references from com.bcn to com.attrigo
-        - [ ] Rename RestApi classes by Api?
-        - [ ] Enrich Javadoc of RestApi methods with OpenApi @Operation description vlaue
-        - [ ] Remove Javadoc of implementation classes when their interface says the same (same content)
+        - [X] Remove "Rest" word in non-involved Rest classes "*RestAPI" classes by "*API" and "*RestAPIURL" by "*APIURL"
         - [ ] Test OpenApi properly exposes contract/endpoints in OpenApiEndpointsIT (modify ReturnsStatusOkAndBodyWithApiSpec_OnOpenApiDocs to assert response contains only business operations)
+        - [ ] Add the value of @Operation description to the Javadoc of each API method as new <p>
+        - [ ] Remove the Javadoc of implementation methods when their interface says the same (same content)
         - [ ] Add task progress to both release Claude commands
         - [ ] Improve release skill to add specs files in version folder
 

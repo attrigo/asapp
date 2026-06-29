@@ -17,9 +17,9 @@
 package com.attrigo.asapp.authentication.infrastructure.authentication.in;
 
 import static com.attrigo.asapp.authentication.testutil.fixture.JwtAuthenticationMother.anAuthenticatedJwtAuthentication;
-import static com.attrigo.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_REFRESH_TOKEN_FULL_PATH;
-import static com.attrigo.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_REVOKE_FULL_PATH;
-import static com.attrigo.asapp.url.authentication.AuthenticationRestAPIURL.AUTH_TOKEN_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.AuthenticationAPIURL.AUTH_REFRESH_TOKEN_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.AuthenticationAPIURL.AUTH_REVOKE_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.AuthenticationAPIURL.AUTH_TOKEN_FULL_PATH;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
@@ -50,7 +50,7 @@ import com.attrigo.asapp.authentication.testutil.RestDocsConstrainedFields;
 import com.attrigo.asapp.authentication.testutil.RestDocsWebMvcTestContext;
 
 /**
- * Tests {@link AuthenticationRestController} REST API documentation.
+ * Tests {@link AuthenticationAPI} contract documentation.
  * <p>
  * Setup:
  * <li>Loads the web layer with a mock MVC environment and mocked service collaborators</li>
@@ -62,7 +62,7 @@ import com.attrigo.asapp.authentication.testutil.RestDocsWebMvcTestContext;
  * <li>Covers successful request and response flows for each HTTP operation</li>
  * <li>Covers error responses for validation failures, invalid credentials, server errors, and service unavailability</li>
  */
-class AuthenticationRestControllerDocumentationIT extends RestDocsWebMvcTestContext {
+class AuthenticationAPIDocumentationIT extends RestDocsWebMvcTestContext {
 
     @Nested
     class Authenticate {
