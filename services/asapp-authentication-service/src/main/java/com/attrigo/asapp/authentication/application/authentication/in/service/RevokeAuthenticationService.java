@@ -78,18 +78,9 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
     }
 
     /**
-     * Revokes an authentication using a valid access token.
-     * <p>
-     * Orchestrates the complete revocation workflow: verification and removal from both storage systems.
-     * <p>
-     * First deletes from fast-access store, then deletes from repository. If repository deletion fails, tokens are restored to fast-access store via
-     * compensating transaction.
+     * {@inheritDoc}
      *
-     * @param accessToken the access token string
-     * @throws InvalidEncodedTokenException    if the access token does not conform to JWT format
-     * @throws UnexpectedJwtTypeException      if the provided token is not an access token
-     * @throws AuthenticationNotFoundException if the token is not found in active sessions or repository
-     * @throws PersistenceException            if authentication deletion fails
+     * @throws InvalidEncodedTokenException if the access token does not conform to JWT format
      */
     @Override
     @Transactional

@@ -88,19 +88,11 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
     }
 
     /**
-     * Refreshes an authentication using a valid refresh token.
-     * <p>
-     * Orchestrates the complete token refresh workflow: verification, new token generation, and persistence with cleanup.
+     * {@inheritDoc}
      * <p>
      * First updates repository, then updates fast-access store. If fast-access store fails, old state is restored via compensating transaction.
      *
-     * @param refreshToken the refresh token string
-     * @return the {@link JwtAuthentication} containing new access and refresh tokens
-     * @throws InvalidEncodedTokenException     if the refresh token does not conform to JWT format
-     * @throws UnexpectedJwtTypeException       if the provided token is not a refresh token
-     * @throws AuthenticationNotFoundException  if the token is not found in active sessions or repository
-     * @throws TokenStoreException              if token rotation fails (after compensation)
-     * @throws CompensatingTransactionException if compensating transaction fails
+     * @throws InvalidEncodedTokenException if the refresh token does not conform to JWT format
      */
     @Override
     @Transactional

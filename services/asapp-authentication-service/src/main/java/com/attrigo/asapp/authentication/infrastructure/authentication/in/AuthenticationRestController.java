@@ -64,15 +64,6 @@ public class AuthenticationRestController implements AuthenticationApi {
         this.jwtAuthenticationMapper = jwtAuthenticationMapper;
     }
 
-    /**
-     * Authenticates a user with the given credentials and provides a new JWT authentication.
-     * <p>
-     * Each authentication creates a new session with fresh tokens. Previous authentications for the user remain valid until they expire or are explicitly
-     * revoked, allowing multiple concurrent sessions.
-     *
-     * @param request the {@link AuthenticateRequest} containing user credentials
-     * @return the {@link AuthenticateResponse} containing access and refresh tokens
-     */
     @Override
     public AuthenticateResponse authenticate(AuthenticateRequest request) {
         var authenticateCommand = jwtAuthenticationMapper.toAuthenticateCommand(request);
@@ -82,14 +73,6 @@ public class AuthenticationRestController implements AuthenticationApi {
         return jwtAuthenticationMapper.toAuthenticateResponse(authentication);
     }
 
-    /**
-     * Refreshes a JWT authentication using a refresh token.
-     * <p>
-     * Updates the existing session with new tokens, invalidating the old ones.
-     *
-     * @param request the {@link RefreshAuthenticationRequest} containing the refresh token
-     * @return the {@link RefreshAuthenticationResponse} containing new access and refresh tokens
-     */
     @Override
     public RefreshAuthenticationResponse refreshAuthentication(RefreshAuthenticationRequest request) {
         var refreshedAuthentication = refreshAuthenticationUseCase.refreshAuthentication(request.refreshToken());
@@ -97,13 +80,6 @@ public class AuthenticationRestController implements AuthenticationApi {
         return jwtAuthenticationMapper.toRefreshAuthenticationResponse(refreshedAuthentication);
     }
 
-    /**
-     * Revokes a JWT authentication using an access token.
-     * <p>
-     * Invalidates the JWT authentication, effectively logging out the user.
-     *
-     * @param request the {@link RevokeAuthenticationRequest} containing the access token
-     */
     @Override
     public void revokeAuthentication(RevokeAuthenticationRequest request) {
         revokeAuthenticationUseCase.revokeAuthentication(request.accessToken());

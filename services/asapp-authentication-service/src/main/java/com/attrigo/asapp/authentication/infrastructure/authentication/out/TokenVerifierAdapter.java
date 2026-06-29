@@ -53,27 +53,11 @@ public class TokenVerifierAdapter implements TokenVerifier {
         this.jwtVerifier = jwtVerifier;
     }
 
-    /**
-     * Verifies an access token by delegating to {@link JwtVerifier}.
-     *
-     * @param encodedToken the {@link EncodedToken} to verify
-     * @throws InvalidJwtException             if the token is invalid, malformed, expired, or signature verification fails
-     * @throws UnexpectedJwtTypeException      if the token is not an access token
-     * @throws AuthenticationNotFoundException if the authentication session is not found
-     */
     @Override
     public void verifyAccessToken(EncodedToken encodedToken) {
         jwtVerifier.verifyAccessToken(encodedToken);
     }
 
-    /**
-     * Verifies a refresh token by delegating to {@link JwtVerifier}.
-     *
-     * @param encodedToken the {@link EncodedToken} to verify
-     * @throws InvalidJwtException             if the token is invalid, malformed, expired, or signature verification fails
-     * @throws UnexpectedJwtTypeException      if the token is not a refresh token
-     * @throws AuthenticationNotFoundException if the authentication session is not found
-     */
     @Override
     public void verifyRefreshToken(EncodedToken encodedToken) {
         jwtVerifier.verifyRefreshToken(encodedToken);

@@ -86,17 +86,9 @@ public class AuthenticateService implements AuthenticateUseCase {
     }
 
     /**
-     * Authenticates a user based on provided credentials.
-     * <p>
-     * Orchestrates the complete authentication workflow: credential validation, token generation, and persistence.
+     * {@inheritDoc}
      * <p>
      * Saves to repository first, then stores in fast-access store. If fast-access store fails, the repository save is rolled back by the enclosing transaction.
-     *
-     * @param authenticateCommand the {@link AuthenticateCommand} containing user credentials
-     * @return the {@link JwtAuthentication} containing access and refresh tokens with persistent ID
-     * @throws InvalidUsernameException if the username is invalid (domain validation)
-     * @throws InvalidPasswordException if the password is invalid (domain validation)
-     * @throws TokenStoreException      if token activation fails
      */
     @Override
     @Transactional

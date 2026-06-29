@@ -75,12 +75,6 @@ public class UserRestController implements UserApi {
         this.userMapper = userMapper;
     }
 
-    /**
-     * Gets a user by their unique identifier.
-     *
-     * @param id the user's unique identifier
-     * @return a {@link ResponseEntity} wrapping the {@link GetUserByIdResponse} if found, otherwise wrapping empty
-     */
     @Override
     public ResponseEntity<GetUserByIdResponse> getUserById(UUID id) {
         return readUserUseCase.getUserById(id)
@@ -90,11 +84,6 @@ public class UserRestController implements UserApi {
                                                              .build());
     }
 
-    /**
-     * Gets all users from the system.
-     *
-     * @return a {@link List} of {@link GetAllUsersResponse} containing all users found, or an empty list if no users exist
-     */
     @Override
     public List<GetAllUsersResponse> getAllUsers() {
         return readUserUseCase.getAllUsers()
@@ -103,12 +92,6 @@ public class UserRestController implements UserApi {
                               .toList();
     }
 
-    /**
-     * Creates a new user in the system. Response codes:
-     *
-     * @param request the {@link CreateUserRequest} containing user data
-     * @return the {@link CreateUserResponse} containing the created user's information
-     */
     @Override
     public CreateUserResponse createUser(CreateUserRequest request) {
         var command = userMapper.toCreateUserCommand(request);
@@ -118,13 +101,6 @@ public class UserRestController implements UserApi {
         return userMapper.toCreateUserResponse(userCreated);
     }
 
-    /**
-     * Updates an existing user by their unique identifier.
-     *
-     * @param id      the user's unique identifier
-     * @param request the {@link UpdateUserRequest} containing updated user data
-     * @return a {@link ResponseEntity} wrapping the {@link UpdateUserResponse} if found, otherwise wrapping empty
-     */
     @Override
     public ResponseEntity<UpdateUserResponse> updateUserById(UUID id, UpdateUserRequest request) {
         var command = userMapper.toUpdateUserCommand(id, request);
@@ -136,14 +112,6 @@ public class UserRestController implements UserApi {
                                                                .build());
     }
 
-    /**
-     * Deletes a user by their unique identifier.
-     * <p>
-     * If the user has active authentications, they will be revoked before deletion.
-     *
-     * @param id the user's unique identifier
-     * @return a {@link ResponseEntity} wrapping empty upon successful deletion
-     */
     @Override
     public ResponseEntity<Void> deleteUserById(UUID id) {
         boolean userHasBeenDeleted = deleteUserUseCase.deleteUserById(id);

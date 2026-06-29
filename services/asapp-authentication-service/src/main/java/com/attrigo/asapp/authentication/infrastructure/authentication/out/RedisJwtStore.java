@@ -74,17 +74,14 @@ public class RedisJwtStore implements TokenStore {
     }
 
     /**
-     * Checks if an access token exists in Redis.
+     * {@inheritDoc}
      * <p>
-     * Verifies token presence without retrieving its value, providing fast O(1) lookup to determine if an access token is still valid and has not been revoked.
+     * Verifies token presence without retrieving its value, providing fast O(1) lookup.
      * <p>
      * <strong>Redis Operations:</strong>
      * <ul>
      * <li>EXISTS {@code jwt:access_token:<token>}</li>
      * </ul>
-     *
-     * @param accessToken the {@link EncodedToken} representing the access token to check
-     * @return {@code true} if the access token exists in Redis, {@code false} otherwise
      */
     @Override
     public Boolean accessTokenExists(EncodedToken accessToken) {
@@ -94,17 +91,14 @@ public class RedisJwtStore implements TokenStore {
     }
 
     /**
-     * Checks if a refresh token exists in Redis.
+     * {@inheritDoc}
      * <p>
-     * Verifies token presence without retrieving its value, providing fast O(1) lookup to determine if a refresh token is still valid and has not been revoked.
+     * Verifies token presence without retrieving its value, providing fast O(1) lookup.
      * <p>
      * <strong>Redis Operations:</strong>
      * <ul>
      * <li>EXISTS {@code jwt:refresh_token:<token>}</li>
      * </ul>
-     *
-     * @param refreshToken the {@link EncodedToken} representing the refresh token to check
-     * @return {@code true} if the refresh token exists in Redis, {@code false} otherwise
      */
     @Override
     public Boolean refreshTokenExists(EncodedToken refreshToken) {
@@ -114,10 +108,10 @@ public class RedisJwtStore implements TokenStore {
     }
 
     /**
-     * Saves a JWT pair in Redis.
+     * {@inheritDoc}
      * <p>
-     * Both access and refresh tokens are stored atomically using Redis pipelining with automatic expiration calculated from the token's expiration timestamp.
-     * Tokens are stored with empty values as only their presence needs to be validated.
+     * Both tokens are stored atomically using Redis pipelining with TTL derived from each token's expiration timestamp. Tokens are stored with empty values as
+     * only their presence needs to be validated.
      * <p>
      * <strong>Redis Operations:</strong>
      * <ul>
@@ -125,7 +119,6 @@ public class RedisJwtStore implements TokenStore {
      * <li>SETEX {@code jwt:refresh_token:<token>} with TTL from refresh token expiration</li>
      * </ul>
      *
-     * @param jwtPair the {@link JwtPair} containing the token pair to save
      * @throws TokenStoreException if the Redis operation fails
      */
     @Override
@@ -155,9 +148,9 @@ public class RedisJwtStore implements TokenStore {
     }
 
     /**
-     * Deletes a JWT pair from Redis.
+     * {@inheritDoc}
      * <p>
-     * Both access and refresh tokens are removed atomically using Redis pipelining, effectively invalidating them immediately.
+     * Both tokens are removed atomically using Redis pipelining.
      * <p>
      * <strong>Redis Operations:</strong>
      * <ul>
@@ -165,7 +158,6 @@ public class RedisJwtStore implements TokenStore {
      * <li>DEL {@code jwt:refresh_token:<token>}</li>
      * </ul>
      *
-     * @param jwtPair the {@link JwtPair} containing the token pair to delete
      * @throws TokenStoreException if the Redis operation fails
      */
     @Override

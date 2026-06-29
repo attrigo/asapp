@@ -68,13 +68,6 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
         this.jwtAuthenticationMapper = jwtAuthenticationMapper;
     }
 
-    /**
-     * Finds a JWT authentication by its access token.
-     *
-     * @param accessToken the encoded access token
-     * @return the {@link JwtAuthentication} associated with the access token
-     * @throws AuthenticationNotFoundException if authentication is not found
-     */
     @Override
     public JwtAuthentication findByAccessToken(EncodedToken accessToken) {
         logger.trace("[JWT_AUTH_REPOSITORY] Finding authentication by access token");
@@ -84,13 +77,6 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
                                                   "Authentication session not found in repository for access token: %s".formatted(accessToken.token())));
     }
 
-    /**
-     * Finds a JWT authentication by its refresh token.
-     *
-     * @param refreshToken the encoded refresh token
-     * @return the {@link JwtAuthentication} associated with the refresh token
-     * @throws AuthenticationNotFoundException if authentication is not found
-     */
     @Override
     public JwtAuthentication findByRefreshToken(EncodedToken refreshToken) {
         logger.trace("[JWT_AUTH_REPOSITORY] Finding authentication by refresh token");
@@ -100,12 +86,6 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
                                                   "Authentication session not found in repository for refresh token: %s".formatted(refreshToken.token())));
     }
 
-    /**
-     * Finds all JWT authentications associated with a user.
-     *
-     * @param userId the user's unique identifier
-     * @return a {@link List} of {@link JwtAuthentication} for the user, empty list if none found
-     */
     @Override
     public List<JwtAuthentication> findAllByUserId(UserId userId) {
         logger.trace("[JWT_AUTH_REPOSITORY] Finding all authentications by userId={}", userId.value());
@@ -115,16 +95,6 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
                                           .toList();
     }
 
-    /**
-     * Saves a JWT authentication to the repository.
-     * <p>
-     * If the authentication is unauthenticated (without ID), it will be persisted and returned with a generated ID.
-     * <p>
-     * If the authentication is authenticated (with ID), it will be updated.
-     *
-     * @param jwtAuthentication the {@link JwtAuthentication} to save
-     * @return the saved {@link JwtAuthentication} with a persistent ID
-     */
     @Override
     public JwtAuthentication save(JwtAuthentication jwtAuthentication) {
         logger.trace("[JWT_AUTH_REPOSITORY] Saving authentication");
@@ -136,9 +106,8 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
     }
 
     /**
-     * Deletes a JWT authentication by its unique identifier.
+     * {@inheritDoc}
      *
-     * @param jwtAuthenticationId the JWT authentication's unique identifier
      * @throws AuthenticationPersistenceException if the database operation fails
      */
     @Override
@@ -153,9 +122,8 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
     }
 
     /**
-     * Deletes all JWT authentications associated with a user.
+     * {@inheritDoc}
      *
-     * @param userId the user's unique identifier
      * @throws AuthenticationPersistenceException if the database operation fails
      */
     @Override
@@ -169,12 +137,6 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
         }
     }
 
-    /**
-     * Deletes all JWT authentications with refresh tokens expired before the given instant.
-     *
-     * @param expiredBefore the instant before which refresh tokens are considered expired
-     * @return the number of deleted authentications
-     */
     @Override
     public Integer deleteAllByRefreshTokenExpiredBefore(Instant expiredBefore) {
         logger.trace("[JWT_AUTH_REPOSITORY] Deleting all authentications with expired refresh tokens");
