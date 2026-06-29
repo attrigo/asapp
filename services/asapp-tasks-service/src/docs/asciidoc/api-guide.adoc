@@ -11,7 +11,7 @@
 [[overview]]
 = Overview
 
-REST API documentation for the ASAPP Tasks Service.
+API documentation for the ASAPP Tasks Service.
 This service manages task lifecycle operations including creation, retrieval, update, and deletion.
 
 All endpoints require Bearer token authentication.
