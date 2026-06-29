@@ -51,23 +51,23 @@ class ConfigServerEndpointsIT {
 
     @Test
     void ReturnsStatusOkAndBodyContainsNameAndPropertySources_OnConfigEndpoint() {
-        // When & Then
-        restTestClient.get()
-                      .uri("/asapp-tasks-service/default")
-                      .headers(h -> h.setBasicAuth(configUsername, configPassword))
-                      .exchange()
-                      .expectStatus()
-                      .isOk()
-                      .expectBody(String.class)
-                      .consumeWith(response -> {
-                          var body = response.getResponseBody();
-                          assertThatJson(body).isNotNull()
-                                              .node("name")
-                                              .isEqualTo("asapp-tasks-service");
-                          assertThatJson(body).node("propertySources")
-                                              .isArray()
-                                              .isNotEmpty();
-                      });
+        // When
+        var actual = restTestClient.get()
+                                   .uri("/asapp-tasks-service/default")
+                                   .headers(h -> h.setBasicAuth(configUsername, configPassword))
+                                   .exchange()
+                                   .expectStatus()
+                                   .isOk()
+                                   .expectBody(String.class)
+                                   .returnResult()
+                                   .getResponseBody();
+
+        // Then
+        assertThatJson(actual).node("name")
+                              .isEqualTo("asapp-tasks-service");
+        assertThatJson(actual).node("propertySources")
+                              .isArray()
+                              .isNotEmpty();
     }
 
 }

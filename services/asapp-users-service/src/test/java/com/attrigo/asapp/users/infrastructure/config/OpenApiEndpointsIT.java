@@ -52,66 +52,72 @@ class OpenApiEndpointsIT {
 
     @Test
     void ReturnsStatusOkAndBodyWithHtmlContent_OnSwaggerIndexEndpoint() {
-        // When & Then
-        restTestClient.get()
-                      .uri("/swagger-ui/index.html")
-                      .exchange()
-                      .expectStatus()
-                      .isOk()
-                      .expectBody(String.class)
-                      .consumeWith(response -> assertThat(response.getResponseBody()).isNotBlank());
+        // When
+        var actual = restTestClient.get()
+                                   .uri("/swagger-ui/index.html")
+                                   .exchange()
+                                   .expectStatus()
+                                   .isOk()
+                                   .expectBody(String.class)
+                                   .returnResult()
+                                   .getResponseBody();
+
+        // Then
+        assertThat(actual).isNotBlank();
     }
 
     @Test
     void ReturnsStatusOkAndBodyContainsApiInfoAndSecurityScheme_OnOpenApiDocs() {
-        // When & Then
-        restTestClient.get()
-                      .uri("/v3/api-docs")
-                      .exchange()
-                      .expectStatus()
-                      .isOk()
-                      .expectBody(String.class)
-                      .consumeWith(response -> {
-                          var body = response.getResponseBody();
-                          assertThatJson(body).node("info")
-                                              .isObject()
-                                              .containsEntry("title", "Users Service API")
-                                              .containsEntry("description", "Provides users operations")
-                                              .node("license")
-                                              .isObject()
-                                              .containsEntry("name", "Apache-2.0");
-                          assertThatJson(body).node("components.securitySchemes")
-                                              .node("Bearer Authentication")
-                                              .isObject()
-                                              .containsEntry("type", "http")
-                                              .containsEntry("scheme", "bearer")
-                                              .containsEntry("bearerFormat", "JWT");
-                      });
+        // When
+        var actual = restTestClient.get()
+                                   .uri("/v3/api-docs")
+                                   .exchange()
+                                   .expectStatus()
+                                   .isOk()
+                                   .expectBody(String.class)
+                                   .returnResult()
+                                   .getResponseBody();
+
+        // Then
+        assertThatJson(actual).node("info")
+                              .isObject()
+                              .containsEntry("title", "Users Service API")
+                              .containsEntry("description", "Provides users operations")
+                              .node("license")
+                              .isObject()
+                              .containsEntry("name", "Apache-2.0");
+        assertThatJson(actual).node("components.securitySchemes")
+                              .node("Bearer Authentication")
+                              .isObject()
+                              .containsEntry("type", "http")
+                              .containsEntry("scheme", "bearer")
+                              .containsEntry("bearerFormat", "JWT");
     }
 
     @Test
     void ReturnsStatusOkAndBodyExposesOnlyBusinessOperations_OnOpenApiDocs() {
-        // When & Then
-        restTestClient.get()
-                      .uri("/v3/api-docs")
-                      .exchange()
-                      .expectStatus()
-                      .isOk()
-                      .expectBody(String.class)
-                      .consumeWith(response -> {
-                          var body = response.getResponseBody();
-                          assertThatJson(body).node("paths")
-                                              .isObject()
-                                              .containsOnlyKeys(USERS_GET_ALL_FULL_PATH, USERS_GET_BY_ID_FULL_PATH);
-                          assertThatJson(body).node("paths")
-                                              .node(USERS_GET_ALL_FULL_PATH)
-                                              .isObject()
-                                              .containsOnlyKeys("get", "post");
-                          assertThatJson(body).node("paths")
-                                              .node(USERS_GET_BY_ID_FULL_PATH)
-                                              .isObject()
-                                              .containsOnlyKeys("get", "put", "delete");
-                      });
+        // When
+        var actual = restTestClient.get()
+                                   .uri("/v3/api-docs")
+                                   .exchange()
+                                   .expectStatus()
+                                   .isOk()
+                                   .expectBody(String.class)
+                                   .returnResult()
+                                   .getResponseBody();
+
+        // Then
+        assertThatJson(actual).node("paths")
+                              .isObject()
+                              .containsOnlyKeys(USERS_GET_ALL_FULL_PATH, USERS_GET_BY_ID_FULL_PATH);
+        assertThatJson(actual).node("paths")
+                              .node(USERS_GET_ALL_FULL_PATH)
+                              .isObject()
+                              .containsOnlyKeys("get", "post");
+        assertThatJson(actual).node("paths")
+                              .node(USERS_GET_BY_ID_FULL_PATH)
+                              .isObject()
+                              .containsOnlyKeys("get", "put", "delete");
     }
 
 }
