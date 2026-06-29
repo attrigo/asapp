@@ -18,9 +18,6 @@ package com.attrigo.asapp.authentication.infrastructure.authentication.out;
 
 import org.springframework.stereotype.Component;
 
-import com.attrigo.asapp.authentication.application.authentication.AuthenticationNotFoundException;
-import com.attrigo.asapp.authentication.application.authentication.InvalidJwtException;
-import com.attrigo.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.attrigo.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.attrigo.asapp.authentication.domain.authentication.EncodedToken;
 import com.attrigo.asapp.authentication.infrastructure.security.DecodedJwt;

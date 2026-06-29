@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.attrigo.asapp.authentication.application.ApplicationService;
-import com.attrigo.asapp.authentication.application.authentication.TokenStoreException;
 import com.attrigo.asapp.authentication.application.authentication.in.AuthenticateUseCase;
 import com.attrigo.asapp.authentication.application.authentication.in.command.AuthenticateCommand;
 import com.attrigo.asapp.authentication.application.authentication.out.CredentialsAuthenticator;
@@ -31,8 +30,6 @@ import com.attrigo.asapp.authentication.application.authentication.out.TokenStor
 import com.attrigo.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.attrigo.asapp.authentication.domain.authentication.JwtPair;
 import com.attrigo.asapp.authentication.domain.authentication.UserAuthentication;
-import com.attrigo.asapp.authentication.domain.user.InvalidPasswordException;
-import com.attrigo.asapp.authentication.domain.user.InvalidUsernameException;
 import com.attrigo.asapp.authentication.domain.user.RawPassword;
 import com.attrigo.asapp.authentication.domain.user.Username;
 

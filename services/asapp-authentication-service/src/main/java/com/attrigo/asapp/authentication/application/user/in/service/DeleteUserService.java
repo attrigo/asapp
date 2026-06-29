@@ -22,7 +22,6 @@ import java.util.UUID;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.attrigo.asapp.authentication.application.ApplicationService;
-import com.attrigo.asapp.authentication.application.PersistenceException;
 import com.attrigo.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.attrigo.asapp.authentication.application.authentication.out.TokenStore;
 import com.attrigo.asapp.authentication.application.user.in.DeleteUserUseCase;

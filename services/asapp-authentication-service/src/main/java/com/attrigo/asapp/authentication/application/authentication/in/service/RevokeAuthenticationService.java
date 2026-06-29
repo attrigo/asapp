@@ -23,7 +23,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.attrigo.asapp.authentication.application.ApplicationService;
-import com.attrigo.asapp.authentication.application.PersistenceException;
 import com.attrigo.asapp.authentication.application.authentication.AuthenticationNotFoundException;
 import com.attrigo.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.attrigo.asapp.authentication.application.authentication.in.RevokeAuthenticationUseCase;
