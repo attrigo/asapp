@@ -71,6 +71,8 @@ public interface UserApi {
     /**
      * Gets a user by their unique identifier.
      * <p>
+     * Retrieves detailed information about a specific user by their unique identifier.
+     * <p>
      * Response codes:
      * <ul>
      * <li>200-OK: User found.</li>
@@ -99,6 +101,8 @@ public interface UserApi {
     /**
      * Gets all users.
      * <p>
+     * Retrieves a list of all registered users in the system. If no users exist, an empty array is returned.
+     * <p>
      * Response codes:
      * <ul>
      * <li>200-OK: Users retrieved successfully.</li>
@@ -122,6 +126,9 @@ public interface UserApi {
 
     /**
      * Creates a new user.
+     * <p>
+     * Creates a new user account in the system with the provided user information. Returns the user identifier. Use the GET endpoint to retrieve full user
+     * details.
      * <p>
      * Response codes:
      * <ul>
@@ -150,6 +157,9 @@ public interface UserApi {
 
     /**
      * Updates an existing user by their unique identifier.
+     * <p>
+     * Updates the information of an existing user identified by their unique identifier. Only the fields provided in the request will be updated. Returns the
+     * user identifier. Use the GET endpoint to retrieve full user details.
      * <p>
      * Response codes:
      * <ul>
@@ -184,6 +194,8 @@ public interface UserApi {
      * Deletes a user by their unique identifier.
      * <p>
      * If the user has active authentications, they will be revoked before deletion.
+     * <p>
+     * Removes a user from the system by their unique identifier. Removes the user's authentications before deletion. This operation cannot be undone.
      * <p>
      * Response codes:
      * <ul>

@@ -77,6 +77,8 @@ public interface TaskApi {
     /**
      * Gets a task by their unique identifier.
      * <p>
+     * Retrieves detailed information about a specific task by their unique identifier.
+     * <p>
      * Response codes:
      * <ul>
      * <li>200-OK: Task found.</li>
@@ -104,6 +106,9 @@ public interface TaskApi {
     /**
      * Gets all tasks for a specific user by their unique identifier.
      * <p>
+     * Retrieves a list of all tasks belonging to a specific user identified by their unique identifier. If no tasks exist for the user, an empty array is
+     * returned.
+     * <p>
      * Response codes:
      * <ul>
      * <li>200-OK: Tasks found for the user.</li>
@@ -130,6 +135,9 @@ public interface TaskApi {
 
     /**
      * Gets tasks, optionally filtered by their unique identifiers.
+     * <p>
+     * Retrieves tasks from the system. By default returns all tasks; when the {@code ids} query parameter is supplied, returns only the tasks whose identifiers
+     * are in the list. Duplicate identifiers are ignored. Returns an empty array if no tasks match.
      * <p>
      * Response codes:
      * <ul>
@@ -159,6 +167,8 @@ public interface TaskApi {
     /**
      * Creates a new task.
      * <p>
+     * Creates a new task in the system with the provided task information. Returns the task identifier. Use the GET endpoint to retrieve full task details.
+     * <p>
      * Response codes:
      * <ul>
      * <li>201-CREATED: Task created successfully.</li>
@@ -186,6 +196,9 @@ public interface TaskApi {
 
     /**
      * Updates an existing task by their unique identifier.
+     * <p>
+     * Updates the information of an existing task identified by their unique identifier. Only the fields provided in the request will be updated. Returns the
+     * task identifier. Use the GET endpoint to retrieve full task details.
      * <p>
      * Response codes:
      * <ul>
@@ -217,6 +230,8 @@ public interface TaskApi {
 
     /**
      * Deletes a task by their unique identifier.
+     * <p>
+     * Removes a task from the system by their unique identifier. This operation cannot be undone.
      * <p>
      * Response codes:
      * <ul>
