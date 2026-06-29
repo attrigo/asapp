@@ -60,7 +60,7 @@ import com.attrigo.asapp.tasks.infrastructure.task.in.response.GetTasksResponse;
 import com.attrigo.asapp.tasks.infrastructure.task.in.response.UpdateTaskResponse;
 
 /**
- * REST API contract for task management operations.
+ * API contract for task management operations.
  * <p>
  * Defines the HTTP endpoints for CRUD operations on tasks, including OpenAPI documentation.
  *
@@ -68,9 +68,9 @@ import com.attrigo.asapp.tasks.infrastructure.task.in.response.UpdateTaskRespons
  * @author attrigo
  */
 @RequestMapping(TASKS_ROOT_PATH)
-@Tag(name = "Task Operations", description = "REST API contract for managing tasks")
+@Tag(name = "Task Operations", description = "API contract for managing tasks")
 @SecurityRequirement(name = "Bearer Authentication")
-public interface TaskRestAPI {
+public interface TaskAPI {
 
     /**
      * Gets a task by their unique identifier.

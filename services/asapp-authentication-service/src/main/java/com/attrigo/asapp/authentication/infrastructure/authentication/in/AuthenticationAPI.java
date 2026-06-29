@@ -42,7 +42,7 @@ import com.attrigo.asapp.authentication.infrastructure.authentication.in.respons
 import com.attrigo.asapp.authentication.infrastructure.authentication.in.response.RefreshAuthenticationResponse;
 
 /**
- * REST API contract for authentication operations.
+ * API contract for authentication operations.
  * <p>
  * Defines the HTTP endpoints for JWT authentication operations, including OpenAPI documentation.
  *
@@ -50,8 +50,8 @@ import com.attrigo.asapp.authentication.infrastructure.authentication.in.respons
  * @author attrigo
  */
 @RequestMapping(AUTH_ROOT_PATH)
-@Tag(name = "Authentication operations", description = "REST API contract for authentication operations")
-public interface AuthenticationRestAPI {
+@Tag(name = "Authentication operations", description = "API contract for authentication operations")
+public interface AuthenticationAPI {
 
     /**
      * Authenticates a user with the given credentials and provides a new JWT authentication.
