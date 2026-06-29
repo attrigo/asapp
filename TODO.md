@@ -60,7 +60,12 @@
         - [X] Remove "Rest" word in non-involved Rest classes "*RestAPI" classes by "*API" and "*RestAPIURL" by "*APIURL"
         - [X] Test OpenApi properly exposes contract/endpoints in OpenApiEndpointsIT (modify ReturnsStatusOkAndBodyWithApiSpec_OnOpenApiDocs to assert response contains only business operations)
         - [X] Add the value of @Operation description to the Javadoc of each API method as new <p>
-        - [ ] Remove the Javadoc of implementation methods when their interface says the same (same content)
+        - [X] Remove the Javadoc of implementation methods when their interface says the same (same content)
+        - [ ] Complete the exception contracts on interfaces
+            * [ ] Correct and complete the authentication use-case exception contracts
+            * [ ] Document exceptions raised by the persistence, token-store, and password services
+            * [ ] Translate the framework credentials exception to a domain exception
+            * [ ] Record that interfaces own their exception contract
         - [ ] Add task progress to both release Claude commands
         - [ ] Improve release skill to add specs files in version folder
 
