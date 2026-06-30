@@ -19,12 +19,13 @@ package com.attrigo.asapp.authentication.infrastructure.authentication.out;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Component;
 
+import com.attrigo.asapp.authentication.application.authentication.InvalidCredentialsException;
 import com.attrigo.asapp.authentication.application.authentication.out.CredentialsAuthenticator;
 import com.attrigo.asapp.authentication.domain.authentication.UserAuthentication;
 import com.attrigo.asapp.authentication.domain.user.RawPassword;
@@ -64,11 +65,6 @@ public class CredentialsAuthenticatorAdapter implements CredentialsAuthenticator
         this.authenticationManager = authenticationManager;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws BadCredentialsException if authentication fails
-     */
     @Override
     public UserAuthentication authenticate(Username username, RawPassword password) {
         logger.debug("[CREDENTIALS_AUTH] Authenticating credentials with username={}", username);
@@ -77,9 +73,8 @@ public class CredentialsAuthenticatorAdapter implements CredentialsAuthenticator
             var authenticationToken = authenticateUsernamePassword(username, password);
 
             return buildUserAuthentication(authenticationToken);
-        } catch (Exception e) {
-            var message = "Authentication failed due to: %s".formatted(e.getMessage());
-            throw new BadCredentialsException(message, e);
+        } catch (AuthenticationException e) {
+            throw new InvalidCredentialsException("Invalid credentials", e);
         }
     }
 
@@ -89,7 +84,7 @@ public class CredentialsAuthenticatorAdapter implements CredentialsAuthenticator
      * @param username the {@link Username} to authenticate
      * @param password the {@link RawPassword} to validate
      * @return the Spring Security {@link Authentication} token if authentication succeeds
-     * @throws BadCredentialsException if the credentials are invalid
+     * @throws AuthenticationException if the credentials are invalid
      */
     private Authentication authenticateUsernamePassword(Username username, RawPassword password) {
         logger.trace("[CREDENTIALS_AUTH] Step 1/2: Validating credentials with authentication manager");
