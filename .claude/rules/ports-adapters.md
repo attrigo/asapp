@@ -44,8 +44,9 @@ paths:
 
 ## Exception Handling
 
-- Only translate infrastructure exceptions into application exceptions when the application service needs to catch them (e.g., `TokenStoreException`). Everything else propagates to `GlobalExceptionHandler` or Spring Security filters
-- Never wrap `BadCredentialsException` or Spring's `AuthenticationException` subtypes — Spring Security filters run before `DispatcherServlet`; wrapping breaks the filter chain
+- An interface owns its exception contract: each port and use-case interface declares every application/domain exception its callers can observe
+- Translate a framework exception to an application type at the adapter only when the service must catch it (e.g. `TokenStoreException` for compensation) or the interface contract requires an owned type (e.g. `InvalidCredentialsException` on login); otherwise let it propagate
+- Wrapping Spring `AuthenticationException`/`BadCredentialsException` is path-dependent: never inside a Security filter (JWT resource-server path); do inside a use-case-invoked adapter (login path)
 - Exception placement: directly in the functional package (e.g., `application/authentication/`)
 - Exception hierarchy:
 
