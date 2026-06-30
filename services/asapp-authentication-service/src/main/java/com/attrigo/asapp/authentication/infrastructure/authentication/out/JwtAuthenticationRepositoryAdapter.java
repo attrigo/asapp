@@ -105,11 +105,6 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
         return jwtAuthenticationMapper.toJwtAuthentication(jwtAuthenticationSaved);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws AuthenticationPersistenceException if the database operation fails
-     */
     @Override
     public void deleteById(JwtAuthenticationId jwtAuthenticationId) {
         logger.trace("[JWT_AUTH_REPOSITORY] Deleting authentication by authenticationId={}", jwtAuthenticationId.value());
@@ -121,11 +116,6 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
         }
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws AuthenticationPersistenceException if the database operation fails
-     */
     @Override
     public void deleteAllByUserId(UserId userId) {
         logger.trace("[JWT_AUTH_REPOSITORY] Deleting all authentications by userId={}", userId.value());

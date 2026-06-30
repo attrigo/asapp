@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.util.List;
 
 import com.attrigo.asapp.authentication.application.authentication.AuthenticationNotFoundException;
+import com.attrigo.asapp.authentication.application.authentication.AuthenticationPersistenceException;
 import com.attrigo.asapp.authentication.domain.authentication.EncodedToken;
 import com.attrigo.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.attrigo.asapp.authentication.domain.authentication.JwtAuthenticationId;
@@ -77,6 +78,7 @@ public interface JwtAuthenticationRepository {
      * Deletes a JWT authentication by its unique identifier.
      *
      * @param jwtAuthenticationId the JWT authentication's unique identifier
+     * @throws AuthenticationPersistenceException if the persistence operation fails
      */
     void deleteById(JwtAuthenticationId jwtAuthenticationId);
 
@@ -84,6 +86,7 @@ public interface JwtAuthenticationRepository {
      * Deletes all JWT authentications associated with a user.
      *
      * @param userId the user's unique identifier
+     * @throws AuthenticationPersistenceException if the persistence operation fails
      */
     void deleteAllByUserId(UserId userId);
 

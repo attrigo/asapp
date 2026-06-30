@@ -47,11 +47,6 @@ public class PasswordServiceAdapter implements PasswordService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws IllegalArgumentException if the raw password is invalid
-     */
     @Override
     public EncodedPassword encode(RawPassword rawPassword) {
         var encodedPassword = passwordEncoder.encode(rawPassword.value());
