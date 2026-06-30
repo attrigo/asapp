@@ -47,7 +47,7 @@ import com.attrigo.asapp.authentication.domain.user.Username;
  * <li>Stores tokens in fast-access store</li>
  * </ol>
  * <p>
- * If fast-access store fails after repository commit, the persisted authentication is deleted to maintain consistency between storage systems.
+ * The fast-access store write is performed last, so if it fails the enclosing transaction rolls back the repository save and no compensation is needed.
  *
  * @since 0.2.0
  * @author attrigo
@@ -85,7 +85,8 @@ public class AuthenticateService implements AuthenticateUseCase {
     /**
      * {@inheritDoc}
      * <p>
-     * Saves to repository first, then stores in fast-access store. If fast-access store fails, the repository save is rolled back by the enclosing transaction.
+     * Runs in a single transaction: the authentication is saved to the repository and then its tokens are stored in the fast-access store. The store write is
+     * performed last, so any failure rolls the whole operation back, leaving no partial state and requiring no compensation.
      */
     @Override
     @Transactional

@@ -70,6 +70,12 @@ public class DeleteUserService implements DeleteUserUseCase {
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Runs in a single transaction: the user's authentications and the user itself are deleted from the repository and then the tokens are deactivated in the
+     * store. The store deletion is performed last, so any failure rolls the whole operation back, leaving no partial state and requiring no compensation.
+     */
     @Override
     @Transactional
     public Boolean deleteUserById(UUID id) {

@@ -89,7 +89,9 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
     /**
      * {@inheritDoc}
      * <p>
-     * First updates repository, then updates fast-access store. If fast-access store fails, old state is restored via compensating transaction.
+     * Runs in a single transaction: the authentication is updated in the repository and then its tokens are rotated in the fast-access store (old tokens
+     * removed, new tokens stored). If the store rotation fails, the old tokens are restored and the repository update is rolled back, so no partial state
+     * remains.
      */
     @Override
     @Transactional

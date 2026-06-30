@@ -75,6 +75,12 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
         this.tokenStore = tokenStore;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Runs in a single transaction: the authentication is deleted from the repository and then its tokens are deactivated in the store. The store deletion is
+     * performed last, so any failure rolls the whole operation back, leaving no partial state and requiring no compensation.
+     */
     @Override
     @Transactional
     public void revokeAuthentication(String accessToken) {
