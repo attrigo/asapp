@@ -30,7 +30,6 @@ import com.attrigo.asapp.authentication.application.authentication.out.JwtAuthen
 import com.attrigo.asapp.authentication.application.authentication.out.TokenStore;
 import com.attrigo.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.attrigo.asapp.authentication.domain.authentication.EncodedToken;
-import com.attrigo.asapp.authentication.domain.authentication.InvalidEncodedTokenException;
 import com.attrigo.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.attrigo.asapp.authentication.domain.authentication.JwtPair;
 
@@ -76,11 +75,6 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
         this.tokenStore = tokenStore;
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws InvalidEncodedTokenException if the access token does not conform to JWT format
-     */
     @Override
     @Transactional
     public void revokeAuthentication(String accessToken) {

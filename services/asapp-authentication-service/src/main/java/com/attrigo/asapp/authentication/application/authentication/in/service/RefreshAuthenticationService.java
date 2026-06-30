@@ -31,7 +31,6 @@ import com.attrigo.asapp.authentication.application.authentication.out.TokenIssu
 import com.attrigo.asapp.authentication.application.authentication.out.TokenStore;
 import com.attrigo.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.attrigo.asapp.authentication.domain.authentication.EncodedToken;
-import com.attrigo.asapp.authentication.domain.authentication.InvalidEncodedTokenException;
 import com.attrigo.asapp.authentication.domain.authentication.Jwt;
 import com.attrigo.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.attrigo.asapp.authentication.domain.authentication.JwtPair;
@@ -91,8 +90,6 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
      * {@inheritDoc}
      * <p>
      * First updates repository, then updates fast-access store. If fast-access store fails, old state is restored via compensating transaction.
-     *
-     * @throws InvalidEncodedTokenException if the refresh token does not conform to JWT format
      */
     @Override
     @Transactional
