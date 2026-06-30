@@ -17,7 +17,6 @@
 package com.attrigo.asapp.authentication.application.authentication.in;
 
 import com.attrigo.asapp.authentication.application.authentication.AuthenticationNotFoundException;
-import com.attrigo.asapp.authentication.application.authentication.AuthenticationPersistenceException;
 import com.attrigo.asapp.authentication.application.authentication.InvalidJwtException;
 import com.attrigo.asapp.authentication.application.authentication.TokenStoreException;
 import com.attrigo.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
@@ -37,12 +36,11 @@ public interface RevokeAuthenticationUseCase {
      * Revokes an authentication using a valid access token.
      *
      * @param accessToken the access token string
-     * @throws InvalidEncodedTokenException       if the access token is null, blank, or not a valid JWT format
-     * @throws InvalidJwtException                if the token is malformed, expired, or fails signature verification
-     * @throws UnexpectedJwtTypeException         if the provided token is not an access token
-     * @throws AuthenticationNotFoundException    if the token is not found in active sessions or repository
-     * @throws AuthenticationPersistenceException if authentication deletion fails
-     * @throws TokenStoreException                if token deactivation fails
+     * @throws InvalidEncodedTokenException    if the access token is null, blank, or not a valid JWT format
+     * @throws InvalidJwtException             if the token is malformed, expired, or fails signature verification
+     * @throws UnexpectedJwtTypeException      if the provided token is not an access token
+     * @throws AuthenticationNotFoundException if the token is not found in active sessions or repository
+     * @throws TokenStoreException             if token deactivation fails
      */
     void revokeAuthentication(String accessToken);
 

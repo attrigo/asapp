@@ -19,10 +19,8 @@ package com.attrigo.asapp.authentication.infrastructure.user.out;
 import java.util.Collection;
 import java.util.Optional;
 
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
-import com.attrigo.asapp.authentication.application.user.UserPersistenceException;
 import com.attrigo.asapp.authentication.application.user.out.UserRepository;
 import com.attrigo.asapp.authentication.domain.user.User;
 import com.attrigo.asapp.authentication.domain.user.UserId;
@@ -79,19 +77,9 @@ public class UserRepositoryAdapter implements UserRepository {
         return userMapper.toUser(userSaved);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws UserPersistenceException if the database operation fails
-     */
     @Override
     public Boolean deleteById(UserId userId) {
-        try {
-            return userRepository.deleteUserById(userId.value()) > 0;
-
-        } catch (DataAccessException e) {
-            throw new UserPersistenceException("Could not delete user from repository", e);
-        }
+        return userRepository.deleteUserById(userId.value()) > 0;
     }
 
 }

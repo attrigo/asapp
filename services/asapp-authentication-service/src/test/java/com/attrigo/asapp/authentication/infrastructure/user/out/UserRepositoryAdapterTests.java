@@ -17,11 +17,9 @@
 package com.attrigo.asapp.authentication.infrastructure.user.out;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.times;
-import static org.mockito.BDDMockito.willThrow;
 
 import java.util.UUID;
 
@@ -31,19 +29,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataRetrievalFailureException;
 
-import com.attrigo.asapp.authentication.application.user.UserPersistenceException;
 import com.attrigo.asapp.authentication.domain.user.UserId;
 import com.attrigo.asapp.authentication.infrastructure.user.persistence.JdbcUserRepository;
 
 /**
- * Tests {@link UserRepositoryAdapter} delete result mapping and persistence error handling.
+ * Tests {@link UserRepositoryAdapter} delete result mapping.
  * <p>
  * Coverage:
  * <li>User deletion returns true when user was found and deleted</li>
  * <li>User deletion returns false when user was not found</li>
- * <li>User deletion translates database failures to persistence exception</li>
  */
 @ExtendWith(MockitoExtension.class)
 class UserRepositoryAdapterTests {
@@ -86,26 +81,6 @@ class UserRepositoryAdapterTests {
 
             // Then
             assertThat(actual).isFalse();
-
-            then(userRepository).should(times(1))
-                                .deleteUserById(userId.value());
-        }
-
-        @Test
-        void ThrowsUserPersistenceException_DatabaseOperationFails() {
-            // Given
-            var userId = UserId.of(UUID.fromString("a1b2c3d4-e5f6-4789-a0b1-c2d3e4f5a6b7"));
-
-            willThrow(new DataRetrievalFailureException("Database error")).given(userRepository)
-                                                                          .deleteUserById(userId.value());
-
-            // When
-            var actual = catchThrowable(() -> userRepositoryAdapter.deleteById(userId));
-
-            // Then
-            assertThat(actual).isInstanceOf(UserPersistenceException.class)
-                              .hasMessage("Could not delete user from repository")
-                              .hasCauseInstanceOf(DataRetrievalFailureException.class);
 
             then(userRepository).should(times(1))
                                 .deleteUserById(userId.value());

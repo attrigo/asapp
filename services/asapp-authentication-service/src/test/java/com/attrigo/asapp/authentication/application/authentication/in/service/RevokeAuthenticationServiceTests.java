@@ -35,7 +35,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import com.attrigo.asapp.authentication.application.authentication.AuthenticationNotFoundException;
-import com.attrigo.asapp.authentication.application.authentication.AuthenticationPersistenceException;
 import com.attrigo.asapp.authentication.application.authentication.TokenStoreException;
 import com.attrigo.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.attrigo.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
@@ -166,26 +165,24 @@ class RevokeAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsAuthenticationPersistenceException_AuthenticationDeletionFails() {
+        void ThrowsRuntimeException_AuthenticationDeletionFails() {
             // Given
             var accessTokenValue = "access.token.value";
             var encodedAccessToken = EncodedToken.of(accessTokenValue);
             var jwtAuthentication = aJwtAuthenticationBuilder().withTokenValues(accessTokenValue, "refresh.token.value")
                                                                .build();
             var jwtAuthenticationId = jwtAuthentication.getId();
-            var authenticationPersistenceException = new AuthenticationPersistenceException("Could not delete authentication from repository",
-                    new RuntimeException("Repository delete failed"));
 
             given(jwtAuthenticationRepository.findByAccessToken(encodedAccessToken)).willReturn(jwtAuthentication);
-            willThrow(authenticationPersistenceException).given(jwtAuthenticationRepository)
-                                                         .deleteById(jwtAuthenticationId);
+            willThrow(new RuntimeException("Repository delete failed")).given(jwtAuthenticationRepository)
+                                                                       .deleteById(jwtAuthenticationId);
 
             // When
             var actual = catchThrowable(() -> revokeAuthenticationService.revokeAuthentication(accessTokenValue));
 
             // Then
-            assertThat(actual).isInstanceOf(AuthenticationPersistenceException.class)
-                              .hasMessage("Could not delete authentication from repository");
+            assertThat(actual).isInstanceOf(RuntimeException.class)
+                              .hasMessage("Repository delete failed");
 
             then(tokenVerifier).should(times(1))
                                .verifyAccessToken(encodedAccessToken);
