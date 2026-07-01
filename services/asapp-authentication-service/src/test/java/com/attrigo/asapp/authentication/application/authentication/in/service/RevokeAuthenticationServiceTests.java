@@ -165,7 +165,7 @@ class RevokeAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_AuthenticationDeletionFails() {
+        void ThrowsException_AuthenticationDeletionFails() {
             // Given
             var accessTokenValue = "access.token.value";
             var encodedAccessToken = EncodedToken.of(accessTokenValue);

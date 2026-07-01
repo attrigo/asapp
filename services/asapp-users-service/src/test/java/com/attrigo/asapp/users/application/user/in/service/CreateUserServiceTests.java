@@ -89,7 +89,7 @@ class CreateUserServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_UserPersistenceFails() {
+        void ThrowsException_UserPersistenceFails() {
             // Given
             var firstName = "FirstName";
             var lastName = "LastName";

@@ -135,7 +135,7 @@ class UpdateTaskServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_TaskRetrievalFails() {
+        void ThrowsException_TaskRetrievalFails() {
             // Given
             var taskIdValue = UUID.fromString("c3d4e5f6-a7b8-4901-c2d3-e4f5a6b7c8d9");
             var userId = UUID.fromString("09726a94-df21-48ad-864a-f3612499ff3d");
@@ -163,7 +163,7 @@ class UpdateTaskServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_TaskPersistenceFails() {
+        void ThrowsException_TaskPersistenceFails() {
             // Given
             var existingTask = aTask();
             var existingTaskId = existingTask.getId();

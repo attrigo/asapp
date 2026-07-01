@@ -120,7 +120,7 @@ class AuthenticateServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_CredentialAuthenticationFails() {
+        void ThrowsException_CredentialAuthenticationFails() {
             // Given
             var usernameValue = "user@asapp.com";
             var passwordValue = "TEST@09_password?!";
@@ -149,7 +149,7 @@ class AuthenticateServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_TokenPairGenerationFails() {
+        void ThrowsException_TokenPairGenerationFails() {
             // Given
             var usernameValue = "user@asapp.com";
             var passwordValue = "TEST@09_password?!";
@@ -180,7 +180,7 @@ class AuthenticateServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_AuthenticationPersistenceFails() {
+        void ThrowsException_AuthenticationPersistenceFails() {
             // Given
             var usernameValue = "user@asapp.com";
             var passwordValue = "TEST@09_password?!";

@@ -105,7 +105,7 @@ class ReadTaskServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_TaskRetrievalFails() {
+        void ThrowsException_TaskRetrievalFails() {
             // Given
             var taskIdValue = UUID.fromString("c3d4e5f6-a7b8-4901-c2d3-e4f5a6b7c8d9");
             var taskId = TaskId.of(taskIdValue);
@@ -248,7 +248,7 @@ class ReadTaskServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_TasksRetrievalFails() {
+        void ThrowsException_TasksRetrievalFails() {
             // Given
             var taskIdValue = UUID.fromString("6626568e-b677-43bb-99ad-923ca9b24b04");
             var taskId = TaskId.of(taskIdValue);
@@ -314,7 +314,7 @@ class ReadTaskServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_TasksRetrievalFails() {
+        void ThrowsException_TasksRetrievalFails() {
             // Given
             var userIdValue = UUID.fromString("09726a94-df21-48ad-864a-f3612499ff3d");
             var userId = UserId.of(userIdValue);
@@ -377,7 +377,7 @@ class ReadTaskServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_TasksRetrievalFails() {
+        void ThrowsException_TasksRetrievalFails() {
             // Given
             willThrow(new RuntimeException("Database connection failed")).given(taskRepository)
                                                                          .findAll();

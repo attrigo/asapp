@@ -159,7 +159,7 @@ class DeleteUserServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_AuthenticationsDeletionFails() {
+        void ThrowsException_AuthenticationsDeletionFails() {
             // Given
             var userIdValue = UUID.fromString("a1b2c3d4-e5f6-4789-a0b1-c2d3e4f5a6b7");
             var userId = UserId.of(userIdValue);
@@ -192,7 +192,7 @@ class DeleteUserServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_UserDeletionFails() {
+        void ThrowsException_UserDeletionFails() {
             // Given
             var userIdValue = UUID.fromString("a1b2c3d4-e5f6-4789-a0b1-c2d3e4f5a6b7");
             var userId = UserId.of(userIdValue);

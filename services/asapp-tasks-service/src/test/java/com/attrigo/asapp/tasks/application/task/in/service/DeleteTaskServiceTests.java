@@ -92,7 +92,7 @@ class DeleteTaskServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_TaskDeletionFails() {
+        void ThrowsException_TaskDeletionFails() {
             // Given
             var taskIdValue = UUID.fromString("c3d4e5f6-a7b8-4901-c2d3-e4f5a6b7c8d9");
             var taskId = TaskId.of(taskIdValue);

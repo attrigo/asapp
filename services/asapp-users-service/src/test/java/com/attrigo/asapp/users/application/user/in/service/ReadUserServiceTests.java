@@ -182,7 +182,7 @@ class ReadUserServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_UserRetrievalFails() {
+        void ThrowsException_UserRetrievalFails() {
             // Given
             var userIdValue = UUID.fromString("d4e5f6a7-b8c9-4012-d3e4-f5a6b7c8d9e0");
             var userId = UserId.of(userIdValue);
@@ -202,7 +202,7 @@ class ReadUserServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_TaskGatewayOperationFails() {
+        void ThrowsException_TaskGatewayOperationFails() {
             // Given
             var user = aUser();
             var userId = user.getId();
@@ -356,7 +356,7 @@ class ReadUserServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_UsersRetrievalFails() {
+        void ThrowsException_UsersRetrievalFails() {
             // Given
             var userIdValue = UUID.fromString("57cfe2c8-5d08-4ba2-b3c3-a1823ab9812a");
             var userId = UserId.of(userIdValue);
@@ -420,7 +420,7 @@ class ReadUserServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_UsersRetrievalFails() {
+        void ThrowsException_UsersRetrievalFails() {
             // Given
             willThrow(new RuntimeException("Database connection failed")).given(userRepository)
                                                                          .findAll();

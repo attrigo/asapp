@@ -92,7 +92,7 @@ class DeleteUserServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_UserDeletionFails() {
+        void ThrowsException_UserDeletionFails() {
             // Given
             var userIdValue = UUID.fromString("d4e5f6a7-b8c9-4012-d3e4-f5a6b7c8d9e0");
             var userId = UserId.of(userIdValue);

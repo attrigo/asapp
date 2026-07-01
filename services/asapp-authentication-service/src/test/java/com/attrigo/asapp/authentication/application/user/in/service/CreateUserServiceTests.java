@@ -100,7 +100,7 @@ class CreateUserServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_PasswordEncodingFails() {
+        void ThrowsException_PasswordEncodingFails() {
             // Given
             var username = "user@asapp.com";
             var passwordValue = "TEST@09_password?!";
@@ -125,7 +125,7 @@ class CreateUserServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_UserPersistenceFails() {
+        void ThrowsException_UserPersistenceFails() {
             // Given
             var username = "user@asapp.com";
             var passwordValue = "TEST@09_password?!";
