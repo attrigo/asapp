@@ -1,6 +1,6 @@
 # Complete the Authentication Exception Contracts
 
-**Status**: Approved (pre-implementation)
+**Status**: Implemented
 
 ## Context
 
@@ -180,3 +180,54 @@ change will be surfaced for the developer to approve/apply rather than written s
   in new application exceptions to make them declarable.
 - The `TokenIssuer` contract — `JwtIssuanceException` stays infrastructure-only.
 - Any change to the resource-server `JwtAuthenticationFilter` path or its empty-body 401.
+
+## Post-implementation notes
+
+This spec and its plan (`docs/superpowers/plans/2026-06-30-authentication-exception-contracts.md`)
+were written before implementation, and the core change shipped substantially as designed: the
+credentials-exception translation in Change 1 (`InvalidCredentialsException`,
+`CredentialsAuthenticatorAdapter`, `GlobalExceptionHandler`'s `handleInvalidCredentials` group) and
+the use-case/port `@throws` corrections in Changes 2 and 3 for `TokenStore` and `PasswordService`
+landed as written. The canonical implementation is the current state of the real artifacts on the
+branch — the authentication-service exception classes, use-case/port interfaces,
+`GlobalExceptionHandler`, `CredentialsAuthenticatorAdapter`, and their tests — not this document.
+
+Notable deltas:
+
+- **Persistence exception wrappers removed (reverses Change 3's `JwtAuthenticationRepository` →
+  `AuthenticationPersistenceException` row and Change 2's Revoke row that specialized
+  `PersistenceException` → `AuthenticationPersistenceException`).** During manual review these
+  three types — `application/PersistenceException`, `application/authentication/AuthenticationPersistenceException`,
+  and `application/user/UserPersistenceException` — were found to be dead code: they existed only
+  so a since-removed compensation saga could catch them, and `GlobalExceptionHandler` never
+  handled them, so a DB delete failure surfaced as a raw 500. All three classes were deleted;
+  `JwtAuthenticationRepositoryAdapter` and `UserRepositoryAdapter` no longer wrap
+  `DataAccessException`; the persistence `@throws` was dropped from `JwtAuthenticationRepository`,
+  `RevokeAuthenticationUseCase`, and `DeleteUserUseCase`. DB delete failures now reach
+  `GlobalExceptionHandler` for a proper RFC-7807 500. (The other two Change 3 rows —
+  `TokenStore` → `TokenStoreException` and `PasswordService` → `IllegalArgumentException` —
+  shipped as designed.)
+- **Scope extended beyond the authentication aggregate (softens Decision 3, which fixed scope to
+  authentication only and listed the user aggregate as out of scope).** The dead persistence types
+  spanned both aggregates, so the cleanup necessarily touched the user aggregate too:
+  `UserPersistenceException` deleted, `UserRepositoryAdapter` de-wrapped, and the persistence
+  contract dropped from `DeleteUserUseCase` / `DeleteUserService`, along with their tests.
+- **Transaction Javadoc corrected across the use-case services (new work, not in this spec).** The
+  class- and method-level Javadoc on `AuthenticateService`, `RefreshAuthenticationService`,
+  `RevokeAuthenticationService`, and `DeleteUserService` had overstated atomicity ("no partial
+  state") even though the Redis token store is not enlisted in the JDBC transaction; it was
+  standardized to state that repository operations run in a transaction and the fast-access store
+  is updated last, outside it. `AuthenticateService`'s class Javadoc also still described a
+  compensation removed with the saga, which was fixed.
+- **`handleInvalidCredentials` wording broadened (extends Change 1).** Beyond adding
+  `InvalidCredentialsException` to the handler group, the handler's log message and Javadoc in
+  `GlobalExceptionHandler` were rewritten so they describe credential *mismatch*, not just bad
+  *format* — the Javadoc is now a per-exception bullet list of trigger conditions.
+- **Exception-hierarchy table updated for the deletions (extends Change 4, same
+  `.claude/rules/ports-adapters.md` file).** The table's Persistence-specific tier was removed
+  because no instances remain, and its "Cross-domain base" row was relabeled "Cross-domain" and
+  repointed at `CompensatingTransactionException`.
+
+For future authentication exception-contract edits, treat the real artifacts — the interfaces,
+adapters, `GlobalExceptionHandler`, and their tests — as the template; this spec is preserved as a
+record of the original design intent.
