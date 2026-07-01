@@ -39,6 +39,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.AuthorityUtils;
 
+import com.attrigo.asapp.authentication.application.authentication.InvalidCredentialsException;
 import com.attrigo.asapp.authentication.domain.user.RawPassword;
 import com.attrigo.asapp.authentication.domain.user.UserId;
 import com.attrigo.asapp.authentication.domain.user.Username;
@@ -52,8 +53,8 @@ import com.attrigo.asapp.authentication.infrastructure.security.RoleNotFoundExce
  * Coverage:
  * <li>Delegates authentication to Spring Security framework</li>
  * <li>Translates authenticated principal to domain UserAuthentication</li>
- * <li>Propagates authentication failures from Spring Security</li>
- * <li>Handles invalid principal type with domain exception</li>
+ * <li>Translates Spring Security authentication failures to a domain exception</li>
+ * <li>Propagates principal and role extraction failures</li>
  */
 @ExtendWith(MockitoExtension.class)
 class CredentialsAuthenticatorAdapterTests {
@@ -100,7 +101,7 @@ class CredentialsAuthenticatorAdapterTests {
         }
 
         @Test
-        void ThrowsBadCredentialsException_AuthenticationFails() {
+        void ThrowsInvalidCredentialsException_AuthenticationFails() {
             // Given
             var username = Username.of("user@asapp.com");
             var password = RawPassword.of("TEST@09_password?!");
@@ -112,8 +113,8 @@ class CredentialsAuthenticatorAdapterTests {
             var actual = catchThrowable(() -> credentialsAuthenticatorAdapter.authenticate(username, password));
 
             // Then
-            assertThat(actual).isInstanceOf(BadCredentialsException.class)
-                              .hasMessageContaining("Authentication failed due to")
+            assertThat(actual).isInstanceOf(InvalidCredentialsException.class)
+                              .hasMessage("Invalid credentials")
                               .hasCauseInstanceOf(BadCredentialsException.class);
 
             then(authenticationManager).should(times(1))
@@ -121,7 +122,7 @@ class CredentialsAuthenticatorAdapterTests {
         }
 
         @Test
-        void ThrowsBadCredentialsException_PrincipalNotCustomUserDetails() {
+        void ThrowsInvalidPrincipalException_PrincipalNotCustomUserDetails() {
             // Given
             var username = Username.of("user@asapp.com");
             var password = RawPassword.of("TEST@09_password?!");
@@ -134,16 +135,15 @@ class CredentialsAuthenticatorAdapterTests {
             var actual = catchThrowable(() -> credentialsAuthenticatorAdapter.authenticate(username, password));
 
             // Then
-            assertThat(actual).isInstanceOf(BadCredentialsException.class)
-                              .hasMessageContaining("Authentication failed due to")
-                              .hasCauseInstanceOf(InvalidPrincipalException.class);
+            assertThat(actual).isInstanceOf(InvalidPrincipalException.class)
+                              .hasMessage("Authentication principal must contain the ID of the user");
 
             then(authenticationManager).should(times(1))
                                        .authenticate(any(UsernamePasswordAuthenticationToken.class));
         }
 
         @Test
-        void ThrowsBadCredentialsException_EmptyAuthorities() {
+        void ThrowsRoleNotFoundException_EmptyAuthorities() {
             // Given
             var username = Username.of("user@asapp.com");
             var password = RawPassword.of("TEST@09_password?!");
@@ -157,9 +157,8 @@ class CredentialsAuthenticatorAdapterTests {
             var actual = catchThrowable(() -> credentialsAuthenticatorAdapter.authenticate(username, password));
 
             // Then
-            assertThat(actual).isInstanceOf(BadCredentialsException.class)
-                              .hasMessageContaining("Authentication failed due to")
-                              .hasCauseInstanceOf(RoleNotFoundException.class);
+            assertThat(actual).isInstanceOf(RoleNotFoundException.class)
+                              .hasMessage("Authentication authorities must contain at least one role");
 
             then(authenticationManager).should(times(1))
                                        .authenticate(any(UsernamePasswordAuthenticationToken.class));

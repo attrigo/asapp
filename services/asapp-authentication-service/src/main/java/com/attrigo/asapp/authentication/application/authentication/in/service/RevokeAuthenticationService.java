@@ -30,7 +30,6 @@ import com.attrigo.asapp.authentication.application.authentication.out.JwtAuthen
 import com.attrigo.asapp.authentication.application.authentication.out.TokenStore;
 import com.attrigo.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.attrigo.asapp.authentication.domain.authentication.EncodedToken;
-import com.attrigo.asapp.authentication.domain.authentication.InvalidEncodedTokenException;
 import com.attrigo.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.attrigo.asapp.authentication.domain.authentication.JwtPair;
 
@@ -47,7 +46,7 @@ import com.attrigo.asapp.authentication.domain.authentication.JwtPair;
  * <li>Deletes token pair from fast-access store</li>
  * </ol>
  * <p>
- * Token deactivation occurs after successful repository deletion, ensuring no compensation is needed if repository operations fail.
+ * The repository operations run in a single transaction; the fast-access store is updated last, outside that transaction.
  *
  * @since 0.2.0
  * @author attrigo
@@ -78,8 +77,9 @@ public class RevokeAuthenticationService implements RevokeAuthenticationUseCase 
 
     /**
      * {@inheritDoc}
-     *
-     * @throws InvalidEncodedTokenException if the access token does not conform to JWT format
+     * <p>
+     * Runs in a single transaction: the authentication is deleted from the repository and then its tokens are deactivated in the store. The store deletion is
+     * performed last, so any failure rolls the whole operation back, leaving no partial state and requiring no compensation.
      */
     @Override
     @Transactional

@@ -18,8 +18,10 @@ package com.attrigo.asapp.authentication.application.authentication.in;
 
 import com.attrigo.asapp.authentication.application.CompensatingTransactionException;
 import com.attrigo.asapp.authentication.application.authentication.AuthenticationNotFoundException;
+import com.attrigo.asapp.authentication.application.authentication.InvalidJwtException;
 import com.attrigo.asapp.authentication.application.authentication.TokenStoreException;
 import com.attrigo.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
+import com.attrigo.asapp.authentication.domain.authentication.InvalidEncodedTokenException;
 import com.attrigo.asapp.authentication.domain.authentication.JwtAuthentication;
 
 /**
@@ -37,7 +39,8 @@ public interface RefreshAuthenticationUseCase {
      *
      * @param refreshToken the refresh token string
      * @return the {@link JwtAuthentication} containing new access and refresh tokens
-     * @throws IllegalArgumentException         if the refresh token is invalid or blank
+     * @throws InvalidEncodedTokenException     if the refresh token is null, blank, or not a valid JWT format
+     * @throws InvalidJwtException              if the token is malformed, expired, or fails signature verification
      * @throws UnexpectedJwtTypeException       if the provided token is not a refresh token
      * @throws AuthenticationNotFoundException  if the token is not found in active sessions or repository
      * @throws TokenStoreException              if token rotation fails (after compensation)

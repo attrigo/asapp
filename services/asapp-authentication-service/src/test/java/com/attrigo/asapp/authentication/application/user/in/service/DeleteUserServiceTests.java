@@ -36,11 +36,9 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import com.attrigo.asapp.authentication.application.authentication.AuthenticationPersistenceException;
 import com.attrigo.asapp.authentication.application.authentication.TokenStoreException;
 import com.attrigo.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.attrigo.asapp.authentication.application.authentication.out.TokenStore;
-import com.attrigo.asapp.authentication.application.user.UserPersistenceException;
 import com.attrigo.asapp.authentication.application.user.out.UserRepository;
 import com.attrigo.asapp.authentication.domain.authentication.JwtPair;
 import com.attrigo.asapp.authentication.domain.user.UserId;
@@ -161,7 +159,7 @@ class DeleteUserServiceTests {
         }
 
         @Test
-        void ThrowsAuthenticationPersistenceException_AuthenticationsDeletionFails() {
+        void ThrowsRuntimeException_AuthenticationsDeletionFails() {
             // Given
             var userIdValue = UUID.fromString("a1b2c3d4-e5f6-4789-a0b1-c2d3e4f5a6b7");
             var userId = UserId.of(userIdValue);
@@ -171,19 +169,17 @@ class DeleteUserServiceTests {
             var jwtAuthentication2 = aJwtAuthenticationBuilder().withUserId(userIdValue)
                                                                 .withTokenValues("token2.access", "token2.refresh")
                                                                 .build();
-            var authenticationPersistenceException = new AuthenticationPersistenceException("Could not delete authentications for user from repository",
-                    new RuntimeException("Repository delete failed"));
 
             given(jwtAuthenticationRepository.findAllByUserId(userId)).willReturn(List.of(jwtAuthentication1, jwtAuthentication2));
-            willThrow(authenticationPersistenceException).given(jwtAuthenticationRepository)
-                                                         .deleteAllByUserId(userId);
+            willThrow(new RuntimeException("Repository delete failed")).given(jwtAuthenticationRepository)
+                                                                       .deleteAllByUserId(userId);
 
             // When
             var actual = catchThrowable(() -> deleteUserService.deleteUserById(userIdValue));
 
             // Then
-            assertThat(actual).isInstanceOf(AuthenticationPersistenceException.class)
-                              .hasMessage("Could not delete authentications for user from repository");
+            assertThat(actual).isInstanceOf(RuntimeException.class)
+                              .hasMessage("Repository delete failed");
 
             then(jwtAuthenticationRepository).should(times(1))
                                              .findAllByUserId(userId);
@@ -196,7 +192,7 @@ class DeleteUserServiceTests {
         }
 
         @Test
-        void ThrowsUserPersistenceException_UserDeletionFails() {
+        void ThrowsRuntimeException_UserDeletionFails() {
             // Given
             var userIdValue = UUID.fromString("a1b2c3d4-e5f6-4789-a0b1-c2d3e4f5a6b7");
             var userId = UserId.of(userIdValue);
@@ -206,19 +202,17 @@ class DeleteUserServiceTests {
             var jwtAuthentication2 = aJwtAuthenticationBuilder().withUserId(userIdValue)
                                                                 .withTokenValues("token2.access", "token2.refresh")
                                                                 .build();
-            var userPersistenceException = new UserPersistenceException("Could not delete user from repository",
-                    new RuntimeException("Repository delete failed"));
 
             given(jwtAuthenticationRepository.findAllByUserId(userId)).willReturn(List.of(jwtAuthentication1, jwtAuthentication2));
-            willThrow(userPersistenceException).given(userRepository)
-                                               .deleteById(userId);
+            willThrow(new RuntimeException("Repository delete failed")).given(userRepository)
+                                                                       .deleteById(userId);
 
             // When
             var actual = catchThrowable(() -> deleteUserService.deleteUserById(userIdValue));
 
             // Then
-            assertThat(actual).isInstanceOf(UserPersistenceException.class)
-                              .hasMessage("Could not delete user from repository");
+            assertThat(actual).isInstanceOf(RuntimeException.class)
+                              .hasMessage("Repository delete failed");
 
             then(jwtAuthenticationRepository).should(times(1))
                                              .findAllByUserId(userId);

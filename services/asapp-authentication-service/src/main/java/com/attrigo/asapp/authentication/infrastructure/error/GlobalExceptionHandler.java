@@ -36,6 +36,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import com.attrigo.asapp.authentication.application.CompensatingTransactionException;
 import com.attrigo.asapp.authentication.application.authentication.AuthenticationNotFoundException;
+import com.attrigo.asapp.authentication.application.authentication.InvalidCredentialsException;
 import com.attrigo.asapp.authentication.application.authentication.InvalidJwtException;
 import com.attrigo.asapp.authentication.application.authentication.TokenStoreException;
 import com.attrigo.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
@@ -126,20 +127,25 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // ============================================================================
 
     /**
-     * Handles invalid credential format exceptions.
+     * Handles invalid-credential exceptions (bad format or credential mismatch).
      * <p>
-     * Thrown by domain value objects when credentials are malformed; invalid username, password, or encoded token format. Always treated as an authentication
-     * failure rather than a validation error to prevent user enumeration attacks.
+     * Captured for:
+     * <ul>
+     * <li>{@link InvalidCredentialsException}: credentials rejected during authentication</li>
+     * <li>{@link InvalidUsernameException}: username is not a valid email format</li>
+     * <li>{@link InvalidPasswordException}: password length is outside the allowed range</li>
+     * <li>{@link InvalidEncodedTokenException}: token is not a valid JWT format</li>
+     * </ul>
+     * All are treated as an authentication failure rather than a validation error to prevent user enumeration attacks.
      * <p>
      * Returns HTTP 401 Unauthorized with a generic error message.
      *
-     * @param ex the credential validation exception ({@link InvalidUsernameException}, {@link InvalidPasswordException}, or
-     *           {@link InvalidEncodedTokenException})
+     * @param ex the captured credential exception
      * @return a {@link ResponseEntity} with status 401 and generic error message
      */
-    @ExceptionHandler({ InvalidUsernameException.class, InvalidPasswordException.class, InvalidEncodedTokenException.class })
+    @ExceptionHandler({ InvalidCredentialsException.class, InvalidUsernameException.class, InvalidPasswordException.class, InvalidEncodedTokenException.class })
     protected ResponseEntity<ProblemDetail> handleInvalidCredentials(RuntimeException ex) {
-        log.warn("Authentication failed due to invalid credential format: {}", ex.getMessage());
+        log.warn("Authentication failed due to invalid credentials: {}", ex.getMessage());
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, INVALID_CREDENTIALS_DETAIL);
         problemDetail.setTitle(AUTHENTICATION_FAILED_TITLE);

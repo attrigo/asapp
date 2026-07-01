@@ -21,11 +21,9 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 
 import com.attrigo.asapp.authentication.application.authentication.AuthenticationNotFoundException;
-import com.attrigo.asapp.authentication.application.authentication.AuthenticationPersistenceException;
 import com.attrigo.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
 import com.attrigo.asapp.authentication.domain.authentication.EncodedToken;
 import com.attrigo.asapp.authentication.domain.authentication.JwtAuthentication;
@@ -105,36 +103,16 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
         return jwtAuthenticationMapper.toJwtAuthentication(jwtAuthenticationSaved);
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws AuthenticationPersistenceException if the database operation fails
-     */
     @Override
     public void deleteById(JwtAuthenticationId jwtAuthenticationId) {
         logger.trace("[JWT_AUTH_REPOSITORY] Deleting authentication by authenticationId={}", jwtAuthenticationId.value());
-        try {
-            jwtAuthenticationRepository.deleteById(jwtAuthenticationId.value());
-
-        } catch (DataAccessException e) {
-            throw new AuthenticationPersistenceException("Could not delete authentication from repository", e);
-        }
+        jwtAuthenticationRepository.deleteById(jwtAuthenticationId.value());
     }
 
-    /**
-     * {@inheritDoc}
-     *
-     * @throws AuthenticationPersistenceException if the database operation fails
-     */
     @Override
     public void deleteAllByUserId(UserId userId) {
         logger.trace("[JWT_AUTH_REPOSITORY] Deleting all authentications by userId={}", userId.value());
-        try {
-            jwtAuthenticationRepository.deleteAllByUserId(userId.value());
-
-        } catch (DataAccessException e) {
-            throw new AuthenticationPersistenceException("Could not delete authentications for user from repository", e);
-        }
+        jwtAuthenticationRepository.deleteAllByUserId(userId.value());
     }
 
     @Override

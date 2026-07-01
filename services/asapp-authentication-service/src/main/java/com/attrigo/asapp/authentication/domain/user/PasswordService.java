@@ -31,6 +31,7 @@ public interface PasswordService {
      *
      * @param rawPassword the {@link RawPassword} to encode
      * @return the {@link EncodedPassword} with algorithm prefix
+     * @throws IllegalArgumentException if the raw password is invalid
      */
     EncodedPassword encode(RawPassword rawPassword);
 

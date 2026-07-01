@@ -31,7 +31,6 @@ import com.attrigo.asapp.authentication.application.authentication.out.TokenIssu
 import com.attrigo.asapp.authentication.application.authentication.out.TokenStore;
 import com.attrigo.asapp.authentication.application.authentication.out.TokenVerifier;
 import com.attrigo.asapp.authentication.domain.authentication.EncodedToken;
-import com.attrigo.asapp.authentication.domain.authentication.InvalidEncodedTokenException;
 import com.attrigo.asapp.authentication.domain.authentication.Jwt;
 import com.attrigo.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.attrigo.asapp.authentication.domain.authentication.JwtPair;
@@ -52,7 +51,7 @@ import com.attrigo.asapp.authentication.domain.authentication.JwtPair;
  * <li>Deletes old tokens from fast-access store and stores new tokens</li>
  * </ol>
  * <p>
- * If fast-access store operations fail after repository commit, the old authentication state is restored to maintain consistency.
+ * The repository operations run in a single transaction; the fast-access store is updated last, outside that transaction.
  *
  * @since 0.2.0
  * @author attrigo
@@ -90,9 +89,9 @@ public class RefreshAuthenticationService implements RefreshAuthenticationUseCas
     /**
      * {@inheritDoc}
      * <p>
-     * First updates repository, then updates fast-access store. If fast-access store fails, old state is restored via compensating transaction.
-     *
-     * @throws InvalidEncodedTokenException if the refresh token does not conform to JWT format
+     * Runs in a single transaction: the authentication is updated in the repository and then its tokens are rotated in the fast-access store (old tokens
+     * removed, new tokens stored). If the store rotation fails, the old tokens are restored and the repository update is rolled back, so no partial state
+     * remains.
      */
     @Override
     @Transactional

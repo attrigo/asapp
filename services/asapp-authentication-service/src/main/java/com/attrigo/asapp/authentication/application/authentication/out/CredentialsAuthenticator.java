@@ -16,6 +16,7 @@
 
 package com.attrigo.asapp.authentication.application.authentication.out;
 
+import com.attrigo.asapp.authentication.application.authentication.InvalidCredentialsException;
 import com.attrigo.asapp.authentication.domain.authentication.UserAuthentication;
 import com.attrigo.asapp.authentication.domain.user.RawPassword;
 import com.attrigo.asapp.authentication.domain.user.Username;
@@ -24,9 +25,6 @@ import com.attrigo.asapp.authentication.domain.user.Username;
  * Port for authenticating user credentials.
  * <p>
  * Defines the contract for validating user credentials and producing authenticated user.
- * <p>
- * Authentication failures are handled by the infrastructure layer. The adapter implementation must throw infrastructure-specific exceptions that must be caught
- * and processed by the security mechanism before reaching the application layer.
  *
  * @since 0.2.0
  * @author attrigo
@@ -38,12 +36,11 @@ public interface CredentialsAuthenticator {
      * Authenticates a user based on provided credentials.
      * <p>
      * Validates the user's credentials and returns an authenticated user.
-     * <p>
-     * Authentication failures are signaled through infrastructure exceptions handled at the boundary layer.
      *
      * @param username the {@link Username} to authenticate
      * @param password the {@link RawPassword} to validate
      * @return the {@link UserAuthentication} containing authenticated user data with ID and role
+     * @throws InvalidCredentialsException if the credentials are invalid
      */
     UserAuthentication authenticate(Username username, RawPassword password);
 

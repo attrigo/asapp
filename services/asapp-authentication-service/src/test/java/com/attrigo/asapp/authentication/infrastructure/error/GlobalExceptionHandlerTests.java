@@ -41,6 +41,7 @@ import org.springframework.web.context.request.WebRequest;
 
 import com.attrigo.asapp.authentication.application.CompensatingTransactionException;
 import com.attrigo.asapp.authentication.application.authentication.AuthenticationNotFoundException;
+import com.attrigo.asapp.authentication.application.authentication.InvalidCredentialsException;
 import com.attrigo.asapp.authentication.application.authentication.InvalidJwtException;
 import com.attrigo.asapp.authentication.application.authentication.TokenStoreException;
 import com.attrigo.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
@@ -157,7 +158,8 @@ class GlobalExceptionHandlerTests {
         }
 
         private static Stream<RuntimeException> invalidCredentialExceptions() {
-            return Stream.of(new InvalidUsernameException("Username must be a valid email address"),
+            return Stream.of(new InvalidCredentialsException("Invalid credentials", new RuntimeException("bad credentials")),
+                    new InvalidUsernameException("Username must be a valid email address"),
                     new InvalidPasswordException("Raw password must be between 8 and 64 characters"),
                     new InvalidEncodedTokenException("Encoded token must be a valid JWT format"));
         }
