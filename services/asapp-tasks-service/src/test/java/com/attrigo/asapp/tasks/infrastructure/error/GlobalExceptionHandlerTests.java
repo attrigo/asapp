@@ -277,6 +277,33 @@ class GlobalExceptionHandlerTests {
     }
 
     @Nested
+    class HandleRedisException {
+
+        @Test
+        void ReturnsServiceUnavailableAndProblemDetail_CacheConnectionFails() {
+            // Given
+            var exception = new RedisConnectionFailureException("Cannot connect to Redis server", new RuntimeException("Connection refused"));
+
+            // When
+            var actual = globalExceptionHandler.handleRedisException(exception);
+
+            // Then
+            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
+            var problemDetail = actual.getBody();
+            assertThat(problemDetail).isNotNull();
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Service Unavailable");
+                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(503);
+                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Service temporarily unavailable");
+                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "temporarily_unavailable");
+                // @formatter:on
+            });
+        }
+
+    }
+
+    @Nested
     class HandleUnexpectedException {
 
         @Test
@@ -298,33 +325,6 @@ class GlobalExceptionHandlerTests {
                 softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("An internal error occurred");
                 softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "server_error");
                 softly.assertThat(problemDetail.getProperties()).as("critical flag").containsEntry("critical", true);
-                // @formatter:on
-            });
-        }
-
-    }
-
-    @Nested
-    class HandleRedisException {
-
-        @Test
-        void ReturnsServiceUnavailableAndProblemDetail_CacheConnectionFails() {
-            // Given
-            var exception = new RedisConnectionFailureException("Cannot connect to Redis server", new RuntimeException("Connection refused"));
-
-            // When
-            var actual = globalExceptionHandler.handleRedisException(exception);
-
-            // Then
-            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.SERVICE_UNAVAILABLE);
-            var problemDetail = actual.getBody();
-            assertThat(problemDetail).isNotNull();
-            assertSoftly(softly -> {
-                // @formatter:off
-                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Service Unavailable");
-                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(503);
-                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Service temporarily unavailable");
-                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "temporarily_unavailable");
                 // @formatter:on
             });
         }
