@@ -52,8 +52,7 @@ paths:
 
 | Type | Extends | Location | Example |
 |---|---|---|---|
-| Cross-domain base | `RuntimeException` | `application/` | `PersistenceException` |
-| Persistence-specific | `PersistenceException` | `application/<aggregate>/` | `AuthenticationPersistenceException` |
+| Cross-domain | `RuntimeException` | `application/` | `CompensatingTransactionException` |
 | Orchestration base | `RuntimeException` | `application/<aggregate>/` | `AuthenticationException` |
 | Orchestration subtype | Orchestration base | `application/<aggregate>/` | `AuthenticationNotFoundException` |
 
