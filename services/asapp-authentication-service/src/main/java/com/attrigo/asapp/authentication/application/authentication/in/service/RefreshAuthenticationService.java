@@ -51,7 +51,7 @@ import com.attrigo.asapp.authentication.domain.authentication.JwtPair;
  * <li>Deletes old tokens from fast-access store and stores new tokens</li>
  * </ol>
  * <p>
- * If fast-access store operations fail after repository commit, the old authentication state is restored to maintain consistency.
+ * The entire workflow runs in a single transaction, granting atomicity: either all steps commit or any failure rolls everything back, leaving no partial state.
  *
  * @since 0.2.0
  * @author attrigo

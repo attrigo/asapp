@@ -46,7 +46,7 @@ import com.attrigo.asapp.authentication.domain.authentication.JwtPair;
  * <li>Deletes token pair from fast-access store</li>
  * </ol>
  * <p>
- * Token deactivation occurs after successful repository deletion, ensuring no compensation is needed if repository operations fail.
+ * The entire workflow runs in a single transaction, granting atomicity: either all steps commit or any failure rolls everything back, leaving no partial state.
  *
  * @since 0.2.0
  * @author attrigo

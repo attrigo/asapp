@@ -47,7 +47,7 @@ import com.attrigo.asapp.authentication.domain.user.Username;
  * <li>Stores tokens in fast-access store</li>
  * </ol>
  * <p>
- * The fast-access store write is performed last, so if it fails the enclosing transaction rolls back the repository save and no compensation is needed.
+ * The entire workflow runs in a single transaction, granting atomicity: either all steps commit or any failure rolls everything back, leaving no partial state.
  *
  * @since 0.2.0
  * @author attrigo
