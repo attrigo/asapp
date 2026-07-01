@@ -152,7 +152,7 @@ class UpdateUserServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_UserRetrievalFails() {
+        void ThrowsException_UserRetrievalFails() {
             // Given
             var userIdValue = UUID.fromString("a1b2c3d4-e5f6-4789-a0b1-c2d3e4f5a6b7");
             var userId = UserId.of(userIdValue);
@@ -180,7 +180,7 @@ class UpdateUserServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_PasswordEncodingFails() {
+        void ThrowsException_PasswordEncodingFails() {
             // Given
             var existingUser = anActiveUser();
             var existingUserId = existingUser.getId();
@@ -210,7 +210,7 @@ class UpdateUserServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_UserPersistenceFails() {
+        void ThrowsException_UserPersistenceFails() {
             // Given
             var existingUser = anActiveUser();
             var existingUserId = existingUser.getId();

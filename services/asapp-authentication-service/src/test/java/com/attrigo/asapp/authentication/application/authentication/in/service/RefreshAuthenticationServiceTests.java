@@ -201,7 +201,7 @@ class RefreshAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_TokenPairGenerationFails() {
+        void ThrowsException_TokenPairGenerationFails() {
             // Given
             var refreshTokenValue = "refresh.token.value";
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);
@@ -238,7 +238,7 @@ class RefreshAuthenticationServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_AuthenticationPersistenceFails() {
+        void ThrowsException_AuthenticationPersistenceFails() {
             // Given
             var refreshTokenValue = "refresh.token.value";
             var encodedRefreshToken = EncodedToken.of(refreshTokenValue);

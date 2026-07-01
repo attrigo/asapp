@@ -94,7 +94,7 @@ class CreateTaskServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_TaskPersistenceFails() {
+        void ThrowsException_TaskPersistenceFails() {
             // Given
             var userId = UUID.fromString("09726a94-df21-48ad-864a-f3612499ff3d");
             var title = "Title";

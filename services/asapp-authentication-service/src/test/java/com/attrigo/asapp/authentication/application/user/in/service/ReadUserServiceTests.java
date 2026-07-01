@@ -108,7 +108,7 @@ class ReadUserServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_UserRetrievalFails() {
+        void ThrowsException_UserRetrievalFails() {
             // Given
             var userIdValue = UUID.fromString("a1b2c3d4-e5f6-4789-a0b1-c2d3e4f5a6b7");
             var userId = UserId.of(userIdValue);
@@ -171,7 +171,7 @@ class ReadUserServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_UsersRetrievalFails() {
+        void ThrowsException_UsersRetrievalFails() {
             // Given
             willThrow(new RuntimeException("Database connection failed")).given(userRepository)
                                                                          .findAll();

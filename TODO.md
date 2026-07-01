@@ -64,6 +64,7 @@
         - [X] Complete the exception contracts on interfaces
         - [X] Add task progress to both release Claude commands
         - [X] Improve release skill to add specs files in version folder
+        - [X] Rename all ThrowsRuntimeException_ by ThrowsException_
 
 ### Analyze
 

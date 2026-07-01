@@ -130,7 +130,7 @@ class UpdateUserServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_UserRetrievalFails() {
+        void ThrowsException_UserRetrievalFails() {
             // Given
             var userIdValue = UUID.fromString("d4e5f6a7-b8c9-4012-d3e4-f5a6b7c8d9e0");
             var firstName = "FirstName";
@@ -157,7 +157,7 @@ class UpdateUserServiceTests {
         }
 
         @Test
-        void ThrowsRuntimeException_UserPersistenceFails() {
+        void ThrowsException_UserPersistenceFails() {
             // Given
             var existingUser = aUser();
             var existingUserId = existingUser.getId();
