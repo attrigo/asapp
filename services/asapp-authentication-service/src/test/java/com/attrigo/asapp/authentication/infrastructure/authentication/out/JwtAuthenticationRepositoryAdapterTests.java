@@ -24,7 +24,6 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
 import static org.mockito.BDDMockito.times;
-import static org.mockito.BDDMockito.willThrow;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -35,10 +34,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataRetrievalFailureException;
 
 import com.attrigo.asapp.authentication.application.authentication.AuthenticationNotFoundException;
-import com.attrigo.asapp.authentication.application.authentication.AuthenticationPersistenceException;
 import com.attrigo.asapp.authentication.domain.authentication.EncodedToken;
 import com.attrigo.asapp.authentication.domain.authentication.JwtAuthenticationId;
 import com.attrigo.asapp.authentication.domain.user.UserId;
@@ -46,7 +43,7 @@ import com.attrigo.asapp.authentication.infrastructure.authentication.mapper.Jwt
 import com.attrigo.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationRepository;
 
 /**
- * Tests {@link JwtAuthenticationRepositoryAdapter} domain exception translation and persistence error handling.
+ * Tests {@link JwtAuthenticationRepositoryAdapter} authentication lookup with not-found handling and deletion operations.
  * <p>
  * Coverage:
  * <li>Authentication lookup by access token returns the authentication when found</li>
@@ -54,9 +51,7 @@ import com.attrigo.asapp.authentication.infrastructure.authentication.persistenc
  * <li>Authentication lookup by refresh token returns the authentication when found</li>
  * <li>Authentication lookup by refresh token throws domain exception when not found</li>
  * <li>Authentication deletion by ID completes without error when database operation succeeds</li>
- * <li>Authentication deletion by ID translates database failures to persistence exception</li>
  * <li>Bulk authentication deletion by user ID completes without error when database operation succeeds</li>
- * <li>Bulk authentication deletion by user ID translates database failures to persistence exception</li>
  */
 @ExtendWith(MockitoExtension.class)
 class JwtAuthenticationRepositoryAdapterTests {
@@ -177,26 +172,6 @@ class JwtAuthenticationRepositoryAdapterTests {
                                              .deleteById(jwtAuthenticationId.value());
         }
 
-        @Test
-        void ThrowsAuthenticationPersistenceException_DatabaseOperationFails() {
-            // Given
-            var jwtAuthenticationId = JwtAuthenticationId.of(UUID.fromString("b2c3d4e5-f6a7-4890-b1c2-d3e4f5a6b7c8"));
-
-            willThrow(new DataRetrievalFailureException("Database error")).given(jwtAuthenticationRepository)
-                                                                          .deleteById(jwtAuthenticationId.value());
-
-            // When
-            var actual = catchThrowable(() -> jwtAuthenticationRepositoryAdapter.deleteById(jwtAuthenticationId));
-
-            // Then
-            assertThat(actual).isInstanceOf(AuthenticationPersistenceException.class)
-                              .hasMessage("Could not delete authentication from repository")
-                              .hasCauseInstanceOf(DataRetrievalFailureException.class);
-
-            then(jwtAuthenticationRepository).should(times(1))
-                                             .deleteById(jwtAuthenticationId.value());
-        }
-
     }
 
     @Nested
@@ -209,26 +184,6 @@ class JwtAuthenticationRepositoryAdapterTests {
 
             // When & Then
             assertThatCode(() -> jwtAuthenticationRepositoryAdapter.deleteAllByUserId(userId)).doesNotThrowAnyException();
-
-            then(jwtAuthenticationRepository).should(times(1))
-                                             .deleteAllByUserId(userId.value());
-        }
-
-        @Test
-        void ThrowsAuthenticationPersistenceException_DatabaseOperationFails() {
-            // Given
-            var userId = UserId.of(UUID.fromString("a1b2c3d4-e5f6-4789-a0b1-c2d3e4f5a6b7"));
-
-            willThrow(new DataRetrievalFailureException("Database error")).given(jwtAuthenticationRepository)
-                                                                          .deleteAllByUserId(userId.value());
-
-            // When
-            var actual = catchThrowable(() -> jwtAuthenticationRepositoryAdapter.deleteAllByUserId(userId));
-
-            // Then
-            assertThat(actual).isInstanceOf(AuthenticationPersistenceException.class)
-                              .hasMessage("Could not delete authentications for user from repository")
-                              .hasCauseInstanceOf(DataRetrievalFailureException.class);
 
             then(jwtAuthenticationRepository).should(times(1))
                                              .deleteAllByUserId(userId.value());

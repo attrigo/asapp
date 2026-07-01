@@ -16,6 +16,7 @@
 
 package com.attrigo.asapp.authentication.application.authentication.out;
 
+import com.attrigo.asapp.authentication.application.authentication.TokenStoreException;
 import com.attrigo.asapp.authentication.domain.authentication.EncodedToken;
 import com.attrigo.asapp.authentication.domain.authentication.JwtPair;
 
@@ -53,6 +54,7 @@ public interface TokenStore {
      * Saves a JWT pair in the fast-access store.
      *
      * @param jwtPair the {@link JwtPair} containing the token pair to save
+     * @throws TokenStoreException if the store operation fails
      */
     void save(JwtPair jwtPair);
 
@@ -62,6 +64,7 @@ public interface TokenStore {
      * Removes both access and refresh tokens to invalidate them immediately.
      *
      * @param jwtPair the {@link JwtPair} containing the token pair to delete
+     * @throws TokenStoreException if the store operation fails
      */
     void delete(JwtPair jwtPair);
 

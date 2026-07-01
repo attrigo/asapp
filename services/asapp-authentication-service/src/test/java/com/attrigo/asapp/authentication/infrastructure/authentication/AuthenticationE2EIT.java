@@ -244,45 +244,61 @@ class AuthenticationE2EIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_UsernameNotExists() {
+        void ReturnsStatusUnauthorizedAndBodyWithGenericMessage_UsernameNotExists() {
             // Given
             var authenticateRequestBody = new AuthenticateRequest("user_not_exist@asapp.com", "TEST@09_password?!");
 
             // When
-            restTestClient.post()
-                          .uri(AUTH_TOKEN_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(authenticateRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            var actual = restTestClient.post()
+                                       .uri(AUTH_TOKEN_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(authenticateRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
+            assertThatJson(actual).isObject()
+                                  .containsEntry("title", "Authentication Failed")
+                                  .containsEntry("status", 401)
+                                  .containsEntry("detail", "Invalid credentials")
+                                  .containsEntry("error", "invalid_grant")
+                                  .containsEntry("instance", "/asapp-authentication-service/api/auth/token");
+
             assertAuthenticationNotExist();
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_NonMatchingPassword() {
+        void ReturnsStatusUnauthorizedAndBodyWithGenericMessage_NonMatchingPassword() {
             // Given
             var createdUser = createUser();
             var authenticateRequestBody = new AuthenticateRequest(createdUser.username(), "password_not_match");
 
             // When
-            restTestClient.post()
-                          .uri(AUTH_TOKEN_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(authenticateRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            var actual = restTestClient.post()
+                                       .uri(AUTH_TOKEN_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(authenticateRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
 
             // Then
+            assertThatJson(actual).isObject()
+                                  .containsEntry("title", "Authentication Failed")
+                                  .containsEntry("status", 401)
+                                  .containsEntry("detail", "Invalid credentials")
+                                  .containsEntry("error", "invalid_grant")
+                                  .containsEntry("instance", "/asapp-authentication-service/api/auth/token");
+
             assertAuthenticationNotExist();
         }
 

@@ -118,8 +118,6 @@ public class RedisJwtStore implements TokenStore {
      * <li>SETEX {@code jwt:access_token:<token>} with TTL from access token expiration</li>
      * <li>SETEX {@code jwt:refresh_token:<token>} with TTL from refresh token expiration</li>
      * </ul>
-     *
-     * @throws TokenStoreException if the Redis operation fails
      */
     @Override
     public void save(JwtPair jwtPair) {
@@ -157,8 +155,6 @@ public class RedisJwtStore implements TokenStore {
      * <li>DEL {@code jwt:access_token:<token>}</li>
      * <li>DEL {@code jwt:refresh_token:<token>}</li>
      * </ul>
-     *
-     * @throws TokenStoreException if the Redis operation fails
      */
     @Override
     public void delete(JwtPair jwtPair) {

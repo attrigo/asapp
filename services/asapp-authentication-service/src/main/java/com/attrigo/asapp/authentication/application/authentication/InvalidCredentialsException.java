@@ -14,27 +14,26 @@
 * limitations under the License.
 */
 
-package com.attrigo.asapp.authentication.application.user.in;
-
-import java.util.UUID;
+package com.attrigo.asapp.authentication.application.authentication;
 
 /**
- * Use case for deleting an existing user from the system.
+ * Exception thrown when user credentials are invalid.
  * <p>
- * Defines the contract for user deletion operations.
+ * Indicates that authentication failed because the supplied username and password did not match a known active user.
  *
- * @since 0.2.0
+ * @since 0.4.0
  * @author attrigo
  */
-public interface DeleteUserUseCase {
+public class InvalidCredentialsException extends AuthenticationException {
 
     /**
-     * Deletes an existing user by their unique identifier.
+     * Constructs a new {@code InvalidCredentialsException} with the specified detail message and cause.
      *
-     * @param id the user's unique identifier
-     * @return {@code true} if the user was deleted, {@code false} if not found
-     * @throws IllegalArgumentException if the id is invalid
+     * @param message the detail message
+     * @param cause   the underlying cause of the authentication failure
      */
-    Boolean deleteUserById(UUID id);
+    public InvalidCredentialsException(String message, Throwable cause) {
+        super(message, cause);
+    }
 
 }
