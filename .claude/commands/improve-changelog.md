@@ -9,6 +9,18 @@ Fetches the release notes of a GitHub Release, applies AI editorial improvements
 
 ## Steps
 
+### Step 0: Set up progress tracking
+
+**Before any other step**, create these five tracking tasks with the task tool; mark each `in_progress` when you start it and `completed` when it's done:
+
+1. Check gh availability (Step 1)
+2. Detect the version (Step 2)
+3. Get the release notes (Step 3)
+4. Apply the improvement rules (Step 4)
+5. Confirm and apply the update (Step 5)
+
+If the command aborts (gh missing, or the user declines at the confirmation gate), leave the current task `in_progress` so the stopping point stays visible.
+
 ### Step 1: Check gh availability
 
 ```bash
@@ -106,3 +118,14 @@ Confirm success and print the release URL.
 - **Never invent content** — only rewrite what is already there
 - **Preserve all commit links** — traceability is non-negotiable
 - **Never commit `.github/changelog-draft.md`** — it is a temporary working file
+
+## Common mistakes
+
+| Mistake | Fix |
+|---------|-----|
+| Starting Step 1 before creating the five tracking tasks | Do Step 0 first — create the tasks, then begin. |
+| Updating the release before showing the improved version | Display the result and wait for confirmation at Step 5. |
+| Removing, merging, or reordering Breaking Changes entries | Preserve every ⚠️ entry untouched. |
+| Dropping commit links when merging entries | Keep every link; list the merged links together at the end. |
+| Inventing content not in the original notes | Only rewrite what is already there. |
+| Leaving `.github/changelog-draft.md` behind | Delete the working file after a successful update. |

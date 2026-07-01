@@ -62,8 +62,8 @@
         - [X] Add the value of @Operation description to the Javadoc of each API method as new <p>
         - [X] Remove the Javadoc of implementation methods when their interface says the same (same content)
         - [X] Complete the exception contracts on interfaces
-        - [ ] Add task progress to both release Claude commands
-        - [ ] Improve release skill to add specs files in version folder
+        - [X] Add task progress to both release Claude commands
+        - [X] Improve release skill to add specs files in version folder
 
 ### Analyze
 
