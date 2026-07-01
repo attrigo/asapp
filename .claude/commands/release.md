@@ -1,12 +1,30 @@
 # Release
 
-Automates the full ASAPP release cycle: version bump, Liquibase tagging, build verification, git commit + tag, next SNAPSHOT prep, and push.
+Automates the full ASAPP release cycle: version bump, Liquibase tagging, design-spec archival, build verification, git commit + tag, next SNAPSHOT prep, and push.
 
 ## Usage
 
 - `/release` — runs all steps, asks for confirmation before pushing
 
 ## Instructions
+
+### Step 0: Set up progress tracking
+
+**Before any other step**, create these eleven tracking tasks with the task tool; mark each `in_progress` when you start it and `completed` when it's done:
+
+1. Validate preconditions (Step 1)
+2. Detect versions (Step 2)
+3. Check TODO completeness (Step 3)
+4. Remove SNAPSHOT (Step 4)
+5. Add Liquibase database tags (Step 5)
+6. Archive this version's design specs (Step 6)
+7. Build and verify (Step 7)
+8. Commit release and create tag (Step 8)
+9. Bump to next SNAPSHOT (Step 9)
+10. Commit next development version (Step 10)
+11. Push (Step 11)
+
+If the release aborts (a failed precondition, pending TODO items, or a build failure), leave the current task `in_progress` so the stopping point — and what has already been mutated — stays visible.
 
 ### Step 1: Validate Preconditions
 
@@ -133,15 +151,30 @@ Use the underscored version in the `id` attribute (e.g. `tag_version_0_3_0`) and
 
 If a service has no changelog file for this version, skip it — that service had no schema changes in this release.
 
-### Step 6: Build and Verify
+### Step 6: Archive This Version's Design Specs
+
+Move every design spec sitting directly in `docs/superpowers/specs/` into a version folder (e.g. `docs/superpowers/specs/v0.3.0/`):
 
 ```bash
-mvn clean compile
+mkdir -p docs/superpowers/specs/vX.Y.Z
+git mv docs/superpowers/specs/*-design.md docs/superpowers/specs/vX.Y.Z/
+```
+
+- Only the **root-level** specs move; specs already archived in `v*/` subfolders are untouched (the glob does not recurse).
+- Keep each file's original `YYYY-MM-DD-<slug>-design.md` name — only its location changes.
+- Use `git mv` (never delete and recreate); it stages the moves, so they ride along in the release commit (Step 8).
+
+If there are no root-level specs, skip this step — this version introduced no new design specs.
+
+### Step 7: Build and Verify
+
+```bash
+mvn clean test
 ```
 
 **If the build fails**: stop immediately, report the failure, and do not proceed. The user must fix the build before the release can continue.
 
-### Step 7: Commit Release and Create Tag
+### Step 8: Commit Release and Create Tag
 
 ```bash
 RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
@@ -152,7 +185,7 @@ git tag v${RELEASE_VERSION}
 
 Confirm the commit and tag were created successfully.
 
-### Step 8: Bump to Next SNAPSHOT
+### Step 9: Bump to Next SNAPSHOT
 
 #### Update pom version
 
@@ -180,7 +213,7 @@ Open `docker-compose.yml` and for every `image:` line matching `ghcr.io/attrigo/
 
 Confirm all five `asapp-*` service image tags now reference the next SNAPSHOT version.
 
-### Step 9: Commit Next Development Version
+### Step 10: Commit Next Development Version
 
 ```bash
 NEXT_DEV_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
@@ -188,7 +221,7 @@ git add .
 git commit -m "chore: prepare next development version ${NEXT_DEV_VERSION}"
 ```
 
-### Step 10: Push
+### Step 11: Push
 
 Display the push command and ask for confirmation before running it:
 
@@ -209,7 +242,8 @@ Only push if the user confirms.
 - **Abort if there are unpushed commits** — prevents releasing from a state that diverges from the remote
 - **Abort if last CI run on `main` did not succeed** — prevents releasing from a broken build
 - **Abort if TODO has unchecked items for the version** — ensures the release is feature-complete
-- **Never skip `mvn clean compile`** — the build must compile cleanly before any commits are made
+- **Archive specs with `git mv`** — relocate the root-level design specs into the version folder; leave already-archived ones untouched
+- **Never skip `mvn clean test`** — the build must compile and the tests must pass before any commits are made
 - **Never force push** — use `--atomic` only; never `--force` or `--force-with-lease`
 - **Never push without confirmation**
 
@@ -227,13 +261,14 @@ Only push if the user confirms.
   - asapp-authentication-service: added tag_version_0_3_0
   - asapp-users-service: added tag_version_0_3_0
   - asapp-tasks-service: no v0.3.0 changelog found, skipped
-[Step 6] Compiling...  done (BUILD SUCCESS)
-[Step 7] Committing release and tagging...  done (tag: v0.3.0)
-[Step 8] Bumping to next SNAPSHOT...
+[Step 6] Archiving design specs...  done (4 specs → docs/superpowers/specs/v0.3.0/)
+[Step 7] Building and testing...  done (BUILD SUCCESS)
+[Step 8] Committing release and tagging...  done (tag: v0.3.0)
+[Step 9] Bumping to next SNAPSHOT...
   - pom.xml → 0.4.0-SNAPSHOT
   - OpenAPI version → 0.4.0-SNAPSHOT (3 services)
   - docker-compose.yml → 0.4.0-SNAPSHOT (5 services)
-[Step 9] Committing next dev version...  done
+[Step 10] Committing next dev version...  done
 
 Ready to push. Run the following command to publish the release:
 
@@ -241,3 +276,15 @@ Ready to push. Run the following command to publish the release:
 
 Proceed? [y/N]
 ```
+
+## Common mistakes
+
+| Mistake | Fix |
+|---------|-----|
+| Starting Step 1 before creating the eleven tracking tasks | Do Step 0 first — create the tasks, then begin. |
+| Continuing past a failed precondition | Any failed check in Step 1 aborts — never release from a dirty, diverged, or red-CI state. |
+| Releasing with pending TODO items for the version | Step 3 aborts on any `[ ]` — complete them first. |
+| Committing before the build passes | Never skip the build in Step 7; fix it before any commit. |
+| Updating only some version references | Bump the pom, all three OpenAPI configs, and all five docker-compose tags together. |
+| Pushing without confirmation, or force-pushing | Show the command, wait for confirmation, and push only with `--atomic`. |
+| Archiving specs by delete-and-recreate | Relocate root-level specs with `git mv` so history is preserved. |
