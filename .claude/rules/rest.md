@@ -44,7 +44,7 @@ paths:
 - All error responses carry an `error` property with a machine-readable error code (e.g., `"invalid_request"`, `"invalid_grant"`, `"server_error"`)
 - Validation errors extend `ProblemDetail` with a `fieldErrors` property containing a list of `RequestValidationError(field, message)`
 - Always set `title` and `detail` via `ProblemDetail.forStatusAndDetail(...)`
-- 5xx responses in `GlobalExceptionHandler` add `"critical": true` to `ProblemDetail` for monitoring alerts
+- 500 responses in `GlobalExceptionHandler` add `"critical": true` to `ProblemDetail` for monitoring alerts (503 unavailability is transient and covered by the resilience layer)
 
 ## Partial Success / Degraded Responses
 
