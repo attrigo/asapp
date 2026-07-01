@@ -62,6 +62,8 @@ final class ErrorMessages {
     // Property names
     static final String FIELD_ERRORS_PROPERTY = "fieldErrors";
 
+    static final String CRITICAL_PROPERTY = "critical";
+
     private ErrorMessages() {}
 
 }
