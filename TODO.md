@@ -65,6 +65,7 @@
         - [X] Add task progress to both release Claude commands
         - [X] Improve release skill to add specs files in version folder
         - [X] Rename all ThrowsRuntimeException_ by ThrowsException_
+        - [X] Add a generic fallback exception handler across the three services — unhandled exceptions map to a 500 ProblemDetail (logged at ERROR) instead of escaping as a raw Spring error
 
 ### Analyze
 

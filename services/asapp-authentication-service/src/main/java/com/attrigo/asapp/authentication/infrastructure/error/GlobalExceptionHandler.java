@@ -242,7 +242,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR_DETAIL);
         problemDetail.setTitle(INTERNAL_SERVER_ERROR_TITLE);
         problemDetail.setProperty(ERROR_PROPERTY, SERVER_ERROR);
-        problemDetail.setProperty("critical", true);
+        problemDetail.setProperty(CRITICAL_PROPERTY, true);
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                              .body(problemDetail);
@@ -265,6 +265,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR_DETAIL);
         problemDetail.setTitle(INTERNAL_SERVER_ERROR_TITLE);
         problemDetail.setProperty(ERROR_PROPERTY, SERVER_ERROR);
+        problemDetail.setProperty(CRITICAL_PROPERTY, true);
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                              .body(problemDetail);
@@ -287,6 +288,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR_DETAIL);
         problemDetail.setTitle(INTERNAL_SERVER_ERROR_TITLE);
         problemDetail.setProperty(ERROR_PROPERTY, SERVER_ERROR);
+        problemDetail.setProperty(CRITICAL_PROPERTY, true);
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                              .body(problemDetail);
@@ -337,6 +339,34 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         problemDetail.setProperty(ERROR_PROPERTY, TEMPORARILY_UNAVAILABLE_ERROR);
 
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+                             .body(problemDetail);
+    }
+
+    // ============================================================================
+    // FALLBACK - Any Otherwise-Unhandled Exception (500 Internal Server Error)
+    // ============================================================================
+
+    /**
+     * Handles any otherwise-unhandled exception as a last resort.
+     * <p>
+     * Ensures an unexpected failure returns an RFC 7807 response instead of escaping as a raw Spring error. Being the broadest match, it fires only when no
+     * more specific handler applies.
+     * <p>
+     * Returns HTTP 500 Internal Server Error with a generic message and a critical flag for monitoring alerts.
+     *
+     * @param ex the unhandled {@link Exception}
+     * @return a {@link ResponseEntity} with status 500 and generic error message
+     */
+    @ExceptionHandler(Exception.class)
+    protected ResponseEntity<ProblemDetail> handleUnexpectedException(Exception ex) {
+        log.error("Unexpected error: {}", ex.getMessage(), ex);
+
+        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR_DETAIL);
+        problemDetail.setTitle(INTERNAL_SERVER_ERROR_TITLE);
+        problemDetail.setProperty(ERROR_PROPERTY, SERVER_ERROR);
+        problemDetail.setProperty(CRITICAL_PROPERTY, true);
+
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                              .body(problemDetail);
     }
 
