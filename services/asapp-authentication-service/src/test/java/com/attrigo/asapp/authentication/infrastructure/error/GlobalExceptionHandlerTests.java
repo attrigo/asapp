@@ -60,6 +60,7 @@ import com.attrigo.asapp.authentication.infrastructure.security.JwtIssuanceExcep
  * <li>Translates compensating-transaction failures to 500 Internal Server Error flagged critical</li>
  * <li>Translates JWT signing failures to 500 Internal Server Error with generic messages</li>
  * <li>Translates database failures to 500 Internal Server Error with generic messages</li>
+ * <li>Translates unexpected exceptions to 500 Internal Server Error flagged critical</li>
  * <li>Translates token-store and cache connection failures to 503 Service Unavailable</li>
  * <li>All responses follow RFC 7807 Problem Details structure with error codes</li>
  */
@@ -297,6 +298,7 @@ class GlobalExceptionHandlerTests {
                 softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(500);
                 softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("An internal error occurred");
                 softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "server_error");
+                softly.assertThat(problemDetail.getProperties()).as("critical flag").containsEntry("critical", true);
                 // @formatter:on
             });
         }
@@ -324,6 +326,7 @@ class GlobalExceptionHandlerTests {
                 softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(500);
                 softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("An internal error occurred");
                 softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "server_error");
+                softly.assertThat(problemDetail.getProperties()).as("critical flag").containsEntry("critical", true);
                 // @formatter:on
             });
         }
@@ -378,6 +381,34 @@ class GlobalExceptionHandlerTests {
                 softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(503);
                 softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Service temporarily unavailable");
                 softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "temporarily_unavailable");
+                // @formatter:on
+            });
+        }
+
+    }
+
+    @Nested
+    class HandleUnexpectedException {
+
+        @Test
+        void ReturnsInternalServerErrorAndProblemDetail_UnexpectedError() {
+            // Given
+            var exception = new RuntimeException("Simulated unexpected failure");
+
+            // When
+            var actual = globalExceptionHandler.handleUnexpectedException(exception);
+
+            // Then
+            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
+            var problemDetail = actual.getBody();
+            assertThat(problemDetail).isNotNull();
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Internal Server Error");
+                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(500);
+                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("An internal error occurred");
+                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "server_error");
+                softly.assertThat(problemDetail.getProperties()).as("critical flag").containsEntry("critical", true);
                 // @formatter:on
             });
         }
