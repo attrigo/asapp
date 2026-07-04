@@ -71,7 +71,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles method argument validation failures.
      * <p>
-     * Thrown by Spring when request body fields fail Jakarta Bean Validation constraints.
+     * Catches {@link MethodArgumentNotValidException} when the request body contains one or more invalid fields.
      * <p>
      * Returns HTTP 400 Bad Request with a sorted list of field-level validation errors.
      *
@@ -103,7 +103,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles illegal argument exceptions.
      * <p>
-     * Thrown by domain value objects when constructor or factory method arguments violate format constraints.
+     * Catches {@link IllegalArgumentException} when a submitted value has an invalid format.
      * <p>
      * Returns HTTP 400 Bad Request with a fixed error message (never the raw exception message).
      *
@@ -129,7 +129,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles invalid-credential exceptions (bad format or credential mismatch).
      * <p>
-     * Captured for:
+     * Catches:
      * <ul>
      * <li>{@link InvalidCredentialsException}: credentials rejected during authentication</li>
      * <li>{@link InvalidUsernameException}: username is not a valid email format</li>
@@ -156,9 +156,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handles authentication not found exceptions.
+     * Handles missing authentication sessions.
      * <p>
-     * Thrown when authentication sessions are not found (token revoked, session expired).
+     * Catches {@link AuthenticationNotFoundException} when the session has been revoked or has expired.
      * <p>
      * Returns HTTP 401 Unauthorized with a generic message to prevent user enumeration attacks.
      *
@@ -178,9 +178,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handles unexpected JWT type exceptions.
+     * Handles wrong-token-type errors.
      * <p>
-     * Thrown when token type doesn't match expected type (e.g., access token provided when refresh token expected).
+     * Catches {@link UnexpectedJwtTypeException} when the supplied token is of the wrong kind (for example, an access token where a refresh token is required).
      * <p>
      * Returns HTTP 401 Unauthorized with a generic message to avoid revealing token validation logic.
      *
@@ -200,9 +200,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handles invalid JWT exceptions.
+     * Handles invalid token errors.
      * <p>
-     * Thrown when tokens are invalid, malformed, expired, or fail cryptographic verification.
+     * Catches {@link InvalidJwtException} when the supplied token is invalid, malformed, or expired.
      * <p>
      * Returns HTTP 401 Unauthorized with a generic message to prevent revealing token validation details.
      *
@@ -226,9 +226,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // ============================================================================
 
     /**
-     * Handles compensating transaction failures across the application.
+     * Handles failed compensating transactions.
      * <p>
-     * This is a critical error indicating the system could not automatically recover from a failure, potentially leaving data in an inconsistent state.
+     * Catches {@link CompensatingTransactionException} when the system cannot automatically recover from a partial failure, potentially leaving data in an
+     * inconsistent state.
      * <p>
      * Returns HTTP 500 Internal Server Error with a generic message and critical flag for monitoring alerts.
      *
@@ -249,9 +250,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handles JWT signing and issuance failures.
+     * Handles token issuance failures.
      * <p>
-     * Thrown when JWT generation or cryptographic operations fail.
+     * Catches {@link JwtIssuanceException} when a new token cannot be generated.
      * <p>
      * Returns HTTP 500 Internal Server Error with a generic message to avoid exposing cryptographic implementation details.
      *
@@ -272,9 +273,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handles Spring Data JDBC failures during database operations.
+     * Handles database access failures.
      * <p>
-     * Thrown when database operations fail (connection issues, constraint violations, etc.).
+     * Catches {@link DataAccessException} when the database is unreachable or rejects an operation.
      * <p>
      * Returns HTTP 500 Internal Server Error with a generic message to avoid exposing database implementation details.
      *
@@ -299,9 +300,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // ============================================================================
 
     /**
-     * Handles JWT store operation failures in authentication operations.
+     * Handles token store failures.
      * <p>
-     * Thrown when Redis token store operations fail (save, delete, check existence).
+     * Catches {@link TokenStoreException} when the token store cannot be read or updated.
      * <p>
      * Returns HTTP 503 Service Unavailable with a generic message to avoid exposing Redis infrastructure details.
      *
@@ -321,9 +322,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * Handles Redis connection and operation failures.
+     * Handles cache store failures.
      * <p>
-     * Thrown when Redis connection or low-level operations fail.
+     * Catches {@link RedisConnectionFailureException} when the cache store cannot be reached.
      * <p>
      * Returns HTTP 503 Service Unavailable with a generic message to avoid exposing Redis infrastructure details.
      *
@@ -349,8 +350,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles any otherwise-unhandled exception as a last resort.
      * <p>
-     * Ensures an unexpected failure returns an RFC 7807 response instead of escaping as a raw Spring error. Being the broadest match, it fires only when no
-     * more specific handler applies.
+     * Catches {@link Exception} when no more specific handler applies, so an unexpected failure returns an RFC 7807 response instead of escaping as a raw
+     * error.
      * <p>
      * Returns HTTP 500 Internal Server Error with a generic message and a critical flag for monitoring alerts.
      *
