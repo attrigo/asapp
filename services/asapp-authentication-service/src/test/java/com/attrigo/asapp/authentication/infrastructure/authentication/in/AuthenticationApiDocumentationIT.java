@@ -93,17 +93,17 @@ class AuthenticationApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isOk())
                    .andDo(
                    // @formatter:off
-                       document("authenticate",
-                           requestFields(
-                                   fields.withPath("username").description("The user's username in email format"),
-                                   fields.withPath("password").description("The user's raw password")
-                           ),
-                           responseFields(
-                                   fieldWithPath("accessToken").description("The generated access token"),
-                                   fieldWithPath("refreshToken").description("The generated refresh token")
+                           document("authenticate",
+                                   requestFields(
+                                           fields.withPath("username").description("The user's username in email format"),
+                                           fields.withPath("password").description("The user's raw password")
+                                   ),
+                                   responseFields(
+                                           fieldWithPath("accessToken").description("The generated access token"),
+                                           fieldWithPath("refreshToken").description("The generated refresh token")
+                                   )
                            )
-                       )
-                       // @formatter:on
+                   // @formatter:on
                    );
         }
 
@@ -134,16 +134,16 @@ class AuthenticationApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isOk())
                    .andDo(
                    // @formatter:off
-                       document("refresh-authentication",
-                           requestFields(
-                                   fields.withPath("refreshToken").description("The refresh token to renew the session")
-                           ),
-                           responseFields(
-                                   fieldWithPath("accessToken").description("The new access token"),
-                                   fieldWithPath("refreshToken").description("The new refresh token")
+                           document("refresh-authentication",
+                                   requestFields(
+                                           fields.withPath("refreshToken").description("The refresh token to renew the session")
+                                   ),
+                                   responseFields(
+                                           fieldWithPath("accessToken").description("The new access token"),
+                                           fieldWithPath("refreshToken").description("The new refresh token")
+                                   )
                            )
-                       )
-                       // @formatter:on
+                   // @formatter:on
                    );
         }
 
@@ -173,12 +173,12 @@ class AuthenticationApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isNoContent())
                    .andDo(
                    // @formatter:off
-                       document("revoke-authentication",
-                           requestFields(
-                                   fields.withPath("accessToken").description("The access token identifying the session to revoke")
+                           document("revoke-authentication",
+                                   requestFields(
+                                           fields.withPath("accessToken").description("The access token identifying the session to revoke")
+                                   )
                            )
-                       )
-                       // @formatter:on
+                   // @formatter:on
                    );
         }
 
@@ -195,17 +195,17 @@ class AuthenticationApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isBadRequest())
                    .andDo(
                    // @formatter:off
-                       document("error-request-body-validation-failure",
-                           relaxedResponseFields(
-                               fieldWithPath("title").description("Short summary of the problem type"),
-                               fieldWithPath("status").description("HTTP status code"),
-                               fieldWithPath("detail").description("Human-readable explanation of the problem"),
-                               fieldWithPath("error").description("Machine-readable error code"),
-                               fieldWithPath("fieldErrors").description("List of validation errors"),
-                               fieldWithPath("fieldErrors[].field").description("Field that failed validation"),
-                               fieldWithPath("fieldErrors[].message").description("Validation error message")
+                           document("error-request-body-validation-failure",
+                                   relaxedResponseFields(
+                                           fieldWithPath("title").description("Short summary of the problem type"),
+                                           fieldWithPath("status").description("HTTP status code"),
+                                           fieldWithPath("detail").description("Human-readable explanation of the problem"),
+                                           fieldWithPath("error").description("Machine-readable error code"),
+                                           fieldWithPath("fieldErrors").description("List of validation errors"),
+                                           fieldWithPath("fieldErrors[].field").description("Field that failed validation"),
+                                           fieldWithPath("fieldErrors[].message").description("Validation error message")
+                                   )
                            )
-                       )
                    // @formatter:on
                    );
         }
@@ -230,14 +230,14 @@ class AuthenticationApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isUnauthorized())
                    .andDo(
                    // @formatter:off
-                       document("error-invalid-credentials",
-                           relaxedResponseFields(
-                               fieldWithPath("title").description("Short summary of the problem type"),
-                               fieldWithPath("status").description("HTTP status code"),
-                               fieldWithPath("detail").description("Human-readable explanation of the problem"),
-                               fieldWithPath("error").description("Machine-readable error code")
+                           document("error-invalid-credentials",
+                                   relaxedResponseFields(
+                                           fieldWithPath("title").description("Short summary of the problem type"),
+                                           fieldWithPath("status").description("HTTP status code"),
+                                           fieldWithPath("detail").description("Human-readable explanation of the problem"),
+                                           fieldWithPath("error").description("Machine-readable error code")
+                                   )
                            )
-                       )
                    // @formatter:on
                    );
         }
@@ -262,14 +262,14 @@ class AuthenticationApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isInternalServerError())
                    .andDo(
                    // @formatter:off
-                       document("error-internal-server-error",
-                           relaxedResponseFields(
-                               fieldWithPath("title").description("Short summary of the problem type"),
-                               fieldWithPath("status").description("HTTP status code"),
-                               fieldWithPath("detail").description("Human-readable explanation of the problem"),
-                               fieldWithPath("error").description("Machine-readable error code")
+                           document("error-internal-server-error",
+                                   relaxedResponseFields(
+                                           fieldWithPath("title").description("Short summary of the problem type"),
+                                           fieldWithPath("status").description("HTTP status code"),
+                                           fieldWithPath("detail").description("Human-readable explanation of the problem"),
+                                           fieldWithPath("error").description("Machine-readable error code")
+                                   )
                            )
-                       )
                    // @formatter:on
                    );
         }
@@ -295,14 +295,14 @@ class AuthenticationApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isServiceUnavailable())
                    .andDo(
                    // @formatter:off
-                       document("error-service-unavailable",
-                           relaxedResponseFields(
-                               fieldWithPath("title").description("Short summary of the problem type"),
-                               fieldWithPath("status").description("HTTP status code"),
-                               fieldWithPath("detail").description("Human-readable explanation of the problem"),
-                               fieldWithPath("error").description("Machine-readable error code")
+                           document("error-service-unavailable",
+                                   relaxedResponseFields(
+                                           fieldWithPath("title").description("Short summary of the problem type"),
+                                           fieldWithPath("status").description("HTTP status code"),
+                                           fieldWithPath("detail").description("Human-readable explanation of the problem"),
+                                           fieldWithPath("error").description("Machine-readable error code")
+                                   )
                            )
-                       )
                    // @formatter:on
                    );
         }

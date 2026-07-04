@@ -63,13 +63,11 @@ class JwtAuthenticationEntryPointTests {
                 softly.assertThat(response.getHeader(HttpHeaders.WWW_AUTHENTICATE)).as("WWW-Authenticate header").isEqualTo("Bearer");
                 // @formatter:on
             });
-            // @formatter:off
             assertThatJson(response.getContentAsString()).isObject()
                                                          .containsEntry("title", "Authentication Failed")
                                                          .containsEntry("status", 401)
                                                          .containsEntry("detail", "Invalid credentials")
                                                          .containsEntry("error", "invalid_grant");
-            // @formatter:on
         }
 
     }

@@ -218,28 +218,29 @@ class UserE2EIT {
                                        .getResponseBody();
 
             // Then
-            // @formatter:off
             assertThatJson(actual).isArray()
                                   .satisfiesExactlyInAnyOrder(
-                                          user -> assertThatJson(user).isObject()
-                                                                             .containsOnlyKeys("userId", "username", "password", "role")
-                                                                             .containsEntry("userId", createdUser1.id().toString())
-                                                                             .containsEntry("username", createdUser1.username())
-                                                                             .containsEntry("password", "*****")
-                                                                             .containsEntry("role", createdUser1.role()),
-                                          user -> assertThatJson(user).isObject()
-                                                                             .containsOnlyKeys("userId", "username", "password", "role")
-                                                                             .containsEntry("userId", createdUser2.id().toString())
-                                                                             .containsEntry("username", createdUser2.username())
-                                                                             .containsEntry("password", "*****")
-                                                                             .containsEntry("role", createdUser2.role()),
-                                          user -> assertThatJson(user).isObject()
-                                                                             .containsOnlyKeys("userId", "username", "password", "role")
-                                                                             .containsEntry("userId", createdUser3.id().toString())
-                                                                             .containsEntry("username", createdUser3.username())
-                                                                             .containsEntry("password", "*****")
-                                                                             .containsEntry("role", createdUser3.role()));
-            // @formatter:on
+                                  // @formatter:off
+                                      user -> assertThatJson(user).isObject()
+                                                                         .containsOnlyKeys("userId", "username", "password", "role")
+                                                                         .containsEntry("userId", createdUser1.id().toString())
+                                                                         .containsEntry("username", createdUser1.username())
+                                                                         .containsEntry("password", "*****")
+                                                                         .containsEntry("role", createdUser1.role()),
+                                      user -> assertThatJson(user).isObject()
+                                                                         .containsOnlyKeys("userId", "username", "password", "role")
+                                                                         .containsEntry("userId", createdUser2.id().toString())
+                                                                         .containsEntry("username", createdUser2.username())
+                                                                         .containsEntry("password", "*****")
+                                                                         .containsEntry("role", createdUser2.role()),
+                                      user -> assertThatJson(user).isObject()
+                                                                         .containsOnlyKeys("userId", "username", "password", "role")
+                                                                         .containsEntry("userId", createdUser3.id().toString())
+                                                                         .containsEntry("username", createdUser3.username())
+                                                                         .containsEntry("password", "*****")
+                                                                         .containsEntry("role", createdUser3.role())
+                                  // @formatter:on
+                                  );
         }
 
         @Test
@@ -548,13 +549,11 @@ class UserE2EIT {
     // Assertions Helpers
 
     private void assertUnauthorizedProblemDetailResponse(String actual) {
-        // @formatter:off
         assertThatJson(actual).isObject()
                               .containsEntry("title", "Authentication Failed")
                               .containsEntry("status", 401)
                               .containsEntry("detail", "Invalid credentials")
                               .containsEntry("error", "invalid_grant");
-        // @formatter:on
     }
 
     private void assertAuthenticationNotExist(JdbcJwtAuthenticationEntity expectedJwtAuthentication) {

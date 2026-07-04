@@ -170,10 +170,10 @@ class UserE2EIT {
                                   .containsEntry("lastName", createdUser.lastName())
                                   .containsEntry("email", createdUser.email())
                                   .containsEntry("phoneNumber", createdUser.phoneNumber());
+            // @formatter:on
             assertThatJson(actual).node("taskIds")
                                   .isArray()
                                   .isEmpty();
-            // @formatter:on
 
             // Assert no warning logs appear for a successful empty response
             assertThat(output.getAll()).doesNotContain("Tasks Service unavailable for user");
@@ -214,10 +214,10 @@ class UserE2EIT {
                                   .containsEntry("lastName", createdUser.lastName())
                                   .containsEntry("email", createdUser.email())
                                   .containsEntry("phoneNumber", createdUser.phoneNumber());
+            // @formatter:on
             assertThatJson(actual).node("taskIds")
                                   .isArray()
                                   .containsExactlyInAnyOrder(taskId1.toString(), taskId2.toString(), taskId3.toString());
-            // @formatter:on
         }
 
         @Test
@@ -252,19 +252,18 @@ class UserE2EIT {
                                   .containsEntry("lastName", createdUser.lastName())
                                   .containsEntry("email", createdUser.email())
                                   .containsEntry("phoneNumber", createdUser.phoneNumber());
+            // @formatter:on
             assertThatJson(actual).node("taskIds")
                                   .isArray()
                                   .isEmpty();
             assertThatJson(actual).node("warnings")
                                   .isArray()
-                                  .satisfiesExactlyInAnyOrder(
-                                          warning -> assertThatJson(warning).isObject()
-                                                                                   .containsOnlyKeys("code", "field", "message", "retryable")
-                                                                                   .containsEntry("code", warningDetail.code())
-                                                                                   .containsEntry("field", warningDetail.field())
-                                                                                   .containsEntry("message", warningDetail.message())
-                                                                                   .containsEntry("retryable", warningDetail.retryable()));
-            // @formatter:on
+                                  .satisfiesExactlyInAnyOrder(warning -> assertThatJson(warning).isObject()
+                                                                                                .containsOnlyKeys("code", "field", "message", "retryable")
+                                                                                                .containsEntry("code", warningDetail.code())
+                                                                                                .containsEntry("field", warningDetail.field())
+                                                                                                .containsEntry("message", warningDetail.message())
+                                                                                                .containsEntry("retryable", warningDetail.retryable()));
 
             // Assert the degradation is logged for operators
             assertThat(output.getAll()).contains("Tasks Service unavailable for user " + createdUser.id());
@@ -342,31 +341,32 @@ class UserE2EIT {
                                        .getResponseBody();
 
             // Then
-            // @formatter:off
             assertThatJson(actual).isArray()
                                   .satisfiesExactlyInAnyOrder(
-                                          user -> assertThatJson(user).isObject()
-                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
-                                                                             .containsEntry("userId", createdUser1.id().toString())
-                                                                             .containsEntry("firstName", createdUser1.firstName())
-                                                                             .containsEntry("lastName", createdUser1.lastName())
-                                                                             .containsEntry("email", createdUser1.email())
-                                                                             .containsEntry("phoneNumber", createdUser1.phoneNumber()),
-                                          user -> assertThatJson(user).isObject()
-                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
-                                                                             .containsEntry("userId", createdUser2.id().toString())
-                                                                             .containsEntry("firstName", createdUser2.firstName())
-                                                                             .containsEntry("lastName", createdUser2.lastName())
-                                                                             .containsEntry("email", createdUser2.email())
-                                                                             .containsEntry("phoneNumber", createdUser2.phoneNumber()),
-                                          user -> assertThatJson(user).isObject()
-                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
-                                                                             .containsEntry("userId", createdUser3.id().toString())
-                                                                             .containsEntry("firstName", createdUser3.firstName())
-                                                                             .containsEntry("lastName", createdUser3.lastName())
-                                                                             .containsEntry("email", createdUser3.email())
-                                                                             .containsEntry("phoneNumber", createdUser3.phoneNumber()));
-            // @formatter:on
+                                  // @formatter:off
+                                      user -> assertThatJson(user).isObject()
+                                                                         .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                         .containsEntry("userId", createdUser1.id().toString())
+                                                                         .containsEntry("firstName", createdUser1.firstName())
+                                                                         .containsEntry("lastName", createdUser1.lastName())
+                                                                         .containsEntry("email", createdUser1.email())
+                                                                         .containsEntry("phoneNumber", createdUser1.phoneNumber()),
+                                      user -> assertThatJson(user).isObject()
+                                                                         .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                         .containsEntry("userId", createdUser2.id().toString())
+                                                                         .containsEntry("firstName", createdUser2.firstName())
+                                                                         .containsEntry("lastName", createdUser2.lastName())
+                                                                         .containsEntry("email", createdUser2.email())
+                                                                         .containsEntry("phoneNumber", createdUser2.phoneNumber()),
+                                      user -> assertThatJson(user).isObject()
+                                                                         .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                         .containsEntry("userId", createdUser3.id().toString())
+                                                                         .containsEntry("firstName", createdUser3.firstName())
+                                                                         .containsEntry("lastName", createdUser3.lastName())
+                                                                         .containsEntry("email", createdUser3.email())
+                                                                         .containsEntry("phoneNumber", createdUser3.phoneNumber())
+                                  // @formatter:on
+                                  );
         }
 
         @Test
@@ -399,24 +399,25 @@ class UserE2EIT {
                                        .getResponseBody();
 
             // Then
-            // @formatter:off
             assertThatJson(actual).isArray()
                                   .satisfiesExactlyInAnyOrder(
-                                          user -> assertThatJson(user).isObject()
-                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
-                                                                             .containsEntry("userId", createdUser1.id().toString())
-                                                                             .containsEntry("firstName", createdUser1.firstName())
-                                                                             .containsEntry("lastName", createdUser1.lastName())
-                                                                             .containsEntry("email", createdUser1.email())
-                                                                             .containsEntry("phoneNumber", createdUser1.phoneNumber()),
-                                          user -> assertThatJson(user).isObject()
-                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
-                                                                             .containsEntry("userId", createdUser2.id().toString())
-                                                                             .containsEntry("firstName", createdUser2.firstName())
-                                                                             .containsEntry("lastName", createdUser2.lastName())
-                                                                             .containsEntry("email", createdUser2.email())
-                                                                             .containsEntry("phoneNumber", createdUser2.phoneNumber()));
-            // @formatter:on
+                                  // @formatter:off
+                                      user -> assertThatJson(user).isObject()
+                                                                         .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                         .containsEntry("userId", createdUser1.id().toString())
+                                                                         .containsEntry("firstName", createdUser1.firstName())
+                                                                         .containsEntry("lastName", createdUser1.lastName())
+                                                                         .containsEntry("email", createdUser1.email())
+                                                                         .containsEntry("phoneNumber", createdUser1.phoneNumber()),
+                                      user -> assertThatJson(user).isObject()
+                                                                         .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                         .containsEntry("userId", createdUser2.id().toString())
+                                                                         .containsEntry("firstName", createdUser2.firstName())
+                                                                         .containsEntry("lastName", createdUser2.lastName())
+                                                                         .containsEntry("email", createdUser2.email())
+                                                                         .containsEntry("phoneNumber", createdUser2.phoneNumber())
+                                  // @formatter:on
+                                  );
         }
 
         @Test
@@ -444,17 +445,15 @@ class UserE2EIT {
                                        .getResponseBody();
 
             // Then
-            // @formatter:off
             assertThatJson(actual).isArray()
-                                  .satisfiesExactlyInAnyOrder(
-                                          user -> assertThatJson(user).isObject()
-                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
-                                                                             .containsEntry("userId", userId1.toString())
-                                                                             .containsEntry("firstName", createdUser1.firstName())
-                                                                             .containsEntry("lastName", createdUser1.lastName())
-                                                                             .containsEntry("email", createdUser1.email())
-                                                                             .containsEntry("phoneNumber", createdUser1.phoneNumber()));
-            // @formatter:on
+                                  .satisfiesExactlyInAnyOrder(user -> assertThatJson(user).isObject()
+                                                                                          .containsOnlyKeys("userId", "firstName", "lastName", "email",
+                                                                                                  "phoneNumber")
+                                                                                          .containsEntry("userId", userId1.toString())
+                                                                                          .containsEntry("firstName", createdUser1.firstName())
+                                                                                          .containsEntry("lastName", createdUser1.lastName())
+                                                                                          .containsEntry("email", createdUser1.email())
+                                                                                          .containsEntry("phoneNumber", createdUser1.phoneNumber()));
         }
 
         @Test
@@ -487,24 +486,25 @@ class UserE2EIT {
                                        .getResponseBody();
 
             // Then
-            // @formatter:off
             assertThatJson(actual).isArray()
                                   .satisfiesExactlyInAnyOrder(
-                                          user -> assertThatJson(user).isObject()
-                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
-                                                                             .containsEntry("userId", createdUser1.id().toString())
-                                                                             .containsEntry("firstName", createdUser1.firstName())
-                                                                             .containsEntry("lastName", createdUser1.lastName())
-                                                                             .containsEntry("email", createdUser1.email())
-                                                                             .containsEntry("phoneNumber", createdUser1.phoneNumber()),
-                                          user -> assertThatJson(user).isObject()
-                                                                             .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
-                                                                             .containsEntry("userId", createdUser2.id().toString())
-                                                                             .containsEntry("firstName", createdUser2.firstName())
-                                                                             .containsEntry("lastName", createdUser2.lastName())
-                                                                             .containsEntry("email", createdUser2.email())
-                                                                             .containsEntry("phoneNumber", createdUser2.phoneNumber()));
-            // @formatter:on
+                                  // @formatter:off
+                                      user -> assertThatJson(user).isObject()
+                                                                         .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                         .containsEntry("userId", createdUser1.id().toString())
+                                                                         .containsEntry("firstName", createdUser1.firstName())
+                                                                         .containsEntry("lastName", createdUser1.lastName())
+                                                                         .containsEntry("email", createdUser1.email())
+                                                                         .containsEntry("phoneNumber", createdUser1.phoneNumber()),
+                                      user -> assertThatJson(user).isObject()
+                                                                         .containsOnlyKeys("userId", "firstName", "lastName", "email", "phoneNumber")
+                                                                         .containsEntry("userId", createdUser2.id().toString())
+                                                                         .containsEntry("firstName", createdUser2.firstName())
+                                                                         .containsEntry("lastName", createdUser2.lastName())
+                                                                         .containsEntry("email", createdUser2.email())
+                                                                         .containsEntry("phoneNumber", createdUser2.phoneNumber())
+                                  // @formatter:on
+                                  );
         }
 
         @Test
@@ -853,13 +853,11 @@ class UserE2EIT {
     // Test Assertion Helpers
 
     private void assertUnauthorizedProblemDetailResponse(String actual) {
-        // @formatter:off
         assertThatJson(actual).isObject()
                               .containsEntry("title", "Authentication Failed")
                               .containsEntry("status", 401)
                               .containsEntry("detail", "Invalid credentials")
                               .containsEntry("error", "invalid_grant");
-        // @formatter:on
     }
 
 }

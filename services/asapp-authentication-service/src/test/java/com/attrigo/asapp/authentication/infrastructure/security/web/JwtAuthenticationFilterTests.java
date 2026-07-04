@@ -176,10 +176,10 @@ class JwtAuthenticationFilterTests {
 
             assertThat(authentication).isNotNull();
             assertSoftly(softly -> {
-            // @formatter:off
+                // @formatter:off
                 softly.assertThat(authentication).as("authentication type").isInstanceOf(JwtAuthenticationToken.class);
                 softly.assertThat(authentication.getName()).as("authenticated subject").isEqualTo(decodedJwt.subject());
-            // @formatter:on
+                // @formatter:on
             });
 
             then(filterChain).should(times(1))

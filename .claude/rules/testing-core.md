@@ -107,7 +107,10 @@ Suffixes: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-
 - Assertions on different root variables (e.g., `actual` vs `captor.getValue()`) are separate groups
 - When using `assertSoftly()`, `.as()` descriptions are MANDATORY for each assertion — `.as()` MUST be placed BEFORE the assertion method (silently ignored if placed after)
 - `.as()` descriptions MUST use human-readable concise noun phrase naming the domain concept being asserted (AssertJ convention), avoid generic labels or camelCase identifiers
-- Use `// @formatter:off/on` around multi-line assertion blocks to preserve alignment
+- Use `// @formatter:off/on` only for:
+    - `assertSoftly` blocks — keeps each soft assertion on one line
+    - a `.containsEntry(...)` whose argument is a method chain like `createdUser.id().toString()` — without the guard the formatter breaks the chain across lines
+    - `satisfiesExactly…` lambdas — guard just inside `(` when there are multiple lambdas or a method-chain argument; leave a single lambda with simple arguments inline
 - Use Awaitility (`await()`) instead of `Thread.sleep()` for async waiting (available via `spring-boot-starter-test`)
 
 ### 2.4 Then Block Structure
