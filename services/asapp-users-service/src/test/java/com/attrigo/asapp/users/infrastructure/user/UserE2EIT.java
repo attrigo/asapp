@@ -288,19 +288,25 @@ class UserE2EIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
+        void ReturnsStatusUnauthorizedAndProblemDetail_MissingAuthorizationHeader() {
             // Given
             var userId = UUID.fromString("b1c2d3e4-f5a6-4b7c-8d9e-0f1a2b3c4d5e");
 
-            // When & Then
-            restTestClient.get()
-                          .uri(USERS_GET_BY_ID_FULL_PATH, userId)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            // When
+            var actual = restTestClient.get()
+                                       .uri(USERS_GET_BY_ID_FULL_PATH, userId)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
     }
@@ -551,16 +557,22 @@ class UserE2EIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
-            // When & Then
-            restTestClient.get()
-                          .uri(USERS_GET_ALL_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+        void ReturnsStatusUnauthorizedAndProblemDetail_MissingAuthorizationHeader() {
+            // When
+            var actual = restTestClient.get()
+                                       .uri(USERS_GET_ALL_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
     }
@@ -609,21 +621,27 @@ class UserE2EIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
+        void ReturnsStatusUnauthorizedAndProblemDetail_MissingAuthorizationHeader() {
             // Given
             var createUserRequestBody = new CreateUserRequest("FirstName", "LastName", "user@asapp.com", "555 555 555");
 
-            // When & Then
-            restTestClient.post()
-                          .uri(USERS_CREATE_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(createUserRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            // When
+            var actual = restTestClient.post()
+                                       .uri(USERS_CREATE_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(createUserRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
     }
@@ -694,22 +712,28 @@ class UserE2EIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
+        void ReturnsStatusUnauthorizedAndProblemDetail_MissingAuthorizationHeader() {
             // Given
             var userId = UUID.fromString("a6b7c8d9-e0f1-4a2b-3c4d-5e6f7a8b9c0d");
             var updateUserRequest = new UpdateUserRequest("New FirstName", "New LastName", "new_user@asapp.com", "666 666 666");
 
-            // When & Then
-            restTestClient.put()
-                          .uri(USERS_UPDATE_BY_ID_FULL_PATH, userId)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(updateUserRequest)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            // When
+            var actual = restTestClient.put()
+                                       .uri(USERS_UPDATE_BY_ID_FULL_PATH, userId)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(updateUserRequest)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
     }
@@ -758,19 +782,25 @@ class UserE2EIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
+        void ReturnsStatusUnauthorizedAndProblemDetail_MissingAuthorizationHeader() {
             // Given
             var userId = UUID.fromString("c8d9e0f1-a2b3-4c4d-5e6f-7a8b9c0d1e2f");
 
-            // When & Then
-            restTestClient.delete()
-                          .uri(USERS_DELETE_BY_ID_FULL_PATH, userId)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            // When
+            var actual = restTestClient.delete()
+                                       .uri(USERS_DELETE_BY_ID_FULL_PATH, userId)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
     }
@@ -818,6 +848,18 @@ class UserE2EIT {
         mockServerClient.when(request, times)
                         .respond(response().withStatusCode(500)
                                            .withHeader("Content-Type", MediaType.APPLICATION_JSON_VALUE));
+    }
+
+    // Test Assertion Helpers
+
+    private void assertUnauthorizedProblemDetailResponse(String actual) {
+        // @formatter:off
+        assertThatJson(actual).isObject()
+                              .containsEntry("title", "Authentication Failed")
+                              .containsEntry("status", 401)
+                              .containsEntry("detail", "Invalid credentials")
+                              .containsEntry("error", "invalid_grant");
+        // @formatter:on
     }
 
 }

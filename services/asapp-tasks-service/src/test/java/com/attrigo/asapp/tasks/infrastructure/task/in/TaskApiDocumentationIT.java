@@ -492,7 +492,18 @@ class TaskApiDocumentationIT extends RestDocsWebMvcTestContext {
             // When & Then
             mockMvc.perform(get(TASKS_GET_BY_ID_FULL_PATH, taskIdValue).accept(APPLICATION_JSON))
                    .andExpect(status().isUnauthorized())
-                   .andDo(document("error-unauthorized"));
+                   .andDo(
+                   // @formatter:off
+                       document("error-unauthorized",
+                           relaxedResponseFields(
+                               fieldWithPath("title").description("Short summary of the problem type"),
+                               fieldWithPath("status").description("HTTP status code"),
+                               fieldWithPath("detail").description("Human-readable explanation of the problem"),
+                               fieldWithPath("error").description("Machine-readable error code")
+                           )
+                       )
+                       // @formatter:on
+                   );
         }
 
         @Test

@@ -1,0 +1,77 @@
+/**
+* Copyright 2023 the original author or authors.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     https://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
+
+package com.attrigo.asapp.tasks.infrastructure.security.web;
+
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static org.assertj.core.api.SoftAssertions.assertSoftly;
+
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ProblemDetail;
+import org.springframework.http.converter.json.ProblemDetailJacksonMixin;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
+import org.springframework.security.authentication.InsufficientAuthenticationException;
+
+import tools.jackson.databind.json.JsonMapper;
+
+/**
+ * Tests {@link JwtAuthenticationEntryPoint} rendering of a generic RFC 7807 401 response on authentication failure.
+ */
+class JwtAuthenticationEntryPointTests {
+
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint = new JwtAuthenticationEntryPoint(JsonMapper.builder()
+                                                                                                                      .addMixIn(ProblemDetail.class,
+                                                                                                                              ProblemDetailJacksonMixin.class)
+                                                                                                                      .build());
+
+    @Nested
+    class Commence {
+
+        @Test
+        void ReturnsUnauthorizedAndProblemDetail_AuthenticationFails() throws Exception {
+            // Given
+            var request = new MockHttpServletRequest("GET", "/api/tasks");
+            var response = new MockHttpServletResponse();
+            var authenticationException = new InsufficientAuthenticationException("Full authentication is required");
+
+            // When
+            jwtAuthenticationEntryPoint.commence(request, response, authenticationException);
+
+            // Then
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(response.getStatus()).as("status").isEqualTo(HttpStatus.UNAUTHORIZED.value());
+                softly.assertThat(response.getContentType()).as("content type").startsWith(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+                softly.assertThat(response.getHeader(HttpHeaders.WWW_AUTHENTICATE)).as("WWW-Authenticate header").isEqualTo("Bearer");
+                // @formatter:on
+            });
+            // @formatter:off
+            assertThatJson(response.getContentAsString()).isObject()
+                                                         .containsEntry("title", "Authentication Failed")
+                                                         .containsEntry("status", 401)
+                                                         .containsEntry("detail", "Invalid credentials")
+                                                         .containsEntry("error", "invalid_grant");
+            // @formatter:on
+        }
+
+    }
+
+}

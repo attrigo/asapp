@@ -26,7 +26,6 @@ import org.springframework.boot.security.autoconfigure.actuate.web.servlet.Endpo
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -39,6 +38,7 @@ import org.springframework.security.web.DefaultSecurityFilterChain;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.attrigo.asapp.tasks.infrastructure.security.web.EmptyBodyBasicAuthenticationEntryPoint;
 import com.attrigo.asapp.tasks.infrastructure.security.web.JwtAuthenticationEntryPoint;
 import com.attrigo.asapp.tasks.infrastructure.security.web.JwtAuthenticationFilter;
 
@@ -121,7 +121,7 @@ public class SecurityConfiguration {
      * <li>Disables CSRF: authentication is stateless (JWT Bearer header); no session cookies exist to hijack.</li>
      * <li>No CORS configuration: endpoints are consumed server-to-server; CORS is a browser-only enforcement mechanism.</li>
      * <li>Configures JWT authentication for the incoming requests that matches {@literal /api/**}.</li>
-     * <li>Adds the exception handler, which is invoked when any authentication fails.</li>
+     * <li>Adds the JWT authentication entry point, which renders an RFC 7807 ProblemDetail 401 when authentication fails or is missing.</li>
      * <li>Adds the JWT authentication filter.</li>
      * </ul>
      *
@@ -151,6 +151,7 @@ public class SecurityConfiguration {
      * <li>Disables CORS: actuator endpoints are internal only; cross-origin browser access is not supported.</li>
      * <li>Configures no authentication for the incoming requests that matches the {@literal /actuator/health}.</li>
      * <li>Configures HTTP Basic authentication for the incoming requests that matches {@literal /actuator/**}.</li>
+     * <li>Adds the custom entry point, which renders an empty-body 401 with a Basic challenge.</li>
      * </ul>
      *
      * @param http            the {@link HttpSecurity} object used to configure HTTP security
@@ -169,7 +170,7 @@ public class SecurityConfiguration {
                 auth.anyRequest()
                     .authenticated();
             });
-        http.httpBasic(Customizer.withDefaults());
+        http.httpBasic(basic -> basic.authenticationEntryPoint(new EmptyBodyBasicAuthenticationEntryPoint()));
         http.userDetailsService(managementUserDetailsManager(passwordEncoder));
         http.sessionManagement(session -> session.sessionCreationPolicy(STATELESS));
 
@@ -187,7 +188,7 @@ public class SecurityConfiguration {
      * <li>Configures no authentication for the incoming requests that matches the public API documentation endpoints {@code ROOT_WHITELIST_URLS}.</li>
      * <li>Configures no authentication for the incoming requests that matches the public management endpoints {@code MANAGEMENT_WHITELIST_URLS}.</li>
      * <li>Configures JWT authentication for the incoming requests that matches {@literal /**}.</li>
-     * <li>Adds the exception handler, which is invoked when any authentication fails.</li>
+     * <li>Adds the JWT authentication entry point, which renders an RFC 7807 ProblemDetail 401 when authentication fails or is missing.</li>
      * <li>Adds the JWT authentication filter.</li>
      * </ul>
      *

@@ -66,6 +66,7 @@
         - [X] Improve release skill to add specs files in version folder
         - [X] Rename all ThrowsRuntimeException_ by ThrowsException_
         - [X] Add a generic fallback exception handler across the three services — unhandled exceptions map to a 500 ProblemDetail (logged at ERROR) instead of escaping as a raw Spring error
+        - [X] Fix dead JWT 401 handlers in tasks/users GEH — a bad JWT returns an empty-body 401 from JwtAuthenticationEntryPoint instead of an RFC 7807 ProblemDetail
 
 ### Analyze
 
