@@ -29,8 +29,6 @@ final class ErrorMessages {
 
     static final String INVALID_ARGUMENT_TITLE = "Invalid Argument";
 
-    static final String AUTHENTICATION_FAILED_TITLE = "Authentication Failed";
-
     static final String INTERNAL_SERVER_ERROR_TITLE = "Internal Server Error";
 
     static final String SERVICE_UNAVAILABLE_TITLE = "Service Unavailable";
@@ -40,18 +38,12 @@ final class ErrorMessages {
 
     static final String INVALID_ARGUMENT_DETAIL = "Invalid argument provided";
 
-    static final String INVALID_CREDENTIALS_DETAIL = "Invalid credentials";
-
-    static final String INVALID_TOKEN_DETAIL = "Invalid token";
-
     static final String INTERNAL_ERROR_DETAIL = "An internal error occurred";
 
     static final String SERVICE_UNAVAILABLE_DETAIL = "Service temporarily unavailable";
 
     // Error codes
     static final String ERROR_PROPERTY = "error";
-
-    static final String INVALID_GRANT_ERROR = "invalid_grant";
 
     static final String SERVER_ERROR = "server_error";
 

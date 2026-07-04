@@ -19,6 +19,7 @@ package com.attrigo.asapp.authentication.infrastructure.config;
 import static com.attrigo.asapp.authentication.testutil.fixture.EncodedTokenMother.anEncodedTokenBuilder;
 import static com.attrigo.asapp.authentication.testutil.fixture.EncodedTokenMother.encodedAccessToken;
 import static com.attrigo.asapp.authentication.testutil.fixture.EncodedTokenMother.encodedRefreshToken;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.stream.Stream;
@@ -36,6 +37,7 @@ import org.springframework.boot.test.web.server.LocalManagementPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.client.RestTestClient;
 
 import com.attrigo.asapp.authentication.AsappAuthenticationServiceApplication;
@@ -85,185 +87,261 @@ class SecurityConfigurationIT {
     class ApiAuthentication {
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
-            // When & Then
-            restTestClient.get()
-                          .uri("/api/users")
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+        void ReturnsStatusUnauthorizedAndProblemDetail_MissingAuthorizationHeader() {
+            // When
+            var actual = restTestClient.get()
+                                       .uri("/api/users")
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_InvalidBearerToken() {
+        void ReturnsStatusUnauthorizedAndProblemDetail_InvalidBearerToken() {
             // Given
             var bearerToken = "invalid_bearer_token";
 
-            // When & Then
-            restTestClient.get()
-                          .uri("/api/users")
-                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            // When
+            var actual = restTestClient.get()
+                                       .uri("/api/users")
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_EmptyBearerToken() {
+        void ReturnsStatusUnauthorizedAndProblemDetail_EmptyBearerToken() {
             // Given
             var bearerToken = "Bearer ";
 
-            // When & Then
-            restTestClient.get()
-                          .uri("/api/users")
-                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            // When
+            var actual = restTestClient.get()
+                                       .uri("/api/users")
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_MalformedBearerToken() {
+        void ReturnsStatusUnauthorizedAndProblemDetail_MalformedBearerToken() {
             // Given
             var bearerToken = "Bearer " + "invalid_bearer_token";
 
-            // When & Then
-            restTestClient.get()
-                          .uri("/api/users")
-                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            // When
+            var actual = restTestClient.get()
+                                       .uri("/api/users")
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_ExpiredBearerTokenWithWrongSignature() {
+        void ReturnsStatusUnauthorizedAndProblemDetail_ExpiredBearerTokenWithWrongSignature() {
             // Given
             var bearerToken = "Bearer " + anEncodedTokenBuilder().accessToken()
                                                                  .withSecretKey("M0LBjhuY5Xgk25aRFCTp72EXM2HEnRY7KHAIlNQCxzwsMw7HgQBbdN4Mka94siHP")
                                                                  .build();
 
-            // When & Then
-            restTestClient.get()
-                          .uri("/api/users")
-                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            // When
+            var actual = restTestClient.get()
+                                       .uri("/api/users")
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_ExpiredBearerToken() {
+        void ReturnsStatusUnauthorizedAndProblemDetail_ExpiredBearerToken() {
             // Given
             var bearerToken = "Bearer " + anEncodedTokenBuilder().accessToken()
                                                                  .expired()
                                                                  .build();
 
-            // When & Then
-            restTestClient.get()
-                          .uri("/api/users")
-                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            // When
+            var actual = restTestClient.get()
+                                       .uri("/api/users")
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_UnsignedBearerToken() {
+        void ReturnsStatusUnauthorizedAndProblemDetail_UnsignedBearerToken() {
             // Given
             var bearerToken = "Bearer " + anEncodedTokenBuilder().accessToken()
                                                                  .notSigned()
                                                                  .build();
 
-            // When & Then
-            restTestClient.get()
-                          .uri("/api/users")
-                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            // When
+            var actual = restTestClient.get()
+                                       .uri("/api/users")
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_BearerTokenWithMissingType() {
+        void ReturnsStatusUnauthorizedAndProblemDetail_BearerTokenWithMissingType() {
             // Given
             var bearerToken = "Bearer " + anEncodedTokenBuilder().withType("")
                                                                  .notSigned()
                                                                  .build();
 
-            // When & Then
-            restTestClient.get()
-                          .uri("/api/users")
-                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            // When
+            var actual = restTestClient.get()
+                                       .uri("/api/users")
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_BearerTokenWithInvalidType() {
+        void ReturnsStatusUnauthorizedAndProblemDetail_BearerTokenWithInvalidType() {
             // Given
             var bearerToken = "Bearer " + anEncodedTokenBuilder().withType("invalid_type")
                                                                  .notSigned()
                                                                  .build();
 
-            // When & Then
-            restTestClient.get()
-                          .uri("/api/users")
-                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            // When
+            var actual = restTestClient.get()
+                                       .uri("/api/users")
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_RefreshBearerToken() {
+        void ReturnsStatusUnauthorizedAndProblemDetail_RefreshBearerToken() {
             // Given
             var bearerToken = "Bearer " + encodedRefreshToken();
 
-            // When & Then
-            restTestClient.get()
-                          .uri("/api/users")
-                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            // When
+            var actual = restTestClient.get()
+                                       .uri("/api/users")
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_ValidBearerTokenNotInRedis() {
+        void ReturnsStatusUnauthorizedAndProblemDetail_ValidBearerTokenNotInRedis() {
             // Given
             var bearerToken = "Bearer " + encodedAccessToken();
 
-            // When & Then
-            restTestClient.get()
-                          .uri("/api/users")
-                          .header(HttpHeaders.AUTHORIZATION, bearerToken)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            // When
+            var actual = restTestClient.get()
+                                       .uri("/api/users")
+                                       .header(HttpHeaders.AUTHORIZATION, bearerToken)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
+        }
+
+        private void assertUnauthorizedProblemDetailResponse(String actual) {
+            // @formatter:off
+            assertThatJson(actual).isObject()
+                                  .containsEntry("title", "Authentication Failed")
+                                  .containsEntry("status", 401)
+                                  .containsEntry("detail", "Invalid credentials")
+                                  .containsEntry("error", "invalid_grant");
+            // @formatter:on
         }
 
     }

@@ -41,17 +41,12 @@ import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Path;
 
-import com.attrigo.asapp.tasks.infrastructure.security.AuthenticationNotFoundException;
-import com.attrigo.asapp.tasks.infrastructure.security.InvalidJwtException;
-import com.attrigo.asapp.tasks.infrastructure.security.UnexpectedJwtTypeException;
-
 /**
  * Tests {@link GlobalExceptionHandler} exception-to-ProblemDetail translation and HTTP status mapping.
  * <p>
  * Coverage:
  * <li>Translates request validation failures to 400 Bad Request with sorted field errors</li>
  * <li>Translates invalid arguments to 400 Bad Request with a generic detail</li>
- * <li>Translates authentication failures to 401 Unauthorized with generic messages (security best practice)</li>
  * <li>Translates database failures to 500 Internal Server Error with generic messages</li>
  * <li>Translates unexpected exceptions to 500 Internal Server Error flagged critical</li>
  * <li>Translates cache connection failures to 503 Service Unavailable</li>
@@ -161,87 +156,6 @@ class GlobalExceptionHandlerTests {
                 softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(400);
                 softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Invalid argument provided");
                 softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "invalid_request");
-                // @formatter:on
-            });
-        }
-
-    }
-
-    @Nested
-    class HandleAuthenticationNotFoundException {
-
-        @Test
-        void ReturnsUnauthorizedAndProblemDetail_AuthenticationNotFound() {
-            // Given
-            var exception = new AuthenticationNotFoundException("Access token not found in active sessions");
-
-            // When
-            var actual = globalExceptionHandler.handleAuthenticationNotFoundException(exception);
-
-            // Then
-            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-            var problemDetail = actual.getBody();
-            assertThat(problemDetail).isNotNull();
-            assertSoftly(softly -> {
-                // @formatter:off
-                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Authentication Failed");
-                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(401);
-                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Invalid credentials");
-                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "invalid_grant");
-                // @formatter:on
-            });
-        }
-
-    }
-
-    @Nested
-    class HandleUnexpectedJwtTypeException {
-
-        @Test
-        void ReturnsUnauthorizedAndProblemDetail_UnexpectedJwtType() {
-            // Given
-            var exception = new UnexpectedJwtTypeException("Token is not an access token");
-
-            // When
-            var actual = globalExceptionHandler.handleUnexpectedJwtTypeException(exception);
-
-            // Then
-            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-            var problemDetail = actual.getBody();
-            assertThat(problemDetail).isNotNull();
-            assertSoftly(softly -> {
-                // @formatter:off
-                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Authentication Failed");
-                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(401);
-                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Invalid token");
-                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "invalid_grant");
-                // @formatter:on
-            });
-        }
-
-    }
-
-    @Nested
-    class HandleInvalidJwtException {
-
-        @Test
-        void ReturnsUnauthorizedAndProblemDetail_InvalidJwt() {
-            // Given
-            var exception = new InvalidJwtException("JWT signature validation failed", new RuntimeException("Signature error"));
-
-            // When
-            var actual = globalExceptionHandler.handleInvalidJwtException(exception);
-
-            // Then
-            assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED);
-            var problemDetail = actual.getBody();
-            assertThat(problemDetail).isNotNull();
-            assertSoftly(softly -> {
-                // @formatter:off
-                softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Authentication Failed");
-                softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(401);
-                softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Invalid credentials");
-                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "invalid_grant");
                 // @formatter:on
             });
         }

@@ -202,8 +202,9 @@ operation::error-request-body-validation-failure[snippets='http-response,respons
 ==== Unauthorized (401)
 
 Returned when the request is missing a valid Bearer token.
+The `error` field contains a machine-readable error code.
 
-operation::error-unauthorized[snippets='http-response']
+operation::error-unauthorized[snippets='http-response,response-fields']
 
 [[auth-users-errors-404]]
 ==== Not Found (404)

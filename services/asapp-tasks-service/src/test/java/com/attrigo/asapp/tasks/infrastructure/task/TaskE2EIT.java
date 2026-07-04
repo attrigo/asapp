@@ -160,19 +160,25 @@ class TaskE2EIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
+        void ReturnsStatusUnauthorizedAndProblemDetail_MissingAuthorizationHeader() {
             // Given
             var taskId = UUID.fromString("a7f3e5d2-6b9c-4a81-9e3f-2d4b8c7e1a9f");
 
-            // When & Then
-            restTestClient.get()
-                          .uri(TASKS_GET_BY_ID_FULL_PATH, taskId)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            // When
+            var actual = restTestClient.get()
+                                       .uri(TASKS_GET_BY_ID_FULL_PATH, taskId)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
     }
@@ -267,19 +273,25 @@ class TaskE2EIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
+        void ReturnsStatusUnauthorizedAndProblemDetail_MissingAuthorizationHeader() {
             // Given
             var userId = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
 
-            // When & Then
-            restTestClient.get()
-                          .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userId)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            // When
+            var actual = restTestClient.get()
+                                       .uri(TASKS_GET_BY_USER_ID_FULL_PATH, userId)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
     }
@@ -538,16 +550,22 @@ class TaskE2EIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
-            // When & Then
-            restTestClient.get()
-                          .uri(TASKS_GET_ALL_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+        void ReturnsStatusUnauthorizedAndProblemDetail_MissingAuthorizationHeader() {
+            // When
+            var actual = restTestClient.get()
+                                       .uri(TASKS_GET_ALL_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
     }
@@ -600,24 +618,30 @@ class TaskE2EIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
+        void ReturnsStatusUnauthorizedAndProblemDetail_MissingAuthorizationHeader() {
             // Given
             var userId = UUID.fromString("f8b4d2e9-7c5a-4f36-8d9b-1e3a7f4c6b8d");
             var startDate = Instant.parse("2025-01-01T11:00:00Z");
             var endDate = Instant.parse("2025-02-02T12:00:00Z");
             var createTaskRequestBody = new CreateTaskRequest(userId.toString(), "Title", "Description", startDate, endDate);
 
-            // When & Then
-            restTestClient.post()
-                          .uri(TASKS_CREATE_FULL_PATH)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(createTaskRequestBody)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            // When
+            var actual = restTestClient.post()
+                                       .uri(TASKS_CREATE_FULL_PATH)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(createTaskRequestBody)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
     }
@@ -695,7 +719,7 @@ class TaskE2EIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
+        void ReturnsStatusUnauthorizedAndProblemDetail_MissingAuthorizationHeader() {
             // Given
             var taskId = UUID.fromString("b7f3a8d1-4e9c-4118-8f2b-6d9e3a5c7b1f");
             var newUserId = UUID.fromString("c4d9e2f8-5a7b-4209-9a3c-8e1f7b4d6a2e");
@@ -703,17 +727,23 @@ class TaskE2EIT {
             var newEndDate = Instant.parse("2025-04-04T14:00:00Z");
             var updateTaskRequest = new UpdateTaskRequest(newUserId.toString(), "New Title", "New Description", newStartDate, newEndDate);
 
-            // When & Then
-            restTestClient.put()
-                          .uri(TASKS_UPDATE_BY_ID_FULL_PATH, taskId)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                          .body(updateTaskRequest)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            // When
+            var actual = restTestClient.put()
+                                       .uri(TASKS_UPDATE_BY_ID_FULL_PATH, taskId)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                                       .body(updateTaskRequest)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
     }
@@ -762,19 +792,25 @@ class TaskE2EIT {
         }
 
         @Test
-        void ReturnsStatusUnauthorizedAndEmptyBody_MissingAuthorizationHeader() {
+        void ReturnsStatusUnauthorizedAndProblemDetail_MissingAuthorizationHeader() {
             // Given
             var taskId = UUID.fromString("a4e7f1c9-8b2d-464d-9e7a-5f3c8d1b6e4a");
 
-            // When & Then
-            restTestClient.delete()
-                          .uri(TASKS_DELETE_BY_ID_FULL_PATH, taskId)
-                          .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-                          .exchange()
-                          .expectStatus()
-                          .isUnauthorized()
-                          .expectBody()
-                          .isEmpty();
+            // When
+            var actual = restTestClient.delete()
+                                       .uri(TASKS_DELETE_BY_ID_FULL_PATH, taskId)
+                                       .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                                       .exchange()
+                                       .expectStatus()
+                                       .isUnauthorized()
+                                       .expectHeader()
+                                       .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectBody(String.class)
+                                       .returnResult()
+                                       .getResponseBody();
+
+            // Then
+            assertUnauthorizedProblemDetailResponse(actual);
         }
 
     }
@@ -790,6 +826,18 @@ class TaskE2EIT {
         var createdTask = taskRepository.save(task);
         assertThat(createdTask).isNotNull();
         return createdTask;
+    }
+
+    // Test Assertion Helpers
+
+    private void assertUnauthorizedProblemDetailResponse(String actual) {
+        // @formatter:off
+        assertThatJson(actual).isObject()
+                              .containsEntry("title", "Authentication Failed")
+                              .containsEntry("status", 401)
+                              .containsEntry("detail", "Invalid credentials")
+                              .containsEntry("error", "invalid_grant");
+        // @formatter:on
     }
 
 }

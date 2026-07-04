@@ -36,17 +36,12 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import jakarta.validation.ConstraintViolationException;
 
-import com.attrigo.asapp.users.infrastructure.security.AuthenticationNotFoundException;
-import com.attrigo.asapp.users.infrastructure.security.InvalidJwtException;
-import com.attrigo.asapp.users.infrastructure.security.UnexpectedJwtTypeException;
-
 /**
  * Handles REST API exceptions and maps them to RFC 7807 {@link ProblemDetail} responses.
  * <p>
  * Error response strategy follows Spring Security best practices:
  * <ul>
  * <li><strong>Validation errors (400):</strong> Include detailed field errors (safe, aids client developers)</li>
- * <li><strong>Authentication errors (401):</strong> Generic messages only (prevent user enumeration attacks)</li>
  * <li><strong>Server errors (5xx):</strong> Generic messages only (avoid internal implementation disclosure)</li>
  * </ul>
  *
@@ -142,76 +137,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         problemDetail.setProperty(ERROR_PROPERTY, INVALID_REQUEST_ERROR);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                             .body(problemDetail);
-    }
-
-    // ============================================================================
-    // 401 UNAUTHORIZED - Authentication Failures
-    // ============================================================================
-
-    /**
-     * Handles authentication not found exceptions.
-     * <p>
-     * Thrown when authentication sessions are not found (token revoked, session expired).
-     * <p>
-     * Returns HTTP 401 Unauthorized with a generic message to prevent user enumeration attacks.
-     *
-     * @param ex the {@link AuthenticationNotFoundException}
-     * @return a {@link ResponseEntity} with status 401 and generic error message
-     */
-    @ExceptionHandler(AuthenticationNotFoundException.class)
-    protected ResponseEntity<ProblemDetail> handleAuthenticationNotFoundException(AuthenticationNotFoundException ex) {
-        log.warn("Authentication not found: {}", ex.getMessage());
-
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, INVALID_CREDENTIALS_DETAIL);
-        problemDetail.setTitle(AUTHENTICATION_FAILED_TITLE);
-        problemDetail.setProperty(ERROR_PROPERTY, INVALID_GRANT_ERROR);
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                             .body(problemDetail);
-    }
-
-    /**
-     * Handles unexpected JWT type exceptions.
-     * <p>
-     * Thrown when token type doesn't match expected type (e.g., access token provided when refresh token expected).
-     * <p>
-     * Returns HTTP 401 Unauthorized with a generic message to avoid revealing token validation logic.
-     *
-     * @param ex the {@link UnexpectedJwtTypeException}
-     * @return a {@link ResponseEntity} with status 401 and generic error message
-     */
-    @ExceptionHandler(UnexpectedJwtTypeException.class)
-    protected ResponseEntity<ProblemDetail> handleUnexpectedJwtTypeException(UnexpectedJwtTypeException ex) {
-        log.warn("Invalid token type: {}", ex.getMessage());
-
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, INVALID_TOKEN_DETAIL);
-        problemDetail.setTitle(AUTHENTICATION_FAILED_TITLE);
-        problemDetail.setProperty(ERROR_PROPERTY, INVALID_GRANT_ERROR);
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                             .body(problemDetail);
-    }
-
-    /**
-     * Handles invalid JWT exceptions.
-     * <p>
-     * Thrown when tokens are invalid, malformed, expired, or fail cryptographic verification.
-     * <p>
-     * Returns HTTP 401 Unauthorized with a generic message to prevent revealing token validation details.
-     *
-     * @param ex the {@link InvalidJwtException}
-     * @return a {@link ResponseEntity} with status 401 and generic error message
-     */
-    @ExceptionHandler(InvalidJwtException.class)
-    protected ResponseEntity<ProblemDetail> handleInvalidJwtException(InvalidJwtException ex) {
-        log.warn("Invalid JWT: {}", ex.getMessage());
-
-        var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, INVALID_CREDENTIALS_DETAIL);
-        problemDetail.setTitle(AUTHENTICATION_FAILED_TITLE);
-        problemDetail.setProperty(ERROR_PROPERTY, INVALID_GRANT_ERROR);
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                              .body(problemDetail);
     }
 
