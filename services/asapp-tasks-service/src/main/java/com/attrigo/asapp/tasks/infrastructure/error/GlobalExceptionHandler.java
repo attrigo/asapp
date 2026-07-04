@@ -52,7 +52,7 @@ import jakarta.validation.ConstraintViolationException;
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // ============================================================================
     // 400 BAD REQUEST - Validation Errors
@@ -72,9 +72,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     protected ResponseEntity<ProblemDetail> handleConstraintViolationException(ConstraintViolationException ex) {
         var invalidParameters = RequestValidationErrorAssembler.fromConstraintViolations(ex.getConstraintViolations());
 
-        log.warn("Constraint violation: {}", ex.getMessage());
-        log.atTrace()
-           .log(() -> "Invalid parameters: " + invalidParameters);
+        logger.warn("Constraint violation: {}", ex.getMessage());
+        logger.atTrace()
+              .log(() -> "Invalid parameters: " + invalidParameters);
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_FAILED_DETAIL);
         problemDetail.setTitle(BAD_REQUEST_TITLE);
@@ -105,9 +105,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         var invalidArguments = RequestValidationErrorAssembler.fromFieldErrors(ex.getBindingResult()
                                                                                  .getFieldErrors());
 
-        log.warn("Argument not valid: {}", ex.getMessage());
-        log.atTrace()
-           .log(() -> "Invalid arguments: " + invalidArguments);
+        logger.warn("Argument not valid: {}", ex.getMessage());
+        logger.atTrace()
+              .log(() -> "Invalid arguments: " + invalidArguments);
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_FAILED_DETAIL);
         problemDetail.setTitle(BAD_REQUEST_TITLE);
@@ -129,7 +129,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     protected ResponseEntity<ProblemDetail> handleIllegalArgumentException(IllegalArgumentException ex) {
-        log.warn("Invalid argument: {}", ex.getMessage());
+        logger.warn("Invalid argument: {}", ex.getMessage());
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, INVALID_ARGUMENT_DETAIL);
         problemDetail.setTitle(INVALID_ARGUMENT_TITLE);
@@ -155,7 +155,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(DataAccessException.class)
     protected ResponseEntity<ProblemDetail> handleDataAccessException(DataAccessException ex) {
-        log.error("Database operation failed: {}", ex.getMessage(), ex);
+        logger.error("Database operation failed: {}", ex.getMessage(), ex);
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR_DETAIL);
         problemDetail.setTitle(INTERNAL_SERVER_ERROR_TITLE);
@@ -182,7 +182,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(RedisConnectionFailureException.class)
     protected ResponseEntity<ProblemDetail> handleRedisException(RedisConnectionFailureException ex) {
-        log.error("Redis operation failed: {}", ex.getMessage(), ex);
+        logger.error("Redis operation failed: {}", ex.getMessage(), ex);
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE_DETAIL);
         problemDetail.setTitle(SERVICE_UNAVAILABLE_TITLE);
@@ -209,7 +209,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ProblemDetail> handleUnexpectedException(Exception ex) {
-        log.error("Unexpected error: {}", ex.getMessage(), ex);
+        logger.error("Unexpected error: {}", ex.getMessage(), ex);
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR_DETAIL);
         problemDetail.setTitle(INTERNAL_SERVER_ERROR_TITLE);

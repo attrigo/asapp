@@ -62,7 +62,7 @@ import com.attrigo.asapp.authentication.infrastructure.security.JwtIssuanceExcep
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     // ============================================================================
     // 400 BAD REQUEST - Validation Errors
@@ -88,9 +88,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         var invalidArguments = RequestValidationErrorAssembler.fromFieldErrors(ex.getBindingResult()
                                                                                  .getFieldErrors());
 
-        log.warn("Argument not valid: {}", ex.getMessage());
-        log.atTrace()
-           .log(() -> "Invalid arguments: " + invalidArguments);
+        logger.warn("Argument not valid: {}", ex.getMessage());
+        logger.atTrace()
+              .log(() -> "Invalid arguments: " + invalidArguments);
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_FAILED_DETAIL);
         problemDetail.setTitle(BAD_REQUEST_TITLE);
@@ -112,7 +112,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(IllegalArgumentException.class)
     protected ResponseEntity<ProblemDetail> handleIllegalArgumentException(IllegalArgumentException ex) {
-        log.warn("Invalid argument: {}", ex.getMessage());
+        logger.warn("Invalid argument: {}", ex.getMessage());
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, INVALID_ARGUMENT_DETAIL);
         problemDetail.setTitle(INVALID_ARGUMENT_TITLE);
@@ -145,7 +145,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler({ InvalidCredentialsException.class, InvalidUsernameException.class, InvalidPasswordException.class, InvalidEncodedTokenException.class })
     protected ResponseEntity<ProblemDetail> handleInvalidCredentials(RuntimeException ex) {
-        log.warn("Authentication failed due to invalid credentials: {}", ex.getMessage());
+        logger.warn("Authentication failed due to invalid credentials: {}", ex.getMessage());
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, INVALID_CREDENTIALS_DETAIL);
         problemDetail.setTitle(AUTHENTICATION_FAILED_TITLE);
@@ -167,7 +167,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(AuthenticationNotFoundException.class)
     protected ResponseEntity<ProblemDetail> handleAuthenticationNotFoundException(AuthenticationNotFoundException ex) {
-        log.warn("Authentication not found: {}", ex.getMessage());
+        logger.warn("Authentication not found: {}", ex.getMessage());
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, INVALID_CREDENTIALS_DETAIL);
         problemDetail.setTitle(AUTHENTICATION_FAILED_TITLE);
@@ -189,7 +189,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(UnexpectedJwtTypeException.class)
     protected ResponseEntity<ProblemDetail> handleUnexpectedJwtTypeException(UnexpectedJwtTypeException ex) {
-        log.warn("Invalid token type: {}", ex.getMessage());
+        logger.warn("Invalid token type: {}", ex.getMessage());
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, INVALID_TOKEN_DETAIL);
         problemDetail.setTitle(AUTHENTICATION_FAILED_TITLE);
@@ -211,7 +211,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(InvalidJwtException.class)
     protected ResponseEntity<ProblemDetail> handleInvalidJwtException(InvalidJwtException ex) {
-        log.warn("Invalid JWT: {}", ex.getMessage());
+        logger.warn("Invalid JWT: {}", ex.getMessage());
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, INVALID_CREDENTIALS_DETAIL);
         problemDetail.setTitle(AUTHENTICATION_FAILED_TITLE);
@@ -238,7 +238,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(CompensatingTransactionException.class)
     protected ResponseEntity<ProblemDetail> handleCompensatingTransactionException(CompensatingTransactionException ex) {
-        log.error("CRITICAL: Compensating transaction failed: {}", ex.getMessage(), ex);
+        logger.error("CRITICAL: Compensating transaction failed: {}", ex.getMessage(), ex);
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR_DETAIL);
         problemDetail.setTitle(INTERNAL_SERVER_ERROR_TITLE);
@@ -261,7 +261,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(JwtIssuanceException.class)
     protected ResponseEntity<ProblemDetail> handleJwtIssuanceException(JwtIssuanceException ex) {
-        log.error("JWT operation failed: {}", ex.getMessage(), ex);
+        logger.error("JWT operation failed: {}", ex.getMessage(), ex);
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR_DETAIL);
         problemDetail.setTitle(INTERNAL_SERVER_ERROR_TITLE);
@@ -284,7 +284,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(DataAccessException.class)
     protected ResponseEntity<ProblemDetail> handleDataAccessException(DataAccessException ex) {
-        log.error("Database operation failed: {}", ex.getMessage(), ex);
+        logger.error("Database operation failed: {}", ex.getMessage(), ex);
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR_DETAIL);
         problemDetail.setTitle(INTERNAL_SERVER_ERROR_TITLE);
@@ -311,7 +311,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(TokenStoreException.class)
     protected ResponseEntity<ProblemDetail> handleTokenStoreException(TokenStoreException ex) {
-        log.error("Token store operation failed: {}", ex.getMessage(), ex);
+        logger.error("Token store operation failed: {}", ex.getMessage(), ex);
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE_DETAIL);
         problemDetail.setTitle(SERVICE_UNAVAILABLE_TITLE);
@@ -333,7 +333,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(RedisConnectionFailureException.class)
     protected ResponseEntity<ProblemDetail> handleRedisException(RedisConnectionFailureException ex) {
-        log.error("Redis operation failed: {}", ex.getMessage(), ex);
+        logger.error("Redis operation failed: {}", ex.getMessage(), ex);
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE_DETAIL);
         problemDetail.setTitle(SERVICE_UNAVAILABLE_TITLE);
@@ -360,7 +360,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<ProblemDetail> handleUnexpectedException(Exception ex) {
-        log.error("Unexpected error: {}", ex.getMessage(), ex);
+        logger.error("Unexpected error: {}", ex.getMessage(), ex);
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR_DETAIL);
         problemDetail.setTitle(INTERNAL_SERVER_ERROR_TITLE);

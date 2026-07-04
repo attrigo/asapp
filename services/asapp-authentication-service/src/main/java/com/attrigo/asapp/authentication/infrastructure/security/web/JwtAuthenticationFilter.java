@@ -71,7 +71,7 @@ import com.attrigo.asapp.authentication.infrastructure.security.JwtVerifier;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final JwtVerifier jwtVerifier;
 
@@ -118,13 +118,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
-        log.debug("[JWT_FILTER] Processing authentication for request: {} {}", request.getMethod(), request.getRequestURI());
+        logger.debug("[JWT_FILTER] Processing authentication for request: {} {}", request.getMethod(), request.getRequestURI());
 
-        log.trace("[JWT_FILTER] Step 1/4: Extracting token from Authorization header");
+        logger.trace("[JWT_FILTER] Step 1/4: Extracting token from Authorization header");
         Optional<String> optionalBearerToken = getBearerToken(request);
 
         if (optionalBearerToken.isEmpty()) {
-            log.debug("[JWT_FILTER] No Bearer token present, continuing as anonymous request");
+            logger.debug("[JWT_FILTER] No Bearer token present, continuing as anonymous request");
             filterChain.doFilter(request, response);
             return;
         }
@@ -132,27 +132,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         var bearerToken = optionalBearerToken.get();
         var encodedToken = EncodedToken.of(bearerToken);
         try {
-            log.trace("[JWT_FILTER] Step 2/4: Decoding and verifying token");
+            logger.trace("[JWT_FILTER] Step 2/4: Decoding and verifying token");
             var decodedJwt = jwtVerifier.verifyAccessToken(encodedToken);
 
-            log.trace("[JWT_FILTER] Step 3/4: Creating authentication token for user: {}", decodedJwt.subject());
+            logger.trace("[JWT_FILTER] Step 3/4: Creating authentication token for user: {}", decodedJwt.subject());
             var jwtAuthenticationToken = JwtAuthenticationToken.authenticated(decodedJwt);
 
-            log.trace("[JWT_FILTER] Step 4/4: Setting SecurityContext");
+            logger.trace("[JWT_FILTER] Step 4/4: Setting SecurityContext");
             var newContext = SecurityContextHolder.createEmptyContext();
             newContext.setAuthentication(jwtAuthenticationToken);
             SecurityContextHolder.setContext(newContext);
 
-            log.debug("[JWT_FILTER] Authentication successful for subject={}", jwtAuthenticationToken.getName());
+            logger.debug("[JWT_FILTER] Authentication successful for subject={}", jwtAuthenticationToken.getName());
 
         } catch (UnexpectedJwtTypeException e) {
-            log.warn("[JWT_FILTER] Authentication failed - reason=Invalid token type: {}", e.getMessage());
+            logger.warn("[JWT_FILTER] Authentication failed - reason=Invalid token type: {}", e.getMessage());
         } catch (AuthenticationNotFoundException e) {
-            log.warn("[JWT_FILTER] Authentication failed - reason=Session not found: {}", e.getMessage());
+            logger.warn("[JWT_FILTER] Authentication failed - reason=Session not found: {}", e.getMessage());
         } catch (InvalidJwtException e) {
-            log.warn("[JWT_FILTER] Authentication failed - reason=Invalid token: {}", e.getMessage());
+            logger.warn("[JWT_FILTER] Authentication failed - reason=Invalid token: {}", e.getMessage());
         } catch (Exception e) {
-            log.warn("[JWT_FILTER] Authentication failed - reason=Unexpected error", e);
+            logger.warn("[JWT_FILTER] Authentication failed - reason=Unexpected error", e);
         }
 
         filterChain.doFilter(request, response);
