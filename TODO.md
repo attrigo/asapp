@@ -70,6 +70,7 @@
         - [X] Add more coverage to GlobalExceptionHandlerIT — assert routing (exception → correct handler + status) for the reachable handlers, not just the generic fallback
         - [X] Redact raw JWT tokens from JwtVerifier messages and filter logs
         - [X] Rewrite GEH Javadoc from "Thrown by ..." to something like "Catches ... or Handles ..."
+        - [X] Refactor all MockMvcTester tests to extract the response into `actual` before asserting (align AAA structure with RestTestClient pattern)
 
 ### Analyze
 

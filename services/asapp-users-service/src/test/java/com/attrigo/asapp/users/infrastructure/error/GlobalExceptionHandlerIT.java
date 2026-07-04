@@ -18,6 +18,7 @@ package com.attrigo.asapp.users.infrastructure.error;
 
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_BY_ID_FULL_PATH;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -60,16 +61,17 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
 
             given(readUserUseCase.getUserById(userId)).willThrow(new IllegalArgumentException("Email must be a valid email address"));
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("error", "invalid_request")
-                                                                .containsEntry("detail", "Invalid argument provided"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("error", "invalid_request")
+                                                                     .containsEntry("detail", "Invalid argument provided"));
         }
 
     }
@@ -85,16 +87,17 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
 
             given(readUserUseCase.getUserById(userId)).willThrow(new DataAccessException("Database connection failed") {});
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("error", "server_error")
-                                                                .containsEntry("critical", true));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("error", "server_error")
+                                                                     .containsEntry("critical", true));
         }
 
     }
@@ -110,16 +113,17 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
 
             given(readUserUseCase.getUserById(userId)).willThrow(new RuntimeException("Simulated unexpected failure"));
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("detail", "An internal error occurred")
-                                                                .containsEntry("critical", true));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("detail", "An internal error occurred")
+                                                                     .containsEntry("critical", true));
         }
 
     }

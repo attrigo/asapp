@@ -19,6 +19,7 @@ package com.attrigo.asapp.authentication.infrastructure.error;
 import static com.attrigo.asapp.url.authentication.AuthenticationApiUrl.AUTH_REFRESH_TOKEN_FULL_PATH;
 import static com.attrigo.asapp.url.authentication.AuthenticationApiUrl.AUTH_TOKEN_FULL_PATH;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -76,16 +77,17 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
 
             given(authenticateUseCase.authenticate(any())).willThrow(new IllegalArgumentException("Username must be a valid email address"));
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("error", "invalid_request")
-                                                                .containsEntry("detail", "Invalid argument provided"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("error", "invalid_request")
+                                                                     .containsEntry("detail", "Invalid argument provided"));
         }
 
     }
@@ -108,16 +110,17 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
             given(authenticateUseCase.authenticate(any())).willThrow(
                     new InvalidCredentialsException("Invalid credentials", new RuntimeException("bad credentials")));
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.UNAUTHORIZED)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("error", "invalid_grant")
-                                                                .containsEntry("detail", "Invalid credentials"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.UNAUTHORIZED)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("error", "invalid_grant")
+                                                                     .containsEntry("detail", "Invalid credentials"));
         }
 
     }
@@ -139,16 +142,17 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
             given(refreshAuthenticationUseCase.refreshAuthentication(any())).willThrow(
                     new AuthenticationNotFoundException("Access token not found in active sessions"));
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.UNAUTHORIZED)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("error", "invalid_grant")
-                                                                .containsEntry("detail", "Invalid credentials"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.UNAUTHORIZED)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("error", "invalid_grant")
+                                                                     .containsEntry("detail", "Invalid credentials"));
         }
 
     }
@@ -169,16 +173,17 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
 
             given(refreshAuthenticationUseCase.refreshAuthentication(any())).willThrow(new UnexpectedJwtTypeException("Token is not an access token"));
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.UNAUTHORIZED)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("error", "invalid_grant")
-                                                                .containsEntry("detail", "Invalid token"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.UNAUTHORIZED)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("error", "invalid_grant")
+                                                                     .containsEntry("detail", "Invalid token"));
         }
 
     }
@@ -200,16 +205,17 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
             given(refreshAuthenticationUseCase.refreshAuthentication(any())).willThrow(
                     new InvalidJwtException("JWT signature validation failed", new RuntimeException("Signature error")));
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.UNAUTHORIZED)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("error", "invalid_grant")
-                                                                .containsEntry("detail", "Invalid credentials"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.UNAUTHORIZED)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("error", "invalid_grant")
+                                                                     .containsEntry("detail", "Invalid credentials"));
         }
 
     }
@@ -231,16 +237,17 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
             given(refreshAuthenticationUseCase.refreshAuthentication(any())).willThrow(new CompensatingTransactionException(
                     "Failed to compensate token rotation after token activation failure", new RuntimeException("Could not restore old tokens")));
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("error", "server_error")
-                                                                .containsEntry("critical", true));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("error", "server_error")
+                                                                     .containsEntry("critical", true));
         }
 
     }
@@ -262,16 +269,17 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
 
             given(authenticateUseCase.authenticate(any())).willThrow(new JwtIssuanceException("JWT signing failed", new RuntimeException("Signing error")));
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("error", "server_error")
-                                                                .containsEntry("critical", true));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("error", "server_error")
+                                                                     .containsEntry("critical", true));
         }
 
     }
@@ -293,16 +301,17 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
 
             given(authenticateUseCase.authenticate(any())).willThrow(new DataAccessException("Database connection failed") {});
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("error", "server_error")
-                                                                .containsEntry("critical", true));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("error", "server_error")
+                                                                     .containsEntry("critical", true));
         }
 
     }
@@ -325,16 +334,17 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
             given(authenticateUseCase.authenticate(any())).willThrow(
                     new TokenStoreException("Could not rotate tokens in fast-access store", new RuntimeException("Redis connection failed")));
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.SERVICE_UNAVAILABLE)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("error", "temporarily_unavailable")
-                                                                .containsEntry("detail", "Service temporarily unavailable"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.SERVICE_UNAVAILABLE)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("error", "temporarily_unavailable")
+                                                                     .containsEntry("detail", "Service temporarily unavailable"));
         }
 
     }
@@ -357,16 +367,17 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
             given(authenticateUseCase.authenticate(any())).willThrow(
                     new RedisConnectionFailureException("Cannot connect to Redis server", new RuntimeException("Connection refused")));
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.SERVICE_UNAVAILABLE)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("error", "temporarily_unavailable")
-                                                                .containsEntry("detail", "Service temporarily unavailable"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.SERVICE_UNAVAILABLE)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("error", "temporarily_unavailable")
+                                                                     .containsEntry("detail", "Service temporarily unavailable"));
         }
 
     }
@@ -388,16 +399,17 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
 
             given(authenticateUseCase.authenticate(any())).willThrow(new RuntimeException("Simulated unexpected failure"));
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("detail", "An internal error occurred")
-                                                                .containsEntry("critical", true));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("detail", "An internal error occurred")
+                                                                     .containsEntry("critical", true));
         }
 
     }
