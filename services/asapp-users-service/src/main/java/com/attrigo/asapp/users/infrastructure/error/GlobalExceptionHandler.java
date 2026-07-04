@@ -59,10 +59,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // ============================================================================
 
     /**
-     * Handles constraint violations from {@code @Validated} method-level parameter constraints.
+     * Handles invalid request parameters.
      * <p>
-     * Thrown by the Bean Validation framework when {@code @RequestParam}, {@code @PathVariable}, or {@code @RequestHeader} parameters violate declared
-     * constraints.
+     * Catches {@link ConstraintViolationException} when a query, path, or header parameter fails a validation rule.
      * <p>
      * Returns HTTP 400 Bad Request with a sorted list of field-level validation errors.
      *
@@ -89,7 +88,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles method argument validation failures.
      * <p>
-     * Thrown by Spring when request body fields fail Jakarta Bean Validation constraints.
+     * Catches {@link MethodArgumentNotValidException} when the request body contains one or more invalid fields.
      * <p>
      * Returns HTTP 400 Bad Request with a sorted list of field-level validation errors.
      *
@@ -121,7 +120,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles illegal argument exceptions.
      * <p>
-     * Thrown by domain value objects when constructor or factory method arguments violate format constraints.
+     * Catches {@link IllegalArgumentException} when a submitted value has an invalid format.
      * <p>
      * Returns HTTP 400 Bad Request with a fixed error message (never the raw exception message).
      *
@@ -145,9 +144,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // ============================================================================
 
     /**
-     * Handles Spring Data JDBC failures during database operations.
+     * Handles database access failures.
      * <p>
-     * Thrown when database operations fail (connection issues, constraint violations, etc.).
+     * Catches {@link DataAccessException} when the database is unreachable or rejects an operation.
      * <p>
      * Returns HTTP 500 Internal Server Error with a generic message to avoid exposing database implementation details.
      *
@@ -172,9 +171,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     // ============================================================================
 
     /**
-     * Handles Redis connection and operation failures.
+     * Handles cache store failures.
      * <p>
-     * Thrown when Redis connection or low-level operations fail.
+     * Catches {@link RedisConnectionFailureException} when the cache store cannot be reached.
      * <p>
      * Returns HTTP 503 Service Unavailable with a generic message to avoid exposing Redis infrastructure details.
      *
@@ -200,8 +199,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles any otherwise-unhandled exception as a last resort.
      * <p>
-     * Ensures an unexpected failure returns an RFC 7807 response instead of escaping as a raw Spring error. Being the broadest match, it fires only when no
-     * more specific handler applies.
+     * Catches {@link Exception} when no more specific handler applies, so an unexpected failure returns an RFC 7807 response instead of escaping as a raw
+     * error.
      * <p>
      * Returns HTTP 500 Internal Server Error with a generic message and a critical flag for monitoring alerts.
      *

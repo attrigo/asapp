@@ -69,6 +69,7 @@
         - [X] Fix dead JWT 401 handlers in tasks/users GEH — a bad JWT returns an empty-body 401 from JwtAuthenticationEntryPoint instead of an RFC 7807 ProblemDetail
         - [X] Add more coverage to GlobalExceptionHandlerIT — assert routing (exception → correct handler + status) for the reachable handlers, not just the generic fallback
         - [X] Redact raw JWT tokens from JwtVerifier messages and filter logs
+        - [X] Rewrite GEH Javadoc from "Thrown by ..." to something like "Catches ... or Handles ..."
 
 ### Analyze
 
