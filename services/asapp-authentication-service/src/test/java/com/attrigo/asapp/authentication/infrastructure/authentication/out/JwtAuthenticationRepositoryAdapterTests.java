@@ -103,7 +103,7 @@ class JwtAuthenticationRepositoryAdapterTests {
 
             // Then
             assertThat(actual).isInstanceOf(AuthenticationNotFoundException.class)
-                              .hasMessageContaining("Authentication session not found in repository for access token");
+                              .hasMessage("Authentication session not found in repository for access token");
 
             then(jwtAuthenticationRepository).should(times(1))
                                              .findByAccessTokenToken(accessToken.value());
@@ -149,7 +149,7 @@ class JwtAuthenticationRepositoryAdapterTests {
 
             // Then
             assertThat(actual).isInstanceOf(AuthenticationNotFoundException.class)
-                              .hasMessageContaining("Authentication session not found in repository for refresh token");
+                              .hasMessage("Authentication session not found in repository for refresh token");
 
             then(jwtAuthenticationRepository).should(times(1))
                                              .findByRefreshTokenToken(refreshToken.value());

@@ -92,7 +92,7 @@ class JwtVerifierTests {
 
             // Then
             assertThat(actual).isInstanceOf(InvalidJwtException.class)
-                              .hasMessageContaining("Access token is not valid")
+                              .hasMessage("Access token is not valid")
                               .hasCauseInstanceOf(RuntimeException.class);
 
             then(jwtDecoder).should(times(1))
@@ -112,7 +112,7 @@ class JwtVerifierTests {
 
             // Then
             assertThat(actual).isInstanceOf(UnexpectedJwtTypeException.class)
-                              .hasMessageContaining("is not an access token");
+                              .hasMessage("JWT is not an access token");
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedToken);
@@ -132,7 +132,7 @@ class JwtVerifierTests {
 
             // Then
             assertThat(actual).isInstanceOf(AuthenticationNotFoundException.class)
-                              .hasMessageContaining("Authentication session not found in store for access token");
+                              .hasMessage("Authentication session not found in store for access token");
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedToken);

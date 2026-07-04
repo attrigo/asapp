@@ -127,7 +127,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         var bearerToken = optionalBearerToken.get();
         try {
-            log.trace("[JWT_FILTER] Step 2/4: Decoding and verifying token: {}", bearerToken);
+            log.trace("[JWT_FILTER] Step 2/4: Decoding and verifying token");
             var decodedJwt = jwtVerifier.verifyAccessToken(bearerToken);
 
             log.trace("[JWT_FILTER] Step 3/4: Creating authentication token for user: {}", decodedJwt.subject());
