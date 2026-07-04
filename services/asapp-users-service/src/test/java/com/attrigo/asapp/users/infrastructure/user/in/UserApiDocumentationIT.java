@@ -113,24 +113,24 @@ class UserApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isOk())
                    .andDo(
                    // @formatter:off
-                       document("get-user-by-id",
-                           requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
-                           pathParameters(parameterWithName("id").description("The user's unique identifier")),
-                           responseFields(
-                                   fieldWithPath("userId").description("The user's unique identifier"),
-                                   fieldWithPath("firstName").description("The user's first name"),
-                                   fieldWithPath("lastName").description("The user's last name"),
-                                   fieldWithPath("email").description("The user's email address"),
-                                   fieldWithPath("phoneNumber").description("The user's phone number"),
-                                   fieldWithPath("taskIds").description("The identifiers of tasks associated with the user; empty when tasks-service is unavailable"),
-                                   fieldWithPath("warnings").description("Structured degradation warnings; omitted when none").type(JsonFieldType.ARRAY).optional(),
-                                   fieldWithPath("warnings[].code").description("Machine-readable code identifying the degradation type (e.g. task_ids_unavailable)").type(JsonFieldType.STRING).optional(),
-                                   fieldWithPath("warnings[].field").description("The response field affected by the degradation").type(JsonFieldType.STRING).optional(),
-                                   fieldWithPath("warnings[].message").description("Human-readable description of the degradation").type(JsonFieldType.STRING).optional(),
-                                   fieldWithPath("warnings[].retryable").description("Whether the client may retry the request to obtain complete data").type(JsonFieldType.BOOLEAN).optional()
+                           document("get-user-by-id",
+                                   requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
+                                   pathParameters(parameterWithName("id").description("The user's unique identifier")),
+                                   responseFields(
+                                           fieldWithPath("userId").description("The user's unique identifier"),
+                                           fieldWithPath("firstName").description("The user's first name"),
+                                           fieldWithPath("lastName").description("The user's last name"),
+                                           fieldWithPath("email").description("The user's email address"),
+                                           fieldWithPath("phoneNumber").description("The user's phone number"),
+                                           fieldWithPath("taskIds").description("The identifiers of tasks associated with the user; empty when tasks-service is unavailable"),
+                                           fieldWithPath("warnings").description("Structured degradation warnings; omitted when none").type(JsonFieldType.ARRAY).optional(),
+                                           fieldWithPath("warnings[].code").description("Machine-readable code identifying the degradation type (e.g. task_ids_unavailable)").type(JsonFieldType.STRING).optional(),
+                                           fieldWithPath("warnings[].field").description("The response field affected by the degradation").type(JsonFieldType.STRING).optional(),
+                                           fieldWithPath("warnings[].message").description("Human-readable description of the degradation").type(JsonFieldType.STRING).optional(),
+                                           fieldWithPath("warnings[].retryable").description("Whether the client may retry the request to obtain complete data").type(JsonFieldType.BOOLEAN).optional()
+                                   )
                            )
-                       )
-                       // @formatter:on
+                   // @formatter:on
                    );
         }
 
@@ -165,16 +165,16 @@ class UserApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isOk())
                    .andDo(
                    // @formatter:off
-                       document("get-users",
-                               requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
-                               queryParameters(parameterWithName("ids").description("Optional list of user identifiers to filter by; omit to return all users")),
-                               responseFields(
-                                       fieldWithPath("[].userId").description("The user's unique identifier"),
-                                       fieldWithPath("[].firstName").description("The user's first name"),
-                                       fieldWithPath("[].lastName").description("The user's last name"),
-                                       fieldWithPath("[].email").description("The user's email address"),
-                                       fieldWithPath("[].phoneNumber").description("The user's phone number"))
-                       )
+                           document("get-users",
+                                   requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
+                                   queryParameters(parameterWithName("ids").description("Optional list of user identifiers to filter by; omit to return all users")),
+                                   responseFields(
+                                           fieldWithPath("[].userId").description("The user's unique identifier"),
+                                           fieldWithPath("[].firstName").description("The user's first name"),
+                                           fieldWithPath("[].lastName").description("The user's last name"),
+                                           fieldWithPath("[].email").description("The user's email address"),
+                                           fieldWithPath("[].phoneNumber").description("The user's phone number"))
+                           )
                    // @formatter:on
                    );
         }
@@ -204,15 +204,15 @@ class UserApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isOk())
                    .andDo(
                    // @formatter:off
-                       document("get-users-all",
-                               requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
-                               responseFields(
-                                       fieldWithPath("[].userId").description("The user's unique identifier"),
-                                       fieldWithPath("[].firstName").description("The user's first name"),
-                                       fieldWithPath("[].lastName").description("The user's last name"),
-                                       fieldWithPath("[].email").description("The user's email address"),
-                                       fieldWithPath("[].phoneNumber").description("The user's phone number"))
-                       )
+                           document("get-users-all",
+                                   requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
+                                   responseFields(
+                                           fieldWithPath("[].userId").description("The user's unique identifier"),
+                                           fieldWithPath("[].firstName").description("The user's first name"),
+                                           fieldWithPath("[].lastName").description("The user's last name"),
+                                           fieldWithPath("[].email").description("The user's email address"),
+                                           fieldWithPath("[].phoneNumber").description("The user's phone number"))
+                           )
                    // @formatter:on
                    );
         }
@@ -258,16 +258,16 @@ class UserApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isCreated())
                    .andDo(
                    // @formatter:off
-                       document("create-user",
-                           requestFields(
-                                   fields.withPath("firstName").description("The user's first name"),
-                                   fields.withPath("lastName").description("The user's last name"),
-                                   fields.withPath("email").description("The user's email address"),
-                                   fields.withPath("phoneNumber").description("The user's phone number")
-                           ),
-                           responseFields(fieldWithPath("userId").description("The created user's unique identifier"))
-                       )
-                       // @formatter:on
+                           document("create-user",
+                                   requestFields(
+                                           fields.withPath("firstName").description("The user's first name"),
+                                           fields.withPath("lastName").description("The user's last name"),
+                                           fields.withPath("email").description("The user's email address"),
+                                           fields.withPath("phoneNumber").description("The user's phone number")
+                                   ),
+                                   responseFields(fieldWithPath("userId").description("The created user's unique identifier"))
+                           )
+                   // @formatter:on
                    );
         }
 
@@ -313,18 +313,18 @@ class UserApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isOk())
                    .andDo(
                    // @formatter:off
-                       document("update-user-by-id",
-                           requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
-                           pathParameters(parameterWithName("id").description("The user's unique identifier")),
-                           requestFields(
-                                   fields.withPath("firstName").description("The user's first name"),
-                                   fields.withPath("lastName").description("The user's last name"),
-                                   fields.withPath("email").description("The user's email address"),
-                                   fields.withPath("phoneNumber").description("The user's phone number")
-                           ),
-                           responseFields(fieldWithPath("userId").description("The updated user's unique identifier"))
-                       )
-                       // @formatter:on
+                           document("update-user-by-id",
+                                   requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
+                                   pathParameters(parameterWithName("id").description("The user's unique identifier")),
+                                   requestFields(
+                                           fields.withPath("firstName").description("The user's first name"),
+                                           fields.withPath("lastName").description("The user's last name"),
+                                           fields.withPath("email").description("The user's email address"),
+                                           fields.withPath("phoneNumber").description("The user's phone number")
+                                   ),
+                                   responseFields(fieldWithPath("userId").description("The updated user's unique identifier"))
+                           )
+                   // @formatter:on
                    );
         }
 
@@ -347,10 +347,10 @@ class UserApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isNoContent())
                    .andDo(
                    // @formatter:off
-                       document("delete-user-by-id",
-                           requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
-                           pathParameters(parameterWithName("id").description("The user's unique identifier")))
-                       // @formatter:on
+                           document("delete-user-by-id",
+                                   requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
+                                   pathParameters(parameterWithName("id").description("The user's unique identifier")))
+                   // @formatter:on
                    );
         }
 
@@ -366,14 +366,14 @@ class UserApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isBadRequest())
                    .andDo(
                    // @formatter:off
-                       document("error-path-variable-validation-failure",
-                           relaxedResponseFields(
-                               fieldWithPath("title").description("Short summary of the problem type"),
-                               fieldWithPath("status").description("HTTP status code"),
-                               fieldWithPath("detail").description("Human-readable explanation of the problem")
+                           document("error-path-variable-validation-failure",
+                                   relaxedResponseFields(
+                                           fieldWithPath("title").description("Short summary of the problem type"),
+                                           fieldWithPath("status").description("HTTP status code"),
+                                           fieldWithPath("detail").description("Human-readable explanation of the problem")
+                                   )
                            )
-                       )
-                       // @formatter:on
+                   // @formatter:on
                    );
         }
 
@@ -384,18 +384,18 @@ class UserApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isBadRequest())
                    .andDo(
                    // @formatter:off
-                       document("error-request-param-validation-failure",
-                           relaxedResponseFields(
-                               fieldWithPath("title").description("Short summary of the problem type"),
-                               fieldWithPath("status").description("HTTP status code"),
-                               fieldWithPath("detail").description("Human-readable explanation of the problem"),
-                               fieldWithPath("error").description("Machine-readable error code"),
-                               fieldWithPath("fieldErrors").description("List of validation errors"),
-                               fieldWithPath("fieldErrors[].field").description("Name of the request parameter that failed validation"),
-                               fieldWithPath("fieldErrors[].message").description("Validation error message")
+                           document("error-request-param-validation-failure",
+                                   relaxedResponseFields(
+                                           fieldWithPath("title").description("Short summary of the problem type"),
+                                           fieldWithPath("status").description("HTTP status code"),
+                                           fieldWithPath("detail").description("Human-readable explanation of the problem"),
+                                           fieldWithPath("error").description("Machine-readable error code"),
+                                           fieldWithPath("fieldErrors").description("List of validation errors"),
+                                           fieldWithPath("fieldErrors[].field").description("Name of the request parameter that failed validation"),
+                                           fieldWithPath("fieldErrors[].message").description("Validation error message")
+                                   )
                            )
-                       )
-                       // @formatter:on
+                   // @formatter:on
                    );
         }
 
@@ -407,17 +407,17 @@ class UserApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isBadRequest())
                    .andDo(
                    // @formatter:off
-                       document("error-request-body-validation-failure",
-                           relaxedResponseFields(
-                               fieldWithPath("title").description("Short summary of the problem type"),
-                               fieldWithPath("status").description("HTTP status code"),
-                               fieldWithPath("detail").description("Human-readable explanation of the problem"),
-                               fieldWithPath("error").description("Machine-readable error code"),
-                               fieldWithPath("fieldErrors").description("List of validation errors"),
-                               fieldWithPath("fieldErrors[].field").description("Field that failed validation"),
-                               fieldWithPath("fieldErrors[].message").description("Validation error message")
+                           document("error-request-body-validation-failure",
+                                   relaxedResponseFields(
+                                           fieldWithPath("title").description("Short summary of the problem type"),
+                                           fieldWithPath("status").description("HTTP status code"),
+                                           fieldWithPath("detail").description("Human-readable explanation of the problem"),
+                                           fieldWithPath("error").description("Machine-readable error code"),
+                                           fieldWithPath("fieldErrors").description("List of validation errors"),
+                                           fieldWithPath("fieldErrors[].field").description("Field that failed validation"),
+                                           fieldWithPath("fieldErrors[].message").description("Validation error message")
+                                   )
                            )
-                       )
                    // @formatter:on
                    );
         }
@@ -433,15 +433,15 @@ class UserApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isUnauthorized())
                    .andDo(
                    // @formatter:off
-                       document("error-unauthorized",
-                           relaxedResponseFields(
-                               fieldWithPath("title").description("Short summary of the problem type"),
-                               fieldWithPath("status").description("HTTP status code"),
-                               fieldWithPath("detail").description("Human-readable explanation of the problem"),
-                               fieldWithPath("error").description("Machine-readable error code")
+                           document("error-unauthorized",
+                                   relaxedResponseFields(
+                                           fieldWithPath("title").description("Short summary of the problem type"),
+                                           fieldWithPath("status").description("HTTP status code"),
+                                           fieldWithPath("detail").description("Human-readable explanation of the problem"),
+                                           fieldWithPath("error").description("Machine-readable error code")
+                                   )
                            )
-                       )
-                       // @formatter:on
+                   // @formatter:on
                    );
         }
 
@@ -470,14 +470,14 @@ class UserApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isInternalServerError())
                    .andDo(
                    // @formatter:off
-                       document("error-internal-server-error",
-                           relaxedResponseFields(
-                               fieldWithPath("title").description("Short summary of the problem type"),
-                               fieldWithPath("status").description("HTTP status code"),
-                               fieldWithPath("detail").description("Human-readable explanation of the problem"),
-                               fieldWithPath("error").description("Machine-readable error code")
+                           document("error-internal-server-error",
+                                   relaxedResponseFields(
+                                           fieldWithPath("title").description("Short summary of the problem type"),
+                                           fieldWithPath("status").description("HTTP status code"),
+                                           fieldWithPath("detail").description("Human-readable explanation of the problem"),
+                                           fieldWithPath("error").description("Machine-readable error code")
+                                   )
                            )
-                       )
                    // @formatter:on
                    );
         }

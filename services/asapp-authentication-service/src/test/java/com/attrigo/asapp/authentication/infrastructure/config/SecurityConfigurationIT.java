@@ -335,13 +335,11 @@ class SecurityConfigurationIT {
         }
 
         private void assertUnauthorizedProblemDetailResponse(String actual) {
-            // @formatter:off
             assertThatJson(actual).isObject()
                                   .containsEntry("title", "Authentication Failed")
                                   .containsEntry("status", 401)
                                   .containsEntry("detail", "Invalid credentials")
                                   .containsEntry("error", "invalid_grant");
-            // @formatter:on
         }
 
     }

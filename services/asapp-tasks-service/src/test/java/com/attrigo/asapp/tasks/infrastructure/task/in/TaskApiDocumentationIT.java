@@ -114,18 +114,18 @@ class TaskApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isOk())
                    .andDo(
                    // @formatter:off
-                       document("get-task-by-id",
-                           requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
-                           pathParameters(parameterWithName("id").description("The task's unique identifier")),
-                           responseFields(
-                                   fieldWithPath("taskId").description("The task's unique identifier"),
-                                   fieldWithPath("userId").description("The task's owner unique identifier"),
-                                   fieldWithPath("title").description("The task's title"),
-                                   fieldWithPath("description").description("The task's description"),
-                                   fieldWithPath("startDate").description("The task's start date in ISO 8601 format"),
-                                   fieldWithPath("endDate").description("The task's end date in ISO 8601 format"))
-                       )
-                       // @formatter:on
+                           document("get-task-by-id",
+                                   requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
+                                   pathParameters(parameterWithName("id").description("The task's unique identifier")),
+                                   responseFields(
+                                           fieldWithPath("taskId").description("The task's unique identifier"),
+                                           fieldWithPath("userId").description("The task's owner unique identifier"),
+                                           fieldWithPath("title").description("The task's title"),
+                                           fieldWithPath("description").description("The task's description"),
+                                           fieldWithPath("startDate").description("The task's start date in ISO 8601 format"),
+                                           fieldWithPath("endDate").description("The task's end date in ISO 8601 format"))
+                           )
+                   // @formatter:on
                    );
         }
 
@@ -162,19 +162,19 @@ class TaskApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isOk())
                    .andDo(
                    // @formatter:off
-                       document("get-tasks-by-user-id",
-                           requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
-                           pathParameters(parameterWithName("id").description("The user's unique identifier")),
-                           responseFields(
-                                   fieldWithPath("[].taskId").description("The task's unique identifier"),
-                                   fieldWithPath("[].userId").description("The task's owner unique identifier"),
-                                   fieldWithPath("[].title").description("The task's title"),
-                                   fieldWithPath("[].description").description("The task's description"),
-                                   fieldWithPath("[].startDate").description("The task's start date in ISO 8601 format"),
-                                   fieldWithPath("[].endDate").description("The task's end date in ISO 8601 format")
+                           document("get-tasks-by-user-id",
+                                   requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
+                                   pathParameters(parameterWithName("id").description("The user's unique identifier")),
+                                   responseFields(
+                                           fieldWithPath("[].taskId").description("The task's unique identifier"),
+                                           fieldWithPath("[].userId").description("The task's owner unique identifier"),
+                                           fieldWithPath("[].title").description("The task's title"),
+                                           fieldWithPath("[].description").description("The task's description"),
+                                           fieldWithPath("[].startDate").description("The task's start date in ISO 8601 format"),
+                                           fieldWithPath("[].endDate").description("The task's end date in ISO 8601 format")
+                                   )
                            )
-                       )
-                       // @formatter:on
+                   // @formatter:on
                    );
         }
 
@@ -222,7 +222,7 @@ class TaskApiDocumentationIT extends RestDocsWebMvcTestContext {
                                            fieldWithPath("[].startDate").description("The task's start date in ISO 8601 format"),
                                            fieldWithPath("[].endDate").description("The task's end date in ISO 8601 format"))
                            )
-                           // @formatter:on
+                   // @formatter:on
                    );
         }
 
@@ -263,7 +263,7 @@ class TaskApiDocumentationIT extends RestDocsWebMvcTestContext {
                                            fieldWithPath("[].startDate").description("The task's start date in ISO 8601 format"),
                                            fieldWithPath("[].endDate").description("The task's end date in ISO 8601 format"))
                            )
-                           // @formatter:on
+                   // @formatter:on
                    );
         }
 
@@ -312,18 +312,18 @@ class TaskApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isCreated())
                    .andDo(
                    // @formatter:off
-                       document("create-task",
-                           requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
-                           requestFields(
-                                   fields.withPath("userId").description("The task's owner unique identifier"),
-                                   fields.withPath("title").description("The task's title"),
-                                   fields.withPath("description").description("The task's description").optional(),
-                                   fields.withPath("startDate").description("The task's start date in ISO 8601 format").optional(),
-                                   fields.withPath("endDate").description("The task's end date in ISO 8601 format").optional()
-                           ),
-                           responseFields(fieldWithPath("taskId").description("The created task's unique identifier"))
-                       )
-                       // @formatter:on
+                           document("create-task",
+                                   requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
+                                   requestFields(
+                                           fields.withPath("userId").description("The task's owner unique identifier"),
+                                           fields.withPath("title").description("The task's title"),
+                                           fields.withPath("description").description("The task's description").optional(),
+                                           fields.withPath("startDate").description("The task's start date in ISO 8601 format").optional(),
+                                           fields.withPath("endDate").description("The task's end date in ISO 8601 format").optional()
+                                   ),
+                                   responseFields(fieldWithPath("taskId").description("The created task's unique identifier"))
+                           )
+                   // @formatter:on
                    );
         }
 
@@ -373,19 +373,19 @@ class TaskApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isOk())
                    .andDo(
                    // @formatter:off
-                       document("update-task-by-id",
-                           requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
-                           pathParameters(parameterWithName("id").description("The task's unique identifier")),
-                           requestFields(
-                                   fields.withPath("userId").description("The task's owner unique identifier"),
-                                   fields.withPath("title").description("The task's title"),
-                                   fields.withPath("description").description("The task's description").optional(),
-                                   fields.withPath("startDate").description("The task's start date in ISO 8601 format").optional(),
-                                   fields.withPath("endDate").description("The task's end date in ISO 8601 format").optional()
-                           ),
-                           responseFields(fieldWithPath("taskId").description("The updated task's unique identifier"))
-                       )
-                       // @formatter:on
+                           document("update-task-by-id",
+                                   requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
+                                   pathParameters(parameterWithName("id").description("The task's unique identifier")),
+                                   requestFields(
+                                           fields.withPath("userId").description("The task's owner unique identifier"),
+                                           fields.withPath("title").description("The task's title"),
+                                           fields.withPath("description").description("The task's description").optional(),
+                                           fields.withPath("startDate").description("The task's start date in ISO 8601 format").optional(),
+                                           fields.withPath("endDate").description("The task's end date in ISO 8601 format").optional()
+                                   ),
+                                   responseFields(fieldWithPath("taskId").description("The updated task's unique identifier"))
+                           )
+                   // @formatter:on
                    );
         }
 
@@ -408,10 +408,10 @@ class TaskApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isNoContent())
                    .andDo(
                    // @formatter:off
-                       document("delete-task-by-id",
-                           requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
-                           pathParameters(parameterWithName("id").description("The task's unique identifier")))
-                       // @formatter:on
+                           document("delete-task-by-id",
+                                   requestHeaders(headerWithName("Authorization").description("Bearer JWT access token")),
+                                   pathParameters(parameterWithName("id").description("The task's unique identifier")))
+                   // @formatter:on
                    );
         }
 
@@ -427,14 +427,14 @@ class TaskApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isBadRequest())
                    .andDo(
                    // @formatter:off
-                       document("error-path-variable-validation-failure",
-                           relaxedResponseFields(
-                               fieldWithPath("title").description("Short summary of the problem type"),
-                               fieldWithPath("status").description("HTTP status code"),
-                               fieldWithPath("detail").description("Human-readable explanation of the problem")
+                           document("error-path-variable-validation-failure",
+                                   relaxedResponseFields(
+                                           fieldWithPath("title").description("Short summary of the problem type"),
+                                           fieldWithPath("status").description("HTTP status code"),
+                                           fieldWithPath("detail").description("Human-readable explanation of the problem")
+                                   )
                            )
-                       )
-                       // @formatter:on
+                   // @formatter:on
                    );
         }
 
@@ -445,18 +445,18 @@ class TaskApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isBadRequest())
                    .andDo(
                    // @formatter:off
-                       document("error-request-param-validation-failure",
-                           relaxedResponseFields(
-                               fieldWithPath("title").description("Short summary of the problem type"),
-                               fieldWithPath("status").description("HTTP status code"),
-                               fieldWithPath("detail").description("Human-readable explanation of the problem"),
-                               fieldWithPath("error").description("Machine-readable error code"),
-                               fieldWithPath("fieldErrors").description("List of validation errors"),
-                               fieldWithPath("fieldErrors[].field").description("Name of the request parameter that failed validation"),
-                               fieldWithPath("fieldErrors[].message").description("Validation error message")
+                           document("error-request-param-validation-failure",
+                                   relaxedResponseFields(
+                                           fieldWithPath("title").description("Short summary of the problem type"),
+                                           fieldWithPath("status").description("HTTP status code"),
+                                           fieldWithPath("detail").description("Human-readable explanation of the problem"),
+                                           fieldWithPath("error").description("Machine-readable error code"),
+                                           fieldWithPath("fieldErrors").description("List of validation errors"),
+                                           fieldWithPath("fieldErrors[].field").description("Name of the request parameter that failed validation"),
+                                           fieldWithPath("fieldErrors[].message").description("Validation error message")
+                                   )
                            )
-                       )
-                       // @formatter:on
+                   // @formatter:on
                    );
         }
 
@@ -468,17 +468,17 @@ class TaskApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isBadRequest())
                    .andDo(
                    // @formatter:off
-                       document("error-request-body-validation-failure",
-                           relaxedResponseFields(
-                               fieldWithPath("title").description("Short summary of the problem type"),
-                               fieldWithPath("status").description("HTTP status code"),
-                               fieldWithPath("detail").description("Human-readable explanation of the problem"),
-                               fieldWithPath("error").description("Machine-readable error code"),
-                               fieldWithPath("fieldErrors").description("List of validation errors"),
-                               fieldWithPath("fieldErrors[].field").description("Field that failed validation"),
-                               fieldWithPath("fieldErrors[].message").description("Validation error message")
+                           document("error-request-body-validation-failure",
+                                   relaxedResponseFields(
+                                           fieldWithPath("title").description("Short summary of the problem type"),
+                                           fieldWithPath("status").description("HTTP status code"),
+                                           fieldWithPath("detail").description("Human-readable explanation of the problem"),
+                                           fieldWithPath("error").description("Machine-readable error code"),
+                                           fieldWithPath("fieldErrors").description("List of validation errors"),
+                                           fieldWithPath("fieldErrors[].field").description("Field that failed validation"),
+                                           fieldWithPath("fieldErrors[].message").description("Validation error message")
+                                   )
                            )
-                       )
                    // @formatter:on
                    );
         }
@@ -494,15 +494,15 @@ class TaskApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isUnauthorized())
                    .andDo(
                    // @formatter:off
-                       document("error-unauthorized",
-                           relaxedResponseFields(
-                               fieldWithPath("title").description("Short summary of the problem type"),
-                               fieldWithPath("status").description("HTTP status code"),
-                               fieldWithPath("detail").description("Human-readable explanation of the problem"),
-                               fieldWithPath("error").description("Machine-readable error code")
+                           document("error-unauthorized",
+                                   relaxedResponseFields(
+                                           fieldWithPath("title").description("Short summary of the problem type"),
+                                           fieldWithPath("status").description("HTTP status code"),
+                                           fieldWithPath("detail").description("Human-readable explanation of the problem"),
+                                           fieldWithPath("error").description("Machine-readable error code")
+                                   )
                            )
-                       )
-                       // @formatter:on
+                   // @formatter:on
                    );
         }
 
@@ -531,14 +531,14 @@ class TaskApiDocumentationIT extends RestDocsWebMvcTestContext {
                    .andExpect(status().isInternalServerError())
                    .andDo(
                    // @formatter:off
-                       document("error-internal-server-error",
-                           relaxedResponseFields(
-                               fieldWithPath("title").description("Short summary of the problem type"),
-                               fieldWithPath("status").description("HTTP status code"),
-                               fieldWithPath("detail").description("Human-readable explanation of the problem"),
-                               fieldWithPath("error").description("Machine-readable error code")
+                           document("error-internal-server-error",
+                                   relaxedResponseFields(
+                                           fieldWithPath("title").description("Short summary of the problem type"),
+                                           fieldWithPath("status").description("HTTP status code"),
+                                           fieldWithPath("detail").description("Human-readable explanation of the problem"),
+                                           fieldWithPath("error").description("Machine-readable error code")
+                                   )
                            )
-                       )
                    // @formatter:on
                    );
         }
