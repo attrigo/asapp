@@ -81,8 +81,7 @@ public class JwtVerifier {
         } catch (UnexpectedJwtTypeException | AuthenticationNotFoundException e) {
             throw e;
         } catch (Exception e) {
-            var message = "Access token is not valid: %s".formatted(accessToken);
-            throw new InvalidJwtException(message, e);
+            throw new InvalidJwtException("Access token is not valid", e);
         }
     }
 
@@ -111,7 +110,7 @@ public class JwtVerifier {
     private void verifyAccessTokenType(DecodedJwt decodedJwt) {
         logger.trace("[JWT_VERIFIER] Step 2/3: Verifying token type is ACCESS");
         if (!decodedJwt.isAccessToken()) {
-            throw new UnexpectedJwtTypeException("JWT %s is not an access token".formatted(decodedJwt.encodedToken()));
+            throw new UnexpectedJwtTypeException("JWT is not an access token");
         }
     }
 
@@ -127,7 +126,7 @@ public class JwtVerifier {
         logger.trace("[JWT_VERIFIER] Step 3/3: Checking access token exists in store");
         var isTokenActive = redisJwtStore.accessTokenExists(accessToken);
         if (!isTokenActive) {
-            throw new AuthenticationNotFoundException("Authentication session not found in store for access token: %s".formatted(accessToken));
+            throw new AuthenticationNotFoundException("Authentication session not found in store for access token");
         }
     }
 
