@@ -25,6 +25,7 @@ import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_IDS_PARAM;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_ROOT_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_UPDATE_BY_ID_FULL_PATH;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -67,18 +68,19 @@ class TaskRestControllerIT extends WebMvcTestContext {
             // Given
             var requestBuilder = get(TASKS_ROOT_PATH + "/");
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.NOT_FOUND)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Not Found")
-                                                                .containsEntry("status", 404)
-                                                                .containsEntry("detail", "No static resource api/tasks.")
-                                                                .containsEntry("instance", "/api/tasks/"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.NOT_FOUND)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("title", "Not Found")
+                                                                     .containsEntry("status", 404)
+                                                                     .containsEntry("detail", "No static resource api/tasks.")
+                                                                     .containsEntry("instance", "/api/tasks/"));
         }
 
         @Test
@@ -87,18 +89,19 @@ class TaskRestControllerIT extends WebMvcTestContext {
             var taskId = 1L;
             var requestBuilder = get(TASKS_GET_BY_ID_FULL_PATH, taskId);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Bad Request")
-                                                                .containsEntry("status", 400)
-                                                                .containsEntry("detail", "Failed to convert 'id' with value: '1'")
-                                                                .containsEntry("instance", "/api/tasks/1"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("title", "Bad Request")
+                                                                     .containsEntry("status", 400)
+                                                                     .containsEntry("detail", "Failed to convert 'id' with value: '1'")
+                                                                     .containsEntry("instance", "/api/tasks/1"));
         }
 
     }
@@ -111,18 +114,19 @@ class TaskRestControllerIT extends WebMvcTestContext {
             // Given
             var requestBuilder = get(TASKS_ROOT_PATH + "/user/");
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.NOT_FOUND)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Not Found")
-                                                                .containsEntry("status", 404)
-                                                                .containsEntry("detail", "No static resource api/tasks/user.")
-                                                                .containsEntry("instance", "/api/tasks/user/"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.NOT_FOUND)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("title", "Not Found")
+                                                                     .containsEntry("status", 404)
+                                                                     .containsEntry("detail", "No static resource api/tasks/user.")
+                                                                     .containsEntry("instance", "/api/tasks/user/"));
         }
 
         @Test
@@ -131,18 +135,19 @@ class TaskRestControllerIT extends WebMvcTestContext {
             var userId = 1L;
             var requestBuilder = get(TASKS_GET_BY_USER_ID_FULL_PATH, userId);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Bad Request")
-                                                                .containsEntry("status", 400)
-                                                                .containsEntry("detail", "Failed to convert 'id' with value: '1'")
-                                                                .containsEntry("instance", "/api/tasks/user/1"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("title", "Bad Request")
+                                                                     .containsEntry("status", 400)
+                                                                     .containsEntry("detail", "Failed to convert 'id' with value: '1'")
+                                                                     .containsEntry("instance", "/api/tasks/user/1"));
         }
 
     }
@@ -155,28 +160,29 @@ class TaskRestControllerIT extends WebMvcTestContext {
             // Given
             var requestBuilder = get(TASKS_GET_ALL_FULL_PATH).param(TASKS_IDS_PARAM, "");
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> {
-                             assertThatJson(json).isObject()
-                                                 .containsEntry("title", "Bad Request")
-                                                 .containsEntry("status", 400)
-                                                 .containsEntry("detail", "Request validation failed")
-                                                 .containsEntry("error", "invalid_request")
-                                                 .containsEntry("instance", "/api/tasks");
-                             assertThatJson(json).node("fieldErrors")
-                                                 .isArray()
-                                                 .hasSize(1);
-                             assertThatJson(json).node("fieldErrors[0]")
-                                                 .isObject()
-                                                 .containsEntry("field", "ids")
-                                                 .containsEntry("message", "Tasks identifiers list must contain between 1 and 50 elements");
-                         });
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> {
+                                  assertThatJson(json).isObject()
+                                                      .containsEntry("title", "Bad Request")
+                                                      .containsEntry("status", 400)
+                                                      .containsEntry("detail", "Request validation failed")
+                                                      .containsEntry("error", "invalid_request")
+                                                      .containsEntry("instance", "/api/tasks");
+                                  assertThatJson(json).node("fieldErrors")
+                                                      .isArray()
+                                                      .hasSize(1);
+                                  assertThatJson(json).node("fieldErrors[0]")
+                                                      .isObject()
+                                                      .containsEntry("field", "ids")
+                                                      .containsEntry("message", "Tasks identifiers list must contain between 1 and 50 elements");
+                              });
         }
 
         @Test
@@ -189,28 +195,29 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                    .orElseThrow();
             var requestBuilder = get(TASKS_GET_ALL_FULL_PATH).param(TASKS_IDS_PARAM, taskIds);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> {
-                             assertThatJson(json).isObject()
-                                                 .containsEntry("title", "Bad Request")
-                                                 .containsEntry("status", 400)
-                                                 .containsEntry("detail", "Request validation failed")
-                                                 .containsEntry("error", "invalid_request")
-                                                 .containsEntry("instance", "/api/tasks");
-                             assertThatJson(json).node("fieldErrors")
-                                                 .isArray()
-                                                 .hasSize(1);
-                             assertThatJson(json).node("fieldErrors[0]")
-                                                 .isObject()
-                                                 .containsEntry("field", "ids")
-                                                 .containsEntry("message", "Tasks identifiers list must contain between 1 and 50 elements");
-                         });
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> {
+                                  assertThatJson(json).isObject()
+                                                      .containsEntry("title", "Bad Request")
+                                                      .containsEntry("status", 400)
+                                                      .containsEntry("detail", "Request validation failed")
+                                                      .containsEntry("error", "invalid_request")
+                                                      .containsEntry("instance", "/api/tasks");
+                                  assertThatJson(json).node("fieldErrors")
+                                                      .isArray()
+                                                      .hasSize(1);
+                                  assertThatJson(json).node("fieldErrors[0]")
+                                                      .isObject()
+                                                      .containsEntry("field", "ids")
+                                                      .containsEntry("message", "Tasks identifiers list must contain between 1 and 50 elements");
+                              });
         }
 
         @Test
@@ -219,18 +226,19 @@ class TaskRestControllerIT extends WebMvcTestContext {
             var taskIds = "1";
             var requestBuilder = get(TASKS_GET_ALL_FULL_PATH).param(TASKS_IDS_PARAM, taskIds);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Bad Request")
-                                                                .containsEntry("status", 400)
-                                                                .containsEntry("detail", "Failed to convert 'ids' with value: '1'")
-                                                                .containsEntry("instance", "/api/tasks"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("title", "Bad Request")
+                                                                     .containsEntry("status", 400)
+                                                                     .containsEntry("detail", "Failed to convert 'ids' with value: '1'")
+                                                                     .containsEntry("instance", "/api/tasks"));
         }
 
     }
@@ -245,18 +253,19 @@ class TaskRestControllerIT extends WebMvcTestContext {
             var requestBuilder = post(TASKS_CREATE_FULL_PATH).contentType(MediaType.TEXT_PLAIN)
                                                              .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Unsupported Media Type")
-                                                                .containsEntry("status", 415)
-                                                                .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
-                                                                .containsEntry("instance", "/api/tasks"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("title", "Unsupported Media Type")
+                                                                     .containsEntry("status", 415)
+                                                                     .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
+                                                                     .containsEntry("instance", "/api/tasks"));
         }
 
         @Test
@@ -266,18 +275,19 @@ class TaskRestControllerIT extends WebMvcTestContext {
             var requestBuilder = post(TASKS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                              .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Bad Request")
-                                                                .containsEntry("status", 400)
-                                                                .containsEntry("detail", "Failed to read request")
-                                                                .containsEntry("instance", "/api/tasks"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("title", "Bad Request")
+                                                                     .containsEntry("status", 400)
+                                                                     .containsEntry("detail", "Failed to read request")
+                                                                     .containsEntry("instance", "/api/tasks"));
         }
 
         @Test
@@ -287,32 +297,33 @@ class TaskRestControllerIT extends WebMvcTestContext {
             var requestBuilder = post(TASKS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                              .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> {
-                             assertThatJson(json).isObject()
-                                                 .containsEntry("title", "Bad Request")
-                                                 .containsEntry("status", 400)
-                                                 .containsEntry("detail", "Request validation failed")
-                                                 .containsEntry("error", "invalid_request")
-                                                 .containsEntry("instance", "/api/tasks");
-                             assertThatJson(json).node("fieldErrors")
-                                                 .isArray()
-                                                 .hasSize(2);
-                             assertThatJson(json).node("fieldErrors[0]")
-                                                 .isObject()
-                                                 .containsEntry("field", "title")
-                                                 .containsEntry("message", "The title must not be empty");
-                             assertThatJson(json).node("fieldErrors[1]")
-                                                 .isObject()
-                                                 .containsEntry("field", "userId")
-                                                 .containsEntry("message", "The user ID must not be empty");
-                         });
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> {
+                                  assertThatJson(json).isObject()
+                                                      .containsEntry("title", "Bad Request")
+                                                      .containsEntry("status", 400)
+                                                      .containsEntry("detail", "Request validation failed")
+                                                      .containsEntry("error", "invalid_request")
+                                                      .containsEntry("instance", "/api/tasks");
+                                  assertThatJson(json).node("fieldErrors")
+                                                      .isArray()
+                                                      .hasSize(2);
+                                  assertThatJson(json).node("fieldErrors[0]")
+                                                      .isObject()
+                                                      .containsEntry("field", "title")
+                                                      .containsEntry("message", "The title must not be empty");
+                                  assertThatJson(json).node("fieldErrors[1]")
+                                                      .isObject()
+                                                      .containsEntry("field", "userId")
+                                                      .containsEntry("message", "The user ID must not be empty");
+                              });
         }
 
         @Test
@@ -327,32 +338,33 @@ class TaskRestControllerIT extends WebMvcTestContext {
             var requestBuilder = post(TASKS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                              .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> {
-                             assertThatJson(json).isObject()
-                                                 .containsEntry("title", "Bad Request")
-                                                 .containsEntry("status", 400)
-                                                 .containsEntry("detail", "Request validation failed")
-                                                 .containsEntry("error", "invalid_request")
-                                                 .containsEntry("instance", "/api/tasks");
-                             assertThatJson(json).node("fieldErrors")
-                                                 .isArray()
-                                                 .hasSize(2);
-                             assertThatJson(json).node("fieldErrors[0]")
-                                                 .isObject()
-                                                 .containsEntry("field", "title")
-                                                 .containsEntry("message", "The title must not be empty");
-                             assertThatJson(json).node("fieldErrors[1]")
-                                                 .isObject()
-                                                 .containsEntry("field", "userId")
-                                                 .containsEntry("message", "The user ID must not be empty");
-                         });
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> {
+                                  assertThatJson(json).isObject()
+                                                      .containsEntry("title", "Bad Request")
+                                                      .containsEntry("status", 400)
+                                                      .containsEntry("detail", "Request validation failed")
+                                                      .containsEntry("error", "invalid_request")
+                                                      .containsEntry("instance", "/api/tasks");
+                                  assertThatJson(json).node("fieldErrors")
+                                                      .isArray()
+                                                      .hasSize(2);
+                                  assertThatJson(json).node("fieldErrors[0]")
+                                                      .isObject()
+                                                      .containsEntry("field", "title")
+                                                      .containsEntry("message", "The title must not be empty");
+                                  assertThatJson(json).node("fieldErrors[1]")
+                                                      .isObject()
+                                                      .containsEntry("field", "userId")
+                                                      .containsEntry("message", "The user ID must not be empty");
+                              });
         }
 
     }
@@ -378,18 +390,19 @@ class TaskRestControllerIT extends WebMvcTestContext {
             var requestBuilder = put(TASKS_ROOT_PATH + "/").contentType(MediaType.APPLICATION_JSON)
                                                            .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.NOT_FOUND)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Not Found")
-                                                                .containsEntry("status", 404)
-                                                                .containsEntry("detail", "No static resource api/tasks.")
-                                                                .containsEntry("instance", "/api/tasks/"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.NOT_FOUND)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("title", "Not Found")
+                                                                     .containsEntry("status", 404)
+                                                                     .containsEntry("detail", "No static resource api/tasks.")
+                                                                     .containsEntry("instance", "/api/tasks/"));
         }
 
         @Test
@@ -411,18 +424,19 @@ class TaskRestControllerIT extends WebMvcTestContext {
             var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskId).contentType(MediaType.APPLICATION_JSON)
                                                                           .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Bad Request")
-                                                                .containsEntry("status", 400)
-                                                                .containsEntry("detail", "Failed to convert 'id' with value: '1'")
-                                                                .containsEntry("instance", "/api/tasks/1"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("title", "Bad Request")
+                                                                     .containsEntry("status", 400)
+                                                                     .containsEntry("detail", "Failed to convert 'id' with value: '1'")
+                                                                     .containsEntry("instance", "/api/tasks/1"));
         }
 
         @Test
@@ -433,18 +447,19 @@ class TaskRestControllerIT extends WebMvcTestContext {
             var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskId).contentType(MediaType.TEXT_PLAIN)
                                                                           .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Unsupported Media Type")
-                                                                .containsEntry("status", 415)
-                                                                .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
-                                                                .containsEntry("instance", "/api/tasks/" + taskId));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("title", "Unsupported Media Type")
+                                                                     .containsEntry("status", 415)
+                                                                     .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
+                                                                     .containsEntry("instance", "/api/tasks/" + taskId));
         }
 
         @Test
@@ -455,18 +470,19 @@ class TaskRestControllerIT extends WebMvcTestContext {
             var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskId).contentType(MediaType.APPLICATION_JSON)
                                                                           .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Bad Request")
-                                                                .containsEntry("status", 400)
-                                                                .containsEntry("detail", "Failed to read request")
-                                                                .containsEntry("instance", "/api/tasks/" + taskId));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("title", "Bad Request")
+                                                                     .containsEntry("status", 400)
+                                                                     .containsEntry("detail", "Failed to read request")
+                                                                     .containsEntry("instance", "/api/tasks/" + taskId));
         }
 
         @Test
@@ -477,32 +493,33 @@ class TaskRestControllerIT extends WebMvcTestContext {
             var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskId).contentType(MediaType.APPLICATION_JSON)
                                                                           .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> {
-                             assertThatJson(json).isObject()
-                                                 .containsEntry("title", "Bad Request")
-                                                 .containsEntry("status", 400)
-                                                 .containsEntry("detail", "Request validation failed")
-                                                 .containsEntry("error", "invalid_request")
-                                                 .containsEntry("instance", "/api/tasks/" + taskId);
-                             assertThatJson(json).node("fieldErrors")
-                                                 .isArray()
-                                                 .hasSize(2);
-                             assertThatJson(json).node("fieldErrors[0]")
-                                                 .isObject()
-                                                 .containsEntry("field", "title")
-                                                 .containsEntry("message", "The title must not be empty");
-                             assertThatJson(json).node("fieldErrors[1]")
-                                                 .isObject()
-                                                 .containsEntry("field", "userId")
-                                                 .containsEntry("message", "The user ID must not be empty");
-                         });
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> {
+                                  assertThatJson(json).isObject()
+                                                      .containsEntry("title", "Bad Request")
+                                                      .containsEntry("status", 400)
+                                                      .containsEntry("detail", "Request validation failed")
+                                                      .containsEntry("error", "invalid_request")
+                                                      .containsEntry("instance", "/api/tasks/" + taskId);
+                                  assertThatJson(json).node("fieldErrors")
+                                                      .isArray()
+                                                      .hasSize(2);
+                                  assertThatJson(json).node("fieldErrors[0]")
+                                                      .isObject()
+                                                      .containsEntry("field", "title")
+                                                      .containsEntry("message", "The title must not be empty");
+                                  assertThatJson(json).node("fieldErrors[1]")
+                                                      .isObject()
+                                                      .containsEntry("field", "userId")
+                                                      .containsEntry("message", "The user ID must not be empty");
+                              });
         }
 
         @Test
@@ -518,32 +535,33 @@ class TaskRestControllerIT extends WebMvcTestContext {
             var requestBuilder = put(TASKS_UPDATE_BY_ID_FULL_PATH, taskId).contentType(MediaType.APPLICATION_JSON)
                                                                           .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> {
-                             assertThatJson(json).isObject()
-                                                 .containsEntry("title", "Bad Request")
-                                                 .containsEntry("status", 400)
-                                                 .containsEntry("detail", "Request validation failed")
-                                                 .containsEntry("error", "invalid_request")
-                                                 .containsEntry("instance", "/api/tasks/" + taskId);
-                             assertThatJson(json).node("fieldErrors")
-                                                 .isArray()
-                                                 .hasSize(2);
-                             assertThatJson(json).node("fieldErrors[0]")
-                                                 .isObject()
-                                                 .containsEntry("field", "title")
-                                                 .containsEntry("message", "The title must not be empty");
-                             assertThatJson(json).node("fieldErrors[1]")
-                                                 .isObject()
-                                                 .containsEntry("field", "userId")
-                                                 .containsEntry("message", "The user ID must not be empty");
-                         });
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> {
+                                  assertThatJson(json).isObject()
+                                                      .containsEntry("title", "Bad Request")
+                                                      .containsEntry("status", 400)
+                                                      .containsEntry("detail", "Request validation failed")
+                                                      .containsEntry("error", "invalid_request")
+                                                      .containsEntry("instance", "/api/tasks/" + taskId);
+                                  assertThatJson(json).node("fieldErrors")
+                                                      .isArray()
+                                                      .hasSize(2);
+                                  assertThatJson(json).node("fieldErrors[0]")
+                                                      .isObject()
+                                                      .containsEntry("field", "title")
+                                                      .containsEntry("message", "The title must not be empty");
+                                  assertThatJson(json).node("fieldErrors[1]")
+                                                      .isObject()
+                                                      .containsEntry("field", "userId")
+                                                      .containsEntry("message", "The user ID must not be empty");
+                              });
         }
 
     }
@@ -556,18 +574,19 @@ class TaskRestControllerIT extends WebMvcTestContext {
             // Given
             var requestBuilder = delete(TASKS_ROOT_PATH + "/");
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.NOT_FOUND)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Not Found")
-                                                                .containsEntry("status", 404)
-                                                                .containsEntry("detail", "No static resource api/tasks.")
-                                                                .containsEntry("instance", "/api/tasks/"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.NOT_FOUND)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("title", "Not Found")
+                                                                     .containsEntry("status", 404)
+                                                                     .containsEntry("detail", "No static resource api/tasks.")
+                                                                     .containsEntry("instance", "/api/tasks/"));
         }
 
         @Test
@@ -576,18 +595,19 @@ class TaskRestControllerIT extends WebMvcTestContext {
             var taskId = 1L;
             var requestBuilder = delete(TASKS_DELETE_BY_ID_FULL_PATH, taskId);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Bad Request")
-                                                                .containsEntry("status", 400)
-                                                                .containsEntry("detail", "Failed to convert 'id' with value: '1'")
-                                                                .containsEntry("instance", "/api/tasks/1"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("title", "Bad Request")
+                                                                     .containsEntry("status", 400)
+                                                                     .containsEntry("detail", "Failed to convert 'id' with value: '1'")
+                                                                     .containsEntry("instance", "/api/tasks/1"));
         }
 
     }

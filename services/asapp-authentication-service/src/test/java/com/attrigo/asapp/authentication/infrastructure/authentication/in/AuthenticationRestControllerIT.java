@@ -20,6 +20,7 @@ import static com.attrigo.asapp.url.authentication.AuthenticationApiUrl.AUTH_REF
 import static com.attrigo.asapp.url.authentication.AuthenticationApiUrl.AUTH_REVOKE_FULL_PATH;
 import static com.attrigo.asapp.url.authentication.AuthenticationApiUrl.AUTH_TOKEN_FULL_PATH;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 
 import org.junit.jupiter.api.Nested;
@@ -54,18 +55,19 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
             var requestBuilder = post(AUTH_TOKEN_FULL_PATH).contentType(MediaType.TEXT_PLAIN)
                                                            .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Unsupported Media Type")
-                                                                .containsEntry("status", 415)
-                                                                .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
-                                                                .containsEntry("instance", "/api/auth/token"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("title", "Unsupported Media Type")
+                                                                     .containsEntry("status", 415)
+                                                                     .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
+                                                                     .containsEntry("instance", "/api/auth/token"));
 
         }
 
@@ -76,18 +78,19 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
             var requestBuilder = post(AUTH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                            .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Bad Request")
-                                                                .containsEntry("status", 400)
-                                                                .containsEntry("detail", "Failed to read request")
-                                                                .containsEntry("instance", "/api/auth/token"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("title", "Bad Request")
+                                                                     .containsEntry("status", 400)
+                                                                     .containsEntry("detail", "Failed to read request")
+                                                                     .containsEntry("instance", "/api/auth/token"));
         }
 
         @Test
@@ -97,32 +100,33 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
             var requestBuilder = post(AUTH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                            .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> {
-                             assertThatJson(json).isObject()
-                                                 .containsEntry("title", "Bad Request")
-                                                 .containsEntry("status", 400)
-                                                 .containsEntry("detail", "Request validation failed")
-                                                 .containsEntry("error", "invalid_request")
-                                                 .containsEntry("instance", "/api/auth/token");
-                             assertThatJson(json).node("fieldErrors")
-                                                 .isArray()
-                                                 .hasSize(2);
-                             assertThatJson(json).node("fieldErrors[0]")
-                                                 .isObject()
-                                                 .containsEntry("field", "password")
-                                                 .containsEntry("message", "The password must not be empty");
-                             assertThatJson(json).node("fieldErrors[1]")
-                                                 .isObject()
-                                                 .containsEntry("field", "username")
-                                                 .containsEntry("message", "The username must not be empty");
-                         });
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> {
+                                  assertThatJson(json).isObject()
+                                                      .containsEntry("title", "Bad Request")
+                                                      .containsEntry("status", 400)
+                                                      .containsEntry("detail", "Request validation failed")
+                                                      .containsEntry("error", "invalid_request")
+                                                      .containsEntry("instance", "/api/auth/token");
+                                  assertThatJson(json).node("fieldErrors")
+                                                      .isArray()
+                                                      .hasSize(2);
+                                  assertThatJson(json).node("fieldErrors[0]")
+                                                      .isObject()
+                                                      .containsEntry("field", "password")
+                                                      .containsEntry("message", "The password must not be empty");
+                                  assertThatJson(json).node("fieldErrors[1]")
+                                                      .isObject()
+                                                      .containsEntry("field", "username")
+                                                      .containsEntry("message", "The username must not be empty");
+                              });
         }
 
         @Test
@@ -137,32 +141,33 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
             var requestBuilder = post(AUTH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                            .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> {
-                             assertThatJson(json).isObject()
-                                                 .containsEntry("title", "Bad Request")
-                                                 .containsEntry("status", 400)
-                                                 .containsEntry("detail", "Request validation failed")
-                                                 .containsEntry("error", "invalid_request")
-                                                 .containsEntry("instance", "/api/auth/token");
-                             assertThatJson(json).node("fieldErrors")
-                                                 .isArray()
-                                                 .hasSize(2);
-                             assertThatJson(json).node("fieldErrors[0]")
-                                                 .isObject()
-                                                 .containsEntry("field", "password")
-                                                 .containsEntry("message", "The password must not be empty");
-                             assertThatJson(json).node("fieldErrors[1]")
-                                                 .isObject()
-                                                 .containsEntry("field", "username")
-                                                 .containsEntry("message", "The username must not be empty");
-                         });
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> {
+                                  assertThatJson(json).isObject()
+                                                      .containsEntry("title", "Bad Request")
+                                                      .containsEntry("status", 400)
+                                                      .containsEntry("detail", "Request validation failed")
+                                                      .containsEntry("error", "invalid_request")
+                                                      .containsEntry("instance", "/api/auth/token");
+                                  assertThatJson(json).node("fieldErrors")
+                                                      .isArray()
+                                                      .hasSize(2);
+                                  assertThatJson(json).node("fieldErrors[0]")
+                                                      .isObject()
+                                                      .containsEntry("field", "password")
+                                                      .containsEntry("message", "The password must not be empty");
+                                  assertThatJson(json).node("fieldErrors[1]")
+                                                      .isObject()
+                                                      .containsEntry("field", "username")
+                                                      .containsEntry("message", "The username must not be empty");
+                              });
         }
 
     }
@@ -177,18 +182,19 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
             var requestBuilder = post(AUTH_REFRESH_TOKEN_FULL_PATH).contentType(MediaType.TEXT_PLAIN)
                                                                    .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Unsupported Media Type")
-                                                                .containsEntry("status", 415)
-                                                                .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
-                                                                .containsEntry("instance", "/api/auth/refresh"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("title", "Unsupported Media Type")
+                                                                     .containsEntry("status", 415)
+                                                                     .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
+                                                                     .containsEntry("instance", "/api/auth/refresh"));
         }
 
         @Test
@@ -198,18 +204,19 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
             var requestBuilder = post(AUTH_REFRESH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                                    .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Bad Request")
-                                                                .containsEntry("status", 400)
-                                                                .containsEntry("detail", "Failed to read request")
-                                                                .containsEntry("instance", "/api/auth/refresh"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("title", "Bad Request")
+                                                                     .containsEntry("status", 400)
+                                                                     .containsEntry("detail", "Failed to read request")
+                                                                     .containsEntry("instance", "/api/auth/refresh"));
         }
 
         @Test
@@ -219,28 +226,29 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
             var requestBuilder = post(AUTH_REFRESH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                                    .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> {
-                             assertThatJson(json).isObject()
-                                                 .containsEntry("title", "Bad Request")
-                                                 .containsEntry("status", 400)
-                                                 .containsEntry("detail", "Request validation failed")
-                                                 .containsEntry("error", "invalid_request")
-                                                 .containsEntry("instance", "/api/auth/refresh");
-                             assertThatJson(json).node("fieldErrors")
-                                                 .isArray()
-                                                 .hasSize(1);
-                             assertThatJson(json).node("fieldErrors[0]")
-                                                 .isObject()
-                                                 .containsEntry("field", "refreshToken")
-                                                 .containsEntry("message", "The refresh token must not be empty");
-                         });
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> {
+                                  assertThatJson(json).isObject()
+                                                      .containsEntry("title", "Bad Request")
+                                                      .containsEntry("status", 400)
+                                                      .containsEntry("detail", "Request validation failed")
+                                                      .containsEntry("error", "invalid_request")
+                                                      .containsEntry("instance", "/api/auth/refresh");
+                                  assertThatJson(json).node("fieldErrors")
+                                                      .isArray()
+                                                      .hasSize(1);
+                                  assertThatJson(json).node("fieldErrors[0]")
+                                                      .isObject()
+                                                      .containsEntry("field", "refreshToken")
+                                                      .containsEntry("message", "The refresh token must not be empty");
+                              });
         }
 
         @Test
@@ -254,28 +262,29 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
             var requestBuilder = post(AUTH_REFRESH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                                    .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> {
-                             assertThatJson(json).isObject()
-                                                 .containsEntry("title", "Bad Request")
-                                                 .containsEntry("status", 400)
-                                                 .containsEntry("detail", "Request validation failed")
-                                                 .containsEntry("error", "invalid_request")
-                                                 .containsEntry("instance", "/api/auth/refresh");
-                             assertThatJson(json).node("fieldErrors")
-                                                 .isArray()
-                                                 .hasSize(1);
-                             assertThatJson(json).node("fieldErrors[0]")
-                                                 .isObject()
-                                                 .containsEntry("field", "refreshToken")
-                                                 .containsEntry("message", "The refresh token must not be empty");
-                         });
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> {
+                                  assertThatJson(json).isObject()
+                                                      .containsEntry("title", "Bad Request")
+                                                      .containsEntry("status", 400)
+                                                      .containsEntry("detail", "Request validation failed")
+                                                      .containsEntry("error", "invalid_request")
+                                                      .containsEntry("instance", "/api/auth/refresh");
+                                  assertThatJson(json).node("fieldErrors")
+                                                      .isArray()
+                                                      .hasSize(1);
+                                  assertThatJson(json).node("fieldErrors[0]")
+                                                      .isObject()
+                                                      .containsEntry("field", "refreshToken")
+                                                      .containsEntry("message", "The refresh token must not be empty");
+                              });
         }
 
     }
@@ -290,18 +299,19 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
             var requestBuilder = post(AUTH_REVOKE_FULL_PATH).contentType(MediaType.TEXT_PLAIN)
                                                             .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Unsupported Media Type")
-                                                                .containsEntry("status", 415)
-                                                                .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
-                                                                .containsEntry("instance", "/api/auth/revoke"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("title", "Unsupported Media Type")
+                                                                     .containsEntry("status", 415)
+                                                                     .containsEntry("detail", "Content-Type 'text/plain' is not supported.")
+                                                                     .containsEntry("instance", "/api/auth/revoke"));
         }
 
         @Test
@@ -311,18 +321,19 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
             var requestBuilder = post(AUTH_REVOKE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                             .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> assertThatJson(json).isObject()
-                                                                .containsEntry("title", "Bad Request")
-                                                                .containsEntry("status", 400)
-                                                                .containsEntry("detail", "Failed to read request")
-                                                                .containsEntry("instance", "/api/auth/revoke"));
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("title", "Bad Request")
+                                                                     .containsEntry("status", 400)
+                                                                     .containsEntry("detail", "Failed to read request")
+                                                                     .containsEntry("instance", "/api/auth/revoke"));
         }
 
         @Test
@@ -332,28 +343,29 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
             var requestBuilder = post(AUTH_REVOKE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                             .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> {
-                             assertThatJson(json).isObject()
-                                                 .containsEntry("title", "Bad Request")
-                                                 .containsEntry("status", 400)
-                                                 .containsEntry("detail", "Request validation failed")
-                                                 .containsEntry("error", "invalid_request")
-                                                 .containsEntry("instance", "/api/auth/revoke");
-                             assertThatJson(json).node("fieldErrors")
-                                                 .isArray()
-                                                 .hasSize(1);
-                             assertThatJson(json).node("fieldErrors[0]")
-                                                 .isObject()
-                                                 .containsEntry("field", "accessToken")
-                                                 .containsEntry("message", "The access token must not be empty");
-                         });
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> {
+                                  assertThatJson(json).isObject()
+                                                      .containsEntry("title", "Bad Request")
+                                                      .containsEntry("status", 400)
+                                                      .containsEntry("detail", "Request validation failed")
+                                                      .containsEntry("error", "invalid_request")
+                                                      .containsEntry("instance", "/api/auth/revoke");
+                                  assertThatJson(json).node("fieldErrors")
+                                                      .isArray()
+                                                      .hasSize(1);
+                                  assertThatJson(json).node("fieldErrors[0]")
+                                                      .isObject()
+                                                      .containsEntry("field", "accessToken")
+                                                      .containsEntry("message", "The access token must not be empty");
+                              });
         }
 
         @Test
@@ -367,28 +379,29 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
             var requestBuilder = post(AUTH_REVOKE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                             .content(requestBody);
 
-            // When & Then
-            mockMvcTester.perform(requestBuilder)
-                         .assertThat()
-                         .hasStatus(HttpStatus.BAD_REQUEST)
-                         .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
-                         .bodyJson()
-                         .convertTo(String.class)
-                         .satisfies(json -> {
-                             assertThatJson(json).isObject()
-                                                 .containsEntry("title", "Bad Request")
-                                                 .containsEntry("status", 400)
-                                                 .containsEntry("detail", "Request validation failed")
-                                                 .containsEntry("error", "invalid_request")
-                                                 .containsEntry("instance", "/api/auth/revoke");
-                             assertThatJson(json).node("fieldErrors")
-                                                 .isArray()
-                                                 .hasSize(1);
-                             assertThatJson(json).node("fieldErrors[0]")
-                                                 .isObject()
-                                                 .containsEntry("field", "accessToken")
-                                                 .containsEntry("message", "The access token must not be empty");
-                         });
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> {
+                                  assertThatJson(json).isObject()
+                                                      .containsEntry("title", "Bad Request")
+                                                      .containsEntry("status", 400)
+                                                      .containsEntry("detail", "Request validation failed")
+                                                      .containsEntry("error", "invalid_request")
+                                                      .containsEntry("instance", "/api/auth/revoke");
+                                  assertThatJson(json).node("fieldErrors")
+                                                      .isArray()
+                                                      .hasSize(1);
+                                  assertThatJson(json).node("fieldErrors[0]")
+                                                      .isObject()
+                                                      .containsEntry("field", "accessToken")
+                                                      .containsEntry("message", "The access token must not be empty");
+                              });
         }
 
     }
