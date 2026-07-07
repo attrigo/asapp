@@ -91,7 +91,7 @@ Derive:
 
 ### Step 3: Check TODO Completeness
 
-Open `TODO.md` and locate the section `## Version X.Y.Z` that matches the release version from Step 2. The section spans from that header until the next `##` header or end of file.
+Open `TODO.md` and locate the version section whose heading starts with `## X.Y.Z ·` (the `## <ver> · <theme>` format — see `.claude/rules/todo.md`). The section spans from that header until the next `##` header or end of file.
 
 Scan every line in that section for unchecked items matching `[ ]`.
 
