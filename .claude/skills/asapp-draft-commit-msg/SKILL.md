@@ -1,7 +1,8 @@
 ---
 name: asapp-draft-commit-msg
 description: >
-  Generates a conventional commit message from session changes.
+  Generates a conventional commit message from a change set — session history, a diff, a commit
+  range, or a specific file set.
   Use when the user wants to generate a commit message, write a commit, draft a git commit,
   summarize changes for a commit, or asks what their commit message should say.
   Triggers: /asapp-draft-commit-msg, commit message, conventional commit, git message, summarize changes.
@@ -10,11 +11,11 @@ description: >
 
 # Commit Message Generator
 
-Generate a conventional commit message based on changes made during this Claude Code session.
+Generate a conventional commit message from a change set — this session's history by default, or an externally supplied diff, commit range (e.g. `main..<branch>`), or specific file set.
 
 ## Usage
 
-- `/asapp-draft-commit-msg` - Generate commit message from session changes
+- `/asapp-draft-commit-msg` - Generate a commit message from the current change set (session history by default, or a caller-supplied diff/commit range/file set)
 
 ## Conventional Commit Format
 
@@ -28,19 +29,15 @@ Generate a conventional commit message based on changes made during this Claude 
 
 ### Commit Types
 
-| Type | Purpose |
+Standard Conventional Commits types apply (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `revert`).
+
+This project's history shows these three are worth disambiguating:
+
+| Type | Use for |
 |------|---------|
-| `feat` | New feature |
-| `fix` | Bug fix |
-| `docs` | Documentation only |
-| `style` | Formatting/style (no logic) |
-| `refactor` | Code refactor (no feature/fix) |
-| `perf` | Performance improvement |
-| `test` | Add/update tests |
-| `build` | Build system/dependencies |
-| `ci` | CI/config changes |
-| `chore` | Maintenance/misc |
-| `revert` | Revert commit |
+| `build` | Build system or dependency changes (Maven POM, plugin versions) |
+| `ci` | CI pipeline / workflow config |
+| `chore` | Maintenance that is neither build nor CI (repo housekeeping, misc cleanup) |
 
 ### Breaking Changes
 
@@ -58,17 +55,25 @@ BREAKING CHANGE: `extends` key behavior changed
 
 ### Step 1: Gather Changes
 
-- Analyze the conversation history for Edit/Write tool calls
-- Extract file paths that were modified during this session
+Identify the source of truth for this run:
+- **Session history** (the default) — Edit/Write tool calls in the conversation
+- **An externally supplied diff or commit range** (e.g. `main..<branch>`) — passed in by the caller, such as `asapp-close-task`'s spec commit or squash message
+- **A specific file set** — passed in by the caller
+
+- Extract the file paths touched by the source of truth
 - Auto-detect affected module(s) from file paths:
   - `services/asapp-authentication-service/...` → "authentication"
-  - `services/asapp-users-service/...` → "users"
+  - `services/asapp-config-service/...` → "config"
+  - `services/asapp-discovery-service/...` → "discovery"
   - `services/asapp-tasks-service/...` → "tasks"
-  - `libs/...` → "commons"
+  - `services/asapp-users-service/...` → "users"
+  - `libs/asapp-commons-url/...` → "api" (endpoint URL constants)
+  - `libs/asapp-http-clients/...` → "clients" (matches the `.claude/rules/todo.md` scope vocabulary)
   - `docs/...` → "docs"
-- Review the conversation to understand the intent and purpose of changes
+  - **Exception**: `docs/superpowers/specs/...` and `docs/superpowers/plans/...` (spec/plan files) scope to **the task's module**, not "docs" — e.g. `docs(tasks): mark find-tasks-by-ids design spec as implemented`
+- Review the source of truth to understand the intent and purpose of changes
 
-Also check current staging state:
+For session-based runs, also check current staging state:
 ```bash
 # If files are staged, use staged diff
 git diff --staged
@@ -80,18 +85,24 @@ git diff
 git status --porcelain
 ```
 
+For an externally supplied commit range, use it directly:
+```bash
+git log main..<branch>
+git diff main..<branch>
+```
+
 ### Step 2: Analyze Changes
 
-1. **Determine commit type** based on what was changed.
+1. **Determine commit type** based on what was changed. For test changes mixed with production code, use the production code type.
 
-2. **Determine scope** (the module/feature affected):
-   - If single module: use module name (authentication, users, tasks)
-   - If specific feature: use feature name (jwt, validation, factories, tests)
-   - If cross-cutting: use broader scope (api, security, config)
-   - If multiple modules: use most general scope or most impacted module
-   - If infrastructure: use component (docker, database, liquibase)
+2. **Determine scope** (the module/feature affected). Evaluate top-down; stop at the first match:
+   - **If** the change is entirely infrastructure (docker, database, liquibase) → use the component (`docker`, `database`, `liquibase`).
+   - **Else if** the change spans multiple modules under one unifying technical concern → use the broader scope (`api`, `security`, `config`).
+   - **Else if** the change is confined to a single module and centers on a specific, well-known feature within it → use the feature name (`jwt`, `validation`, `factories`, `tests`).
+   - **Else if** the change is confined to a single module → use the module name.
+   - **Else** (multiple modules, no unifying theme) → use the most general applicable scope, or the most impacted module.
 
-3. **Understand intent** from conversation context:
+3. **Understand intent** from the source of truth's context:
    - What problem was being solved?
    - What feature was being added?
    - What was refactored and why?
@@ -101,8 +112,8 @@ git status --porcelain
    - Removed public API endpoints or methods
    - Changed method signatures or return types
    - Renamed configuration properties
-   - Changed database schema without migration
-   - If breaking: use `!` suffix on type and/or `BREAKING CHANGE:` footer
+   - Changed the DB schema in a backward-incompatible way (e.g. dropped/renamed a column)
+   - If breaking: use `!` suffix on type and/or `BREAKING CHANGE:` footer (see *Breaking Changes* above)
 
 5. **Decide on body structure**:
    - Count distinct logical changes in the diff. If ≥2, or if the why is non-obvious from the subject alone, include a body.
@@ -133,7 +144,7 @@ git status --porcelain
 - No period at end of subject line
 - Focus on what and why, not how
 - Include a body only when the subject cannot capture the change alone (single conceptual change with no nuance → subject-only)
-- For breaking changes, add `!` after scope: `feat(authentication)!: remove endpoint`
+- For breaking changes, see *Breaking Changes* above
 - Reference issues when applicable: `Closes #123`, `Refs #456`
 
 **Body format** (when a body is included):
@@ -152,7 +163,7 @@ Display the generated commit message in a code block. Briefly explain the chosen
 
 ## Examples
 
-**Example 1: Session-based (test refactoring)**
+**Example 1: Single-line format (test refactoring)**
 
 Detected changes:
 - Modified 3 test factory files in `asapp-authentication-service`
@@ -167,7 +178,7 @@ Reasoning: Changes are test-only (`*Tests.java` files), focused on authenticatio
 
 ---
 
-**Example 2: Breaking change**
+**Example 2: Multi-line format (breaking change)**
 
 Detected changes:
 - Removed deprecated `/api/auth/verify` endpoint
@@ -186,59 +197,7 @@ BREAKING CHANGE: /api/auth/verify endpoint no longer available; clients should u
 
 Reasoning: Endpoint removal is a breaking change; bulleted body lists the discrete actions, and the `BREAKING CHANGE:` footer documents the impact and migration path.
 
----
-
-**Example 3: Cross-module (refactoring)**
-
-Detected changes:
-- Modified error handling in all three services
-- Updated GlobalExceptionHandler in each
-
-Generated commit message:
-```
-refactor(api): standardize error handling across services
-```
-
-Reasoning: Structural improvement affecting multiple services, API layer scope used for cross-cutting concern.
-
----
-
-**Example 4: Bullets-only body (multiple sub-actions, why is obvious from subject)**
-
-Detected changes:
-- Renamed credential env vars across all services
-- Simplified credential values
-
-Generated commit message:
-```
-refactor(docker): clean up service credential env vars and values
-
-- Rename MANAGEMENT_USERNAME/PASSWORD → SERVICE_USERNAME/PASSWORD to better reflect credential scope
-- Rename CONFIG_URI/USERNAME/PASSWORD → CONFIG_SERVER_URI/USERNAME/PASSWORD for consistency
-- Simplify all credential values to user/secret for easier local testing
-```
-
-Reasoning: Multiple distinct sub-actions warrant a body; the subject alone conveys the why ("clean up"), so no lead paragraph is needed.
-
----
-
-**Example 5: Lead paragraph + bullets (non-obvious why)**
-
-Detected changes:
-- Removed AuthenticationManager bean from tasks and users services
-- Kept the bean in authentication service
-
-Generated commit message:
-```
-fix(security): drop AuthenticationManager bean from tasks and users
-
-Exposing @Bean AuthenticationManager in a proxyBeanMethods=false class caused a StackOverflowError in the actuator filter chain.
-
-- Drop the AuthenticationManager bean from tasks and users services
-- Keep the bean in authentication service where CredentialsAuthenticatorAdapter requires it
-```
-
-Reasoning: The why (StackOverflowError root cause) is non-obvious from the subject and warrants a lead paragraph; bullets list the surgical changes.
+See [examples.md](examples.md) for more (cross-module refactoring, bullets-only body, lead paragraph + bullets).
 
 ## Git Safety
 
@@ -249,6 +208,4 @@ Reasoning: The why (StackOverflowError root cause) is non-obvious from the subje
 
 ## Important Notes
 
-- Always run git commands to see actual state, don't rely solely on conversation
 - If unsure between types, prefer the one that best describes the primary intent
-- For test changes mixed with production code, use the production code type

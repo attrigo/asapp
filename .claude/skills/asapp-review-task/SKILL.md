@@ -1,21 +1,21 @@
 ---
 name: asapp-review-task
 description: >
-  Use when the implementation and your earlier fix pass for a TODO.md task are done and you want a
-  fresh, thorough review of the current branch — surfacing bugs, gaps, and improvement ideas — before
-  closing it.
+  Use when a TODO.md task's implementation and earlier fix pass are done and a fresh, thorough review
+  of the current branch is wanted — surfacing bugs, gaps, and improvement ideas — before closing it.
   Triggers: /asapp-review-task, final review, review the branch before closing, review the current status of
   the app, find issues and improvements before I close this task, audit the changes.
   Do NOT use to fix or commit anything (it only reviews and logs — use asapp-resolve-review-issues to fix the
-  logged findings), to refine or decompose a task (use asapp-refine-task), or to review an external pull
-  request (use the PR review tools).
+  logged findings), to refine or decompose a task (use asapp-refine-task), to review an external pull
+  request (use the PR review tools), or to review a whole shipped version before release (use
+  asapp-review-version).
 ---
 
 # Review Task
 
 The final review gate before a task closes. Delegate a thorough review of the current branch to subagents, present **one** prioritized findings table, then log the findings you select into `TODO.md`.
 
-**Core principle:** review and log **only** — change no code, make no commits. The only file you edit is `TODO.md`, and only after the user selects findings. Surface three kinds: real **issues**, **missing/incomplete/improvable** work, and **out-of-scope ideas** for later. `asapp-resolve-review-issues` fixes the in-scope findings afterwards.
+**Core principle:** surface three kinds of findings from the review — real **issues**, **missing/improvable** work, and **out-of-scope ideas** for later. `asapp-resolve-review-issues` fixes the in-scope findings afterwards.
 
 ## Usage
 
@@ -32,9 +32,10 @@ The final review gate before a task closes. Delegate a thorough review of the cu
 1. Locate task and determine review scope (Step 1)
 2. Run the review and consolidate (Step 2)
 3. Present findings and user selection (Steps 3–4)
-4. Log selected findings to `TODO.md` (Step 5)
+4. Log selected findings (Step 5)
+5. Wrap up (Step 6)
 
-Keep Task 3 `in_progress` across the wait for the user's selection; move to Task 4 only  once they answer. Step 6 (wrap-up) completes Task 4.
+Keep Task 3 `in_progress` across the wait for the user's selection; move to Task 4 only once they answer. Step 6 (wrap-up) completes Task 4.
 
 ### Step 1: Locate and determine review scope
 
@@ -55,12 +56,12 @@ Dispatch review subagents **in parallel** over the branch diff (design docs excl
 
 - Read the **full changed files**, not just the diff hunks.
 - Follow outward only into code the diff reaches — callers, collaborators, covering tests, dependent config — enough to judge correctness and completeness. Not a whole-repo audit.
-- This outward reach surfaces the *missing/incomplete* findings: an un-updated caller, an absent test, a config that should have changed.
+- This outward reach surfaces the *missing/improvable* findings: an un-updated caller, an absent test, a config that should have changed.
 
 Tell every reviewer to:
 
 - **Judge the code on its own merits** — ignore the spec and plan; no "spec is outdated" or drift findings.
-- **Classify each finding** into one of the three buckets (issue / missing-improvable / out-of-scope).
+- **Classify each finding** into one of the three buckets (issue / missing/improvable / out-of-scope).
 - **Suggest** a priority, effort, impact, and scope per finding.
 
 Then **consolidate** the returns: dedupe overlaps, merge into one list, assign each an `ID`.
@@ -76,7 +77,7 @@ One table, **sorted by priority** (highest first):
 - **In scope** = completes or corrects what this task built / belongs to its goal. **Out of scope** = valid, but a separate concern for later.
 - **Description** and **Recommended action** are each **one short, plain sentence** — what is wrong and what to do, in terms a non-specialist could act on.
 
-### Step 4: Ask which to manage, then wait
+### Step 4: Ask which to log, then wait
 
 Ask the user which findings to log (`AskUserQuestion` or a clear numbered list). The user may override any suggested scope. **Wait for the selection. Do not edit `TODO.md` before this.**
 
@@ -122,10 +123,6 @@ Log **only the selected findings**.
 | Security-relevant changes | `security-auditor` |
 | Locate / understand touched code | `Explore` |
 | IDE problems & inspections | IntelliJ MCP (`get_file_problems`, `run_inspection_kts`) |
-| Framing the review pass | `superpowers:requesting-code-review` |
-| A finding needs deeper diagnosis | `superpowers:systematic-debugging` |
-
-Pick the **most specific** agent from `.claude/agents/`; `general-purpose` is a last resort.
 
 ## Hard rules
 
