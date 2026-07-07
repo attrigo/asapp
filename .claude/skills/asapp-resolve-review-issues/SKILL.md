@@ -1,13 +1,13 @@
 ---
-name: resolve-review-issues
+name: asapp-resolve-review-issues
 description: >
   Use when the initial implementation of a TODO.md task is done — typically by the superpowers SDD
   flow — and you have written issues, review notes, or follow-ups as bullets below that task and want
   them worked through and committed.
-  Triggers: /resolve-review-issues, resolve review issues, fix the issues I logged under this task,
+  Triggers: /asapp-resolve-review-issues, resolve review issues, fix the issues I logged under this task,
   work through my review notes, address the review findings in TODO.
   Do NOT use to perform a code review (you log the issues yourself first; for delegated review use the
-  review agents), to refine or decompose a task (use refine-task), or to implement a brand-new task
+  review agents), to refine or decompose a task (use asapp-refine-task), or to implement a brand-new task
   from a plan (use the SDD flow).
 ---
 
@@ -22,9 +22,9 @@ main context clean.
 
 ## Usage
 
-- `/resolve-review-issues <line-number>` — resolve issues under the task at that line of `TODO.md`
-- `/resolve-review-issues <quoted or named task>` — locate the matching task, then resolve its issues
-- `/resolve-review-issues` (no argument) — ask which task
+- `/asapp-resolve-review-issues <line-number>` — resolve issues under the task at that line of `TODO.md`
+- `/asapp-resolve-review-issues <quoted or named task>` — locate the matching task, then resolve its issues
+- `/asapp-resolve-review-issues` (no argument) — ask which task
 
 ## Process
 
@@ -62,7 +62,7 @@ digraph per_issue {
     "Propose solutions, recommend one (AskUserQuestion)" [shape=box];
     "Apply chosen fix via subagent" [shape=box];
     "Approved?" [shape=diamond];
-    "Commit (draft-commit-msg)" [shape=box];
+    "Commit (asapp-draft-commit-msg)" [shape=box];
     "More issues?" [shape=diamond];
     "Wrap-up" [shape=doublecircle];
 
@@ -74,8 +74,8 @@ digraph per_issue {
     "Propose solutions, recommend one (AskUserQuestion)" -> "Apply chosen fix via subagent";
     "Apply chosen fix via subagent" -> "Approved?";
     "Approved?" -> "Apply chosen fix via subagent" [label="changes requested"];
-    "Approved?" -> "Commit (draft-commit-msg)" [label="yes"];
-    "Commit (draft-commit-msg)" -> "More issues?";
+    "Approved?" -> "Commit (asapp-draft-commit-msg)" [label="yes"];
+    "Commit (asapp-draft-commit-msg)" -> "More issues?";
     "More issues?" -> "Next issue" [label="yes"];
     "More issues?" -> "Wrap-up" [label="no"];
 }
@@ -93,7 +93,7 @@ For the current issue:
   - Always follow `.claude/rules/`.
   - Use IntelliJ MCP for IDE-grade operations (safe rename refactor, reformat, inspections) when appropriate.
 - **f. Review & approve** — show the user what changed (diff/summary). Wait for approval. If changes are requested, iterate (back to **e**) before committing.
-- **g. Commit** — build the message with the `draft-commit-msg` skill, then commit **only this issue's changes**. One issue = one commit. Then remove the resolved issue bullet from `TODO.md`.
+- **g. Commit** — build the message with the `asapp-draft-commit-msg` skill, then commit **only this issue's changes**. One issue = one commit. Then remove the resolved issue bullet from `TODO.md`.
 - **h. Continue** — move to the next issue. Repeat until none remain.
 
 ### Step 3: Wrap-up
@@ -112,7 +112,7 @@ For the current issue:
 | README / changelog / docs fix | `documentation-engineer` |
 | Agent / rule / skill (`.claude/`) fix | `claude-docs-maintainer` |
 | Safe rename, reformat, inspections | IntelliJ MCP |
-| Build the commit message | `draft-commit-msg` skill |
+| Build the commit message | `asapp-draft-commit-msg` skill |
 | A fix triggers a test failure or bug | `superpowers:systematic-debugging` |
 
 Pick the **most specific** agent from `.claude/agents/`; `general-purpose` is a last resort.
@@ -123,7 +123,7 @@ Pick the **most specific** agent from `.claude/agents/`; `general-purpose` is a 
 - **One issue at a time** — Step 1 only *enumerates* the issues; never analyze or propose solutions for all of them up front.
 - **Never fully read the spec or plan** — load only the slice an issue needs, via the exploration subagent.
 - **Keep the main context clean** — delegate exploration and fix authoring to subagents; the main context orchestrates.
-- **One issue → one commit**, message built with `draft-commit-msg`.
+- **One issue → one commit**, message built with `asapp-draft-commit-msg`.
 - **Do not close the parent task or merge** — that is the user's manual step.
 
 ## Common mistakes
