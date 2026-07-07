@@ -1,10 +1,22 @@
+---
+name: asapp-release
+description: >
+  Runs the full ASAPP release cycle: version bump, Liquibase database tagging, design-spec archival,
+  build verification, git commit + tag, next SNAPSHOT prep, and a confirmed push.
+  Use when the user asks to perform, cut, open, ship, or run the release — e.g. "release the next
+  version", "cut a release", "go with the next release".
+  Triggers: /asapp-release, cut a release, open a release, ship the release, run the release, go with the next release.
+  Do NOT use when the user is only asking ABOUT releasing (cadence, what's in the release, how the
+  process works) without asking to execute it, or to push commits independently of a release.
+---
+
 # Release
 
 Automates the full ASAPP release cycle: version bump, Liquibase tagging, design-spec archival, build verification, git commit + tag, next SNAPSHOT prep, and push.
 
 ## Usage
 
-- `/release` — runs all steps, asks for confirmation before pushing
+- `/asapp-release` — runs all steps, asks for confirmation before pushing
 
 ## Instructions
 

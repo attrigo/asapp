@@ -1,10 +1,10 @@
 ---
-name: refine-task
+name: asapp-refine-task
 description: >
   Rewrites a vague, high-level backlog entry into a clearer parent task plus smaller, well-scoped subtasks for TODO.md.
   Use when the user wants to refine, decompose, break down, split, scope, or rewrite a TODO.md task, idea, or concept
   into smaller actionable subtasks, or says a backlog entry is too big, vague, or unscoped to hand to brainstorming.
-  Triggers: /refine-task, refine task, refine TODO, decompose task, break down task, split this task, scope this entry.
+  Triggers: /asapp-refine-task, refine task, refine TODO, decompose task, break down task, split this task, scope this entry.
   Do NOT use for implementation planning or design (use brainstorming/writing-plans), for executing the task itself,
   or for editing task status or checkboxes in TODO.md.
 ---
@@ -17,9 +17,9 @@ Turn one vague, high-level `TODO.md` entry into a clearer **parent task** plus a
 
 ## Usage
 
-- `/refine-task <line-number>` — refine the entry at that line of `TODO.md`
-- `/refine-task <quoted or named task>` — locate the matching entry and refine it
-- `/refine-task` (no argument) — ask which entry to refine
+- `/asapp-refine-task <line-number>` — refine the entry at that line of `TODO.md`
+- `/asapp-refine-task <quoted or named task>` — locate the matching entry and refine it
+- `/asapp-refine-task` (no argument) — ask which entry to refine
 
 ## This skill is NOT
 

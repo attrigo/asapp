@@ -1,11 +1,23 @@
+---
+name: asapp-improve-changelog
+description: >
+  Fetches a GitHub Release's notes, applies editorial improvements (merge duplicate entries, drop
+  noise, tighten phrasing, normalize tone), and updates the release after confirmation. Optionally
+  targets a specific version.
+  Use when the user wants to improve, clean up, polish, or tidy a GitHub Release's changelog or release notes.
+  Triggers: /asapp-improve-changelog, improve changelog, clean up release notes, polish the changelog, tidy release notes.
+  Do NOT use to create or publish a release (use asapp-release), or to edit a CHANGELOG file in the
+  repo — this edits an existing GitHub Release's notes only.
+---
+
 # Improve Changelog
 
 Fetches the release notes of a GitHub Release, applies AI editorial improvements (merge duplicates, remove noise, improve phrasing), and updates the release after confirmation.
 
 ## Usage
 
-- `/improve-changelog` — improves the latest release
-- `/improve-changelog v0.2.0` — improves a specific release
+- `/asapp-improve-changelog` — improves the latest release
+- `/asapp-improve-changelog v0.2.0` — improves a specific release
 
 ## Steps
 
