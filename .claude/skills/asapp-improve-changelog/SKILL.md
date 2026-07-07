@@ -2,8 +2,8 @@
 name: asapp-improve-changelog
 description: >
   Fetches a GitHub Release's notes, applies editorial improvements (merge duplicate entries, drop
-  noise, tighten phrasing, normalize tone), and updates the release after confirmation. Optionally
-  targets a specific version.
+  noise, tighten phrasing, normalize tone), and updates the release after confirmation, optionally
+  targeting a specific version.
   Use when the user wants to improve, clean up, polish, or tidy a GitHub Release's changelog or release notes.
   Triggers: /asapp-improve-changelog, improve changelog, clean up release notes, polish the changelog, tidy release notes.
   Do NOT use to create or publish a release (use asapp-release), or to edit a CHANGELOG file in the
@@ -48,7 +48,7 @@ Install it from https://cli.github.com, authenticate with `gh auth login`, and r
 
 ### Step 2: Detect version
 
-If a version argument was provided (e.g. `v0.2.0`), use it directly.
+If a version argument was provided, it must be `v`-prefixed (e.g. `v0.2.0`) — release tags follow the `v[0-9].*` pattern in `.github/cliff.toml`. If the user supplies one without the `v` (e.g. `0.2.0`), prepend it before use. Use the resulting tag directly.
 
 Otherwise, fetch the latest release tag:
 
@@ -56,10 +56,22 @@ Otherwise, fetch the latest release tag:
 gh release list --limit 1 --json tagName -q '.[0].tagName'
 ```
 
+If no releases exist (empty result), abort with:
+
+```
+Error: No releases found in this repository.
+```
+
 ### Step 3: Get release notes
 
 ```bash
 gh release view <tag> --json body -q '.body'
+```
+
+If the tag doesn't exist or the command fails, abort with:
+
+```
+Error: Release <tag> not found.
 ```
 
 ### Step 4: Apply improvements
@@ -76,11 +88,13 @@ Proceed to update the GitHub Release? [y/N]
 
 Only continue if the user confirms.
 
-Write the improved content to `.github/changelog-draft.md`, then run:
+Write the improved content to `.github/changelog-draft.md` — a temporary working file; never commit it — then run:
 
 ```bash
 gh release edit <tag> --notes-file .github/changelog-draft.md
 ```
+
+If this command fails (network or auth error), abort and report the failure. Leave `.github/changelog-draft.md` in place — do not delete it — so no work is lost.
 
 After a successful update, delete the working file:
 
@@ -94,7 +108,10 @@ Confirm success and print the release URL.
 
 ## Improvement Rules
 
-**Merge** — combine entries that cover the same change or topic across multiple commits into a single clearer entry, regardless of section. Preserve all commit links from the merged entries, listed together at the end: `([`abc1234`](url1), [`def5678`](url2))`.
+**Merge** — combine entries that cover the same change or topic across multiple commits into a single clearer entry, even when the source entries sit in different sections.
+- Preserve all commit links from the merged entries, listed together at the end: `([`abc1234`](url1), [`def5678`](url2))`.
+- When merge sources span sections, file the combined entry under whichever original section is more impactful (Breaking Changes > New Features > Bug Fixes > Documentation > Upgrades > Others); this decides only where the one merged entry lands and does not reorder the sections themselves.
+- Breaking Changes entries are never a merge source or target — leave them untouched.
 
 **Remove** — drop entries with no user-facing value:
 - Internal refactors with no behavioral change visible to users
@@ -110,10 +127,29 @@ Confirm success and print the release URL.
 
 **Normalize scope casing** — scopes must be lowercase (e.g. `**authentication:**` not `**Authentication:**`).
 
-**Reorder within sections** — within each section, place the most user-facing or impactful entries first.
+**Reorder entries within a section** — within each section, place the most user-facing or impactful entries first.
+
+**Example** (merge + reorder):
+
+Before:
+```
+## ✨ New Features
+- Adds a health check endpoint for the tasks service ([`aaa1111`](url1))
+- **auth:** Adds a JWT refresh endpoint ([`bbb2222`](url2))
+- **auth:** Adds refresh token rotation on top of the new refresh endpoint ([`ccc3333`](url3))
+```
+
+After:
+```
+## ✨ New Features
+- **auth:** Add JWT refresh endpoint with token rotation ([`bbb2222`](url2), [`ccc3333`](url3))
+- Add a health check endpoint for the tasks service ([`aaa1111`](url1))
+```
+
+The two `auth` entries merge into one (their commit links combine), the merged entry moves ahead of the less-impactful health-check entry, and both are normalized to imperative tone.
 
 **Preserve always**:
-- Section headers and their icons (⚠️ ✨ 🐛 📖 ⬆️ 🔨)
+- Section headers and their icons, exactly as they appear in the source notes (these mirror the commit group config in `.github/cliff.toml`)
 - All commit links — keep every link, including all links from merged entries
 - All entries under ⚠️ Breaking Changes — never remove, merge, or reorder these
 - The overall markdown structure of the release notes
@@ -122,14 +158,6 @@ Confirm success and print the release URL.
 - Invent information not present in the original
 - Change the meaning of any entry
 - Reorder sections
-
-## Safety
-
-- **Never update without confirmation** — always show the improved version first
-- **Never remove Breaking Changes entries** — these are critical for consumers
-- **Never invent content** — only rewrite what is already there
-- **Preserve all commit links** — traceability is non-negotiable
-- **Never commit `.github/changelog-draft.md`** — it is a temporary working file
 
 ## Common mistakes
 

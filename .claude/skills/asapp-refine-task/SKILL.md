@@ -6,7 +6,7 @@ description: >
   into smaller actionable subtasks, or says a backlog entry is too big, vague, or unscoped to hand to brainstorming.
   Triggers: /asapp-refine-task, refine task, refine TODO, decompose task, break down task, split this task, scope this entry.
   Do NOT use for implementation planning or design (use brainstorming/writing-plans), for executing the task itself,
-  or for editing task status or checkboxes in TODO.md.
+  for editing task status or checkboxes in TODO.md, or to prepare the whole next version's backlog (use asapp-prepare-version).
 ---
 
 # Refine Task
@@ -20,12 +20,6 @@ Turn one vague, high-level `TODO.md` entry into a clearer **parent task** plus a
 - `/asapp-refine-task <line-number>` — refine the entry at that line of `TODO.md`
 - `/asapp-refine-task <quoted or named task>` — locate the matching entry and refine it
 - `/asapp-refine-task` (no argument) — ask which entry to refine
-
-## This skill is NOT
-
-- **Not an implementation plan** — subtasks are scoped deliverables, never coding steps. If a subtask names a dependency, config key, or file, you have dropped a level — pull back up.
-- **Not design or brainstorming** — no architecture, no trade-offs, no *how*.
-- **Not task execution** — you rewrite the backlog entry; you do not implement it.
 
 ## Process
 
@@ -65,17 +59,13 @@ Keep Task 4 `in_progress` across the wait for the user's approval; mark it `comp
 
 ### Step 5: Decompose into subtasks
 
-Apply the rule's **Decomposition** conventions (`.claude/rules/todo.md`). In practice:
-
-- Break the parent into smaller, scoped, domain-focused subtasks, each commit-sized and self-contained (they may run in sequence, but each stands on its own).
-- If you're producing 10+ items that name config keys, file names, or sequential edits, you have slipped into implementation planning — collapse them back up to backlog-sized outcomes.
-- Apply the Wording conventions below to every subtask.
+Apply the rule's **Decomposition** conventions (`.claude/rules/todo.md`). Apply the Wording conventions below to every subtask.
 
 ### Step 6: Propose extra improvements
 
 - Suggest genuinely *additive* subtasks when they clearly strengthen the work (resilience, validation, docs, observability) — beyond the literal 1:1 translation. Do not propose a test subtask here; follow the rule's **Decomposition** test guidance.
 - Research the web **only** when the topic is fast-moving or you are unsure of current best practice; otherwise propose from existing knowledge.
-- Keep extras optional and few — do not pad. Flag which subtasks are proposals in the chat rationale (Step 7), keeping the markdown itself clean.
+- Keep extras optional and few — do not pad. Flag which subtasks are proposals in the Delivery rationale, keeping the markdown itself clean.
 
 ## Wording conventions
 
@@ -106,7 +96,7 @@ The parent keeps its `- [ ]` checkbox and carries a `(scope)` tag; each subtask 
 
 Bare `*` bullets, no checkboxes, no scope — the Backlog shape (see `.claude/rules/todo.md`).
 
-- Preserve the entry's placement and indentation; never move it between sections.
+- Preserve placement and indentation.
 - Choose the `(scope)` from the vocabulary in `.claude/rules/todo.md` — never invent a new scope.
 - Replace the targeted entry (and any existing children of it) with the refined block. Never touch unrelated entries.
 
@@ -114,7 +104,7 @@ Bare `*` bullets, no checkboxes, no scope — the Backlog shape (see `.claude/ru
 
 1. Show the refined block in a fenced code block, plus a **one-line** rationale that names which subtasks are proposed extras.
 2. Wait for the user's approval.
-3. On approval, edit `TODO.md` in place: replace the original entry with the refined block, preserving placement and indentation, leaving the rest of the file untouched.
+3. On approval, edit `TODO.md` in place: replace the original entry with the refined block, preserve placement and indentation, leaving the rest of the file untouched.
 4. If the user declines or requests changes, adjust and re-show — do not edit until approved.
 
 ## Examples

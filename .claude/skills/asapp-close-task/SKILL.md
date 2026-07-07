@@ -1,8 +1,8 @@
 ---
 name: asapp-close-task
 description: >
-  Use when a TODO.md task's implementation, fixes, and final review are all done and you are ready to
-  integrate the work into local main and wrap the task up.
+  Use when a TODO.md task's implementation, fixes, and final review are all done and it's time to
+  integrate the work into local main and wrap up the task.
   Triggers: /asapp-close-task, close the task, finish the task, land the branch, squash-merge into main,
   wrap up and merge the task, integrate the task branch.
   Do NOT use to push anything to a remote (it never pushes), to review or fix code (use asapp-review-task and
@@ -11,22 +11,20 @@ description: >
 
 # Close Task
 
-Integrate a finished task into the **local** `main` branch. Runs end-to-end with no confirmation gate
-and **never pushes** — every git action is local and revertible (the sole exception is the final
-SDD-scratch cleanup).
+Integrate a finished task into the **local** `main` branch. Runs end-to-end with no confirmation gate and **never pushes** — every git action is local and revertible (the sole exception is the final SDD-scratch cleanup).
 
 **Core principle — the end-state is a contract.** When this skill finishes:
 
-- **`main`** has the task's work as **one squash commit**, which **includes the implemented spec** and **excludes the plan file**.
+- **`main`** has the task's work as **one squash commit**, which **includes the implemented spec**, **marks the parent task `[X]` complete in `TODO.md`**, and **excludes the plan file**.
 - **The task branch** keeps **all its development commits**, with the **plan committed as the last commit**.
-- **Nothing is pushed.** Both branches stay local so you can revert if anything looks wrong.
+- **Both branches stay local**, so you can revert if anything looks wrong.
 
 ## Usage
 
 - `/asapp-close-task` — close the task on the current branch
 - `/asapp-close-task <branch-or-task-name>` — close the named task/branch
 
-## Process (end-to-end, no gate, no push)
+## Process
 
 ### Step 0: Set up progress tracking
 
@@ -35,7 +33,7 @@ SDD-scratch cleanup).
 1. Resolve, detect, capture revert anchors (Step 1)
 2. Analyze the task's context (Step 2)
 3. Mark the spec implemented (Step 3)
-4. Commit the spec (Step 4)
+4. Mark the parent task complete (Step 4)
 5. Draft the squash message (Step 5)
 6. Squash-merge into main (Step 6)
 7. Commit the plan as the last branch commit (Step 7)
@@ -48,7 +46,7 @@ If the close aborts (a Step 6 merge conflict or a failed Step 8 invariant), leav
 ### Step 1: Resolve, detect, capture revert anchors
 
 - **Resolve** — from the current branch or the argument (stop and ask if any is ambiguous; don't guess before mutating):
-   - The task branch
+   - The task branch — if the argument matches a local branch name, use it directly; otherwise treat it as a task name, find the matching `TODO.md` entry, and resolve to the branch checked out for that task.
    - The task slug
    - The spec — `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md`
    - The plan — `docs/superpowers/plans/YYYY-MM-DD-<slug>.md`
@@ -70,10 +68,10 @@ If the close aborts (a Step 6 merge conflict or a failed Step 8 invariant), leav
 Find where the implementation diverged from the design.
 
 - **Draw on both sources:**
-    - **The SDD record** in `.superpowers/sdd/` — `progress.md` + the `*-report.md`s (intent, decisions, deviations)
+    - **The SDD record** in `.superpowers/sdd/` — `progress.md` plus the per-task `*-brief.md`/`*-report.md` (intent, decisions, deviations)
     - **Git** — `git log main..<branch>` + the diffs, which also carry the manual-review changes made *after* the SDD run
 - **Capture each delta by the durable artifacts it touched** (files, classes, config, tests), **not commit hashes** — the SDD files contain hashes; do not copy them through.
-- **Delegate** to a read-only review agent (`architect-reviewer` / `code-reviewer` / `Explore`), or do it inline.
+- **Delegate by default** to a read-only review agent (`architect-reviewer` / `code-reviewer` / `Explore`); do it inline only for a trivially small diff (e.g. a one- or two-file change).
 
 ### Step 3: Mark the spec implemented
 
@@ -84,14 +82,21 @@ Dispatch `documentation-engineer` to update **only the spec file** from the Step
 
 (If the spec is already `Implemented`, skip this step and reuse the existing notes.)
 
-### Step 4: Commit the spec (on the task branch)
+Then commit **only the spec file** on the task branch, message built with `asapp-draft-commit-msg`, following the reference style: `docs(<scope>): mark <task> design spec as implemented`.
 
-Commit **only the spec file**, message built with `asapp-draft-commit-msg`, following the reference style:
-`docs(<scope>): mark <task> design spec as implemented`.
+### Step 4: Mark the parent task complete
+
+Flip the resolved task's `- [ ]` → `- [X]` in `TODO.md` (the entry resolved in Step 1)
+
+(If the TODO is already checked, skip this step.)
+
+Then commit **only `TODO.md`** on the task branch, message built with `asapp-draft-commit-msg`, following the reference style: `docs(<scope>): mark <task> complete in TODO.md`.
 
 ### Step 5: Draft the squash message
 
-Build the squash message with `asapp-draft-commit-msg`, using the Step 2 analysis (the SDD record + git) and the full task range (`git log main..<branch>` + the squashed diff).
+Build the squash message with `asapp-draft-commit-msg`, using the Step 2 analysis (the SDD record + git) and the full task range (`git log main..<branch>` + the squashed diff). 
+
+`asapp-draft-commit-msg` only displays the text — it never writes files — so write the drafted message verbatim to `<squash-message-file>`, a temp file under the session scratchpad, for Step 6's `git commit -F` to read.
 
 ### Step 6: Squash-merge into main, excluding the plan
 
@@ -102,7 +107,7 @@ git merge --squash <branch>
 #   plan already committed on the branch (now staged by the merge):
 git restore --staged --worktree -- docs/superpowers/plans/<plan>
 #   plan uncommitted/untracked: nothing was staged — skip the restore
-git commit -F <squash-message>      # the message from Step 5 (overrides MERGE_MSG)
+git commit -F <squash-message-file>      # the file written in Step 5 (overrides MERGE_MSG)
 ```
 
 If the squash merge **conflicts**, run `git merge --abort` and report — do not guess resolutions.
@@ -114,7 +119,7 @@ git checkout <branch>
 # plan uncommitted: commit it now so it is the last commit
 git add docs/superpowers/plans/<plan>
 git commit -m "docs(<scope>): add <task> implementation plan"
-# plan already committed: no-op (verify it is present; if it is not the last commit, report it — do NOT rewrite history)
+# plan already committed: no-op (verify it is present; if it is not the last commit, report it — never rewrite history to reorder)
 git checkout main
 ```
 
@@ -138,7 +143,7 @@ This is the **only non-git-revertible** action — which is why it runs last, af
 
 ### Step 10: Wrap-up
 
-- **Report**: what landed on `main` (the squash commit), what the branch holds, the spec status change, and that `.superpowers/sdd` was cleared.
+- **Report**: what landed on `main` (the squash commit — including the parent task now `[X]` in `TODO.md`), what the branch holds, the spec status change, and that `.superpowers/sdd` was cleared.
 - **Revert instructions** (git actions only — see *Reverting*; the cleared SDD files are not recoverable).
 - Remind the user: pushing `main` and the task branch is their manual step.
 
@@ -149,7 +154,7 @@ This is the **only non-git-revertible** action — which is why it runs last, af
 | **Uncommitted / untracked** (the clean default) | Committed in Step 7, so it is the last commit | `git merge --squash` never staged it — auto-excluded |
 | **Already committed** | Already in branch history | `git merge --squash` staged it → `git restore --staged --worktree` drops it from main's commit |
 
-The canonical flow assumes the plan is **uncommitted** at closing (committed last, in Step 7). The already-committed path is the safety net; if committing the spec in Step 4 leaves the plan no longer the last commit, **report it — never rewrite history to reorder.**
+The canonical flow assumes the plan is **uncommitted** at closing (committed last, in Step 7). The already-committed path is the safety net; if committing the spec (Step 3) or the task completion (Step 4) leaves the plan no longer the last commit, **report it — never rewrite history to reorder.**
 
 ## Post-implementation notes recipe
 
@@ -162,7 +167,7 @@ The `## N. Post-implementation notes` section states, in order:
 
 **Never cite commit hashes.** The whole task squash-merges into a single commit on `main` (where this spec lives), so the branch's individual SHAs no longer exist there — a cited hash becomes a dead reference. Anchor every delta to the code artifacts instead; the spec is a record of intent, the code is the source of truth.
 
-## Reverting (nothing is pushed)
+## Reverting
 
 ```bash
 # Undo the squash merge on main:
@@ -182,14 +187,12 @@ git checkout <branch> && git reset --hard $PRE_BRANCH
 | Build the spec / squash / plan commit messages | `asapp-draft-commit-msg` skill |
 | Locate the spec/plan or understand a commit | `Explore` |
 
-Pick the **most specific** agent from `.claude/agents/`; `general-purpose` is a last resort.
-
 ## Hard rules
 
 - **Never push** — no `git push` of any branch, ever.
 - **Never rewrite history** — no rebase, no `reset` of existing commits to reorder the plan.
 - **Capture `PRE_MAIN` and `PRE_BRANCH` before any mutation** — revert depends on them.
-- **The spec lands on main; the plan never lands on main** — verify both before reporting done.
+- **The spec lands on main, the parent task flips to `[X]` in `TODO.md`, and the plan never lands on main** — verify all three before reporting done.
 - **One squash commit on main** for the whole task; messages built with `asapp-draft-commit-msg`.
 - **Source the spec notes and squash message from `.superpowers/sdd/` + git** — but never copy SDD commit hashes into the spec.
 - **Clear `.superpowers/sdd` last** — only after the invariants pass; it is the one non-git-revertible action, and `.gitignore` is preserved.
@@ -203,4 +206,5 @@ Pick the **most specific** agent from `.claude/agents/`; `general-purpose` is a 
 | Plan file ends up on main | Detect its state; `git restore --staged --worktree` it out of the squash, or commit it only after the merge. |
 | Forgetting to capture revert anchors | Record `PRE_MAIN`/`PRE_BRANCH` in Step 1, before mutating. |
 | Auto-resolving a squash merge conflict | `git merge --abort` and report. |
+| Forgetting to mark the parent task `[X]` in `TODO.md` | Flip and commit it on the branch in Step 4 — it rides into the squash alongside the spec. |
 | Clearing `.superpowers/sdd` before the close verifies, or deleting its `.gitignore` | Clear it only after Step 8 passes; keep `.gitignore`. |
