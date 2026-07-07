@@ -13,13 +13,9 @@ description: >
 
 # Review Task
 
-The final review gate before a task closes. Delegate a thorough review of the current branch to
-subagents, present **one** prioritized findings table, then log the findings you select into `TODO.md`.
+The final review gate before a task closes. Delegate a thorough review of the current branch to subagents, present **one** prioritized findings table, then log the findings you select into `TODO.md`.
 
-**Core principle:** review and log **only** — change no code, make no commits. The only file you
-edit is `TODO.md`, and only after the user selects findings. Surface three kinds: real **issues**,
-**missing/incomplete/improvable** work, and **out-of-scope ideas** for later. `asapp-resolve-review-issues`
-fixes the in-scope findings afterwards.
+**Core principle:** review and log **only** — change no code, make no commits. The only file you edit is `TODO.md`, and only after the user selects findings. Surface three kinds: real **issues**, **missing/incomplete/improvable** work, and **out-of-scope ideas** for later. `asapp-resolve-review-issues` fixes the in-scope findings afterwards.
 
 ## Usage
 
@@ -88,22 +84,29 @@ Ask the user which findings to log (`AskUserQuestion` or a clear numbered list).
 
 Log **only the selected findings**.
 
-- **In scope** → a plain `*` bullet nested one level under the subtask it concerns:
+- **In scope** → a nested `- [ ]` item under the task/subtask it concerns. It is tracked work, so it is a checkbox (not a `**Note:**`), and it inherits the parent task's `(scope)` — add no tag of its own:
 
   ```markdown
-  * <main task>
-      * [ ] <subtask the finding concerns>
-          * <in-scope finding>
+  - [ ] (scope) <task under review>
+      - [ ] <subtask the finding concerns>
+          - [ ] <in-scope finding>
   ```
 
-- **Out of scope** → a normal entry in the most appropriate existing section (e.g. `Security`, `Observability`, `Tech`, `CI/CD`, `Tools`, `Doc`, or the relevant version); if none fits, **propose a new section and confirm before creating it**:
+- **Out of scope** → a new top-level entry, formatted for its destination (see `.claude/rules/todo.md`):
+  - into a **version** → under the correct bucket (`Features` / `Bugfix` / `Technical` / `Docs & Tooling`) as `- [ ] (scope) <finding>`, the scope from the rule's vocabulary;
+  - into the **Backlog** → under the matching `#### <scope>` within `### Features` / `### Technical`, as a bare `* <finding>` (the Backlog shape — no checkbox, no inline tag).
+
+  If no home fits, **propose a new bucket/area and confirm before creating it**:
 
   ```markdown
-  ### <Section>
-  * <out-of-scope finding>
+  ### Technical
+  - [ ] (scope) <out-of-scope finding, in a version>
+
+  #### <scope>
+  * <out-of-scope finding, in the Backlog>
   ```
 
-- Word each entry like `asapp-refine-task` conventions: imperative, ~10 words, plain language, sentence case, no trailing period. Preserve file structure; touch only the relevant spots.
+- Word each entry per the TODO Wording conventions (`.claude/rules/todo.md`): imperative, ~10 words, plain language, sentence case, no trailing period. A version entry carries a `(scope)`; a Backlog entry does not. Preserve file structure; touch only the relevant spots.
 
 ### Step 6: Wrap-up
 
@@ -140,5 +143,6 @@ Pick the **most specific** agent from `.claude/agents/`; `general-purpose` is a 
 | Starting Step 1 before creating the four tracking tasks | Do Step 0 first — create the tasks, then begin. |
 | Editing `TODO.md` before the user selects | Present table → wait for selection → then log. |
 | Putting out-of-scope items under the task | Only in-scope goes under the task; out-of-scope goes to its section. |
+| Logging a finding as a bare bullet | Invalid now — in-scope = nested `- [ ]`; out-of-scope = a scoped version task or a Backlog `*` bullet. |
 | Creating a new section silently | Propose and confirm before adding to it. |
 | Heavy jargon in the table or entries | One short plain sentence each — triage, not internals docs. |

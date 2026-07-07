@@ -27,7 +27,7 @@ Runs *after* `asapp-release`, *before* work on the next version starts.
 - A prepared entry is a **backlog item, not an implementation plan.**
 - Touch **only `TODO.md`**.
 
-> **This is not `asapp-refine-task`.** That skill refines **one** entry on demand; this one sweeps the **whole next-version section** and adds the post-release drop. It reuses refine-task's wording / decomposition conventions — read that `SKILL.md` and apply them, don't restate them.
+> **This is not `asapp-refine-task`.** That skill refines **one** entry on demand; this one sweeps the **whole next-version section** and adds the post-release drop. It applies the TODO conventions (`.claude/rules/todo.md`) — read them and apply, don't restate.
 
 ## Usage
 
@@ -76,12 +76,12 @@ Enumerate every **top-level task** in the next-version section. Each top-level t
 
 Dispatch **one subagent per work unit**, at most **3 running concurrently** — run in waves if there are more. Prefer the most specific `.claude/agents/` match; `documentation-engineer` (TODO / backlog prose is its remit) is the default, `general-purpose` a last resort.
 
-Give each subagent its task + subtasks/notes verbatim, its bucket, the `TODO.md` wording legend + scope vocabulary, and repo access (plus the full `TODO.md`, so it can spot a dependency a later version introduces). Tell it to:
+Give each subagent its task + subtasks/notes verbatim, its bucket, the TODO conventions (`.claude/rules/todo.md`), and repo access (plus the full `TODO.md`, so it can spot a dependency a later version introduces). Tell it to:
 
 - **Ground its task** — skim the related code / docs / config; check whether the task names something **not yet in the stack** or no longer matches reality.
-- **Read `asapp-refine-task`'s `SKILL.md`** and apply its wording / decomposition conventions.
+- **Read `.claude/rules/todo.md`** and apply its Wording, Scope, and Decomposition conventions.
 - **Judge the entry — don't decompose by reflex:**
-  - vague / oversized / terse → parent + 2–6 scoped subtasks (imperative verb, ~10 words, no *how*, `(scope)` on the parent, no per-feature test subtask);
+  - vague / oversized / terse → parent + 2–6 scoped subtasks per the conventions; no per-feature test subtask;
   - already well-scoped → keep the structure; tighten wording, fix a wrong `(scope)` / bucket; a clean one-liner stays one line;
   - stale / duplicate / superseded / out-of-theme / premature → flag with a one-line reason, don't rewrite it away;
   - a Decisions-bucket entry → cleanup only; never decompose.
@@ -104,7 +104,7 @@ Give each subagent its task + subtasks/notes verbatim, its bucket, the `TODO.md`
 
 ## Wording conventions
 
-Defer to **`asapp-refine-task`** — its conventions are canonical; each subagent reads that `SKILL.md` and applies them to any entry it decomposes. The one version-level nuance on top: the *named-tool-is-the-deliverable* guard (Step 3).
+Defer to `.claude/rules/todo.md` for wording, scope, and decomposition; each subagent reads it and applies it to any entry it decomposes. The one version-level nuance on top: the *named-tool-is-the-deliverable* guard (Step 3).
 
 ## Relationship to sibling skills
 
@@ -115,7 +115,7 @@ Defer to **`asapp-refine-task`** — its conventions are canonical; each subagen
 | `asapp-review-version` | the released version's diff | no (reviews, logs nothing) | readiness report | step 2 — before release |
 | `asapp-release` | the whole version | no (archives, tags, pushes) | the release itself | step 3 |
 
-Everything about *how* to refine an entry is shared with `asapp-refine-task`; this skill owns the version-level fan-out and the post-release drop.
+Everything about *how* to refine an entry lives in `.claude/rules/todo.md`; this skill owns the version-level fan-out and the post-release drop.
 
 ## Hard rules
 
@@ -126,7 +126,7 @@ Everything about *how* to refine an entry is shared with `asapp-refine-task`; th
 - **Drop wholesale** — the released section (and its trailing `---`) goes without a preservation audit; skip only when nothing matches the released tag.
 - **Delegate the analysis** — one subagent per main task, max 3 parallel; the main context only aggregates and delivers.
 - **One consolidated delivery** — propose the whole refined section once; confirm, then apply. Never edit ahead, never deliver in pieces.
-- **Reference, don't duplicate** — subagents defer to `asapp-refine-task` for the conventions.
+- **Reference, don't duplicate** — subagents defer to `.claude/rules/todo.md` for all conventions.
 - **Stay in the section** — never reorder buckets or auto-promote from Backlog; move a flagged entry only on confirmation.
 
 ## Common mistakes
@@ -137,7 +137,7 @@ Everything about *how* to refine an entry is shared with `asapp-refine-task`; th
 | Analyzing the tasks inline in the main context | Fan out — one subagent per main task (max 3 parallel); the main context only aggregates. |
 | Delivering per task or per bucket, in pieces | Aggregate every subagent result into ONE delivery of the whole refined section. |
 | Decomposing every task into subtasks | Per-task judgment — a clean, well-scoped one-liner stays one line. |
-| Subtasks name libraries, config keys, annotations, or file paths | That is *how*. Restate as a scoped outcome — the refine-task rule. |
+| Subtasks name libraries, config keys, annotations, or file paths | That is *how*. Restate as a scoped outcome — per the rule's Wording. |
 | Generalizing a named artifact away (`Hikari dashboard` → "connection-pool dashboard") | When the tool *is* the deliverable, keep the name; strip vendor names only when they are the *how*. |
 | A subagent guessing instead of grounding its task | Each subagent skims the real code / config first, to catch premature or stale entries. |
 | Silently moving a misplaced / premature entry | Flag it with a reason; relocate only on confirmation. Default is refine in place. |

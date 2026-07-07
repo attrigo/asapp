@@ -44,7 +44,7 @@ Keep Task 4 `in_progress` across the wait for the user's approval; mark it `comp
 
 - Resolve the input to a single `TODO.md` entry: a line number, or quoted/named text matched against the file.
 - If the match is ambiguous (several plausible entries), show the candidates and confirm before continuing.
-- Record where it lives: version section, category, and indent level. The refined block goes back in the **same place** — never move an entry between sections, and never refine one already complete (`[X]`) or cancelled (`~~struck~~`).
+- Record where it lives: a version section (and its bucket) or a Backlog area, and the indent level. The refined block goes back in the **same place** — never move an entry between sections, and never refine one already complete (`[X]`) or dropped (a `Decisions` entry: `**Rejected:**` / `**Dropped:**`).
 
 ### Step 2: Clarify intent
 
@@ -65,40 +65,49 @@ Keep Task 4 `in_progress` across the wait for the user's approval; mark it `comp
 
 ### Step 5: Decompose into subtasks
 
-- Break the parent into smaller, scoped, domain-focused subtasks. Each is one coherent unit of work that could land as a single commit without leaving the system half-built — a self-contained increment, not a partial step that is meaningless until a sibling is done. Subtasks may run in sequence; each must still stand on its own.
-- **Granularity test:** aim for roughly 2–6 subtasks. If you are producing 10+ items that mention config keys, file names, or sequential edits, you have slipped into implementation planning — collapse them back up to backlog-sized outcomes.
-- **No per-feature test subtask** — the SDD flow builds each subtask test-first, so its tests are implicit. Add a testing subtask only when testing itself is the deliverable: a new test tier (load, end-to-end, contract), test infrastructure, or an architecture suite — named as that capability, never a generic "add tests".
+Apply the rule's **Decomposition** conventions (`.claude/rules/todo.md`). In practice:
+
+- Break the parent into smaller, scoped, domain-focused subtasks, each commit-sized and self-contained (they may run in sequence, but each stands on its own).
+- If you're producing 10+ items that name config keys, file names, or sequential edits, you have slipped into implementation planning — collapse them back up to backlog-sized outcomes.
 - Apply the Wording conventions below to every subtask.
 
 ### Step 6: Propose extra improvements
 
-- Suggest genuinely *additive* subtasks when they clearly strengthen the work (resilience, validation, docs, observability) — beyond the literal 1:1 translation. Do not propose a test subtask here; follow the test rule in Step 5.
+- Suggest genuinely *additive* subtasks when they clearly strengthen the work (resilience, validation, docs, observability) — beyond the literal 1:1 translation. Do not propose a test subtask here; follow the rule's **Decomposition** test guidance.
 - Research the web **only** when the topic is fast-moving or you are unsure of current best practice; otherwise propose from existing knowledge.
 - Keep extras optional and few — do not pad. Flag which subtasks are proposals in the chat rationale (Step 7), keeping the markdown itself clean.
 
 ## Wording conventions
 
-Apply to the parent task **and** every subtask:
-
-- **Lead with an imperative verb** — Add, Publish, Send, Support, Migrate, Refactor…
-- **Concise** — a short phrase, ideally around 10 words.
-- **Plain language, no implementation terms** — avoid *how*: library names, config keys, annotations, file paths, vendor specifics (e.g. "in-process", "AFTER_COMMIT", "outbound port", `spring.flyway.*`). Named capabilities or well-known patterns are fine when they *are* the unit of work (e.g. "Use circuit breaker pattern", "Use retry pattern").
-- **Sentence case, no trailing period.**
-- **One coherent unit per line** — join two actions with "and" only when they are genuinely one piece of work. No colons introducing embedded lists.
+Apply the TODO **Wording** conventions (`.claude/rules/todo.md`) to the parent task and every subtask.
 
 ## Output format
 
-Match the `TODO.md` structure exactly:
+Match the structure of the entry's location — a **version** section or the **Backlog** — exactly.
+
+**Version entry** (a `0.x` section):
+
+```markdown
+- [ ] (scope) <Parent task>
+    - [ ] <Subtask>
+    - [ ] <Subtask>
+    - [ ] <Subtask>
+```
+
+The parent keeps its `- [ ]` checkbox and carries a `(scope)` tag; each subtask is a `- [ ]` and inherits that scope (no tag of its own).
+
+**Backlog entry:**
 
 ```markdown
 * <Parent task>
-    * [ ] <Subtask>
-    * [ ] <Subtask>
-    * [ ] <Subtask>
+    * <Subtask>
+    * <Subtask>
 ```
 
-- Preserve the entry's version/category placement and indentation.
-- The parent becomes a grouping header with **no checkbox** (like `* Improve HTTP clients`); a leaf entry's `[ ]` is dropped because the entry now owns subtasks. Each subtask carries a `[ ]` marker.
+Bare `*` bullets, no checkboxes, no scope — the Backlog shape (see `.claude/rules/todo.md`).
+
+- Preserve the entry's placement and indentation; never move it between sections.
+- Choose the `(scope)` from the vocabulary in `.claude/rules/todo.md` — never invent a new scope.
 - Replace the targeted entry (and any existing children of it) with the refined block. Never touch unrelated entries.
 
 ## Delivery (propose, then edit on approval)
@@ -112,35 +121,34 @@ Match the `TODO.md` structure exactly:
 
 **Example 1 — reframe to the goal (the canonical case):**
 
-Before:
+Before (a version entry):
 ```markdown
-* Replace REST clients by declarative HTTP clients
+- [ ] (http-clients) Replace REST clients with declarative HTTP clients
 ```
 After:
 ```markdown
-* Improve HTTP clients
-    * [ ] Refactor REST clients by declarative HTTP clients
-    * [ ] Use circuit breaker pattern
-    * [ ] Use retry pattern
+- [ ] (http-clients) Improve HTTP clients
+    - [ ] Refactor REST clients to declarative HTTP clients
+    - [ ] Use circuit breaker pattern
+    - [ ] Use retry pattern
 ```
 Rationale: the parent rises from a literal swap to the capability ("Improve HTTP clients"); resilience patterns are proposed extras beyond the original ask.
 
-**Example 2 — compress and keep the *how* out:**
+**Example 2 — a Backlog entry (Backlog shape, no checkboxes or scope):**
 
 Before:
 ```markdown
-* Replace Liquibase by Flyway
+* Enrich task domain (dates, status, estimation, labels, subtasks, assignee)
 ```
 After:
 ```markdown
-* Migrate database migrations to Flyway
-    * [ ] Migrate database migration tooling to Flyway
-    * [ ] Convert existing changesets to Flyway migrations
-    * [ ] Preserve compatibility with already-migrated databases
-    * [ ] Update migration conventions and docs
-    * [ ] Validate migrations on fresh and existing databases
+* Enrich the task domain
+    * Add scheduling fields to tasks
+    * Add status and estimation to tasks
+    * Add labels and assignees to tasks
+    * Support subtasks
 ```
-Rationale: the source leaf `* [ ] Replace Liquibase by Flyway` becomes a bare grouping parent with five scoped subtasks instead of an eleven-step implementation checklist; the last subtask is a proposed safety extra.
+Rationale: a Backlog entry stays in Backlog style — bare `*`, no checkboxes, no `(scope)` — while the grab-bag parenthetical splits into a few coherent subtasks.
 
 ## Common mistakes
 
@@ -155,6 +163,6 @@ Rationale: the source leaf `* [ ] Replace Liquibase by Flyway` becomes a bare gr
 | Restating the title verbatim as the parent | Reframe to the underlying goal or capability when clearer. |
 | Turning every file found in Step 3 into a subtask | Context grounds the decomposition; it is not the decomposition. |
 | Asking clarifying questions when intent is clear | Only ask when genuinely ambiguous; otherwise state your read and proceed. |
-| Keeping a `[ ]` checkbox on a parent that now owns subtasks | Parents are bare grouping headers; only subtasks carry `[ ]`. |
+| Wrong parent shape for the location | Version parent = `- [ ] (scope) …` (keeps its checkbox); Backlog parent = bare `*` (no checkbox, no scope). |
 | Editing `TODO.md` before approval, or moving an entry between sections | Propose first; on approval, replace in place and keep the original placement. |
 | Adding narration around the block | Output the block; keep the rationale to one line. |
