@@ -3,10 +3,6 @@ paths:
   - "TODO.md"
 ---
 
-# TODO.md Conventions
-
-`TODO.md` is the project roadmap and holds only the task list. These are the conventions for writing it.
-
 ## Structure
 
 - Each version is a section `## <ver> · <theme>` followed by a one-line `Goal:`. Separate top-level sections with `---`.
@@ -63,4 +59,5 @@ Features are scoped by **domain**; Technical / Docs & Tooling by **concern or to
 
 ## Review findings
 
-`asapp-review-task` logs findings and `asapp-resolve-review-issues` consumes them as nested `- [ ]` items one level under the task/subtask they concern. A finding is removed once it's resolved and committed.
+- **Manual notes** — issues the developer logs by hand as **plain nested bullets** (`- <issue>`) one level under the task/subtask they concern.
+- **Deferred review findings** — `asapp-review-task` routes findings it *defers* as ordinary top-level entries (per Structure/Wording above).
