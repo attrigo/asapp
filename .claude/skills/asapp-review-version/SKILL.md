@@ -14,7 +14,7 @@ description: >
 
 The pre-release readiness gate. Review **everything that shipped in a version**, sliced **by cross-cutting theme**, then present a **readiness report** with a go / no-go verdict. Runs *before* `asapp-release`.
 
-**Core principle:** review and report **only** — change no code, commit nothing, log nothing to `TODO.md`, run no release step. The distinctive question this answers, that a per-task review cannot: **is each theme coherent and fully done across every service it touches?**
+**Core principle:** review and report **only** (change no code, commit nothing, log nothing to `TODO.md`, run no release step). The distinctive question this answers: **is each theme coherent and fully done across every service it touches — and do the themes hold together at their seams?**
 
 > **This is not `asapp-review-task`.** You will be tempted to imitate it — don't inherit its contract; the differences are load-bearing. See *How this differs* below.
 
@@ -27,15 +27,16 @@ The pre-release readiness gate. Review **everything that shipped in a version**,
 
 ### Step 0: Set up progress tracking
 
-**Before any other step**, create these four tracking tasks with the task tool; mark each `in_progress` when you start it and `completed` when done:
+**Before any other step**, create these six tracking tasks with the task tool; mark each `in_progress` when you start it and `completed` when done:
 
 1. Resolve version, anchor, and theme map (Steps 1–2)
-2. Fan out per theme (max 5 running at once) and consolidate (Step 3)
-3. Present the readiness report (Step 4)
-4. Offer to persist (Step 5)
-5. Wrap up (Step 6)
+2. Review each theme, consolidate (Step 3)
+3. Run the cross-cutting pass (Step 4)
+4. Present the readiness report (Step 5)
+5. Write the report (Step 6)
+6. Wrap up (Step 7)
 
-Keep Task 3 `in_progress` across the wait for any user input; move on only once the report is out.
+Keep Task 4 `in_progress` across the wait for any user input; move on only once the report is out.
 
 ### Step 1: Resolve version and anchor
 
@@ -61,15 +62,22 @@ This step is what makes a version review worth doing. Cluster the version's work
 **Theme from the commits and diff — one source, and a complete one.** The commit log and changed-file list are the source of truth for what shipped; `TODO.md` is **not** a theming input.
 
 - **Cluster the commits + diff into themes** — group by scope and shared file paths (e.g. all error-handler commits → one theme). Every changed file lands in exactly one theme — never one theme per file, never a catch-all "Misc."
-- **Cross-check against `TODO.md`, for coverage only** — shipped work it doesn't list, or a task with no matching change, is a **should-fix** readiness finding; carry it into Step 4.
+- **Cross-check against `TODO.md`, for coverage only** — shipped work it doesn't list, or a task with no matching change, is a **should-fix** readiness finding; carry it into Step 5.
 - **Show the proposed theme list** (one line each, with rough file counts) before fanning out. Proceed unless the user objects. Don't over-ask.
 
-### Step 3: Fan out per theme, then consolidate
+### Step 3: Review each theme with one agent, then consolidate
 
-For **each theme**, dispatch the review subagents scoped to that theme's files (not the whole version diff), keeping **no more than 5 running at once** across all themes, until every theme's reviewers have run. Pick reviewers per theme:
+Dispatch **one review subagent per theme**, scoped to that theme's files (not the whole version diff). It gathers the theme's context **once** and applies every relevant lens in that single pass. Keep **no more than 5 running at once**; start the next theme as a slot frees, until every theme has been reviewed.
 
-- **Always** `code-reviewer` (line-level quality) **and** `architect-reviewer` (layering, coherence, completeness across services) for every theme that touches production code; skip `architect-reviewer` for pure docs, tooling, or `.claude/**` themes — there is no layering to assess.
-- **The most relevant specialist(s) for the theme** — see *Delegation & tools* below for the full mapping.
+**Dispatch each theme's agent as its dominant-concern specialist** — general production code → `code-reviewer`; auth → `security-auditor`; docs → `documentation-engineer`; tests → `test-automator`; and so on (see *Delegation & tools* below).
+
+**Lenses that the one agent applies in its single pass:**
+
+- **Line-level quality** — always.
+- **Layering, coherence, and completeness across services** — for every theme that touches production code; skip for pure docs, tooling, or `.claude/**` themes (no layering to assess).
+- **The theme's specialty** — security, tests, API/DTO, docs, CI/observability, etc., matching the theme's concern.
+
+**Escalate a second, dedicated specialist for a theme only when** it is high-risk (auth / JWT / token / filter-chain → `security-auditor`) or architecturally significant across services (→ `architect-reviewer`), or when the single pass surfaces something needing deeper scrutiny than it could give. Escalation is the exception — the default is one gather per theme.
 
 **Review depth — diff-anchored:**
 
@@ -78,39 +86,80 @@ For **each theme**, dispatch the review subagents scoped to that theme's files (
 
 **Mechanical / sweeping themes** (renames, moves, mass find-replace): treat as a **verify-only pass** — check for stragglers (leftover old names), consistent application, and side effects like orphaned imports; do not read every touched file. Their file counts are **churn, not effort** — say so when you present them, and never let such a theme's size justify shortchanging the substantive themes.
 
-Tell every reviewer to:
+Tell each theme's reviewer to:
 
 - **Judge the code on its own merits** — ignore specs/plans; no "spec is outdated" or drift findings.
 - **Assess theme completeness explicitly** — is this theme applied *consistently across every service it should touch*? Any half-done, inconsistent, or regressed-after-its-own-review application?
-- **Classify each finding** as **blocker** (must fix before release), **should-fix** (fix before release if feasible), or **nice-to-have** (safe to defer). Suggest a one-line rationale.
+- **Classify each finding** as **must-fix** (must fix before release), **should-fix** (fix before release if feasible), or **nice-to-have** (safe to defer). Give it a short **title**, and suggest an **effort** (S/M/L) and **impact** (High/Med/Low).
+- **Capture the resolution context each finding needs** — the **Location** (file:line or `Class#method`; a list when it spans several sites), **why it matters** (the concrete consequence), and, when they help, an **Evidence** snippet and **Resolver notes** (gotchas / constraints for whoever fixes it). The reviewer has this in hand now; recording it spares the resolver from rediscovering it.
 
-Then **consolidate**: dedupe overlaps across themes, merge into one list, assign each an `ID`.
+Then **consolidate**: dedupe overlaps across themes and merge into one list. (IDs are assigned at the end of Step 4, once the cross-cutting pass has folded its findings in.)
 
-### Step 4: Present the readiness report
+### Step 4: Cross-cutting pass — the seams between themes
 
-Present in chat (see Step 5 for persisting):
+Step 3 reviews *inside* each theme; it cannot see an issue whose cause sits in one theme and whose symptom sits in another (a field renamed in the `auth` theme but still read the old way in `tasks`), a contract changed on one side only, a pattern applied in some services but not others. This pass catches exactly those.
 
-1. **Verdict** — one of **Ready** / **Ready-with-caveats** / **Not-ready**, with a one-line rationale. *Not-ready* if any blocker exists; *Ready-with-caveats* if only should-fix / nice-to-have remain; *Ready* if nothing is worth acting on. The verdict reflects this **code review only** — it does not assert the build or test suite is green (that is `asapp-release`'s job).
+**Run it only when ≥2 themes touch production code.** Skip it for a single-theme version, or one that is entirely docs / tooling / `.claude` (no cross-service seams to find) — and note the skip, with its reason, in the report so it reads as a decision, not an omission. When skipped, still assign IDs (below) and move on.
+
+Dispatch **one `code-reviewer`** subagent, handed the **consolidated theme findings** (each theme and its file group) plus repo access. Tell it to:
+
+- **Hunt only the seams *between* themes** — contradictions, half-applied cross-service changes, contract/field mismatches, a pattern applied in one theme but not another. Do **not** re-review inside a single theme; Step 3 already did.
+- **Confirm before reporting** — reason over the theme findings to spot a suspected seam, then **spot-read only the specific files/lines** needed to confirm it. Report confirmed seams, not hunches.
+- **Classify like every other finding** — the same **must-fix / should-fix / nice-to-have** taxonomy, a short **title**, an **effort** (S/M/L) and **impact** (High/Med/Low). Set the **Theme** to the seam it spans, e.g. `auth × tasks`.
+- **Record the seam's Location as a list** — both sides of it (e.g. the field's definition and each site still reading it the old way) — plus **why it matters** and, when useful, **Evidence** / **Resolver notes**, like every other finding.
+
+**Then assign IDs.** Fold any returned seam findings into the consolidated list, then assign every finding across the merged set an `ID` (`M#`/`S#`/`N#`). Step 5 renders them inline in the severity sections — the `Theme` column marks each as a seam, and because they share the taxonomy the verdict counts them like any other finding.
+
+### Step 5: Assemble the readiness report
+
+Build the report in the structure below.
+
+Present the **verdict**, the **per-theme summary**, and each section's **summary table** in chat; the full report — detail blocks included — is written to the file in Step 6.
+
+1. **Verdict** — one of **Ready** / **Ready-with-caveats** / **Not-ready**, with a one-line rationale. *Not-ready* if any **must-fix** exists; *Ready-with-caveats* if only should-fix / nice-to-have remain; *Ready* if nothing is worth acting on. The verdict reflects this **code review only** — it does not assert the build or test suite is green (that is `asapp-release`'s job).
 2. **Per-theme summary** — one row per theme:
 
    | Theme | Coherent & complete? | Notable gaps |
    |-------|----------------------|--------------|
 
-3. **Findings** — sorted by severity, blockers first:
+3. **Findings** — grouped into three severity sections, in order: **Must-fix**, **Should-fix**, **Nice-to-have**. Open with a counts line, e.g. `2 must-fix · 22 should-fix · 8 nice-to-have`; skip an empty section. Each section has two parts:
 
-   | ID | Theme | Severity | Description | Recommended action |
-   |----|-------|----------|-------------|--------------------|
+   - a **summary table** — the scannable index:
 
-**Severity** Blocker / Should-fix / Nice-to-have. **Description** and **Recommended action** are each one short, plain sentence — what is wrong and what to do.
+     | ID | Title | Theme | Effort | Impact |
+     |----|-------|-------|--------|--------|
 
-### Step 5: Offer to persist the report
+   - a **detail block per finding** — a checkbox item carrying the prose the table omits:
 
-The report is **not** auto-written and **not** logged to `TODO.md`. After presenting it, **offer** to save it to a file; ask the user for the path and filename. Write it only if the user asks.
+     ```markdown
+     - [ ] **S1 — <title>**
+         - **Location:** <file:line or `Class#method`; a nested list when the finding spans several sites>
+         - **Description:** <what is wrong — one short, plain sentence>
+         - **Why it matters:** <the concrete consequence / failure scenario — one line>
+         - **Evidence:** <offending line(s) or a short snippet — optional, only when it aids confirmation>
+         - **Recommended action:** <what to do — one short, plain sentence>
+         - **Resolver notes:** <optional free-form guidance for whoever fixes it — gotchas, constraints, ordering; omit when there's nothing extra>
+     ```
 
-### Step 6: Wrap-up
+   **Effort** S/M/L · **Impact** High/Med/Low · **Title** names the finding in a few words. Severity is the section, not a column; ID prefixes track it (`M#` / `S#` / `N#`). **Location / Description / Why it matters / Recommended action** are always present; **Evidence** and **Resolver notes** only when they help, never restating Description or Why. Write every checkbox **unchecked** — it is the developer's marker to tick as findings are resolved before release.
 
-- Restate the verdict in one line.
-- Remind the user: nothing was changed, committed, or logged. Blockers / should-fixes are theirs to route (fix now, or defer to a later version). The release itself is the separate manual `asapp-release` step — do not run any of its mechanics here.
+### Step 6: Write the report
+
+Write the assembled report to **`docs/reviews/v<ver>-readiness-report.md`** (e.g. `docs/reviews/v0.4.0-readiness-report.md`); create the `docs/reviews/` directory if absent, and overwrite any existing report for the same version.
+
+Lead the file with:
+
+- a title — `# Release Readiness Report — v<ver> · <theme>`
+- an anchor line — the range, commit count, file count, and theme count (e.g. `` **Anchor:** `v0.3.0...HEAD` · 62 commits · 587 files · 8 themes ``)
+- a one-line cross-cutting note — whether the seam pass ran, or was skipped and why (e.g. `Cross-cutting pass: skipped — single production theme`)
+- the code-review-only disclaimer
+
+then the verdict, per-theme summary, and findings sections from Step 5.
+
+### Step 7: Wrap-up
+
+- Restate the verdict in one line, and give the path to the written report.
+- Remind the user: no code was changed, nothing committed, nothing logged to `TODO.md` — the only write is the report file. Must-fixes / should-fixes are theirs to route (fix now, or defer to a later version), ticking the report's checkboxes as they go. The release itself is the separate manual `asapp-release` step — do not run any of its mechanics here.
 
 ## How this differs from `asapp-review-task`
 
@@ -118,35 +167,41 @@ The report is **not** auto-written and **not** logged to `TODO.md`. After presen
 |--------|---------------------|-------------------------------------|
 | Anchor | `main...HEAD` (one branch) | `v<prev>...HEAD` release-tag range |
 | Granularity | one task | whole version, **sliced by theme** |
-| Finding taxonomy | issue / missing / out-of-scope | **blocker / should-fix / nice-to-have** |
-| Output | findings **logged into `TODO.md`** | **readiness report you present** (verdict + tables); nothing logged |
+| Finding taxonomy | issue / missing / out-of-scope | **must-fix / should-fix / nice-to-have** |
+| Output | findings **logged into `TODO.md`** | **readiness report written to `docs/reviews/`** (verdict + tables + checkboxed findings); nothing logged to `TODO.md` |
 | Timing | before a task closes | before `asapp-release` |
 
 Everything else — parallel fan-out to `.claude/agents/`, reading full changed files, judging code on its merits, excluding `docs/superpowers/**`, keeping main context clean — is shared.
 
 ## Delegation & tools — quick reference
 
-| Situation | Use |
-|-----------|-----|
-| Line-level quality (every theme) | `code-reviewer` |
-| Layering, coherence, cross-service completeness (every theme) | `architect-reviewer` |
-| Auth / JWT / token / filter-chain themes | `security-auditor` |
-| README / api-guide / Javadoc / OpenAPI themes | `documentation-engineer` |
-| Test-suite themes | `test-automator` |
-| CI / git-hook / docker-compose / pipeline / observability themes | `devops-engineer` |
-| Endpoint / DTO / status-code themes | `api-designer` |
+**Dispatch each theme's single reviewer as its dominant-concern specialist:**
+
+| Theme's dominant concern | Dispatch as |
+|--------------------------|-------------|
+| General production code | `code-reviewer` |
+| Auth / JWT / token / filter-chain | `security-auditor` |
+| README / api-guide / Javadoc / OpenAPI | `documentation-engineer` |
+| Test suites | `test-automator` |
+| CI / git-hook / docker-compose / pipeline / observability | `devops-engineer` |
+| Endpoint / DTO / status-code | `api-designer` |
 | `.claude/**` agents / skills / rules authoring | `claude-docs-maintainer` |
+
+| Support | Use |
+|---------|-----|
 | Locate / understand touched code | `Explore` |
+| Cross-cutting pass over the seams between themes | `code-reviewer` (single pass — Step 4) |
 | Framing the review pass | `superpowers:requesting-code-review` |
 | A finding needs deeper diagnosis | `superpowers:systematic-debugging` |
 
 ## Hard rules
 
 - **Review and report only** — never change code, commit, push, tag, or run any release mechanic.
-- **Log nothing to `TODO.md`.** The only write is the optional report file in Step 5, after the user asks.
+- **Log nothing to `TODO.md`.** The only write is the report file at `docs/reviews/v<ver>-readiness-report.md` (Step 6).
 - **Ignore specs/plans** — exclude `docs/superpowers/**`; never flag a spec as outdated or drifted.
 - **Anchor on the release-tag range**, not `main...HEAD`.
 - **Slice theme-first** — reviewer lenses layer *onto* themes, they don't replace them.
+- **Run the cross-cutting pass when ≥2 themes touch production code** — one `code-reviewer` over the *seams between themes*, confirming by spot-read; never a re-review inside a theme. Skip it, and note why in the report, when fewer than two production themes exist.
 - **Keep the main context clean** — delegate all reviewing to subagents.
 - **Do not release, tag, or merge** — that is the user's separate `asapp-release` step.
 
@@ -157,12 +212,18 @@ Everything else — parallel fan-out to `.claude/agents/`, reading full changed 
 | Reviewing `main...HEAD` like a task | Anchor on `v<prev>...HEAD` — the whole version. |
 | Slicing by reviewer lens, theme as an afterthought | Themes come first; lenses attach to each theme afterward. |
 | Theming only from `TODO.md`, missing un-listed changes | The diff is the source of truth; every changed file lands in a theme, and TODO/diff mismatches get flagged. |
-| Using the `issue / missing / out-of-scope` taxonomy | Use **blocker / should-fix / nice-to-have** — this is a readiness gate. |
-| Logging findings into `TODO.md` | Present a report; log nothing. Offer to persist to a file only. |
+| Using the `issue / missing / out-of-scope` taxonomy | Use **must-fix / should-fix / nice-to-have** — this is a readiness gate. |
+| Logging findings into `TODO.md` | Log nothing there; write the report to `docs/reviews/v<ver>-readiness-report.md`. |
+| Cramming all findings into one wide table | Per section: a compact summary table + a checkboxed detail block for the prose. |
+| Omitting Location so the resolver must rediscover the site | Record file:line / `Class#method` (a list if multi-site, both sides for a seam) — context the reviewer already has. |
+| Padding every finding with Evidence and Resolver notes | Both are optional — include only when they aid confirmation or carry a real gotcha. |
 | Handing a reviewer all commits at once | Scope each reviewer to its theme's files. |
-| Firing every theme's reviewers at once | Keep no more than 5 running at once. |
-| Full code+architect review of a mass rename | Mechanical themes get a verify-only pass; their counts are churn, not effort. |
+| Spawning a separate agent per lens per theme | One agent per theme gathers context once and applies all lenses; escalate a specialist only when high-risk or flagged. |
+| Running every theme at once | Keep no more than 5 theme reviewers running at once. |
+| Full multi-lens review of a mass rename | Mechanical themes get a verify-only pass; their counts are churn, not effort. |
 | Excluding `.claude/**` as if it were a spec | Only `docs/superpowers/**` is out of scope; shipped `.claude/**` work is reviewable. |
 | Folding release mechanics into the verdict | Version bump, tags, spec archival, push are `asapp-release`'s job. |
 | Skipping the completeness check | Ask per theme: applied consistently across *every* service it touches? |
-| Starting Step 1 before the four tracking tasks | Do Step 0 first. |
+| Skipping the cross-cutting pass on a multi-theme version | When ≥2 themes touch production code, run it — the per-theme pass is blind to issues in the seams between themes. |
+| The cross-cutting agent re-reviewing inside a theme | It hunts only the seams *between* themes, confirming by spot-read; Step 3 already covered inside each theme. |
+| Starting Step 1 before the six tracking tasks | Do Step 0 first. |

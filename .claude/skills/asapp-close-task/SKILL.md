@@ -15,8 +15,8 @@ Integrate a finished task into the **local** `main` branch. Runs end-to-end with
 
 **Core principle — the end-state is a contract.** When this skill finishes:
 
-- **`main`** has the task's work as **one squash commit**, which **includes the implemented spec**, **marks the parent task `[X]` complete in `TODO.md`**, and **excludes the plan file**.
-- **The task branch** keeps **all its development commits**, with the **plan committed as the last commit**.
+- **`main`** has the task's work as **one squash commit**, which **includes the implemented spec**, **marks the parent task `[X]` complete in `TODO.md`**, and **excludes the plan file and the review-task report**.
+- **The task branch** keeps **all its development commits**, with the **plan and the review-task report committed as the last commit**.
 - **Both branches stay local**, so you can revert if anything looks wrong.
 
 ## Usage
@@ -36,7 +36,7 @@ Integrate a finished task into the **local** `main` branch. Runs end-to-end with
 4. Mark the parent task complete (Step 4)
 5. Draft the squash message (Step 5)
 6. Squash-merge into main (Step 6)
-7. Commit the plan as the last branch commit (Step 7)
+7. Commit the plan and review report as the last branch commit (Step 7)
 8. Verify invariants (Step 8)
 9. Clear the SDD record (Step 9)
 10. Wrap-up (Step 10)
@@ -50,13 +50,14 @@ If the close aborts (a Step 6 merge conflict or a failed Step 8 invariant), leav
    - The task slug
    - The spec — `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md`
    - The plan — `docs/superpowers/plans/YYYY-MM-DD-<slug>.md`
+   - The review-task report — `docs/reviews/<task-slug>-review.md` (may be absent if the task had no apply-now review findings)
 - **Locate the SDD record** — `.superpowers/sdd/` (untracked working dir): `progress.md` plus the per-task `*-brief.md`/`*-report.md`. It captures intent, decisions, and deviations, and feeds Steps 2, 3, and 5. If it is absent, fall back to commits alone.
 - **Capture revert anchors** and surface them to the user immediately:
   ```bash
   PRE_MAIN=$(git rev-parse main)      # main tip before the merge
   PRE_BRANCH=$(git rev-parse HEAD)    # task branch tip before closing
   ```
-- **Detect the plan's state** — committed on the branch, or uncommitted/untracked (drives Step 6). See *Plan handling*.
+- **Detect the plan's state** — committed on the branch, or uncommitted/untracked (drives Step 6). See *Plan & report handling*.
 - **Preconditions** — abort with a clear message if any fail (a safety check, not a gate):
    - On the task branch
    - Working tree has no unrelated uncommitted changes
@@ -98,7 +99,7 @@ Build the squash message with `asapp-draft-commit-msg`, using the Step 2 analysi
 
 `asapp-draft-commit-msg` only displays the text — it never writes files — so write the drafted message verbatim to `<squash-message-file>`, a temp file under the session scratchpad, for Step 6's `git commit -F` to read.
 
-### Step 6: Squash-merge into main, excluding the plan
+### Step 6: Squash-merge into main, excluding the plan and report
 
 ```bash
 git checkout main
@@ -107,18 +108,19 @@ git merge --squash <branch>
 #   plan already committed on the branch (now staged by the merge):
 git restore --staged --worktree -- docs/superpowers/plans/<plan>
 #   plan uncommitted/untracked: nothing was staged — skip the restore
+# The review-task report is untracked here (resolve never commits it), so the squash never stages it — auto-excluded from main.
 git commit -F <squash-message-file>      # the file written in Step 5 (overrides MERGE_MSG)
 ```
 
 If the squash merge **conflicts**, run `git merge --abort` and report — do not guess resolutions.
 
-### Step 7: Commit the plan as the last branch commit
+### Step 7: Commit the plan and review report as the last branch commit
 
 ```bash
 git checkout <branch>
-# plan uncommitted: commit it now so it is the last commit
-git add docs/superpowers/plans/<plan>
-git commit -m "docs(<scope>): add <task> implementation plan"
+# plan (+ report) uncommitted: commit them now so they are the last commit
+git add docs/superpowers/plans/<plan> docs/reviews/<task-slug>-review.md   # omit the report path if the task had none
+git commit -m "docs(<scope>): add <task> implementation plan and review report"   # drop "and review report" when there is no report
 # plan already committed: no-op (verify it is present; if it is not the last commit, report it — never rewrite history to reorder)
 git checkout main
 ```
@@ -128,8 +130,9 @@ git checkout main
 Run and show the results:
 ```bash
 git cat-file -e main:docs/superpowers/plans/<plan> 2>/dev/null && echo "FAIL: plan on main" || echo "OK: plan absent from main"
+git cat-file -e main:docs/reviews/<task-slug>-review.md 2>/dev/null && echo "FAIL: report on main" || echo "OK: report absent from main"   # skip if the task had no report
 git log main -1 --stat        # the squash commit, includes the spec
-git log <branch> -1 --stat    # the plan as the last branch commit
+git log <branch> -1 --stat    # the plan and report as the last branch commit
 ```
 If any invariant **fails**, stop and report — **do not clean up**.
 
@@ -147,7 +150,7 @@ This is the **only non-git-revertible** action — which is why it runs last, af
 - **Revert instructions** (git actions only — see *Reverting*; the cleared SDD files are not recoverable).
 - Remind the user: pushing `main` and the task branch is their manual step.
 
-## Plan handling
+## Plan & report handling
 
 | Plan state at closing | How it lands on the branch | How it's kept off main |
 |-----------------------|----------------------------|------------------------|
@@ -155,6 +158,8 @@ This is the **only non-git-revertible** action — which is why it runs last, af
 | **Already committed** | Already in branch history | `git merge --squash` staged it → `git restore --staged --worktree` drops it from main's commit |
 
 The canonical flow assumes the plan is **uncommitted** at closing (committed last, in Step 7). The already-committed path is the safety net; if committing the spec (Step 3) or the task completion (Step 4) leaves the plan no longer the last commit, **report it — never rewrite history to reorder.**
+
+The **review-task report** (`docs/reviews/<task-slug>-review.md`) is treated exactly like an uncommitted plan, so the squash auto-excludes it and Step 7 commits it in the same last commit as the plan. If the task produced no report, there is nothing to add.
 
 ## Post-implementation notes recipe
 
@@ -172,7 +177,7 @@ The `## N. Post-implementation notes` section states, in order:
 ```bash
 # Undo the squash merge on main:
 git checkout main && git reset --hard $PRE_MAIN
-# Undo the plan commit on the branch (only if Step 7 added it):
+# Undo the plan + report commit on the branch (only if Step 7 added it):
 git checkout <branch> && git reset --hard $PRE_BRANCH
 ```
 
@@ -192,7 +197,7 @@ git checkout <branch> && git reset --hard $PRE_BRANCH
 - **Never push** — no `git push` of any branch, ever.
 - **Never rewrite history** — no rebase, no `reset` of existing commits to reorder the plan.
 - **Capture `PRE_MAIN` and `PRE_BRANCH` before any mutation** — revert depends on them.
-- **The spec lands on main, the parent task flips to `[X]` in `TODO.md`, and the plan never lands on main** — verify all three before reporting done.
+- **The spec lands on main, the parent task flips to `[X]` in `TODO.md`, and the plan and review report never land on main** — verify all before reporting done.
 - **One squash commit on main** for the whole task; messages built with `asapp-draft-commit-msg`.
 - **Source the spec notes and squash message from `.superpowers/sdd/` + git** — but never copy SDD commit hashes into the spec.
 - **Clear `.superpowers/sdd` last** — only after the invariants pass; it is the one non-git-revertible action, and `.gitignore` is preserved.
@@ -204,6 +209,7 @@ git checkout <branch> && git reset --hard $PRE_BRANCH
 |---------|-----|
 | Starting Step 1 before creating the ten tracking tasks | Do Step 0 first — create the tasks, then begin. |
 | Plan file ends up on main | Detect its state; `git restore --staged --worktree` it out of the squash, or commit it only after the merge. |
+| Review report left uncommitted, or landing on main | Commit it with the plan in Step 7 (last branch commit); untracked at squash → auto-excluded from main. |
 | Forgetting to capture revert anchors | Record `PRE_MAIN`/`PRE_BRANCH` in Step 1, before mutating. |
 | Auto-resolving a squash merge conflict | `git merge --abort` and report. |
 | Forgetting to mark the parent task `[X]` in `TODO.md` | Flip and commit it on the branch in Step 4 — it rides into the squash alongside the spec. |

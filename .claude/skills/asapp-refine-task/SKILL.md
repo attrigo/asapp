@@ -28,7 +28,7 @@ Turn one vague, high-level `TODO.md` entry into a clearer **parent task** plus a
 **Before any other step**, create these four tracking tasks with the task tool; mark each `in_progress` when you start it and `completed` when it's done:
 
 1. Locate the task and clarify intent (Steps 1–2)
-2. Gather project context (Step 3)
+2. Gather project context via a subagent (Step 3)
 3. Compose the refined block — parent, subtasks, and extras (Steps 4–6)
 4. Propose and edit `TODO.md` on approval (Delivery)
 
@@ -48,8 +48,15 @@ Keep Task 4 `in_progress` across the wait for the user's approval; mark it `comp
 
 ### Step 3: Gather project context
 
-- Inspect the involved resources before rewriting: related code, docs, config, matching files in `.claude/rules/`, and recent commits.
-- Find the real footprint and constraints so the decomposition is grounded, not guessed. This grounding is essential — but it informs the subtasks; it does not become them. Resist turning every file you find into a subtask.
+**Delegate the grounding to a single `Explore` subagent** — keep the reading out of the main context; only its concise report comes back. Do it **inline only when the entry is trivially small** (it grounds against ~1–2 files), where a dispatch would cost more than it saves.
+
+Tell the subagent to:
+
+- Inspect the involved resources: related code, docs, config, matching files in `.claude/rules/`, and recent commits.
+- Find the real footprint and constraints, and flag whether the task names something **not yet in the stack**.
+- Return a **concise grounding report** — paths, constraints, footprint — **not file dumps**.
+
+This grounding is essential — but it **informs** the subtasks; it does not become them. Resist turning every file it surfaces into a subtask.
 
 ### Step 4: Rewrite the parent task
 
@@ -152,6 +159,7 @@ Rationale: a Backlog entry stays in Backlog style — bare `*`, no checkboxes, n
 | A subtask only makes sense once another is finished | It's half a change. Re-cut the boundary so each subtask stands as its own commit. |
 | Restating the title verbatim as the parent | Reframe to the underlying goal or capability when clearer. |
 | Turning every file found in Step 3 into a subtask | Context grounds the decomposition; it is not the decomposition. |
+| Gathering context inline and flooding the main context | Delegate Step 3 to an `Explore` subagent; go inline only when the entry is trivially small (~1–2 files). |
 | Asking clarifying questions when intent is clear | Only ask when genuinely ambiguous; otherwise state your read and proceed. |
 | Wrong parent shape for the location | Version parent = `- [ ] (scope) …` (keeps its checkbox); Backlog parent = bare `*` (no checkbox, no scope). |
 | Editing `TODO.md` before approval, or moving an entry between sections | Propose first; on approval, replace in place and keep the original placement. |
