@@ -58,8 +58,8 @@ log_step "Evaluating results"
 
 # Gate: read the run's total error count from the dashboard's statistics.json (structured JSON,
 # unlike the .jtl whose quoted messages embed commas/newlines and would defeat a column parse).
-# One gawk line pulls Total.errorCount; a non-zero count, or a missing file, fails the gate.
-errors="$(gawk '/"Total"[[:space:]]*:/{t=1} t&&/"errorCount"/{match($0,/[0-9]+/); print substr($0,RSTART,RLENGTH); exit}' "$REPORT/statistics.json")"
+# One awk line pulls Total.errorCount; a non-zero count, or a missing file, fails the gate.
+errors="$(awk '/"Total"[[:space:]]*:/{t=1} t&&/"errorCount"/{match($0,/[0-9]+/); print substr($0,RSTART,RLENGTH); exit}' "$REPORT/statistics.json")"
 
 if (( ${errors:-1} > 0 )); then
   log_detail "REGRESSION FAILED."
