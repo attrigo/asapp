@@ -80,6 +80,8 @@ docker-compose up -d
 docker-compose ps
 ```
 
+> The `docker-compose.yaml` is a **local-development convenience stack, not a deployable artifact** — it always runs the `dev` profile, so dev tools (Actuator, Swagger, BootUI, etc.) are intentionally wide open behind default credentials. See **Configuration & Profiles** below for the secure-by-default (`prod`) posture.
+
 ### Example Workflow
 
 ```bash
@@ -156,8 +158,8 @@ The base configuration is **secure-by-default**: with no environment profile act
 ### Activating a profile
 
 - **Local development** (default) — `mvn spring-boot:run` activates `dev` automatically; it's wired into each service's Maven plugin.
-- **Docker stack** (default) — `docker-compose up -d` runs `docker,dev`.
-- **Any other posture** — list the profiles explicitly: locally with `-Dspring-boot.run.profiles=…`, or for a packaged jar / container via the `SPRING_PROFILES_ACTIVE` environment variable. Example — a locked-down stack: `SPRING_PROFILES_ACTIVE=docker,prod`.
+- **Docker stack** (default; local development only) — the committed `docker-compose.yaml` is a development convenience, not a deployable artifact: `docker-compose up -d` always runs `docker,dev`, leaving Swagger, BootUI, full Actuator, and heapdump/shutdown open behind default credentials.
+- **Any other posture** — list the profiles explicitly: locally with `-Dspring-boot.run.profiles=…`, or for a packaged jar / container via the `SPRING_PROFILES_ACTIVE` environment variable. Example — the secure-by-default posture behind the Docker stack: `SPRING_PROFILES_ACTIVE=docker,prod`.
 
 With no profile set at all (a bare `java -jar` or container), a service runs locked down — the secure-by-default baseline.
 
