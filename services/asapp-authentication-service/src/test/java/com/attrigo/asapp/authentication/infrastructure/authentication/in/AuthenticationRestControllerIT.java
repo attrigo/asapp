@@ -113,7 +113,6 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                                                       .containsEntry("title", "Bad Request")
                                                       .containsEntry("status", 400)
                                                       .containsEntry("detail", "Request validation failed")
-                                                      .containsEntry("error", "invalid_request")
                                                       .containsEntry("instance", "/api/auth/token");
                                   assertThatJson(json).node("fieldErrors")
                                                       .isArray()
@@ -154,7 +153,6 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                                                       .containsEntry("title", "Bad Request")
                                                       .containsEntry("status", 400)
                                                       .containsEntry("detail", "Request validation failed")
-                                                      .containsEntry("error", "invalid_request")
                                                       .containsEntry("instance", "/api/auth/token");
                                   assertThatJson(json).node("fieldErrors")
                                                       .isArray()
@@ -239,7 +237,6 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                                                       .containsEntry("title", "Bad Request")
                                                       .containsEntry("status", 400)
                                                       .containsEntry("detail", "Request validation failed")
-                                                      .containsEntry("error", "invalid_request")
                                                       .containsEntry("instance", "/api/auth/refresh");
                                   assertThatJson(json).node("fieldErrors")
                                                       .isArray()
@@ -275,7 +272,6 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                                                       .containsEntry("title", "Bad Request")
                                                       .containsEntry("status", 400)
                                                       .containsEntry("detail", "Request validation failed")
-                                                      .containsEntry("error", "invalid_request")
                                                       .containsEntry("instance", "/api/auth/refresh");
                                   assertThatJson(json).node("fieldErrors")
                                                       .isArray()
@@ -356,7 +352,6 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                                                       .containsEntry("title", "Bad Request")
                                                       .containsEntry("status", 400)
                                                       .containsEntry("detail", "Request validation failed")
-                                                      .containsEntry("error", "invalid_request")
                                                       .containsEntry("instance", "/api/auth/revoke");
                                   assertThatJson(json).node("fieldErrors")
                                                       .isArray()
@@ -392,7 +387,6 @@ class AuthenticationRestControllerIT extends WebMvcTestContext {
                                                       .containsEntry("title", "Bad Request")
                                                       .containsEntry("status", 400)
                                                       .containsEntry("detail", "Request validation failed")
-                                                      .containsEntry("error", "invalid_request")
                                                       .containsEntry("instance", "/api/auth/revoke");
                                   assertThatJson(json).node("fieldErrors")
                                                       .isArray()

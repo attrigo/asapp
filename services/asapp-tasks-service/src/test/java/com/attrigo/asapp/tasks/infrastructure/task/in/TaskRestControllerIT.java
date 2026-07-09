@@ -173,7 +173,6 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                       .containsEntry("title", "Bad Request")
                                                       .containsEntry("status", 400)
                                                       .containsEntry("detail", "Request validation failed")
-                                                      .containsEntry("error", "invalid_request")
                                                       .containsEntry("instance", "/api/tasks");
                                   assertThatJson(json).node("fieldErrors")
                                                       .isArray()
@@ -208,7 +207,6 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                       .containsEntry("title", "Bad Request")
                                                       .containsEntry("status", 400)
                                                       .containsEntry("detail", "Request validation failed")
-                                                      .containsEntry("error", "invalid_request")
                                                       .containsEntry("instance", "/api/tasks");
                                   assertThatJson(json).node("fieldErrors")
                                                       .isArray()
@@ -310,7 +308,6 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                       .containsEntry("title", "Bad Request")
                                                       .containsEntry("status", 400)
                                                       .containsEntry("detail", "Request validation failed")
-                                                      .containsEntry("error", "invalid_request")
                                                       .containsEntry("instance", "/api/tasks");
                                   assertThatJson(json).node("fieldErrors")
                                                       .isArray()
@@ -351,7 +348,6 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                       .containsEntry("title", "Bad Request")
                                                       .containsEntry("status", 400)
                                                       .containsEntry("detail", "Request validation failed")
-                                                      .containsEntry("error", "invalid_request")
                                                       .containsEntry("instance", "/api/tasks");
                                   assertThatJson(json).node("fieldErrors")
                                                       .isArray()
@@ -506,7 +502,6 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                       .containsEntry("title", "Bad Request")
                                                       .containsEntry("status", 400)
                                                       .containsEntry("detail", "Request validation failed")
-                                                      .containsEntry("error", "invalid_request")
                                                       .containsEntry("instance", "/api/tasks/" + taskId);
                                   assertThatJson(json).node("fieldErrors")
                                                       .isArray()
@@ -548,7 +543,6 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                                       .containsEntry("title", "Bad Request")
                                                       .containsEntry("status", 400)
                                                       .containsEntry("detail", "Request validation failed")
-                                                      .containsEntry("error", "invalid_request")
                                                       .containsEntry("instance", "/api/tasks/" + taskId);
                                   assertThatJson(json).node("fieldErrors")
                                                       .isArray()

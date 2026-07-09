@@ -70,7 +70,6 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
                               .bodyJson()
                               .convertTo(String.class)
                               .satisfies(json -> assertThatJson(json).isObject()
-                                                                     .containsEntry("error", "invalid_request")
                                                                      .containsEntry("detail", "Invalid argument provided"));
         }
 
@@ -96,7 +95,6 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
                               .bodyJson()
                               .convertTo(String.class)
                               .satisfies(json -> assertThatJson(json).isObject()
-                                                                     .containsEntry("error", "server_error")
                                                                      .containsEntry("critical", true));
         }
 

@@ -41,7 +41,7 @@ paths:
 ## Error Response Format
 
 - All errors must follow RFC 7807 `ProblemDetail` — do not invent a custom error format
-- All error responses carry an `error` property with a machine-readable error code (e.g., `"invalid_request"`, `"invalid_grant"`, `"server_error"`)
+- Add an `error` property only when the code adds meaning beyond the status itself (e.g. `invalid_grant` on 401); omit it when the code would just restate the status (e.g. `server_error` on 500)
 - Validation errors extend `ProblemDetail` with a `fieldErrors` property containing a list of `RequestValidationError(field, message)`
 - Always set `title` and `detail` via `ProblemDetail.forStatusAndDetail(...)`
 - 500 responses in `GlobalExceptionHandler` add `"critical": true` to `ProblemDetail` for monitoring alerts

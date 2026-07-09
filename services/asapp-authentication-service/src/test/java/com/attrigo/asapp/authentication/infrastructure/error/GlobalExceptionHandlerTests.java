@@ -97,7 +97,6 @@ class GlobalExceptionHandlerTests {
                 softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Bad Request");
                 softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(400);
                 softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Request validation failed");
-                softly.assertThat(problemDetail.getProperties()).as("error").containsEntry("error", "invalid_request");
                 softly.assertThat(problemDetail.getProperties()).as("field errors").containsEntry("fieldErrors", sortedErrors);
                 // @formatter:on
             });
@@ -128,7 +127,7 @@ class GlobalExceptionHandlerTests {
                 softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Invalid Argument");
                 softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(400);
                 softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Invalid argument provided");
-                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "invalid_request");
+                softly.assertThat(problemDetail.getProperties()).as("properties").isNull();
                 // @formatter:on
             });
         }
@@ -269,7 +268,6 @@ class GlobalExceptionHandlerTests {
                 softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Internal Server Error");
                 softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(500);
                 softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("An internal error occurred");
-                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "server_error");
                 softly.assertThat(problemDetail.getProperties()).as("critical flag").containsEntry("critical", true);
                 // @formatter:on
             });
@@ -297,7 +295,6 @@ class GlobalExceptionHandlerTests {
                 softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Internal Server Error");
                 softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(500);
                 softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("An internal error occurred");
-                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "server_error");
                 softly.assertThat(problemDetail.getProperties()).as("critical flag").containsEntry("critical", true);
                 // @formatter:on
             });
@@ -325,7 +322,6 @@ class GlobalExceptionHandlerTests {
                 softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Internal Server Error");
                 softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(500);
                 softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("An internal error occurred");
-                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "server_error");
                 softly.assertThat(problemDetail.getProperties()).as("critical flag").containsEntry("critical", true);
                 // @formatter:on
             });
@@ -353,7 +349,7 @@ class GlobalExceptionHandlerTests {
                 softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Service Unavailable");
                 softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(503);
                 softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Service temporarily unavailable");
-                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "temporarily_unavailable");
+                softly.assertThat(problemDetail.getProperties()).as("properties").isNull();
                 // @formatter:on
             });
         }
@@ -380,7 +376,7 @@ class GlobalExceptionHandlerTests {
                 softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Service Unavailable");
                 softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(503);
                 softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("Service temporarily unavailable");
-                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "temporarily_unavailable");
+                softly.assertThat(problemDetail.getProperties()).as("properties").isNull();
                 // @formatter:on
             });
         }
@@ -407,7 +403,6 @@ class GlobalExceptionHandlerTests {
                 softly.assertThat(problemDetail.getTitle()).as("title").isEqualTo("Internal Server Error");
                 softly.assertThat(problemDetail.getStatus()).as("status").isEqualTo(500);
                 softly.assertThat(problemDetail.getDetail()).as("detail").isEqualTo("An internal error occurred");
-                softly.assertThat(problemDetail.getProperties()).as("error code").containsEntry("error", "server_error");
                 softly.assertThat(problemDetail.getProperties()).as("critical flag").containsEntry("critical", true);
                 // @formatter:on
             });
