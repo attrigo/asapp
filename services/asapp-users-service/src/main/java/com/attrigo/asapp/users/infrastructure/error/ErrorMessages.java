@@ -42,15 +42,6 @@ final class ErrorMessages {
 
     static final String SERVICE_UNAVAILABLE_DETAIL = "Service temporarily unavailable";
 
-    // Error codes
-    static final String ERROR_PROPERTY = "error";
-
-    static final String SERVER_ERROR = "server_error";
-
-    static final String TEMPORARILY_UNAVAILABLE_ERROR = "temporarily_unavailable";
-
-    static final String INVALID_REQUEST_ERROR = "invalid_request";
-
     // Property names
     static final String FIELD_ERRORS_PROPERTY = "fieldErrors";
 

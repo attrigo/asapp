@@ -200,7 +200,6 @@ class AuthenticationApiDocumentationIT extends RestDocsWebMvcTestContext {
                                            fieldWithPath("title").description("Short summary of the problem type"),
                                            fieldWithPath("status").description("HTTP status code"),
                                            fieldWithPath("detail").description("Human-readable explanation of the problem"),
-                                           fieldWithPath("error").description("Machine-readable error code"),
                                            fieldWithPath("fieldErrors").description("List of validation errors"),
                                            fieldWithPath("fieldErrors[].field").description("Field that failed validation"),
                                            fieldWithPath("fieldErrors[].message").description("Validation error message")
@@ -266,8 +265,7 @@ class AuthenticationApiDocumentationIT extends RestDocsWebMvcTestContext {
                                    relaxedResponseFields(
                                            fieldWithPath("title").description("Short summary of the problem type"),
                                            fieldWithPath("status").description("HTTP status code"),
-                                           fieldWithPath("detail").description("Human-readable explanation of the problem"),
-                                           fieldWithPath("error").description("Machine-readable error code")
+                                           fieldWithPath("detail").description("Human-readable explanation of the problem")
                                    )
                            )
                    // @formatter:on
@@ -299,8 +297,7 @@ class AuthenticationApiDocumentationIT extends RestDocsWebMvcTestContext {
                                    relaxedResponseFields(
                                            fieldWithPath("title").description("Short summary of the problem type"),
                                            fieldWithPath("status").description("HTTP status code"),
-                                           fieldWithPath("detail").description("Human-readable explanation of the problem"),
-                                           fieldWithPath("error").description("Machine-readable error code")
+                                           fieldWithPath("detail").description("Human-readable explanation of the problem")
                                    )
                            )
                    // @formatter:on

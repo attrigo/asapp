@@ -169,6 +169,5 @@ operation::error-not-found[snippets='http-response']
 ==== Internal Server Error (500)
 
 Returned when an unexpected server-side failure occurs.
-The `error` field contains a machine-readable error code.
 
 operation::error-internal-server-error[snippets='http-response,response-fields']

@@ -78,7 +78,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_FAILED_DETAIL);
         problemDetail.setTitle(BAD_REQUEST_TITLE);
-        problemDetail.setProperty(ERROR_PROPERTY, INVALID_REQUEST_ERROR);
         problemDetail.setProperty(FIELD_ERRORS_PROPERTY, invalidParameters);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -111,7 +110,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, VALIDATION_FAILED_DETAIL);
         problemDetail.setTitle(BAD_REQUEST_TITLE);
-        problemDetail.setProperty(ERROR_PROPERTY, INVALID_REQUEST_ERROR);
         problemDetail.setProperty(FIELD_ERRORS_PROPERTY, invalidArguments);
 
         return handleExceptionInternal(ex, problemDetail, headers, status, request);
@@ -133,7 +131,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, INVALID_ARGUMENT_DETAIL);
         problemDetail.setTitle(INVALID_ARGUMENT_TITLE);
-        problemDetail.setProperty(ERROR_PROPERTY, INVALID_REQUEST_ERROR);
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                              .body(problemDetail);
@@ -159,7 +156,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR_DETAIL);
         problemDetail.setTitle(INTERNAL_SERVER_ERROR_TITLE);
-        problemDetail.setProperty(ERROR_PROPERTY, SERVER_ERROR);
         problemDetail.setProperty(CRITICAL_PROPERTY, true);
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -186,7 +182,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.SERVICE_UNAVAILABLE, SERVICE_UNAVAILABLE_DETAIL);
         problemDetail.setTitle(SERVICE_UNAVAILABLE_TITLE);
-        problemDetail.setProperty(ERROR_PROPERTY, TEMPORARILY_UNAVAILABLE_ERROR);
 
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
                              .body(problemDetail);
@@ -213,7 +208,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR_DETAIL);
         problemDetail.setTitle(INTERNAL_SERVER_ERROR_TITLE);
-        problemDetail.setProperty(ERROR_PROPERTY, SERVER_ERROR);
         problemDetail.setProperty(CRITICAL_PROPERTY, true);
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
