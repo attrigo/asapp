@@ -112,13 +112,13 @@ curl -X POST http://localhost:8080/asapp-authentication-service/api/auth/token \
 
 # Response:
 {
-  "access_token": "eyJhbGc...",
-  "refresh_token": "eyJhbGc..."
+  "accessToken": "eyJhbGc...",
+  "refreshToken": "eyJhbGc..."
 }
 
 # 3. Use access token
 curl -X GET http://localhost:8080/asapp-authentication-service/api/users \
-  -H "Authorization: Bearer <access_token>"
+  -H "Authorization: Bearer <accessToken>"
 ```
 
 ---

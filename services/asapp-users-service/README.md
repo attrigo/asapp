@@ -90,7 +90,7 @@ docker-compose down -v
 TOKEN=$(curl -X POST http://localhost:8080/asapp-authentication-service/api/auth/token \
   -H "Content-Type: application/json" \
   -d '{"username":"user@asapp.com","password":"SecurePass123!"}' \
-  | jq -r '.access_token')
+  | jq -r '.accessToken')
 
 # 2. Create user profile
 curl -X POST http://localhost:8082/asapp-users-service/api/users \
@@ -109,12 +109,12 @@ curl -X GET http://localhost:8082/asapp-users-service/api/users/{id} \
 
 # Response includes tasks:
 {
-  "user_id": "...",
-  "first_name": "John",
-  "last_name": "Doe",
+  "userId": "...",
+  "firstName": "John",
+  "lastName": "Doe",
   "email": "john.doe@asapp.com",
-  "phone_number": "+1-555-0123",
-  "tasks": ["task-id-1", "task-id-2"]
+  "phoneNumber": "+1-555-0123",
+  "taskIds": ["a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d", "b2c3d4e5-f6a7-4b8c-9d0e-1f2a3b4c5d6e"]
 }
 ```
 

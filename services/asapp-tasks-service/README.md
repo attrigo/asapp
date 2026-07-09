@@ -91,18 +91,18 @@ docker-compose down -v
 TOKEN=$(curl -X POST http://localhost:8080/asapp-authentication-service/api/auth/token \
   -H "Content-Type: application/json" \
   -d '{"username":"user@asapp.com","password":"SecurePass123!"}' \
-  | jq -r '.access_token')
+  | jq -r '.accessToken')
 
 # 2. Create a task
 curl -X POST http://localhost:8081/asapp-tasks-service/api/tasks \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{
-    "user_id": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
+    "userId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
     "title": "Complete project documentation",
     "description": "Update all README files with current information",
-    "start_date": "2025-01-15T09:00:00Z",
-    "end_date": "2025-01-20T17:00:00Z"
+    "startDate": "2025-01-15T09:00:00Z",
+    "endDate": "2025-01-20T17:00:00Z"
   }'
 
 # 3. Get tasks by user ID
@@ -114,10 +114,11 @@ curl -X PUT http://localhost:8081/asapp-tasks-service/api/tasks/{id} \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $TOKEN" \
   -d '{
+    "userId": "a1b2c3d4-e5f6-4a7b-8c9d-0e1f2a3b4c5d",
     "title": "Updated title",
     "description": "Updated description",
-    "start_date": "2025-01-16T09:00:00Z",
-    "end_date": "2025-01-21T17:00:00Z"
+    "startDate": "2025-01-16T09:00:00Z",
+    "endDate": "2025-01-21T17:00:00Z"
   }'
 ```
 
