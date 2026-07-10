@@ -95,6 +95,7 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
                               .bodyJson()
                               .convertTo(String.class)
                               .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("detail", "An internal error occurred")
                                                                      .containsEntry("critical", true));
         }
 
