@@ -19,6 +19,8 @@ package com.attrigo.asapp.authentication.application.user.in;
 import java.util.Optional;
 
 import com.attrigo.asapp.authentication.application.user.in.command.UpdateUserCommand;
+import com.attrigo.asapp.authentication.domain.user.InvalidPasswordException;
+import com.attrigo.asapp.authentication.domain.user.InvalidUsernameException;
 import com.attrigo.asapp.authentication.domain.user.User;
 
 /**
@@ -36,7 +38,9 @@ public interface UpdateUserUseCase {
      *
      * @param command the {@link UpdateUserCommand} containing user update data
      * @return an {@link Optional} containing the updated {@link User} if found, {@link Optional#empty} otherwise
-     * @throws IllegalArgumentException if any data within the command is invalid (blank username, invalid email format, weak password, invalid role, etc.)
+     * @throws InvalidUsernameException if the username is blank or not a valid email address
+     * @throws InvalidPasswordException if the password is blank or outside the allowed length
+     * @throws IllegalArgumentException if the role is unknown or a required field is null
      */
     Optional<User> updateUserById(UpdateUserCommand command);
 

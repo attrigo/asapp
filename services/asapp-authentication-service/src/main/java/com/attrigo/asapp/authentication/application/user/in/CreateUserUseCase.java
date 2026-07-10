@@ -17,6 +17,8 @@
 package com.attrigo.asapp.authentication.application.user.in;
 
 import com.attrigo.asapp.authentication.application.user.in.command.CreateUserCommand;
+import com.attrigo.asapp.authentication.domain.user.InvalidPasswordException;
+import com.attrigo.asapp.authentication.domain.user.InvalidUsernameException;
 import com.attrigo.asapp.authentication.domain.user.User;
 
 /**
@@ -34,7 +36,9 @@ public interface CreateUserUseCase {
      *
      * @param command the {@link CreateUserCommand} containing user registration data
      * @return the created {@link User} with a persistent ID
-     * @throws IllegalArgumentException if any data within the command is invalid (blank username, invalid email format, weak password, invalid role, etc.)
+     * @throws InvalidUsernameException if the username is blank or not a valid email address
+     * @throws InvalidPasswordException if the password is blank or outside the allowed length
+     * @throws IllegalArgumentException if the role is unknown or a required field is null
      */
     User createUser(CreateUserCommand command);
 
