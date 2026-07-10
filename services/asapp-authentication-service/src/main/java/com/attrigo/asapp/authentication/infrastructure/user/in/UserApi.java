@@ -190,8 +190,6 @@ public interface UserApi {
     /**
      * Deletes a user by their unique identifier.
      * <p>
-     * If the user has active authentications, they will be revoked before deletion.
-     * <p>
      * Removes a user from the system by their unique identifier. Removes the user's authentications before deletion. This operation cannot be undone.
      * <p>
      * Response codes:
