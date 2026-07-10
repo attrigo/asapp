@@ -54,6 +54,9 @@ import com.attrigo.asapp.authentication.infrastructure.security.JwtIssuanceExcep
  * <li><strong>Authentication errors (401):</strong> Generic messages only (prevent user enumeration attacks)</li>
  * <li><strong>Server errors (5xx):</strong> Generic messages only (avoid internal implementation disclosure)</li>
  * </ul>
+ * <p>
+ * Exceptions without a dedicated handler are mapped to RFC 7807 {@link ProblemDetail} responses by the {@link ResponseEntityExceptionHandler} superclass (for
+ * example, malformed JSON, an unsupported media type, a missing parameter, or an unmapped route).
  *
  * @since 0.2.0
  * @see ResponseEntityExceptionHandler
