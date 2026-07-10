@@ -20,8 +20,6 @@ import com.attrigo.asapp.authentication.application.authentication.InvalidCreden
 import com.attrigo.asapp.authentication.application.authentication.TokenStoreException;
 import com.attrigo.asapp.authentication.application.authentication.in.command.AuthenticateCommand;
 import com.attrigo.asapp.authentication.domain.authentication.JwtAuthentication;
-import com.attrigo.asapp.authentication.domain.user.InvalidPasswordException;
-import com.attrigo.asapp.authentication.domain.user.InvalidUsernameException;
 
 /**
  * Use case for authenticating users in the system.
@@ -38,9 +36,7 @@ public interface AuthenticateUseCase {
      *
      * @param authenticateCommand the {@link AuthenticateCommand} containing user credentials
      * @return the {@link JwtAuthentication} containing access and refresh tokens
-     * @throws InvalidUsernameException    if the username is invalid (domain validation)
-     * @throws InvalidPasswordException    if the password is invalid (domain validation)
-     * @throws InvalidCredentialsException if the username and password do not match a known user
+     * @throws InvalidCredentialsException if the username or password is invalid (domain validation), or the username and password do not match a known user
      * @throws TokenStoreException         if token activation fails
      */
     JwtAuthentication authenticate(AuthenticateCommand authenticateCommand);

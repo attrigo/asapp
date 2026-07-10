@@ -24,7 +24,7 @@ package com.attrigo.asapp.authentication.domain.user;
  * @since 0.2.0
  * @author attrigo
  */
-public class InvalidUsernameException extends RuntimeException {
+public class InvalidUsernameException extends IllegalArgumentException {
 
     /**
      * Constructs a new {@code InvalidUsernameException} with the specified detail message.

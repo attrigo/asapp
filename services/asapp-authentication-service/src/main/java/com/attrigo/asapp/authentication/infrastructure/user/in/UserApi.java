@@ -134,7 +134,6 @@ public interface UserApi {
      * <ul>
      * <li>201-CREATED: User created successfully.</li>
      * <li>400-BAD_REQUEST: The request body is malformed or contains invalid data.</li>
-     * <li>401-UNAUTHORIZED: The user credentials are invalid or do not meet security requirements.</li>
      * <li>500-INTERNAL_SERVER_ERROR: An internal error occurred during user creation.</li>
      * </ul>
      *
@@ -148,8 +147,6 @@ public interface UserApi {
     @ApiResponse(responseCode = "201", description = "User created successfully", content = {
             @Content(schema = @Schema(implementation = CreateUserResponse.class)) })
     @ApiResponse(responseCode = "400", description = "The request body is malformed or contains invalid data", content = {
-            @Content(schema = @Schema(implementation = ProblemDetail.class)) })
-    @ApiResponse(responseCode = "401", description = "The user credentials are invalid or do not meet security requirements", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })
     @ApiResponse(responseCode = "500", description = "An internal error occurred during user creation", content = {
             @Content(schema = @Schema(implementation = ProblemDetail.class)) })

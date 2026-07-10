@@ -46,8 +46,6 @@ import com.attrigo.asapp.authentication.application.authentication.InvalidJwtExc
 import com.attrigo.asapp.authentication.application.authentication.TokenStoreException;
 import com.attrigo.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.attrigo.asapp.authentication.domain.authentication.InvalidEncodedTokenException;
-import com.attrigo.asapp.authentication.domain.user.InvalidPasswordException;
-import com.attrigo.asapp.authentication.domain.user.InvalidUsernameException;
 import com.attrigo.asapp.authentication.infrastructure.security.JwtIssuanceException;
 
 /**
@@ -159,8 +157,6 @@ class GlobalExceptionHandlerTests {
 
         private static Stream<RuntimeException> invalidCredentialExceptions() {
             return Stream.of(new InvalidCredentialsException("Invalid credentials", new RuntimeException("bad credentials")),
-                    new InvalidUsernameException("Username must be a valid email address"),
-                    new InvalidPasswordException("Raw password must be between 8 and 64 characters"),
                     new InvalidEncodedTokenException("Encoded token must be a valid JWT format"));
         }
 

@@ -18,6 +18,7 @@ package com.attrigo.asapp.authentication.infrastructure.error;
 
 import static com.attrigo.asapp.url.authentication.AuthenticationApiUrl.AUTH_REFRESH_TOKEN_FULL_PATH;
 import static com.attrigo.asapp.url.authentication.AuthenticationApiUrl.AUTH_TOKEN_FULL_PATH;
+import static com.attrigo.asapp.url.authentication.UserApiUrl.USERS_CREATE_FULL_PATH;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -37,6 +38,8 @@ import com.attrigo.asapp.authentication.application.authentication.InvalidCreden
 import com.attrigo.asapp.authentication.application.authentication.InvalidJwtException;
 import com.attrigo.asapp.authentication.application.authentication.TokenStoreException;
 import com.attrigo.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
+import com.attrigo.asapp.authentication.domain.user.InvalidPasswordException;
+import com.attrigo.asapp.authentication.domain.user.InvalidUsernameException;
 import com.attrigo.asapp.authentication.infrastructure.security.JwtIssuanceException;
 import com.attrigo.asapp.authentication.testutil.WebMvcTestContext;
 import com.attrigo.asapp.authentication.testutil.fixture.EncodedTokenMother;
@@ -49,6 +52,7 @@ import com.attrigo.asapp.authentication.testutil.fixture.EncodedTokenMother;
  * <p>
  * Coverage:
  * <li>Routes invalid-argument failures escaping a use case to a 400 Problem Detail</li>
+ * <li>Routes invalid username or password formatting failures escaping a use case to a 400 Problem Detail without an error property</li>
  * <li>Routes authentication failures escaping a use case to a 401 Problem Detail</li>
  * <li>Routes token-type and JWT validation failures escaping a use case to a 401 Problem Detail</li>
  * <li>Routes compensating-transaction, JWT signing and database failures escaping a use case to a 500 Problem Detail flagged critical</li>
@@ -76,6 +80,60 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
                                                            .content(requestBody);
 
             given(authenticateUseCase.authenticate(any())).willThrow(new IllegalArgumentException("Username must be a valid email address"));
+
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("detail", "Invalid argument provided"));
+        }
+
+        @Test
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidUsername() {
+            // Given
+            var requestBody = """
+                    {
+                    "username": "user@asapp.com",
+                    "password": "TEST@09_password?!",
+                    "role": "USER"
+                    }
+                    """;
+            var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                             .content(requestBody);
+
+            given(createUserUseCase.createUser(any())).willThrow(new InvalidUsernameException("Username must be a valid email address"));
+
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.BAD_REQUEST)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("detail", "Invalid argument provided"));
+        }
+
+        @Test
+        void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidPassword() {
+            // Given
+            var requestBody = """
+                    {
+                    "username": "user@asapp.com",
+                    "password": "TEST@09_password?!",
+                    "role": "USER"
+                    }
+                    """;
+            var requestBuilder = post(USERS_CREATE_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                             .content(requestBody);
+
+            given(createUserUseCase.createUser(any())).willThrow(new InvalidPasswordException("Raw password must be between 8 and 64 characters"));
 
             // When
             var actual = mockMvcTester.perform(requestBuilder);

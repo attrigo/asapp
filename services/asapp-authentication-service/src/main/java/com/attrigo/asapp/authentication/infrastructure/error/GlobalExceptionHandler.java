@@ -41,8 +41,6 @@ import com.attrigo.asapp.authentication.application.authentication.InvalidJwtExc
 import com.attrigo.asapp.authentication.application.authentication.TokenStoreException;
 import com.attrigo.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.attrigo.asapp.authentication.domain.authentication.InvalidEncodedTokenException;
-import com.attrigo.asapp.authentication.domain.user.InvalidPasswordException;
-import com.attrigo.asapp.authentication.domain.user.InvalidUsernameException;
 import com.attrigo.asapp.authentication.infrastructure.security.JwtIssuanceException;
 
 /**
@@ -133,8 +131,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * Catches:
      * <ul>
      * <li>{@link InvalidCredentialsException}: credentials rejected during authentication</li>
-     * <li>{@link InvalidUsernameException}: username is not a valid email format</li>
-     * <li>{@link InvalidPasswordException}: password length is outside the allowed range</li>
      * <li>{@link InvalidEncodedTokenException}: token is not a valid JWT format</li>
      * </ul>
      * All are treated as an authentication failure rather than a validation error to prevent user enumeration attacks.
@@ -144,7 +140,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * @param ex the captured credential exception
      * @return a {@link ResponseEntity} with status 401 and generic error message
      */
-    @ExceptionHandler({ InvalidCredentialsException.class, InvalidUsernameException.class, InvalidPasswordException.class, InvalidEncodedTokenException.class })
+    @ExceptionHandler({ InvalidCredentialsException.class, InvalidEncodedTokenException.class })
     protected ResponseEntity<ProblemDetail> handleInvalidCredentials(RuntimeException ex) {
         logger.warn("Authentication failed due to invalid credentials: {}", ex.getMessage());
 
