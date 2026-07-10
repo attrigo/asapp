@@ -748,6 +748,54 @@
               <intProp name="Assertion.test_type">16</intProp>
             </ResponseAssertion>
             <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Actuator Does Not Expose Sensitive Links" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="-1282681759">&quot;beans&quot;</stringProp>
+                <stringProp name="1301976840">&quot;conditions&quot;</stringProp>
+                <stringProp name="953797290">&quot;shutdown&quot;</stringProp>
+                <stringProp name="-357774442">&quot;configprops&quot;</stringProp>
+                <stringProp name="34518007">&quot;env&quot;</stringProp>
+                <stringProp name="1707773419">&quot;liquibase&quot;</stringProp>
+                <stringProp name="696753601">&quot;loggers&quot;</stringProp>
+                <stringProp name="2037911648">&quot;heapdump&quot;</stringProp>
+                <stringProp name="2029527938">&quot;threaddump&quot;</stringProp>
+                <stringProp name="-1758063135">&quot;metrics&quot;</stringProp>
+                <stringProp name="1729116383">&quot;scheduledtasks&quot;</stringProp>
+                <stringProp name="-1684489572">&quot;httpexchanges&quot;</stringProp>
+                <stringProp name="-653643397">&quot;mappings&quot;</stringProp>
+                <stringProp name="-2034858295">&quot;refresh&quot;</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.custom_message"></stringProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">20</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="13 - Auth Actuator Env Locked" enabled="true">
+            <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
+            <stringProp name="HTTPSampler.port">${auth.mgmt.port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">${auth.scheme}</stringProp>
+            <stringProp name="HTTPSampler.path">${auth.context}/actuator/env</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Response Code 404" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="51512">404</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.custom_message"></stringProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">true</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
+            </ResponseAssertion>
+            <hashTree/>
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="04 - Auth BootUI Console Locked">
             <stringProp name="HTTPSampler.domain">${auth.host}</stringProp>
@@ -861,6 +909,54 @@
               <intProp name="Assertion.test_type">16</intProp>
             </ResponseAssertion>
             <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Actuator Does Not Expose Sensitive Links" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="-1282681759">&quot;beans&quot;</stringProp>
+                <stringProp name="1301976840">&quot;conditions&quot;</stringProp>
+                <stringProp name="953797290">&quot;shutdown&quot;</stringProp>
+                <stringProp name="-357774442">&quot;configprops&quot;</stringProp>
+                <stringProp name="34518007">&quot;env&quot;</stringProp>
+                <stringProp name="1707773419">&quot;liquibase&quot;</stringProp>
+                <stringProp name="696753601">&quot;loggers&quot;</stringProp>
+                <stringProp name="2037911648">&quot;heapdump&quot;</stringProp>
+                <stringProp name="2029527938">&quot;threaddump&quot;</stringProp>
+                <stringProp name="-1758063135">&quot;metrics&quot;</stringProp>
+                <stringProp name="1729116383">&quot;scheduledtasks&quot;</stringProp>
+                <stringProp name="-1684489572">&quot;httpexchanges&quot;</stringProp>
+                <stringProp name="-653643397">&quot;mappings&quot;</stringProp>
+                <stringProp name="-2034858295">&quot;refresh&quot;</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.custom_message"></stringProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">20</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="14 - Tasks Actuator Env Locked">
+            <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
+            <stringProp name="HTTPSampler.port">${tasks.mgmt.port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">${tasks.scheme}</stringProp>
+            <stringProp name="HTTPSampler.path">${tasks.context}/actuator/env</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Response Code 404" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="51512">404</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.custom_message"></stringProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">true</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
+            </ResponseAssertion>
+            <hashTree/>
           </hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="08 - Tasks BootUI Console Locked">
             <stringProp name="HTTPSampler.domain">${tasks.host}</stringProp>
@@ -972,6 +1068,54 @@
               <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
               <boolProp name="Assertion.assume_success">false</boolProp>
               <intProp name="Assertion.test_type">16</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Actuator Does Not Expose Sensitive Links" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="-1282681759">&quot;beans&quot;</stringProp>
+                <stringProp name="1301976840">&quot;conditions&quot;</stringProp>
+                <stringProp name="953797290">&quot;shutdown&quot;</stringProp>
+                <stringProp name="-357774442">&quot;configprops&quot;</stringProp>
+                <stringProp name="34518007">&quot;env&quot;</stringProp>
+                <stringProp name="1707773419">&quot;liquibase&quot;</stringProp>
+                <stringProp name="696753601">&quot;loggers&quot;</stringProp>
+                <stringProp name="2037911648">&quot;heapdump&quot;</stringProp>
+                <stringProp name="2029527938">&quot;threaddump&quot;</stringProp>
+                <stringProp name="-1758063135">&quot;metrics&quot;</stringProp>
+                <stringProp name="1729116383">&quot;scheduledtasks&quot;</stringProp>
+                <stringProp name="-1684489572">&quot;httpexchanges&quot;</stringProp>
+                <stringProp name="-653643397">&quot;mappings&quot;</stringProp>
+                <stringProp name="-2034858295">&quot;refresh&quot;</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.custom_message"></stringProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">20</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="15 - Users Actuator Env Locked">
+            <stringProp name="HTTPSampler.domain">${users.host}</stringProp>
+            <stringProp name="HTTPSampler.port">${users.mgmt.port}</stringProp>
+            <stringProp name="HTTPSampler.protocol">${users.scheme}</stringProp>
+            <stringProp name="HTTPSampler.path">${users.context}/actuator/env</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.postBodyRaw">false</boolProp>
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert Response Code 404" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="51512">404</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.custom_message"></stringProp>
+              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+              <boolProp name="Assertion.assume_success">true</boolProp>
+              <intProp name="Assertion.test_type">8</intProp>
             </ResponseAssertion>
             <hashTree/>
           </hashTree>
