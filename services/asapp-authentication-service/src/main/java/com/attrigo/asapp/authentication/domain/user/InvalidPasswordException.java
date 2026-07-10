@@ -24,7 +24,7 @@ package com.attrigo.asapp.authentication.domain.user;
  * @since 0.2.0
  * @author attrigo
  */
-public class InvalidPasswordException extends RuntimeException {
+public class InvalidPasswordException extends IllegalArgumentException {
 
     /**
      * Constructs a new {@code InvalidPasswordException} with the specified detail message.

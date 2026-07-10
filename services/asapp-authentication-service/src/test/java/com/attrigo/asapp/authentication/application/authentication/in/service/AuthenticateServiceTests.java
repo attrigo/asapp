@@ -36,6 +36,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import com.attrigo.asapp.authentication.application.authentication.InvalidCredentialsException;
 import com.attrigo.asapp.authentication.application.authentication.TokenStoreException;
 import com.attrigo.asapp.authentication.application.authentication.in.command.AuthenticateCommand;
 import com.attrigo.asapp.authentication.application.authentication.out.CredentialsAuthenticator;
@@ -53,6 +54,7 @@ import com.attrigo.asapp.authentication.domain.user.Username;
  * Tests {@link AuthenticateService} credential validation, token generation, and persistence.
  * <p>
  * Coverage:
+ * <li>Invalid username or password format fails as invalid credentials before any collaborator is invoked</li>
  * <li>Credential validation failures propagate without executing downstream steps</li>
  * <li>Token generation failures prevent persistence and activation</li>
  * <li>Persistence failures prevent token activation</li>
@@ -117,6 +119,52 @@ class AuthenticateServiceTests {
                                              .save(any(JwtAuthentication.class));
             then(tokenStore).should(times(1))
                             .save(jwtPair);
+        }
+
+        @Test
+        void ThrowsInvalidCredentialsException_InvalidUsername() {
+            // Given
+            var usernameValue = "invalid_username";
+            var passwordValue = "TEST@09_password?!";
+            var command = new AuthenticateCommand(usernameValue, passwordValue);
+
+            // When
+            var actual = catchThrowable(() -> authenticateService.authenticate(command));
+
+            // Then
+            assertThat(actual).isInstanceOf(InvalidCredentialsException.class);
+
+            then(credentialsAuthenticator).should(never())
+                                          .authenticate(any(Username.class), any(RawPassword.class));
+            then(tokenIssuer).should(never())
+                             .issueTokenPair(any(UserAuthentication.class));
+            then(jwtAuthenticationRepository).should(never())
+                                             .save(any(JwtAuthentication.class));
+            then(tokenStore).should(never())
+                            .save(any(JwtPair.class));
+        }
+
+        @Test
+        void ThrowsInvalidCredentialsException_InvalidPassword() {
+            // Given
+            var usernameValue = "user@asapp.com";
+            var passwordValue = "short";
+            var command = new AuthenticateCommand(usernameValue, passwordValue);
+
+            // When
+            var actual = catchThrowable(() -> authenticateService.authenticate(command));
+
+            // Then
+            assertThat(actual).isInstanceOf(InvalidCredentialsException.class);
+
+            then(credentialsAuthenticator).should(never())
+                                          .authenticate(any(Username.class), any(RawPassword.class));
+            then(tokenIssuer).should(never())
+                             .issueTokenPair(any(UserAuthentication.class));
+            then(jwtAuthenticationRepository).should(never())
+                                             .save(any(JwtAuthentication.class));
+            then(tokenStore).should(never())
+                            .save(any(JwtPair.class));
         }
 
         @Test

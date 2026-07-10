@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.attrigo.asapp.authentication.application.ApplicationService;
+import com.attrigo.asapp.authentication.application.authentication.InvalidCredentialsException;
 import com.attrigo.asapp.authentication.application.authentication.in.AuthenticateUseCase;
 import com.attrigo.asapp.authentication.application.authentication.in.command.AuthenticateCommand;
 import com.attrigo.asapp.authentication.application.authentication.out.CredentialsAuthenticator;
@@ -30,6 +31,8 @@ import com.attrigo.asapp.authentication.application.authentication.out.TokenStor
 import com.attrigo.asapp.authentication.domain.authentication.JwtAuthentication;
 import com.attrigo.asapp.authentication.domain.authentication.JwtPair;
 import com.attrigo.asapp.authentication.domain.authentication.UserAuthentication;
+import com.attrigo.asapp.authentication.domain.user.InvalidPasswordException;
+import com.attrigo.asapp.authentication.domain.user.InvalidUsernameException;
 import com.attrigo.asapp.authentication.domain.user.RawPassword;
 import com.attrigo.asapp.authentication.domain.user.Username;
 
@@ -112,11 +115,19 @@ public class AuthenticateService implements AuthenticateUseCase {
      *
      * @param command the authentication command containing username and password
      * @return the authenticated {@link UserAuthentication} information
+     * @throws InvalidCredentialsException if the username or password fails domain validation
      */
     private UserAuthentication authenticateCredentials(AuthenticateCommand command) {
         logger.trace("[AUTHENTICATE] Step 1/5: Authenticating credentials");
-        var username = Username.of(command.username());
-        var password = RawPassword.of(command.password());
+
+        Username username;
+        RawPassword password;
+        try {
+            username = Username.of(command.username());
+            password = RawPassword.of(command.password());
+        } catch (InvalidUsernameException | InvalidPasswordException e) {
+            throw new InvalidCredentialsException("Invalid credentials", e);
+        }
 
         return credentialsAuthenticator.authenticate(username, password);
     }
