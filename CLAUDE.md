@@ -9,6 +9,7 @@ Libs: `asapp-commons-url` (endpoint URL constants), `asapp-http-clients` (declar
 ## Docs
 Guidelines: `.claude/rules/`
 Subagents: `.claude/agents/`
+Skills: `.claude/skills/`
 Plans and specs: `docs/superpowers/`
 
 ## Build
