@@ -75,11 +75,6 @@ public interface UserApi {
     /**
      * Gets a user by their unique identifier, enriched with task references.
      * <p>
-     * This endpoint retrieves user information along with a list of task identifiers associated with the user.
-     * <p>
-     * If tasks-service is unavailable, the endpoint still returns 200 OK with the user, an empty task list, and a {@code warnings} array describing the
-     * degradation.
-     * <p>
      * Retrieves detailed information about a specific user by their unique identifier, including a list of associated task identifiers. If tasks-service is
      * unavailable, the request still succeeds with an empty {@code taskIds} and a {@code task_ids_unavailable} warning in the {@code warnings} array. Because
      * an empty {@code taskIds} is indistinguishable from a user who genuinely has no tasks, clients must inspect {@code warnings} to detect degradation.
