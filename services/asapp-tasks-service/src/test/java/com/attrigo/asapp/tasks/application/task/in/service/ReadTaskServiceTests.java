@@ -52,7 +52,7 @@ import com.attrigo.asapp.tasks.domain.task.UserId;
  * <li>Returns task collection when queried by a list of identifiers</li>
  * <li>Deduplicates duplicate identifiers before querying</li>
  * <li>Throws when the input list contains a null identifier</li>
- * <li>Returns user collection when querying all users</<li>Returns task collection when queried by user ownership</li>
+ * <li>Returns task collection when queried by user ownership</li>
  * <li>Returns all tasks regardless of ownership</li>
  */
 @ExtendWith(MockitoExtension.class)
