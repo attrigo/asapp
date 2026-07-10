@@ -44,6 +44,9 @@ import jakarta.validation.ConstraintViolationException;
  * <li><strong>Validation errors (400):</strong> Include detailed field errors (safe, aids client developers)</li>
  * <li><strong>Server errors (5xx):</strong> Generic messages only (avoid internal implementation disclosure)</li>
  * </ul>
+ * <p>
+ * Exceptions without a dedicated handler are mapped to RFC 7807 {@link ProblemDetail} responses by the {@link ResponseEntityExceptionHandler} superclass (for
+ * example, malformed JSON, an unsupported media type, a missing parameter, or an unmapped route).
  *
  * @since 0.2.0
  * @see ResponseEntityExceptionHandler
