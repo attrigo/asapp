@@ -96,12 +96,14 @@ class SecurityConfigurationIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertMissingTokenUnauthorizedResponse(actual);
         }
 
         @Test
@@ -118,12 +120,14 @@ class SecurityConfigurationIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertMissingTokenUnauthorizedResponse(actual);
         }
 
         @Test
@@ -140,12 +144,14 @@ class SecurityConfigurationIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertMissingTokenUnauthorizedResponse(actual);
         }
 
         @Test
@@ -162,12 +168,14 @@ class SecurityConfigurationIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer error=\"invalid_token\"")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertInvalidTokenUnauthorizedResponse(actual);
         }
 
         @Test
@@ -186,12 +194,14 @@ class SecurityConfigurationIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer error=\"invalid_token\"")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertInvalidTokenUnauthorizedResponse(actual);
         }
 
         @Test
@@ -210,12 +220,14 @@ class SecurityConfigurationIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer error=\"invalid_token\"")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertInvalidTokenUnauthorizedResponse(actual);
         }
 
         @Test
@@ -234,12 +246,14 @@ class SecurityConfigurationIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer error=\"invalid_token\"")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertInvalidTokenUnauthorizedResponse(actual);
         }
 
         @Test
@@ -258,12 +272,14 @@ class SecurityConfigurationIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer error=\"invalid_token\"")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertInvalidTokenUnauthorizedResponse(actual);
         }
 
         @Test
@@ -282,12 +298,14 @@ class SecurityConfigurationIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer error=\"invalid_token\"")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertInvalidTokenUnauthorizedResponse(actual);
         }
 
         @Test
@@ -304,12 +322,14 @@ class SecurityConfigurationIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer error=\"invalid_token\"")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertInvalidTokenUnauthorizedResponse(actual);
         }
 
         @Test
@@ -326,20 +346,30 @@ class SecurityConfigurationIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer error=\"invalid_token\"")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertInvalidTokenUnauthorizedResponse(actual);
         }
 
-        private void assertUnauthorizedProblemDetailResponse(String actual) {
+        private void assertMissingTokenUnauthorizedResponse(String actual) {
             assertThatJson(actual).isObject()
                                   .containsEntry("title", "Authentication Failed")
                                   .containsEntry("status", 401)
                                   .containsEntry("detail", "Invalid credentials")
-                                  .containsEntry("error", "invalid_grant");
+                                  .doesNotContainKey("error");
+        }
+
+        private void assertInvalidTokenUnauthorizedResponse(String actual) {
+            assertThatJson(actual).isObject()
+                                  .containsEntry("title", "Authentication Failed")
+                                  .containsEntry("status", 401)
+                                  .containsEntry("detail", "Invalid credentials")
+                                  .containsEntry("error", "invalid_token");
         }
 
     }

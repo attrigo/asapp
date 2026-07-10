@@ -19,6 +19,7 @@ package com.attrigo.asapp.authentication.infrastructure.security.web;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
+import org.apache.commons.lang3.StringUtils;
 import org.jspecify.annotations.NonNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,11 +53,13 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     static final String INVALID_CREDENTIALS_DETAIL = "Invalid credentials";
 
-    static final String INVALID_GRANT_ERROR = "invalid_grant";
+    static final String INVALID_TOKEN_ERROR = "invalid_token";
 
     static final String ERROR_PROPERTY = "error";
 
     static final String BEARER_CHALLENGE = "Bearer";
+
+    static final String BEARER_CHALLENGE_INVALID_TOKEN = "Bearer error=\"invalid_token\"";
 
     private final ObjectMapper objectMapper;
 
@@ -72,8 +75,8 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     /**
      * {@inheritDoc}
      * <p>
-     * Writes a fixed, generic RFC 7807 {@link ProblemDetail} 401 body as {@code application/problem+json}. The raw exception message is logged but never placed
-     * in the response body.
+     * Writes a RFC 7807 {@link ProblemDetail} 401 body as {@code application/problem+json}, whose {@code error} property and {@code WWW-Authenticate} challenge
+     * vary depending on whether the request carried a bearer token. The raw exception message is logged but never placed in the response body.
      */
     @Override
     public void commence(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull AuthenticationException authException)
@@ -83,13 +86,29 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.UNAUTHORIZED, INVALID_CREDENTIALS_DETAIL);
         problemDetail.setTitle(AUTHENTICATION_FAILED_TITLE);
-        problemDetail.setProperty(ERROR_PROPERTY, INVALID_GRANT_ERROR);
+
+        String authenticateChallenge = BEARER_CHALLENGE;
+        if (isBearerTokenPresent(request)) {
+            problemDetail.setProperty(ERROR_PROPERTY, INVALID_TOKEN_ERROR);
+            authenticateChallenge = BEARER_CHALLENGE_INVALID_TOKEN;
+        }
 
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
-        response.setHeader(HttpHeaders.WWW_AUTHENTICATE, BEARER_CHALLENGE);
+        response.setHeader(HttpHeaders.WWW_AUTHENTICATE, authenticateChallenge);
         response.setContentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         objectMapper.writeValue(response.getWriter(), problemDetail);
+    }
+
+    /**
+     * Determines whether the request carries a bearer token, mirroring the same predicate {@code JwtAuthenticationFilter} uses to extract it.
+     *
+     * @param request the HTTP request
+     * @return {@code true} if the {@code Authorization} header is a non-blank {@code Bearer <token>} value, {@code false} otherwise
+     */
+    private boolean isBearerTokenPresent(HttpServletRequest request) {
+        var authorizationHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
+        return StringUtils.isNotBlank(authorizationHeader) && authorizationHeader.startsWith("Bearer ");
     }
 
 }

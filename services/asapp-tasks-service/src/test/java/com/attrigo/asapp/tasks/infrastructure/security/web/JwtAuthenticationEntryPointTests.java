@@ -33,7 +33,12 @@ import org.springframework.security.authentication.InsufficientAuthenticationExc
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Tests {@link JwtAuthenticationEntryPoint} rendering of a generic RFC 7807 401 response on authentication failure.
+ * Tests {@link JwtAuthenticationEntryPoint} rendering of a RFC 7807 401 response on authentication failure, distinguishing a missing bearer token from a
+ * present-but-invalid one.
+ * <p>
+ * Coverage:
+ * <li>Renders a bare Bearer challenge without an error code when no bearer token is supplied</li>
+ * <li>Renders a Bearer challenge carrying the invalid_token error code when a bearer token is present but invalid</li>
  */
 class JwtAuthenticationEntryPointTests {
 
@@ -46,7 +51,7 @@ class JwtAuthenticationEntryPointTests {
     class Commence {
 
         @Test
-        void ReturnsUnauthorizedAndProblemDetail_AuthenticationFails() throws Exception {
+        void ReturnsUnauthorizedAndProblemDetailWithBareChallenge_MissingAuthorizationHeader() throws Exception {
             // Given
             var request = new MockHttpServletRequest("GET", "/api/tasks");
             var response = new MockHttpServletResponse();
@@ -67,7 +72,59 @@ class JwtAuthenticationEntryPointTests {
                                                          .containsEntry("title", "Authentication Failed")
                                                          .containsEntry("status", 401)
                                                          .containsEntry("detail", "Invalid credentials")
-                                                         .containsEntry("error", "invalid_grant");
+                                                         .doesNotContainKey("error");
+        }
+
+        @Test
+        void ReturnsUnauthorizedAndProblemDetailWithBareChallenge_BearerHeaderWithoutToken() throws Exception {
+            // Given
+            var request = new MockHttpServletRequest("GET", "/api/tasks");
+            request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer");
+            var response = new MockHttpServletResponse();
+            var authenticationException = new InsufficientAuthenticationException("Full authentication is required");
+
+            // When
+            jwtAuthenticationEntryPoint.commence(request, response, authenticationException);
+
+            // Then
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(response.getStatus()).as("status").isEqualTo(HttpStatus.UNAUTHORIZED.value());
+                softly.assertThat(response.getContentType()).as("content type").startsWith(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+                softly.assertThat(response.getHeader(HttpHeaders.WWW_AUTHENTICATE)).as("WWW-Authenticate header").isEqualTo("Bearer");
+                // @formatter:on
+            });
+            assertThatJson(response.getContentAsString()).isObject()
+                                                         .containsEntry("title", "Authentication Failed")
+                                                         .containsEntry("status", 401)
+                                                         .containsEntry("detail", "Invalid credentials")
+                                                         .doesNotContainKey("error");
+        }
+
+        @Test
+        void ReturnsUnauthorizedAndProblemDetailWithErrorCodeChallenge_InvalidToken() throws Exception {
+            // Given
+            var request = new MockHttpServletRequest("GET", "/api/tasks");
+            request.addHeader(HttpHeaders.AUTHORIZATION, "Bearer invalid_bearer_token");
+            var response = new MockHttpServletResponse();
+            var authenticationException = new InsufficientAuthenticationException("Full authentication is required");
+
+            // When
+            jwtAuthenticationEntryPoint.commence(request, response, authenticationException);
+
+            // Then
+            assertSoftly(softly -> {
+                // @formatter:off
+                softly.assertThat(response.getStatus()).as("status").isEqualTo(HttpStatus.UNAUTHORIZED.value());
+                softly.assertThat(response.getContentType()).as("content type").startsWith(MediaType.APPLICATION_PROBLEM_JSON_VALUE);
+                softly.assertThat(response.getHeader(HttpHeaders.WWW_AUTHENTICATE)).as("WWW-Authenticate header").isEqualTo("Bearer error=\"invalid_token\"");
+                // @formatter:on
+            });
+            assertThatJson(response.getContentAsString()).isObject()
+                                                         .containsEntry("title", "Authentication Failed")
+                                                         .containsEntry("status", 401)
+                                                         .containsEntry("detail", "Invalid credentials")
+                                                         .containsEntry("error", "invalid_token");
         }
 
     }
