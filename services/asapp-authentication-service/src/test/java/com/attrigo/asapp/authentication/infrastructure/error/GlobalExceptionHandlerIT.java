@@ -118,8 +118,8 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
                               .bodyJson()
                               .convertTo(String.class)
                               .satisfies(json -> assertThatJson(json).isObject()
-                                                                     .containsEntry("error", "invalid_grant")
-                                                                     .containsEntry("detail", "Invalid credentials"));
+                                                                     .containsEntry("detail", "Invalid credentials")
+                                                                     .containsEntry("error", "invalid_grant"));
         }
 
     }
@@ -150,8 +150,8 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
                               .bodyJson()
                               .convertTo(String.class)
                               .satisfies(json -> assertThatJson(json).isObject()
-                                                                     .containsEntry("error", "invalid_grant")
-                                                                     .containsEntry("detail", "Invalid credentials"));
+                                                                     .containsEntry("detail", "Invalid credentials")
+                                                                     .containsEntry("error", "invalid_grant"));
         }
 
     }
@@ -181,8 +181,8 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
                               .bodyJson()
                               .convertTo(String.class)
                               .satisfies(json -> assertThatJson(json).isObject()
-                                                                     .containsEntry("error", "invalid_grant")
-                                                                     .containsEntry("detail", "Invalid token"));
+                                                                     .containsEntry("detail", "Invalid token")
+                                                                     .containsEntry("error", "invalid_grant"));
         }
 
     }
@@ -213,8 +213,8 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
                               .bodyJson()
                               .convertTo(String.class)
                               .satisfies(json -> assertThatJson(json).isObject()
-                                                                     .containsEntry("error", "invalid_grant")
-                                                                     .containsEntry("detail", "Invalid credentials"));
+                                                                     .containsEntry("detail", "Invalid credentials")
+                                                                     .containsEntry("error", "invalid_grant"));
         }
 
     }
@@ -245,6 +245,7 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
                               .bodyJson()
                               .convertTo(String.class)
                               .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("detail", "An internal error occurred")
                                                                      .containsEntry("critical", true));
         }
 
@@ -276,6 +277,7 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
                               .bodyJson()
                               .convertTo(String.class)
                               .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("detail", "An internal error occurred")
                                                                      .containsEntry("critical", true));
         }
 
@@ -307,6 +309,7 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
                               .bodyJson()
                               .convertTo(String.class)
                               .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("detail", "An internal error occurred")
                                                                      .containsEntry("critical", true));
         }
 
