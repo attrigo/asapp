@@ -74,5 +74,7 @@ Infrastructure-specific patterns for integration tests with real database, conta
 
 ### 3.4 MockServer for External Services
 
-- Use `MockServerContainer` with `@DynamicPropertySource` for external service mocking
-- Only use in `@SpringBootTest` tests for service-to-service calls
+Mock service-to-service calls only in `@SpringBootTest`, tiered by level:
+
+- `*IT`: embedded `mockserver-netty` (`ClientAndServer`)
+- `*E2EIT`: Testcontainers `MockServerContainer`
