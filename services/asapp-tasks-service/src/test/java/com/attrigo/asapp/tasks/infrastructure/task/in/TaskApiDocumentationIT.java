@@ -488,7 +488,8 @@ class TaskApiDocumentationIT extends RestDocsWebMvcTestContext {
             var taskIdValue = UUID.fromString("00000000-0000-0000-0000-000000000001");
 
             // When & Then
-            mockMvc.perform(get(TASKS_GET_BY_ID_FULL_PATH, taskIdValue).accept(APPLICATION_JSON))
+            mockMvc.perform(get(TASKS_GET_BY_ID_FULL_PATH, taskIdValue).header(AUTHORIZATION, "Bearer sample.access.token")
+                                                                       .accept(APPLICATION_JSON))
                    .andExpect(status().isUnauthorized())
                    .andDo(
                    // @formatter:off

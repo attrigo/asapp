@@ -173,12 +173,14 @@ class TaskE2EIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertMissingTokenUnauthorizedResponse(actual);
         }
 
     }
@@ -287,12 +289,14 @@ class TaskE2EIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertMissingTokenUnauthorizedResponse(actual);
         }
 
     }
@@ -565,12 +569,14 @@ class TaskE2EIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertMissingTokenUnauthorizedResponse(actual);
         }
 
     }
@@ -641,12 +647,14 @@ class TaskE2EIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertMissingTokenUnauthorizedResponse(actual);
         }
 
     }
@@ -743,12 +751,14 @@ class TaskE2EIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertMissingTokenUnauthorizedResponse(actual);
         }
 
     }
@@ -810,12 +820,14 @@ class TaskE2EIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertMissingTokenUnauthorizedResponse(actual);
         }
 
     }
@@ -835,12 +847,12 @@ class TaskE2EIT {
 
     // Test Assertion Helpers
 
-    private void assertUnauthorizedProblemDetailResponse(String actual) {
+    private void assertMissingTokenUnauthorizedResponse(String actual) {
         assertThatJson(actual).isObject()
                               .containsEntry("title", "Authentication Failed")
                               .containsEntry("status", 401)
                               .containsEntry("detail", "Invalid credentials")
-                              .containsEntry("error", "invalid_grant");
+                              .doesNotContainKey("error");
     }
 
 }

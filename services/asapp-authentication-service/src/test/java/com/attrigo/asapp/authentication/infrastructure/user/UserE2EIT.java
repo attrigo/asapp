@@ -177,12 +177,14 @@ class UserE2EIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertMissingTokenUnauthorizedResponse(actual);
         }
 
     }
@@ -275,12 +277,14 @@ class UserE2EIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertMissingTokenUnauthorizedResponse(actual);
         }
 
     }
@@ -409,12 +413,14 @@ class UserE2EIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertMissingTokenUnauthorizedResponse(actual);
         }
 
     }
@@ -505,12 +511,14 @@ class UserE2EIT {
                                        .isUnauthorized()
                                        .expectHeader()
                                        .contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON)
+                                       .expectHeader()
+                                       .valueEquals(HttpHeaders.WWW_AUTHENTICATE, "Bearer")
                                        .expectBody(String.class)
                                        .returnResult()
                                        .getResponseBody();
 
             // Then
-            assertUnauthorizedProblemDetailResponse(actual);
+            assertMissingTokenUnauthorizedResponse(actual);
         }
 
     }
@@ -548,12 +556,12 @@ class UserE2EIT {
 
     // Assertions Helpers
 
-    private void assertUnauthorizedProblemDetailResponse(String actual) {
+    private void assertMissingTokenUnauthorizedResponse(String actual) {
         assertThatJson(actual).isObject()
                               .containsEntry("title", "Authentication Failed")
                               .containsEntry("status", 401)
                               .containsEntry("detail", "Invalid credentials")
-                              .containsEntry("error", "invalid_grant");
+                              .doesNotContainKey("error");
     }
 
     private void assertAuthenticationNotExist(JdbcJwtAuthenticationEntity expectedJwtAuthentication) {
