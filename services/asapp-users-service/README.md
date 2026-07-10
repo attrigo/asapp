@@ -219,7 +219,7 @@ Configured under `resilience4j.retry.instances.<name>.*`:
 
 - Connect and read deadlines bound how long an outbound call can block.
 - A slow downstream hits the read timeout and surfaces as a transient I/O failure, handled like any other fault.
-- Redirects are disabled, so the client never silently follows a 3xx.
+- Redirects are hard-disabled, not configurable, so the client can never silently follow a 3xx (which would leak the bearer token).
 
 Configured under `spring.http.clients.*`:
 
@@ -227,7 +227,6 @@ Configured under `spring.http.clients.*`:
 |---------------------------------------|-----------------------------------------------|
 | `spring.http.clients.connect-timeout` | How long to wait to establish the connection  |
 | `spring.http.clients.read-timeout`    | How long to wait for the response             |
-| `spring.http.clients.redirects`       | Whether the client follows HTTP redirects     |
 
 State and metrics surface via Prometheus and the `/actuator/health`, `/actuator/retries`, and `/actuator/retryevents` endpoints.
 

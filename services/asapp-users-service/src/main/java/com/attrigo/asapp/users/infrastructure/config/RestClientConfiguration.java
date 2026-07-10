@@ -21,6 +21,7 @@ import java.util.Set;
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.http.client.ClientHttpRequestFactoryBuilder;
 import org.springframework.boot.http.client.HttpClientSettings;
+import org.springframework.boot.http.client.HttpRedirects;
 import org.springframework.boot.restclient.autoconfigure.RestClientBuilderConfigurer;
 import org.springframework.cloud.client.loadbalancer.LoadBalancerInterceptor;
 import org.springframework.cloud.netflix.eureka.TimeoutProperties;
@@ -81,8 +82,10 @@ public class RestClientConfiguration {
     @Bean
     RestClientHttpServiceGroupConfigurer httpServiceGroupConfigurer(ObjectProvider<LoadBalancerInterceptor> loadBalancerInterceptor,
             HttpClientSettings httpClientSettings) {
+        // Security: redirects are forced off so a redirect target can never receive the JwtInterceptor's forwarded Authorization
+        // header; this must stay hard-coded and NOT be re-exposed via the spring.http.clients.redirects property.
         var requestFactory = ClientHttpRequestFactoryBuilder.jdk()
-                                                            .build(httpClientSettings);
+                                                            .build(httpClientSettings.withRedirects(HttpRedirects.DONT_FOLLOW));
 
         return groupConfigurer -> groupConfigurer.forEachClient((_, clientBuilder) -> {
             clientBuilder.requestFactory(requestFactory)
