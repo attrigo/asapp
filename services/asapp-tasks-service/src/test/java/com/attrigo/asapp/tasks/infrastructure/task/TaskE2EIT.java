@@ -110,7 +110,7 @@ class TaskE2EIT {
     class GetTaskById {
 
         @Test
-        void ReturnsStatusOKAndBodyWithFoundTask_TaskExists() {
+        void ReturnsStatusOkAndBodyWithFoundTask_TaskExists() {
             // Given
             var createdTask = createTask();
             var taskId = createdTask.id();
@@ -189,7 +189,7 @@ class TaskE2EIT {
     class GetTasksByUserId {
 
         @Test
-        void ReturnsStatusOKAndBodyWithFoundTasks_TasksExistForUserId() {
+        void ReturnsStatusOkAndBodyWithFoundTasks_TasksExistForUserId() {
             // Given
             var userId = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
             var task1 = aTaskBuilder().withUserId(userId)
@@ -252,7 +252,7 @@ class TaskE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndEmptyBody_TasksNotExistForUserId() {
+        void ReturnsStatusOkAndEmptyBody_TasksNotExistForUserId() {
             // Given
             var userId = UUID.fromString("c9e2a5f8-4d7b-4c63-9a8e-7b3f2d9c5e1a");
 
@@ -305,7 +305,7 @@ class TaskE2EIT {
     class GetTasks {
 
         @Test
-        void ReturnsStatusOKAndBodyWithAllTasks_NoIdsAndTasksExist() {
+        void ReturnsStatusOkAndBodyWithAllTasks_NoIdsAndTasksExist() {
             // Given
             var task1 = aTaskBuilder().withTitle("Title1")
                                       .buildJdbc();
@@ -364,7 +364,7 @@ class TaskE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndBodyWithFoundTasks_AllIdsExist() {
+        void ReturnsStatusOkAndBodyWithFoundTasks_AllIdsExist() {
             // Given
             var task1 = aTaskBuilder().withTitle("Title1")
                                       .buildJdbc();
@@ -417,7 +417,7 @@ class TaskE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndBodyWithFoundTasks_SomeIdsExist() {
+        void ReturnsStatusOkAndBodyWithFoundTasks_SomeIdsExist() {
             // Given
             var createdTask1 = createTask();
             var taskId1 = createdTask1.id();
@@ -457,7 +457,7 @@ class TaskE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndBodyWithFoundTasksOnce_DuplicateIds() {
+        void ReturnsStatusOkAndBodyWithFoundTasksOnce_DuplicateIds() {
             // Given
             var task1 = aTaskBuilder().withTitle("Title1")
                                       .buildJdbc();
@@ -510,7 +510,7 @@ class TaskE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndEmptyBody_NoIdsAndTasksNotExist() {
+        void ReturnsStatusOkAndEmptyBody_NoIdsAndTasksNotExist() {
             // When
             var actual = restTestClient.get()
                                        .uri(TASKS_GET_FULL_PATH)
@@ -531,7 +531,7 @@ class TaskE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndEmptyBody_IdsNotExist() {
+        void ReturnsStatusOkAndEmptyBody_IdsNotExist() {
             // Given
             var taskId1 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
             var taskId2 = UUID.fromString("68699b10-b665-4378-baea-a44b4be287f9");

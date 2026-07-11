@@ -78,6 +78,15 @@ _resolve_jmeter_java() {
     exit 1
   fi
 
+  if (( ver_major < 17 )); then
+    echo "ERROR: JMeter would run under Java $ver_major ($raw_home)." >&2
+    echo "       JMeter 5.6.3 requires Java 17+ and will not start on Java < 17." >&2
+    echo "       Point JMeter at a Java 17 (recommended) or 21 JDK without changing" >&2
+    echo "       your project JAVA_HOME:" >&2
+    echo "         ./run-stress.sh --java-home '/path/to/jdk-17'" >&2
+    exit 1
+  fi
+
   export JAVA_HOME="$java_home"
   log_step "Resolved Java $ver_major for JMeter: $java_home"
 }

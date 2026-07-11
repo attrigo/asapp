@@ -55,16 +55,4 @@ JMETER_BIN="$("$SCRIPTS_DIR/ensure-jmeter.sh")"
 run_plan regression "$SCRIPT_DIR/asapp-regression.jmx" "$@"
 
 log_step "Evaluating results"
-
-# Gate: read the run's total error count from the dashboard's statistics.json (structured JSON,
-# unlike the .jtl whose quoted messages embed commas/newlines and would defeat a column parse).
-# One awk line pulls Total.errorCount; a non-zero count, or a missing file, fails the gate.
-errors="$(awk '/"Total"[[:space:]]*:/{t=1} t&&/"errorCount"/{match($0,/[0-9]+/); print substr($0,RSTART,RLENGTH); exit}' "$REPORT/statistics.json")"
-
-if (( ${errors:-1} > 0 )); then
-  log_detail "REGRESSION FAILED."
-  log_detail "Report: $REPORT/index.html"
-  exit 1
-fi
-log_detail "REGRESSION PASSED."
-log_detail "Report: $REPORT/index.html"
+evaluate_gate "REGRESSION"

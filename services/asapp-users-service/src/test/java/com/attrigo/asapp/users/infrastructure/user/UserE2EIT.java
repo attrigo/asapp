@@ -140,7 +140,7 @@ class UserE2EIT {
     class GetUserById {
 
         @Test
-        void ReturnsStatusOKAndBodyWithFoundUserWithoutTasks_UserExistsWithoutTasks(CapturedOutput output) {
+        void ReturnsStatusOkAndBodyWithFoundUserWithoutTasks_UserExistsWithoutTasks(CapturedOutput output) {
             // Given
             var createdUser = createUser();
             var userId = createdUser.id();
@@ -180,7 +180,7 @@ class UserE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndBodyWithFoundUserWithTasks_UserExistsWithTasks() {
+        void ReturnsStatusOkAndBodyWithFoundUserWithTasks_UserExistsWithTasks() {
             // Given
             var createdUser = createUser();
             var userId = createdUser.id();
@@ -221,7 +221,7 @@ class UserE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndBodyWithFoundUserWithEmptyTaskListAndWarning_UserExistsAndTasksServiceFails(CapturedOutput output) {
+        void ReturnsStatusOkAndBodyWithFoundUserWithEmptyTaskListAndWarning_UserExistsAndTasksServiceFails(CapturedOutput output) {
             // Given
             var createdUser = createUser();
             var userId = createdUser.id();
@@ -316,7 +316,7 @@ class UserE2EIT {
     class GetUsers {
 
         @Test
-        void ReturnsStatusOKAndBodyWithAllUsers_NoIdsAndUsersExist() {
+        void ReturnsStatusOkAndBodyWithAllUsers_NoIdsAndUsersExist() {
             // Given
             var user1 = aUserBuilder().withEmail("user1@asapp.com")
                                       .buildJdbc();
@@ -372,7 +372,7 @@ class UserE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndBodyWithFoundUsers_AllIdsExist() {
+        void ReturnsStatusOkAndBodyWithFoundUsers_AllIdsExist() {
             // Given
             var user1 = aUserBuilder().withEmail("user1@asapp.com")
                                       .buildJdbc();
@@ -423,7 +423,7 @@ class UserE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndBodyWithFoundUsers_SomeIdsExist() {
+        void ReturnsStatusOkAndBodyWithFoundUsers_SomeIdsExist() {
             // Given
             var createdUser1 = createUser();
             var userId1 = createdUser1.id();
@@ -459,7 +459,7 @@ class UserE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndBodyWithFoundUsersOnce_DuplicateIds() {
+        void ReturnsStatusOkAndBodyWithFoundUsersOnce_DuplicateIds() {
             // Given
             var user1 = aUserBuilder().withEmail("user1@asapp.com")
                                       .buildJdbc();
@@ -510,7 +510,7 @@ class UserE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndEmptyBody_NoIdsAndUsersNotExist() {
+        void ReturnsStatusOkAndEmptyBody_NoIdsAndUsersNotExist() {
             // When
             var actual = restTestClient.get()
                                        .uri(USERS_GET_FULL_PATH)
@@ -531,7 +531,7 @@ class UserE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndEmptyBody_IdsNotExist() {
+        void ReturnsStatusOkAndEmptyBody_IdsNotExist() {
             // Given
             var userId1 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
             var userId2 = UUID.fromString("68699b10-b665-4378-baea-a44b4be287f9");
