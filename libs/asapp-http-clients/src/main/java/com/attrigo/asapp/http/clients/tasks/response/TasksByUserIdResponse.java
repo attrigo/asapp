@@ -19,7 +19,7 @@ package com.attrigo.asapp.http.clients.tasks.response;
 import java.util.UUID;
 
 /**
- * Internal DTO for mapping task responses from the Tasks Service.
+ * Maps task responses returned by the Tasks Service.
  * <p>
  * This record contains only the fields needed for extracting task IDs. Additional fields returned by the service are ignored.
  *
