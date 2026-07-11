@@ -17,108 +17,78 @@ Turn one vague, high-level `TODO.md` entry into a clearer **parent task** plus a
 
 ## Usage
 
-- `/asapp-refine-task <line-number>` — refine the entry at that line of `TODO.md`
-- `/asapp-refine-task <quoted or named task>` — locate the matching entry and refine it
-- `/asapp-refine-task` (no argument) — ask which entry to refine
+- `/asapp-refine-task <line-number>` — refine the entry at that line of `TODO.md`.
+- `/asapp-refine-task <quoted or named task>` — locate the matching entry and refine it.
+- `/asapp-refine-task` — ask which entry to refine.
 
 ## Process
 
-### Step 0: Set up progress tracking
+### 0. Set up progress tracking
 
-**Before any other step**, create these four tracking tasks with the task tool; mark each `in_progress` when you start it and `completed` when it's done:
+**Before any other step**, create these four tracking tasks with the task tool; mark each `in_progress` when you start it and `completed` when done:
 
 1. Locate the task and clarify intent (Steps 1–2)
 2. Gather project context via a subagent (Step 3)
 3. Compose the refined block — parent, subtasks, and extras (Steps 4–6)
-4. Propose and edit `TODO.md` on approval (Delivery)
+4. Propose and edit `TODO.md` on approval (Step 7)
 
-Keep Task 4 `in_progress` across the wait for the user's approval; mark it `completed` only once the edit lands or the user declines.
+Keep task 4 `in_progress` across the wait for the user's approval; mark it `completed` only once the edit lands or the user declines.
 
-### Step 1: Locate and read the task
+### 1. Locate and read the task
 
-- Resolve the input to a single `TODO.md` entry: a line number, or quoted/named text matched against the file.
-- If the match is ambiguous (several plausible entries), show the candidates and confirm before continuing.
-- Record where it lives: a version section (and its bucket) or a Backlog area, and the indent level. The refined block goes back in the **same place** — never move an entry between sections, and never refine one already complete (`[X]`) or dropped (a `Decisions` entry: `**Rejected:**` / `**Dropped:**`).
+- Resolve the input to one `TODO.md` entry (line number, or quoted / named text). If several entries plausibly match, show the candidates and confirm.
+- Record where it lives — version section + bucket, or Backlog area, and indent level — so the refined block returns to the same place.
+- Skip a closed entry — one already done (`[X]`) or dropped (a `Decisions` `**Rejected:**` / `**Dropped:**`).
 
-### Step 2: Clarify intent
+### 2. Clarify intent
 
-- Judge whether purpose, scope, goal, and domain are clear from the entry plus the repo.
-- **If clear:** state your read in one line and continue. Do not over-ask.
-- **If genuinely ambiguous:** ask the user — one batched round via `AskUserQuestion`, only questions whose answers change the outcome (e.g. "is this for learning a technology, or solving a concrete pain?").
+Judge whether purpose, scope, goal, and domain are clear from the entry plus the repo.
 
-### Step 3: Gather project context
+- **Clear** — state your read in one line and continue; don't over-ask.
+- **Genuinely ambiguous** — one batched `AskUserQuestion` round, only questions whose answers change the outcome (e.g. "learning a technology, or solving a concrete pain?").
 
-**Delegate the grounding to a single `Explore` subagent** — keep the reading out of the main context; only its concise report comes back. Do it **inline only when the entry is trivially small** (it grounds against ~1–2 files), where a dispatch would cost more than it saves.
+### 3. Gather project context
+
+**Delegate the grounding to a single `Explore` subagent** — keep the reading out of the main context; only its concise report returns. Go inline only when the entry is trivially small (grounds against ~1–2 files), where a dispatch costs more than it saves.
 
 Tell the subagent to:
+- Inspect the involved resources — related code, docs, config, matching `.claude/rules/` files, recent commits.
+- Find the real footprint and constraints, and flag anything the task names that is **not yet in the stack**.
+- Return a concise grounding report — paths, constraints, footprint — not file dumps.
 
-- Inspect the involved resources: related code, docs, config, matching files in `.claude/rules/`, and recent commits.
-- Find the real footprint and constraints, and flag whether the task names something **not yet in the stack**.
-- Return a **concise grounding report** — paths, constraints, footprint — **not file dumps**.
+This grounding **informs** the subtasks; it does not become them. Resist turning every file it surfaces into a subtask.
 
-This grounding is essential — but it **informs** the subtasks; it does not become them. Resist turning every file it surfaces into a subtask.
+### 4. Rewrite the parent task
 
-### Step 4: Rewrite the parent task
+Reframe the parent to its underlying goal or capability, or keep it if already a good scoped goal (Decomposition and Wording conventions — `.claude/rules/todo.md`).
 
-- Reframe to the underlying goal or capability when that is clearer than a literal restatement — e.g. `Replace REST clients by declarative HTTP clients` → `Improve HTTP clients`.
-- Keep it if the original is already a good scoped goal.
-- Apply the Wording conventions below.
+### 5. Decompose into subtasks
 
-### Step 5: Decompose into subtasks
+Apply the **Decomposition** and **Wording** conventions (`.claude/rules/todo.md`) to every subtask.
 
-Apply the rule's **Decomposition** conventions (`.claude/rules/todo.md`). Apply the Wording conventions below to every subtask.
+### 6. Propose extra improvements
 
-### Step 6: Propose extra improvements
-
-- Suggest genuinely *additive* subtasks when they clearly strengthen the work (resilience, validation, docs, observability) — beyond the literal 1:1 translation. Do not propose a test subtask here; follow the rule's **Decomposition** test guidance.
+- Suggest genuinely *additive* subtasks when they clearly strengthen the work (resilience, validation, docs, observability) — beyond the literal 1:1 translation. No per-feature test subtask (see the rule's Decomposition).
 - Research the web **only** when the topic is fast-moving or you are unsure of current best practice; otherwise propose from existing knowledge.
-- Keep extras optional and few — do not pad. Flag which subtasks are proposals in the Delivery rationale, keeping the markdown itself clean.
+- Keep extras few — don't pad. Flag which subtasks are proposals in the Step 7 rationale, keeping the markdown itself clean.
 
-## Wording conventions
+### 7. Deliver — propose, then edit on approval
 
-Apply the TODO **Wording** conventions (`.claude/rules/todo.md`) to the parent task and every subtask.
+1. Show the refined block in a fenced code block, plus a **one-line** rationale naming which subtasks are proposed extras.
+2. Wait for approval.
+3. On approval, edit `TODO.md` in place — replace the original entry and its existing children with the refined block; preserve placement and indentation.
+4. If the user declines or requests changes, adjust and re-show; don't edit until approved.
 
 ## Output format
 
-Match the structure of the entry's location — a **version** section or the **Backlog** — exactly.
+Match the entry's location — a **version** section or the **Backlog** — exactly.
 
-**Version entry** (a `0.x` section):
+- **Version parent** — keeps its `- [ ]` checkbox and `(scope)` tag; subtasks are nested `- [ ]`, inheriting the scope (no tag of their own).
+- **Backlog parent** — bare `*`, no checkbox, no scope; subtasks are nested `*` (see `.claude/rules/todo.md`).
 
-```markdown
-- [ ] (scope) <Parent task>
-    - [ ] <Subtask>
-    - [ ] <Subtask>
-    - [ ] <Subtask>
-```
+**Example — version entry (reframe to the goal, the canonical case):**
 
-The parent keeps its `- [ ]` checkbox and carries a `(scope)` tag; each subtask is a `- [ ]` and inherits that scope (no tag of its own).
-
-**Backlog entry:**
-
-```markdown
-* <Parent task>
-    * <Subtask>
-    * <Subtask>
-```
-
-Bare `*` bullets, no checkboxes, no scope — the Backlog shape (see `.claude/rules/todo.md`).
-
-- Preserve placement and indentation.
-- Choose the `(scope)` from the vocabulary in `.claude/rules/todo.md` — never invent a new scope.
-- Replace the targeted entry (and any existing children of it) with the refined block. Never touch unrelated entries.
-
-## Delivery (propose, then edit on approval)
-
-1. Show the refined block in a fenced code block, plus a **one-line** rationale that names which subtasks are proposed extras.
-2. Wait for the user's approval.
-3. On approval, edit `TODO.md` in place: replace the original entry with the refined block, preserve placement and indentation, leaving the rest of the file untouched.
-4. If the user declines or requests changes, adjust and re-show — do not edit until approved.
-
-## Examples
-
-**Example 1 — reframe to the goal (the canonical case):**
-
-Before (a version entry):
+Before:
 ```markdown
 - [ ] (http-clients) Replace REST clients with declarative HTTP clients
 ```
@@ -129,9 +99,9 @@ After:
     - [ ] Use circuit breaker pattern
     - [ ] Use retry pattern
 ```
-Rationale: the parent rises from a literal swap to the capability ("Improve HTTP clients"); resilience patterns are proposed extras beyond the original ask.
+The parent rises from a literal swap to the capability; the resilience patterns are proposed extras.
 
-**Example 2 — a Backlog entry (Backlog shape, no checkboxes or scope):**
+**Example — Backlog entry (Backlog shape):**
 
 Before:
 ```markdown
@@ -145,22 +115,10 @@ After:
     * Add labels and assignees to tasks
     * Support subtasks
 ```
-Rationale: a Backlog entry stays in Backlog style — bare `*`, no checkboxes, no `(scope)` — while the grab-bag parenthetical splits into a few coherent subtasks.
+The grab-bag parenthetical splits into a few coherent subtasks; bare `*`, no checkbox or scope.
 
-## Common mistakes
+## Guardrails
 
-| Mistake | Fix |
-|---------|-----|
-| Starting Step 1 before creating the four tracking tasks | Do Step 0 first — create the tasks, then begin. |
-| Subtasks name libraries, config keys, annotations, or file paths | That is *how*. Restate as a scoped outcome in plain language. |
-| Subtasks are full sentences with colons and embedded lists | Compress to ~10-word imperative phrases; one unit per line. |
-| 10+ micro-steps mirroring an implementation plan | You dropped a level. Pull back up to backlog-sized outcomes (aim 2–6). |
-| Adding a per-feature "add tests for X" subtask | TDD delivers tests inside each subtask. Add a test subtask only when a new test tier or test infrastructure is the deliverable. |
-| A subtask only makes sense once another is finished | It's half a change. Re-cut the boundary so each subtask stands as its own commit. |
-| Restating the title verbatim as the parent | Reframe to the underlying goal or capability when clearer. |
-| Turning every file found in Step 3 into a subtask | Context grounds the decomposition; it is not the decomposition. |
-| Gathering context inline and flooding the main context | Delegate Step 3 to an `Explore` subagent; go inline only when the entry is trivially small (~1–2 files). |
-| Asking clarifying questions when intent is clear | Only ask when genuinely ambiguous; otherwise state your read and proceed. |
-| Wrong parent shape for the location | Version parent = `- [ ] (scope) …` (keeps its checkbox); Backlog parent = bare `*` (no checkbox, no scope). |
-| Editing `TODO.md` before approval, or moving an entry between sections | Propose first; on approval, replace in place and keep the original placement. |
-| Adding narration around the block | Output the block; keep the rationale to one line. |
+- **Write only `TODO.md`**, and only after the user approves the block.
+- **Stay in place** — never move an entry between sections or touch unrelated entries.
+- **Never invent a scope** — choose from the vocabulary in `.claude/rules/todo.md`.

@@ -15,9 +15,9 @@ description: >
 
 The post-release TODO housekeeping step: prepare every task of the next version — decompose the vague, polish the rest, flag the stragglers. Fanned out to subagents, one per task.
 
-**Core principle:** you refine the backlog; you never plan or build it — see Hard rules for the full boundary.
+**Core principle:** you refine the backlog; you never plan or build it.
 
-> **This is not `asapp-refine-task`.** That skill refines **one** entry on demand; this one sweeps the **whole next-version section**. It applies the TODO conventions (`.claude/rules/todo.md`) — read them and apply, don't restate.
+Unlike `asapp-refine-task`, which refines one entry on demand, this sweeps the whole next-version section.
 
 ## Usage
 
@@ -26,55 +26,47 @@ The post-release TODO housekeeping step: prepare every task of the next version 
 
 ## Process
 
-### Step 0: Set up progress tracking
+### 0. Set up progress tracking
 
-**Before any other step**, create these four tracking tasks with the task tool; mark each `in_progress` on start and `completed` when done:
+**Before any other step**, create these four tracking tasks with the task tool; mark each `in_progress` when you start it and `completed` when done:
 
 1. Resolve the next version (Step 1)
-2. Fan out one subagent per main task (max 5 running at once) and aggregate (Step 2)
-3. Present the consolidated delivery; apply on approval (Step 3)
+2. Fan out one subagent per task (Step 2)
+3. Aggregate, present the delivery, and apply on approval (Step 3)
 4. Wrap up (Step 4)
 
-Keep Task 3 `in_progress` across the wait for approval; complete it only once the delivery lands or the user stops.
+Keep task 3 `in_progress` across the wait for approval; complete it only once the delivery lands or the user stops.
 
-### Step 1: Resolve the next version
+### 1. Resolve the next version
 
-Resolve from an authoritative source, not by guessing:
+- **Prepare target** = root `pom.xml` `<version>` minus `-SNAPSHOT` (e.g. `0.5.0-SNAPSHOT` → `0.5.0`), or the `<next-ver>` argument — resolve it, don't guess.
+- State the plan in one line before mutating anything (e.g. `Preparing ## 0.5.0`).
+- If `TODO.md` has no `## X.Y.Z` section for that version, stop and ask the user how to proceed — don't guess a different version or invent a section.
 
-- **Next version (prepare target)** = root `pom.xml` `<version>` minus `-SNAPSHOT` (e.g. `0.5.0-SNAPSHOT` → `0.5.0`), or the `<next-ver>` argument.
+### 2. Fan out — one subagent per task
 
-State the plan in one line before mutating anything — e.g. `Preparing ## 0.5.0`. The next section is normally on top.
+Enumerate every **top-level task** in the next-version section; each top-level task with its subtasks and notes is one work unit (a bare one-liner is a unit too).
 
-If `TODO.md` has no `## X.Y.Z` section for the resolved version, stop — there is nothing to prepare. Ask the user how to proceed rather than guessing a different version or inventing a section.
+Dispatch **one subagent per unit**, **≤5 running at once**, until every unit has run. Default agent: `documentation-engineer` (backlog prose is its remit). Give each its task + subtasks / notes verbatim, its bucket, `.claude/rules/todo.md`, and repo access plus the full `TODO.md` (to spot a dependency a later version introduces). Tell it to:
 
-### Step 2: Fan out — one subagent per main task
+- **Ground the task** — skim the related code / docs / config; check whether it names something **not yet in the stack** or no longer matches reality.
+- **Apply `.claude/rules/todo.md`** (Wording, Scope, Decomposition) — read and apply, don't restate.
+- **Judge before decomposing** — don't decompose by reflex:
+  - vague / oversized / terse → parent + scoped subtasks per Decomposition;
+  - already well-scoped → keep the structure, tighten wording, fix a wrong `(scope)` / bucket;
+  - stale / duplicate / superseded / out-of-theme / misplaced / premature → flag with a one-line reason, don't rewrite it away;
+  - a `Decisions` entry → cleanup only, never decompose.
+- **Keep a named tool that is the deliverable** — `Add Hikari Grafana dashboard` / `Add Redis dashboard` stay specific; strip a vendor name only when it is the *how*.
+- **Return** — the proposed refined block (or "keep as-is"), a one-line rationale, and any flags; nothing else.
 
-Enumerate every **top-level task** in the next-version section. Each top-level task **with its subtasks and notes** is one work unit (a bare one-liner is a unit too).
+### 3. Aggregate and deliver once
 
-Dispatch **one subagent per work unit**, keeping **no more than 5 running at once**, until every unit has run. `documentation-engineer` (TODO / backlog prose is its remit) is the default agent for this skill.
+- Assemble every subagent's result into the full refined section, in **original bucket + task order** (Features → Bugfix → Technical → Docs & Tooling → Decisions).
+- Normalize across units — consistent `(scope)` usage, no duplication introduced between tasks; tidy the `Goal:` line if it reads poorly.
+- Present **one** delivery: the whole refined section as a single fenced block, a consolidated rationale (one line per changed task), and a **Flags** list (premature / misplaced / stale items needing a decision).
+- Wait for confirmation, then apply to `TODO.md` in one pass. If the user asks for changes, revise and re-present.
 
-Give each subagent its task + subtasks/notes verbatim, its bucket, the TODO conventions (`.claude/rules/todo.md`), and repo access (plus the full `TODO.md`, so it can spot a dependency a later version introduces). Tell it to:
-
-- **Ground its task** — skim the related code / docs / config; check whether the task names something **not yet in the stack** or no longer matches reality.
-- **Read `.claude/rules/todo.md`** and apply its Wording, Scope, and Decomposition conventions.
-- **Judge the entry — don't decompose by reflex:**
-  - vague / oversized / terse → parent + 2–6 scoped subtasks per the conventions; no per-feature test subtask;
-  - already well-scoped → keep the structure; tighten wording, fix a wrong `(scope)` / bucket; a clean one-liner stays one line;
-  - stale / duplicate / superseded / out-of-theme / premature → flag with a one-line reason, don't rewrite it away;
-  - a Decisions-bucket entry → cleanup only; never decompose.
-- **Apply the two guards:**
-  - *a named tool is often the deliverable* — keep `Add Hikari Grafana dashboard` / `Add Redis dashboard` specific; strip a vendor name only when it is the *how*, not when it is the deliverable;
-  - *stay in the section* — never reorder buckets or promote from Backlog; if the task is misplaced or premature, flag and propose a move, don't move it.
-- **Return**: the proposed refined block for its task (or "keep as-is"), a one-line rationale, and any flags — nothing else.
-
-### Step 3: Aggregate and deliver once
-
-- Collect every subagent's result and assemble the full refined section, **in original bucket + task order** (Features → Bugfix → Technical → Docs & Tooling → Decisions).
-- Normalize across units: consistent `(scope)` usage, no duplication introduced between tasks; tidy the `Goal:` line if it reads poorly.
-- Present **one** delivery: the entire refined section as a single fenced block, plus a consolidated rationale (one line per task that changed) and a **Flags** list (premature / misplaced / stale items needing a decision).
-- Wait for confirmation. On approval, apply it to `TODO.md` in one pass. Never edit ahead of confirmation. If the user asks for changes, revise and re-present.
-
-### Step 4: Wrap-up
+### 4. Wrap-up
 
 - One line: which version was prepared, and counts — tasks decomposed / polished / flagged.
 - Remind the user: only `TODO.md` changed — no code, no release step. Flagged items are theirs to route.
@@ -104,31 +96,14 @@ Entry (in the next-version section):
 ```
 Flag (surfaced in the consolidated Flags list; the entry itself is left unchanged): superseded — the stack already ships JWT-based auth (`asapp-authentication-service`); confirm whether OAuth2 is still wanted before refining.
 
-Rationale: stale / duplicate / superseded / out-of-theme / premature entries get a one-line reason, never a silent rewrite (Step 2 — Judge the entry).
+Rationale: stale / duplicate / superseded / out-of-theme / premature entries get a one-line reason, never a silent rewrite (Step 2 — Judge before decomposing).
 
-## Hard rules
+## Guardrails
 
 - **Touch only `TODO.md`** — no code, no other file.
-- **No *how*, no execution** — subtasks are scoped outcomes, never coding steps; you rewrite the backlog, never implement or design it (that's brainstorming / writing-plans).
-- **No release mechanics** — no bump, tag, archival, or push. That is `asapp-release`.
+- **No *how*, no execution** — subtasks stay scoped outcomes, never coding steps; implementing or designing is brainstorming / writing-plans.
+- **No release mechanics** — no bump, tag, archival, or push; that is `asapp-release`.
 - **No code review** — never judge shipped code; that is `asapp-review-version`.
-- **Delegate the analysis** — one subagent per main task, max 5 running at once; the main context only aggregates and delivers.
+- **Delegate the analysis** — the main context only aggregates and delivers.
 - **One consolidated delivery** — propose the whole refined section once; confirm, then apply. Never edit ahead, never deliver in pieces.
-- **Reference, don't duplicate** — subagents defer to `.claude/rules/todo.md` for all conventions.
 - **Stay in the section** — never reorder buckets or auto-promote from Backlog; move a flagged entry only on confirmation.
-
-## Common mistakes
-
-| Mistake | Fix |
-|---------|-----|
-| Starting Step 1 before creating the four tracking tasks | Do Step 0 first — create the tasks, then begin. |
-| Analyzing the tasks inline in the main context | Fan out — one subagent per main task (max 5 running at once); the main context only aggregates. |
-| Delivering per task or per bucket, in pieces | Aggregate every subagent result into ONE delivery of the whole refined section. |
-| Decomposing every task into subtasks | Per-task judgment — a clean, well-scoped one-liner stays one line. |
-| Subtasks name libraries, config keys, annotations, or file paths | That's *how* (see Hard rules); restate as a scoped outcome per the rule's Wording. |
-| Generalizing a named artifact away (`Hikari dashboard` → "connection-pool dashboard") | When the tool *is* the deliverable, keep the name; strip vendor names only when they are the *how*. |
-| A subagent guessing instead of grounding its task | Each subagent skims the real code / config first, to catch premature or stale entries. |
-| Silently moving a misplaced / premature entry | Flag it with a reason; relocate only on confirmation. Default is refine in place. |
-| Editing `TODO.md` before the user confirms the delivery | Propose the whole refined section first; apply only on approval. |
-| Doing the work / planning the how / running release steps | This skill only prepares the backlog; route those elsewhere. |
-| Reordering buckets or promoting Backlog items | Refine in place; keep bucket order; never auto-promote. |

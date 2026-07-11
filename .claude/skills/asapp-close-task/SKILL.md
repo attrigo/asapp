@@ -11,7 +11,7 @@ description: >
 
 # Close Task
 
-Integrate a finished task into the **local** `main` branch. Runs end-to-end with no confirmation gate and **never pushes** — every git action is local and revertible (the sole exception is the final SDD-scratch cleanup).
+Integrate a finished task into the **local** `main` branch. Runs end-to-end with no confirmation gate and **never pushes** — every git action is local and revertible (the sole exception is the final SDD-record cleanup).
 
 **Core principle — the end-state is a contract.** When this skill finishes:
 
@@ -21,8 +21,8 @@ Integrate a finished task into the **local** `main` branch. Runs end-to-end with
 
 ## Usage
 
-- `/asapp-close-task` — close the task on the current branch
-- `/asapp-close-task <branch-or-task-name>` — close the named task/branch
+- `/asapp-close-task` — close the task on the current branch.
+- `/asapp-close-task <branch-or-task-name>` — close the named task/branch.
 
 ## Process
 
@@ -69,7 +69,7 @@ If the close aborts (a Step 6 merge conflict or a failed Step 8 invariant), leav
 Find where the implementation diverged from the design.
 
 - **Draw on both sources:**
-    - **The SDD record** in `.superpowers/sdd/` — `progress.md` plus the per-task `*-brief.md`/`*-report.md` (intent, decisions, deviations)
+    - **The SDD record** located in Step 1 — intent, decisions, deviations
     - **Git** — `git log main..<branch>` + the diffs, which also carry the manual-review changes made *after* the SDD run
 - **Capture each delta by the durable artifacts it touched** (files, classes, config, tests), **not commit hashes** — the SDD files contain hashes; do not copy them through.
 - **Delegate by default** to a read-only review agent (`architect-reviewer` / `code-reviewer` / `Explore`); do it inline only for a trivially small diff (e.g. a one- or two-file change).
@@ -87,7 +87,7 @@ Then commit **only the spec file** on the task branch, message built with `asapp
 
 ### Step 4: Mark the parent task complete
 
-Flip the resolved task's `- [ ]` → `- [X]` in `TODO.md` (the entry resolved in Step 1)
+Flip the resolved task's `- [ ]` → `- [X]` in `TODO.md` (the entry resolved in Step 1).
 
 (If the TODO is already checked, skip this step.)
 
@@ -138,11 +138,10 @@ If any invariant **fails**, stop and report — **do not clean up**.
 
 ### Step 9: Clear the SDD record
 
-**Only once the invariants pass**, delete the SDD working content — it is untracked scaffolding and its essence is now in the spec notes + the squash commit. Preserve the `.gitignore` marker:
+**Only once the invariants pass**, delete the SDD record — it is untracked scaffolding and its essence is now in the spec notes + the squash commit. This is the **only non-git-revertible** action, which is why it runs last, after a clean close. Preserve the `.gitignore` marker:
 ```bash
 [ -d .superpowers/sdd ] && find .superpowers/sdd -mindepth 1 ! -name .gitignore -delete
 ```
-This is the **only non-git-revertible** action — which is why it runs last, after a clean close.
 
 ### Step 10: Wrap-up
 
@@ -165,10 +164,10 @@ The **review-task report** (`docs/reviews/<task-slug>-review.md`) is treated exa
 
 The `## N. Post-implementation notes` section states, in order:
 
-1. **Opener** — "This spec and its plan (`<plan-path>`) were written before implementation. The core change shipped substantially as designed — &lt;one sentence on what landed as specified&gt;."
-2. **Canonical source** — "the canonical implementation is the current state of &lt;the real artifacts: files, configs, tests&gt; on this branch, not this document."
+1. **Opener** — "This spec and its plan (`<plan-path>`) were written before implementation. The core change shipped substantially as designed — <one sentence on what landed as specified>."
+2. **Canonical source** — "the canonical implementation is the current state of <the real artifacts: files, configs, tests> on this branch, not this document."
 3. **`Notable deltas:`** — a bullet per place the implementation diverged from the design. Each bullet: a **bold headline** naming the delta (and which spec section it reverses), then the *why*, anchored to the **durable artifacts** it touched — the files, classes, config keys, and tests.
-4. **Closer** — "For future &lt;area&gt; edits, treat &lt;the real artifacts&gt; as the template; this spec is preserved as a record of the original design intent."
+4. **Closer** — "For future <area> edits, treat <the real artifacts> as the template; this spec is preserved as a record of the original design intent."
 
 **Never cite commit hashes.** The whole task squash-merges into a single commit on `main` (where this spec lives), so the branch's individual SHAs no longer exist there — a cited hash becomes a dead reference. Anchor every delta to the code artifacts instead; the spec is a record of intent, the code is the source of truth.
 
@@ -181,9 +180,9 @@ git checkout main && git reset --hard $PRE_MAIN
 git checkout <branch> && git reset --hard $PRE_BRANCH
 ```
 
-> The Step 9 `.superpowers/sdd` cleanup is **not** covered by this — those files are untracked and gone for good. That is why it runs only after the invariants pass.
+> The Step 9 `.superpowers/sdd` cleanup is **not** covered by this — those files are untracked and gone for good.
 
-## Delegation & tools — quick reference
+## Delegation
 
 | Situation | Use |
 |-----------|-----|
@@ -192,25 +191,11 @@ git checkout <branch> && git reset --hard $PRE_BRANCH
 | Build the spec / squash / plan commit messages | `asapp-draft-commit-msg` skill |
 | Locate the spec/plan or understand a commit | `Explore` |
 
-## Hard rules
+## Guardrails
 
 - **Never push** — no `git push` of any branch, ever.
-- **Never rewrite history** — no rebase, no `reset` of existing commits to reorder the plan.
+- **Never rewrite history** — no rebase or `reset` of existing commits.
 - **Capture `PRE_MAIN` and `PRE_BRANCH` before any mutation** — revert depends on them.
-- **The spec lands on main, the parent task flips to `[X]` in `TODO.md`, and the plan and review report never land on main** — verify all before reporting done.
-- **One squash commit on main** for the whole task; messages built with `asapp-draft-commit-msg`.
-- **Source the spec notes and squash message from `.superpowers/sdd/` + git** — but never copy SDD commit hashes into the spec.
-- **Clear `.superpowers/sdd` last** — only after the invariants pass; it is the one non-git-revertible action, and `.gitignore` is preserved.
 - **Abort, don't guess** — on a merge conflict or an unresolved spec/plan/branch, stop and report.
-
-## Common mistakes
-
-| Mistake | Fix |
-|---------|-----|
-| Starting Step 1 before creating the ten tracking tasks | Do Step 0 first — create the tasks, then begin. |
-| Plan file ends up on main | Detect its state; `git restore --staged --worktree` it out of the squash, or commit it only after the merge. |
-| Review report left uncommitted, or landing on main | Commit it with the plan in Step 7 (last branch commit); untracked at squash → auto-excluded from main. |
-| Forgetting to capture revert anchors | Record `PRE_MAIN`/`PRE_BRANCH` in Step 1, before mutating. |
-| Auto-resolving a squash merge conflict | `git merge --abort` and report. |
-| Forgetting to mark the parent task `[X]` in `TODO.md` | Flip and commit it on the branch in Step 4 — it rides into the squash alongside the spec. |
-| Clearing `.superpowers/sdd` before the close verifies, or deleting its `.gitignore` | Clear it only after Step 8 passes; keep `.gitignore`. |
+- **Clear `.superpowers/sdd` last** — only after the invariants pass, and preserve `.gitignore`.
+- **Verify before done** — Step 8's invariants must pass before you report the close complete.

@@ -13,160 +13,111 @@ description: >
 
 # Review Task
 
-The final review gate before a task closes. Delegate a thorough review of the current branch to subagents, present a **prioritized findings table with detail blocks**, then route the findings you select: **apply-now** findings to a report file, **deferred** findings to `TODO.md`.
+The final review gate before a task closes: delegate a thorough review of the current branch to subagents, present prioritized findings, then route the ones you select — **apply-now** to a report file, **deferred** to `TODO.md`. Runs before the manual close.
 
-**Core principle:** surface findings of two **kinds** — **issues** (something is wrong) and **improvements** (something could be better) — and give each a **disposition**: **apply now** (address before closing this task → report file) or **defer** (a separate concern for later → `TODO.md`). Kind and disposition are independent: either kind can be applied now or deferred. `asapp-resolve-review-issues` fixes the apply-now findings afterwards.
+**Core principle:** every finding has a **kind** — an **issue** (something is wrong) or an **improvement** (something could be better) — and a **disposition** — **apply now** (fix before closing → report file) or **defer** (a separate concern for later → `TODO.md`). The two are independent; `asapp-resolve-review-issues` fixes the apply-now findings afterwards.
 
 ## Usage
 
-- `/asapp-review-task <line-number>` — review the branch for the task at that line of `TODO.md`
-- `/asapp-review-task <quoted or named task>` — locate the matching task, then review
-- `/asapp-review-task` (no argument) — ask which task
+- `/asapp-review-task <line-number>` — review the branch for the task at that line of `TODO.md`.
+- `/asapp-review-task <quoted or named task>` — locate the matching task, then review.
+- `/asapp-review-task` — ask which task.
 
 ## Process
 
-### Step 0: Set up progress tracking
+### 0. Set up progress tracking
 
-**Before any other step**, create these four tracking tasks with the task tool; mark each `in_progress` when you start it and `completed` when it's done:
+**Before any other step**, create these five tracking tasks with the task tool; mark each `in_progress` when you start it and `completed` when done:
 
-1. Locate task and determine review scope (Step 1)
+1. Locate the task and determine review scope (Step 1)
 2. Run the review and consolidate (Step 2)
-3. Present findings and user selection (Steps 3–4)
-4. Route selected findings (Step 5)
+3. Present findings and take the user's selection (Steps 3–4)
+4. Route the selected findings (Step 5)
 5. Wrap up (Step 6)
 
-Keep Task 3 `in_progress` across the wait for the user's selection; move to Task 4 only once they answer. Step 6 (wrap-up) completes Task 4.
+Keep task 3 `in_progress` across the wait for the user's selection; move on only once they answer.
 
-### Step 1: Locate and determine review scope
+### 1. Locate and determine review scope
 
-Do all of this up front. Do not review anything yet.
+Do this up front; review nothing yet.
 
-1. **Resolve the task** — turn the input (line number, or quoted/named text) into a single `TODO.md` entry.
-2. **Determine the review scope** — the files touched on the current branch, **excluding the design docs**: `git diff main...HEAD --name-only -- . ':(exclude)docs/superpowers/**'`. This diff is the **anchor** for the review (see *Review depth* in Step 2).
-3. **Confirm only if in doubt** — if the task and review scope are unambiguous, state your read in one line and go straight to Step 2. **Stop and confirm only when the task match is genuinely ambiguous.** Don't over-ask.
+1. **Resolve the task** — turn the input (line number, or quoted / named text) into one `TODO.md` entry.
+2. **Scope** — the files touched on the branch, excluding design specs. This diff is the review **anchor** (see *Depth* in Step 2):
+   ```bash
+   git diff main...HEAD --name-only -- . ':(exclude)docs/superpowers/**'
+   ```
+3. **Confirm only if in doubt** — if the task and scope are unambiguous, state your read in one line and go to Step 2. Stop only when the task match is genuinely ambiguous; don't over-ask.
 
-### Step 2: Delegate the review — fan out, then consolidate
+### 2. Delegate the review, then consolidate
 
-Dispatch review subagents **in parallel** over the branch diff (design docs excluded), each returning concise findings (not file dumps):
+Dispatch review subagents **in parallel** over the branch diff (design specs excluded); each returns concise findings, not file dumps.
 
-- **Always:** `code-reviewer` (line-level quality) **and** `architect-reviewer` (layering, design, structural concerns).
-- **Conditionally:** `security-auditor` — **only when security-relevant files changed**: auth or security config, JWT/token handling, filter chains, crypto, secrets, or new endpoints.
+- **Always** — `code-reviewer` (line-level quality) and `architect-reviewer` (layering, design, structure).
+- **Only when security-relevant files changed** (auth / security config, JWT / token handling, filter chains, crypto, secrets, new endpoints) — `security-auditor`.
 
-**Review depth — diff-anchored:**
+**Depth** — read the full changed files, not just the hunks; follow outward only into code the diff reaches — callers, collaborators, covering tests, dependent config — enough to judge correctness and completeness. Not a whole-repo audit. That reach is what surfaces findings beyond the changed lines: an un-updated caller, an absent test, a config that should have changed too.
 
-- Read the **full changed files**, not just the diff hunks.
-- Follow outward only into code the diff reaches — callers, collaborators, covering tests, dependent config — enough to judge correctness and completeness. Not a whole-repo audit.
-- This outward reach surfaces findings beyond the changed lines: an un-updated caller, an absent test, a config that should have changed.
+Tell each reviewer to:
+- Judge the code on its own merits — ignore specs / plans; no drift findings.
+- Classify each finding by **kind** — an **issue** (something wrong) or an **improvement** (something better).
+- Suggest a **severity** (must-fix / should-fix / nice-to-have), **effort**, **impact**, and **disposition** (apply now / defer).
+- Capture each finding's resolution context — the fields in `.claude/rules/review-report.md`. This is context the reviewer already holds; recording it now spares the resolver rediscovering it.
 
-Tell every reviewer to:
+Then **consolidate**: dedupe overlaps, merge into one list, assign each an `ID`.
 
-- **Judge the code on its own merits** — ignore the spec and plan; no "spec is outdated" or drift findings.
-- **Classify each finding** by **kind** — an **issue** (something wrong) or an **improvement** (something better).
-- **Suggest** a **severity** (must-fix / should-fix / nice-to-have), **effort**, **impact**, and **disposition** (apply now / defer) per finding.
-- **Capture the resolution context each finding needs** — the **Location** (file:line or `Class#method`; a list when it spans several sites), **why it matters** (the concrete consequence), and, when they help, an **Evidence** snippet and **Resolver notes** (gotchas / constraints for whoever fixes it). This is context the reviewer already has in hand; recording it now spares the resolver from rediscovering it.
-
-Then **consolidate** the returns: dedupe overlaps, merge into one list, assign each an `ID`.
-
-### Step 3: Present the findings
+### 3. Present the findings
 
 A **summary table** sorted by severity (highest first) — the scannable index:
 
 | ID | Title | Kind | Severity | Effort | Impact | Disposition |
 |----|-------|------|----------|--------|--------|-------------|
 
-then a **detail block** per finding, carrying the prose the table omits:
+then one **detail block** per finding — the fields of `.claude/rules/review-report.md`, without the checkbox (nothing is resolved yet). Write in terms a non-specialist could act on.
 
-```markdown
-**S1 — <title>**
-- **Location:** <file:line or `Class#method`; a nested list when the finding spans several sites>
-- **Description:** <what is wrong — one short, plain sentence>
-- **Why it matters:** <the concrete consequence / failure scenario — one line>
-- **Evidence:** <offending line(s) or a short snippet — optional, only when it aids confirmation>
-- **Recommended action:** <what to do — one short, plain sentence>
-- **Resolver notes:** <optional free-form guidance for whoever fixes it — gotchas, constraints, ordering; omit when there's nothing extra>
-```
+- **Kind** issue / improvement · **Severity** must-fix / should-fix / nice-to-have · **Effort** S/M/L · **Impact** High/Med/Low · **Disposition** apply now / defer.
+- **Apply now** = fix before closing this task (→ report file); **Defer** = a separate concern for later (→ `TODO.md`). Either kind can take either disposition.
 
-- **Kind** Issue / Improvement · **Severity** must-fix / should-fix / nice-to-have · **Effort** S/M/L · **Impact** High/Med/Low · **Disposition** Apply now / Defer.
-- **Apply now** = address before closing this task (→ report file). **Defer** = a separate concern for later (→ `TODO.md`). Either kind can take either disposition.
-- **Location**, **Description**, **Why it matters**, and **Recommended action** are always present, each terse (Evidence a few lines). **Evidence** and **Resolver notes** appear only when they earn their place; the notes never restate Description or Why. Write in terms a non-specialist could act on.
+### 4. Ask which to act on, then wait
 
-### Step 4: Ask which to act on, then wait
+Ask which findings to act on (`AskUserQuestion` or a clear numbered list); the user may override any suggested **disposition** (apply now ↔ defer). **Wait for the selection before routing anything.**
 
-Ask the user which findings to act on (`AskUserQuestion` or a clear numbered list). The user may override any suggested **disposition** (apply now ↔ defer). **Wait for the selection. Do not write any file before this.**
+### 5. Route the selected findings
 
-### Step 5: Route the selected findings
+Route **only the selected findings** — apply-now to the report file, deferred to `TODO.md`.
 
-Route **only the selected findings** — apply-now findings to a report file, deferred findings to `TODO.md`.
+**Apply now → `docs/reviews/<task-slug>-review.md`** (`<task-slug>` = a short kebab-case slug from the task title, e.g. `docs/reviews/find-tasks-by-ids-review.md`). Create `docs/reviews/` if absent; overwrite an existing report for the same task. Lead with:
 
-**Apply now → the report file.** Write all selected apply-now findings to `docs/reviews/<task-slug>-review.md` (`<task-slug>` = a short kebab-case slug from the task title, e.g. `docs/reviews/find-tasks-by-ids-review.md`); create `docs/reviews/` if absent, and overwrite an existing report for the same task. Use review-version's findings format:
+- title — `# Task Review — <task title>`
+- anchor line — `` `main...HEAD` · <N> files ``
+- disclaimer — apply-now findings only (deferred routed to `TODO.md`); code review only, nothing committed
 
-- lead with a title (`# Task Review — <task title>`), an anchor line (`` `main...HEAD` · <N> files ``), and a one-line disclaimer (apply-now findings only; deferred findings routed to `TODO.md`; code review only, nothing committed);
-- group findings into **Must-fix**, **Should-fix**, **Nice-to-have** sections, opened by a counts line (e.g. `1 must-fix · 3 should-fix · 1 nice-to-have`); skip an empty section;
-- each section = a **summary table** (`| ID | Title | Kind | Effort | Impact |`) plus a **checkbox detail block** per finding:
+then the findings per `.claude/rules/review-report.md` (summary column **Kind**).
 
-  ```markdown
-  - [ ] **S1 — <title>**
-      - **Location:** <file:line or `Class#method`; a nested list when the finding spans several sites>
-      - **Description:** <what is wrong — one short, plain sentence>
-      - **Why it matters:** <the concrete consequence / failure scenario — one line>
-      - **Evidence:** <offending line(s) or a short snippet — optional, only when it aids confirmation>
-      - **Recommended action:** <what to do — one short, plain sentence>
-      - **Resolver notes:** <optional free-form guidance for whoever fixes it — gotchas, constraints, ordering; omit when there's nothing extra>
-  ```
+**Defer → `TODO.md`** — a new top-level entry formatted for its destination (see `.claude/rules/todo.md`):
 
-  IDs prefix by severity (`M#` / `S#` / `N#`); write every checkbox **unchecked** — it is the developer's marker to tick as findings are resolved. **Location / Description / Why it matters / Recommended action** are always present; **Evidence** and **Resolver notes** only when they help.
+- into a **version** → under the right bucket as `- [ ] (scope) <finding>`;
+- into the **Backlog** → under the matching `#### <scope>`, as a bare `* <finding>`.
 
-**Defer → `TODO.md`.** A new top-level entry, formatted for its destination (see `.claude/rules/todo.md`):
+If no home fits, **propose a new bucket / scope and confirm before creating it**. Word each entry per the TODO Wording conventions; preserve file structure, touching only the relevant spots.
 
-- into a **version** → under the correct bucket (`Features` / `Bugfix` / `Technical` / `Docs & Tooling`) as `- [ ] (scope) <finding>`, the scope from the rule's vocabulary;
-- into the **Backlog** → under the matching `#### <scope>` within `### Features` / `### Technical`, as a bare `* <finding>` (the Backlog shape — no checkbox, no inline tag).
+### 6. Wrap-up
 
-If no home fits, **propose a new bucket/area and confirm before creating it**:
+- Summarize what was routed where — apply-now → the report file (give its path); deferred → which `TODO.md` sections.
+- Remind the user: nothing was committed. Next is `asapp-resolve-review-issues` to fix the apply-now findings, then their manual close (merge, etc.).
 
-```markdown
-### Technical
-- [ ] (scope) <deferred finding, in a version>
+## Delegation
 
-#### <scope>
-* <deferred finding, in the Backlog>
-```
-
-Word each `TODO.md` entry per the TODO Wording conventions (`.claude/rules/todo.md`): imperative, ~10 words, plain language, sentence case, no trailing period. A version entry carries a `(scope)`; a Backlog entry does not. Preserve file structure; touch only the relevant spots.
-
-### Step 6: Wrap-up
-
-- Summarize what was routed and where — apply-now findings → the report file (give its path); deferred → which `TODO.md` sections.
-- Remind the user: nothing was committed; next is `asapp-resolve-review-issues` to fix the apply-now findings, then their manual close (merge, etc.).
-
-## Delegation & tools — quick reference
-
-| Situation | Use |
-|-----------|-----|
+| Concern | Use |
+|---------|-----|
 | Line-level code quality | `code-reviewer` |
 | Architecture, layering, design drift | `architect-reviewer` |
 | Security-relevant changes | `security-auditor` |
 | Locate / understand touched code | `Explore` |
 | IDE problems & inspections | IntelliJ MCP (`get_file_problems`, `run_inspection_kts`) |
 
-## Hard rules
+## Guardrails
 
-- **Review and report only** — never change code, never commit, never push.
-- The **only files you may write are the report at `docs/reviews/<task-slug>-review.md` and `TODO.md`**, and only after the user selects findings.
-- **Confirm in Step 1 only when the task match is in doubt** — otherwise state your read and proceed.
-- **Ignore the spec and plan** — exclude `docs/superpowers/` from review; never flag the spec as outdated or drifted (reconciled at close).
-- **Keep the main context clean** — delegate the review to subagents.
-- **Do not close the task or merge** — that is the user's manual step.
-
-## Common mistakes
-
-| Mistake | Fix |
-|---------|-----|
-| Starting Step 1 before creating the four tracking tasks | Do Step 0 first — create the tasks, then begin. |
-| Writing files before the user selects | Present findings → wait for selection → then route. |
-| Cramming description and action into the summary table | The table holds the short attributes; a detail block per finding carries the prose. |
-| Omitting Location so the resolver must rediscover the site | Record file:line / `Class#method` (a list if multi-site) — context the reviewer already has. |
-| Padding every finding with Evidence and Resolver notes | Both are optional — include only when they aid confirmation or carry a real gotcha. |
-| Logging apply-now findings into `TODO.md` | Apply-now findings go to `docs/reviews/<task-slug>-review.md`; only deferred findings go to `TODO.md`. |
-| Writing a deferred version finding as a bare bullet | Version entry = `- [ ] (scope) <finding>`; only the Backlog uses a bare `*` bullet. |
-| Creating a new section silently | Propose and confirm before adding to it. |
-| Heavy jargon in the table or entries | One short plain sentence each — triage, not internals docs. |
+- **Review and report only** — never change code, commit, push, or merge; closing the task is the user's manual step.
+- **The only writes are the report** (`docs/reviews/<task-slug>-review.md`) **and `TODO.md`**, and only after the user selects findings.
+- **Exclude `docs/superpowers/**`** — never flag a spec as outdated or drifted (reconciled at close).
+- **Delegate all reviewing to subagents** — keep the main context clean.
