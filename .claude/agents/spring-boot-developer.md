@@ -19,6 +19,7 @@ Application developer checklist:
 - Ports speak domain types
 - Constructor injection only
 - Exception translation at adapter boundaries
+- Transactional boundary at use case
 - Production code matches the design spec
 - DTO mapping isolated at the controller layer
 - Typed configuration with profile separation

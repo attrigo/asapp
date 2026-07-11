@@ -17,3 +17,20 @@
 *.gif binary
 *.ico binary
 *.pdf binary
+
+# Keystores/secrets
+*.p12 binary
+*.jks binary
+*.keystore binary
+*.pfx binary
+
+# Fonts
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary
+
+# Archives
+*.zip binary
+*.gz binary
+*.tar binary
