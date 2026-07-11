@@ -18,8 +18,8 @@ package com.attrigo.asapp.users.infrastructure.user.in;
 
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_CREATE_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_DELETE_BY_ID_FULL_PATH;
-import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_ALL_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_IDS_PARAM;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_ROOT_PATH;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_UPDATE_BY_ID_FULL_PATH;
@@ -112,7 +112,7 @@ class UserRestControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_MissingUsersIds() {
             // Given
-            var requestBuilder = get(USERS_GET_ALL_FULL_PATH).param(USERS_IDS_PARAM, "");
+            var requestBuilder = get(USERS_GET_FULL_PATH).param(USERS_IDS_PARAM, "");
 
             // When
             var actual = mockMvcTester.perform(requestBuilder);
@@ -146,7 +146,7 @@ class UserRestControllerIT extends WebMvcTestContext {
                                    .map(UUID::toString)
                                    .reduce((a, b) -> a + "," + b)
                                    .orElseThrow();
-            var requestBuilder = get(USERS_GET_ALL_FULL_PATH).param(USERS_IDS_PARAM, userIds);
+            var requestBuilder = get(USERS_GET_FULL_PATH).param(USERS_IDS_PARAM, userIds);
 
             // When
             var actual = mockMvcTester.perform(requestBuilder);
@@ -176,7 +176,7 @@ class UserRestControllerIT extends WebMvcTestContext {
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidUserId() {
             // Given
             var userIds = "1";
-            var requestBuilder = get(USERS_GET_ALL_FULL_PATH).param(USERS_IDS_PARAM, userIds);
+            var requestBuilder = get(USERS_GET_FULL_PATH).param(USERS_IDS_PARAM, userIds);
 
             // When
             var actual = mockMvcTester.perform(requestBuilder);

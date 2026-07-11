@@ -30,7 +30,7 @@ public class TaskApiUrl {
 
     public static final String TASKS_GET_BY_USER_ID_PATH = "/user/{id}";
 
-    public static final String TASKS_GET_ALL_PATH = "";
+    public static final String TASKS_GET_PATH = "";
 
     public static final String TASKS_CREATE_PATH = "";
 
@@ -40,7 +40,7 @@ public class TaskApiUrl {
 
     public static final String TASKS_GET_BY_ID_FULL_PATH = TASKS_ROOT_PATH + TASKS_GET_BY_ID_PATH;
 
-    public static final String TASKS_GET_ALL_FULL_PATH = TASKS_ROOT_PATH + TASKS_GET_ALL_PATH;
+    public static final String TASKS_GET_FULL_PATH = TASKS_ROOT_PATH + TASKS_GET_PATH;
 
     public static final String TASKS_GET_BY_USER_ID_FULL_PATH = TASKS_ROOT_PATH + TASKS_GET_BY_USER_ID_PATH;
 

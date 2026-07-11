@@ -16,8 +16,8 @@
 
 package com.attrigo.asapp.users.infrastructure.config;
 
-import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_ALL_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_FULL_PATH;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -109,9 +109,9 @@ class OpenApiEndpointsIT {
         // Then
         assertThatJson(actual).node("paths")
                               .isObject()
-                              .containsOnlyKeys(USERS_GET_ALL_FULL_PATH, USERS_GET_BY_ID_FULL_PATH);
+                              .containsOnlyKeys(USERS_GET_FULL_PATH, USERS_GET_BY_ID_FULL_PATH);
         assertThatJson(actual).node("paths")
-                              .node(USERS_GET_ALL_FULL_PATH)
+                              .node(USERS_GET_FULL_PATH)
                               .isObject()
                               .containsOnlyKeys("get", "post");
         assertThatJson(actual).node("paths")

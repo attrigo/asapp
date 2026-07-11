@@ -22,9 +22,9 @@ import static com.attrigo.asapp.tasks.testutil.fixture.TaskMother.aJdbcTask;
 import static com.attrigo.asapp.tasks.testutil.fixture.TaskMother.aTaskBuilder;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_CREATE_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_DELETE_BY_ID_FULL_PATH;
-import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_ALL_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_BY_USER_ID_FULL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_IDS_PARAM;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_UPDATE_BY_ID_FULL_PATH;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
@@ -319,7 +319,7 @@ class TaskE2EIT {
 
             // When
             var actual = restTestClient.get()
-                                       .uri(TASKS_GET_ALL_FULL_PATH)
+                                       .uri(TASKS_GET_FULL_PATH)
                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                        .exchange()
@@ -374,7 +374,7 @@ class TaskE2EIT {
             var createdTask2 = createTask(task2);
             var taskId1 = createdTask1.id();
             var taskId2 = createdTask2.id();
-            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_ALL_FULL_PATH)
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_FULL_PATH)
                                                                             .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId2)
                                                                             .build();
 
@@ -422,7 +422,7 @@ class TaskE2EIT {
             var createdTask1 = createTask();
             var taskId1 = createdTask1.id();
             var taskId2 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
-            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_ALL_FULL_PATH)
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_FULL_PATH)
                                                                             .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId2)
                                                                             .build();
 
@@ -467,7 +467,7 @@ class TaskE2EIT {
             var createdTask2 = createTask(task2);
             var taskId1 = createdTask1.id();
             var taskId2 = createdTask2.id();
-            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_ALL_FULL_PATH)
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_FULL_PATH)
                                                                             .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId1 + "," + taskId2)
                                                                             .build();
 
@@ -513,7 +513,7 @@ class TaskE2EIT {
         void ReturnsStatusOKAndEmptyBody_NoIdsAndTasksNotExist() {
             // When
             var actual = restTestClient.get()
-                                       .uri(TASKS_GET_ALL_FULL_PATH)
+                                       .uri(TASKS_GET_FULL_PATH)
                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                        .exchange()
@@ -535,7 +535,7 @@ class TaskE2EIT {
             // Given
             var taskId1 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
             var taskId2 = UUID.fromString("68699b10-b665-4378-baea-a44b4be287f9");
-            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_ALL_FULL_PATH)
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(TASKS_GET_FULL_PATH)
                                                                             .queryParam(TASKS_IDS_PARAM, taskId1 + "," + taskId2)
                                                                             .build();
 
@@ -562,7 +562,7 @@ class TaskE2EIT {
         void ReturnsStatusUnauthorizedAndProblemDetail_MissingAuthorizationHeader() {
             // When
             var actual = restTestClient.get()
-                                       .uri(TASKS_GET_ALL_FULL_PATH)
+                                       .uri(TASKS_GET_FULL_PATH)
                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                        .exchange()
                                        .expectStatus()
