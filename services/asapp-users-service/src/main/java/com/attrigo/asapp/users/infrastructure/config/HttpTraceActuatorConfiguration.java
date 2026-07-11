@@ -16,6 +16,8 @@
 
 package com.attrigo.asapp.users.infrastructure.config;
 
+import org.springframework.boot.actuate.autoconfigure.endpoint.condition.ConditionalOnAvailableEndpoint;
+import org.springframework.boot.actuate.web.exchanges.HttpExchangesEndpoint;
 import org.springframework.boot.actuate.web.exchanges.InMemoryHttpExchangeRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,10 +25,12 @@ import org.springframework.context.annotation.Configuration;
 /**
  * Configuration class for HTTP trace actuator.
  * <p>
- * Configures an in-memory repository for storing HTTP exchange traces, enabling the Spring Boot Actuator's HTTP trace endpoint for monitoring and debugging.
+ * Configures an in-memory repository for storing HTTP exchange traces, registered only when the httpexchanges endpoint is available, backing the Spring Boot
+ * Actuator's HTTP trace endpoint for monitoring and debugging.
  *
  * @since 0.2.0
  * @see InMemoryHttpExchangeRepository
+ * @see HttpExchangesEndpoint
  * @author attrigo
  */
 @Configuration(proxyBeanMethods = false)
@@ -38,6 +42,7 @@ public class HttpTraceActuatorConfiguration {
      * @return the {@link InMemoryHttpExchangeRepository} for storing HTTP traces
      */
     @Bean
+    @ConditionalOnAvailableEndpoint(endpoint = HttpExchangesEndpoint.class)
     InMemoryHttpExchangeRepository createTraceRepository() {
         return new InMemoryHttpExchangeRepository();
     }
