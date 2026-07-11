@@ -116,7 +116,7 @@ class UserE2EIT {
     class GetUserById {
 
         @Test
-        void ReturnsStatusOKAndBodyWithFoundUser_UserExists() {
+        void ReturnsStatusOkAndBodyWithFoundUser_UserExists() {
             // Given
             var createdUser = createUser();
             var userId = createdUser.id();
@@ -193,7 +193,7 @@ class UserE2EIT {
     class GetAllUsers {
 
         @Test
-        void ReturnsStatusOKAndBodyWithFoundUsers_UsersExist() {
+        void ReturnsStatusOkAndBodyWithFoundUsers_UsersExist() {
             // Given
             var user1 = aUserBuilder().withUsername("user1@asapp.com")
                                       .buildJdbc();
@@ -246,7 +246,7 @@ class UserE2EIT {
         }
 
         @Test
-        void ReturnsStatusOKAndEmptyBody_UsersNotExist() {
+        void ReturnsStatusOkAndEmptyBody_UsersNotExist() {
             // When
             var actual = restTestClient.get()
                                        .uri(USERS_GET_ALL_FULL_PATH)
