@@ -16,9 +16,9 @@
 
 package com.attrigo.asapp.tasks.infrastructure.config;
 
-import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_ALL_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_BY_USER_ID_FULL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_FULL_PATH;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -110,9 +110,9 @@ class OpenApiEndpointsIT {
         // Then
         assertThatJson(actual).node("paths")
                               .isObject()
-                              .containsOnlyKeys(TASKS_GET_ALL_FULL_PATH, TASKS_GET_BY_ID_FULL_PATH, TASKS_GET_BY_USER_ID_FULL_PATH);
+                              .containsOnlyKeys(TASKS_GET_FULL_PATH, TASKS_GET_BY_ID_FULL_PATH, TASKS_GET_BY_USER_ID_FULL_PATH);
         assertThatJson(actual).node("paths")
-                              .node(TASKS_GET_ALL_FULL_PATH)
+                              .node(TASKS_GET_FULL_PATH)
                               .isObject()
                               .containsOnlyKeys("get", "post");
         assertThatJson(actual).node("paths")

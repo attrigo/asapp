@@ -18,8 +18,8 @@ package com.attrigo.asapp.users.infrastructure.user.in;
 
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_CREATE_PATH;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_DELETE_BY_ID_PATH;
-import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_ALL_PATH;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_BY_ID_PATH;
+import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_PATH;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_IDS_PARAM;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_ROOT_PATH;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_UPDATE_BY_ID_PATH;
@@ -121,7 +121,7 @@ public interface UserApi {
      * @param ids the identifiers of the users
      * @return a {@link List} of {@link GetUsersResponse} with the matching users, or an empty list if none match
      */
-    @GetMapping(value = USERS_GET_ALL_PATH, produces = "application/json")
+    @GetMapping(value = USERS_GET_PATH, produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Gets users, optionally filtered by their unique identifiers", description = "Retrieves users from the system. By default returns all users; when the `ids` query parameter is supplied, returns only the users whose identifiers are in the list. Duplicate identifiers are ignored. Returns an empty array if no users match.")
     @ApiResponse(responseCode = "200", description = "Users retrieved successfully", content = {

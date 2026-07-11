@@ -28,7 +28,7 @@ public class UserApiUrl {
 
     public static final String USERS_GET_BY_ID_PATH = "/{id}";
 
-    public static final String USERS_GET_ALL_PATH = "";
+    public static final String USERS_GET_PATH = "";
 
     public static final String USERS_CREATE_PATH = "";
 
@@ -38,7 +38,7 @@ public class UserApiUrl {
 
     public static final String USERS_GET_BY_ID_FULL_PATH = USERS_ROOT_PATH + USERS_GET_BY_ID_PATH;
 
-    public static final String USERS_GET_ALL_FULL_PATH = USERS_ROOT_PATH + USERS_GET_ALL_PATH;
+    public static final String USERS_GET_FULL_PATH = USERS_ROOT_PATH + USERS_GET_PATH;
 
     public static final String USERS_CREATE_FULL_PATH = USERS_ROOT_PATH + USERS_CREATE_PATH;
 

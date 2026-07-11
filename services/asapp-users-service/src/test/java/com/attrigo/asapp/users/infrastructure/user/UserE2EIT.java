@@ -19,8 +19,8 @@ package com.attrigo.asapp.users.infrastructure.user;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_BY_USER_ID_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_CREATE_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_DELETE_BY_ID_FULL_PATH;
-import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_ALL_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_IDS_PARAM;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_UPDATE_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.users.infrastructure.security.RedisJwtStore.ACCESS_TOKEN_PREFIX;
@@ -330,7 +330,7 @@ class UserE2EIT {
 
             // When
             var actual = restTestClient.get()
-                                       .uri(USERS_GET_ALL_FULL_PATH)
+                                       .uri(USERS_GET_FULL_PATH)
                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                        .exchange()
@@ -382,7 +382,7 @@ class UserE2EIT {
             var createdUser2 = createUser(user2);
             var userId1 = createdUser1.id();
             var userId2 = createdUser2.id();
-            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_ALL_FULL_PATH)
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_FULL_PATH)
                                                                             .queryParam(USERS_IDS_PARAM, userId1 + "," + userId2)
                                                                             .build();
 
@@ -428,7 +428,7 @@ class UserE2EIT {
             var createdUser1 = createUser();
             var userId1 = createdUser1.id();
             var userId2 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
-            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_ALL_FULL_PATH)
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_FULL_PATH)
                                                                             .queryParam(USERS_IDS_PARAM, userId1 + "," + userId2)
                                                                             .build();
 
@@ -469,7 +469,7 @@ class UserE2EIT {
             var createdUser2 = createUser(user2);
             var userId1 = createdUser1.id();
             var userId2 = createdUser2.id();
-            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_ALL_FULL_PATH)
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_FULL_PATH)
                                                                             .queryParam(USERS_IDS_PARAM, userId1 + "," + userId1 + "," + userId2)
                                                                             .build();
 
@@ -513,7 +513,7 @@ class UserE2EIT {
         void ReturnsStatusOKAndEmptyBody_NoIdsAndUsersNotExist() {
             // When
             var actual = restTestClient.get()
-                                       .uri(USERS_GET_ALL_FULL_PATH)
+                                       .uri(USERS_GET_FULL_PATH)
                                        .header(HttpHeaders.AUTHORIZATION, bearerToken)
                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                        .exchange()
@@ -535,7 +535,7 @@ class UserE2EIT {
             // Given
             var userId1 = UUID.fromString("b344ecdf-d5bf-4e1f-84d9-c3a023dc0414");
             var userId2 = UUID.fromString("68699b10-b665-4378-baea-a44b4be287f9");
-            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_ALL_FULL_PATH)
+            Function<UriBuilder, URI> uriFunction = uriBuilder -> uriBuilder.path(USERS_GET_FULL_PATH)
                                                                             .queryParam(USERS_IDS_PARAM, userId1 + "," + userId2)
                                                                             .build();
 
@@ -562,7 +562,7 @@ class UserE2EIT {
         void ReturnsStatusUnauthorizedAndProblemDetail_MissingAuthorizationHeader() {
             // When
             var actual = restTestClient.get()
-                                       .uri(USERS_GET_ALL_FULL_PATH)
+                                       .uri(USERS_GET_FULL_PATH)
                                        .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
                                        .exchange()
                                        .expectStatus()

@@ -18,9 +18,9 @@ package com.attrigo.asapp.tasks.infrastructure.task.in;
 
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_CREATE_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_DELETE_BY_ID_PATH;
-import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_ALL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_BY_ID_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_BY_USER_ID_PATH;
+import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_IDS_PARAM;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_ROOT_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_UPDATE_BY_ID_PATH;
@@ -150,7 +150,7 @@ public interface TaskApi {
      * @param ids the identifiers of the tasks
      * @return a {@link List} of {@link GetTasksResponse} with the matching tasks, or an empty list if none match
      */
-    @GetMapping(value = TASKS_GET_ALL_PATH, produces = "application/json")
+    @GetMapping(value = TASKS_GET_PATH, produces = "application/json")
     @ResponseStatus(HttpStatus.OK)
     @Operation(summary = "Gets tasks, optionally filtered by their unique identifiers", description = "Retrieves tasks from the system. By default returns all tasks; when the `ids` query parameter is supplied, returns only the tasks whose identifiers are in the list. Duplicate identifiers are ignored. Returns an empty array if no tasks match.")
     @ApiResponse(responseCode = "200", description = "Tasks retrieved successfully", content = {

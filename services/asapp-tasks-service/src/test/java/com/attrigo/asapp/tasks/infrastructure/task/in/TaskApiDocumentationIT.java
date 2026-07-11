@@ -19,9 +19,9 @@ package com.attrigo.asapp.tasks.infrastructure.task.in;
 import static com.attrigo.asapp.tasks.testutil.fixture.TaskMother.aTask;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_CREATE_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_DELETE_BY_ID_FULL_PATH;
-import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_ALL_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_BY_USER_ID_FULL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_IDS_PARAM;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_UPDATE_BY_ID_FULL_PATH;
 import static org.mockito.ArgumentMatchers.any;
@@ -205,9 +205,9 @@ class TaskApiDocumentationIT extends RestDocsWebMvcTestContext {
             given(taskMapper.toGetTasksResponse(any(Task.class))).willReturn(response);
 
             // When & Then
-            mockMvc.perform(get(TASKS_GET_ALL_FULL_PATH).param(TASKS_IDS_PARAM, taskIdValue.toString())
-                                                        .accept(APPLICATION_JSON)
-                                                        .header(AUTHORIZATION, "Bearer sample.access.token"))
+            mockMvc.perform(get(TASKS_GET_FULL_PATH).param(TASKS_IDS_PARAM, taskIdValue.toString())
+                                                    .accept(APPLICATION_JSON)
+                                                    .header(AUTHORIZATION, "Bearer sample.access.token"))
                    .andExpect(status().isOk())
                    .andDo(
                    // @formatter:off
@@ -248,8 +248,8 @@ class TaskApiDocumentationIT extends RestDocsWebMvcTestContext {
             given(taskMapper.toGetTasksResponse(any(Task.class))).willReturn(response);
 
             // When & Then
-            mockMvc.perform(get(TASKS_GET_ALL_FULL_PATH).accept(APPLICATION_JSON)
-                                                        .header(AUTHORIZATION, "Bearer sample.access.token"))
+            mockMvc.perform(get(TASKS_GET_FULL_PATH).accept(APPLICATION_JSON)
+                                                    .header(AUTHORIZATION, "Bearer sample.access.token"))
                    .andExpect(status().isOk())
                    .andDo(
                    // @formatter:off
@@ -441,7 +441,7 @@ class TaskApiDocumentationIT extends RestDocsWebMvcTestContext {
         @Test
         void DocumentsRequestParamValidationFailure() throws Exception {
             // When & Then
-            mockMvc.perform(get(TASKS_GET_ALL_FULL_PATH).param(TASKS_IDS_PARAM, ""))
+            mockMvc.perform(get(TASKS_GET_FULL_PATH).param(TASKS_IDS_PARAM, ""))
                    .andExpect(status().isBadRequest())
                    .andDo(
                    // @formatter:off

@@ -18,8 +18,8 @@ package com.attrigo.asapp.users.infrastructure.user.in;
 
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_CREATE_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_DELETE_BY_ID_FULL_PATH;
-import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_ALL_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_BY_ID_FULL_PATH;
+import static com.attrigo.asapp.url.users.UserApiUrl.USERS_GET_FULL_PATH;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_IDS_PARAM;
 import static com.attrigo.asapp.url.users.UserApiUrl.USERS_UPDATE_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.users.testutil.fixture.UserMother.aUser;
@@ -159,9 +159,9 @@ class UserApiDocumentationIT extends RestDocsWebMvcTestContext {
             given(userMapper.toGetUsersResponse(any(User.class))).willReturn(response);
 
             // When & Then
-            mockMvc.perform(get(USERS_GET_ALL_FULL_PATH).param(USERS_IDS_PARAM, userIdValue.toString())
-                                                        .accept(APPLICATION_JSON)
-                                                        .header(AUTHORIZATION, "Bearer sample.access.token"))
+            mockMvc.perform(get(USERS_GET_FULL_PATH).param(USERS_IDS_PARAM, userIdValue.toString())
+                                                    .accept(APPLICATION_JSON)
+                                                    .header(AUTHORIZATION, "Bearer sample.access.token"))
                    .andExpect(status().isOk())
                    .andDo(
                    // @formatter:off
@@ -199,8 +199,8 @@ class UserApiDocumentationIT extends RestDocsWebMvcTestContext {
             given(userMapper.toGetUsersResponse(any(User.class))).willReturn(response);
 
             // When & Then
-            mockMvc.perform(get(USERS_GET_ALL_FULL_PATH).accept(APPLICATION_JSON)
-                                                        .header(AUTHORIZATION, "Bearer sample.access.token"))
+            mockMvc.perform(get(USERS_GET_FULL_PATH).accept(APPLICATION_JSON)
+                                                    .header(AUTHORIZATION, "Bearer sample.access.token"))
                    .andExpect(status().isOk())
                    .andDo(
                    // @formatter:off
@@ -380,7 +380,7 @@ class UserApiDocumentationIT extends RestDocsWebMvcTestContext {
         @Test
         void DocumentsRequestParamValidationFailure() throws Exception {
             // When & Then
-            mockMvc.perform(get(USERS_GET_ALL_FULL_PATH).param(USERS_IDS_PARAM, ""))
+            mockMvc.perform(get(USERS_GET_FULL_PATH).param(USERS_IDS_PARAM, ""))
                    .andExpect(status().isBadRequest())
                    .andDo(
                    // @formatter:off

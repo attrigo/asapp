@@ -18,9 +18,9 @@ package com.attrigo.asapp.tasks.infrastructure.task.in;
 
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_CREATE_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_DELETE_BY_ID_FULL_PATH;
-import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_ALL_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_BY_ID_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_BY_USER_ID_FULL_PATH;
+import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_GET_FULL_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_IDS_PARAM;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_ROOT_PATH;
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.TASKS_UPDATE_BY_ID_FULL_PATH;
@@ -158,7 +158,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
         @Test
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_MissingTasksIds() {
             // Given
-            var requestBuilder = get(TASKS_GET_ALL_FULL_PATH).param(TASKS_IDS_PARAM, "");
+            var requestBuilder = get(TASKS_GET_FULL_PATH).param(TASKS_IDS_PARAM, "");
 
             // When
             var actual = mockMvcTester.perform(requestBuilder);
@@ -192,7 +192,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
                                    .map(UUID::toString)
                                    .reduce((a, b) -> a + "," + b)
                                    .orElseThrow();
-            var requestBuilder = get(TASKS_GET_ALL_FULL_PATH).param(TASKS_IDS_PARAM, taskIds);
+            var requestBuilder = get(TASKS_GET_FULL_PATH).param(TASKS_IDS_PARAM, taskIds);
 
             // When
             var actual = mockMvcTester.perform(requestBuilder);
@@ -222,7 +222,7 @@ class TaskRestControllerIT extends WebMvcTestContext {
         void ReturnsStatusBadRequestAndBodyWithProblemDetail_InvalidTaskId() {
             // Given
             var taskIds = "1";
-            var requestBuilder = get(TASKS_GET_ALL_FULL_PATH).param(TASKS_IDS_PARAM, taskIds);
+            var requestBuilder = get(TASKS_GET_FULL_PATH).param(TASKS_IDS_PARAM, taskIds);
 
             // When
             var actual = mockMvcTester.perform(requestBuilder);
