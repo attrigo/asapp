@@ -10,12 +10,6 @@ NC='\033[0m'          # No Color
 # Shell exits with error if any maven command exits with a non-zero status
 set -e
 
-echo "Checking code style:"
-
-mvn spotless:check
-
-echo ""
-
 # Define file extensions to check (keep in sync!)
 FILE_EXTENSIONS='java|xml|jmx|yml|yaml|properties|txt|md|adoc|sh|sql|json|js|ts|css|html'
 
@@ -51,9 +45,15 @@ if [ "${#staged_files[@]}" -gt 0 ]; then
         exit 1
     fi
 
-    echo -e "${GREEN}✓ All staged files use Unix line endings (LF).${NC}"
+    echo -e "${GREEN}[OK] All staged files use Unix line endings (LF).${NC}"
 else
-    echo -e "${GREEN}✓ No text files to check.${NC}"
+    echo -e "${GREEN}[OK] No text files to check.${NC}"
 fi
+
+echo ""
+
+echo "Checking code style:"
+
+mvn spotless:check
 
 echo ""

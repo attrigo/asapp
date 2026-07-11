@@ -1,7 +1,6 @@
 ---
 paths:
   - "**/testutil/**/*Mother.java"
-  - "**/testutil/**/Mother.java"
 ---
 
 # Test Factory Maintenance

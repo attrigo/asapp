@@ -95,7 +95,7 @@ Then commit **only `TODO.md`** on the task branch, message built with `asapp-dra
 
 ### Step 5: Draft the squash message
 
-Build the squash message with `asapp-draft-commit-msg`, using the Step 2 analysis (the SDD record + git) and the full task range (`git log main..<branch>` + the squashed diff). 
+Build the squash message with `asapp-draft-commit-msg`, using the Step 2 analysis (the SDD record + git) and the full task range (`git log main..<branch>` + the squashed diff).
 
 `asapp-draft-commit-msg` only displays the text — it never writes files — so write the drafted message verbatim to `<squash-message-file>`, a temp file under the session scratchpad, for Step 6's `git commit -F` to read.
 
