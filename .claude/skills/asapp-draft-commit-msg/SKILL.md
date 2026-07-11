@@ -11,27 +11,68 @@ description: >
 
 # Commit Message Generator
 
-Generate a conventional commit message from a change set — this session's history by default, or an externally supplied diff, commit range (e.g. `main..<branch>`), or specific file set.
+Draft a Conventional Commit message from a change set — this session's Edit/Write history by default, or a caller-supplied diff, commit range (`main..<branch>`), or file set. **Core principle:** describe the WHY and WHAT of the change, never the HOW.
 
 ## Usage
 
-- `/asapp-draft-commit-msg` - Generate a commit message from the current change set (session history by default, or a caller-supplied diff/commit range/file set)
+- `/asapp-draft-commit-msg` — draft a message from the current change set: session Edit/Write history by default, or a caller-supplied diff, commit range, or file set.
 
-## Conventional Commit Format
+## Process
+
+### 1. Gather the change set
+
+- Pick the source of truth: session Edit/Write history (default) · a caller-supplied diff or commit range (`main..<branch>`, e.g. `asapp-close-task`'s spec commit or squash message) · a caller-supplied file set.
+- Get the actual changes:
+  - Session — if files are staged, `git diff --staged`; else `git diff`. Check `git status --porcelain`.
+  - Commit range — `git log main..<branch>` and `git diff main..<branch>`.
+- List the touched paths and map each to a scope via **Module → scope** (Reference).
+- If the set spans unrelated concerns, say so and suggest splitting into separate commits.
+
+### 2. Choose type and scope
+
+- **Type** — from what changed (**Types**, Reference). Test changes mixed with production code take the production type. Unsure between types → the one describing the primary intent.
+- **Scope** — top-down, first match wins:
+  1. Entirely infrastructure (docker / database / liquibase) → the component (`docker`, `database`, `liquibase`).
+  2. Spans multiple modules under one unifying technical concern → the broader scope (`api`, `security`, `config`).
+  3. One module, centered on a specific well-known feature → the feature (`jwt`, `validation`, `factories`, `tests`).
+  4. One module → the module name.
+  5. Multiple modules, no unifying theme → the most general applicable scope, or the most impacted module.
+- **Breaking change** — detect removed public endpoint/method, changed signature or return type, renamed config property, or a backward-incompatible schema change (dropped/renamed column). If breaking, mark it (**Format**, Reference).
+
+### 3. Draft
+
+- Subject-only when it's a single conceptual change with no nuance. Add a body when the diff holds ≥2 distinct logical changes, or the why isn't obvious from the subject.
+- When a body is needed, lead with a 1–3 sentence paragraph only if it carries a why the subject and bullets can't; otherwise go straight to bullets.
+- Follow **Format** and **Body rules** (Reference).
+
+### 4. Output
+
+Print the message in a code block, then one sentence naming the chosen type and scope.
+
+## Reference
+
+### Format
 
 ```
-<type>[optional scope]: <description>
+<type>(<scope>): <description>
 
-[optional body]
+[optional body — WHY paragraph and/or change bullets]
 
 [optional footer(s)]
 ```
 
-### Commit Types
+- Subject ≤ 72 characters, imperative mood ("add", not "added"/"adds"), no trailing period.
+- **Breaking change** — `!` after the type/scope, and/or a `BREAKING CHANGE:` footer stating impact and migration path.
+- **Footers** — `BREAKING CHANGE:`, `Closes #N`, `Refs #N` — follow the bullets, separated by a blank line.
 
-Standard Conventional Commits types apply (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `revert`).
+### Body rules
 
-This project's history shows these three are worth disambiguating:
+- **Lead paragraph** (optional) — 1–3 sentences of why (motivation, root cause, constraint). One line, no hard-wrapping. Omit when the subject already conveys the why.
+- **Bullets** (required once a body exists) — `-` + single space, first letter capitalized, imperative mood (same as the subject), no trailing period, one change per bullet on a single line (no nesting, no multi-line bullets).
+
+### Types
+
+Standard Conventional Commits types apply (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `revert`). This project's history disambiguates three more:
 
 | Type | Use for |
 |------|---------|
@@ -39,153 +80,33 @@ This project's history shows these three are worth disambiguating:
 | `ci` | CI pipeline / workflow config |
 | `chore` | Maintenance that is neither build nor CI (repo housekeeping, misc cleanup) |
 
-### Breaking Changes
+### Module → scope
 
-```
-# Exclamation mark after type/scope
-feat!: remove deprecated endpoint
+Map the touched paths to a scope (scope vocabulary: `.claude/rules/todo.md`):
 
-# BREAKING CHANGE footer
-feat: allow config to extend other configs
+| Path | Scope |
+|------|-------|
+| `services/asapp-authentication-service/...` | `authentication` |
+| `services/asapp-config-service/...` | `config` |
+| `services/asapp-discovery-service/...` | `discovery` |
+| `services/asapp-tasks-service/...` | `tasks` |
+| `services/asapp-users-service/...` | `users` |
+| `libs/asapp-commons-url/...` | `api` (endpoint URL constants) |
+| `libs/asapp-http-clients/...` | `clients` |
+| `docs/...` | `docs` |
 
-BREAKING CHANGE: `extends` key behavior changed
-```
+**Exception** — spec/plan files under `docs/superpowers/specs/...` and `docs/superpowers/plans/...` scope to the task's module, not `docs` (e.g. `docs(tasks): mark find-tasks-by-ids design spec as implemented`).
 
-## Instructions
+### Examples
 
-### Step 1: Gather Changes
+Two representative shapes; see [examples.md](examples.md) for cross-module, bullets-only, and lead-paragraph-plus-bullets cases.
 
-Identify the source of truth for this run:
-- **Session history** (the default) — Edit/Write tool calls in the conversation
-- **An externally supplied diff or commit range** (e.g. `main..<branch>`) — passed in by the caller, such as `asapp-close-task`'s spec commit or squash message
-- **A specific file set** — passed in by the caller
-
-- Extract the file paths touched by the source of truth
-- Auto-detect affected module(s) from file paths:
-  - `services/asapp-authentication-service/...` → "authentication"
-  - `services/asapp-config-service/...` → "config"
-  - `services/asapp-discovery-service/...` → "discovery"
-  - `services/asapp-tasks-service/...` → "tasks"
-  - `services/asapp-users-service/...` → "users"
-  - `libs/asapp-commons-url/...` → "api" (endpoint URL constants)
-  - `libs/asapp-http-clients/...` → "clients" (matches the `.claude/rules/todo.md` scope vocabulary)
-  - `docs/...` → "docs"
-  - **Exception**: `docs/superpowers/specs/...` and `docs/superpowers/plans/...` (spec/plan files) scope to **the task's module**, not "docs" — e.g. `docs(tasks): mark find-tasks-by-ids design spec as implemented`
-- Review the source of truth to understand the intent and purpose of changes
-
-For session-based runs, also check current staging state:
-```bash
-# If files are staged, use staged diff
-git diff --staged
-
-# If nothing staged, use working tree diff
-git diff
-
-# Check status
-git status --porcelain
-```
-
-For an externally supplied commit range, use it directly:
-```bash
-git log main..<branch>
-git diff main..<branch>
-```
-
-### Step 2: Analyze Changes
-
-1. **Determine commit type** based on what was changed. For test changes mixed with production code, use the production code type.
-
-2. **Determine scope** (the module/feature affected). Evaluate top-down; stop at the first match:
-   - **If** the change is entirely infrastructure (docker, database, liquibase) → use the component (`docker`, `database`, `liquibase`).
-   - **Else if** the change spans multiple modules under one unifying technical concern → use the broader scope (`api`, `security`, `config`).
-   - **Else if** the change is confined to a single module and centers on a specific, well-known feature within it → use the feature name (`jwt`, `validation`, `factories`, `tests`).
-   - **Else if** the change is confined to a single module → use the module name.
-   - **Else** (multiple modules, no unifying theme) → use the most general applicable scope, or the most impacted module.
-
-3. **Understand intent** from the source of truth's context:
-   - What problem was being solved?
-   - What feature was being added?
-   - What was refactored and why?
-   - Focus on the WHY and WHAT, not the HOW
-
-4. **Detect breaking changes**:
-   - Removed public API endpoints or methods
-   - Changed method signatures or return types
-   - Renamed configuration properties
-   - Changed the DB schema in a backward-incompatible way (e.g. dropped/renamed a column)
-   - If breaking: use `!` suffix on type and/or `BREAKING CHANGE:` footer (see *Breaking Changes* above)
-
-5. **Decide on body structure**:
-   - Count distinct logical changes in the diff. If ≥2, or if the why is non-obvious from the subject alone, include a body.
-   - If a body is needed, decide whether a lead paragraph adds context the subject can't carry. If not, go straight to bullets.
-
-### Step 3: Generate Message
-
-**Single-line format** (most cases — single conceptual change with no nuance):
-```
-<type>(<scope>): <description>
-```
-
-**Multi-line format** (when the subject cannot capture the change alone):
-```
-<type>(<scope>): <description>
-
-[optional: 1-3 sentences explaining the WHY]
-
-- <bullet describing one change>
-- <bullet describing another change>
-
-<optional footer(s)>
-```
-
-**Rules:**
-- Subject line max 72 characters
-- Use imperative mood ("add" not "added" or "adds")
-- No period at end of subject line
-- Focus on what and why, not how
-- Include a body only when the subject cannot capture the change alone (single conceptual change with no nuance → subject-only)
-- For breaking changes, see *Breaking Changes* above
-- Reference issues when applicable: `Closes #123`, `Refs #456`
-
-**Body format** (when a body is included):
-- Optional lead paragraph (1-3 sentences) explaining the WHY — motivation, root cause, or constraint. Write it on a single line; do not hard-wrap at any column. Omit when the subject already conveys the why and the bullets stand on their own.
-- Required bulleted list of changes (one or more bullets):
-  - Marker: `-` followed by a single space
-  - First letter capitalized
-  - Imperative mood (`Add`, `Rename`, `Fix` — same mood as the subject line)
-  - No trailing period
-  - One change per bullet, single line per bullet (no nested bullets, no multi-line bullets)
-- Footers (`BREAKING CHANGE:`, `Closes #N`, `Refs #N`) follow the bulleted list, separated by a blank line.
-
-### Step 4: Output
-
-Display the generated commit message in a code block. Briefly explain the chosen type and scope in one sentence.
-
-## Examples
-
-**Example 1: Single-line format (test refactoring)**
-
-Detected changes:
-- Modified 3 test factory files in `asapp-authentication-service`
-- Renamed wither methods for consistency
-
-Generated commit message:
+**Single-line** — test-only change in one service:
 ```
 test(authentication): improve factory method naming consistency
 ```
 
-Reasoning: Changes are test-only (`*Tests.java` files), focused on authentication service, improving code quality without changing behavior.
-
----
-
-**Example 2: Multi-line format (breaking change)**
-
-Detected changes:
-- Removed deprecated `/api/auth/verify` endpoint
-- Updated REST API interface and controller
-- Removed related tests
-
-Generated commit message:
+**Multi-line, breaking** — endpoint removal:
 ```
 feat(authentication)!: remove deprecated verify endpoint
 
@@ -195,17 +116,7 @@ feat(authentication)!: remove deprecated verify endpoint
 BREAKING CHANGE: /api/auth/verify endpoint no longer available; clients should use /api/auth/token with token introspection
 ```
 
-Reasoning: Endpoint removal is a breaking change; bulleted body lists the discrete actions, and the `BREAKING CHANGE:` footer documents the impact and migration path.
+## Guardrails
 
-See [examples.md](examples.md) for more (cross-module refactoring, bullets-only body, lead paragraph + bullets).
-
-## Git Safety
-
-- NEVER execute `git commit` — only generate the message
-- NEVER stage files or modify the working tree
-- If changes span multiple unrelated concerns, suggest splitting into multiple commits
-- Never commit secrets (.env, credentials.json, private keys) — warn if detected in diff
-
-## Important Notes
-
-- If unsure between types, prefer the one that best describes the primary intent
+- **Generate text only** — never run `git commit`, never stage or modify the working tree, never push.
+- **Never emit secrets** — if the diff touches `.env`, `credentials.json`, private keys, or similar, warn instead of embedding their contents.

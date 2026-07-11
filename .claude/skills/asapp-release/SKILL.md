@@ -19,7 +19,7 @@ Automates the full ASAPP release cycle: version bump, Liquibase tagging, design-
 
 ## Usage
 
-- `/asapp-release` — runs all steps, asks for confirmation before pushing
+- `/asapp-release` — runs all steps, asks for confirmation before pushing.
 
 ## Process
 
@@ -39,11 +39,11 @@ Automates the full ASAPP release cycle: version bump, Liquibase tagging, design-
 10. Bump to next SNAPSHOT (Step 10)
 11. Commit next development version (Step 11)
 12. Push (Step 12)
-13. Wrap up (Step 13)
+13. Wrap-up (Step 13)
 
 If the release aborts (a failed precondition, pending TODO items, or a build failure), leave the current task `in_progress` so the stopping point — and what has already been mutated — stays visible. If the Step 4 TODO drop already landed, see Step 4 to undo it before retrying.
 
-### Step 1: Validate Preconditions
+### Step 1: Validate preconditions
 
 ```bash
 git branch --show-current
@@ -86,7 +86,7 @@ gh run list --branch main --workflow ci.yml --limit 1 --json status,conclusion,h
 
   A run is acceptable only when `status` is `completed` and `conclusion` is `success`. If the run is still `in_progress` or `queued`, abort and ask the user to wait.
 
-### Step 2: Detect Versions
+### Step 2: Detect versions
 
 Read the root `pom.xml` to extract the current version (e.g. `0.3.0-SNAPSHOT`).
 
@@ -94,7 +94,7 @@ Derive:
 - **Release version**: strip `-SNAPSHOT` → `0.3.0`
 - **Version underscored**: replace `.` with `_` → `0_3_0` (used for file names)
 
-### Step 3: Check TODO Completeness
+### Step 3: Check TODO completeness
 
 Open `TODO.md` and locate the version section whose heading starts with `## X.Y.Z ·` (the `## <ver> · <theme>` format — see `.claude/rules/todo.md`). The section spans from that header until the next `##` header or end of file.
 
@@ -113,7 +113,7 @@ Scan every line in that section for unchecked items matching `[ ]`.
 - If the version section is not found in TODO.md: **abort** with a warning that the version has no TODO section and ask the user to confirm whether to proceed.
 - If all items are checked (or the section has no checkboxes): continue.
 
-### Step 4: Drop the Released TODO Section
+### Step 4: Drop the released TODO section
 
 The version just passed the Step 3 completeness gate — remove its section from `TODO.md` and commit that removal on its own, before the release mutations begin.
 
@@ -141,7 +141,7 @@ mvn versions:set -DremoveSnapshot=true -DprocessAllModules=true -DgenerateBackup
 
 Confirm the root `pom.xml` now reads `<version>X.Y.Z</version>` (no SNAPSHOT).
 
-#### Update OpenAPI Version
+#### Update OpenAPI version
 
 In each of the three service `OpenApiConfiguration.java` files, update the `version` attribute in `@Info(...)` to the **release version**:
 
@@ -159,7 +159,7 @@ Open `docker-compose.yml` and for every `image:` line matching `ghcr.io/attrigo/
 
 Confirm all five `asapp-*` service image tags now reference the release version.
 
-### Step 6: Add Liquibase Database Tags
+### Step 6: Add Liquibase database tags
 
 For each service, locate the version changelog file:
 
@@ -186,7 +186,7 @@ Use the underscored version in the `id` attribute (e.g. `tag_version_0_3_0`) and
 
 If a service has no changelog file for this version, skip it — that service had no schema changes in this release.
 
-### Step 7: Archive This Version's Design Specs
+### Step 7: Archive this version's design specs
 
 Move every design spec sitting directly in `docs/superpowers/specs/` into a version folder (e.g. `docs/superpowers/specs/v0.3.0/`):
 
@@ -201,7 +201,7 @@ git mv docs/superpowers/specs/*-design.md docs/superpowers/specs/vX.Y.Z/
 
 If there are no root-level specs, skip this step — this version introduced no new design specs.
 
-### Step 8: Build and Verify
+### Step 8: Build and verify
 
 ```bash
 mvn clean test
@@ -211,7 +211,7 @@ mvn clean test
 
 This is a fast **local pre-flight** only — pushing the tag in Step 12 triggers the `Release` workflow (`.github/workflows/release.yml`), which runs the full `-Pfull` build and tests, publishes the versioned Docker images, and creates the GitHub Release with its changelog. That full verification and publication happens in CI, after the tag lands.
 
-### Step 9: Commit Release and Create Tag
+### Step 9: Commit release and create tag
 
 ```bash
 RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
@@ -222,7 +222,7 @@ git tag v${RELEASE_VERSION}
 
 Confirm the commit and tag were created successfully.
 
-### Step 10: Bump to Next SNAPSHOT
+### Step 10: Bump to next SNAPSHOT
 
 #### Update pom version
 
@@ -232,7 +232,7 @@ mvn versions:set -DnextSnapshot=true -DnextSnapshotIndexToIncrement=2 -DprocessA
 
 Confirm the root `pom.xml` now reads the next SNAPSHOT version (e.g. `0.4.0-SNAPSHOT`).
 
-#### Update OpenAPI Version
+#### Update OpenAPI version
 
 In each of the three service `OpenApiConfiguration.java` files, update the `version` attribute in `@Info(...)` to the **next SNAPSHOT version**:
 
@@ -250,7 +250,7 @@ Open `docker-compose.yml` and for every `image:` line matching `ghcr.io/attrigo/
 
 Confirm all five `asapp-*` service image tags now reference the next SNAPSHOT version.
 
-### Step 11: Commit Next Development Version
+### Step 11: Commit next development version
 
 ```bash
 NEXT_DEV_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
@@ -272,34 +272,13 @@ Ask: "Ready to push — publish the release?" with options **Push** (run the com
 
 Report the pushed main branch and the tag (`vX.Y.Z`).
 
-## Hard rules
-
-- **Abort if not on `main`** — releases must come from the main branch
-- **Abort if working tree is dirty** — prevents accidental inclusion of uncommitted changes
-- **Abort if there are unpushed commits** — prevents releasing from a state that diverges from the remote
-- **Abort if last CI run on `main` did not succeed** — prevents releasing from a broken build
-- **Abort if TODO has unchecked items for the version** — ensures the release is feature-complete
-- **Archive specs with `git mv`** — relocate the root-level design specs into the version folder; leave already-archived ones untouched
-- **Drop the released TODO section in its own commit (Step 4)** — right after the Step 3 completeness gate, before the release mutations; see Step 4 for the reset mechanic if the release later aborts
-- **Never skip `mvn clean test`** — the build must compile and the tests must pass before the release commit is created
-- **Never force push** — use `--atomic` only; never `--force` or `--force-with-lease`
-- **Never push without confirmation**
-
 ## Example Output
 
 See [example-output.md](example-output.md) for a full sample run.
 
-## Common mistakes
+## Guardrails
 
-| Mistake | Fix |
-|---------|-----|
-| Starting Step 1 before creating the thirteen tracking tasks | Do Step 0 first — create the tasks, then begin. |
-| Continuing past a failed precondition | Any failed check in Step 1 aborts — never release from a dirty, diverged, or red-CI state. |
-| Releasing with pending TODO items for the version | Step 3 aborts on any `[ ]` — complete them first. |
-| Committing the release before the build passes | Never skip the build in Step 8; the release commit (Step 9) comes only after BUILD SUCCESS. |
-| Updating only some version references | Bump the pom, all three OpenAPI configs, and all five docker-compose tags together. |
-| Pushing without confirmation, or force-pushing | Show the command, wait for confirmation, and push only with `--atomic`. |
-| Archiving specs by delete-and-recreate | Relocate root-level specs with `git mv` so history is preserved. |
-| Bundling the TODO drop into the release or next-dev commit | Drop it in its own commit at Step 4, right after the completeness gate. |
-| Leaving the Step 4 drop commit behind when the release aborts | It commits before the build — on abort, `git reset --hard HEAD~1` before retrying. |
-| Auditing the released TODO section for completeness before dropping | Drop wholesale — Step 3 already gated it; history is in git + the GitHub Release. |
+- **Abort before mutating if a precondition fails** — not on `main`, dirty working tree, unpushed commits, or a red last CI run (Step 1); unchecked TODO items for the version (Step 3).
+- **Never skip `mvn clean test`** — the release commit (Step 9) is created only after BUILD SUCCESS.
+- **Never force push** — `--atomic` only; never `--force` or `--force-with-lease`.
+- **Never push without confirmation** — gate on the Step 12 `AskUserQuestion`.
