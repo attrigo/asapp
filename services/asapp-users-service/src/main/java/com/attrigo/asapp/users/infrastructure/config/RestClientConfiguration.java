@@ -41,9 +41,8 @@ import com.attrigo.asapp.users.infrastructure.security.client.JwtInterceptor;
  * <ul>
  * <li>The declarative HTTP service client groups, configured uniformly through a {@link RestClientHttpServiceGroupConfigurer}</li>
  * <li>A {@link Primary} plain {@link RestClient.Builder} for any unqualified injection point, paired with a dedicated
+ * {@link DefaultEurekaClientHttpRequestFactorySupplier} that keeps Eureka isolated from the application's interceptors</li>
  * </ul>
- * <p>
- * Also defines a {@link DefaultEurekaClientHttpRequestFactorySupplier} which keeps Eureka isolated from the application's interceptors.
  *
  * @since 0.2.0
  * @see RestClientHttpServiceGroupConfigurer

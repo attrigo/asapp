@@ -38,11 +38,6 @@
             <artifactId>spring-web</artifactId>
             <optional>true</optional>
         </dependency>
-        <!-- ## Other Dependencies -->
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-        </dependency>
 
         <!-- # Test Dependencies -->
         <!-- ## Spring Dependencies -->

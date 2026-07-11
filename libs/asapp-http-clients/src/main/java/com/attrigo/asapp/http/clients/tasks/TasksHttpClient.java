@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.client.RestClientException;
 import org.springframework.web.service.annotation.GetExchange;
 import org.springframework.web.service.annotation.HttpExchange;
 
@@ -45,6 +46,8 @@ public interface TasksHttpClient {
      *
      * @param id the unique identifier of the user whose tasks should be retrieved
      * @return a {@link List} of task responses belonging to the user; an empty list if the user has no tasks
+     * @throws IllegalArgumentException if the id is {@code null}
+     * @throws RestClientException      if the call to the Tasks Service fails
      */
     @GetExchange(TASKS_GET_BY_USER_ID_FULL_PATH)
     List<TasksByUserIdResponse> getTasksByUserId(@PathVariable UUID id);
