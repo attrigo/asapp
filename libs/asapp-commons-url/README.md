@@ -51,14 +51,16 @@ import static com.attrigo.asapp.url.authentication.AuthenticationApiUrl.*;
 @PostMapping(AUTH_TOKEN_PATH)
 public MyResponse myEndpoint(@RequestBody MyRequest request) { ... }
 
-// In a REST client — use full paths
+// In a declarative HTTP client — use full paths
 import static com.attrigo.asapp.url.tasks.TaskApiUrl.*;
 
-restClient.post()
-          .uri(TASKS_CREATE_FULL_PATH)
-          .body(request)
-          .retrieve()
-          .body(MyResponse.class);
+@HttpExchange
+public interface TasksHttpClient {
+
+    @PostExchange(TASKS_CREATE_FULL_PATH)
+    MyResponse createTask(@RequestBody MyRequest request);
+
+}
 ```
 
 ---
