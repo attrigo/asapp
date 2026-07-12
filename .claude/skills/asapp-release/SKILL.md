@@ -262,13 +262,25 @@ git commit -m "chore: prepare next development version ${NEXT_DEV_VERSION}"
 
 ### Step 11: Push
 
-Show the push command, then gate on `AskUserQuestion` before running it:
+Show the push command, then gate on `AskUserQuestion` before anything is pushed:
 
 ```bash
 git push --atomic origin main vX.Y.Z
 ```
 
-Ask: "Ready to push — publish the release?" with options **Push** (run the command above) and **Abort** (stop; nothing is pushed). Only run the command if the user picks **Push**.
+Ask: "Ready to push — publish the release?" with three options:
+
+- **Push** — run the command above yourself, then continue to Step 12.
+- **User pushes** — give the user the exact command to run himself. Wait for the user to confirm it is done, then verify the push landed before continuing:
+
+  ```bash
+  git fetch origin
+  git log origin/main..HEAD --oneline    # must print nothing
+  git ls-remote --tags origin vX.Y.Z     # must print the tag
+  ```
+
+  Only continue to Step 12 once both checks pass. If either fails, tell the user the push has not landed and stay on this step.
+- **Abort** — stop; nothing is pushed.
 
 ### Step 12: Wrap-up
 
