@@ -25,23 +25,22 @@ Automates the full ASAPP release cycle: version bump, Liquibase tagging, design-
 
 ### Step 0: Set up progress tracking
 
-**Before any other step**, create these thirteen tracking tasks with the task tool; mark each `in_progress` when you start it and `completed` when it's done:
+**Before any other step**, create these twelve tracking tasks with the task tool; mark each `in_progress` when you start it and `completed` when it's done:
 
 1. Validate preconditions (Step 1)
 2. Detect versions (Step 2)
 3. Check TODO completeness (Step 3)
-4. Drop the released TODO section (Step 4)
+4. Close out the version's documentation (Step 4)
 5. Remove SNAPSHOT (Step 5)
 6. Add Liquibase database tags (Step 6)
-7. Archive this version's design specs (Step 7)
-8. Build and verify (Step 8)
-9. Commit release and create tag (Step 9)
-10. Bump to next SNAPSHOT (Step 10)
-11. Commit next development version (Step 11)
-12. Push (Step 12)
-13. Wrap-up (Step 13)
+7. Build and verify (Step 7)
+8. Commit release and create tag (Step 8)
+9. Bump to next SNAPSHOT (Step 9)
+10. Commit next development version (Step 10)
+11. Push (Step 11)
+12. Wrap-up (Step 12)
 
-If the release aborts (a failed precondition, pending TODO items, or a build failure), leave the current task `in_progress` so the stopping point — and what has already been mutated — stays visible. If the Step 4 TODO drop already landed, see Step 4 to undo it before retrying.
+If the release aborts (a failed precondition, pending TODO items, or a build failure), leave the current task `in_progress` so the stopping point — and what has already been mutated — stays visible. If the Step 4 documentation close-out already landed, see Step 4 to undo it before retrying.
 
 ### Step 1: Validate preconditions
 
@@ -113,23 +112,41 @@ Scan every line in that section for unchecked items matching `[ ]`.
 - If the version section is not found in TODO.md: **abort** with a warning that the version has no TODO section and ask the user to confirm whether to proceed.
 - If all items are checked (or the section has no checkboxes): continue.
 
-### Step 4: Drop the released TODO section
+### Step 4: Close out the version's documentation
 
-The version just passed the Step 3 completeness gate — remove its section from `TODO.md` and commit that removal on its own, before the release mutations begin.
+The version just passed the Step 3 completeness gate. Do both documentation close-out edits now — dropping the released backlog and archiving the design specs — then commit them together, before the release mutations begin.
+
+#### Drop the released TODO section
 
 - Locate the `## X.Y.Z · <theme>` section for the **release version** (the same section Step 3 just validated).
 - Delete it **wholesale** — from its `## ` header to the next `## ` header, including the trailing `---` divider.
 - No preservation audit: Step 3 already gated it complete, history keeps it, and the edit is recoverable with `git checkout TODO.md`.
-- If Step 3 proceeded with the section absent (user-confirmed), there is nothing to drop — skip this step entirely (no edit, no commit).
+- If Step 3 proceeded with the section absent (user-confirmed), there is nothing to drop — skip this edit.
 
-Commit the drop on its own (use the release version from Step 2 for `X.Y.Z`):
+#### Archive this version's design specs
+
+Move every design spec sitting directly in `docs/superpowers/specs/` into a version folder (e.g. `docs/superpowers/specs/v0.3.0/`):
 
 ```bash
-git add TODO.md
-git commit -m "docs(todo): drop released X.Y.Z section"
+mkdir -p docs/superpowers/specs/vX.Y.Z
+git mv docs/superpowers/specs/*-design.md docs/superpowers/specs/vX.Y.Z/
 ```
 
-This keeps backlog housekeeping out of the release and next-dev commits. If the release later aborts, reset it with `git reset --hard HEAD~1` before retrying.
+- Only the **root-level** specs move; specs already archived in `v*/` subfolders are untouched (the glob does not recurse).
+- Keep each file's original `YYYY-MM-DD-<slug>-design.md` name — only its location changes.
+- Use `git mv` (never delete and recreate).
+- If there are no root-level specs, skip this edit — this version introduced no new design specs.
+
+#### Commit the close-out
+
+Commit whichever edits were made — both, in the common case (use the release version from Step 2 for `X.Y.Z`):
+
+```bash
+git add TODO.md docs/superpowers/specs
+git commit -m "docs: close out X.Y.Z"
+```
+
+Trim the message to match if only one edit applied. If neither applied, skip the commit entirely. If the release later aborts after this commit lands, reset it with `git reset --hard HEAD~1` before retrying.
 
 ### Step 5: Remove SNAPSHOT
 
@@ -186,22 +203,7 @@ Use the underscored version in the `id` attribute (e.g. `tag_version_0_3_0`) and
 
 If a service has no changelog file for this version, skip it — that service had no schema changes in this release.
 
-### Step 7: Archive this version's design specs
-
-Move every design spec sitting directly in `docs/superpowers/specs/` into a version folder (e.g. `docs/superpowers/specs/v0.3.0/`):
-
-```bash
-mkdir -p docs/superpowers/specs/vX.Y.Z
-git mv docs/superpowers/specs/*-design.md docs/superpowers/specs/vX.Y.Z/
-```
-
-- Only the **root-level** specs move; specs already archived in `v*/` subfolders are untouched (the glob does not recurse).
-- Keep each file's original `YYYY-MM-DD-<slug>-design.md` name — only its location changes.
-- Use `git mv` (never delete and recreate); it stages the moves, so they ride along in the release commit (Step 9).
-
-If there are no root-level specs, skip this step — this version introduced no new design specs.
-
-### Step 8: Build and verify
+### Step 7: Build and verify
 
 ```bash
 mvn clean test
@@ -209,9 +211,9 @@ mvn clean test
 
 **If the build fails**: stop immediately, report the failure, and do not proceed. The user must fix the build before the release can continue.
 
-This is a fast **local pre-flight** only — pushing the tag in Step 12 triggers the `Release` workflow (`.github/workflows/release.yml`), which runs the full `-Pfull` build and tests, publishes the versioned Docker images, and creates the GitHub Release with its changelog. That full verification and publication happens in CI, after the tag lands.
+This is a fast **local pre-flight** only — pushing the tag in Step 11 triggers the `Release` workflow (`.github/workflows/release.yml`), which runs the full `-Pfull` build and tests, publishes the versioned Docker images, and creates the GitHub Release with its changelog. That full verification and publication happens in CI, after the tag lands.
 
-### Step 9: Commit release and create tag
+### Step 8: Commit release and create tag
 
 ```bash
 RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
@@ -222,7 +224,7 @@ git tag v${RELEASE_VERSION}
 
 Confirm the commit and tag were created successfully.
 
-### Step 10: Bump to next SNAPSHOT
+### Step 9: Bump to next SNAPSHOT
 
 #### Update pom version
 
@@ -250,7 +252,7 @@ Open `docker-compose.yml` and for every `image:` line matching `ghcr.io/attrigo/
 
 Confirm all five `asapp-*` service image tags now reference the next SNAPSHOT version.
 
-### Step 11: Commit next development version
+### Step 10: Commit next development version
 
 ```bash
 NEXT_DEV_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
@@ -258,7 +260,7 @@ git add .
 git commit -m "chore: prepare next development version ${NEXT_DEV_VERSION}"
 ```
 
-### Step 12: Push
+### Step 11: Push
 
 Show the push command, then gate on `AskUserQuestion` before running it:
 
@@ -268,7 +270,7 @@ git push --atomic origin main vX.Y.Z
 
 Ask: "Ready to push — publish the release?" with options **Push** (run the command above) and **Abort** (stop; nothing is pushed). Only run the command if the user picks **Push**.
 
-### Step 13: Wrap-up
+### Step 12: Wrap-up
 
 Report the pushed main branch and the tag (`vX.Y.Z`).
 
@@ -279,6 +281,6 @@ See [example-output.md](example-output.md) for a full sample run.
 ## Guardrails
 
 - **Abort before mutating if a precondition fails** — not on `main`, dirty working tree, unpushed commits, or a red last CI run (Step 1); unchecked TODO items for the version (Step 3).
-- **Never skip `mvn clean test`** — the release commit (Step 9) is created only after BUILD SUCCESS.
+- **Never skip `mvn clean test`** — the release commit (Step 8) is created only after BUILD SUCCESS.
 - **Never force push** — `--atomic` only; never `--force` or `--force-with-lease`.
-- **Never push without confirmation** — gate on the Step 12 `AskUserQuestion`.
+- **Never push without confirmation** — gate on the Step 11 `AskUserQuestion`.
