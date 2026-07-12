@@ -54,6 +54,11 @@ import org.springframework.security.web.SecurityFilterChain;
 public class SecurityConfiguration {
 
     /**
+     * The base management (Actuator) URL pattern, this pattern matches all paths under `/actuator/`.
+     */
+    private static final String ACTUATOR_MATCHER = "/actuator/**";
+
+    /**
      * Set of management (Actuator) URL patterns that are excluded from authentication checks.
      */
     public static final Set<String> MANAGEMENT_WHITELIST_URLS = Set.of("/readyz", "/livez");
@@ -78,7 +83,7 @@ public class SecurityConfiguration {
     DefaultSecurityFilterChain actuatorFilterChain(HttpSecurity http) {
         http.csrf(AbstractHttpConfigurer::disable);
         http.cors(AbstractHttpConfigurer::disable);
-        http.securityMatcher(EndpointRequest.toAnyEndpoint())
+        http.securityMatcher(ACTUATOR_MATCHER)
             .authorizeHttpRequests(auth -> {
                 auth.requestMatchers(EndpointRequest.to(HealthEndpoint.class))
                     .permitAll();
