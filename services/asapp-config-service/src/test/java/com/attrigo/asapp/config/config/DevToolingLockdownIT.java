@@ -18,9 +18,13 @@ package com.attrigo.asapp.config.config;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalManagementPort;
@@ -38,6 +42,7 @@ import com.attrigo.asapp.config.AsappConfigServiceApplication;
  * <p>
  * Coverage:
  * <li>Actuator root exposes only health, info, prometheus and sbom links when exposure is narrowed</li>
+ * <li>Unexposed actuator endpoints return 404 Not Found for authenticated management requests</li>
  */
 @SpringBootTest(classes = AsappConfigServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 // @formatter:off
@@ -90,6 +95,23 @@ class DevToolingLockdownIT {
             assertThatJson(actual).node("_links")
                                   .isObject()
                                   .containsOnlyKeys("self", "health", "health-path", "info", "prometheus", "sbom", "sbom-id");
+        }
+
+        @ParameterizedTest
+        @MethodSource("unexposedEndpoints")
+        void ReturnsStatusNotFound_OnUnexposedActuatorEndpoint(String endpoint) {
+            // When & Then
+            managementRestTestClient.get()
+                                    .uri(endpoint)
+                                    .headers(h -> h.setBasicAuth(configUsername, configPassword))
+                                    .exchange()
+                                    .expectStatus()
+                                    .isNotFound();
+        }
+
+        private static Stream<String> unexposedEndpoints() {
+            return Stream.of("/actuator/beans", "/actuator/conditions", "/actuator/configprops", "/actuator/env", "/actuator/loggers", "/actuator/heapdump",
+                    "/actuator/threaddump", "/actuator/metrics", "/actuator/scheduledtasks", "/actuator/mappings");
         }
 
     }

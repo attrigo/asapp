@@ -18,9 +18,13 @@ package com.attrigo.asapp.authentication.infrastructure.config;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 
+import java.util.stream.Stream;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureRestTestClient;
@@ -42,6 +46,7 @@ import com.attrigo.asapp.authentication.testutil.TestContainerConfiguration;
  * <p>
  * Coverage:
  * <li>Actuator root exposes only health, info, prometheus and sbom links when exposure is narrowed</li>
+ * <li>Unexposed actuator endpoints return 404 Not Found for authenticated management requests</li>
  * <li>Swagger UI endpoint is not reachable when springdoc is disabled</li>
  * <li>OpenAPI documentation endpoint is not reachable when springdoc is disabled</li>
  * <li>BootUI developer console endpoints return 401 Unauthorized when BootUI is disabled</li>
@@ -155,6 +160,24 @@ class DevToolingLockdownIT {
             assertThatJson(actual).node("_links")
                                   .isObject()
                                   .containsOnlyKeys("self", "health", "health-path", "info", "prometheus", "sbom", "sbom-id");
+        }
+
+        @ParameterizedTest
+        @MethodSource("unexposedEndpoints")
+        void ReturnsStatusNotFound_OnUnexposedActuatorEndpoint(String endpoint) {
+            // When & Then
+            managementRestTestClient.get()
+                                    .uri(endpoint)
+                                    .headers(h -> h.setBasicAuth(managementUsername, managementPassword))
+                                    .exchange()
+                                    .expectStatus()
+                                    .isNotFound();
+        }
+
+        private static Stream<String> unexposedEndpoints() {
+            return Stream.of("/actuator/beans", "/actuator/conditions", "/actuator/configprops", "/actuator/env", "/actuator/liquibase", "/actuator/loggers",
+                    "/actuator/heapdump", "/actuator/threaddump", "/actuator/metrics", "/actuator/scheduledtasks", "/actuator/httpexchanges",
+                    "/actuator/mappings");
         }
 
     }

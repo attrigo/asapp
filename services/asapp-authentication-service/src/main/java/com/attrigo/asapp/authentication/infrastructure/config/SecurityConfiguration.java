@@ -77,6 +77,11 @@ public class SecurityConfiguration {
     private static final String API_MATCHER = "/api/**";
 
     /**
+     * The base management (Actuator) URL pattern, this pattern matches all paths under `/actuator/`.
+     */
+    private static final String ACTUATOR_MATCHER = "/actuator/**";
+
+    /**
      * The base root URL pattern, this pattern matches all paths under `/`.
      */
     private static final String ROOT_MATCHER = "/**";
@@ -187,7 +192,7 @@ public class SecurityConfiguration {
     DefaultSecurityFilterChain actuatorFilterChain(HttpSecurity http, PasswordEncoder passwordEncoder) {
         http.csrf(AbstractHttpConfigurer::disable);
         http.cors(AbstractHttpConfigurer::disable);
-        http.securityMatcher(EndpointRequest.toAnyEndpoint())
+        http.securityMatcher(ACTUATOR_MATCHER)
             .authorizeHttpRequests(auth -> {
                 auth.requestMatchers(EndpointRequest.to(HealthEndpoint.class))
                     .permitAll();
