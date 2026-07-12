@@ -29,6 +29,7 @@ A sample run of `/asapp-release`, referenced from [SKILL.md](SKILL.md).
 Ready to push — publish the release?
   git push --atomic origin main v0.3.0
 
-  [Push]   run the command above
-  [Abort]  stop; nothing is pushed
+  [Push]      run the command above
+  [User pushes] you run it yourself; I verify it landed, then wrap up
+  [Abort]     stop; nothing is pushed
 ```
