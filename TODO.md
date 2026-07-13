@@ -2,59 +2,72 @@
 
 ---
 
-## 0.5.0 · Tech upgrade
+## 0.5.0 · Build speed with Gradle
 
-Goal: move the build and platform onto Gradle and Spring Boot 4.1.
+Goal: move the build onto Gradle so every later build is cached, parallel, and incremental.
 
 ### Technical
 
 - [ ] (build) Replace Maven with Gradle
+    - [ ] Migrate the module structure and dependency management to Gradle
+    - [ ] Migrate coverage, mutation testing, and formatting checks to Gradle
+    - [ ] Migrate git hook installation to Gradle
+    - [ ] Update CI and release workflows to build with Gradle
+    - [ ] Migrate Docker image publishing to Gradle
+- [ ] (architecture) Add an ArchUnit layering and boundary guardrail
+    - **Note:** a lightweight safety net for the Gradle, OAuth, and Modulith refactors; the full JMolecules suite lands in 0.10
+
+---
+
+## 0.6.0 · Platform & dependency upgrades
+
+Goal: upgrade to Spring Boot 4.1 and capture the upgrade process as reusable tooling.
+
+### Technical
+
 - [ ] (deps) Upgrade Spring Boot to 4.1
     - [ ] Replace JUnit 5 with JUnit 6
-    - [ ] Fully migrate to Jackson 3 (`ObjectMapper` → `JsonMapper`)
     - [ ] Review CVEs
-- [ ] (deps) Upgrade project dependencies
+- [ ] (deps) Upgrade remaining dependencies and build plugins
 - [ ] (deps) Upgrade Docker images
 - [ ] (ci) Upgrade GitHub Actions
-- [ ] (tests) Upgrade the JMeter tool
-- [ ] (config) Use `@ConfigurationProperties` for custom application properties
-- [ ] (observability) Improve observability
-    - [ ] Use spring-boot-starter-opentelemetry
-    - [ ] Bump version of Grafana dashboard
-    - [ ] Add Hikari Grafana dashboard
-    - [ ] Add Spring Boot Observability Grafana dashboard
-    - [ ] Add Redis Grafana dashboard
-    - [ ] Add RabbitMQ Grafana dashboard
-    - [ ] Observe when the circuit breaker opens and closes the circuit
+- [ ] (tests) Upgrade JMeter
+    - **Note:** the pinned engine forces an older Java (17/21) for the stress plan — confirm the new version lifts that constraint
+- [ ] (observability) Adopt the Spring Boot OpenTelemetry starter
+    - [ ] Export traces and metrics from every service
+    - [ ] Add a telemetry collector and trace backend to the stack
+    - **Note:** replaces the manual Micrometer tracing and exporter wiring; the shared config is folded into the Observability starter in 0.7
 
 ### Docs & Tooling
 
 - [ ] (docs) Replace Swagger with Scalar
-- [ ] (ai) Create skills to automate the project's tech upgrades
-    - [ ] Skill to upgrade Spring Boot and its dependencies
+- [ ] (ai) Create custom skills to automate the project's tech upgrades
+    - [ ] Create a custom skill to upgrade Spring Boot and its dependencies
         - **Note:** check for migration guides
         - **Note:** produce a design file (like superpowers brainstorming)
-    - [ ] Skill to upgrade the Java version
-    - [ ] Skill to upgrade infrastructure (Gradle wrapper, Docker images, GitHub Actions, …)
+    - [ ] Create a custom skill to upgrade the Java version
+    - [ ] Create a custom skill to upgrade infrastructure (Gradle wrapper, Docker images, GitHub Actions, …)
 
 ---
 
-## 0.6.0 · Introduce Event-Driven Design
+## 0.7.0 · Custom starter architecture
 
-Goal: send a confirmation notification on user creation via domain events.
+Goal: extract the shared service configuration into a custom Spring starter architecture.
 
-### Features
+### Technical
 
-- [ ] (notifications) Send a confirmation notification on user creation
-    - [ ] Publish an event when a user is created
-    - [ ] React to user creation by sending a confirmation notification
-    - [ ] Keep user creation unaffected by notification failures
-    - [ ] Retry failed notification deliveries
-- [ ] (api) Paginate list endpoints
+- [ ] (config) Consolidate custom application properties into typed configuration classes
+- [ ] (architecture) Create a custom architecture based on Spring starters
+    - [ ] Extract a Web starter
+    - [ ] Extract a Data starter
+    - [ ] Extract an Observability starter
+        - **Note:** consolidate the OpenTelemetry configuration adopted in 0.6
+    - [ ] Extract a Testing starter
+    - **Note:** extract from the existing services; the Security starter follows OAuth in 0.8
 
 ---
 
-## 0.7.0 · Setup OAuth2
+## 0.8.0 · OAuth2
 
 Goal: adopt OAuth2 authentication and retire the custom JWT.
 
@@ -69,20 +82,38 @@ Goal: adopt OAuth2 authentication and retire the custom JWT.
 
 ### Technical
 
-- [ ] (security) Support automatic password-format migration on authentication
 - [ ] (security) Replace Spring `SecurityFilterChain` with Customizers
+    - **Note:** do this before OAuth so the security config is clean going in
+- [ ] (security) Support automatic password-format migration on authentication
+- [ ] (architecture) Extract a Security starter
+    - **Note:** completes the starter set from 0.7, now that OAuth has finalized the security configuration
 
 ---
 
-## 0.8.0 · Adopt Modulith with Domain Events & CQRS
+## 0.9.0 · Event-driven notifications
 
-Goal: modularize with Spring Modulith and drive the domain through events + CQRS.
+Goal: send a confirmation notification on user creation via domain events.
+
+### Features
+
+- [ ] (notifications) Send a confirmation notification on user creation
+    - [ ] Publish an event when a user is created
+    - [ ] React to user creation by sending a confirmation notification
+    - [ ] Keep user creation unaffected by notification failures
+    - [ ] Retry failed notification deliveries
+- [ ] (api) Paginate list endpoints
+
+---
+
+## 0.10.0 · Modulith with domain events & CQRS
+
+Goal: modularize with Spring Modulith and drive the domain through events and CQRS.
 
 ### Technical
 
 - [ ] (architecture) Introduce modularization with Spring Modulith (ArchUnit & JMolecules)
-    - [ ] Add an ArchUnit test asserting every request DTO `@JsonProperty` value equals the camelCase of its Java component name
-        - **Note:** already enforced per service by `JsonNamingConventionTest`; fold it into the Modulith ArchUnit suite
+    - [ ] Fold the JSON naming-convention check into the Modulith ArchUnit suite
+        - **Note:** already enforced per service by `JsonNamingConventionTest`
 - [ ] (architecture) Adopt domain events following DDD principles
     - [ ] Handle domain CUD operations via events
     - [ ] Use the CQRS pattern
@@ -90,22 +121,7 @@ Goal: modularize with Spring Modulith and drive the domain through events + CQRS
 
 ---
 
-## 0.9.0 · Modularize with custom Starters
-
-Goal: build a custom architecture out of Spring starters.
-
-### Technical
-
-- [ ] (architecture) Create a custom architecture based on Spring starters
-    - [ ] Custom starter for Web
-    - [ ] Custom starter for Security
-    - [ ] Custom starter for Data
-    - [ ] Custom starter for Observability
-    - [ ] Custom starter for Testing
-
----
-
-## 0.10.0 · Enforce Cross-Service Data Consistency
+## 0.11.0 · Cross-service data consistency
 
 Goal: keep user and task data consistent across services.
 
@@ -121,14 +137,20 @@ Goal: keep user and task data consistent across services.
 
 ---
 
-## 0.11.0 · Improve testing
+## 0.12.0 · Observability expansion
 
-Goal: strengthen the test suite and its Spring context usage.
+Goal: round out observability with operational dashboards and finer-grained instrumentation.
 
 ### Technical
 
-- [ ] (tests) Add `spring-test-profiler`
-- [ ] (tests) Review Spring test-context usage
+- [ ] (observability) Add operational Grafana dashboards
+    - [ ] Update the JVM dashboard to the latest revision
+    - [ ] Add a Hikari dashboard
+    - [ ] Add a Spring Boot Observability dashboard
+    - [ ] Add a Redis dashboard
+    - [ ] Add a RabbitMQ dashboard
+- [ ] (observability) Track circuit breaker open/close transitions
+- [ ] (observability) Add domain-specific metrics and traces
 
 ---
 
@@ -136,7 +158,7 @@ Goal: strengthen the test suite and its Spring context usage.
 
 ### Features
 
-#### auth
+#### authentication
 
 * Support multiple roles for a user
 * Reject compromised passwords
@@ -169,6 +191,8 @@ Goal: strengthen the test suite and its Spring context usage.
 
 #### tests
 
+* Add `spring-test-profiler` to measure Spring context loads
+* Review Spring test-context usage to cut integration-test time
 * Re-enable JUnit 5 tree reporter once a compatible version is released
 * Add load test with Gatling
 * Add a custom `@WithMockJwt` test annotation (backed by a `WithSecurityContextFactory`) to declaratively seed a `JwtAuthenticationToken`
