@@ -15,6 +15,9 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [ ] Update CI and release workflows to build with Gradle
     - [ ] Migrate Docker image publishing to Gradle
 - [ ] (architecture) Add an ArchUnit layering and boundary guardrail
+    - [ ] Enforce the infrastructure → application → domain dependency direction
+    - [ ] Keep the domain free of framework and infrastructure dependencies
+    - [ ] Confine cross-layer access to the declared input and output ports
     - **Note:** a lightweight safety net for the Gradle, OAuth, and Modulith refactors; the full JMolecules suite lands in 0.10
 
 ---
