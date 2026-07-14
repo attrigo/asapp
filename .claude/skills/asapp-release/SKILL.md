@@ -87,11 +87,11 @@ gh run list --branch main --workflow ci.yml --limit 1 --json status,conclusion,h
 
 ### Step 2: Detect versions
 
-Read the root `pom.xml` to extract the current version (e.g. `0.3.0-SNAPSHOT`).
+Read `gradle.properties` to extract the current version from the `version=` line (e.g. `0.5.0-SNAPSHOT`).
 
 Derive:
-- **Release version**: strip `-SNAPSHOT` → `0.3.0`
-- **Version underscored**: replace `.` with `_` → `0_3_0` (used for file names)
+- **Release version**: strip `-SNAPSHOT` → `0.5.0`
+- **Version underscored**: replace `.` with `_` → `0_5_0` (used for file names)
 
 ### Step 3: Check TODO completeness
 
@@ -152,11 +152,7 @@ Trim the message to match if only one edit applied. If neither applied, skip the
 
 #### Update pom version
 
-```bash
-mvn versions:set -DremoveSnapshot=true -DprocessAllModules=true -DgenerateBackupPoms=false
-```
-
-Confirm the root `pom.xml` now reads `<version>X.Y.Z</version>` (no SNAPSHOT).
+Edit `gradle.properties`: set the `version=` line to the release version with `-SNAPSHOT` stripped (e.g. `version=0.5.0`). Confirm the file now reads the release version.
 
 #### Update OpenAPI version
 
@@ -206,7 +202,7 @@ If a service has no changelog file for this version, skip it — that service ha
 ### Step 7: Build and verify
 
 ```bash
-mvn clean test
+./gradlew test
 ```
 
 **If the build fails**: stop immediately, report the failure, and do not proceed. The user must fix the build before the release can continue.
@@ -216,7 +212,7 @@ This is a fast **local pre-flight** only — pushing the tag in Step 11 triggers
 ### Step 8: Commit release and create tag
 
 ```bash
-RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+RELEASE_VERSION=$(grep '^version=' gradle.properties | cut -d= -f2)
 git add .
 git commit -m "chore: release version ${RELEASE_VERSION}"
 git tag v${RELEASE_VERSION}
@@ -228,11 +224,7 @@ Confirm the commit and tag were created successfully.
 
 #### Update pom version
 
-```bash
-mvn versions:set -DnextSnapshot=true -DnextSnapshotIndexToIncrement=2 -DprocessAllModules=true -DgenerateBackupPoms=false
-```
-
-Confirm the root `pom.xml` now reads the next SNAPSHOT version (e.g. `0.4.0-SNAPSHOT`).
+Edit `gradle.properties`: set the `version=` line to the next minor SNAPSHOT (e.g. `0.5.0` → `version=0.6.0-SNAPSHOT`). Confirm the file now reads the next SNAPSHOT version.
 
 #### Update OpenAPI version
 
@@ -255,7 +247,7 @@ Confirm all five `asapp-*` service image tags now reference the next SNAPSHOT ve
 ### Step 10: Commit next development version
 
 ```bash
-NEXT_DEV_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+NEXT_DEV_VERSION=$(grep '^version=' gradle.properties | cut -d= -f2)
 git add .
 git commit -m "chore: prepare next development version ${NEXT_DEV_VERSION}"
 ```
@@ -293,6 +285,6 @@ See [example-output.md](example-output.md) for a full sample run.
 ## Guardrails
 
 - **Abort before mutating if a precondition fails** — not on `main`, dirty working tree, unpushed commits, or a red last CI run (Step 1); unchecked TODO items for the version (Step 3).
-- **Never skip `mvn clean test`** — the release commit (Step 8) is created only after BUILD SUCCESS.
+- **Never skip `./gradlew test`** — the release commit (Step 8) is created only after BUILD SUCCESS.
 - **Never force push** — `--atomic` only; never `--force` or `--force-with-lease`.
 - **Never push without confirmation** — gate on the Step 11 `AskUserQuestion`.
