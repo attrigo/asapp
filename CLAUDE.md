@@ -13,18 +13,18 @@ Skills: `.claude/skills/`
 Plans and specs: `docs/superpowers/`
 
 ## Build
-- Build: `mvn clean install`
-- Full build (coverage + javadoc + sources + style check): `mvn clean install -Pfull`
-- Docker images: `mvn spring-boot:build-image`
-- Format (Eclipse config: `asapp_formatter.xml`): `mvn spotless:apply`
+- Build: `./gradlew build`
+- Full build (coverage + javadoc + sources + style check): `./gradlew fullBuild`
+- Docker images: `./gradlew bootBuildImage`
+- Format (Eclipse config: `asapp_formatter.xml`): `./gradlew spotlessApply`
 
 ## Run
-- Service: `cd services/<name> && mvn spring-boot:run`
+- Service: `./gradlew :services:<name>:bootRun`
 - Full stack: `docker-compose up -d` (services, PostgreSQL ×3, Redis, Prometheus, Grafana)
 
 ## Testing
-- Test: `mvn clean verify`
-- Mutation testing: `mvn org.pitest:pitest-maven:mutationCoverage`
+- Test: `./gradlew build` (or `./gradlew test integrationTest`)
+- Mutation testing: `./gradlew pitest`
 
 ## Git
 - Follows Conventional Commits
