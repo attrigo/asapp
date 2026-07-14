@@ -7,7 +7,7 @@ YELLOW='\033[1;33m'   # Warnings/Instructions
 BLUE='\033[0;34m'     # Informational messages and commands
 NC='\033[0m'          # No Color
 
-# Shell exits with error if any maven command exits with a non-zero status
+# Shell exits with error if any command exits with a non-zero status
 set -e
 
 # Define file extensions to check (keep in sync!)
@@ -54,6 +54,6 @@ echo ""
 
 echo "Checking code style:"
 
-mvn spotless:check
+./gradlew --quiet spotlessCheck
 
 echo ""
