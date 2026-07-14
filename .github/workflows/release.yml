@@ -34,16 +34,18 @@ jobs:
         with:
           java-version: '25'
           distribution: 'temurin'
-          cache: maven
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Build and test the project
-        run: mvn install -B --no-transfer-progress -Pfull
+        run: ./gradlew fullBuild
 
       - name: Upload service JARs
         uses: actions/upload-artifact@v6
         with:
           name: service-jars
-          path: services/*/target/*.jar
+          path: services/*/build/libs/*.jar
           retention-days: 1
 
   # Builds a versioned Docker image for every service (lib modules are skipped)
@@ -52,8 +54,6 @@ jobs:
     needs: [build-and-test]
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    outputs:
-      version: ${{ steps.version.outputs.VERSION }}
     steps:
       - name: Checkout the project
         uses: actions/checkout@v6
@@ -63,27 +63,15 @@ jobs:
         with:
           java-version: '25'
           distribution: 'temurin'
-          cache: maven
 
-      - name: Extract version from tag
-        id: version
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
-
-      - name: Log in to ghcr.io
-        uses: docker/login-action@v4
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Build and push Docker images
-        run: |
-          mvn spring-boot:build-image -B --no-transfer-progress -DskipTests
-
-          for SERVICE_DIR in services/*/; do
-            SERVICE=$(basename "$SERVICE_DIR")
-            docker push "ghcr.io/attrigo/${SERVICE}:${{ steps.version.outputs.VERSION }}"
-          done
+        env:
+          GHCR_USERNAME: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./gradlew bootBuildImage --publishImage
 
   # Downloads the service JARs built in build-and-test
   # Generates release notes from conventional commits using git-cliff
@@ -125,4 +113,4 @@ jobs:
           gh release create "${{ github.ref_name }}" \
             --title "${{ github.ref_name }}" \
             --notes-file CHANGELOG_RELEASE.md \
-            release-artifacts/*/target/*.jar
+            release-artifacts/*/build/libs/*.jar
