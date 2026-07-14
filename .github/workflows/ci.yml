@@ -29,7 +29,9 @@ jobs:
         with:
           java-version: '25'
           distribution: 'temurin'
-          cache: maven
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Build and test the project
-        run: mvn verify -B --no-transfer-progress -Pci
+        run: ./gradlew build
