@@ -1,3 +1,9 @@
+---
+paths:
+  - "**/*.gradle.kts"
+  - "gradle/libs.versions.toml"
+---
+
 # Gradle Build Conventions
 
 ## Version catalog — `gradle/libs.versions.toml`
