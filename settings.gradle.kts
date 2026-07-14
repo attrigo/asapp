@@ -1,0 +1,17 @@
+rootProject.name = "asapp"
+
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+    }
+}
+
+// build-logic is wired in Task 3 via: includeBuild("build-logic")
+
+include(":libs:asapp-commons-url")
+include(":libs:asapp-http-clients")
+include(":services:asapp-authentication-service")
+include(":services:asapp-config-service")
+include(":services:asapp-discovery-service")
+include(":services:asapp-tasks-service")
+include(":services:asapp-users-service")
