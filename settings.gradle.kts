@@ -6,7 +6,7 @@ dependencyResolutionManagement {
     }
 }
 
-// build-logic is wired in Task 3 via: includeBuild("build-logic")
+includeBuild("build-logic")
 
 include(":libs:asapp-commons-url")
 include(":libs:asapp-http-clients")
