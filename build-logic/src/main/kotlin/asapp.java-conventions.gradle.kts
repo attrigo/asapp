@@ -32,6 +32,21 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
+// A Gradle platform() only *recommends* versions, so a transitive dep that requests a newer Spring
+// Boot wins via highest-version conflict resolution. bootui-spring-boot-starter:1.4.0 pulls
+// spring-boot-starter-actuator:4.1.0, which drags micrometer to 1.17.0 against the 4.0.5-era
+// prometheus client (1.4.3) → NoSuchMethodError at ApplicationContext load. Maven's
+// <dependencyManagement> pins authoritatively; reproduce that by forcing the whole Spring Boot
+// module group (all ship in lockstep) back to the catalog version.
+configurations.configureEach {
+    resolutionStrategy.eachDependency {
+        if (requested.group == "org.springframework.boot") {
+            useVersion(libs.versions.springBoot.get())
+            because("Pin Spring Boot to the BOM version; see java-conventions (bootui pulls 4.1.0).")
+        }
+    }
+}
+
 tasks.withType<JavaCompile>().configureEach {
     options.encoding = "UTF-8"
     options.compilerArgs.add("-parameters")
