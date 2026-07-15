@@ -57,6 +57,14 @@ tasks.withType<Javadoc>().configureEach {
     (options as StandardJavadocDocletOptions).addStringOption("Xdoclint:all,-missing", "-quiet")
 }
 
+// Gradle caps every test worker at 512 MB heap by default, regardless of machine RAM; Maven's
+// surefire/failsafe fork inherited the JVM ergonomic default (~25% of physical RAM). The Spring
+// integration suites cache a dozen-plus ApplicationContexts in one reused worker, which overflows
+// 512 MB (Java heap space). Restore comparable headroom for both test and integrationTest.
+tasks.withType<Test>().configureEach {
+    maxHeapSize = "1g"
+}
+
 // Unit tests: *Tests (Maven surefire equivalent).
 tasks.test {
     useJUnitPlatform()
