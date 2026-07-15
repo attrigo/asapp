@@ -57,6 +57,19 @@ springBoot {
     }
 }
 
+// bootBuildInfo writes a fresh build.time into META-INF/build-info.properties on every build.
+// That file rides the test runtime classpath, so its changing timestamp made integrationTest
+// never up-to-date and re-ran the whole suite each build. Ignore just that property in runtime
+// classpath normalization: the real timestamp stays in the file (actuator /info still reports it)
+// while test up-to-date and cache checks treat it as unchanged.
+normalization {
+    runtimeClasspath {
+        properties("META-INF/build-info.properties") {
+            ignoreProperty("build.time")
+        }
+    }
+}
+
 tasks.named<BootRun>("bootRun") {
     systemProperty("spring.profiles.active", "dev")
 }
