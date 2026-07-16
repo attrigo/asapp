@@ -9,7 +9,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
 ### Technical
 
 - [ ] (build) Replace Maven with Gradle
-    - [ ] Set up the Gradle project and module structure
+    - [X] Set up the Gradle project and module structure
     - [ ] Migrate dependency management to Gradle
     - [ ] Migrate compilation to Gradle
     - [ ] Migrate unit testing to Gradle
