@@ -17,7 +17,7 @@ paths:
 - Reference `build-logic` from the root `settings.gradle.kts` via `pluginManagement { includeBuild("build-logic") }`
 - Never place shared config in root `subprojects {}` / `allprojects {}` conditional blocks
 - Never use `buildSrc`
-- Namespace convention plugin IDs `asapp.<concern>-conventions`, e.g. `asapp.java-conventions`, `asapp.spring-boot-conventions`
+- Namespace convention plugin IDs `asapp.<concern>-conventions`, e.g. `asapp.java-conventions`, `asapp.service-conventions`
 
 ## Module Structure
 
