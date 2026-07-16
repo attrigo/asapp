@@ -42,6 +42,5 @@ paths:
 
 ## Versioning
 
-- Single-source `group` and `version` in root `gradle.properties` (`group=com.attrigo.asapp`, `version=...`)
-- Apply both to every project via `allprojects { group = property("group") as String; version = property("version") as String }` in the root `build.gradle.kts`
+- Single-source `group` and `version` in root `gradle.properties` (`group=com.attrigo.asapp`, `version=...`) — Gradle propagates both to every project in the build automatically, no `allprojects`/`subprojects` block needed
 - Never set `group` or `version` in a module's own build script
