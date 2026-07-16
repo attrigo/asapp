@@ -2,6 +2,12 @@ pluginManagement {
     includeBuild("build-logic")
 }
 
+dependencyResolutionManagement {
+    repositories {
+        mavenCentral()
+    }
+}
+
 rootProject.name = "asapp"
 
 include("libs:asapp-commons-url")
