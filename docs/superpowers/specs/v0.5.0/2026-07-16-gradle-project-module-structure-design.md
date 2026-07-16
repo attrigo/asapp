@@ -1,7 +1,7 @@
 # Gradle project & module structure — design spec
 
 **Date**: 2026-07-16
-**Status**: Proposed
+**Status**: Implemented
 **Owner**: Antonio Trigo
 **Source**: `TODO.md` v0.5.0 → Technical → "Replace Maven with Gradle" → "Set up the Gradle project and module structure"
 **Scope**: New Gradle build files (`settings.gradle.kts`, `build.gradle.kts`, `gradle.properties`, wrapper, `build-logic/`, per-module stubs) added alongside the existing Maven build. No `pom.xml` changes, no dependency/plugin/compiler configuration.
@@ -152,3 +152,20 @@ Lands directly on the current branch, `build/replace-maven-with-gradle` (already
 2. `build(gradle): add root settings and module structure`
 3. `build(gradle): add empty build scripts for all modules`
 4. `chore(gradle): gitignore Gradle build/cache output`
+
+## 14. Post-implementation notes
+
+This spec and its plan (`docs/superpowers/plans/2026-07-16-gradle-project-module-structure.md`) were written before implementation. The core change shipped substantially as designed — the root `settings.gradle.kts` module layout, the `build-logic` composite build, the Gradle wrapper, and the per-module leaf `build.gradle.kts` stubs all landed as designed.
+
+Given the deltas below, the canonical implementation is the current state of `settings.gradle.kts`, `build.gradle.kts`, `gradle.properties`, `build-logic/`, the leaf module `build.gradle.kts` files, `.gitignore`, and `.claude/rules/gradle.md` on this branch, not this document.
+
+Notable deltas:
+
+- **Root `group`/`version` block removed (reverses §6/§9)**: Spec §6 and §9 asserted `allprojects { group = …; version = … }` in `build.gradle.kts` was required because Gradle does not auto-apply `group`/`version` from `gradle.properties`. That claim was wrong — Gradle does auto-propagate them — so the block was deleted; `build.gradle.kts` is now a single scaffolding comment, and `.claude/rules/gradle.md`'s Versioning section was rewritten to match. The spec's stated rationale (§6/§9) is superseded by this correction.
+- **`build-logic` convention-plugin stubs added ahead of schedule (extends beyond §5/§7/§12's "empty for now")**: Three comment-only stub files were added — `build-logic/src/main/kotlin/asapp.java-conventions.gradle.kts`, `asapp.library-conventions.gradle.kts`, `asapp.service-conventions.gradle.kts` — establishing a layered `java` → `library`/`service` taxonomy that §12 (Out of scope / YAGNI) deferred to a later subtask. `.claude/rules/gradle.md`'s worked example was updated to name `asapp.service-conventions` (and `asapp.library-conventions`) instead of the originally sketched `asapp.spring-boot-conventions`.
+- **`gradle.properties` gained execution toggles beyond §6's group/version scope**: `org.gradle.caching=true` and `org.gradle.parallel=false` (parallel disabled due to a WSL `IOException`) were added, plus a deferred configuration-cache comment — scope pulled forward from later build-tuning subtasks rather than kept to the pure structural skeleton §3/§12 describe.
+- **Leaf and root build scripts carry a scaffolding comment instead of being strictly empty (cosmetic vs. §5/§8)**: all 7 leaf `build.gradle.kts` files plus the root script contain `// populated in a later Gradle migration subtask` to signal intentional scaffolding rather than an oversight.
+- **New governance/doc artifacts not scoped by §13**: `.claude/rules/gradle.md` (a new Gradle conventions rule doc) was added, and `TODO.md` gained a "Keep Claude Code files in sync with the migration" subtask — both additive, not called for by the original plan.
+- **`.gitignore` build-output ignores relocated (cosmetic vs. §10's "no change needed")**: the `build/` and `!**/src/{main,test}/**/build/` ignore lines moved from the NetBeans block into a new `### Gradle ###` section.
+
+For future Gradle build-file edits, treat `settings.gradle.kts`, `build.gradle.kts`, `gradle.properties`, `build-logic/`, and `.claude/rules/gradle.md` as the template; this spec is preserved as a record of the original design intent.
