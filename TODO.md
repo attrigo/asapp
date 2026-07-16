@@ -9,7 +9,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
 ### Technical
 
 - [ ] (build) Replace Maven with Gradle
-    - [ ] Set up the Gradle project and module structure
+    - [X] Set up the Gradle project and module structure
     - [ ] Migrate dependency management to Gradle
     - [ ] Migrate compilation to Gradle
     - [ ] Migrate unit testing to Gradle
@@ -26,6 +26,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [ ] Migrate the CI workflow to Gradle
     - [ ] Migrate the release workflow to Gradle
     - [ ] Migrate build documentation to Gradle
+    - [ ] Keep Claude Code files in sync with the migration
     - [ ] Verify full parity, then remove Maven entirely
 - [ ] (architecture) Add an ArchUnit layering and boundary guardrail
     - [ ] Enforce the infrastructure → application → domain dependency direction

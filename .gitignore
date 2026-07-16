@@ -25,9 +25,6 @@ target/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
 ### VS Code ###
 .vscode/
@@ -38,3 +35,9 @@ build/
 ### JMeter load tests ###
 tools/jmeter/.runtime/
 tools/jmeter/results/
+
+### Gradle ###
+.gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
