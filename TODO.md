@@ -9,11 +9,24 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
 ### Technical
 
 - [ ] (build) Replace Maven with Gradle
-    - [ ] Migrate the module structure and dependency management to Gradle
-    - [ ] Migrate coverage, mutation testing, and formatting checks to Gradle
+    - [ ] Set up the Gradle project and module structure
+    - [ ] Migrate dependency management to Gradle
+    - [ ] Migrate compilation to Gradle
+    - [ ] Migrate unit testing to Gradle
+    - [ ] Migrate integration testing to Gradle
+    - [ ] Migrate coverage reporting to Gradle
+    - [ ] Migrate mutation testing to Gradle
+    - [ ] Migrate formatting checks to Gradle
+    - [ ] Migrate API documentation generation to Gradle
+    - [ ] Migrate javadoc and sources jar generation to Gradle
+    - [ ] Migrate packaging to Gradle
+    - [ ] Migrate running the app locally to Gradle
+    - [ ] Migrate Docker image building to Gradle
     - [ ] Migrate git hook installation to Gradle
-    - [ ] Update CI and release workflows to build with Gradle
-    - [ ] Migrate Docker image publishing to Gradle
+    - [ ] Migrate the CI workflow to Gradle
+    - [ ] Migrate the release workflow to Gradle
+    - [ ] Migrate build documentation to Gradle
+    - [ ] Verify full parity, then remove Maven entirely
 - [ ] (architecture) Add an ArchUnit layering and boundary guardrail
     - [ ] Enforce the infrastructure → application → domain dependency direction
     - [ ] Keep the domain free of framework and infrastructure dependencies
