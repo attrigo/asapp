@@ -38,3 +38,6 @@ build/
 ### JMeter load tests ###
 tools/jmeter/.runtime/
 tools/jmeter/results/
+
+### Gradle ###
+.gradle/
