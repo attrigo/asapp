@@ -26,6 +26,8 @@ dependencies {
     implementation(libs.findLibrary("nimbus-jose-jwt").get())
 
     // Runtime
+    // Org
+    runtimeOnly("org.postgresql:postgresql")
     // Other
     runtimeOnly(libs.findLibrary("bootui-spring-boot-starter").get())
 

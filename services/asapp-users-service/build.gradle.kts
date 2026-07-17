@@ -14,10 +14,6 @@ dependencies {
     // Other
     implementation(libs.resilience4j.spring.boot4)
 
-    // Runtime
-    // Org
-    runtimeOnly("org.postgresql:postgresql")
-
     // Test
     // Spring Boot
     testImplementation("org.springframework.boot:spring-boot-starter-aspectj-test")
