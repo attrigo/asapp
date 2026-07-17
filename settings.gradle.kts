@@ -2,7 +2,7 @@ pluginManagement {
     includeBuild("build-logic")
 }
 
-// Centralizes the repository used to resolve dependencies for every project in the build
+// Centralizes the repositories used to resolve dependencies for every project in the build
 dependencyResolutionManagement {
     repositories {
         mavenCentral()
