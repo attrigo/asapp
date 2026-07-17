@@ -13,21 +13,32 @@ dependencyManagement {
 }
 
 dependencies {
+    // CVE
     constraints {
-        implementation(libs.findLibrary("guava").get())
-        implementation(libs.findLibrary("commons-beanutils").get())
-        implementation(libs.findLibrary("commons-io").get())
+        // Org
         implementation(libs.findLibrary("bcpkix-jdk18on").get())
         implementation(libs.findLibrary("bcprov-jdk18on").get())
         implementation(libs.findLibrary("rhino").get())
+        // Other
+        implementation(libs.findLibrary("guava").get())
+        implementation(libs.findLibrary("commons-beanutils").get())
+        implementation(libs.findLibrary("commons-io").get())
     }
 
+    // Compile
+    // Spring Boot
     implementation("org.springframework.boot:spring-boot-starter-actuator")
     implementation("org.springframework.boot:spring-boot-starter-security")
+
+    // Runtime
+    // Spring Boot
     runtimeOnly("org.springframework.boot:spring-boot-devtools")
 
+    // Test
+    // Spring Boot
     testImplementation("org.springframework.boot:spring-boot-starter-actuator-test")
     testImplementation("org.springframework.boot:spring-boot-starter-security-test")
     testImplementation("org.springframework.boot:spring-boot-starter-webmvc-test")
+    // Other
     testImplementation(libs.findLibrary("json-unit-assertj").get())
 }
