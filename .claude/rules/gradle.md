@@ -45,6 +45,13 @@ paths:
 - Single-source `group` and `version` in root `gradle.properties` (`group=com.attrigo.asapp`, `version=...`) — Gradle propagates both to every project in the build automatically, no `allprojects`/`subprojects` block needed
 - Never set `group` or `version` in a module's own build script
 
+## Compilation
+
+- Java version, encoding, and compiler args live only in `asapp.java-conventions` (all modules) — never per-leaf
+- Pin the Java version with a toolchain (`java { toolchain { languageVersion } }`) **plus** `options.release` on `JavaCompile`: the toolchain fixes which JDK compiles/tests, `release` enforces the bytecode/API level
+- Configure compiler tasks lazily via `tasks.withType<JavaCompile>().configureEach { }` — set `options.encoding = "UTF-8"` and add `-parameters` (required by Spring for name-based binding) to `options.compilerArgs`
+- Pin `org.gradle.jvmargs=-Dfile.encoding=UTF-8` in `gradle.properties` as a daemon-wide UTF-8 safety net, complementary to the per-task `options.encoding`
+
 ## Ordering
 
 Group and sort entries to mirror the [Maven POM convention](maven.md): an outer **scope** comment, then an inner **origin** comment, alphabetical within each origin group. Reordering never changes a value, coordinate, or key.
