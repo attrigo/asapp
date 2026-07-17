@@ -1,59 +1,76 @@
 [versions]
 # BOM
+## Spring Boot
 spring-boot = "4.0.5"
+## Spring Cloud
 spring-cloud = "2025.1.1"
 
 # Compile
+## Org
 mapstruct = "1.6.3"
 springdoc-openapi-starter = "3.0.2"
+## Other
 bootui = "1.4.0"
 nimbus-jose-jwt = "9.37.4"
 resilience4j = "2.4.0"
 
 # Test
+## Spring
 spring-restdocs = "4.0.0"
-mockserver = "5.15.0"
-testcontainers = "2.0.4"
-testcontainers-redis = "2.2.4"
-json-unit-assertj = "5.1.1"
-archunit = "1.4.1"
+## Org
 pitest-junit5-plugin = "1.2.3"
+testcontainers = "2.0.4"
+## Other
+testcontainers-redis = "2.2.4"
+archunit = "1.4.1"
+json-unit-assertj = "5.1.1"
+mockserver = "5.15.0"
 jackson-databind = "3.0.4"
 
 # CVE
+# Overrides SB4 BOM
 jackson-bom = "3.1.1"
+## Org
 bcpkix-jdk18on = "1.83"
 bcprov-jdk18on = "1.83"
 rhino = "1.9.1"
+## Other
 guava = "33.4.8-jre"
 commons-beanutils = "1.11.0"
 commons-io = "2.21.0"
 
 [libraries]
 # Compile
+## Org
 mapstruct = { module = "org.mapstruct:mapstruct", version.ref = "mapstruct" }
 springdoc-openapi-starter-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc-openapi-starter" }
+## Other
 bootui-spring-boot-starter = { module = "com.julien-dubois.bootui:bootui-spring-boot-starter", version.ref = "bootui" }
 nimbus-jose-jwt = { module = "com.nimbusds:nimbus-jose-jwt", version.ref = "nimbus-jose-jwt" }
 resilience4j-spring-boot4 = { module = "io.github.resilience4j:resilience4j-spring-boot4", version.ref = "resilience4j" }
 
 # Test
+## Spring
 spring-restdocs-mockmvc = { module = "org.springframework.restdocs:spring-restdocs-mockmvc", version.ref = "spring-restdocs" }
-mockserver-client-java = { module = "org.mock-server:mockserver-client-java", version.ref = "mockserver" }
-mockserver-netty = { module = "org.mock-server:mockserver-netty", version.ref = "mockserver" }
+## Org
+pitest-junit5-plugin = { module = "org.pitest:pitest-junit5-plugin", version.ref = "pitest-junit5-plugin" }
 testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter", version.ref = "testcontainers" }
 testcontainers-mockserver = { module = "org.testcontainers:testcontainers-mockserver", version.ref = "testcontainers" }
 testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql", version.ref = "testcontainers" }
+## Other
 testcontainers-redis = { module = "com.redis:testcontainers-redis", version.ref = "testcontainers-redis" }
-json-unit-assertj = { module = "net.javacrumbs.json-unit:json-unit-assertj", version.ref = "json-unit-assertj" }
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
-pitest-junit5-plugin = { module = "org.pitest:pitest-junit5-plugin", version.ref = "pitest-junit5-plugin" }
+json-unit-assertj = { module = "net.javacrumbs.json-unit:json-unit-assertj", version.ref = "json-unit-assertj" }
+mockserver-client-java = { module = "org.mock-server:mockserver-client-java", version.ref = "mockserver" }
+mockserver-netty = { module = "org.mock-server:mockserver-netty", version.ref = "mockserver" }
 jackson-databind = { module = "tools.jackson.core:jackson-databind", version.ref = "jackson-databind" }
 
 # CVE
+## Org
 bcpkix-jdk18on = { module = "org.bouncycastle:bcpkix-jdk18on", version.ref = "bcpkix-jdk18on" }
 bcprov-jdk18on = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bcprov-jdk18on" }
 rhino = { module = "org.mozilla:rhino", version.ref = "rhino" }
+## Other
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 commons-beanutils = { module = "commons-beanutils:commons-beanutils", version.ref = "commons-beanutils" }
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
