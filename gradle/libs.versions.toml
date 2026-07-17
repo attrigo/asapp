@@ -1,4 +1,8 @@
 [versions]
+# Build
+## Spring
+spring-dependency-management = "1.1.7"
+
 # BOM
 ## Spring Boot
 spring-boot = "4.0.5"
@@ -40,6 +44,10 @@ commons-beanutils = "1.11.0"
 commons-io = "2.21.0"
 
 [libraries]
+# Build
+## Spring
+spring-dependency-management-plugin = { module = "io.spring.gradle:dependency-management-plugin", version.ref = "spring-dependency-management" }
+
 # Compile
 ## Org
 mapstruct = { module = "org.mapstruct:mapstruct", version.ref = "mapstruct" }

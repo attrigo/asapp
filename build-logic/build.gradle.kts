@@ -10,5 +10,5 @@ repositories {
 }
 
 dependencies {
-    implementation("io.spring.gradle:dependency-management-plugin:1.1.7")
+    implementation(libs.spring.dependency.management.plugin)
 }
