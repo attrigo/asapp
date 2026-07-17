@@ -1,10 +1,6 @@
-import org.gradle.api.artifacts.VersionCatalogsExtension
-
 plugins {
     id("asapp.domain-service-conventions")
 }
-
-val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
 dependencies {
     // Compile
@@ -16,7 +12,7 @@ dependencies {
     // Spring Cloud
     implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer")
     // Other
-    implementation(libs.findLibrary("resilience4j-spring-boot4").get())
+    implementation(libs.resilience4j.spring.boot4)
     implementation("io.micrometer:micrometer-registry-prometheus")
 
     // Runtime
@@ -28,8 +24,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-aspectj-test")
     testImplementation("org.springframework.boot:spring-boot-starter-restclient-test")
     // Org
-    testImplementation(libs.findLibrary("testcontainers-mockserver").get())
+    testImplementation(libs.testcontainers.mockserver)
     // Other
-    testImplementation(libs.findLibrary("mockserver-client-java").get())
-    testImplementation(libs.findLibrary("mockserver-netty").get())
+    testImplementation(libs.mockserver.client.java)
+    testImplementation(libs.mockserver.netty)
 }
