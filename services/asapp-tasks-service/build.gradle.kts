@@ -1,1 +1,3 @@
-// populated in a later Gradle migration subtask
+plugins {
+    id("asapp.domain-service-conventions")
+}
