@@ -7,6 +7,7 @@ plugins {
 
 val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
+// Imports the Spring Boot BOM (via the io.spring.dependency-management plugin), overriding its jackson-bom version to pick up a CVE fix
 dependencyManagement {
     imports {
         mavenBom("org.springframework.boot:spring-boot-dependencies:${libs.findVersion("spring-boot").get().requiredVersion}") {

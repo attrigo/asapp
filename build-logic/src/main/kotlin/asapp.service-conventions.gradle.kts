@@ -6,6 +6,7 @@ plugins {
 
 val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
+// Imports the Spring Cloud BOM, additive on top of the Spring Boot BOM already imported by asapp.java-conventions
 dependencyManagement {
     imports {
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:${libs.findVersion("spring-cloud").get().requiredVersion}")
