@@ -44,3 +44,13 @@ paths:
 
 - Single-source `group` and `version` in root `gradle.properties` (`group=com.attrigo.asapp`, `version=...`) — Gradle propagates both to every project in the build automatically, no `allprojects`/`subprojects` block needed
 - Never set `group` or `version` in a module's own build script
+
+## Ordering
+
+Group and sort entries to mirror the [Maven POM convention](maven.md): an outer **scope** comment, then an inner **origin** comment, alphabetical within each origin group. Reordering never changes a value, coordinate, or key.
+
+- **Scope** groups: `BOM`, `Compile`, `Runtime`, `Test`, `CVE`
+- **Origin** groups, in order: `ASAPP`, `Spring Boot`, `Spring Cloud`, `Spring`, `Org`, `Other`
+- **Version catalog** (`gradle/libs.versions.toml`): mark scope with `#` and origin with `##` in `[versions]` and `[libraries]`; keep the `jackson-bom` override under its own `# Overrides SB4 BOM` note
+- **Dependency blocks** (`*.gradle.kts`): mark scope and origin with `//` (scope line, then origin line); the `CVE` `constraints {}` block leads `dependencies {}`
+- **`gradle.properties`**: identity keys (`group`, `version`) first, then `org.gradle.*` settings, sorted alphabetically by key within each group
