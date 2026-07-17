@@ -3,6 +3,7 @@ plugins {
     `kotlin-dsl`
 }
 
+// Centralizes the repositories used to resolve plugins for the convention build scripts
 repositories {
     gradlePluginPortal()
     mavenCentral()
