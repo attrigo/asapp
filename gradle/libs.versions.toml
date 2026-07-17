@@ -81,3 +81,11 @@ rhino = { module = "org.mozilla:rhino", version.ref = "rhino" }
 guava = { module = "com.google.guava:guava", version.ref = "guava" }
 commons-beanutils = { module = "commons-beanutils:commons-beanutils", version.ref = "commons-beanutils" }
 commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
+
+[bundles]
+# Test
+testcontainers-shared = [
+    "testcontainers-junit-jupiter",
+    "testcontainers-postgresql",
+    "testcontainers-redis",
+]

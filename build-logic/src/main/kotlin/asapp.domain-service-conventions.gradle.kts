@@ -42,9 +42,7 @@ dependencies {
     testImplementation(libs.findLibrary("spring-restdocs-mockmvc").get())
     // Org
     testImplementation(libs.findLibrary("pitest-junit5-plugin").get())
-    testImplementation(libs.findLibrary("testcontainers-junit-jupiter").get())
-    testImplementation(libs.findLibrary("testcontainers-postgresql").get())
+    testImplementation(libs.findBundle("testcontainers-shared").get())
     // Other
-    testImplementation(libs.findLibrary("testcontainers-redis").get())
     testImplementation(libs.findLibrary("archunit-junit5").get())
 }
