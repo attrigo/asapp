@@ -1,7 +1,7 @@
 # Gradle compilation — design spec
 
 **Date**: 2026-07-17
-**Status**: Approved (implementation pending)
+**Status**: Implemented
 **Owner**: Antonio Trigo
 **Source**: `TODO.md` v0.5.0 → Technical → "Replace Maven with Gradle" → "Migrate compilation to Gradle"
 **Scope**: Make `compileJava`/`compileTestJava` actually succeed for all 7 modules at parity with Maven — Java version, source encoding, the `-parameters` flag, and the MapStruct annotation processor. No test execution, no other `<build><plugins>` migration, no `pom.xml` edits.
@@ -114,3 +114,23 @@ Lands on the current branch, `build/replace-maven-with-gradle`. Suggested commit
 2. `build(gradle): wire the MapStruct annotation processor` — the catalog `mapstruct-processor` entry + the `annotationProcessor` line in `asapp.domain-service-conventions`.
 
 (A single `build(gradle): migrate compilation to Gradle` commit is equally acceptable given the size — decided at commit time.) The `.claude/rules/gradle.md` update and the `TODO.md` checkbox ride with whichever commit lands the change they describe.
+
+## 10. Post-implementation notes
+
+This spec was written before implementation and split into the two commits §9 suggested: `build(gradle): configure Java compilation` (`f8d5ce4a`) for the toolchain/`release`/encoding/`-parameters` base config, and `build(gradle): wire the MapStruct annotation processor` for the catalog entry and `annotationProcessor` line. Both landed exactly as designed — no deviations found.
+
+The canonical implementation is the current state of the Gradle build files on this branch — `build-logic/src/main/kotlin/asapp.java-conventions.gradle.kts`, `build-logic/src/main/kotlin/asapp.domain-service-conventions.gradle.kts`, `gradle/libs.versions.toml`, `gradle.properties`, and `.claude/rules/gradle.md` — not this document.
+
+**Confirmed at parity with §4/§5/§6, file-for-file:**
+
+- The Java toolchain (`languageVersion = JavaLanguageVersion.of(25)`) and `options.release = 25` land together in `asapp.java-conventions`, exactly per §4's "Java version mechanism" row.
+- `-parameters` is added via `options.compilerArgs.add("-parameters")` (no typed `CompileOptions` property exists), applied through `tasks.withType<JavaCompile>().configureEach {}` so it reaches both `compileJava` and `compileTestJava` for all 7 modules.
+- `options.encoding = "UTF-8"` is set per-task, and `org.gradle.jvmargs=-Dfile.encoding=UTF-8` is present in `gradle.properties` as the daemon-wide safety net — both per §4/§5.
+- `mapstruct-processor` was added to `gradle/libs.versions.toml` sharing `version.ref = "mapstruct"` (no new `[versions]` entry), positioned alphabetically immediately after `mapstruct` under `# Compile` / `## Org` — no floating version, per §5.
+- `annotationProcessor(libs.findLibrary("mapstruct-processor").get())` was added to `asapp.domain-service-conventions`, immediately after `implementation(libs.findLibrary("mapstruct").get())` in the same `// Org` group — scoped only to the 3 domain services, never the base `asapp.java-conventions` plugin, matching the altitude rationale in §6.
+- No `testAnnotationProcessor`, no MapStruct `-Amapstruct.*` compiler args, no foojay toolchain auto-provisioning — all omitted exactly per §4/§8.
+- Behavioral verification: `*MapperImpl.java` now generates for all 3 domain services (12 files for `asapp-authentication-service`, 7 for `asapp-tasks-service`, 6 for `asapp-users-service`), where a pre-wiring baseline compile confirmed zero generated files; `./gradlew clean compileJava compileTestJava` succeeds for all 7 modules from a clean state; `pom.xml` was never touched and no `mvn` command was run to verify.
+
+No deltas to record — this is the rare case where the shipped build files match the design as written, decision-for-decision.
+
+For future Gradle compilation edits, treat these build files as the template; this spec is preserved as a record of the original design intent.
