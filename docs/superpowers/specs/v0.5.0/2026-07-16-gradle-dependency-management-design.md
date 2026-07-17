@@ -1,7 +1,7 @@
 # Gradle dependency management — design spec
 
 **Date**: 2026-07-16
-**Status**: Draft
+**Status**: Implemented
 **Owner**: Antonio Trigo
 **Source**: `TODO.md` v0.5.0 → Technical → "Replace Maven with Gradle" → "Migrate dependency management to Gradle"
 **Scope**: Every Maven `<dependency>`/`<dependencyManagement>` coordinate, version, and BOM import gets a Gradle equivalent — a version catalog, BOM imports, convention-plugin dependency blocks, and leaf-module `dependencies {}` blocks. No compiler/toolchain config, no Maven `<build><plugins>` migration, no `pom.xml` edits.
@@ -79,3 +79,24 @@ Lands on the current branch, `build/replace-maven-with-gradle-2-dependencies`. S
 2. `build(gradle): add java and library convention plugin dependencies`
 3. `build(gradle): add service and domain-service convention plugin dependencies`
 4. `build(gradle): add leaf module dependency declarations`
+
+## 10. Post-implementation notes
+
+This spec and its plan (`docs/superpowers/plans/2026-07-16-gradle-dependency-management.md`) were written before implementation. The core change shipped substantially as designed — a single root `gradle/libs.versions.toml` version catalog, Spring Boot + Spring Cloud BOMs imported via the `io.spring.dependency-management` plugin (with the Jackson CVE override applied as a `bomProperty`), and a 4-layer convention-plugin stack (`asapp.java-conventions` → `asapp.library-conventions`/`asapp.service-conventions` → `asapp.domain-service-conventions`) with per-module dependency parity; Maven is untouched and still builds.
+
+The canonical implementation is the current state of the Gradle build files on this branch — `gradle/libs.versions.toml`, `settings.gradle.kts`, `gradle.properties`, the `build-logic/` convention plugins, the leaf `build.gradle.kts` files, and `.claude/rules/gradle.md` — not this document.
+
+**Notable deltas:**
+
+- **`micrometer-registry-prometheus` hoisted into `asapp.service-conventions` as `runtimeOnly` (reverses §6).** §6 deliberately kept prometheus at leaf level to avoid normalizing an existing scope inconsistency. Shipped, it is declared once in `build-logic/src/main/kotlin/asapp.service-conventions.gradle.kts` for all five services and no leaf redeclares it — so the compile→runtimeOnly normalization §6 refused is now intentional.
+- **`postgresql` hoisted into `asapp.domain-service-conventions` as `runtimeOnly` (reverses §4/§6 "stays at leaf level").** Shipped puts `runtimeOnly("org.postgresql:postgresql")` in `build-logic/src/main/kotlin/asapp.domain-service-conventions.gradle.kts` (tasks/users common case) while `services/asapp-authentication-service/build.gradle.kts` re-adds `implementation("org.postgresql:postgresql")` to restore compile scope for `JdbcConversionsConfiguration`. Parity preserved via a leaf override on the hoisted default rather than pure-leaf placement.
+- **`jackson-databind` test pin dropped, now BOM-managed (reverses §5 "carried over unchanged").** §5 said to carry the `asapp-http-clients` test-only 3.0.4 pin verbatim. Shipped, `gradle/libs.versions.toml` declares `jackson-databind` with no version and no `[versions]` entry, so the http-clients test dependency resolves through the overridden `jackson-bom` (3.1.1) — a real effective-version shift for that test scope.
+- **`spring-web` scoped `compileOnly` on the library boundary (diverges from §4's `optional → implementation` mapping).** Maven marked spring-web `optional=true`; §4 maps that to plain `implementation`. Shipped, `libs/asapp-http-clients/build.gradle.kts` uses `compileOnly("org.springframework:spring-web")` plus `testImplementation` for the library's own tests — stronger than the designed mapping, keeping spring-web off consumers' classpath so each consumer brings its own.
+- **`io.spring.dependency-management` plugin coordinate added to the catalog under a new `# Build` scope group (beyond §5's inventory).** §5 did not list the plugin. Shipped adds `spring-dependency-management` version + `spring-dependency-management-plugin` library to `gradle/libs.versions.toml` and consumes it from `build-logic/build.gradle.kts`, introducing a `# Build` catalog scope the Compile/Test/CVE taxonomy never named.
+- **Root `settings.gradle.kts` gains a repository declaration and repo-mode hardening (design declared no repo for the main build).** Shipped adds `dependencyResolutionManagement { repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS); repositories { mavenCentral() } }`. `mavenCentral()` was a necessary out-of-brief fix (no dependency resolution worked without it); `FAIL_ON_PROJECT_REPOS` is added hardening against leaf modules reintroducing per-project `repositories {}`.
+- **`testcontainers-shared` catalog bundle added (§5/§6 listed the artifacts individually).** Shipped adds `[bundles] testcontainers-shared` to `gradle/libs.versions.toml` and consumes it via `libs.findBundle("testcontainers-shared")` in `asapp.domain-service-conventions.gradle.kts`; `testcontainers-mockserver` stays a users-service leaf dependency.
+- **A durable ordering convention was codified in `.claude/rules/gradle.md` and applied throughout (extends §5's informal grouping).** §5 asked only for the POMs' `# Compile / # Test / # CVE` group comments. Shipped adds an "Ordering" section defining six scope groups (Build, BOM, Compile, Runtime, Test, CVE) and a fixed origin order (ASAPP, Spring Boot, Spring Cloud, Spring, Org, Other), applied as two-level `#`/`##` comments in `gradle/libs.versions.toml` and `//` comments in every dependency block, alphabetized within each origin group.
+- **`gradle.properties` gains a temporary migration setting and repays a latent bug (not in the design).** Shipped adds `org.gradle.console=verbose` (a migration-time aid, to be removed when Maven is retired), moves an inline `#` comment off `org.gradle.parallel=false` onto its own line (fixing a value-corruption bug inherited from the earlier skeleton subtask), and alphabetizes the `org.gradle.*` keys.
+- **Convention plugins resolve the catalog via `VersionCatalogsExtension`/`findLibrary` while leaf modules use type-safe `libs.*` accessors (implementation reality not anticipated by the design).** Precompiled script plugins in the `build-logic` included build cannot see the generated `libs` accessor, so `build-logic/src/main/kotlin/*.gradle.kts` use `extensions.getByType(VersionCatalogsExtension::class.java).named("libs")` + `findLibrary`/`findBundle`; leaf `build.gradle.kts` files use the generated accessors. Recorded so the split style reads as intentional.
+
+For future Gradle dependency-management edits, treat these build files as the template; this spec is preserved as a record of the original design intent.
