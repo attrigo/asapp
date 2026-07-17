@@ -10,16 +10,19 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
 
 - [ ] (build) Replace Maven with Gradle
     - [X] Set up the Gradle project and module structure
-    - [ ] Migrate dependency management to Gradle
+    - [X] Migrate dependency management to Gradle
     - [ ] Migrate compilation to Gradle
     - [ ] Migrate unit testing to Gradle
     - [ ] Migrate integration testing to Gradle
     - [ ] Migrate coverage reporting to Gradle
     - [ ] Migrate mutation testing to Gradle
+        - **Note:** move the PIT plugin dependency off the test compile classpath onto the mutation tool's own configuration
     - [ ] Migrate formatting checks to Gradle
     - [ ] Migrate API documentation generation to Gradle
     - [ ] Migrate javadoc and sources jar generation to Gradle
     - [ ] Migrate packaging to Gradle
+        - **Warning:** move Spring Boot devtools off the runtime classpath once the Spring Boot plugin is applied, or it will ship inside the production jar
+        - **Note:** when the Spring Boot plugin is applied, confirm its automatic BOM import doesn't duplicate or conflict with the manual Spring Boot BOM import kept for the jackson CVE override
     - [ ] Migrate running the app locally to Gradle
     - [ ] Migrate Docker image building to Gradle
     - [ ] Migrate git hook installation to Gradle
@@ -28,6 +31,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [ ] Migrate build documentation to Gradle
     - [ ] Keep Claude Code files in sync with the migration
     - [ ] Verify full parity, then remove Maven entirely
+        - **Note:** remove the migration-time verbose console setting from gradle.properties
 - [ ] (architecture) Add an ArchUnit layering and boundary guardrail
     - [ ] Enforce the infrastructure → application → domain dependency direction
     - [ ] Keep the domain free of framework and infrastructure dependencies
@@ -237,6 +241,8 @@ Goal: round out observability with operational dashboards and finer-grained inst
 #### deps
 
 * Remove unused runtime dependencies from the packaged jar/image to reduce artifact size
+* Add dependency locking for reproducible builds
+* Add dependency verification for supply-chain integrity
 
 #### build
 
