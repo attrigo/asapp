@@ -9,6 +9,4 @@ dependencies {
     implementation(libs.bcprov.jdk18on)
     // Must be compile-scope to be used by JdbcConversionsConfiguration
     implementation("org.postgresql:postgresql")
-    // Other
-    implementation("io.micrometer:micrometer-registry-prometheus")
 }

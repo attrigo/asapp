@@ -34,6 +34,8 @@ dependencies {
     // Runtime
     // Spring Boot
     runtimeOnly("org.springframework.boot:spring-boot-devtools")
+    // Other
+    runtimeOnly("io.micrometer:micrometer-registry-prometheus")
 
     // Test
     // Spring Boot

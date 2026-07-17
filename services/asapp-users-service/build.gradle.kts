@@ -13,7 +13,6 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-loadbalancer")
     // Other
     implementation(libs.resilience4j.spring.boot4)
-    implementation("io.micrometer:micrometer-registry-prometheus")
 
     // Runtime
     // Org
