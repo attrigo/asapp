@@ -50,7 +50,7 @@ paths:
 - Java version, encoding, and compiler args live only in `asapp.java-conventions` (all modules) — never per-leaf
 - Pin the Java version with a toolchain (`java { toolchain { languageVersion } }`) **plus** `options.release` on `JavaCompile`: the toolchain fixes which JDK compiles/tests, `release` enforces the bytecode/API level
 - Configure compiler tasks lazily via `tasks.withType<JavaCompile>().configureEach { }` — set `options.encoding = "UTF-8"` and add `-parameters` (required by Spring for name-based binding) to `options.compilerArgs`
-- Pin `org.gradle.jvmargs=-Dfile.encoding=UTF-8` in `gradle.properties` as a daemon-wide UTF-8 safety net, complementary to the per-task `options.encoding`
+- Set source encoding explicitly per-task with `options.encoding = "UTF-8"` (the reproducible, Maven-parity knob); do **not** pin `org.gradle.jvmargs=-Dfile.encoding=UTF-8` daemon-wide — it clobbers Gradle's default daemon JVM args (metaspace cap, OOM heap-dump) and is redundant on JDK 18+ where `file.encoding` already defaults to UTF-8 (JEP 400)
 
 ## Ordering
 

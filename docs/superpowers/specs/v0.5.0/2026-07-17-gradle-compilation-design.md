@@ -43,7 +43,7 @@ Each decision was grounded in official documentation (Gradle user guide, Spring 
 | Toolchain auto-provisioning (foojay resolver) | **Not included** | The toolchain resolves the locally-installed JDK 25 (the dev launcher today; CI's `setup-java` provides it). Auto-download machinery (a settings plugin + network dependency) adds no value while JDK 25 is always present, and fits more naturally with the later CI subtask if ever wanted. |
 | `-parameters` flag | **`options.compilerArgs.add("-parameters")` in `asapp.java-conventions`** | Officially required by Spring, not stylistic: Spring Framework 6.1 removed the bytecode-parsing fallback, so without it `@ConfigurationProperties` constructor binding, name-based dependency injection, and unnamed `@PathVariable`/`@RequestParam`/`@RequestHeader` binding fail at runtime. Gradle's `CompileOptions` has no typed `parameters` property, so `compilerArgs` is canonical — it is exactly what the Spring Boot Gradle plugin does internally. |
 | Interaction with the future Spring Boot plugin | **Add manually now; leave a note for the packaging subtask** | The `org.springframework.boot` plugin (deferred to "Migrate packaging") auto-adds `-parameters`, but behind a `compilerArgs.contains("-parameters")` guard — so the manual entry causes no duplicate/conflict when the plugin lands. It can be removed at that point for a single source of truth. `io.spring.dependency-management` (already applied) does no compiler configuration, so nothing wires `-parameters` today without this. |
-| Source encoding | **`options.encoding = "UTF-8"` (per-compile-task) + `org.gradle.jvmargs=-Dfile.encoding=UTF-8` (daemon-wide)** | `JavaCompile.options.encoding` defaults to the platform charset, which Gradle's best-practices guide flags as a build-cache/reproducibility hazard under an explicit "Use UTF-8 File Encoding" rule. The per-task setting is the direct Maven-parity fix; the `gradle.properties` daemon-wide setting is Gradle's recommended complementary safety net (also covers Kotlin-DSL script compilation and any tool that trusts the platform default). |
+| Source encoding | **`options.encoding = "UTF-8"` (per-compile-task only)** | `JavaCompile.options.encoding` defaults to the platform charset, which Gradle's best-practices guide flags as a build-cache/reproducibility hazard under an explicit "Use UTF-8 File Encoding" rule; setting it explicitly per-task is the direct, reproducible Maven-parity fix. A daemon-wide `org.gradle.jvmargs=-Dfile.encoding=UTF-8` was initially added as a complementary net but **removed post-review** (see §10): `org.gradle.jvmargs` *replaces* Gradle's default daemon JVM args (dropping the `-XX:MaxMetaspaceSize` cap and OOM heap-dump), and the net is redundant on JDK 18+ where `file.encoding` already defaults to UTF-8 (JEP 400). |
 | MapStruct processor | **`annotationProcessor(libs.findLibrary("mapstruct-processor").get())` in `asapp.domain-service-conventions`, paired with the existing `implementation(mapstruct)`** | MapStruct's official Gradle setup is `implementation(mapstruct)` + `annotationProcessor(mapstruct-processor)`. It lives in `asapp.domain-service-conventions` because that is exactly where `mapstruct` already lives and the only 3 modules with `@Mapper` classes apply it. Incremental annotation processing works automatically (MapStruct is a registered isolating processor since 1.4). |
 | No `testAnnotationProcessor` | **Omitted** | All `@Mapper` types are in main source only; a test-scoped processor would be an idle, unused dependency. |
 | No MapStruct compiler args | **Omitted** | `componentModel = "spring"` is set on every `@Mapper` annotation individually, so the global `-Amapstruct.defaultComponentModel=spring` fallback is never consulted; no other `-Amapstruct.*` option applies. |
@@ -77,10 +77,7 @@ annotationProcessor(libs.findLibrary("mapstruct-processor").get())
 mapstruct-processor = { module = "org.mapstruct:mapstruct-processor", version.ref = "mapstruct" }
 ```
 
-**`gradle.properties`** — add the daemon-wide encoding safety net (keys stay grouped/sorted per `gradle.md`):
-```properties
-org.gradle.jvmargs=-Dfile.encoding=UTF-8
-```
+**`gradle.properties`** — no change. (A daemon-wide `org.gradle.jvmargs=-Dfile.encoding=UTF-8` was initially added here, then removed post-review — see §4 and §10.)
 
 **`.claude/rules/gradle.md`** — document the new conventions introduced here (consistent with how the two prior subtasks updated it inline): a "Compilation" note that the Java toolchain + `release`/`encoding`/`-parameters` compiler config lives in `asapp.java-conventions`, and that a library's `annotationProcessor(...)` pairs immediately after its `implementation(...)` within the same scope/origin group.
 
@@ -88,7 +85,7 @@ org.gradle.jvmargs=-Dfile.encoding=UTF-8
 
 - **Base compiler config → `asapp.java-conventions` (all 7).** Java level, encoding, and `-parameters` are identical for every module including the two libs, so they belong in the base plugin, not repeated per leaf.
 - **MapStruct processor → `asapp.domain-service-conventions` (the 3 domain services).** `config`/`discovery` (pure platform servers) and both libs have zero `@Mapper` classes. Placing the processor beside the `mapstruct` implementation it already declares keeps the processor exactly at the altitude of the modules that use it — narrower and more faithful than Maven's `services/pom.xml`, which attached the processor path to all 5 services (inert on `config`/`discovery`).
-- **Daemon-wide encoding → `gradle.properties`.** A build-wide safety net is by nature a root-level setting, complementary to (not a replacement for) the per-task `options.encoding`.
+- **Source encoding → per-task `options.encoding` only.** The encoding lives on `JavaCompile` in `asapp.java-conventions`; no daemon-wide `gradle.properties` setting (removed post-review — see §4/§10).
 
 ## 7. Verification / Definition of Done
 
@@ -108,16 +105,17 @@ Test execution · every other Maven `<build><plugins>` entry (jacoco, spotless, 
 
 ## 9. Git workflow
 
-Lands on the current branch, `build/replace-maven-with-gradle`. Suggested commit slicing:
+Lands on the current branch, `build/replace-maven-with-gradle-3-compilation`. Suggested commit slicing:
 
-1. `build(gradle): configure Java compilation` — the `asapp.java-conventions` compiler block + the `gradle.properties` encoding safety net.
+1. `build(gradle): configure Java compilation` — the `asapp.java-conventions` compiler block (the `gradle.properties` daemon-wide encoding arg originally rode here; removed post-review in commit 3).
 2. `build(gradle): wire the MapStruct annotation processor` — the catalog `mapstruct-processor` entry + the `annotationProcessor` line in `asapp.domain-service-conventions`.
+3. `build(gradle): drop the redundant daemon-wide UTF-8 jvmarg` — post-review removal of `org.gradle.jvmargs` from `gradle.properties` (see §10).
 
 (A single `build(gradle): migrate compilation to Gradle` commit is equally acceptable given the size — decided at commit time.) The `.claude/rules/gradle.md` update and the `TODO.md` checkbox ride with whichever commit lands the change they describe.
 
 ## 10. Post-implementation notes
 
-This spec was written before implementation and split into the two commits §9 suggested: `build(gradle): configure Java compilation` (`f8d5ce4a`) for the toolchain/`release`/encoding/`-parameters` base config, and `build(gradle): wire the MapStruct annotation processor` for the catalog entry and `annotationProcessor` line. Both landed exactly as designed — no deviations found.
+This spec was written before implementation and split into the two commits §9 suggested: `build(gradle): configure Java compilation` (`f8d5ce4a`) for the toolchain/`release`/encoding/`-parameters` base config, and `build(gradle): wire the MapStruct annotation processor` (`6aa185f4`) for the catalog entry and `annotationProcessor` line. Both landed as designed; a subsequent broad review then prompted one revision — removal of the daemon-wide encoding arg (see "Post-review revision" below).
 
 The canonical implementation is the current state of the Gradle build files on this branch — `build-logic/src/main/kotlin/asapp.java-conventions.gradle.kts`, `build-logic/src/main/kotlin/asapp.domain-service-conventions.gradle.kts`, `gradle/libs.versions.toml`, `gradle.properties`, and `.claude/rules/gradle.md` — not this document.
 
@@ -125,9 +123,13 @@ The canonical implementation is the current state of the Gradle build files on t
 
 - The Java toolchain (`languageVersion = JavaLanguageVersion.of(25)`) and `options.release = 25` land together in `asapp.java-conventions`, exactly per §4's "Java version mechanism" row.
 - `-parameters` is added via `options.compilerArgs.add("-parameters")` (no typed `CompileOptions` property exists), applied through `tasks.withType<JavaCompile>().configureEach {}` so it reaches both `compileJava` and `compileTestJava` for all 7 modules.
-- `options.encoding = "UTF-8"` is set per-task, and `org.gradle.jvmargs=-Dfile.encoding=UTF-8` is present in `gradle.properties` as the daemon-wide safety net — both per §4/§5.
+- `options.encoding = "UTF-8"` is set per-task on `JavaCompile` (the explicit, reproducible Maven-parity source encoding); the daemon-wide `org.gradle.jvmargs=-Dfile.encoding=UTF-8` was removed post-review (see below).
 - `mapstruct-processor` was added to `gradle/libs.versions.toml` sharing `version.ref = "mapstruct"` (no new `[versions]` entry), positioned alphabetically immediately after `mapstruct` under `# Compile` / `## Org` — no floating version, per §5.
 - `annotationProcessor(libs.findLibrary("mapstruct-processor").get())` was added to `asapp.domain-service-conventions`, immediately after `implementation(libs.findLibrary("mapstruct").get())` in the same `// Org` group — scoped only to the 3 domain services, never the base `asapp.java-conventions` plugin, matching the altitude rationale in §6.
+
+### Post-review revision — daemon-wide encoding removed
+
+The final whole-branch review flagged that `org.gradle.jvmargs=-Dfile.encoding=UTF-8` *replaces* rather than appends Gradle's default daemon JVM args, silently dropping the `-XX:MaxMetaspaceSize` cap and `-XX:+HeapDumpOnOutOfMemoryError` — a latent daemon-reliability regression on every invocation. Since the daemon-wide net is also redundant on JDK 18+ (JEP 400 already defaults `file.encoding` to UTF-8) and the per-task `options.encoding = "UTF-8"` is the real, reproducible Maven-parity fix, the line was removed from `gradle.properties` (decision: drop the redundant net rather than restore-and-keep the defaults). The per-task `options.encoding` is retained. §4/§5/§6 above reflect this final state. Landed as a follow-up commit, `build(gradle): drop the redundant daemon-wide UTF-8 jvmarg`.
 - No `testAnnotationProcessor`, no MapStruct `-Amapstruct.*` compiler args, no foojay toolchain auto-provisioning — all omitted exactly per §4/§8.
 - Behavioral verification: `*MapperImpl.java` now generates for all 3 domain services (12 files for `asapp-authentication-service`, 7 for `asapp-tasks-service`, 6 for `asapp-users-service`), where a pre-wiring baseline compile confirmed zero generated files; `./gradlew clean compileJava compileTestJava` succeeds for all 7 modules from a clean state; `pom.xml` was never touched and no `mvn` command was run to verify.
 
