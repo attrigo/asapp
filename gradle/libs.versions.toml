@@ -29,7 +29,6 @@ testcontainers-redis = "2.2.4"
 archunit = "1.4.1"
 json-unit-assertj = "5.1.1"
 mockserver = "5.15.0"
-jackson-databind = "3.0.4"
 
 # CVE
 # Overrides SB4 BOM
@@ -71,7 +70,7 @@ archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref
 json-unit-assertj = { module = "net.javacrumbs.json-unit:json-unit-assertj", version.ref = "json-unit-assertj" }
 mockserver-client-java = { module = "org.mock-server:mockserver-client-java", version.ref = "mockserver" }
 mockserver-netty = { module = "org.mock-server:mockserver-netty", version.ref = "mockserver" }
-jackson-databind = { module = "tools.jackson.core:jackson-databind", version.ref = "jackson-databind" }
+jackson-databind = { module = "tools.jackson.core:jackson-databind" }
 
 # CVE
 ## Org
