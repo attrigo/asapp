@@ -10,10 +10,10 @@ dependencies {
     compileOnly("org.springframework:spring-web")
 
     // Test
-    // Spring
-    testImplementation("org.springframework:spring-web")
     // Spring Boot
     testImplementation("org.springframework.boot:spring-boot-starter-test")
+    // Spring
+    testImplementation("org.springframework:spring-web")
     // Other
     testImplementation(libs.jackson.databind)
 }

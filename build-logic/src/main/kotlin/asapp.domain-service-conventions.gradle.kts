@@ -32,14 +32,14 @@ dependencies {
     runtimeOnly(libs.findLibrary("bootui-spring-boot-starter").get())
 
     // Test
-    // Spring
-    testImplementation(libs.findLibrary("spring-restdocs-mockmvc").get())
     // Spring Boot
     testImplementation("org.springframework.boot:spring-boot-starter-data-jdbc-test")
     testImplementation("org.springframework.boot:spring-boot-starter-data-redis-test")
     testImplementation("org.springframework.boot:spring-boot-starter-liquibase-test")
     testImplementation("org.springframework.boot:spring-boot-starter-validation-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    // Spring
+    testImplementation(libs.findLibrary("spring-restdocs-mockmvc").get())
     // Org
     testImplementation(libs.findLibrary("pitest-junit5-plugin").get())
     testImplementation(libs.findLibrary("testcontainers-junit-jupiter").get())
