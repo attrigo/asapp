@@ -7,9 +7,11 @@ dependencies {
     // ASAPP
     implementation(project(":libs:asapp-commons-url"))
     // Spring
-    implementation("org.springframework:spring-web")
+    compileOnly("org.springframework:spring-web")
 
     // Test
+    // Spring
+    testImplementation("org.springframework:spring-web")
     // Spring Boot
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     // Other
