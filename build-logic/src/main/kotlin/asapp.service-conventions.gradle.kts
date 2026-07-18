@@ -45,3 +45,22 @@ dependencies {
     // Other
     testImplementation(libs.findLibrary("json-unit-assertj").get())
 }
+
+// The integration tier reuses the test source set
+val integrationTest = tasks.register<Test>("integrationTest") {
+    description = "Runs the integration and end-to-end tiers (*IT, *E2EIT)."
+    group = "verification"
+    // Full @SpringBootTest contexts share one worker JVM and exhaust the 512m default heap; give it headroom
+    maxHeapSize = "1g"
+    // Reuse the compiled test classes and their runtime classpath (the *IT subset is selected below)
+    val testSourceSet = project.the<SourceSetContainer>()["test"]
+    testClassesDirs = testSourceSet.output.classesDirs
+    classpath = testSourceSet.runtimeClasspath
+    include("**/*IT.class")
+    shouldRunAfter(tasks.named("test"))
+}
+
+// Check runs the integration tier too
+tasks.named("check") {
+    dependsOn(integrationTest)
+}

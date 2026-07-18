@@ -55,8 +55,10 @@ paths:
 
 ## Testing
 
-- Configure unit-test execution only in `asapp.java-conventions` — never per-leaf
-- On `tasks.named<Test>("test")` (not `withType` — one test task today, later tiers get their own), call `useJUnitPlatform()` (JUnit 5 isn't Gradle's default) and `include("**/*Tests.class")` (Surefire-parity — runs only `*Tests`, never `*IT`/`*E2EIT`)
+- Configure test execution only in convention plugins — never per-leaf
+- Enable the JUnit Platform once via `tasks.withType<Test>().configureEach { useJUnitPlatform() }` in `asapp.java-conventions` (JUnit 5 isn't Gradle's default) — it covers every tier, including tasks registered in other plugins
+- Unit tier: `tasks.named<Test>("test")` in `asapp.java-conventions` sets `include("**/*Tests.class")`
+- Integration tier: register one `integrationTest` `Test` task in `asapp.service-conventions` (services only), reusing the `test` source set (`testClassesDirs`/`classpath`) with `include("**/*IT.class")` (also matches `*E2EIT`); order it `shouldRunAfter(tasks.named("test"))` and wire `check.dependsOn(integrationTest)`
 - Declare `testRuntimeOnly("org.junit.platform:junit-platform-launcher")` — Gradle 9 no longer auto-provides it and the Spring Boot starters don't bundle it (versionless, BOM-managed)
 - The base plugin adds only the platform launcher, not a JUnit engine — each module that runs tests supplies its own via a `spring-boot-starter-*-test` starter
 
