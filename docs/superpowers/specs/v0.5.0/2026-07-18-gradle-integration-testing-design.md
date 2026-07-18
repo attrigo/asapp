@@ -1,7 +1,7 @@
 # Gradle integration testing — design spec
 
 **Date**: 2026-07-18
-**Status**: Approved
+**Status**: Implemented
 **Owner**: Antonio Trigo
 **Source**: `TODO.md` v0.5.0 → Technical → "Replace Maven with Gradle" → "Migrate integration testing to Gradle" (incl. the note: lift `useJUnitPlatform()` to a shared `withType<Test>` config rather than repeating it per tier)
 **Scope**: Make Gradle *run* the integration tiers (`*IT` + `*E2EIT`) at parity with Maven Failsafe — a single `integrationTest` task over the existing `src/test/java` source set, wired into `check`. Also lift `useJUnitPlatform()` off the `test` task into a shared `withType<Test>` block so both tiers inherit it. No test file is moved; no separate source set; no `pom.xml` edit.
@@ -147,3 +147,21 @@ Lands on the current branch, `build/replace-maven-with-gradle-5-it`. A single co
 1. `build(gradle): migrate integration testing to Gradle` — the `withType<Test>` lift in `asapp.java-conventions` and the `integrationTest` task + `check` wiring in `asapp.service-conventions`.
 
 The `.claude/rules/gradle.md` Testing update and the `TODO.md` checkbox ride with that commit.
+
+## 10. Post-implementation notes
+
+This spec and its plan (`docs/superpowers/plans/2026-07-18-gradle-integration-testing.md`) were written before implementation, and the core change shipped substantially as designed — a single `integrationTest` task over the shared `src/test/java` source set, selecting `**/*IT.class` (covers `*IT` and `*E2EIT`), wired into `check` via `check.dependsOn(integrationTest)`, with `useJUnitPlatform()` lifted to a shared `tasks.withType<Test>().configureEach` rule in `asapp.java-conventions`.
+
+The canonical implementation is the current state of the convention plugins (`build-logic/src/main/kotlin/asapp.java-conventions.gradle.kts`, `build-logic/src/main/kotlin/asapp.service-conventions.gradle.kts`) and `.claude/rules/gradle.md` on this branch, not this document.
+
+Notable deltas:
+
+- **Heap headroom added — `maxHeapSize = "1g"` on the `integrationTest` task (revises §5's code block and §8, which listed JVM args as out of scope).** The design added no JVM args. During the Docker-backed run, each service's reused test-worker JVM exhausted Gradle's 512m default heap while stacking full `@SpringBootTest` contexts (Maven Failsafe ran uncapped at the JVM default, ~¼ of RAM). The shipped `integrationTest` task in `asapp.service-conventions.gradle.kts` therefore sets `maxHeapSize = "1g"` (value tunable). Documenting this heap and the Failsafe-uncapped rationale in the Gradle rules' Testing section is deferred to the "Keep Claude Code files in sync" subtask (tracked by a note in `TODO.md`).
+
+- **`project.` qualifier on the source-set lookup — corrects §5's code snippet.** The §5 (and plan) snippet's unqualified `the<SourceSetContainer>()["test"]`, evaluated inside the `tasks.register<Test>("integrationTest") { … }` lambda, resolves against the `Test` task's own `ExtensionAware` container (which holds only `ExtraPropertiesExtension`), not the project — failing at configuration time with "Extension of type 'SourceSetContainer' does not exist." The shipped code in `asapp.service-conventions.gradle.kts` uses `project.the<SourceSetContainer>()["test"]` — the minimal fix, keeping the generic `the<>()` form rather than switching to the `sourceSets` accessor, exactly as §5's own contingency guardrail required.
+
+- **`check` ships knowingly red until packaging lands — refines the §2/§7 "all green" Definition of Done.** The design assumed `./gradlew check` goes green once the tier is wired in. In practice `ActuatorEndpointsIT`'s `/info` assertion fails in all 5 services, because `/actuator/info` needs `git.properties` and `META-INF/build-info.properties`, which only the Spring Boot Gradle plugin generates — and applying that plugin is the later "Migrate packaging to Gradle" subtask. The developer deliberately landed the tier wired into `check` with a known-red Gradle `check`; Maven remains green and is still the CI gate, so CI is unaffected. This trade-off is recorded as two forward-notes in `TODO.md` (under "Migrate packaging to Gradle" and "Keep Claude Code files in sync").
+
+- **Cosmetic comment polish in the shipped scripts (no behavioral change from §5).** The inline comments and the `integrationTest` task `description` in the shipped `.gradle.kts` files were trimmed of Maven/Failsafe cross-references relative to §5's snippets; the wiring (task name, source-set reuse, `include`, `shouldRunAfter`, `check.dependsOn`) is identical to the design.
+
+For future Gradle test-tier edits, treat the convention plugins (`asapp.java-conventions.gradle.kts`, `asapp.service-conventions.gradle.kts`) and `.claude/rules/gradle.md` as the template; this spec is preserved as a record of the original design intent.
