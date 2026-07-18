@@ -23,8 +23,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
 ### Docs & Tooling
 
 - [ ] (ai) Establish authoring conventions for Claude rules and agents
-  - [ ] Define a rule for authoring rule files
-    - **Note:** ground the conventions in external best-practice research (Claude Code docs, community authoring guides)
+  - [X] Define a rule for authoring rule files
   - [ ] Align existing rule files with the new authoring rule
     - **Note:** existing drift to reconcile — `todo.md` has no H1; H1 titles don't track filenames
   - [ ] Define a rule for authoring agent files
