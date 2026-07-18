@@ -7,15 +7,18 @@ plugins {
 
 val javaVersion = 25
 
+// Selects which JDK compiles, tests, and runs the app
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(javaVersion)
     }
 }
 
-// Compiler settings at parity with Maven: Java 25 API level, UTF-8 sources, and -parameters
-// (-parameters is required by Spring for name-based binding: @ConfigurationProperties constructor binding,
-//  constructor DI, and unnamed @PathVariable/@RequestParam). No typed property exists, so use compilerArgs.
+// Compiler options applied to every Java compilation
+// Release: target exactly the pinned Java version, rejecting newer or JDK-internal APIs
+// Encoding: pin source encoding so it never depends on the OS or Gradle daemon default
+// CompilerArgs: -parameters keeps method parameter names in bytecode for Spring name-based binding
+//   (@ConfigurationProperties constructor binding, constructor DI, unnamed @PathVariable/@RequestParam)
 tasks.withType<JavaCompile>().configureEach {
     options.release = javaVersion
     options.encoding = "UTF-8"
@@ -25,7 +28,6 @@ tasks.withType<JavaCompile>().configureEach {
 val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
 // Imports the Spring Boot BOM (via the io.spring.dependency-management plugin), overriding its jackson-bom version to pick up a CVE fix
-// Uses this plugin over Gradle-native platform() for the bomProperty override
 dependencyManagement {
     imports {
         mavenBom("org.springframework.boot:spring-boot-dependencies:${libs.findVersion("spring-boot").get().requiredVersion}") {
