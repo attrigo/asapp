@@ -47,18 +47,17 @@ paths:
 
 ## Compilation
 
-- Java version, encoding, and compiler args live only in `asapp.java-conventions` (all modules) — never per-leaf
-- Pin the Java version with a toolchain (`java { toolchain { languageVersion } }`) **plus** `options.release` on `JavaCompile`: the toolchain fixes which JDK compiles/tests, `release` enforces the bytecode/API level
-- Configure compiler tasks lazily via `tasks.withType<JavaCompile>().configureEach { }` — set `options.encoding = "UTF-8"` and add `-parameters` (required by Spring for name-based binding) to `options.compilerArgs`
-- Set source encoding explicitly per-task with `options.encoding = "UTF-8"` (the reproducible, Maven-parity knob); do **not** pin `org.gradle.jvmargs=-Dfile.encoding=UTF-8` daemon-wide — it clobbers Gradle's default daemon JVM args (metaspace cap, OOM heap-dump) and is redundant on JDK 18+ where `file.encoding` already defaults to UTF-8 (JEP 400)
+- Set Java version, encoding, and compiler args only in `asapp.java-conventions` — never per-leaf
+- Pin the Java version with a toolchain **plus** `options.release` on `JavaCompile` (toolchain = which JDK compiles/tests; `release` = bytecode/API level)
+- In `tasks.withType<JavaCompile>().configureEach { }`, set `options.encoding = "UTF-8"` and add `-parameters` (Spring name-based binding) to `options.compilerArgs`
+- Set encoding per-task, never daemon-wide via `org.gradle.jvmargs` (that clobbers Gradle's default JVM args)
 
 ## Ordering
 
-Group and sort entries to mirror the [Maven POM convention](maven.md): an outer **scope** comment, then an inner **origin** comment, alphabetical within each origin group. Reordering never changes a value, coordinate, or key.
+Outer **scope** comment, inner **origin** comment, alphabetical within each origin. Reordering never changes a value, coordinate, or key.
 
-- **Scope** groups: `Build`, `BOM`, `Compile`, `Runtime`, `Test`, `CVE` — `Build` holds build-logic/Gradle-plugin catalog entries; the rest mirror Maven POM scopes
-- **Origin** groups, in order: `ASAPP`, `Spring Boot`, `Spring Cloud`, `Spring`, `Org`, `Other`
-- **Version catalog** (`gradle/libs.versions.toml`): mark scope with `#` and origin with `##` in `[versions]` and `[libraries]`; keep the `jackson-bom` override under its own `# Overrides SB4 BOM` note
-- **Dependency blocks** (`*.gradle.kts`): mark scope and origin with `//` (scope line, then origin line); the `CVE` `constraints {}` block leads `dependencies {}`
-  - A library's `annotationProcessor(...)` pairs immediately after its `implementation(...)` within the same scope/origin group (e.g. `mapstruct-processor` right after `mapstruct`)
-- **`gradle.properties`**: identity keys (`group`, `version`) first, then `org.gradle.*` settings, sorted alphabetically by key within each group
+- **Scope** groups: `Build`, `BOM`, `Compile`, `Runtime`, `Test`, `CVE` — `Build` holds build-logic/plugin catalog entries; the rest mirror Maven scopes
+- **Origin** order: `ASAPP`, `Spring Boot`, `Spring Cloud`, `Spring`, `Org`, `Other`
+- **Version catalog** (`libs.versions.toml`): scope with `#`, origin with `##`; keep the `jackson-bom` override under `# Overrides SB4 BOM`
+- **Dependency blocks** (`*.gradle.kts`): scope then origin with `//`; the `CVE` `constraints {}` leads `dependencies {}`; put each `annotationProcessor(...)` right after its `implementation(...)` (e.g. `mapstruct-processor` after `mapstruct`)
+- **`gradle.properties`**: identity keys (`group`, `version`) first, then `org.gradle.*`, alphabetical within each group
