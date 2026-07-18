@@ -1,4 +1,5 @@
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.testing.jacoco.tasks.JacocoReport
 
 plugins {
     id("asapp.java-conventions")
@@ -63,4 +64,33 @@ val integrationTest = tasks.register<Test>("integrationTest") {
 // Check runs the integration tier too
 tasks.named("check") {
     dependsOn(integrationTest)
+}
+
+// Integration-tier coverage report (jacoco-it analog)
+tasks.register<JacocoReport>("jacocoIntegrationTestReport") {
+    description = "Generates a code coverage report for the integration tier (*IT, *E2EIT)."
+    group = "verification"
+    dependsOn(integrationTest)
+    executionData(integrationTest.get())
+    sourceSets(project.the<SourceSetContainer>()["main"])
+    reports {
+        html.required = true
+        xml.required = false
+        csv.required = false
+    }
+}
+
+// Merged unit + integration coverage report (jacoco-aggregate analog)
+tasks.register<JacocoReport>("jacocoAggregateReport") {
+    description = "Generates a merged unit and integration code coverage report."
+    group = "verification"
+    val test = tasks.named<Test>("test")
+    dependsOn(test, integrationTest)
+    executionData(test.get(), integrationTest.get())
+    sourceSets(project.the<SourceSetContainer>()["main"])
+    reports {
+        html.required = true
+        xml.required = false
+        csv.required = false
+    }
 }

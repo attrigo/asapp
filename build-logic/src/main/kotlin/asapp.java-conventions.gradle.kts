@@ -1,7 +1,9 @@
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.testing.jacoco.tasks.JacocoReport
 
 plugins {
     java
+    jacoco
     id("io.spring.dependency-management")
 }
 
@@ -35,7 +37,17 @@ tasks.named<Test>("test") {
     include("**/*Tests.class")
 }
 
+// Unit-tier coverage report (jacoco-ut analog); the plugin does not wire it to run the tests
+tasks.named<JacocoReport>("jacocoTestReport") {
+    dependsOn(tasks.named("test"))
+}
+
 val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
+
+// Pin the coverage tool: 0.8.14 gives official Java 25 support (0.8.13 is experimental); also Gradle's default
+jacoco {
+    toolVersion = libs.findVersion("jacoco").get().requiredVersion
+}
 
 // Imports the Spring Boot BOM (via the io.spring.dependency-management plugin), overriding its jackson-bom version to pick up a CVE fix
 dependencyManagement {

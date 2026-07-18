@@ -2,6 +2,8 @@
 # Build
 ## Spring
 spring-dependency-management = "1.1.7"
+## Org
+jacoco = "0.8.14"
 
 # BOM
 ## Spring Boot
