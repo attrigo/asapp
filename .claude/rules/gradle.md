@@ -2,6 +2,7 @@
 paths:
   - "**/*.gradle.kts"
   - "**/gradle.properties"
+  - "**/libs.versions.toml"
 ---
 
 # Gradle Build Conventions
