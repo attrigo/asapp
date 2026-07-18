@@ -21,6 +21,7 @@ dependencies {
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     // Org
     implementation(libs.findLibrary("mapstruct").get())
+    annotationProcessor(libs.findLibrary("mapstruct-processor").get())
     implementation(libs.findLibrary("springdoc-openapi-starter-webmvc-ui").get())
     // Other
     implementation(libs.findLibrary("nimbus-jose-jwt").get())

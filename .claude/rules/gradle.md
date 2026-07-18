@@ -2,6 +2,7 @@
 paths:
   - "**/*.gradle.kts"
   - "**/gradle.properties"
+  - "**/libs.versions.toml"
 ---
 
 # Gradle Build Conventions
@@ -45,12 +46,19 @@ paths:
 - Single-source `group` and `version` in root `gradle.properties` (`group=com.attrigo.asapp`, `version=...`) — Gradle propagates both to every project in the build automatically, no `allprojects`/`subprojects` block needed
 - Never set `group` or `version` in a module's own build script
 
+## Compilation
+
+- Set Java version, encoding, and compiler args only in `asapp.java-conventions` — never per-leaf
+- Pin the Java version with a toolchain **plus** `options.release` on `JavaCompile` (toolchain = which JDK compiles/tests; `release` = bytecode/API level)
+- In `tasks.withType<JavaCompile>().configureEach { }`, set `options.encoding = "UTF-8"` and add `-parameters` (Spring name-based binding) to `options.compilerArgs`
+- Set encoding per-task, never daemon-wide via `org.gradle.jvmargs` (that clobbers Gradle's default JVM args)
+
 ## Ordering
 
-Group and sort entries to mirror the [Maven POM convention](maven.md): an outer **scope** comment, then an inner **origin** comment, alphabetical within each origin group. Reordering never changes a value, coordinate, or key.
+Outer **scope** comment, inner **origin** comment, alphabetical within each origin. Reordering never changes a value, coordinate, or key.
 
-- **Scope** groups: `Build`, `BOM`, `Compile`, `Runtime`, `Test`, `CVE` — `Build` holds build-logic/Gradle-plugin catalog entries; the rest mirror Maven POM scopes
-- **Origin** groups, in order: `ASAPP`, `Spring Boot`, `Spring Cloud`, `Spring`, `Org`, `Other`
-- **Version catalog** (`gradle/libs.versions.toml`): mark scope with `#` and origin with `##` in `[versions]` and `[libraries]`; keep the `jackson-bom` override under its own `# Overrides SB4 BOM` note
-- **Dependency blocks** (`*.gradle.kts`): mark scope and origin with `//` (scope line, then origin line); the `CVE` `constraints {}` block leads `dependencies {}`
-- **`gradle.properties`**: identity keys (`group`, `version`) first, then `org.gradle.*` settings, sorted alphabetically by key within each group
+- **Scope** groups: `Build`, `BOM`, `Compile`, `Runtime`, `Test`, `CVE` — `Build` holds build-logic/plugin catalog entries; the rest mirror Maven scopes
+- **Origin** order: `ASAPP`, `Spring Boot`, `Spring Cloud`, `Spring`, `Org`, `Other`
+- **Version catalog** (`libs.versions.toml`): scope with `#`, origin with `##`; keep the `jackson-bom` override under `# Overrides SB4 BOM`
+- **Dependency blocks** (`*.gradle.kts`): scope then origin with `//`; the `CVE` `constraints {}` leads `dependencies {}`; put each `annotationProcessor(...)` right after its `implementation(...)` (e.g. `mapstruct-processor` after `mapstruct`)
+- **`gradle.properties`**: identity keys (`group`, `version`) first, then `org.gradle.*`, alphabetical within each group

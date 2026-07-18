@@ -50,6 +50,7 @@ spring-dependency-management-plugin = { module = "io.spring.gradle:dependency-ma
 # Compile
 ## Org
 mapstruct = { module = "org.mapstruct:mapstruct", version.ref = "mapstruct" }
+mapstruct-processor = { module = "org.mapstruct:mapstruct-processor", version.ref = "mapstruct" }
 springdoc-openapi-starter-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc-openapi-starter" }
 ## Other
 bootui-spring-boot-starter = { module = "com.julien-dubois.bootui:bootui-spring-boot-starter", version.ref = "bootui" }
