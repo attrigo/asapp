@@ -248,6 +248,8 @@ Goal: round out observability with operational dashboards and finer-grained inst
 #### build
 
 * Add AOP/Native support
+* Generate mappers declared in test sources
+* Extract a shared version-catalog accessor across convention plugins
 * Improve code formatting
     * Configure wrapping rules for chained method invocations (pending formatter support)
     * Add code formatter for .xml files
