@@ -5,7 +5,6 @@ plugins {
     id("io.spring.dependency-management")
 }
 
-// Pins the JDK that compiles (and later tests) the project — reproducible regardless of the JVM launching Gradle
 java {
     toolchain {
         languageVersion = JavaLanguageVersion.of(25)
