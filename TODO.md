@@ -20,6 +20,19 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [ ] Confine cross-layer access to the declared input and output ports
     - **Note:** a lightweight safety net for the Gradle, OAuth, and Modulith refactors; the full JMolecules suite lands in 0.10
 
+### Docs & Tooling
+
+- [ ] (ai) Establish authoring conventions for Claude rules and agents
+  - [ ] Define a rule for authoring rule files
+    - **Note:** ground the conventions in external best-practice research (Claude Code docs, community authoring guides)
+  - [ ] Align existing rule files with the new authoring rule
+    - **Note:** existing drift to reconcile — `todo.md` has no H1; H1 titles don't track filenames
+  - [ ] Define a rule for authoring agent files
+    - **Note:** ground the conventions in external best-practice research (Claude Code docs, community guides, https://github.com/VoltAgent/awesome-claude-code-subagents)
+    - **Note:** codify the model/color-by-role taxonomy and inline `tools` list, currently convention-only
+  - [ ] Align existing agent files with the new authoring rule
+  - **Note:** mirror the existing skill-authoring rule; keep both rules aligned with the claude-docs-maintainer agent instead of duplicating its checklists
+
 ---
 
 ## 0.6.0 · Platform & dependency upgrades
