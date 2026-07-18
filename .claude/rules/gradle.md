@@ -53,6 +53,13 @@ paths:
 - In `tasks.withType<JavaCompile>().configureEach { }`, set `options.encoding = "UTF-8"` and add `-parameters` (Spring name-based binding) to `options.compilerArgs`
 - Set encoding per-task, never daemon-wide via `org.gradle.jvmargs` (that clobbers Gradle's default JVM args)
 
+## Testing
+
+- Configure unit-test execution only in `asapp.java-conventions` — never per-leaf
+- On `tasks.named<Test>("test")` (not `withType` — one test task today, later tiers get their own), call `useJUnitPlatform()` (JUnit 5 isn't Gradle's default) and `include("**/*Tests.class")` (Surefire-parity — runs only `*Tests`, never `*IT`/`*E2EIT`)
+- Declare `testRuntimeOnly("org.junit.platform:junit-platform-launcher")` — Gradle 9 no longer auto-provides it and the Spring Boot starters don't bundle it (versionless, BOM-managed)
+- The base plugin adds only the platform launcher, not a JUnit engine — each module that runs tests supplies its own via a `spring-boot-starter-*-test` starter
+
 ## Ordering
 
 Outer **scope** comment, inner **origin** comment, alphabetical within each origin. Reordering never changes a value, coordinate, or key.

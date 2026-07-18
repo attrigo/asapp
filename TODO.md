@@ -12,8 +12,9 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [X] Set up the Gradle project and module structure
     - [X] Migrate dependency management to Gradle
     - [X] Migrate compilation to Gradle
-    - [ ] Migrate unit testing to Gradle
+    - [X] Migrate unit testing to Gradle
     - [ ] Migrate integration testing to Gradle
+        - **Note:** lift `useJUnitPlatform()` to a shared `withType<Test>` config rather than repeating it per tier (the unit tier sets it on the `test` task today)
     - [ ] Migrate coverage reporting to Gradle
     - [ ] Migrate mutation testing to Gradle
         - **Note:** move the PIT plugin dependency off the test compile classpath onto the mutation tool's own configuration
@@ -31,6 +32,8 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [ ] Migrate the release workflow to Gradle
     - [ ] Migrate build documentation to Gradle
     - [ ] Keep Claude Code files in sync with the migration
+        - **Note:** define rule to establish the order of the different build script blocks (tasks, dependencies, etc.)
+        - **Note:** clean rule file
     - [ ] Verify full parity, then remove Maven entirely
         - **Note:** remove the migration-time verbose console setting from gradle.properties
 - [ ] (architecture) Add an ArchUnit layering and boundary guardrail
