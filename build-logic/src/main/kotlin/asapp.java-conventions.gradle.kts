@@ -25,9 +25,13 @@ tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.add("-parameters")
 }
 
-// Runs the unit tier on the JUnit Platform; include only *Tests
-tasks.named<Test>("test") {
+// Every test tier runs on the JUnit Platform
+tasks.withType<Test>().configureEach {
     useJUnitPlatform()
+}
+
+// The unit tier includes only *Tests
+tasks.named<Test>("test") {
     include("**/*Tests.class")
 }
 
