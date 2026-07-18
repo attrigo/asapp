@@ -25,6 +25,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
         - **Note:** when the Spring Boot plugin is applied, confirm its automatic BOM import doesn't duplicate or conflict with the manual Spring Boot BOM import kept for the jackson CVE override
         - **Note:** when the Spring Boot plugin is applied, drop the manual -parameters compiler arg it now auto-adds
         - **Note:** generate both build-info (via the Spring Boot plugin) and git.properties (no Gradle equivalent tracked yet) so the actuator /info endpoint exposes build and git details
+        - **Note:** the integration tier wired into check leaves ./gradlew check and build red build-wide (ActuatorEndpointsIT /info, all 5 services) until this step lands; confirm both go green here
     - [ ] Migrate running the app locally to Gradle
     - [ ] Migrate Docker image building to Gradle
     - [ ] Migrate git hook installation to Gradle
@@ -34,6 +35,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [ ] Keep Claude Code files in sync with the migration
         - **Note:** define rule to establish the order of the different build script blocks (tasks, dependencies, etc.)
         - **Note:** clean rule file
+        - **Note:** document the integration tier's 1g test heap and its Failsafe-uncapped rationale in the Gradle rules' Testing section
     - [ ] Verify full parity, then remove Maven entirely
         - **Note:** remove the migration-time verbose console setting from gradle.properties
 - [ ] (architecture) Add an ArchUnit layering and boundary guardrail
