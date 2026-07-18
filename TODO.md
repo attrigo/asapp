@@ -23,6 +23,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [ ] Migrate packaging to Gradle
         - **Warning:** move Spring Boot devtools off the runtime classpath once the Spring Boot plugin is applied, or it will ship inside the production jar
         - **Note:** when the Spring Boot plugin is applied, confirm its automatic BOM import doesn't duplicate or conflict with the manual Spring Boot BOM import kept for the jackson CVE override
+        - **Note:** when the Spring Boot plugin is applied, drop the manual -parameters compiler arg it now auto-adds
     - [ ] Migrate running the app locally to Gradle
     - [ ] Migrate Docker image building to Gradle
     - [ ] Migrate git hook installation to Gradle
