@@ -5,9 +5,11 @@ plugins {
     id("io.spring.dependency-management")
 }
 
+val javaVersion = 25
+
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(25)
+        languageVersion = JavaLanguageVersion.of(javaVersion)
     }
 }
 
@@ -15,7 +17,7 @@ java {
 // (-parameters is required by Spring for name-based binding: @ConfigurationProperties constructor binding,
 //  constructor DI, and unnamed @PathVariable/@RequestParam). No typed property exists, so use compilerArgs.
 tasks.withType<JavaCompile>().configureEach {
-    options.release = 25
+    options.release = javaVersion
     options.encoding = "UTF-8"
     options.compilerArgs.add("-parameters")
 }
