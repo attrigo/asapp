@@ -12,7 +12,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [X] Set up the Gradle project and module structure
     - [X] Migrate dependency management to Gradle
     - [X] Migrate compilation to Gradle
-    - [ ] Migrate unit testing to Gradle
+    - [X] Migrate unit testing to Gradle
     - [ ] Migrate integration testing to Gradle
     - [ ] Migrate coverage reporting to Gradle
     - [ ] Migrate mutation testing to Gradle

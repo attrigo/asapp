@@ -25,6 +25,12 @@ tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.add("-parameters")
 }
 
+// Runs the unit tier on the JUnit Platform; include only *Tests
+tasks.named<Test>("test") {
+    useJUnitPlatform()
+    include("**/*Tests.class")
+}
+
 val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
 // Imports the Spring Boot BOM (via the io.spring.dependency-management plugin), overriding its jackson-bom version to pick up a CVE fix
@@ -34,4 +40,10 @@ dependencyManagement {
             bomProperty("jackson-bom.version", libs.findVersion("jackson-bom").get().requiredVersion)
         }
     }
+}
+
+dependencies {
+    // Test
+    // Org
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
