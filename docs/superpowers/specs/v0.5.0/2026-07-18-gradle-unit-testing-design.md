@@ -1,7 +1,7 @@
 # Gradle unit testing — design spec
 
 **Date**: 2026-07-18
-**Status**: Approved — pending implementation
+**Status**: Implemented
 **Owner**: Antonio Trigo
 **Source**: `TODO.md` v0.5.0 → Technical → "Replace Maven with Gradle" → "Migrate unit testing to Gradle"
 **Scope**: Make `./gradlew test` run the unit tier (`*Tests`) on the JUnit Platform, at parity with `mvn test` (Maven Surefire) — framework enablement, unit-tier test selection, and the one test-runtime dependency Gradle 9 now requires. No integration/e2e execution, no other `<build><plugins>` migration, no `pom.xml` edits, no files moved.
@@ -115,3 +115,15 @@ Lands on the current branch, `build/replace-maven-with-gradle-4-ut`. A single co
 1. `build(gradle): migrate unit testing to Gradle` — the `asapp.java-conventions` test-task block and the `testRuntimeOnly` launcher dependency.
 
 The `.claude/rules/gradle.md` "Testing" note and the `TODO.md` checkbox ride with that commit.
+
+## 10. Post-implementation notes
+
+This spec was written before implementation; the task used the compressed flow, so there is no separate plan file. The core change shipped substantially as designed: the `test`-task block (`useJUnitPlatform()` + `include("**/*Tests.class")`) and the `testRuntimeOnly` JUnit Platform launcher dependency landed in `asapp.java-conventions` exactly as specified in §5.
+
+The canonical implementation is the current state of `build-logic/src/main/kotlin/asapp.java-conventions.gradle.kts` and `.claude/rules/gradle.md` on this branch, not this document.
+
+Notable deltas:
+- **Engine/launcher contract documented beyond §5** — The `## Testing` section of `.claude/rules/gradle.md` gained a fourth bullet (a post-review improvement, finding N1) that §5 did not specify: the base `asapp.java-conventions` plugin supplies only the JUnit Platform *launcher*, not a JUnit *engine*, so every module that runs tests must bring its own engine via a `spring-boot-starter-*-test` starter. This closes a documentation gap — a pure-library leaf (e.g. `libs/asapp-commons-url`) with no test starter would otherwise get a confusing `compileTestJava` failure if a `*Tests` class were added, because the platform launcher lives in a different file/layer than the engine.
+- **The `import org.gradle.api.tasks.testing.Test` contingency was not needed** — §5 hedged that an explicit `import org.gradle.api.tasks.testing.Test` might be required if the `Test` type did not resolve via the Kotlin DSL default imports in the precompiled script plugin. It resolved unimported (like `JavaCompile` already did), so no import line was added to `asapp.java-conventions.gradle.kts`.
+
+For future Gradle test-configuration edits, treat `build-logic/src/main/kotlin/asapp.java-conventions.gradle.kts` and the `## Testing` section of `.claude/rules/gradle.md` as the template; this spec is preserved as a record of the original design intent.
