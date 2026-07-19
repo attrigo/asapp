@@ -48,7 +48,7 @@ dependencies {
 }
 
 // The integration tier reuses the test source set
-val integrationTest = tasks.register<Test>("integrationTest") {
+tasks.register<Test>("integrationTest") {
     description = "Runs the integration and end-to-end tiers (*IT, *E2EIT)."
     group = "verification"
     // Full @SpringBootTest contexts share one worker JVM and exhaust the 512m default heap; give it headroom
@@ -69,13 +69,14 @@ val integrationTest = tasks.register<Test>("integrationTest") {
 
 // Check runs the integration tier too
 tasks.named("check") {
-    dependsOn(integrationTest)
+    dependsOn(tasks.named<Test>("integrationTest"))
 }
 
 // Integration-tier coverage report
 tasks.register<JacocoReport>("jacocoIntegrationTestReport") {
     description = "Generates a code coverage report for the integration tier (*IT, *E2EIT)."
     group = "verification"
+    val integrationTest = tasks.named<Test>("integrationTest")
     dependsOn(integrationTest)
     executionData(integrationTest.get())
     sourceSets(project.the<SourceSetContainer>()["main"])
@@ -91,6 +92,7 @@ tasks.register<JacocoReport>("jacocoAggregateReport") {
     description = "Generates a merged unit and integration code coverage report."
     group = "verification"
     val test = tasks.named<Test>("test")
+    val integrationTest = tasks.named<Test>("integrationTest")
     dependsOn(test, integrationTest)
     executionData(test.get(), integrationTest.get())
     sourceSets(project.the<SourceSetContainer>()["main"])
