@@ -72,7 +72,7 @@ tasks.named("check") {
     dependsOn(integrationTest)
 }
 
-// Integration-tier coverage report (jacoco-it analog)
+// Integration-tier coverage report
 tasks.register<JacocoReport>("jacocoIntegrationTestReport") {
     description = "Generates a code coverage report for the integration tier (*IT, *E2EIT)."
     group = "verification"
@@ -86,7 +86,7 @@ tasks.register<JacocoReport>("jacocoIntegrationTestReport") {
     }
 }
 
-// Merged unit + integration coverage report (jacoco-aggregate analog)
+// Merged unit + integration coverage report
 tasks.register<JacocoReport>("jacocoAggregateReport") {
     description = "Generates a merged unit and integration code coverage report."
     group = "verification"

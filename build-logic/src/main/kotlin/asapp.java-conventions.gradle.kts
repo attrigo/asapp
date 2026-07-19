@@ -37,7 +37,7 @@ tasks.named<Test>("test") {
     include("**/*Tests.class")
 }
 
-// Unit-tier coverage report (jacoco-ut analog); the plugin does not wire it to run the tests
+// Unit-tier coverage report; the plugin does not wire it to run the tests
 tasks.named<JacocoReport>("jacocoTestReport") {
     dependsOn(tasks.named("test"))
 }
