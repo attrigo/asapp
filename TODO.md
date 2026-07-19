@@ -26,9 +26,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
   - [X] Define a rule for authoring rule files
   - [ ] Align existing rule files with the new authoring rule
     - **Note:** existing drift to reconcile — `todo.md` has no H1; H1 titles don't track filenames
-  - [ ] Define a rule for authoring agent files
-    - **Note:** ground the conventions in external best-practice research (Claude Code docs, community guides, https://github.com/VoltAgent/awesome-claude-code-subagents)
-    - **Note:** codify the model/color-by-role taxonomy and inline `tools` list, currently convention-only
+  - [X] Define a rule for authoring agent files
   - [ ] Align existing agent files with the new authoring rule
   - **Note:** mirror the existing skill-authoring rule; keep both rules aligned with the claude-docs-maintainer agent instead of duplicating its checklists
 
