@@ -44,7 +44,7 @@ tasks.named<JacocoReport>("jacocoTestReport") {
 
 val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
-// Pin the coverage tool: 0.8.14 gives official Java 25 support (0.8.13 is experimental); also Gradle's default
+// Pin the JaCoCo tool so a Gradle wrapper bump can't silently change it; 0.8.14 gives official Java 25 support
 jacoco {
     toolVersion = libs.findVersion("jacoco").get().requiredVersion
 }
