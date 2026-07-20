@@ -8,7 +8,7 @@ paths:
 ## Annotation Ordering
 
 Group annotations strictly in this order (semantic role):
-1. Component role: `@RestController`, `@Entity`, `@ApplicationService`
+1. Component role: `@RestController`, `@Configuration`, `@ApplicationService`
 2. Configuration/routing: `@RequestMapping`, `@Scope`, `@Profile`
 3. Persistence: `@Table`, `@Id`, `@Column`
 4. Serialization: `@JsonProperty`, `@JsonIgnore`
