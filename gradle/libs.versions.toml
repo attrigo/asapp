@@ -3,8 +3,9 @@
 ## Spring
 spring-dependency-management = "1.1.7"
 ## Org
-gradle-pitest-plugin = "1.19.0"
 jacoco = "0.8.14"
+## Other
+gradle-pitest-plugin = "1.19.0"
 
 # BOM
 ## Spring Boot
@@ -50,7 +51,7 @@ commons-io = "2.21.0"
 # Build
 ## Spring
 spring-dependency-management-plugin = { module = "io.spring.gradle:dependency-management-plugin", version.ref = "spring-dependency-management" }
-## Org
+## Other
 gradle-pitest-plugin = { module = "info.solidsoft.gradle.pitest:gradle-pitest-plugin", version.ref = "gradle-pitest-plugin" }
 
 # Compile
