@@ -26,6 +26,7 @@ resilience4j = "2.4.0"
 ## Spring
 spring-restdocs = "4.0.0"
 ## Org
+mockserver = "5.15.0"
 pitest = "1.25.8"
 pitest-junit5-plugin = "1.2.3"
 testcontainers = "2.0.4"
@@ -33,7 +34,6 @@ testcontainers = "2.0.4"
 testcontainers-redis = "2.2.4"
 archunit = "1.4.1"
 json-unit-assertj = "5.1.1"
-mockserver = "5.15.0"
 
 # CVE
 # Overrides SB4 BOM
@@ -68,6 +68,8 @@ resilience4j-spring-boot4 = { module = "io.github.resilience4j:resilience4j-spri
 ## Spring
 spring-restdocs-mockmvc = { module = "org.springframework.restdocs:spring-restdocs-mockmvc", version.ref = "spring-restdocs" }
 ## Org
+mockserver-client-java = { module = "org.mock-server:mockserver-client-java", version.ref = "mockserver" }
+mockserver-netty = { module = "org.mock-server:mockserver-netty", version.ref = "mockserver" }
 testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter", version.ref = "testcontainers" }
 testcontainers-mockserver = { module = "org.testcontainers:testcontainers-mockserver", version.ref = "testcontainers" }
 testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql", version.ref = "testcontainers" }
@@ -75,8 +77,6 @@ testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgr
 testcontainers-redis = { module = "com.redis:testcontainers-redis", version.ref = "testcontainers-redis" }
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
 json-unit-assertj = { module = "net.javacrumbs.json-unit:json-unit-assertj", version.ref = "json-unit-assertj" }
-mockserver-client-java = { module = "org.mock-server:mockserver-client-java", version.ref = "mockserver" }
-mockserver-netty = { module = "org.mock-server:mockserver-netty", version.ref = "mockserver" }
 jackson-databind = { module = "tools.jackson.core:jackson-databind" }
 
 # CVE
