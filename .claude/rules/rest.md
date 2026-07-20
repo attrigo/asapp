@@ -23,7 +23,8 @@ paths:
 - OpenAPI annotations (`@Tag`, `@Operation`, `@ApiResponse`) go on the interface, not the controller
 - Use `@ResponseStatus` for fixed HTTP status; use `ResponseEntity` without `@ResponseStatus` when the status is determined programmatically
 - Always pair `@RequestBody` with `@Valid` on the interface method parameter to trigger bean validation
-- Add `@SecurityRequirement(name = "Bearer Authentication")` at the interface level for all protected services (not on the auth service)
+- Add `@SecurityRequirement(name = "Bearer Authentication")` on every protected endpoint; the authentication endpoints (login/refresh/revoke) carry none
+- Place it at the interface level when all endpoints are protected, per-method when the interface mixes protected and public endpoints
 
 ## Request / Response DTOs
 
