@@ -7,9 +7,7 @@ plugins {
 
 val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
-// Mutation testing (PIT) runs only on the domain services — Maven applied pitest-maven everywhere but <skip>
-// on libs + infra services; here the plugin is simply absent from those. Per-service targetClasses/targetTests
-// live in each service's build script; this block holds the shared config.
+// Shared PIT config for the domain services; per-service targetClasses/targetTests live in each service's build script
 pitest {
     // PIT core + the JUnit 5 bridge on PIT's own 'pitest' configuration (off the test compile classpath)
     pitestVersion = libs.findVersion("pitest").get().requiredVersion
