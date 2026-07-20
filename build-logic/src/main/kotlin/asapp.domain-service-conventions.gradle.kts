@@ -9,14 +9,14 @@ val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("lib
 
 // Shared PIT config for the domain services; per-service targetClasses/targetTests live in each service's build script
 pitest {
-    // PIT core + the JUnit 5 bridge on PIT's own 'pitest' configuration (off the test compile classpath)
+    // Pin the PIT engine and JUnit 5 support versions
     pitestVersion = libs.findVersion("pitest").get().requiredVersion
     junit5PluginVersion = libs.findVersion("pitest-junit5-plugin").get().requiredVersion
     // Fail below 100% mutation coverage
     mutationThreshold = 100
-    // Fork PIT on the Java 25 toolchain, not the Gradle daemon JVM (szpak/gradle-pitest-plugin#301)
+    // Run PIT on the Java 25 toolchain, not the Gradle daemon's JVM (which may be older and fail on Java 25 code)
     jvmPath = javaToolchains.launcherFor { languageVersion = java.toolchain.languageVersion }.get().executablePath
-    // Stable report path (build/reports/pitest), not a timestamped subfolder
+    // Keep reports at build/reports/pitest instead of a new timestamped folder each run
     timestampedReports = false
 }
 
