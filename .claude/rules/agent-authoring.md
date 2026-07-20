@@ -5,6 +5,8 @@ paths:
 
 The repo standard for `.claude/agents/**/*.md` — subagent definitions. Aligns with the `claude-docs-maintainer` agent (frontmatter integrity, body skeleton, and cross-file validation) and Claude Code's [subagents guidance](https://code.claude.com/docs/en/sub-agents); the design spec `docs/superpowers/specs/v0.4.0/2026-05-13-claude-code-subagents-design.md` records the rationale. Read those for validation and rationale; apply this.
 
+Contents: Template · Frontmatter · Body · Secure authoring · Conventions · Size
+
 ## Template
 
 Fixed shape: five-key frontmatter, then the body skeleton.

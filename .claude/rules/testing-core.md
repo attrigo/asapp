@@ -8,6 +8,8 @@ paths:
 
 Suffixes: `*Tests.java` (unit), `*IT.java` (integration), `*E2EIT.java` (end-to-end)
 
+Contents: 1. Test Organization & Structure · 2. Test Implementation · 3. Test Code Conventions
+
 ## 1. Test Organization & Structure
 
 ### 1.1 Test Documentation (Javadoc)
