@@ -3,8 +3,6 @@ paths:
   - "**/liquibase/**/*.xml"
 ---
 
-# Liquibase
-
 ## Structure
 
 Three-level hierarchy:

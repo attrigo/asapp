@@ -4,8 +4,6 @@ paths:
   - "**/*Entity.java"
 ---
 
-# Repository
-
 ## Port Interface
 
 - Plain Java interface — no Spring annotations

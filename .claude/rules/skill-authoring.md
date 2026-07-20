@@ -3,8 +3,6 @@ paths:
   - ".claude/skills/**/*.md"
 ---
 
-# Skill Authoring
-
 The repo standard for `.claude/skills/**/SKILL.md`. Aligns with the `superpowers:writing-skills` skill and Anthropic's [skill best-practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills) — read those for rationale; apply this.
 
 ## Template

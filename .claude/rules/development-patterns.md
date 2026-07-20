@@ -3,8 +3,6 @@ paths:
   - "**/infrastructure/**/*.java"
 ---
 
-# Development Patterns
-
 ## Extracting the Current User
 
 - Always cast to `JwtAuthenticationToken` when reading the current user — never use `UserDetails` or `UsernamePasswordAuthenticationToken`

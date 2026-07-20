@@ -3,8 +3,6 @@ paths:
   - "**/main/**/*.java"
 ---
 
-# Code Style
-
 ## Annotation Ordering
 
 Group annotations strictly in this order (semantic role):

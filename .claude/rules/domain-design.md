@@ -3,8 +3,6 @@ paths:
   - "**/domain/**/*.java"
 ---
 
-# Domain Design
-
 Domain classes are infrastructure-agnostic — no Spring annotations, no logging.
 
 ## Aggregate Factories

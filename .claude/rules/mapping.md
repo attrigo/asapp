@@ -3,8 +3,6 @@ paths:
   - "**/infrastructure/**/mapper/*.java"
 ---
 
-# Mapping
-
 ## Mapper Interface
 
 - All mappers use `componentModel = "spring"`

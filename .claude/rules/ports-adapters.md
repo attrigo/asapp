@@ -4,8 +4,6 @@ paths:
   - "**/infrastructure/**/*.java"
 ---
 
-# Ports & Adapters
-
 ## Naming
 
 - Port names must be framework-agnostic — no Spring, JWT, or Redis references
