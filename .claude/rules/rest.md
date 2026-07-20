@@ -1,6 +1,6 @@
 ---
 paths:
-  - "**/infrastructure/**/*API.java"
+  - "**/infrastructure/**/in/*Api.java"
   - "**/infrastructure/**/*RestController.java"
   - "**/infrastructure/**/*Request.java"
   - "**/infrastructure/**/*Response.java"
