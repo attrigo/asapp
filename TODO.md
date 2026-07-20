@@ -14,7 +14,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [X] Migrate compilation to Gradle
     - [X] Migrate unit testing to Gradle
     - [X] Migrate integration testing to Gradle
-    - [ ] Migrate coverage reporting to Gradle
+    - [X] Migrate coverage reporting to Gradle
     - [ ] Migrate mutation testing to Gradle
         - **Note:** move the PIT plugin dependency off the test compile classpath onto the mutation tool's own configuration
     - [ ] Migrate formatting checks to Gradle
@@ -25,7 +25,10 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
         - **Note:** when the Spring Boot plugin is applied, confirm its automatic BOM import doesn't duplicate or conflict with the manual Spring Boot BOM import kept for the jackson CVE override
         - **Note:** when the Spring Boot plugin is applied, drop the manual -parameters compiler arg it now auto-adds
         - **Note:** generate both build-info (via the Spring Boot plugin) and git.properties (no Gradle equivalent tracked yet) so the actuator /info endpoint exposes build and git details
-        - **Note:** the integration tier wired into check leaves ./gradlew check and build red build-wide (ActuatorEndpointsIT /info, all 5 services) until this step lands; confirm both go green here
+        - **Note:** delete the temporary integrationTest filter excluding ActuatorEndpointsIT's /info test (all 5 services) — added pre-packaging to keep the integration tier and its coverage reports green; the test needs build-info and git.properties the Spring Boot plugin generates; confirm ./gradlew check and build go green after removal
+    - [ ] Migrate the full build to Gradle
+        - **Note:** aggregate build, coverage reports, the formatting check, API docs, and javadoc/sources jars into one lifecycle task — the `mvn install -Pfull` / `mvn clean verify -Pfull` equivalent consumed by the running-locally, CI, release, and build-documentation subtasks
+        - **Note:** the JaCoCo agent now instruments every Test task on the default `check` path (Maven instrumented only under `-Pfull`); decide whether to gate it (disable by default, enable only when a report task is in the graph) or accept the cost as the price of always-on build caching
     - [ ] Migrate running the app locally to Gradle
     - [ ] Migrate Docker image building to Gradle
     - [ ] Migrate git hook installation to Gradle
@@ -34,6 +37,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [ ] Migrate build documentation to Gradle
     - [ ] Keep Claude Code files in sync with the migration
         - **Note:** define rule to establish the order of the different build script blocks (tasks, dependencies, etc.)
+        - **Note:** when the block-order rule lands, make the two coverage blocks in the java conventions contiguous (currently split by the version-catalog accessor)
         - **Note:** clean rule file
         - **Note:** document the integration tier's 1g test heap and its Failsafe-uncapped rationale in the Gradle rules' Testing section
     - [ ] Verify full parity, then remove Maven entirely

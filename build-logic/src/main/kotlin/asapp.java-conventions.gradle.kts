@@ -1,7 +1,9 @@
 import org.gradle.api.artifacts.VersionCatalogsExtension
+import org.gradle.testing.jacoco.tasks.JacocoReport
 
 plugins {
     java
+    jacoco
     id("io.spring.dependency-management")
 }
 
@@ -35,7 +37,26 @@ tasks.named<Test>("test") {
     include("**/*Tests.class")
 }
 
+// Unit-tier coverage report; the plugin does not wire it to run the tests
+tasks.named<JacocoReport>("jacocoTestReport") {
+    dependsOn(tasks.named("test"))
+}
+
+// Single-source the report format policy for every JacocoReport task (unit, integration, merged): HTML only
+tasks.withType<JacocoReport>().configureEach {
+    reports {
+        html.required = true
+        xml.required = false
+        csv.required = false
+    }
+}
+
 val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
+
+// Pin the JaCoCo tool so a Gradle wrapper bump can't silently change it; 0.8.14 gives official Java 25 support
+jacoco {
+    toolVersion = libs.findVersion("jacoco").get().requiredVersion
+}
 
 // Imports the Spring Boot BOM (via the io.spring.dependency-management plugin), overriding its jackson-bom version to pick up a CVE fix
 dependencyManagement {

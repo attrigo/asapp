@@ -62,6 +62,14 @@ paths:
 - Declare `testRuntimeOnly("org.junit.platform:junit-platform-launcher")` — Gradle 9 no longer auto-provides it and the Spring Boot starters don't bundle it (versionless, BOM-managed)
 - The base plugin adds only the platform launcher, not a JUnit engine — each module that runs tests supplies its own via a `spring-boot-starter-*-test` starter
 
+## Coverage
+
+- Apply the core `jacoco` plugin in `asapp.java-conventions` (all modules) and pin the tool from the catalog: `jacoco { toolVersion = libs.findVersion("jacoco").get().requiredVersion }` — `0.8.14` for official Java 25 support (also Gradle's default)
+- The unit-tier report is the plugin's own `jacocoTestReport` task (all modules); add `dependsOn(tasks.named("test"))` since the plugin does not wire it to run the tests
+- Register the integration-tier (`jacocoIntegrationTestReport`) and merged (`jacocoMergedReport`) reports in `asapp.service-conventions` (services only); reference the `Test` tasks explicitly in `executionData()`/`dependsOn()` (integration → `integrationTest`; merged → `test` + `integrationTest`) — passing a live `tasks.withType<Test>()` collection to `executionData()` fails at task realization (`DefaultTaskCollection#all` context error)
+- Keep reports off the `check`/`build` path — opt in by naming the report task (the flag-free analog of Maven's `-Pfull`); the JaCoCo agent is auto-attached to every `Test` task, so there is no activation flag
+- HTML only; no coverage thresholds or enforcement (report-only, at Maven parity) — set once for every report task via `tasks.withType<JacocoReport>().configureEach` in `asapp.java-conventions`
+
 ## Ordering
 
 Outer **scope** comment, inner **origin** comment, alphabetical within each origin. Reordering never changes a value, coordinate, or key.
