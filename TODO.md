@@ -15,7 +15,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [X] Migrate unit testing to Gradle
     - [X] Migrate integration testing to Gradle
     - [X] Migrate coverage reporting to Gradle
-    - [ ] Migrate mutation testing to Gradle
+    - [X] Migrate mutation testing to Gradle
         - **Note:** move the PIT plugin dependency off the test compile classpath onto the mutation tool's own configuration
     - [ ] Migrate formatting checks to Gradle
     - [ ] Migrate API documentation generation to Gradle

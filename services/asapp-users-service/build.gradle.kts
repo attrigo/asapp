@@ -24,3 +24,14 @@ dependencies {
     testImplementation(libs.mockserver.client.java)
     testImplementation(libs.mockserver.netty)
 }
+
+pitest {
+    targetClasses = setOf(
+        "com.attrigo.asapp.users.domain.*",
+        "com.attrigo.asapp.users.application.*.in.service.*",
+    )
+    targetTests = setOf(
+        "com.attrigo.asapp.users.domain.*",
+        "com.attrigo.asapp.users.application.*.in.service.*",
+    )
+}

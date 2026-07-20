@@ -70,6 +70,17 @@ paths:
 - Keep reports off the `check`/`build` path — opt in by naming the report task (the flag-free analog of Maven's `-Pfull`); the JaCoCo agent is auto-attached to every `Test` task, so there is no activation flag
 - HTML only; no coverage thresholds or enforcement (report-only, at Maven parity) — set once for every report task via `tasks.withType<JacocoReport>().configureEach` in `asapp.java-conventions`
 
+## Mutation testing
+
+- Put the `info.solidsoft.pitest` plugin on the `build-logic` classpath (catalog `gradle-pitest-plugin` library + `implementation(libs.gradle.pitest.plugin)` in `build-logic/build.gradle.kts`), then apply it with a versionless `id("info.solidsoft.pitest")` **only** in `asapp.domain-service-conventions` (the 3 domain services) — libs and infra services get no `pitest` task, the flag-free analog of Maven's `<skip>`
+- Pin both versions from the catalog: `pitestVersion` from `pitest` (`1.25.8`, for official Java 25 / ASM 9.10.1 support) and `junit5PluginVersion` from `pitest-junit5-plugin` (`1.2.3`) — the plugin's default PIT (`1.22.1`) would otherwise drift with plugin upgrades
+- `junit5PluginVersion` puts the JUnit 5 bridge on the plugin's own `pitest` configuration and sets `testPlugin=junit5` — **never** declare `pitest-junit5-plugin` on `testImplementation` (it belongs on the mutation tool's classpath, not the test compile classpath)
+- Set `mutationThreshold = 100` in `asapp.domain-service-conventions` (Maven parity — the build fails below 100% mutation kill)
+- Pin `jvmPath = javaToolchains.launcherFor { languageVersion = java.toolchain.languageVersion }.get().executablePath` — the plugin otherwise forks PIT on the Gradle daemon JVM, not the toolchain (szpak/gradle-pitest-plugin#301), which fails on Java 25 bytecode when the daemon runs an older JDK
+- `timestampedReports = false` for a stable `build/reports/pitest` path
+- Per-service `targetClasses` / `targetTests` (`com.attrigo.asapp.<svc>.domain.*` + `…application.*.in.service.*`) live in each service's build script, not the convention plugin — they are per-service data, not shared policy
+- Keep the `pitest` task off the `check`/`build` path (run `./gradlew pitest`) — Maven bound PIT to no phase
+
 ## Ordering
 
 Outer **scope** comment, inner **origin** comment, alphabetical within each origin. Reordering never changes a value, coordinate, or key.

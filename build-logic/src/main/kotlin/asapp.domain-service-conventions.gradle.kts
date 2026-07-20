@@ -2,9 +2,25 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
 
 plugins {
     id("asapp.service-conventions")
+    id("info.solidsoft.pitest")
 }
 
 val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
+
+// Mutation testing (PIT) runs only on the domain services — Maven applied pitest-maven everywhere but <skip>
+// on libs + infra services; here the plugin is simply absent from those. Per-service targetClasses/targetTests
+// live in each service's build script; this block holds the shared config.
+pitest {
+    // PIT core + the JUnit 5 bridge on PIT's own 'pitest' configuration (off the test compile classpath)
+    pitestVersion = libs.findVersion("pitest").get().requiredVersion
+    junit5PluginVersion = libs.findVersion("pitest-junit5-plugin").get().requiredVersion
+    // Fail below 100% mutation coverage (Maven mutationThreshold=100)
+    mutationThreshold = 100
+    // Fork PIT on the Java 25 toolchain, not the Gradle daemon JVM (szpak/gradle-pitest-plugin#301)
+    jvmPath = javaToolchains.launcherFor { languageVersion = java.toolchain.languageVersion }.get().executablePath
+    // Stable report path (build/reports/pitest), not a timestamped subfolder
+    timestampedReports = false
+}
 
 dependencies {
     // Compile
@@ -42,7 +58,6 @@ dependencies {
     // Spring
     testImplementation(libs.findLibrary("spring-restdocs-mockmvc").get())
     // Org
-    testImplementation(libs.findLibrary("pitest-junit5-plugin").get())
     testImplementation(libs.findBundle("testcontainers-shared").get())
     // Other
     testImplementation(libs.findLibrary("archunit-junit5").get())
