@@ -20,7 +20,6 @@ paths:
 ## JDBC Repository
 
 - Extends `ListCrudRepository<JdbcEntity, UUID>` — never `CrudRepository` or `JpaRepository`
-- Custom deletes: `@Modifying` + `@Query` returning `Long`
 
 ## Repository Adapter
 
