@@ -11,7 +11,7 @@ Mocking-specific patterns for unit tests with mocked dependencies
 
 ### 1.1 Mock Usage by Layer
 
-- **Domain tests** (`domain/**/*Tests.java`): NEVER use mocks - domain must be infrastructure-agnostic
+- **Domain tests** (`domain/**/*Tests.java`): NEVER use mocks
 - **Application/Infrastructure tests**: Use `@ExtendWith(MockitoExtension.class)` when mocking dependencies
 
 ## 2. Test Patterns
