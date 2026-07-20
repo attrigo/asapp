@@ -80,15 +80,10 @@ tasks.register<JacocoReport>("jacocoIntegrationTestReport") {
     dependsOn(integrationTest)
     executionData(integrationTest.get())
     sourceSets(project.the<SourceSetContainer>()["main"])
-    reports {
-        html.required = true
-        xml.required = false
-        csv.required = false
-    }
 }
 
 // Merged unit + integration coverage report
-tasks.register<JacocoReport>("jacocoAggregateReport") {
+tasks.register<JacocoReport>("jacocoMergedReport") {
     description = "Generates a merged unit and integration code coverage report."
     group = "verification"
     val test = tasks.named<Test>("test")
@@ -96,9 +91,4 @@ tasks.register<JacocoReport>("jacocoAggregateReport") {
     dependsOn(test, integrationTest)
     executionData(test.get(), integrationTest.get())
     sourceSets(project.the<SourceSetContainer>()["main"])
-    reports {
-        html.required = true
-        xml.required = false
-        csv.required = false
-    }
 }

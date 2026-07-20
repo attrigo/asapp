@@ -42,6 +42,15 @@ tasks.named<JacocoReport>("jacocoTestReport") {
     dependsOn(tasks.named("test"))
 }
 
+// Single-source the report format policy for every JacocoReport task (unit, integration, merged): HTML only
+tasks.withType<JacocoReport>().configureEach {
+    reports {
+        html.required = true
+        xml.required = false
+        csv.required = false
+    }
+}
+
 val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
 
 // Pin the JaCoCo tool so a Gradle wrapper bump can't silently change it; 0.8.14 gives official Java 25 support
