@@ -12,6 +12,8 @@ pitest {
     // Pin the PIT engine and JUnit 5 support versions
     pitestVersion = libs.findVersion("pitest").get().requiredVersion
     junit5PluginVersion = libs.findVersion("pitest-junit5-plugin").get().requiredVersion
+    // Skip the plugin's launcher auto-add, its JUnit 5-era launcher breaks the JUnit 6 coverage minion
+    addJUnitPlatformLauncher = false
     // Fail below 100% mutation coverage
     mutationThreshold = 100
     // Run PIT on the Java 25 toolchain, not the Gradle daemon's JVM (which may be older and fail on Java 25 code)
