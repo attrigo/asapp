@@ -26,8 +26,10 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
   - [X] Define a rule for authoring rule files
   - [ ] Align existing rule files with the new authoring rule
     - **Note:** existing drift to reconcile — `todo.md` has no H1; H1 titles don't track filenames
+    - Author an `http-clients.md` rule for the declarative HTTP client model (JWT propagation, redirects-off, Resilience4j); replaces the stale service-to-service guidance dropped from `development-patterns.md` in the N4 fix
   - [X] Define a rule for authoring agent files
   - [ ] Align existing agent files with the new authoring rule
+    - Sync `code-reviewer`'s rule-routing list with the actual rule globs — its `rest.md` entry still shows the pre-M1 `*API.java` glob
   - **Note:** mirror the existing skill-authoring rule; keep both rules aligned with the claude-docs-maintainer agent instead of duplicating its checklists
 
 ---
