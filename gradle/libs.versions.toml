@@ -4,6 +4,8 @@
 spring-dependency-management = "1.1.7"
 ## Org
 jacoco = "0.8.14"
+## Other
+gradle-pitest = "1.19.0"
 
 # BOM
 ## Spring Boot
@@ -24,13 +26,14 @@ resilience4j = "2.4.0"
 ## Spring
 spring-restdocs = "4.0.0"
 ## Org
+mockserver = "5.15.0"
+pitest = "1.25.8"
 pitest-junit5-plugin = "1.2.3"
 testcontainers = "2.0.4"
 ## Other
 testcontainers-redis = "2.2.4"
 archunit = "1.4.1"
 json-unit-assertj = "5.1.1"
-mockserver = "5.15.0"
 
 # CVE
 # Overrides SB4 BOM
@@ -48,6 +51,8 @@ commons-io = "2.21.0"
 # Build
 ## Spring
 spring-dependency-management-plugin = { module = "io.spring.gradle:dependency-management-plugin", version.ref = "spring-dependency-management" }
+## Other
+gradle-pitest-plugin = { module = "info.solidsoft.gradle.pitest:gradle-pitest-plugin", version.ref = "gradle-pitest" }
 
 # Compile
 ## Org
@@ -63,7 +68,8 @@ resilience4j-spring-boot4 = { module = "io.github.resilience4j:resilience4j-spri
 ## Spring
 spring-restdocs-mockmvc = { module = "org.springframework.restdocs:spring-restdocs-mockmvc", version.ref = "spring-restdocs" }
 ## Org
-pitest-junit5-plugin = { module = "org.pitest:pitest-junit5-plugin", version.ref = "pitest-junit5-plugin" }
+mockserver-client-java = { module = "org.mock-server:mockserver-client-java", version.ref = "mockserver" }
+mockserver-netty = { module = "org.mock-server:mockserver-netty", version.ref = "mockserver" }
 testcontainers-junit-jupiter = { module = "org.testcontainers:testcontainers-junit-jupiter", version.ref = "testcontainers" }
 testcontainers-mockserver = { module = "org.testcontainers:testcontainers-mockserver", version.ref = "testcontainers" }
 testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgresql", version.ref = "testcontainers" }
@@ -71,8 +77,6 @@ testcontainers-postgresql = { module = "org.testcontainers:testcontainers-postgr
 testcontainers-redis = { module = "com.redis:testcontainers-redis", version.ref = "testcontainers-redis" }
 archunit-junit5 = { module = "com.tngtech.archunit:archunit-junit5", version.ref = "archunit" }
 json-unit-assertj = { module = "net.javacrumbs.json-unit:json-unit-assertj", version.ref = "json-unit-assertj" }
-mockserver-client-java = { module = "org.mock-server:mockserver-client-java", version.ref = "mockserver" }
-mockserver-netty = { module = "org.mock-server:mockserver-netty", version.ref = "mockserver" }
 jackson-databind = { module = "tools.jackson.core:jackson-databind" }
 
 # CVE

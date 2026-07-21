@@ -2,9 +2,25 @@ import org.gradle.api.artifacts.VersionCatalogsExtension
 
 plugins {
     id("asapp.service-conventions")
+    id("info.solidsoft.pitest")
 }
 
 val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
+
+// Shared PIT config for the domain services; per-service targetClasses/targetTests live in each service's build script
+pitest {
+    // Pin the PIT engine and JUnit 5 support versions
+    pitestVersion = libs.findVersion("pitest").get().requiredVersion
+    junit5PluginVersion = libs.findVersion("pitest-junit5-plugin").get().requiredVersion
+    // Skip the plugin's launcher auto-add, its JUnit 5-era launcher breaks the JUnit 6 coverage minion
+    addJUnitPlatformLauncher = false
+    // Fail below 100% mutation coverage
+    mutationThreshold = 100
+    // Run PIT on the Java 25 toolchain, not the Gradle daemon's JVM (which may be older and fail on Java 25 code)
+    jvmPath = javaToolchains.launcherFor { languageVersion = java.toolchain.languageVersion }.map { it.executablePath }
+    // Keep reports at build/reports/pitest instead of a new timestamped folder each run
+    timestampedReports = false
+}
 
 dependencies {
     // Compile
@@ -42,7 +58,6 @@ dependencies {
     // Spring
     testImplementation(libs.findLibrary("spring-restdocs-mockmvc").get())
     // Org
-    testImplementation(libs.findLibrary("pitest-junit5-plugin").get())
     testImplementation(libs.findBundle("testcontainers-shared").get())
     // Other
     testImplementation(libs.findLibrary("archunit-junit5").get())

@@ -24,3 +24,12 @@ dependencies {
     testImplementation(libs.mockserver.client.java)
     testImplementation(libs.mockserver.netty)
 }
+
+pitest {
+    val pitestPackages = setOf(
+        "com.attrigo.asapp.users.domain.*",
+        "com.attrigo.asapp.users.application.*.in.service.*",
+    )
+    targetClasses = pitestPackages
+    targetTests = pitestPackages
+}
