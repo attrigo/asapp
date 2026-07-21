@@ -12,12 +12,10 @@ dependencies {
 }
 
 pitest {
-    targetClasses = setOf(
+    val pitestPackages = setOf(
         "com.attrigo.asapp.authentication.domain.*",
         "com.attrigo.asapp.authentication.application.*.in.service.*",
     )
-    targetTests = setOf(
-        "com.attrigo.asapp.authentication.domain.*",
-        "com.attrigo.asapp.authentication.application.*.in.service.*",
-    )
+    targetClasses = pitestPackages
+    targetTests = pitestPackages
 }

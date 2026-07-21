@@ -3,12 +3,10 @@ plugins {
 }
 
 pitest {
-    targetClasses = setOf(
+    val pitestPackages = setOf(
         "com.attrigo.asapp.tasks.domain.*",
         "com.attrigo.asapp.tasks.application.*.in.service.*",
     )
-    targetTests = setOf(
-        "com.attrigo.asapp.tasks.domain.*",
-        "com.attrigo.asapp.tasks.application.*.in.service.*",
-    )
+    targetClasses = pitestPackages
+    targetTests = pitestPackages
 }
