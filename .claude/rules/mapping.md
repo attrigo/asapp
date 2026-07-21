@@ -14,8 +14,8 @@ paths:
 
 ## Value Object Mappers
 
-- Primitive → VO : abstract method named `toXxx(primitive)` (e.g., `toTitle(String)`, `toUserId(UUID)`)
-- VO → primitive: `default` method named after the target type (e.g., `toUUID()`, `toInstant()`)
+- Primitive → Value Object: abstract method named `toXxx(primitive)` (e.g., `toTitle(String)`, `toUserId(UUID)`)
+- Value Object → primitive: `default` method named after the target type (e.g., `toUUID()`, `toInstant()`)
 
 ## ObjectFactory
 
