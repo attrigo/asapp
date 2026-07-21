@@ -3,9 +3,9 @@ paths:
   - ".claude/agents/**/*.md"
 ---
 
-The repo standard for `.claude/agents/**/*.md` — subagent definitions. Aligns with the `claude-docs-maintainer` agent (frontmatter integrity, body skeleton, and cross-file validation) and Claude Code's [subagents guidance](https://code.claude.com/docs/en/sub-agents); the design spec `docs/superpowers/specs/v0.4.0/2026-05-13-claude-code-subagents-design.md` records the rationale. Read those for validation and rationale; apply this.
+The repo standard for `.claude/agents/**/*.md` — subagent definitions.
 
-Contents: Template · Frontmatter · Body · Secure authoring · Conventions · Size
+Contents: Template · Frontmatter · Body · Secure authoring · Conventions · Size · Further reading
 
 ## Template
 
@@ -111,3 +111,7 @@ The `claude-docs-maintainer` agent audits every body against this before deploy.
 ## Size
 
 Keep agents focused — our bodies run ~150–240 lines. Length is an outcome of the rules above, not a target; if a body sprawls, the role is too broad — split it.
+
+## Further reading
+
+- Claude Code's [subagents guidance](https://code.claude.com/docs/en/sub-agents) — rationale and validation.

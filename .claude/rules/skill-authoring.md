@@ -3,7 +3,7 @@ paths:
   - ".claude/skills/**/*.md"
 ---
 
-The repo standard for `.claude/skills/**/SKILL.md`. Aligns with the `superpowers:writing-skills` skill and Anthropic's [skill best-practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills) — read those for rationale; apply this.
+The repo standard for `.claude/skills/**/SKILL.md`.
 
 ## Template
 
@@ -63,3 +63,7 @@ Match specificity to fragility ("degrees of freedom"). Set the tier per skill; i
 ## Size
 
 Keep SKILL.md under 500 lines. Length is an outcome of the rules above, not a target to fill.
+
+## Further reading
+
+- Anthropic's [skill best-practices](https://platform.claude.com/docs/en/agents-and-tools/agent-skills) — rationale.
