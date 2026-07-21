@@ -15,7 +15,7 @@ pitest {
     // Fail below 100% mutation coverage
     mutationThreshold = 100
     // Run PIT on the Java 25 toolchain, not the Gradle daemon's JVM (which may be older and fail on Java 25 code)
-    jvmPath = javaToolchains.launcherFor { languageVersion = java.toolchain.languageVersion }.get().executablePath
+    jvmPath = javaToolchains.launcherFor { languageVersion = java.toolchain.languageVersion }.map { it.executablePath }
     // Keep reports at build/reports/pitest instead of a new timestamped folder each run
     timestampedReports = false
 }
