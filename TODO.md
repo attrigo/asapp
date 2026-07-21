@@ -28,16 +28,20 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [ ] Migrate the full build to Gradle
         - **Note:** aggregate build, coverage reports, the formatting check, API docs, and javadoc/sources jars into one lifecycle task — the `mvn install -Pfull` / `mvn clean verify -Pfull` equivalent consumed by the running-locally, CI, release, and build-documentation subtasks
         - **Note:** the JaCoCo agent now instruments every Test task on the default `check` path (Maven instrumented only under `-Pfull`); decide whether to gate it (disable by default, enable only when a report task is in the graph) or accept the cost as the price of always-on build caching
+        - **Note:** the formatting check (`spotlessCheck`) already rides on `check` — unlike the opt-in coverage/pitest reports — so keep it a standard gate in the aggregate task, don't re-gate it as optional; re-naming it under the umbrella is safe (Gradle dedupes the task instance)
     - [ ] Migrate running the app locally to Gradle
     - [ ] Migrate Docker image building to Gradle
     - [ ] Migrate git hook installation to Gradle
+        - **Note:** the current pre-commit runs `mvn spotless:check`, a no-op skipped by the default `spotless.check.skip=true`; swap it to `./gradlew spotlessCheck` so the hook actually enforces formatting
     - [ ] Migrate the CI workflow to Gradle
+        - **Note:** `./gradlew check` / `build` runs `spotlessCheck` automatically (the `-Pci` formatting gate) — no separate format-check invocation needed
     - [ ] Migrate the release workflow to Gradle
     - [ ] Migrate build documentation to Gradle
     - [ ] Clean Gradle files
         - **Note:** order of the different build script blocks (tasks, dependencies, etc.)
         - **Note:** sort within-origin entries alphabetically — the `Other` groups under `# Test` and `# CVE` (catalog versions + libraries, and the service-conventions CVE constraints block) are in insertion order, not sorted
         - **Note:** add blank lines to group the code of Gradle scripts
+        - **Note:** join ## Org and ## Other
         - **Note:** review IntelliJ warnings
         - **Note:** add cleaning convention to gradle.md file
     - [ ] Keep Claude Code files in sync with the migration
