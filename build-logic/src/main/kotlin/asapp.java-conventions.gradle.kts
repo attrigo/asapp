@@ -1,9 +1,11 @@
+import com.diffplug.spotless.LineEnding
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
 
 plugins {
     java
     jacoco
+    id("com.diffplug.spotless")
     id("io.spring.dependency-management")
 }
 
@@ -25,6 +27,20 @@ tasks.withType<JavaCompile>().configureEach {
     options.release = javaVersion
     options.encoding = "UTF-8"
     options.compilerArgs.add("-parameters")
+}
+
+// Formatting (Spotless) — all modules, mirroring Maven's inherited root-pom config.
+// Eclipse JDT 4.35 + asapp_formatter.xml drive the formatting; the config files are anchored to
+// rootProject so they resolve from every subproject. removeUnusedImports uses the cleanthat engine
+// (not the default google-java-format) so the step needs no daemon --add-exports on Java 25.
+spotless {
+    lineEndings = LineEnding.UNIX
+    java {
+        eclipse("4.35").configFile(rootProject.file("asapp_formatter.xml"))
+        importOrder("java|javax", "org", "com", "", "com.attrigo")
+        removeUnusedImports("cleanthat-javaparser-unnecessaryimport")
+        licenseHeaderFile(rootProject.file("header-license")) // default Java delimiter "package " == Maven
+    }
 }
 
 // Every test tier runs on the JUnit Platform

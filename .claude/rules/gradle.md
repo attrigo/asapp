@@ -70,6 +70,16 @@ paths:
 - Keep reports off the `check`/`build` path — opt in by naming the report task (the flag-free analog of Maven's `-Pfull`); the JaCoCo agent is auto-attached to every `Test` task, so there is no activation flag
 - HTML only; no coverage thresholds or enforcement (report-only, at Maven parity) — set once for every report task via `tasks.withType<JacocoReport>().configureEach` in `asapp.java-conventions`
 
+## Formatting
+
+- Put the `com.diffplug.spotless` plugin on the `build-logic` classpath (catalog `spotless` version + `spotless-plugin` library + `implementation(libs.spotless.plugin)` in `build-logic/build.gradle.kts`), then apply it with a versionless `id("com.diffplug.spotless")` in `asapp.java-conventions` (all 7 modules) — the same altitude as the other all-module Java concerns
+- Pin the version from the catalog (`spotless = "8.8.0"`)
+- Preserve Maven's formatting exactly: `eclipse("4.35").configFile(rootProject.file("asapp_formatter.xml"))`; `importOrder("java|javax", "org", "com", "", "com.attrigo")` with the empty catch-all group and trailing `com.attrigo`; `licenseHeaderFile(rootProject.file("header-license"))` (the Java format's built-in `package ` delimiter matches Maven's explicit one, so no delimiter argument is needed); `lineEndings = LineEnding.UNIX` at the extension level
+- Anchor both config files (`asapp_formatter.xml`, `header-license`) with `rootProject.file(...)` — the convention plugin applies per-subproject, so a bare string would resolve against each module's dir instead of the repo root
+- `removeUnusedImports("cleanthat-javaparser-unnecessaryimport")` — a deliberate divergence from Maven's default google-java-format engine, which needs daemon-wide `--add-exports jdk.compiler/…` on JDK 16+ that the project's conventions forbid; cleanthat needs none
+- Keep `spotlessCheck` wired into `check` (the Gradle default) — a deliberate divergence from Maven's default-skip, faithful to the `ci`-profile intent that gated formatting on every CI build
+- `./gradlew spotlessApply` replaces `mvn spotless:apply`; `./gradlew spotlessCheck` replaces `mvn spotless:check`
+
 ## Mutation testing
 
 - Put the `info.solidsoft.pitest` plugin on the `build-logic` classpath (catalog `gradle-pitest-plugin` library + `implementation(libs.gradle.pitest.plugin)` in `build-logic/build.gradle.kts`), then apply it with a versionless `id("info.solidsoft.pitest")` **only** in `asapp.domain-service-conventions` (the 3 domain services) — libs and infra services get no `pitest` task, the flag-free analog of Maven's `<skip>`

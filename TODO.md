@@ -16,7 +16,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [X] Migrate integration testing to Gradle
     - [X] Migrate coverage reporting to Gradle
     - [X] Migrate mutation testing to Gradle
-    - [ ] Migrate formatting checks to Gradle
+    - [X] Migrate formatting checks to Gradle
     - [ ] Migrate API documentation generation to Gradle
     - [ ] Migrate javadoc and sources jar generation to Gradle
     - [ ] Migrate packaging to Gradle

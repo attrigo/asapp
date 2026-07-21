@@ -12,4 +12,5 @@ repositories {
 dependencies {
     implementation(libs.spring.dependency.management.plugin)
     implementation(libs.gradle.pitest.plugin)
+    implementation(libs.spotless.plugin)
 }
