@@ -8,7 +8,7 @@ paths:
 
 - Port names must be framework-agnostic — no Spring, JWT, or Redis references
 - Pure adapters (data/protocol translation only): `<Domain><Port>Adapter` (e.g., `UserRepositoryAdapter`)
-- Adapters with logic (e.g., exception handling): descriptive name, no `Adapter` suffix (e.g., `RedisTokenStore`)
+- Adapters with logic (e.g., exception handling): descriptive name, no `Adapter` suffix (e.g., `RedisJwtStore`)
 
 ## Application Service
 
