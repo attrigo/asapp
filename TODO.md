@@ -37,7 +37,8 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [ ] Clean Gradle files
         - **Note:** order of the different build script blocks (tasks, dependencies, etc.)
         - **Note:** sort within-origin entries alphabetically — the `Other` groups under `# Test` and `# CVE` (catalog versions + libraries, and the service-conventions CVE constraints block) are in insertion order, not sorted
-        - **Note:** add blank lines to group the code of Gradle scripts, 
+        - **Note:** add blank lines to group the code of Gradle scripts
+        - **Note:** review IntelliJ warnings
         - **Note:** add cleaning convention to gradle.md file
     - [ ] Keep Claude Code files in sync with the migration
         - **Note:** when the block-order rule lands, make the two coverage blocks in the java conventions contiguous (currently split by the version-catalog accessor)
