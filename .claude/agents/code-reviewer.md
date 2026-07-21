@@ -30,7 +30,6 @@ Project rule routing:
 - `architecture.md`: paths `**/*.java`
 - `code-style.md`: paths `**/main/**/*.java`
 - `configuration.md`: paths `**/application*.properties`
-- `development-patterns.md`: paths `**/infrastructure/**/*.java`
 - `domain-design.md`: paths `**/domain/**/*.java`
 - `liquibase.md`: paths `**/liquibase/**/*.xml`
 - `mapping.md`: paths `**/infrastructure/**/mapper/*.java`

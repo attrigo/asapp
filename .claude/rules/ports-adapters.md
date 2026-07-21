@@ -58,3 +58,8 @@ paths:
 
 - The adapter owns the resilience mechanism and translates a downstream outage into a typed gateway exception (e.g. `TasksUnavailableException`)
 - Whether that outage degrades the response or fails the request is the application service's policy, never the adapter's
+
+## Security
+
+- Always cast to `JwtAuthenticationToken` when reading the current user — never use `UserDetails` or `UsernamePasswordAuthenticationToken`
+- `JwtAuthenticationFilter` has already validated the JWT via Redis and stored it as a `JwtAuthenticationToken` in the security context
