@@ -9,16 +9,88 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
 ### Technical
 
 - [ ] (build) Replace Maven with Gradle
-    - [ ] Migrate the module structure and dependency management to Gradle
-    - [ ] Migrate coverage, mutation testing, and formatting checks to Gradle
+    - [X] Set up the Gradle project and module structure
+    - [X] Migrate dependency management to Gradle
+    - [X] Migrate compilation to Gradle
+    - [X] Migrate unit testing to Gradle
+    - [X] Migrate integration testing to Gradle
+    - [X] Migrate coverage reporting to Gradle
+    - [X] Migrate mutation testing to Gradle
+    - [X] Migrate formatting checks to Gradle
+    - [X] Migrate API documentation generation to Gradle
+    - [ ] Migrate javadoc and sources jar generation to Gradle
+    - [ ] Migrate packaging to Gradle
+        - **Warning:** move Spring Boot devtools off the runtime classpath once the Spring Boot plugin is applied, or it will ship inside the production jar
+        - **Note:** when the Spring Boot plugin is applied, confirm its automatic BOM import doesn't duplicate or conflict with the manual Spring Boot BOM import kept for the jackson CVE override
+        - **Note:** when the Spring Boot plugin is applied, drop the manual -parameters compiler arg it now auto-adds
+        - Generate both build-info (via the Spring Boot plugin) and git.properties (no Gradle equivalent tracked yet) so the actuator /info endpoint exposes build and git details
+        - Delete the temporary integrationTest filter excluding ActuatorEndpointsIT's /info test (all 5 services) — added pre-packaging to keep the integration tier and its coverage reports green; the test needs build-info and git.properties the Spring Boot plugin generates; confirm ./gradlew check and build go green after removal
+    - [ ] Migrate the full build to Gradle
+        - **Note:** aggregate build, coverage reports, the formatting check, API docs, and javadoc/sources jars into one lifecycle task — the `mvn install -Pfull` / `mvn clean verify -Pfull` equivalent consumed by the running-locally, CI, release, and build-documentation subtasks
+        - **Note:** the JaCoCo agent now instruments every Test task on the default `check` path (Maven instrumented only under `-Pfull`); decide whether to gate it (disable by default, enable only when a report task is in the graph) or accept the cost as the price of always-on build caching
+        - **Note:** the formatting check (`spotlessCheck`) already rides on `check` — unlike the opt-in coverage/pitest reports — so keep it a standard gate in the aggregate task, don't re-gate it as optional; re-naming it under the umbrella is safe (Gradle dedupes the task instance)
+    - [ ] Migrate running the app locally to Gradle
+    - [ ] Migrate Docker image building to Gradle
     - [ ] Migrate git hook installation to Gradle
-    - [ ] Update CI and release workflows to build with Gradle
-    - [ ] Migrate Docker image publishing to Gradle
+        - Swap the pre-commit hook from `mvn spotless:check` (a no-op skipped by the default `spotless.check.skip=true`) to `./gradlew spotlessCheck` so it actually enforces formatting
+    - [ ] Migrate the CI workflow to Gradle
+        - **Note:** `./gradlew check` / `build` runs `spotlessCheck` automatically (the `-Pci` formatting gate) — no separate format-check invocation needed
+    - [ ] Migrate the release workflow to Gradle
+    - [ ] Migrate build documentation to Gradle
+    - [ ] Clean Gradle files
+        - Order the different build script blocks (tasks, dependencies, etc.)
+        - Sort within-origin entries alphabetically — the `Other` groups under `# Test` and `# CVE` (catalog versions + libraries, and the service-conventions CVE constraints block) are in insertion order, not sorted
+        - Add blank lines to group the code of Gradle scripts
+        - Join ## Org and ## Other
+        - Group (with comments) and sort the plugins blocks (plugins {})
+        - Review IntelliJ warnings
+        - Add cleaning convention to gradle.md file
+    - [ ] Keep Claude Code files in sync with the migration
+        - Make the two coverage blocks in the java conventions contiguous once the block-order rule lands (currently split by the version-catalog accessor)
+        - Clean rule file
+        - Document the integration tier's 1g test heap and its Failsafe-uncapped rationale in the Gradle rules' Testing section
+    - [ ] Verify full parity, then remove Maven entirely
+        - Remove the migration-time verbose console setting from gradle.properties
+        - **Note:** removing `pom.xml` flips the API-docs snippets dir from `target/generated-snippets` back to `build/generated-snippets` (REST Docs then detects Gradle) — in `asapp.domain-service-conventions`, revert `snippetsDir` to `layout.buildDirectory.dir("generated-snippets")`, drop the explicit `asciidoctor` `snippets` attribute, and remove the `clean` snippets-deletion hook, then confirm the snippets and `api-guide.html` regenerate under `build/`
+        - **Note:** the interim `target/generated-snippets` sits outside `build/` — a `clean` hook now covers local clean hygiene, but an out-of-band `mvn` run still mutates this Gradle-tracked output (spurious integration-tier reruns); reverting to `build/` clears the residual hazard and retires the hook
 - [ ] (architecture) Add an ArchUnit layering and boundary guardrail
     - [ ] Enforce the infrastructure → application → domain dependency direction
     - [ ] Keep the domain free of framework and infrastructure dependencies
     - [ ] Confine cross-layer access to the declared input and output ports
     - **Note:** a lightweight safety net for the Gradle, OAuth, and Modulith refactors; the full JMolecules suite lands in 0.10
+- [ ] (persistence) Wrap authentication user create and update in a transaction
+    - **Note:** align with the "`@Transactional` on command use cases" convention in ports-adapters.md; `CreateUserService`/`UpdateUserService` currently omit it
+- [ ] (architecture) Reconcile driven-adapter conventions and align the code
+    - [ ] Settle the driven-adapter naming, implementation, and placement conventions
+    - [ ] Refactor the mismatched adapters to match the settled conventions
+    - **Note:** revisits the ports-adapters review's open questions — must every adapter carry the `Adapter` suffix, when may a port be implemented directly rather than wrapped, and may an adapter live outside the aggregate's `out/`; authentication service is the main case
+
+### Docs & Tooling
+
+- [ ] (ai) Establish authoring conventions for Claude rules and agents
+    - [X] Define a rule for authoring rule files
+        - Clarify the max rule line count — line 67 (surgical / ~200) reads ambiguously against the ~100-line contents-list trigger
+        - Show the optional Contents line in the Template block
+        - Clarify Further reading section must only include references that brings more rules, conventions, standards that could be helpfully when not specific in project's rule file (kind of fallback rule definition)
+    - [ ] Align existing rule files with the new authoring rule
+        - Author an `http-clients.md` rule for the declarative HTTP client model (JWT propagation, redirects-off, Resilience4j); replaces the stale service-to-service guidance dropped from `development-patterns.md` in the N4 fix
+    - [X] Define a rule for authoring agent files
+    - [ ] Align existing agent files with the new authoring rule
+        - Sync `code-reviewer`'s rule-routing list with the actual rule globs — its `rest.md` entry still shows the pre-M1 `*API.java` glob
+    - **Note:** mirror the existing skill-authoring rule; keep both rules aligned with the claude-docs-maintainer agent instead of duplicating its checklists
+- [ ] (ai) Sharpen the task workflow skills
+    - [ ] Match review-task's reviewers to the change's nature
+        - **Note:** skip the architecture review on non-architectural diffs
+        - **Note:** decide whether the skill stays within its review/audit agents or may also dispatch domain specialists (devops-engineer, documentation-engineer) for CI/CD- or docs-only diffs
+    - [ ] Make review-task and prepare-version produce commit-sized tasks
+        - **Note:** earlier runs emitted high-level concepts, not the atomic, dev-flow-ready outcomes the version tasks model (`.claude/rules/todo.md` Decomposition)
+    - [ ] Generalize close-task's doc-commit step wording
+        - **Note:** Step 7's title and progress tracking name the plan and report; retitle to cover any pending technical docs
+    - [ ] Give resolve-review-issues richer proposal context
+       - **Note:** the *c. Propose* context block is thin for TODO-sourced issues; make it simpler and better grounded
+    - [ ] Auto-generate a full findings report from the "review-*" skills
+        - **Note:** the report captures every finding; deferred suggestions go under a recommended-action section rather than into TODO.md
+- [ ] (ai) Ignore the .superpowers directory in git
 
 ---
 
@@ -223,10 +295,17 @@ Goal: round out observability with operational dashboards and finer-grained inst
 #### deps
 
 * Remove unused runtime dependencies from the packaged jar/image to reduce artifact size
+* Add dependency locking for reproducible builds
+* Add dependency verification for supply-chain integrity
 
 #### build
 
 * Add AOP/Native support
+* Generate mappers declared in test sources
+* Extract a shared version-catalog accessor across convention plugins
+* Decouple API-doc generation from the full integration tier
+    * Standalone docs run only the doc tests; full build runs all ITs first (no double-run)
+    * Skip the doc-test task when the full tier is scheduled — task-graph gate, not config-cache-friendly
 * Improve code formatting
     * Configure wrapping rules for chained method invocations (pending formatter support)
     * Add code formatter for .xml files
