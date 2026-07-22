@@ -29,10 +29,7 @@ tasks.withType<JavaCompile>().configureEach {
     options.compilerArgs.add("-parameters")
 }
 
-// Formatting (Spotless) — all modules, mirroring Maven's inherited root-pom config.
-// Eclipse JDT 4.35 + asapp_formatter.xml drive the formatting; the config files are anchored to
-// rootProject so they resolve from every subproject. removeUnusedImports uses the cleanthat engine
-// (not the default google-java-format) so the step needs no daemon --add-exports on Java 25.
+// Formatting (Spotless) — all modules.
 spotless {
     lineEndings = LineEnding.UNIX
     java {
