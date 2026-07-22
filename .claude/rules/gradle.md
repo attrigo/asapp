@@ -77,7 +77,7 @@ paths:
 - Preserve Maven's formatting exactly: `eclipse("4.35").configFile(rootProject.file("asapp_formatter.xml"))`; `importOrder("java|javax", "org", "com", "", "com.attrigo")` with the empty catch-all group and trailing `com.attrigo`; `licenseHeaderFile(rootProject.file("header-license"), "package ")` (delimiter set explicitly to `package ` to match Maven's `<delimiter>`, rather than relying on Spotless's broader built-in default `(package|import|public|class|module) `); `lineEndings = LineEnding.UNIX` at the extension level
 - Anchor both config files (`asapp_formatter.xml`, `header-license`) with `rootProject.file(...)` — the convention plugin applies per-subproject, so a bare string would resolve against each module's dir instead of the repo root
 - `removeUnusedImports("cleanthat-javaparser-unnecessaryimport")` — a deliberate divergence from Maven's default google-java-format engine, which needs daemon-wide `--add-exports jdk.compiler/…` on JDK 16+ that the project's conventions forbid; cleanthat needs none
-- Keep `spotlessCheck` wired into `check` (the Gradle default) — a deliberate divergence from Maven's default-skip, faithful to the `ci`-profile intent that gated formatting on every CI build
+- Keep `spotlessCheck` wired into `check` (the Gradle default) — a deliberate divergence from Maven's default-skip, faithful to the `ci`-profile intent that gated formatting on every CI build; skip it for a fast local loop with `./gradlew build -x spotlessCheck` (the Gradle analog of Maven's local `spotless.check.skip=true` default)
 - `./gradlew spotlessApply` replaces `mvn spotless:apply`; `./gradlew spotlessCheck` replaces `mvn spotless:check`
 
 ## Mutation testing
