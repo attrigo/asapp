@@ -25,7 +25,6 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
 - [ ] (ai) Establish authoring conventions for Claude rules and agents
   - [X] Define a rule for authoring rule files
   - [ ] Align existing rule files with the new authoring rule
-    - **Note:** existing drift to reconcile — `todo.md` has no H1; H1 titles don't track filenames
     - Author an `http-clients.md` rule for the declarative HTTP client model (JWT propagation, redirects-off, Resilience4j); replaces the stale service-to-service guidance dropped from `development-patterns.md` in the N4 fix
   - [X] Define a rule for authoring agent files
   - [ ] Align existing agent files with the new authoring rule
