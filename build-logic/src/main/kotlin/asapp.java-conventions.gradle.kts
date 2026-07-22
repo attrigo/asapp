@@ -1,9 +1,11 @@
+import com.diffplug.spotless.LineEnding
 import org.gradle.api.artifacts.VersionCatalogsExtension
 import org.gradle.testing.jacoco.tasks.JacocoReport
 
 plugins {
     java
     jacoco
+    id("com.diffplug.spotless")
     id("io.spring.dependency-management")
 }
 
@@ -25,6 +27,17 @@ tasks.withType<JavaCompile>().configureEach {
     options.release = javaVersion
     options.encoding = "UTF-8"
     options.compilerArgs.add("-parameters")
+}
+
+// Formatting (Spotless) — all modules.
+spotless {
+    lineEndings = LineEnding.UNIX
+    java {
+        eclipse("4.35").configFile(rootProject.file("asapp_formatter.xml"))
+        importOrder("java|javax", "org", "com", "", "com.attrigo")
+        removeUnusedImports("cleanthat-javaparser-unnecessaryimport")
+        licenseHeaderFile(rootProject.file("header-license"), "package ")
+    }
 }
 
 // Every test tier runs on the JUnit Platform

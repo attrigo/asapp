@@ -16,36 +16,41 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [X] Migrate integration testing to Gradle
     - [X] Migrate coverage reporting to Gradle
     - [X] Migrate mutation testing to Gradle
-    - [ ] Migrate formatting checks to Gradle
+    - [X] Migrate formatting checks to Gradle
     - [ ] Migrate API documentation generation to Gradle
     - [ ] Migrate javadoc and sources jar generation to Gradle
     - [ ] Migrate packaging to Gradle
         - **Warning:** move Spring Boot devtools off the runtime classpath once the Spring Boot plugin is applied, or it will ship inside the production jar
         - **Note:** when the Spring Boot plugin is applied, confirm its automatic BOM import doesn't duplicate or conflict with the manual Spring Boot BOM import kept for the jackson CVE override
         - **Note:** when the Spring Boot plugin is applied, drop the manual -parameters compiler arg it now auto-adds
-        - **Note:** generate both build-info (via the Spring Boot plugin) and git.properties (no Gradle equivalent tracked yet) so the actuator /info endpoint exposes build and git details
-        - **Note:** delete the temporary integrationTest filter excluding ActuatorEndpointsIT's /info test (all 5 services) — added pre-packaging to keep the integration tier and its coverage reports green; the test needs build-info and git.properties the Spring Boot plugin generates; confirm ./gradlew check and build go green after removal
+        - Generate both build-info (via the Spring Boot plugin) and git.properties (no Gradle equivalent tracked yet) so the actuator /info endpoint exposes build and git details
+        - Delete the temporary integrationTest filter excluding ActuatorEndpointsIT's /info test (all 5 services) — added pre-packaging to keep the integration tier and its coverage reports green; the test needs build-info and git.properties the Spring Boot plugin generates; confirm ./gradlew check and build go green after removal
     - [ ] Migrate the full build to Gradle
         - **Note:** aggregate build, coverage reports, the formatting check, API docs, and javadoc/sources jars into one lifecycle task — the `mvn install -Pfull` / `mvn clean verify -Pfull` equivalent consumed by the running-locally, CI, release, and build-documentation subtasks
         - **Note:** the JaCoCo agent now instruments every Test task on the default `check` path (Maven instrumented only under `-Pfull`); decide whether to gate it (disable by default, enable only when a report task is in the graph) or accept the cost as the price of always-on build caching
+        - **Note:** the formatting check (`spotlessCheck`) already rides on `check` — unlike the opt-in coverage/pitest reports — so keep it a standard gate in the aggregate task, don't re-gate it as optional; re-naming it under the umbrella is safe (Gradle dedupes the task instance)
     - [ ] Migrate running the app locally to Gradle
     - [ ] Migrate Docker image building to Gradle
     - [ ] Migrate git hook installation to Gradle
+        - Swap the pre-commit hook from `mvn spotless:check` (a no-op skipped by the default `spotless.check.skip=true`) to `./gradlew spotlessCheck` so it actually enforces formatting
     - [ ] Migrate the CI workflow to Gradle
+        - **Note:** `./gradlew check` / `build` runs `spotlessCheck` automatically (the `-Pci` formatting gate) — no separate format-check invocation needed
     - [ ] Migrate the release workflow to Gradle
     - [ ] Migrate build documentation to Gradle
     - [ ] Clean Gradle files
-        - **Note:** order of the different build script blocks (tasks, dependencies, etc.)
-        - **Note:** sort within-origin entries alphabetically — the `Other` groups under `# Test` and `# CVE` (catalog versions + libraries, and the service-conventions CVE constraints block) are in insertion order, not sorted
-        - **Note:** add blank lines to group the code of Gradle scripts
-        - **Note:** review IntelliJ warnings
-        - **Note:** add cleaning convention to gradle.md file
+        - Order the different build script blocks (tasks, dependencies, etc.)
+        - Sort within-origin entries alphabetically — the `Other` groups under `# Test` and `# CVE` (catalog versions + libraries, and the service-conventions CVE constraints block) are in insertion order, not sorted
+        - Add blank lines to group the code of Gradle scripts
+        - Join ## Org and ## Other
+        - Group (with comments) and sort the plugins blocks (plugins {})
+        - Review IntelliJ warnings
+        - Add cleaning convention to gradle.md file
     - [ ] Keep Claude Code files in sync with the migration
-        - **Note:** when the block-order rule lands, make the two coverage blocks in the java conventions contiguous (currently split by the version-catalog accessor)
-        - **Note:** clean rule file
-        - **Note:** document the integration tier's 1g test heap and its Failsafe-uncapped rationale in the Gradle rules' Testing section
+        - Make the two coverage blocks in the java conventions contiguous once the block-order rule lands (currently split by the version-catalog accessor)
+        - Clean rule file
+        - Document the integration tier's 1g test heap and its Failsafe-uncapped rationale in the Gradle rules' Testing section
     - [ ] Verify full parity, then remove Maven entirely
-        - **Note:** remove the migration-time verbose console setting from gradle.properties
+        - Remove the migration-time verbose console setting from gradle.properties
 - [ ] (architecture) Add an ArchUnit layering and boundary guardrail
     - [ ] Enforce the infrastructure → application → domain dependency direction
     - [ ] Keep the domain free of framework and infrastructure dependencies
