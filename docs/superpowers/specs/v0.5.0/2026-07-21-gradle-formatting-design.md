@@ -1,7 +1,7 @@
 # Gradle formatting checks — design spec
 
 **Date**: 2026-07-21
-**Status**: Approved — pending implementation
+**Status**: Implemented
 **Owner**: Antonio Trigo
 **Source**: `TODO.md` v0.5.0 → Technical → "Replace Maven with Gradle" → "Migrate formatting checks to Gradle" (line 19). No attached TODO note.
 **Scope**: Reproduce Maven's Spotless formatting check/apply under Gradle at parity — the Eclipse JDT formatter (`4.35` + `asapp_formatter.xml`), the same import order, remove-unused-imports, license header, and UNIX line endings, applied to every Java module. Put the `com.diffplug.spotless` plugin on the `build-logic` classpath and apply + configure it in `asapp.java-conventions`. `spotlessCheck` rides on the `check` task (developer decision — see §4); `spotlessApply` replaces `mvn spotless:apply`. One intentional divergence from Maven: `removeUnusedImports` switches to the `cleanthat-javaparser-unnecessaryimport` engine (§4). No `pom.xml` edit, no CI/git-hook/README change.
@@ -169,3 +169,18 @@ Lands on the current branch, `build/replace-maven-with-gradle-8-formatting`. A s
 1. `build(gradle): migrate formatting checks to Gradle` — the catalog `spotless` version + `spotless-plugin` library, the `build-logic` dependency, and the plugin application + `spotless {}` config in `asapp.java-conventions`.
 
 The `.claude/rules/gradle.md` Formatting section and the `TODO.md` checkbox ride with that commit. Following this migration's established pattern (per the coverage and mutation subtasks), implementation proceeds via the compressed flow — no separate writing-plans document — unless the developer requests a full plan.
+
+## 12. Post-implementation notes
+
+This spec was written before implementation. The core change shipped substantially as designed — Spotless was wired onto the `build-logic` classpath (catalog `spotless = "8.8.0"` + `spotless-plugin`), applied via `id("com.diffplug.spotless")` in `asapp.java-conventions`, and configured with the full `spotless {}` block (eclipse `4.35` + `asapp_formatter.xml`, the five-group import order, the cleanthat remove-unused-imports engine, the license header, and UNIX line endings), with `spotlessCheck` riding on `check`; parity on the current tree was verified and the Eclipse-4.35-on-Spotless-8.8.0 top risk cleared.
+
+Where the two diverge, the canonical implementation is the current state of the real artifacts on this branch — `build-logic/src/main/kotlin/asapp.java-conventions.gradle.kts` (the `spotless {}` block), `build-logic/build.gradle.kts`, `gradle/libs.versions.toml`, and the Formatting section of `.claude/rules/gradle.md` — not this document.
+
+Notable deltas:
+- **License-header delimiter pinned explicitly (reverses the §4 "License header" decision and the §5 code comment).** §4/§5 asserted Spotless's built-in Java delimiter is already `package `, so no delimiter argument was needed. That is inaccurate — Spotless's built-in Java default is the broader `(package|import|public|class|module) `; the equivalence with Maven's explicit `<delimiter>package </delimiter>` held only coincidentally because every source file in this repo begins with a `package` declaration. The delimiter is now passed explicitly — `licenseHeaderFile(rootProject.file("header-license"), "package ")` in `asapp.java-conventions.gradle.kts` — so Maven parity is literal, not coincidental; the Formatting section of `.claude/rules/gradle.md` was reworded to state this and to note the true broader default.
+- **Local escape hatch documented (extends the §4 Check-path decision).** The always-on `spotlessCheck`-on-`check` wiring means a plain `./gradlew build` now fails on unformatted code, with no Maven-style default-skip. The Formatting section of `.claude/rules/gradle.md` now documents `./gradlew build -x spotlessCheck` as the fast-local-loop opt-out (the Gradle analog of Maven's `spotless.check.skip=true`). The always-on decision itself is unchanged.
+- **Spotless block comment simplified (refines the §5 snippet).** The multi-line explanatory comment §5 proposed above the `spotless {}` block was collapsed to a single `// Formatting (Spotless) — all modules.` line in `asapp.java-conventions.gradle.kts`; the detailed rationale (cleanthat, rootProject anchoring, etc.) now lives in the Formatting section of `.claude/rules/gradle.md` rather than being duplicated in the build script.
+- **build-logic dependencies grouped by scope and origin (refines the §5 snippet).** Beyond the plain three-line dependency snippet §5 showed, the `dependencies {}` block in `build-logic/build.gradle.kts` now carries `// Build` / `// Spring` / `// Other` grouping comments, matching the repo's Ordering convention.
+- **cleanthat import-removal engine empirically verified (confirms the §4 intentional divergence).** §4's one deliberate departure from Maven — `removeUnusedImports("cleanthat-javaparser-unnecessaryimport")` instead of google-java-format — was exercised via a manual round-trip (a deliberately unused import added to a source file, confirmed flagged by `spotlessCheck`, then stripped by `spotlessApply`, file restored byte-for-byte). The engine is confirmed active and correct on the Java 25 daemon with no `--add-exports`. No artifact changed; this closed a verification gap, not a code gap.
+
+For future formatting or Spotless edits, treat these artifacts — the `spotless {}` block in `asapp.java-conventions.gradle.kts` and the Formatting section of `.claude/rules/gradle.md` — as the template; this spec is preserved as a record of the original design intent.
