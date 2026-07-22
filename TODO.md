@@ -19,6 +19,12 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [ ] Keep the domain free of framework and infrastructure dependencies
     - [ ] Confine cross-layer access to the declared input and output ports
     - **Note:** a lightweight safety net for the Gradle, OAuth, and Modulith refactors; the full JMolecules suite lands in 0.10
+- [ ] (persistence) Wrap authentication user create and update in a transaction
+    - **Note:** align with the "`@Transactional` on command use cases" convention in ports-adapters.md; `CreateUserService`/`UpdateUserService` currently omit it
+- [ ] (architecture) Reconcile driven-adapter conventions and align the code
+    - [ ] Settle the driven-adapter naming, implementation, and placement conventions
+    - [ ] Refactor the mismatched adapters to match the settled conventions
+    - **Note:** revisits the ports-adapters review's open questions — must every adapter carry the `Adapter` suffix, when may a port be implemented directly rather than wrapped, and may an adapter live outside the aggregate's `out/`; authentication service is the main case
 
 ### Docs & Tooling
 
