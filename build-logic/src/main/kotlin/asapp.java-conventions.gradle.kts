@@ -39,7 +39,7 @@ spotless {
         eclipse("4.35").configFile(rootProject.file("asapp_formatter.xml"))
         importOrder("java|javax", "org", "com", "", "com.attrigo")
         removeUnusedImports("cleanthat-javaparser-unnecessaryimport")
-        licenseHeaderFile(rootProject.file("header-license")) // default Java delimiter "package " == Maven
+        licenseHeaderFile(rootProject.file("header-license"), "package ")
     }
 }
 
