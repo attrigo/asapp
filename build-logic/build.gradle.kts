@@ -14,6 +14,7 @@ dependencies {
     // Spring
     implementation(libs.spring.dependency.management.plugin)
     // Other
+    implementation(libs.asciidoctor.gradle.plugin)
     implementation(libs.gradle.pitest.plugin)
     implementation(libs.spotless.plugin)
 }

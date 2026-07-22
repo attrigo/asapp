@@ -5,6 +5,8 @@ spring-dependency-management = "1.1.7"
 ## Org
 jacoco = "0.8.14"
 ## Other
+asciidoctor-gradle = "4.0.5"
+asciidoctorj = "3.0.0"
 gradle-pitest = "1.19.0"
 spotless = "8.8.0"
 
@@ -53,6 +55,7 @@ commons-io = "2.21.0"
 ## Spring
 spring-dependency-management-plugin = { module = "io.spring.gradle:dependency-management-plugin", version.ref = "spring-dependency-management" }
 ## Other
+asciidoctor-gradle-plugin = { module = "org.asciidoctor:asciidoctor-gradle-jvm", version.ref = "asciidoctor-gradle" }
 gradle-pitest-plugin = { module = "info.solidsoft.gradle.pitest:gradle-pitest-plugin", version.ref = "gradle-pitest" }
 spotless-plugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 
@@ -68,6 +71,7 @@ resilience4j-spring-boot4 = { module = "io.github.resilience4j:resilience4j-spri
 
 # Test
 ## Spring
+spring-restdocs-asciidoctor = { module = "org.springframework.restdocs:spring-restdocs-asciidoctor", version.ref = "spring-restdocs" }
 spring-restdocs-mockmvc = { module = "org.springframework.restdocs:spring-restdocs-mockmvc", version.ref = "spring-restdocs" }
 ## Org
 mockserver-client-java = { module = "org.mock-server:mockserver-client-java", version.ref = "mockserver" }
