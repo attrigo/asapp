@@ -3,7 +3,7 @@ paths:
   - "**/*.java"
 ---
 
-# Package Structure
+## Package structure
 
 New classes follow this package structure:
 
@@ -14,12 +14,16 @@ com.attrigo.asapp.<service>/
 │   ├── in/
 │   │   ├── UseCase interfaces            # input ports
 │   │   ├── command/                      # immutable command records
-│   │   ├── result/                       # result records (multi-port aggregation)
+│   │   ├── result/                       # result records
 │   │   └── service/                      # use case implementations
 │   └── out/                              # output port interfaces
 └── infrastructure/
     ├── <aggregate>/
-    │   ├── in/                           # REST controllers, request/response DTOs
+    │   ├── in/
+    │   │   ├── API interfaces             # OpenAPI-annotated
+    │   │   ├── REST controllers
+    │   │   ├── request/                   # request DTOs
+    │   │   └── response/                  # response DTOs
     │   ├── mapper/                       # MapStruct mappers
     │   ├── out/                          # port adapters
     │   └── persistence/                  # JDBC entities, Spring Data repositories
@@ -28,8 +32,10 @@ com.attrigo.asapp.<service>/
     └── config/                           # configuration (cross-cutting)
 ```
 
-Dependency rule: `infrastructure → application → domain`. Never reverse.
+## Dependency rule
+
+`infrastructure → application → domain`. Never reverse.
 
 ## Architecture tests
 
-ArchUnit fitness functions live in `<service>.architecture` (test scope), grouped by concern (e.g. `JsonNamingConventionTests`) — never mirrored into the package they scan. Drive the scope with `@AnalyzeClasses(packages = ...)`; the test's own package is irrelevant to what gets analyzed.
+ArchUnit fitness functions live in `<service>.architecture` (test scope), grouped by concern (e.g. `JsonNamingConventionTests`) — never mirrored into the package they scan.
