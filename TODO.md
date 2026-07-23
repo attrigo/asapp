@@ -270,6 +270,9 @@ Goal: round out observability with operational dashboards and finer-grained inst
 * Add AOP/Native support
 * Generate mappers declared in test sources
 * Extract a shared version-catalog accessor across convention plugins
+* Decouple API-doc generation from the full integration tier
+    * Standalone docs run only the doc tests; full build runs all ITs first (no double-run)
+    * Skip the doc-test task when the full tier is scheduled — task-graph gate, not config-cache-friendly
 * Improve code formatting
     * Configure wrapping rules for chained method invocations (pending formatter support)
     * Add code formatter for .xml files
