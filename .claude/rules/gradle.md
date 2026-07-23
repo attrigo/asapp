@@ -103,6 +103,17 @@ paths:
 - Output is the plugin default `build/docs/asciidoc/api-guide.html` (single-backend `html5`, no subfolder) — no backend/doctype override, `:doctype: book` already lives in the `.adoc` header
 - Keep the `asciidoctor` task off the `check`/`build` path — opt in via `./gradlew asciidoctor` (or `:services:<svc>:asciidoctor`), matching the coverage/pitest reports; it replaces `mvn asciidoctor:process-asciidoc@generate-docs`
 
+## Javadoc & sources jars
+
+- Register plain `javadocJar` / `sourcesJar` `Jar` tasks (classifiers `javadoc` / `sources`) directly in `asapp.library-conventions` **and** `asapp.domain-service-conventions` — the 5 modules Maven activates these plugins in (the 2 libs + the 3 domain services authentication, tasks, users); config/discovery (service-conventions only) get nothing, the flag-free analog of Maven's per-module `<build><plugins>` re-declaration
+- The block is repeated in both archetype plugins **by design** — javadoc/sources spans two archetypes with no shared node (the common ancestor `asapp.java-conventions` is all 7 and would wrongly include the infra services), so it stays on the module-archetype axis rather than adding a concern plugin (cf. the duplicated version-catalog accessor); **never** put it in `asapp.java-conventions` (breaks parity and doc-lints never-linted infra source)
+- **Never** `java.withJavadocJar()` / `withSourcesJar()` — those register the jars as documentation variants **and add them as a dependency of `assemble`**, forcing javadoc onto every `./gradlew build`; plain `Jar` tasks keep generation opt-in and off the default path (Maven's `-Pfull` parity)
+- Core Gradle only (`java` / `java-library` plugin) — no `build-logic` classpath entry, no catalog version/library, no `build-logic/build.gradle.kts` change (unlike asciidoctor/pitest/spotless)
+- `javadocJar` packages `from(tasks.named("javadoc"))` (replaces `maven-javadoc-plugin:javadoc-no-fork`); `sourcesJar` packages `project.the<SourceSetContainer>()["main"].allSource` (replaces `maven-source-plugin:jar-no-fork`) — jars land in `build/libs/<name>-<version>-{javadoc,sources}.jar`
+- Set doclint on the `javadoc` task with `(options as StandardJavadocDocletOptions).addBooleanOption("Xdoclint:all,-missing", true)` → `-Xdoclint:all,-missing`, matching Maven's `<doclint>all,-missing</doclint>` (report every javadoc problem except missing comments); the `javadoc` task runs on the `asapp.java-conventions` toolchain (JDK 25) automatically
+- Keep both tasks off the `check`/`build`/`assemble` path — opt in via `./gradlew javadocJar sourcesJar` (or `:services:<svc>:javadocJar`), matching the coverage/pitest/asciidoctor reports; replaces the `-Pfull`-gated `maven.javadoc.skip` / `maven.source.skip` executions
+- MapStruct-generated `*MapperImpl` classes are not javadoc'd (Gradle's `javadoc` sources from `main.allJava`, which excludes annotation-processor output) — expected, matching the "Add Javadoc to mapper implementations" backlog gap, not a regression
+
 ## Ordering
 
 Outer **scope** comment, inner **origin** comment, alphabetical within each origin. Reordering never changes a value, coordinate, or key.

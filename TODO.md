@@ -18,7 +18,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [X] Migrate mutation testing to Gradle
     - [X] Migrate formatting checks to Gradle
     - [X] Migrate API documentation generation to Gradle
-    - [ ] Migrate javadoc and sources jar generation to Gradle
+    - [X] Migrate javadoc and sources jar generation to Gradle
     - [ ] Migrate packaging to Gradle
         - **Warning:** move Spring Boot devtools off the runtime classpath once the Spring Boot plugin is applied, or it will ship inside the production jar
         - **Note:** when the Spring Boot plugin is applied, confirm its automatic BOM import doesn't duplicate or conflict with the manual Spring Boot BOM import kept for the jackson CVE override
