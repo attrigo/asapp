@@ -78,6 +78,11 @@ asciidoctorj {
 
 val snippetsDir = layout.projectDirectory.dir("target/generated-snippets")
 
+// Clean the Asciidoctor snippets which sit under target/
+tasks.named<Delete>("clean") {
+    delete(snippetsDir)
+}
+
 // The integration tests (*ApiDocumentationIT) create the examples.
 tasks.named<Test>("integrationTest") {
     outputs.dir(snippetsDir)
