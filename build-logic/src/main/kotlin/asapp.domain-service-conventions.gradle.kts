@@ -1,8 +1,10 @@
+import org.asciidoctor.gradle.jvm.AsciidoctorTask
 import org.gradle.api.artifacts.VersionCatalogsExtension
 
 plugins {
     id("asapp.service-conventions")
     id("info.solidsoft.pitest")
+    id("org.asciidoctor.jvm.convert")
 }
 
 val libs = extensions.getByType(VersionCatalogsExtension::class.java).named("libs")
@@ -61,4 +63,37 @@ dependencies {
     testImplementation(libs.findBundle("testcontainers-shared").get())
     // Other
     testImplementation(libs.findLibrary("archunit-junit5").get())
+}
+
+// Add spring-restdocs-asciidoctor (provides the guide's "operation::" blocks) under "asciidoctorExt" so the builder can load it.
+val asciidoctorExt = configurations.create("asciidoctorExt")
+dependencies {
+    asciidoctorExt(libs.findLibrary("spring-restdocs-asciidoctor").get())
+}
+
+// Use an Asciidoctor engine compatible with spring-restdocs-asciidoctor (newer version); the one bundled with the Asciidoctor plugin is too old and has a security issue.
+asciidoctorj {
+    setVersion(libs.findVersion("asciidoctorj").get().requiredVersion)
+}
+
+val snippetsDir = layout.projectDirectory.dir("target/generated-snippets")
+
+// Clean the Asciidoctor snippets which sit under target/
+tasks.named<Delete>("clean") {
+    delete(snippetsDir)
+}
+
+// The integration tests (*ApiDocumentationIT) create the examples.
+tasks.named<Test>("integrationTest") {
+    outputs.dir(snippetsDir)
+}
+
+// Build the HTML guide.
+tasks.named<AsciidoctorTask>("asciidoctor") {
+    inputs.dir(snippetsDir)
+    // Load asciidoctorExt into the builder; this is what makes "operation::" work.
+    configurations("asciidoctorExt")
+    // Point the builder at the examples; only needed while Maven is present.
+    attributes(mapOf("snippets" to snippetsDir.asFile.invariantSeparatorsPath))
+    dependsOn(tasks.named<Test>("integrationTest"))
 }

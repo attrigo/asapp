@@ -17,7 +17,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [X] Migrate coverage reporting to Gradle
     - [X] Migrate mutation testing to Gradle
     - [X] Migrate formatting checks to Gradle
-    - [ ] Migrate API documentation generation to Gradle
+    - [X] Migrate API documentation generation to Gradle
     - [ ] Migrate javadoc and sources jar generation to Gradle
     - [ ] Migrate packaging to Gradle
         - **Warning:** move Spring Boot devtools off the runtime classpath once the Spring Boot plugin is applied, or it will ship inside the production jar
@@ -51,6 +51,8 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
         - Document the integration tier's 1g test heap and its Failsafe-uncapped rationale in the Gradle rules' Testing section
     - [ ] Verify full parity, then remove Maven entirely
         - Remove the migration-time verbose console setting from gradle.properties
+        - **Note:** removing `pom.xml` flips the API-docs snippets dir from `target/generated-snippets` back to `build/generated-snippets` (REST Docs then detects Gradle) — in `asapp.domain-service-conventions`, revert `snippetsDir` to `layout.buildDirectory.dir("generated-snippets")`, drop the explicit `asciidoctor` `snippets` attribute, and remove the `clean` snippets-deletion hook, then confirm the snippets and `api-guide.html` regenerate under `build/`
+        - **Note:** the interim `target/generated-snippets` sits outside `build/` — a `clean` hook now covers local clean hygiene, but an out-of-band `mvn` run still mutates this Gradle-tracked output (spurious integration-tier reruns); reverting to `build/` clears the residual hazard and retires the hook
 - [ ] (architecture) Add an ArchUnit layering and boundary guardrail
     - [ ] Enforce the infrastructure → application → domain dependency direction
     - [ ] Keep the domain free of framework and infrastructure dependencies
@@ -268,6 +270,9 @@ Goal: round out observability with operational dashboards and finer-grained inst
 * Add AOP/Native support
 * Generate mappers declared in test sources
 * Extract a shared version-catalog accessor across convention plugins
+* Decouple API-doc generation from the full integration tier
+    * Standalone docs run only the doc tests; full build runs all ITs first (no double-run)
+    * Skip the doc-test task when the full tier is scheduled — task-graph gate, not config-cache-friendly
 * Improve code formatting
     * Configure wrapping rules for chained method invocations (pending formatter support)
     * Add code formatter for .xml files

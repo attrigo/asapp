@@ -13,6 +13,8 @@ dependencies {
     // Build
     // Spring
     implementation(libs.spring.dependency.management.plugin)
+    // Org
+    implementation(libs.asciidoctor.gradle.plugin)
     // Other
     implementation(libs.gradle.pitest.plugin)
     implementation(libs.spotless.plugin)
