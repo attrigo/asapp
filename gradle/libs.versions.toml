@@ -3,10 +3,10 @@
 ## Spring
 spring-dependency-management = "1.1.7"
 ## Org
-jacoco = "0.8.14"
-## Other
 asciidoctor-gradle = "4.0.5"
 asciidoctorj = "3.0.0"
+jacoco = "0.8.14"
+## Other
 gradle-pitest = "1.19.0"
 spotless = "8.8.0"
 
@@ -54,8 +54,9 @@ commons-io = "2.21.0"
 # Build
 ## Spring
 spring-dependency-management-plugin = { module = "io.spring.gradle:dependency-management-plugin", version.ref = "spring-dependency-management" }
-## Other
+## Org
 asciidoctor-gradle-plugin = { module = "org.asciidoctor:asciidoctor-gradle-jvm", version.ref = "asciidoctor-gradle" }
+## Other
 gradle-pitest-plugin = { module = "info.solidsoft.gradle.pitest:gradle-pitest-plugin", version.ref = "gradle-pitest" }
 spotless-plugin = { module = "com.diffplug.spotless:spotless-plugin-gradle", version.ref = "spotless" }
 
