@@ -59,7 +59,7 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     // Spring
     testImplementation(libs.findLibrary("spring-restdocs-mockmvc").get())
-    // Org/
+    // Org
     testImplementation(libs.findBundle("testcontainers-shared").get())
     // Other
     testImplementation(libs.findLibrary("archunit-junit5").get())
