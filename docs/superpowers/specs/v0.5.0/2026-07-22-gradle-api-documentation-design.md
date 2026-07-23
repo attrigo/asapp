@@ -1,7 +1,7 @@
 # Gradle API documentation generation — design spec
 
 **Date**: 2026-07-22
-**Status**: Planned
+**Status**: Implemented
 **Owner**: Antonio Trigo
 **Source**: `TODO.md` v0.5.0 → Technical → "Replace Maven with Gradle" → "Migrate API documentation generation to Gradle" (line 20). No attached TODO note.
 **Scope**: Reproduce Maven's Spring REST Docs → AsciiDoc → HTML pipeline under Gradle at parity, for the three domain services that have `src/docs/asciidoc` (authentication, tasks, users). Put the `org.asciidoctor.jvm.convert` plugin on the `build-logic` classpath and apply + configure it in `asapp.domain-service-conventions`, wiring the `asciidoctor` task to the snippets that the `*ApiDocumentationIT` tests emit from the `integrationTest` task. Generation is **opt-in** (off `check`/`build`), run via `./gradlew asciidoctor` — the flag-free analog of the reports migrated before it (developer decision, §4). No test-source change, no `pom.xml` edit, no README change.
@@ -186,3 +186,20 @@ Lands on the current branch, `build/replace-maven-with-gradle-9-api-doc`. A sing
 1. `build(gradle): migrate API documentation generation to Gradle` — the catalog `asciidoctor-gradle` version + `asciidoctor-gradle-plugin` and `spring-restdocs-asciidoctor` libraries, the `build-logic` dependency, and the plugin application + `asciidoctorExt`/`asciidoctor` wiring in `asapp.domain-service-conventions` (plus any contingency from §9 that the spike triggers).
 
 The `.claude/rules/gradle.md` API-documentation section and the `TODO.md` checkbox ride with that commit. Following this migration's established pattern (per the coverage, mutation, and formatting subtasks), implementation proceeds via the compressed flow — no separate writing-plans document — unless the developer requests a full plan.
+
+## 12. Post-implementation notes
+
+This spec was written before implementation. The core change shipped substantially as designed — the Spring REST Docs → AsciiDoc → HTML pipeline now runs under Gradle via the `org.asciidoctor.jvm.convert` plugin applied in `asapp.domain-service-conventions`, opt-in through `./gradlew asciidoctor`, for the three API-documented domain services (authentication, tasks, users).
+
+The canonical source of truth for exact behavior is the current state of these artifacts on this branch, not this document: `build-logic/src/main/kotlin/asapp.domain-service-conventions.gradle.kts`, `gradle/libs.versions.toml`, `build-logic/build.gradle.kts`, and `.claude/rules/gradle.md`.
+
+Notable deltas:
+
+- **Snippets resolve to `target/generated-snippets`, not `build/generated-snippets` (reverses §4 "Snippets directory" and §5).** During the Maven-coexistence window `pom.xml` is still present, so Spring REST Docs' `ManualRestDocumentation` auto-detects Maven and writes snippets to `target/`, while `spring-restdocs-asciidoctor` independently defaults its `snippets` attribute to `build/` (it detects Gradle via an unset `maven.home`). Reconciled in `asapp.domain-service-conventions.gradle.kts` by setting `snippetsDir` to `layout.projectDirectory.dir("target/generated-snippets")` AND passing an explicit `snippets` attribute (`attributes(mapOf("snippets" to snippetsDir…))`) on the `asciidoctor` task. Both converge back on `build/generated-snippets` once Maven is removed — tracked as a Note under the "Verify full parity, then remove Maven entirely" subtask in `TODO.md`.
+- **Added a `clean` hook that deletes the snippets dir — not in the spec (review finding S3).** Because `target/generated-snippets` sits outside Gradle's `build/`, `./gradlew clean` would not remove it, so stale snippets could leak into `api-guide.html`. Added `tasks.named<Delete>("clean") { delete(snippetsDir) }` in `asapp.domain-service-conventions.gradle.kts`. Interim mitigation only — it retires when `snippetsDir` reverts to `build/` at Maven removal.
+- **Pinned AsciidoctorJ to `3.0.0` — the §9 "most likely" contingency, promoted from contingency to baseline.** The plugin's default AsciidoctorJ `2.5.7` predates the `Preprocessor.process(Document, PreprocessorReader)` signature that `spring-restdocs-asciidoctor` 4.0.0 is compiled against, so conversion died with `AbstractMethodError`; `3.0.0` fixes it and also ships JRuby 9.4.x (off 2.5.7's CVE-bearing JRuby). Applied via `asciidoctorj = "3.0.0"` in `gradle/libs.versions.toml` and an `asciidoctorj { … }` block in the convention plugin.
+- **Set the engine version with `setVersion(...)`, not §9's `version = …`.** The `asciidoctorj` extension exposes `version` as a read-only val in Kotlin, so direct assignment does not compile inside a precompiled convention plugin; `setVersion(libs.findVersion("asciidoctorj").get().requiredVersion)` is used instead in `asapp.domain-service-conventions.gradle.kts`.
+- **AsciiDoctor catalog entries filed under the `Org` origin group, not §5's `Other` (review findings S1/S2).** The version catalog buckets entries by whether the module groupId starts with `org.`, and `org.asciidoctor:*` qualifies. `asciidoctor-gradle`/`asciidoctorj` (versions), `asciidoctor-gradle-plugin` (library) live under `Org` in `gradle/libs.versions.toml`, with a matching `// Org` group in `build-logic/build.gradle.kts`. (`spring-restdocs-asciidoctor` stays under `## Spring`.)
+- **Deferred the docs/integration-tier decoupling to the backlog rather than implementing it (review finding N1).** `asciidoctor` still `dependsOn(integrationTest)` — the full integration tier — as §4's "Snippet source task" (Option A) accepted; a dedicated Docker-free doc-snippet task is captured as a new "Decouple API-doc generation from the full integration tier" entry under `#### build` in the `TODO.md` Backlog for post-migration.
+
+For future API-documentation build edits, treat `asapp.domain-service-conventions.gradle.kts` and the catalog as the template; this spec is preserved as a record of the original design intent.
