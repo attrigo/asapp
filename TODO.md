@@ -23,6 +23,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
         - **Warning:** move Spring Boot devtools off the runtime classpath once the Spring Boot plugin is applied, or it will ship inside the production jar
         - **Note:** when the Spring Boot plugin is applied, confirm its automatic BOM import doesn't duplicate or conflict with the manual Spring Boot BOM import kept for the jackson CVE override
         - **Note:** when the Spring Boot plugin is applied, drop the manual -parameters compiler arg it now auto-adds
+        - **Note:** attach the javadoc and sources jars to the published artifact explicitly once publishing lands — the plain jar tasks aren't auto-published, so the artifact would otherwise silently lose the javadoc and sources that Maven attached automatically
         - Generate both build-info (via the Spring Boot plugin) and git.properties (no Gradle equivalent tracked yet) so the actuator /info endpoint exposes build and git details
         - Delete the temporary integrationTest filter excluding ActuatorEndpointsIT's /info test (all 5 services) — added pre-packaging to keep the integration tier and its coverage reports green; the test needs build-info and git.properties the Spring Boot plugin generates; confirm ./gradlew check and build go green after removal
     - [ ] Migrate the full build to Gradle
@@ -273,6 +274,7 @@ Goal: round out observability with operational dashboards and finer-grained inst
 * Decouple API-doc generation from the full integration tier
     * Standalone docs run only the doc tests; full build runs all ITs first (no double-run)
     * Skip the doc-test task when the full tier is scheduled — task-graph gate, not config-cache-friendly
+* Make all build jars byte-reproducible so identical source always produces identical bytes — matters once artifacts are published or signed
 * Improve code formatting
     * Configure wrapping rules for chained method invocations (pending formatter support)
     * Add code formatter for .xml files
