@@ -1,7 +1,7 @@
 # Gradle javadoc & sources jar generation — design spec
 
 **Date**: 2026-07-23
-**Status**: Approved — pending implementation
+**Status**: Implemented
 **Owner**: Antonio Trigo
 **Source**: `TODO.md` v0.5.0 → Technical → "Replace Maven with Gradle" → "Migrate javadoc and sources jar generation to Gradle" (line 21). No attached TODO note.
 **Scope**: Reproduce Maven's `maven-javadoc-plugin` (`javadoc-no-fork`, `doclint=all,-missing`) and `maven-source-plugin` (`jar-no-fork`) under Gradle at parity, for the 5 modules that activate them today — the 2 libs (`asapp-commons-url`, `asapp-http-clients`) and the 3 domain services (authentication, tasks, users). Register plain `javadocJar` / `sourcesJar` `Jar` tasks in `asapp.library-conventions` and `asapp.domain-service-conventions`, and configure the `javadoc` task's doclint. Generation is **opt-in** (off `check`/`build`), run via `./gradlew javadocJar sourcesJar` — the flag-free analog of the reports migrated before it. No source change, no `pom.xml` edit.
@@ -161,6 +161,11 @@ Notable deltas:
 
 - **`SourceSetContainer` not imported (vs §5's import list).** `org.gradle.api.tasks.SourceSetContainer` is already a Gradle Kotlin-DSL default import — `asapp.service-conventions` uses `project.the<SourceSetContainer>()` without importing it — so the block omits that import to match the repo convention. Only `Jar`, `Javadoc`, and `StandardJavadocDocletOptions` are imported explicitly. (Trimming any that prove redundant is left to the "Review IntelliJ warnings" cleanup subtask, line 46.)
 - **Benign javadoc warning on authentication-service — not a doclint failure.** Its `javadoc` emits `warning: unknown enum constant When.MAYBE / class file for javax.annotation.meta.When not found` (a missing JSR-305 `javax.annotation.meta.When`, pulled transitively). It is a javac source-analysis warning, not a doclint error — the build stays green, and Maven's `-Pfull` javadoc emitted the same, so parity holds. No action taken.
+- **Repayment trigger recorded for the accepted duplication (§4/§5 refinement).** `.claude/rules/gradle.md` now records an explicit repayment trigger for the elective duplication of the `javadocJar`/`sourcesJar` block across `asapp.library-conventions` and `asapp.domain-service-conventions`: extract to a shared `asapp.javadoc-sources-conventions` plugin once a third module joins the activation set, or the block grows beyond bare task registration. The original design (§4/§5) accepted the duplication but recorded no repayment trigger — this is where the shipped `gradle.md` goes beyond the spec.
+- **Post-implementation review confirmed full Maven parity and drove one code cleanup.** The duplicated inline `// from:` comment blocks in `build-logic/src/main/kotlin/asapp.library-conventions.gradle.kts` and `build-logic/src/main/kotlin/asapp.domain-service-conventions.gradle.kts` were standardized byte-identical (an initial punctuation divergence between the two copies was removed).
+- **Two review suggestions deliberately deferred, consistent with §3's non-goals (publishing out of scope).** Making the build jars byte-reproducible was parked as a `TODO.md` backlog item; explicitly attaching the javadoc/sources jars to a future `maven-publish` was parked as a note under the "Migrate packaging to Gradle" subtask in `TODO.md`. Neither was implemented here.
+
+For future javadoc/sources build edits, treat `build-logic/src/main/kotlin/asapp.library-conventions.gradle.kts`, `build-logic/src/main/kotlin/asapp.domain-service-conventions.gradle.kts`, and the "Javadoc & sources jars" section of `.claude/rules/gradle.md` as the template; this spec is preserved as a record of the original design intent.
 
 ## 12. References
 
