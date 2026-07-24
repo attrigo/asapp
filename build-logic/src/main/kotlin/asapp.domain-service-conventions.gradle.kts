@@ -111,7 +111,7 @@ tasks.register<Jar>("javadocJar") {
     group = "documentation"
     description = "Assembles a jar archive containing the main Javadoc."
     archiveClassifier = "javadoc"
-    // from: what to package — the javadoc task's output.
+    // from: what to package; the javadoc task's output.
     from(tasks.named("javadoc"))
 }
 
@@ -120,6 +120,6 @@ tasks.register<Jar>("sourcesJar") {
     group = "documentation"
     description = "Assembles a jar archive containing the main sources."
     archiveClassifier = "sources"
-    // from: what to package — the main source set's files (allSource = Java sources + resources).
+    // from: what to package; the main source set's files (allSource = Java sources + resources).
     from(project.the<SourceSetContainer>()["main"].allSource)
 }
