@@ -3,28 +3,30 @@ paths:
   - "**/domain/**/*.java"
 ---
 
-# Domain Design
+## Infrastructure Independence
 
-Domain classes are infrastructure-agnostic — no Spring annotations, no logging.
+- Domain code is only allowed to use the JDK and other domain types — no framework, library, or logging dependencies
 
-## Aggregate Factories
+## Aggregate Roots
 
-- Aggregate roots are always created via static factory methods — never instantiate directly
-- Transient factory methods must not accept an ID parameter — the ID is assigned by the persistence layer
+- Private constructors
+- Each root exposes a transient creator (no ID) and a reconstitution creator (with ID) — the persistence layer assigns the ID
+- Primitive → value object translation lives in a separate `<Aggregate>Factory` (`TaskFactory`), delegating to the root's package-private creators; when the caller already holds value objects, the factories are public on the root
+- Identity-based `equals`/`hashCode` — equal by ID
+- Transient instances (null ID) are never equal, unless the root keys equality on a natural business key (auth `User` → username)
 
 ## Value Object Pattern
 
-- Factory method is named `of(...)`
 - Never instantiate with `new` from outside the domain
-- Scalar VOs: single `value()` accessor
-- Compound VOs: named accessors or domain helpers instead of `value()`
-- Optional domain concepts: use `ofNullable()` factory
+- Scalar value objects: `value()` accessor
+- Optional value objects: use `ofNullable()` factory
 
 ## Bounded Context Isolation
 
-- Domain types could be duplicated across services — do not extract shared types
+- Do not extract shared domain types across services — duplicate per bounded context
 
 ## Validation Strategy
 
 - Default: `IllegalArgumentException` for all domain validation failures
-- Use a custom domain exception when the caller needs to distinguish the failure type (e.g., invalid format)
+- Use a custom domain exception when the caller needs to distinguish the failure type
+- Custom domain exceptions extend `IllegalArgumentException`

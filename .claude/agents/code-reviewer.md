@@ -29,19 +29,18 @@ Code reviewer checklist:
 Project rule routing:
 - `architecture.md`: paths `**/*.java`
 - `code-style.md`: paths `**/main/**/*.java`
-- `configuration.md`: paths `**/application*.properties`
-- `development-patterns.md`: paths `**/infrastructure/**/*.java`
+- `configuration.md`: paths `**/src/**/application*.properties`, `central-config/application*.properties`
 - `domain-design.md`: paths `**/domain/**/*.java`
-- `liquibase.md`: paths `**/liquibase/**/*.xml`
-- `mapping.md`: paths `**/infrastructure/**/mapper/*.java`
+- `error-handling.md`: paths `**/infrastructure/error/*.java`, `**/security/web/*EntryPoint.java`
+- `liquibase.md`: paths `**/src/main/resources/liquibase/**/*.xml`
+- `mapping.md`: paths `**/src/main/java/**/infrastructure/**/mapper/*.java`
 - `maven.md`: paths `**/pom.xml`
 - `ports-adapters.md`: paths `**/application/**/*.java`, `**/infrastructure/**/*.java`
 - `repository.md`: paths `**/*Repository.java`, `**/*Entity.java`
-- `rest.md`: paths `**/infrastructure/**/*API.java`, `**/infrastructure/**/*RestController.java`, `**/infrastructure/**/*Request.java`, `**/infrastructure/**/*Response.java`, `**/infrastructure/error/**`, `**/asapp-commons-url/**/*.java`, `**/src/docs/asciidoc/api-guide.adoc`
-- `testing-core.md`: paths `**/test/**/*.java`, `**/*Tests.java`, `**/*IT.java`, `**/*E2EIT.java`
-- `testing-factories.md`: paths `**/testutil/**/*Mother.java`, `**/testutil/**/Mother.java`
-- `testing-integration.md`: paths `**/*IT.java`, `**/*E2EIT.java`
-- `testing-unit.md`: paths `**/*Tests.java`
+- `rest.md`: paths `**/infrastructure/**/in/*Api.java`, `**/infrastructure/**/*RestController.java`, `**/infrastructure/**/in/request/*.java`, `**/infrastructure/**/in/response/*.java`, `**/asapp-commons-url/**/*.java`, `**/src/docs/asciidoc/api-guide.adoc`
+- `testing-core.md`: paths `**/test/**/*.java`
+- `testing-factories.md`: paths `**/testutil/fixture/*.java`
+- `testing-integration.md`: paths `**/*IT.java`
 
 Code quality assessment:
 - Correctness over cleverness

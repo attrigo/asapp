@@ -3,22 +3,27 @@ paths:
   - "docs/reviews/*.md"
 ---
 
-# Review Report Format
+The findings format for the review reports under `docs/reviews/` — written by `asapp-review-task` and `asapp-review-version` (each supplying its own title and anchor line above these findings), and ticked off as findings are resolved (by the developer or `asapp-resolve-review-issues`).
 
-The findings format for the review reports under `docs/reviews/` — written by `asapp-review-task` and `asapp-review-version`, ticked off as findings are resolved (by the developer or `asapp-resolve-review-issues`). Each skill supplies its own title and anchor line above these findings.
+## Sections
 
-Findings group into **Must-fix**, **Should-fix**, **Nice-to-have** sections, in that order. Open with a counts line (`2 must-fix · 22 should-fix · 8 nice-to-have`); skip an empty section. Each section is a **summary table** then one **detail block** per finding.
+- Findings group into **Must-fix**, **Should-fix**, **Nice-to-have** sections, in that order.
+- Open with a counts line (`2 must-fix · 22 should-fix · 8 nice-to-have`); skip an empty section.
+- Each section is a **summary table** then one **detail block** per finding.
 
-Summary table — the scannable index:
+## Summary Table
+
+The scannable index:
 
 | ID | Title | <axis> | Effort | Impact |
 |----|-------|--------|--------|--------|
 
 `<axis>` is the skill's grouping column:
-- **task review** — **Kind** (issue / improvement).
-- **version review** — **Theme**; within each severity section, order findings by theme so a theme's findings sit together.
+- **`asapp-review-task`** — **Kind** (issue / improvement).
+- **`asapp-review-version`** — **Theme**.
+- For a version review, order findings within each severity section by theme, so a theme's findings sit together.
 
-Detail block:
+## Detail Block
 
 ```markdown
 - [ ] **S1 — <title>**

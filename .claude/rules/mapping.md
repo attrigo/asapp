@@ -1,25 +1,19 @@
 ---
 paths:
-  - "**/infrastructure/**/mapper/*.java"
+  - "**/src/main/java/**/infrastructure/**/mapper/*.java"
 ---
-
-# Mapping
 
 ## Mapper Interface
 
-- All mappers use `componentModel = "spring"`
-- Use dot notation for nested source properties (e.g., `source = "jwtPair.accessToken"`)
-- Entity → domain mapping uses `@ObjectFactory`
-- Declare `@Mapping(target = "field", ignore = true)` for every domain field — required even when `@ObjectFactory` handles construction
-- Enum mappers: add `@ValueMapping(source = ANY_REMAINING, target = THROW_EXCEPTION)` to reject unmapped values at runtime
-- Keep `@Mapping` declarative — avoid non-trivial inline `expression = "java(...)"`; move logic to a `default`/`@Named` helper, or use `defaultValue`/`defaultExpression` for null fallbacks
+- When mapping an entity to an aggregate root, build it with an `@ObjectFactory` — the root's private constructors prevent MapStruct from using constructor mapping
+- When an `@ObjectFactory` builds the object, declare `@Mapping(target = "field", ignore = true)` for every domain field — suppresses MapStruct's unmapped-target-property warnings
+- Keep `@Mapping` declarative — avoid inline `expression = "java(...)"`; put logic in a `default`/`@Named` helper
 
 ## Value Object Mappers
 
-- Primitive → VO : abstract method named `toXxx(primitive)` (e.g., `toTitle(String)`, `toUserId(UUID)`)
-- VO → primitive: `default` method named after the target type (e.g., `toUUID()`, `toInstant()`)
+- Primitive → Value Object: abstract method named `toXxx(primitive)` (e.g., `toEncodedToken(String)`, `toIssued(Instant)`)
+- Value Object → primitive: `default` method named after the target type (e.g., `toString()`, `toUUID()`, `toInstant()`)
 
 ## ObjectFactory
 
 - Declare as `@Component`, not `@Mapper`
-- Construct the domain object via its factory method

@@ -19,6 +19,46 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [ ] Keep the domain free of framework and infrastructure dependencies
     - [ ] Confine cross-layer access to the declared input and output ports
     - **Note:** a lightweight safety net for the Gradle, OAuth, and Modulith refactors; the full JMolecules suite lands in 0.10
+- [ ] (persistence) Wrap authentication user create and update in a transaction
+    - **Note:** align with the "`@Transactional` on command use cases" convention in ports-adapters.md; `CreateUserService`/`UpdateUserService` currently omit it
+- [ ] (architecture) Reconcile driven-adapter conventions and align the code
+    - [ ] Settle the driven-adapter naming, implementation, and placement conventions
+    - [ ] Refactor the mismatched adapters to match the settled conventions
+    - **Note:** revisits the ports-adapters review's open questions — must every adapter carry the `Adapter` suffix, when may a port be implemented directly rather than wrapped, and may an adapter live outside the aggregate's `out/`; authentication service is the main case
+- [ ] (error-handling) Make encoded-token validation failures consistent with other domain errors
+    - **Note:** `InvalidEncodedTokenException` extends `RuntimeException` while the other custom domain exceptions extend `IllegalArgumentException`; surfaced by the domain-design.md S3 review (docs/reviews/2026-07-24-domain-design-review.md)
+- [ ] (build) Fix POM entries that violate the ordering convention
+    - **Note:** two violations found by the maven.md conventions review — root `pom.xml` properties and `libs/asapp-http-clients/pom.xml` plugins (docs/reviews/2026-08-03-maven-conventions-review.md)
+
+### Docs & Tooling
+
+- [X] (ai) Establish authoring conventions for Claude rules and agents
+    - [X] Define a rule for authoring rule files
+    - [X] Align existing rule files with the new authoring rule
+    - [X] Define a rule for authoring agent files
+    - [X] Align existing agent files with the new authoring rule
+- [ ] (ai) Reconcile the subagent roster with the authoring rules
+    - [ ] Reconcile the Claude maintenance agent with the authoring rules
+    - [ ] Reconcile the review roster with what the review skills need
+        - **Note:** decide whether the architecture and security reviewers are still worth their own agents
+    - [ ] Reconcile the code reviewer's rule routing with the rule globs
+    - **Note:** settle each question and land the follow-on edits together — a keep-as-is outcome goes to Decisions
+    - **Warning:** gates the reviewer-matching subtask below, which currently assumes both review specialists survive
+- [ ] (ai) Sharpen the task workflow skills
+    - [ ] Match review-task's reviewers to the change's nature
+        - **Note:** always run code-reviewer; add security-auditor or architect-reviewer only for security-relevant or structural changes
+        - **Note:** keep the implementation and docs specialists out of the review roster — they are write-shaped, and code-reviewer already auto-loads the rules that catch their concerns
+        - **Warning:** an earlier attempt dispatched domain specialists and burned minutes and heavy tokens on a two-line diff
+    - [ ] Scale review-task's review effort to the diff size
+        - **Note:** review a trivial diff inline, with no subagent at all
+    - [ ] Make review-task and prepare-version produce commit-sized tasks
+        - **Note:** earlier runs emitted high-level concepts, not the atomic, dev-flow-ready outcomes the version tasks model (`.claude/rules/todo.md` Decomposition)
+    - [ ] Generalize close-task's doc-commit step wording
+        - **Note:** Step 7's title and progress tracking name the plan and report; retitle to cover any pending technical docs
+    - [ ] Give resolve-review-issues richer proposal context
+        - **Note:** the *c. Propose* context block is thin for TODO-sourced issues; make it simpler and better grounded
+    - [ ] Auto-generate a full findings report from the "review-*" skills
+        - **Note:** the report captures every finding; deferred suggestions go under a recommended-action section rather than into TODO.md
 
 ---
 

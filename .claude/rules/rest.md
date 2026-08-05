@@ -1,55 +1,49 @@
 ---
 paths:
-  - "**/infrastructure/**/*API.java"
+  - "**/infrastructure/**/in/*Api.java"
   - "**/infrastructure/**/*RestController.java"
-  - "**/infrastructure/**/*Request.java"
-  - "**/infrastructure/**/*Response.java"
-  - "**/infrastructure/error/**"
+  - "**/infrastructure/**/in/request/*.java"
+  - "**/infrastructure/**/in/response/*.java"
   - "**/asapp-commons-url/**/*.java"
   - "**/src/docs/asciidoc/api-guide.adoc"
 ---
 
-# API Conventions
+Conventions for the external HTTP contract — the interfaces and DTOs that shape it, the constants behind its paths, and the adoc that documents it.
 
-- Any deviation from REST standards (HTTP codes, verbs, resource naming) must be justified with a comment in the code
+## REST Deviations
+
+- Any deviation from REST standards (HTTP codes, verbs, resource naming) must be justified in the endpoint's Javadoc
 
 ## Endpoint Constants
 
-- Centralized in `libs/asapp-commons-url` — never hardcode paths in controllers
-- Constant naming: `<DOMAIN_PLURAL>_<VERB>_<QUALIFIER>_PATH` for relative paths; append `_FULL_PATH` for absolute
+- Centralized in `libs/asapp-commons-url` — reference a constant wherever a request path is built or matched, never a literal
+- Use a relative `_PATH` on a method mapping, whose interface carries `@RequestMapping(<AGGREGATE>_ROOT_PATH)`; use `_FULL_PATH` (root + relative) in HTTP clients and tests
 
 ## API Interface Pattern
 
-- OpenAPI annotations (`@Tag`, `@Operation`, `@ApiResponse`) go on the interface, not the controller
+- A `<Aggregate>RestController` implements its `<Aggregate>Api` interface, delegating to use cases and mapping results to response DTOs; it declares no routing annotations
+- A bodiless response carries a bare `content = { @Content }` — no schema, even on a 404 among bodied error responses
 - Use `@ResponseStatus` for fixed HTTP status; use `ResponseEntity` without `@ResponseStatus` when the status is determined programmatically
-- Always pair `@RequestBody` with `@Valid` on the interface method parameter to trigger bean validation
-- Add `@SecurityRequirement(name = "Bearer Authentication")` at the interface level for all protected services (not on the auth service)
+- A missing resource is a 404 the controller returns from an empty `Optional` (or a `false` delete flag), never a thrown exception
+- Annotate the controller class `@Validated` when its interface puts a constraint annotation (e.g. `@Size`) on a method parameter — without it the 400 loses its `fieldErrors`
+- Add `@SecurityRequirement(name = "Bearer Authentication")` on every endpoint the filter chain protects; an endpoint whitelisted in `SecurityConfiguration` carries none
+- Place `@SecurityRequirement` at the interface level when all endpoints are protected, per-method when the interface mixes protected and public endpoints
 
 ## Request / Response DTOs
 
 - Validation annotations must include explicit error messages
-- Request and response fields use camelCase serialization names
-- Do not use `@JsonProperty` to rename fields
-- One response record per endpoint — create separate records even if fields are identical
+- Validation constraint values reference the domain value object's constant, never a literal
+- One request and one response record per endpoint — separate records even when fields are identical
 
 ## Spring REST Docs
 
-- `api-guide.adoc` and the OpenAPI annotations are one source of truth: each endpoint's adoc prose MUST be verbatim-identical to its `@Operation(description = ...)`
-- "This endpoint requires authentication." (or equivalents) MUST NOT appear in the `@Operation` description or the adoc prose — auth scope is conveyed by `@SecurityRequirement` and the Overview
-- Whenever a `*API.java` or its `api-guide.adoc` changes, update the other to keep description, status codes, and parameters in sync
-
-## Error Response Format
-
-- All errors must follow RFC 7807 `ProblemDetail` — do not invent a custom error format
-- Add an `error` property only when the code adds meaning beyond the status itself (e.g. `invalid_grant` on 401); omit it when the code would just restate the status (e.g. `server_error` on 500)
-- Validation errors extend `ProblemDetail` with a `fieldErrors` property containing a list of `RequestValidationError(field, message)`
-- Always set `title` and `detail` via `ProblemDetail.forStatusAndDetail(...)`
-- 500 responses in `GlobalExceptionHandler` add `"critical": true` to `ProblemDetail` for monitoring alerts
+- Each endpoint's method Javadoc description, `@Operation(description = ...)` and `api-guide.adoc` prose carry the same text
+- "This endpoint requires authentication." (or equivalents) must not appear in the `@Operation` description or the adoc prose — auth scope is conveyed by `@SecurityRequirement` and the Overview
+- Whenever a `*Api.java` or its `api-guide.adoc` changes, update the other to keep description, status codes, and parameters in sync
 
 ## Partial Success / Degraded Responses
 
-- Degrade-vs-fail is an application-service policy, decided per dependency (see `ports-adapters.md`)
-- Soft (non-critical) dependency → return `200` with the primary data and a `warnings` entry; hard (critical) dependency → fail with a `ProblemDetail` error
-- When the degraded data field is a collection, return it empty rather than null so clients avoid null-checks
-- The warnings array is itself the degradation signal — omit it when empty, so its presence alone marks a degraded response
+- A degraded response is `200` with the primary data and a `warnings` array; a failed request is a `ProblemDetail` error
+- In the response DTO, a degraded collection is empty, never null
+- The `warnings` array is itself the degradation signal — omit it when empty
 - A warning `code` names the missing data, never an internal service or topology

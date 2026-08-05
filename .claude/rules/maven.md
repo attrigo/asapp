@@ -3,8 +3,6 @@ paths:
   - "**/pom.xml"
 ---
 
-# Maven POM Conventions
-
 ## Ordering
 
 All entries are sorted alphabetically within their section:

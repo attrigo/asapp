@@ -1,80 +1,60 @@
 ---
 paths:
   - "**/*IT.java"
-  - "**/*E2EIT.java"
 ---
 
-# Integration Test Patterns
+Slice, container and external-service-mock wiring for integration tests, plus cleanup and helper-naming conventions.
 
-Infrastructure-specific patterns for integration tests with real database, containers, and external services
+## Test Slice Selection
 
-## 1. Test Slice Selection
+- **`@WebMvcTest`** (web layer) — extend `WebMvcTestContext` (security config + `MockMvcTester`), or `RestDocsWebMvcTestContext` (`MockMvc`) for `*ApiDocumentationIT`
+- **`@DataJdbcTest`** (repository layer) — use `@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)` to use real database
+- **`@SpringBootTest`** (full application) — when testing web layer, use `webEnvironment = RANDOM_PORT` with `@AutoConfigureRestTestClient`
 
-### 1.1 @WebMvcTest (Web Layer)
+## TestContainers
 
-- Extend `WebMvcTestContext` (provides security config and MockMvc)
-- Mock service layer dependencies with `@MockitoBean`
+- Slice tests needing real infrastructure import `TestContainerConfiguration.class`
+- Expose containers as `@Bean` methods with `@ServiceConnection` annotation
 
-### 1.2 @DataJdbcTest (Repository Layer)
+## Resource Cleanup
 
-- Import `TestContainerConfiguration.class` for TestContainers setup
-- Use `@AutoConfigureTestDatabase(replace = NONE)` to use real database
-
-### 1.3 @SpringBootTest (Full Application)
-
-- Import `TestContainerConfiguration.class` for TestContainers setup
-- When testing web layer: use `webEnvironment = RANDOM_PORT` with `@AutoConfigureRestTestClient`
-
-## 2. TestContainers
-
-- Use `static` fields for TestContainers (singleton pattern - starts once, reused for all tests)
-- Expose containers as `@Bean` methods with `@ServiceConnection` annotation (enables Spring Boot 3.1+ auto-configuration)
-
-## 3. Test Patterns
-
-### 3.1 Resource Cleanup
-
-- Clean resources in `@BeforeEach`, NOT `@AfterEach` (guarantees clean state even if previous test failed)
-- Delete in order respecting foreign key constraints
+- Clean external stores (database, Redis) in `@BeforeEach`, never in `@AfterEach`
+- Reserve `@AfterAll` for external resources needing explicit release (embedded servers, file handles, network connections, locks)
 - Assert dependency is not null before cleanup when required (e.g. Redis connection factory)
-- Do NOT use `@Transactional` for automatic test rollback — use explicit `@BeforeEach` cleanup
+- Do not use `@Transactional` for automatic test rollback
 
-### 3.2 Test Data Persistence Helpers
+## Test Data Persistence Helpers
 
 - Always extract data creation in an external resource (DB, Redis, etc.) into a helper method
 
-**Naming conventions**:
-
-| Condition                             | Pattern | Example |
-|---------------------------------------|---|---|
-| Default data                          | `createXxx()` | `createUser()` |
-| Specific data variant (always same shape), ≥3 usages | `createStateXxx()` | `createExpiredAuthentication()` |
-| Specific data variant (always same shape), <3 usages | `createXxx(entity)` | `createAuthentication(entity)` |
+| Caller needs | Pattern | Example |
+|---|---|---|
+| Default data | `createXxx()` | `createUser()` |
+| Control over the fields | `createXxx(entity)` | `createUser(user)` |
+| A specific named state | `createStateXxx()` | `createExpiredAuthentication()` |
 
 - When a helper requires a prerequisite, append `ForYyy(prereq)` to the method name (e.g. `createJwtAuthenticationForUser(user)`, `createExpiredJwtAuthenticationForUser(user)`)
-- When a helper persists data to a specific store only, append `InStorage` to the method name (e.g. `createJwtAuthenticationInDB(jwtAuthentication)`, `createJwtAuthenticationInRedis(jwtAuthentication)`) — use only when tests need to seed a single store
-- Setting a foreign key (e.g. `.withUserId()`) does not make data "custom" — always use row 1
+- When a helper persists data into a specific store only, append `InStorage` to the method name (e.g. `createJwtAuthenticationInDB(jwtAuthentication)`, `createJwtAuthenticationInRedis(jwtAuthentication)`)
 
-### 3.3 Custom Assertion Helpers
+## Custom Assertion Helpers
 
 - Extract repeated assertion logic into private helpers — don't inline complex multi-field assertions in test bodies
 - Limit assertion helper parameters to 3 — if more expected values are needed, assert inline instead
-- Multi-store facades (`assertXxxExist`, `assertXxxNotExist`) must delegate to storage-specific helpers — allows partial-store tests to reuse them
+- A helper asserting several stores delegates to the `InStorage` helpers where they exist, and asserts each store inline where they don't
+- Exception: the no-arg `assertXxxNotExist()` always asserts inline — it checks the stores are empty, which the token-taking `InStorage` helpers can't express
 
-**Naming conventions**:
-
-| Condition | Pattern | Example |
+| Caller needs | Pattern | Example |
 |---|---|---|
-| Full domain object fields | `assertXxx(actual, expected)` | `assertJwtAuthentication(actual, expectedUser)` |
-| HTTP response body | `assertXxxResponse(actual, expected)` | `assertAPIResponse(accessToken, refreshToken, user)` |
-| Positive existence (all stores) | `assertXxxExist(params, context)` | `assertAuthenticationExist(accessToken, refreshToken, user)` |
-| Negative existence (all stores) | `assertXxxNotExist(params)` | `assertAuthenticationNotExist(accessToken, refreshToken)` |
-| No-arg negative existence | `assertXxxNotExist()` | `assertAuthenticationNotExist()` |
-| Storage-specific | append `InStorage` | `assertAuthenticationExistInDB(...)`, `assertAuthenticationNotExistInRedis(...)` |
+| Compare an object against expected values | `assertXxx(actual, expected)` | `assertJwtAuthentication(actual, expectedUser)` |
+| Check an HTTP response, values vary | `assertXxxResponse(actual, expected)` | `assertAPIResponse(accessToken, refreshToken, user)` |
+| Check a fixed HTTP response | `assert<Case>Response(actual)` | `assertMissingTokenUnauthorizedResponse(json)` |
+| Check presence or absence across stores | `assertXxxExist(...)` / `assertXxxNotExist(...)` | `assertAuthenticationExist(accessToken, refreshToken, user)` |
 
-### 3.4 MockServer for External Services
+- When a helper asserts a specific store only, append `InStorage` to the method name (e.g. `assertAuthenticationExistInDB(...)`, `assertAuthenticationNotExistInRedis(...)`)
 
-Mock service-to-service calls only in `@SpringBootTest`, tiered by level:
+## MockServer for External Services
 
+- Mock service-to-service calls only in `@SpringBootTest`
 - `*IT`: embedded `mockserver-netty` (`ClientAndServer`)
 - `*E2EIT`: Testcontainers `MockServerContainer`
+- Wire the base URL with `@DynamicPropertySource` — neither tier supports `@ServiceConnection`
