@@ -50,7 +50,7 @@ Always prioritize <priority> over <countervailing pressure>: <one-sentence ratio
 
 ## Frontmatter
 
-Five keys, always in this order: `name`, `description`, `tools`, `model`, `color`. Full validation is the `claude-docs-maintainer` agent's checklist; author to these essentials:
+Five keys, always in this order — `name`, `description`, `tools`, `model`, `color`:
 
 - **`name`** — kebab-case, matches the filename; it is the dispatch id, so never rename for style.
 - **`description`** — one double-quoted string, third person: `"Use this agent when <triggers>: <specifics>."` ~25–40 words. Enumerate ~4–8 concerns the role *owns* at the conceptual level, stack-agnostic (not files, classes, or sub-tasks). Every word is a routing signal — no filler intensifiers ("comprehensive", "for production systems"). Our agents are dispatched explicitly by skills / orchestrator, so skip "use proactively".
@@ -64,7 +64,7 @@ Phase → color / model / tools:
 |---|---|---|---|
 | Design (domain, architecture, api, persistence, security) | blue | opus | Read, Glob, Grep, WebFetch, WebSearch |
 | Implementation (spring-boot, test, devops) | green | sonnet | Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch |
-| Review (code · architect · security) | orange | sonnet (line-level) · opus (system & security) | Read, Glob, Grep, Bash, WebFetch, WebSearch |
+| Review (code · security) | orange | sonnet (code) · opus (security) | Read, Glob, Grep, Bash, WebFetch, WebSearch |
 | Document (documentation-engineer, claude-docs-maintainer) | purple | sonnet | Read, Write, Edit, Glob, Grep, WebFetch, WebSearch (+ Bash to replay generated commands) |
 
 ## Body
@@ -72,9 +72,9 @@ Phase → color / model / tools:
 The body is the agent's system prompt — a generic senior-practitioner brief. Project specifics arrive through auto-loaded `CLAUDE.md` and path-scoped `.claude/rules/`, so the body never carries them.
 
 ### What to write
-- **Stack-agnostic.** Never name the stack (Spring, JDBC, Redis, Liquibase, PostgreSQL…); describe the role's discipline as any senior practitioner would. Sole exception: `code-reviewer` enumerates `.claude/rules/*` globs, since it works from `git diff`, not file reads.
+- **Stack-agnostic.** Never name the stack (Spring, JDBC, Redis, Liquibase, PostgreSQL…); describe the role's discipline as any senior practitioner would.
 - **Apply, don't define.** Say how a practitioner *uses* a standard — when to reach for it, what to watch — not what the standard says; the model already knows it.
-- **Don't restate auto-loaded context.** `CLAUDE.md` and matching rules load into every subagent; never repeat their content or list rule paths.
+- **Don't restate auto-loaded context.** `CLAUDE.md` and path-matching rules load into every subagent on read; never repeat their content or list rule paths.
 - **Prescriptive, not procedural.** Define the role and its judgment. A skill drives *how a task runs*, so never restate skill steps.
 
 ### How it reads
@@ -87,8 +87,6 @@ The Template skeleton is fixed at seven parts, in order, with the counts annotat
 - **When invoked** — step 1 is always context discovery.
 - **Development Workflow** — exactly 3 phases (analyze → produce → deliver). Phase 3 runs: `<name> checklist:` → a mandatory `Delivery notification:` quoted string (runtime `<N>` count specifiers allowed) → 0–5 post-delivery lists → closing prose.
 - **Integration** — name each sibling by `name`; verbs: Collaborate with / Support / Work with / Guide / Help / Coordinate with.
-
-Full skeleton validation is the `claude-docs-maintainer` agent's checklist.
 
 ## Secure authoring
 
@@ -106,7 +104,6 @@ The `claude-docs-maintainer` agent audits every body against this before deploy.
 
 - **One agent per role**, kebab-case filename matching `name`.
 - **Dispatch fit** — `description` triggers must truthfully match the role; overlapping agents need distinct triggers so routing stays unambiguous. The dispatch policy itself lives in `CLAUDE.md`.
-- **Placement** — whether a convention belongs on an agent vs. rule vs. skill vs. `CLAUDE.md` is the `claude-docs-maintainer` agent's taxonomy; decide it there.
 
 ## Size
 

@@ -37,16 +37,13 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [X] Align existing rule files with the new authoring rule
     - [X] Define a rule for authoring agent files
     - [X] Align existing agent files with the new authoring rule
-- [ ] (ai) Reconcile the subagent roster with the authoring rules
-    - [ ] Reconcile the Claude maintenance agent with the authoring rules
-    - [ ] Reconcile the review roster with what the review skills need
-        - **Note:** decide whether the architecture and security reviewers are still worth their own agents
-    - [ ] Reconcile the code reviewer's rule routing with the rule globs
-    - **Note:** settle each question and land the follow-on edits together — a keep-as-is outcome goes to Decisions
-    - **Warning:** gates the reviewer-matching subtask below, which currently assumes both review specialists survive
+- [X] (ai) Reconcile the subagent roster with the authoring rules
+    - [X] Reconcile the Claude maintenance agent with the authoring rules
+    - [X] Reconcile the review roster with what the review skills need
+    - [X] Reconcile the code reviewer's rule routing with the rule globs
 - [ ] (ai) Sharpen the task workflow skills
     - [ ] Match review-task's reviewers to the change's nature
-        - **Note:** always run code-reviewer; add security-auditor or architect-reviewer only for security-relevant or structural changes
+        - **Note:** always run code-reviewer; add security-auditor only for security-relevant changes
         - **Note:** keep the implementation and docs specialists out of the review roster — they are write-shaped, and code-reviewer already auto-loads the rules that catch their concerns
         - **Warning:** an earlier attempt dispatched domain specialists and burned minutes and heavy tokens on a two-line diff
     - [ ] Scale review-task's review effort to the diff size

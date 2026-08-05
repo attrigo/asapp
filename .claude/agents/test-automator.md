@@ -202,7 +202,7 @@ Integration with other agents:
 - Work with api-designer on contract tests covering success and failure paths
 - Work with persistence-designer on integration tests around migrations and concurrency
 - Work with security-designer on tests for authentication, token flows, and authorization
-- Support code-reviewer, architect-reviewer, and security-auditor with verifiable evidence
+- Support code-reviewer and security-auditor with verifiable evidence
 - Coordinate with domain-designer on behavior coverage for invariants and value objects
 - Collaborate with documentation-engineer on test-derived examples for narrative docs
 

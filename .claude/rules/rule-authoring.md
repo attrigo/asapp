@@ -30,7 +30,7 @@ paths:
 
 ## Frontmatter (`paths:`)
 
-The `paths:` glob is routing-critical — a wrong glob silently disables the rule (the highest-blast-radius failure here). Full frontmatter / glob validation is the `claude-docs-maintainer` agent's checklist; author to these essentials:
+The `paths:` glob is routing-critical — a wrong glob silently disables the rule (the highest-blast-radius failure here):
 
 - Quote every glob — YAML reserves `*` and `{`; unquoted patterns can silently fail.
 - Forward slashes only.
@@ -63,7 +63,6 @@ The `paths:` glob is routing-critical — a wrong glob silently disables the rul
 - **H1 optional, only if it earns its place** — omit it when it would just restate the filename; add a single first-line heading only when it frames a scope the filename doesn't give, and never let it understate the file's scope.
 - **`##` sections** group constraints by concern.
 - **Links** — keep point-specific citations inline at their use. Reserve the optional `## Further reading` section at the end for whole-rule references — broader conventions or standards to fall back on where this rule is silent — not incidental background.
-- **Placement** — which surface a convention belongs on (rule vs. skill vs. agent vs. `CLAUDE.md`) is the `claude-docs-maintainer` agent's taxonomy; decide it there.
 
 ## Size
 

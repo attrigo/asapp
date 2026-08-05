@@ -68,7 +68,7 @@ Dispatch **one reviewer per theme**, scoped to that theme's files (not the whole
 - Layering, coherence, and completeness across services — for production-code themes; skip for docs / tooling / `.claude` themes.
 - The theme's specialty — security, tests, API, docs, CI, etc.
 
-**Escalate a second specialist** only when a theme is high-risk (auth/JWT/token/filter-chain → `security-auditor`), architecturally significant across services (→ `architect-reviewer`), or the first pass flags something deeper. Default is one gather per theme.
+**Escalate a second specialist** only when a theme is high-risk (auth/JWT/token/filter-chain → `security-auditor`) or the first pass flags something deeper. Default is one gather per theme.
 
 **Depth** — read the full changed files; follow outward only into code the diff reaches (callers, collaborators, covering tests, dependent config). Not a whole-repo audit.
 
@@ -136,7 +136,6 @@ Dispatch each theme's reviewer as its dominant-concern specialist:
 |---------|-----|
 | Locate / understand touched code | `Explore` |
 | Cross-cutting seam pass (Step 4) | `code-reviewer` |
-| Cross-service architecture escalation (Step 3) | `architect-reviewer` |
 | Framing the review | `superpowers:requesting-code-review` |
 | A finding needs deeper diagnosis | `superpowers:systematic-debugging` |
 

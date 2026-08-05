@@ -95,7 +95,7 @@ The invocation argument picks the source. Only two things differ between the sou
 
 | Situation | Use |
 |-----------|-----|
-| Locate / understand code for an issue | `Explore`, or `code-reviewer` / `architect-reviewer` |
+| Locate / understand code for an issue | `Explore`, or `code-reviewer` |
 | Apply a production-code fix | `spring-boot-developer` |
 | Add or adjust tests | `test-automator` |
 | CI / Docker / observability fix | `devops-engineer` |

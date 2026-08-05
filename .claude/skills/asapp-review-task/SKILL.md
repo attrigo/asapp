@@ -52,7 +52,7 @@ Do this up front; review nothing yet.
 
 Dispatch review subagents **in parallel** over the branch diff (design specs excluded); each returns concise findings, not file dumps.
 
-- **Always** — `code-reviewer` (line-level quality) and `architect-reviewer` (layering, design, structure).
+- **Always** — `code-reviewer` (line-level quality and structural fit).
 - **Only when security-relevant files changed** (auth / security config, JWT / token handling, filter chains, crypto, secrets, new endpoints) — `security-auditor`.
 
 **Depth** — read the full changed files, not just the hunks; follow outward only into code the diff reaches — callers, collaborators, covering tests, dependent config — enough to judge correctness and completeness. Not a whole-repo audit. That reach is what surfaces findings beyond the changed lines: an un-updated caller, an absent test, a config that should have changed too.
@@ -109,8 +109,7 @@ If no home fits, **propose a new bucket / scope and confirm before creating it**
 
 | Concern | Use |
 |---------|-----|
-| Line-level code quality | `code-reviewer` |
-| Architecture, layering, design drift | `architect-reviewer` |
+| Code quality and structural fit | `code-reviewer` |
 | Security-relevant changes | `security-auditor` |
 | Locate / understand touched code | `Explore` |
 | IDE problems & inspections | IntelliJ MCP (`get_file_problems`, `run_inspection_kts`) |

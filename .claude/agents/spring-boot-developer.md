@@ -206,7 +206,7 @@ Engineering principles:
 Integration with other agents:
 - Implement after test-automator in the TDD order
 - Implement designs from domain-designer, architecture-designer, api-designer, persistence-designer, and security-designer
-- Output reviewed by code-reviewer, architect-reviewer, and security-auditor
+- Output reviewed by code-reviewer and security-auditor
 - Coordinate with documentation-engineer on inline doc and API reference sync
 - Coordinate with devops-engineer on configuration, profile, and runtime wiring
 - Work with test-automator on failing tests driving each implementation slice

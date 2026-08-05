@@ -24,5 +24,5 @@ The 13-agent roster groups by lifecycle phase:
 
 - **Design** (blue): `domain-designer`, `architecture-designer`, `api-designer`, `persistence-designer`, `security-designer`
 - **Implementation** (green): `test-automator`, `spring-boot-developer`, `devops-engineer`
-- **Review** (orange): `code-reviewer`, `architect-reviewer`, `security-auditor`
+- **Review** (orange): `code-reviewer`, `security-auditor`
 - **Documentation** (purple): `documentation-engineer`, `claude-docs-maintainer`
