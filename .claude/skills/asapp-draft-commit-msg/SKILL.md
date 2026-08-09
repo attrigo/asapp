@@ -42,7 +42,7 @@ Draft a Conventional Commit message from a change set — this session's Edit/Wr
 ### 3. Draft
 
 - Subject-only when it's a single conceptual change with no nuance. Add a body when the diff holds ≥2 distinct logical changes, or the why isn't obvious from the subject.
-- When a body is needed, lead with a 1–3 sentence paragraph only if it carries a why the subject and bullets can't; otherwise go straight to bullets.
+- When a body is needed, lead with a paragraph only if it carries a why the subject and bullets can't; otherwise go straight to bullets.
 - Follow **Format** and **Body rules** (Reference).
 
 ### 4. Output
@@ -67,8 +67,8 @@ Print the message in a code block, then one sentence naming the chosen type and 
 
 ### Body rules
 
-- **Lead paragraph** (optional) — 1–3 sentences of why (motivation, root cause, constraint). One line, no hard-wrapping. Omit when the subject already conveys the why.
-- **Bullets** (required once a body exists) — `-` + single space, first letter capitalized, imperative mood (same as the subject), no trailing period, one change per bullet on a single line (no nesting, no multi-line bullets).
+- **Lead paragraph** (optional) — the why (motivation, root cause, constraint) in 30 words or fewer. One line, no hard-wrapping. Omit when the subject already conveys the why.
+- **Bullets** (required once a body exists) — `-` + single space, first letter capitalized, imperative mood (same as the subject), no trailing period, one change per bullet in 15 words or fewer, on a single line (no nesting, no multi-line bullets).
 
 ### Types
 

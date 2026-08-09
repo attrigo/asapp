@@ -20,7 +20,7 @@ paths:
 - One flat checklist per bucket — no sub-headings.
 - `- [ ]` open · `- [X]` done. Nest `- [ ]` subtasks only when they're real steps of the parent.
 - Every top-level task opens with a `(scope)` tag; subtasks inherit it.
-- Guidance is nested and untracked: `- **Note:** …`, `- **Warning:** …`.
+- Guidance is nested and untracked: `- **Note:** …`, `- **Warning:** …` — one clause, as concise as a task line, placed after any subtasks.
 - **Decisions** use `- **<outcome>:** …` (Rejected, Dropped, …) — no checkbox.
 
 ## Wording
@@ -29,7 +29,7 @@ Every task and subtask line:
 
 - Leads with an imperative verb (Add, Publish, Support, Refactor…).
 - Is concise — a short phrase, ~10 words; sentence case, no trailing period.
-- Uses plain language, no implementation terms (libraries, config keys, annotations, file paths); a named pattern is fine when it *is* the unit of work.
+- Uses plain language, no implementation terms (libraries, config keys, annotations, file paths); a named pattern or tool is fine when it *is* the unit of work (`Add a Redis dashboard`), never when it is the *how*.
 - Is one coherent unit — no colons introducing embedded lists.
 
 ## Decomposition
@@ -38,7 +38,9 @@ When refining a vague or oversized entry into subtasks:
 
 - Decompose only when needed — a clean, well-scoped one-liner stays one line.
 - Reframe the parent to the underlying goal when that's clearer than a literal restatement.
-- Aim for 2–6 subtasks, each a self-contained, commit-sized outcome — not a partial step meaningless until a sibling lands.
+- Every subtask is one commit-sized outcome — it can land on its own, not a partial step that means nothing until a sibling lands.
+- Split a subtask that bundles independent outcomes — "Migrate coverage, mutation testing, and formatting checks" is three subtasks, not one.
+- Let the work set the count — 2–6 is typical; never merge two outcomes to stay inside it.
 - No per-feature test subtask; add one only when a new test tier or test infrastructure is the deliverable.
 
 ## Scopes
@@ -59,5 +61,4 @@ Features and Bugfix are scoped by **domain**; Technical / Docs & Tooling by **co
 
 ## Review findings
 
-- **Manual notes** — issues the developer logs by hand as **plain nested bullets** (`- <issue>`) one level under the task/subtask they concern.
-- **Deferred review findings** — `asapp-review-task` routes findings it *defers* as ordinary top-level entries (per Structure/Wording above).
+- Issues the developer logs by hand go as **plain nested bullets** (`- <issue>`) one level under the task/subtask they concern.

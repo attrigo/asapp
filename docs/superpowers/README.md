@@ -20,7 +20,7 @@ Plans and specs are committed so future sessions can resume the work.
 
 Project-tailored subagents live in `.claude/agents/` (Claude Code requires that exact path, so they sit outside this directory). They are what `superpowers:subagent-driven-development` dispatches to during plan execution.
 
-The 13-agent roster groups by lifecycle phase:
+The 12-agent roster groups by lifecycle phase:
 
 - **Design** (blue): `domain-designer`, `architecture-designer`, `api-designer`, `persistence-designer`, `security-designer`
 - **Implementation** (green): `test-automator`, `spring-boot-developer`, `devops-engineer`

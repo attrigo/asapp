@@ -41,21 +41,18 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [X] Reconcile the Claude maintenance agent with the authoring rules
     - [X] Reconcile the review roster with what the review skills need
     - [X] Reconcile the code reviewer's rule routing with the rule globs
-- [ ] (ai) Sharpen the task workflow skills
-    - [ ] Match review-task's reviewers to the change's nature
-        - **Note:** always run code-reviewer; add security-auditor only for security-relevant changes
-        - **Note:** keep the implementation and docs specialists out of the review roster — they are write-shaped, and code-reviewer already auto-loads the rules that catch their concerns
-        - **Warning:** an earlier attempt dispatched domain specialists and burned minutes and heavy tokens on a two-line diff
-    - [ ] Scale review-task's review effort to the diff size
-        - **Note:** review a trivial diff inline, with no subagent at all
-    - [ ] Make review-task and prepare-version produce commit-sized tasks
-        - **Note:** earlier runs emitted high-level concepts, not the atomic, dev-flow-ready outcomes the version tasks model (`.claude/rules/todo.md` Decomposition)
-    - [ ] Generalize close-task's doc-commit step wording
-        - **Note:** Step 7's title and progress tracking name the plan and report; retitle to cover any pending technical docs
-    - [ ] Give resolve-review-issues richer proposal context
-        - **Note:** the *c. Propose* context block is thin for TODO-sourced issues; make it simpler and better grounded
-    - [ ] Auto-generate a full findings report from the "review-*" skills
-        - **Note:** the report captures every finding; deferred suggestions go under a recommended-action section rather than into TODO.md
+- [X] (ai) Sharpen the task workflow skills
+    - [X] Right-size the review skills' delegation to the change
+    - [X] Reserve code-reviewer for judging code quality
+    - [X] Cap review findings to short, plain-language blocks
+    - [X] Trim what the review and resolve skills show in chat
+    - [X] Auto-generate a full findings report from both review skills
+    - [X] Add a triage gate before resolve-review-issues explores an issue
+    - [X] Shorten resolve-review-issues' applied note to one line
+    - [X] Cap close-task' post implementation note
+    - [X] Make prepare-version and refine-task emit commit-sized outcomes
+    - [X] Generalize close-task's doc-commit step wording
+    - [X] Cap draft-commit-msg's lead paragraph and bullets in words
 
 ---
 

@@ -16,7 +16,7 @@ Integrate a finished task into the **local** `main` branch. Runs end-to-end with
 **Core principle — the end-state is a contract.** When this skill finishes:
 
 - **`main`** has the task's work as **one squash commit**, which **includes the implemented spec**, **marks the parent task `[X]` complete in `TODO.md`**, and **excludes the plan file and the review-task report**.
-- **The task branch** keeps **all its development commits**, with the **plan and the review-task report committed as the last commit**.
+- **The task branch** keeps **all its development commits**, with the **task's pending docs committed as the last commit**.
 - **Both branches stay local**, so you can revert if anything looks wrong.
 
 ## Usage
@@ -36,7 +36,7 @@ Integrate a finished task into the **local** `main` branch. Runs end-to-end with
 4. Mark the parent task complete (Step 4)
 5. Draft the squash message (Step 5)
 6. Squash-merge into main (Step 6)
-7. Commit the plan and review report as the last branch commit (Step 7)
+7. Commit the task's pending docs as the last branch commit (Step 7)
 8. Verify invariants (Step 8)
 9. Clear the SDD record (Step 9)
 10. Wrap-up (Step 10)
@@ -50,7 +50,7 @@ If the close aborts (a Step 6 merge conflict or a failed Step 8 invariant), leav
    - The task slug
    - The spec — `docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md`
    - The plan — `docs/superpowers/plans/YYYY-MM-DD-<slug>.md`
-   - The review-task report — `docs/reviews/<task-slug>-review.md` (may be absent if the task had no apply-now review findings)
+   - The review-task report — `docs/reviews/<task-slug>-review.md` (absent only if no review was run)
 - **Locate the SDD record** — `.superpowers/sdd/` (untracked working dir): `progress.md` plus the per-task `*-brief.md`/`*-report.md`. It captures intent, decisions, and deviations, and feeds Steps 2, 3, and 5. If it is absent, fall back to commits alone.
 - **Capture revert anchors** and surface them to the user immediately:
   ```bash
@@ -72,13 +72,13 @@ Find where the implementation diverged from the design.
     - **The SDD record** located in Step 1 — intent, decisions, deviations
     - **Git** — `git log main..<branch>` + the diffs, which also carry the manual-review changes made *after* the SDD run
 - **Capture each delta by the durable artifacts it touched** (files, classes, config, tests), **not commit hashes** — the SDD files contain hashes; do not copy them through.
-- **Delegate by default** to a read-only review agent (`code-reviewer` / `Explore`); do it inline only for a trivially small diff (e.g. a one- or two-file change).
+- **Delegate by default** to `Explore`; do it inline only for a trivially small diff (e.g. a one- or two-file change).
 
 ### Step 3: Mark the spec implemented
 
 Dispatch `documentation-engineer` to update **only the spec file** from the Step 2 analysis:
 
-- Changes the header `**Status**:` from `Proposed`/`Draft` → `Implemented`, and
+- Sets the header `**Status**:` to `Implemented`.
 - Appends a `## N. Post-implementation notes` section (N = next section number) per the *Post-implementation notes recipe*.
 
 (If the spec is already `Implemented`, skip this step and reuse the existing notes.)
@@ -114,13 +114,13 @@ git commit -F <squash-message-file>      # the file written in Step 5 (overrides
 
 If the squash merge **conflicts**, run `git merge --abort` and report — do not guess resolutions.
 
-### Step 7: Commit the plan and review report as the last branch commit
+### Step 7: Commit the task's pending docs as the last branch commit
 
 ```bash
 git checkout <branch>
-# plan (+ report) uncommitted: commit them now so they are the last commit
-git add docs/superpowers/plans/<plan> docs/reviews/<task-slug>-review.md   # omit the report path if the task had none
-git commit -m "docs(<scope>): add <task> implementation plan and review report"   # drop "and review report" when there is no report
+# pending docs uncommitted: commit them now so they are the last commit
+git add docs/superpowers/plans/<plan> docs/reviews/<task-slug>-review.md   # plus any other pending doc under docs/; omit a path the task never produced
+git commit -m "docs(<scope>): add the <task> <docs>"   # <docs> names what was committed, e.g. "implementation plan and review report"
 # plan already committed: no-op (verify it is present; if it is not the last commit, report it — never rewrite history to reorder)
 git checkout main
 ```
@@ -162,21 +162,32 @@ The **review-task report** (`docs/reviews/<task-slug>-review.md`) is treated exa
 
 ## Post-implementation notes recipe
 
-The `## N. Post-implementation notes` section states, in order:
+The `## N. Post-implementation notes` section is an anchor line, then the deltas:
 
-1. **Opener** — "This spec and its plan (`<plan-path>`) were written before implementation. The core change shipped substantially as designed — <one sentence on what landed as specified>."
-2. **Canonical source** — "the canonical implementation is the current state of <the real artifacts: files, configs, tests> on this branch, not this document."
-3. **`Notable deltas:`** — a bullet per place the implementation diverged from the design. Each bullet: a **bold headline** naming the delta (and which spec section it reverses), then the *why*, anchored to the **durable artifacts** it touched — the files, classes, config keys, and tests.
-4. **Closer** — "For future <area> edits, treat <the real artifacts> as the template; this spec is preserved as a record of the original design intent."
+```markdown
+The canonical implementation is <the durable artifacts: files, classes, config keys, tests>, not this document.
 
-**Never cite commit hashes.** The whole task squash-merges into a single commit on `main` (where this spec lives), so the branch's individual SHAs no longer exist there — a cited hash becomes a dead reference. Anchor every delta to the code artifacts instead; the spec is a record of intent, the code is the source of truth.
+Notable deltas:
+
+- **<what diverged> (revises §<n>).** <why, and the artifact that now holds it>
+```
+
+| Part | Cap | Its job — and only this |
+|------|-----|-------------------------|
+| Anchor line | ≤25 words | names the durable artifacts that supersede this spec |
+| Delta headline | ≤10 words, plus the spec section it revises | names what diverged |
+| Delta body | ≤20 words | why it diverged, and the artifact that now holds it |
+| Deltas | ≤10 bullets | one divergence each, most consequential first |
+
+- **The count is what diverged, not the cap** — never pad to ten. With no deltas the anchor line stands alone; omit `Notable deltas:`.
+- **Never a spec recap, a file inventory, or a commit hash** — the task squash-merges into one commit on `main`, so a branch SHA is a dead reference there.
 
 ## Reverting
 
 ```bash
 # Undo the squash merge on main:
 git checkout main && git reset --hard $PRE_MAIN
-# Undo the plan + report commit on the branch (only if Step 7 added it):
+# Undo the pending-docs commit on the branch (only if Step 7 added it):
 git checkout <branch> && git reset --hard $PRE_BRANCH
 ```
 
@@ -186,10 +197,9 @@ git checkout <branch> && git reset --hard $PRE_BRANCH
 
 | Situation | Use |
 |-----------|-----|
-| Analyze the SDD record (`.superpowers/sdd/`) + commits/diffs — what shipped and the deltas (read-only) | `code-reviewer` / `Explore` |
+| Analyze the SDD record + commits/diffs, locate the spec/plan (read-only) | `Explore` |
 | Update the spec file — Status + post-impl notes (writing only, no code review) | `documentation-engineer` |
 | Build the spec / squash / plan commit messages | `asapp-draft-commit-msg` skill |
-| Locate the spec/plan or understand a commit | `Explore` |
 
 ## Guardrails
 

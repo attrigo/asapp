@@ -31,7 +31,7 @@ Unlike `asapp-refine-task`, which refines one entry on demand, this sweeps the w
 **Before any other step**, create these four tracking tasks with the task tool; mark each `in_progress` when you start it and `completed` when done:
 
 1. Resolve the next version (Step 1)
-2. Fan out one subagent per task (Step 2)
+2. Ground and refine every task (Step 2)
 3. Aggregate, present the delivery, and apply on approval (Step 3)
 4. Wrap up (Step 4)
 
@@ -43,20 +43,22 @@ Keep task 3 `in_progress` across the wait for approval; complete it only once th
 - State the plan in one line before mutating anything (e.g. `Preparing ## 0.5.0`).
 - If `TODO.md` has no `## X.Y.Z` section for that version, stop and ask the user how to proceed — don't guess a different version or invent a section.
 
-### 2. Fan out — one subagent per task
+### 2. Fan out — ground, then refine
 
 Enumerate every **top-level task** in the next-version section; each top-level task with its subtasks and notes is one work unit (a bare one-liner is a unit too).
 
-Dispatch **one subagent per unit**, **≤5 running at once**, until every unit has run. Default agent: `documentation-engineer` (backlog prose is its remit). Give each its task + subtasks / notes verbatim, its bucket, `.claude/rules/todo.md`, and repo access plus the full `TODO.md` (to spot a dependency a later version introduces). Tell it to:
+Dispatch **two subagents per unit**, in order, **≤5 units in flight at once**:
 
-- **Ground the task** — skim the related code / docs / config; check whether it names something **not yet in the stack** or no longer matches reality.
-- **Apply `.claude/rules/todo.md`** (Wording, Scope, Decomposition) — read and apply, don't restate.
+**a. Ground** — dispatch `Explore` with the task + subtasks / notes verbatim. Have it skim the related code, docs, and config and return paths, constraints, and real footprint — never file dumps — flagging anything the task names that is **not yet in the stack** or no longer matches reality.
+
+**b. Refine** — dispatch `documentation-engineer` with the task verbatim, its bucket, and the grounding report. Have it **read `TODO.md` itself**, later versions included, and tell it to:
+
 - **Judge before decomposing** — don't decompose by reflex:
-  - vague / oversized / terse → parent + scoped subtasks per Decomposition;
+  - vague / oversized / terse → parent + scoped subtasks;
   - already well-scoped → keep the structure, tighten wording, fix a wrong `(scope)` / bucket;
-  - stale / duplicate / superseded / out-of-theme / misplaced / premature → flag with a one-line reason, don't rewrite it away;
+  - already done / stale / duplicate / superseded / out-of-theme / misplaced / premature → flag with a one-line reason, don't rewrite it away;
   - a `Decisions` entry → cleanup only, never decompose.
-- **Keep a named tool that is the deliverable** — `Add Hikari Grafana dashboard` / `Add Redis dashboard` stay specific; strip a vendor name only when it is the *how*.
+- **Let the grounding inform the subtasks, never become them** — resist turning every file it surfaces into a subtask.
 - **Return** — the proposed refined block (or "keep as-is"), a one-line rationale, and any flags; nothing else.
 
 ### 3. Aggregate and deliver once
