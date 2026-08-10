@@ -72,7 +72,7 @@ Find where the implementation diverged from the design.
     - **The SDD record** located in Step 1 — intent, decisions, deviations
     - **Git** — `git log main..<branch>` + the diffs, which also carry the manual-review changes made *after* the SDD run
 - **Capture each delta by the durable artifacts it touched** (files, classes, config, tests), **not commit hashes** — the SDD files contain hashes; do not copy them through.
-- **Delegate by default** to `Explore`; do it inline only for a trivially small diff (e.g. a one- or two-file change).
+- **Delegate by default** to a single `Explore`; do it inline only for a trivially small diff (e.g. a one- or two-file change).
 
 ### Step 3: Mark the spec implemented
 

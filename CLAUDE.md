@@ -32,6 +32,3 @@ Plans and specs: `docs/superpowers/`
 
 ## File Operations
 - When renaming any file, always use `git mv <old> <new>` — never delete and recreate
-
-## Subagent dispatch
-- For every Agent tool call, pick the most specific match from `.claude/agents/`; `general-purpose` is a last resort

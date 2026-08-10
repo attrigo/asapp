@@ -103,7 +103,7 @@ The `claude-docs-maintainer` agent audits every body against this before deploy.
 ## Conventions
 
 - **One agent per role**, kebab-case filename matching `name`.
-- **Dispatch fit** — `description` triggers must truthfully match the role; overlapping agents need distinct triggers so routing stays unambiguous. The dispatch policy itself lives in `CLAUDE.md`.
+- **Dispatch fit** — `description` triggers must truthfully match the role; overlapping agents need distinct triggers so routing stays unambiguous.
 
 ## Size
 

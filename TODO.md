@@ -53,6 +53,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [X] Make prepare-version and refine-task emit commit-sized outcomes
     - [X] Generalize close-task's doc-commit step wording
     - [X] Cap draft-commit-msg's lead paragraph and bullets in words
+- [X] (ai) Scope the subagent dispatch rule to agent choice, not count
 
 ---
 

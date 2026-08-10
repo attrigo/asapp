@@ -52,9 +52,9 @@ Do this up front; review nothing yet.
 From Step 1's verdict:
 
 - **Trivial** — review it inline; dispatch nothing.
-- **Otherwise** — dispatch review subagents **in parallel** over the branch diff (design specs excluded); each returns concise findings, not file dumps:
-  - **Always** — `code-reviewer` (line-level quality and structural fit).
-  - **Only when security-relevant files changed** (auth / security config, JWT / token handling, filter chains, crypto, secrets, new endpoints) — `security-auditor`.
+- **Otherwise** — dispatch **in parallel** over the branch diff (design specs excluded); each returns concise findings, not file dumps:
+  - **Always** — one `code-reviewer` (line-level quality and structural fit).
+  - **Only when security-relevant files changed** (auth / security config, JWT / token handling, filter chains, crypto, secrets, new endpoints) — one `security-auditor`.
 
 **Depth** — read the full changed files, not just the hunks; follow outward only into code the diff reaches — callers, collaborators, covering tests, dependent config — enough to judge correctness and completeness. Not a whole-repo audit. That reach is what surfaces findings beyond the changed lines: an un-updated caller, an absent test, a config that should have changed too.
 
