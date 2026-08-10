@@ -29,6 +29,3 @@ Plans and specs: `docs/superpowers/`
 ## Git
 - Follows Conventional Commits
 - Pre-commit hooks validate format and formatting
-
-## File Operations
-- When renaming any file, always use `git mv <old> <new>` — never delete and recreate
