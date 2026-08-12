@@ -51,7 +51,7 @@ For the current issue:
   - **TODO:** no gate, no print — go straight to 2b. If the issue is genuinely unclear, stop and ask (`AskUserQuestion`) first.
 - **b. Explore (delegate)** — dispatch `Explore`:
   - **Scope:** the involved code, and only the slice this issue needs of any supporting doc — never the whole file:
-    - **Report:** start from the finding's **Where** — go straight to those sites rather than rediscovering them.
+    - **Report:** start from the finding's Where — go straight to those sites rather than rediscovering them.
     - **TODO:** the task's spec (`docs/superpowers/specs/YYYY-MM-DD-<slug>-design.md`), plan (`docs/superpowers/plans/YYYY-MM-DD-<slug>.md`, may not exist), or branch commits (`git log main..HEAD`).
   - **Ask for:** the briefing's raw material (see *Issue briefing*) — the code at the site, the failure and its direct outcome, the rule or standard the code breaks, and the fix approach with what it touches.
 - **c. Propose:**
@@ -68,7 +68,7 @@ For the current issue:
 
 ### 3. Wrap-up
 
-- Summarize every issue's outcome in source order, in three groups: **Resolved** (issue → commit), **Deferred**, **Ignored** (one line each).
+- Summarize every issue's outcome in source order, in three groups: Resolved (issue → commit), Deferred, Ignored (one line each).
 - The report's ticks and outcome bullets stay uncommitted in the working tree.
 - Point at what's next: `asapp-close-task` for a task branch, `asapp-release` for a version — both the user's manual step.
 
@@ -76,9 +76,9 @@ For the current issue:
 
 ### Triage gate
 
-**Report** source only, at 2a. Print the finding, then ask the route.
+Report source only, at 2a. Print the finding, then ask the route.
 
-**1. The finding, as written:**
+#### 1. The finding, as written
 
 ```markdown
 #### <n>/<total> · <finding title>
@@ -88,22 +88,22 @@ For the current issue:
 
 Add nothing: no exploration, no restatement, no view on the fix.
 
-**2. The route** (`AskUserQuestion`), recommended first:
+#### 2. The route (`AskUserQuestion`), recommended first
 
 | Route | Runs | Note |
 |-------|------|------|
-| Apply | 2d–2g | the finding's **Fix** is the solution; honor any **Watch** |
+| Apply | 2d–2g | the finding's Fix is the solution; honor any Watch |
 | Explore | 2b–2g | — |
 | Defer | 2f–2g | 2g only if something changed |
 | Ignore | 2f | — |
 
 Recommend in this order:
 
-- the finding carries a **Defer** note → Defer
-- **Where** pins an exact site and **Fix** names a concrete, local change → Apply
+- the finding carries a Defer note → Defer
+- Where pins an exact site and Fix names a concrete, local change → Apply
 - otherwise → Explore
 
-**Effort** is not the signal — it rates the fix's size, not the cost of understanding it.
+Effort is not the signal — it rates the fix's size, not the cost of understanding it.
 
 ### Issue briefing
 

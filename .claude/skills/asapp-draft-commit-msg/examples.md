@@ -3,7 +3,7 @@
 Additional worked examples for the `asapp-draft-commit-msg` skill. See
 [SKILL.md](SKILL.md) for the generation process and the two representative examples inline there; this file holds the rest.
 
-**Example 1: Cross-module (refactoring)**
+## Example 1: Cross-module (refactoring)
 
 Detected changes:
 - Modified error handling in all three services
@@ -18,7 +18,7 @@ Reasoning: Structural improvement affecting multiple services, API layer scope u
 
 ---
 
-**Example 2: Bullets-only body (multiple sub-actions, why is obvious from subject)**
+## Example 2: Bullets-only body (multiple sub-actions, why is obvious from subject)
 
 Detected changes:
 - Renamed credential env vars across all services
@@ -37,7 +37,7 @@ Reasoning: Multiple distinct sub-actions warrant a body; the subject alone conve
 
 ---
 
-**Example 3: Lead paragraph + bullets (non-obvious why)**
+## Example 3: Lead paragraph + bullets (non-obvious why)
 
 Detected changes:
 - Removed AuthenticationManager bean from tasks and users services

@@ -50,10 +50,11 @@ Match specificity to fragility ("degrees of freedom"). Set the tier per skill; i
 - **Tables for tabular data only** — input→output maps (module→scope, plan-state→handling). Not for restating rules as "mistakes".
 - **Trust the reader.** Agents are smart; add only what they don't already know. Cut any line that doesn't justify its token cost.
 - **Stable terminology.** One term per concept throughout.
+- **Bold marks the label, or the one point that must not be missed.** Never a code span, a whole sentence, or a table's key column.
 
 ## Conventions
 
-- **Progress tracking** — a Process opens with a distinct `### 0. Set up progress tracking` step by default. Omit it only when the process is **straightforward** (single-pass, e.g. `asapp-draft-commit-msg`) or is built on a **loop that's hard to track** as discrete tasks (e.g. `asapp-resolve-review-issues`).
+- **Progress tracking** — a Process opens with a distinct `### 0. Set up progress tracking` step by default. Omit it only when the process is straightforward (single-pass, e.g. `asapp-draft-commit-msg`) or is built on a loop that's hard to track as discrete tasks (e.g. `asapp-resolve-review-issues`).
 - **Common mistakes** (optional) — only genuinely counterintuitive traps, capped ~5. Delete any row that restates a Process step or Guardrail.
 - **Progressive disclosure** — push heavy or shared reference material into a sibling file, linked one level deep from SKILL.md. Give a file over ~100 lines a short contents list.
 - **Dispatch steps** — name the agent and state the count ("one `X` per `<unit>`, ≤N at once"). An unstated count means one.

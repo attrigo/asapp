@@ -25,13 +25,13 @@ Class-level order: test context (`@SpringBootTest`, `@DataJdbcTest`) → its `@A
 
 ## Test Class Structure
 
-**@Nested classes**:
+### @Nested classes
 
 - Name each @Nested class after the method under test (`Authenticate`, `GetUsername`); verb-prefix factory methods and record accessors (`CreateInactiveUser` for `inactiveUser()`, `GetValue` for `value()`)
 - Classes with no method-level subject (security, lockdown and documentation ITs) group by scenario theme (`ActuatorAuthentication`, `SwaggerExposure`)
 - Don't duplicate helper methods across @Nested classes
 
-**Ordering**:
+### Ordering
 
 - **@Nested class order**: Follow method declaration order in source
 - **Test method order** within @Nested classes:
@@ -49,14 +49,14 @@ Class-level order: test context (`@SpringBootTest`, `@DataJdbcTest`) → its `@A
 
 | Condition kind | When | Structure | DO | DON'T |
 |----------------|------|-----------|-------|----------|
-| **Quality/State** | Standalone adjective describing overall nature: valid, null, expired, empty, missing, present, non-X | `_<Adjective><Noun>` | `_ValidToken`, `_ExpiredToken`, `_MissingRoleClaim`, `_NonStringRoleClaim` | `_TokenValid`, `_RoleClaimMissingInToken` |
-| **Specific Attribute** | Names a specific property/field of the noun and its value | `_<Noun><Property><Value>` | `_TokenRefreshType`, `_UserAdminRole`, `_TokenUseClaimNotAccess` | — |
-| **Existence** | Condition checks presence or absence in a store | `_<Noun>Exist(s)` | `_UserExists`, `_UsersNotExist` | `_NoUsers` |
-| **Adding Context** | Condition needs scoping to a specific context | `_<Noun><Verb>For<Context>` | `_TasksNotExistForUserId` | `_TasksNotExist` |
-| **Multi-State** | Condition involves multiple locations or states | `_<Noun><State>In<Location>...` | `_TokenValidInHeaderNotExistsInRedis` | `_ValidTokenNotInRedis` |
-| **Compound Existence** | Condition combines existence of an entity with absence of a related entity | `_<Noun>ExistsWith/Without<RelatedNoun>` | `_UserExistsWithoutAuthentications` | `_UserExistsAuthenticationsNotExist` |
-| **Possession** | Condition describes what an entity owns or contains | `_<Noun>Has[No]<RelatedNoun>` | `_UserHasTasks`, `_UserHasNoTasks` | `_UserTasksExist` |
-| **Action/Event** | Condition describes something that occurs during execution | `_<Noun><Verb>` | `_DatabaseOperationFails`, `_CacheConnectionFails`, `_TokenGenerationFails` | — |
+| Quality/State | Standalone adjective describing overall nature: valid, null, expired, empty, missing, present, non-X | `_<Adjective><Noun>` | `_ValidToken`, `_ExpiredToken`, `_MissingRoleClaim`, `_NonStringRoleClaim` | `_TokenValid`, `_RoleClaimMissingInToken` |
+| Specific Attribute | Names a specific property/field of the noun and its value | `_<Noun><Property><Value>` | `_TokenRefreshType`, `_UserAdminRole`, `_TokenUseClaimNotAccess` | — |
+| Existence | Condition checks presence or absence in a store | `_<Noun>Exist(s)` | `_UserExists`, `_UsersNotExist` | `_NoUsers` |
+| Adding Context | Condition needs scoping to a specific context | `_<Noun><Verb>For<Context>` | `_TasksNotExistForUserId` | `_TasksNotExist` |
+| Multi-State | Condition involves multiple locations or states | `_<Noun><State>In<Location>...` | `_TokenValidInHeaderNotExistsInRedis` | `_ValidTokenNotInRedis` |
+| Compound Existence | Condition combines existence of an entity with absence of a related entity | `_<Noun>ExistsWith/Without<RelatedNoun>` | `_UserExistsWithoutAuthentications` | `_UserExistsAuthenticationsNotExist` |
+| Possession | Condition describes what an entity owns or contains | `_<Noun>Has[No]<RelatedNoun>` | `_UserHasTasks`, `_UserHasNoTasks` | `_UserTasksExist` |
+| Action/Event | Condition describes something that occurs during execution | `_<Noun><Verb>` | `_DatabaseOperationFails`, `_CacheConnectionFails`, `_TokenGenerationFails` | — |
 
 ## Test Method Structure
 
@@ -125,22 +125,24 @@ Use `// @formatter:off/on` only for:
 
 ## Test Data & Fixtures
 
-**Values**:
+### Values
 
 - Use fixed values by default; dynamic values only as factory builder defaults (`testing-factories.md`)
 - Only specify values relevant to what you're testing; let factories provide defaults for unrelated fields
 
-**Where to define data**:
+### Where to define data
 
 - Create test data inline in test methods; reserve class-level fields for infrastructure config (secrets, base URLs, timeout values) — never the test subject, a domain object, or data under validation
 
-**How to create data** — choose the simplest pattern that works (ordered by priority):
+### How to create data
 
-| Pattern                           | When to Use                                                   |
-|-----------------------------------|---------------------------------------------------------------|
-| **Inline Value Objects**          | One-off simple value (userId, username)                       |
-| **Extract from Aggregates**       | Need one or two fields from existing object                   |
-| **Object Mother Nested Entities** | Need reusable component of an aggregate (JWT, encoded token)  |
-| **Object Mother Aggregates**      | Need full aggregate with related entities (User, Task)        |
+Choose the simplest pattern that works (ordered by priority):
+
+| Pattern                       | When to Use                                                  |
+|-------------------------------|--------------------------------------------------------------|
+| Inline Value Objects          | One-off simple value (userId, username)                      |
+| Extract from Aggregates       | Need one or two fields from existing object                  |
+| Object Mother Nested Entities | Need reusable component of an aggregate (JWT, encoded token) |
+| Object Mother Aggregates      | Need full aggregate with related entities (User, Task)       |
 
 - Patterns are composable. When extracting from aggregates, create the aggregate itself using the simplest sufficient pattern

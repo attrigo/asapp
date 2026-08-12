@@ -45,13 +45,13 @@ Keep task 3 `in_progress` across the wait for approval; complete it only once th
 
 ### 2. Fan out — ground, then refine
 
-Enumerate every **top-level task** in the next-version section; each top-level task with its subtasks and notes is one work unit (a bare one-liner is a unit too).
+Enumerate every top-level task in the next-version section; each top-level task with its subtasks and notes is one work unit (a bare one-liner is a unit too).
 
-Dispatch **two subagents per unit**, in order, **≤5 units in flight at once**:
+Dispatch two subagents per unit, in order, ≤5 units in flight at once:
 
-**a. Ground** — dispatch `Explore` with the task + subtasks / notes verbatim. Have it skim the related code, docs, and config and return paths, constraints, and real footprint — never file dumps — flagging anything the task names that is **not yet in the stack** or no longer matches reality.
+**a. Ground** — dispatch `Explore` with the task + subtasks / notes verbatim. Have it skim the related code, docs, and config and return paths, constraints, and real footprint — never file dumps — flagging anything the task names that is not yet in the stack or no longer matches reality.
 
-**b. Refine** — dispatch `documentation-engineer` with the task verbatim, its bucket, and the grounding report. Have it **read `TODO.md` itself**, later versions included, and tell it to:
+**b. Refine** — dispatch `documentation-engineer` with the task verbatim, its bucket, and the grounding report. Have it read `TODO.md` itself, later versions included, and tell it to:
 
 - **Judge before decomposing** — don't decompose by reflex:
   - vague / oversized / terse → parent + scoped subtasks;
@@ -63,9 +63,9 @@ Dispatch **two subagents per unit**, in order, **≤5 units in flight at once**:
 
 ### 3. Aggregate and deliver once
 
-- Assemble every subagent's result into the full refined section, in **original bucket + task order** (Features → Bugfix → Technical → Docs & Tooling → Decisions).
+- Assemble every subagent's result into the full refined section, in original bucket + task order (Features → Bugfix → Technical → Docs & Tooling → Decisions).
 - Normalize across units — consistent `(scope)` usage, no duplication introduced between tasks; tidy the `Goal:` line if it reads poorly.
-- Present **one** delivery: the whole refined section as a single fenced block, a consolidated rationale (one line per changed task), and a **Flags** list (premature / misplaced / stale items needing a decision).
+- Present one delivery: the whole refined section as a single fenced block, a consolidated rationale (one line per changed task), and a Flags list (premature / misplaced / stale items needing a decision).
 - Wait for confirmation, then apply to `TODO.md` in one pass. If the user asks for changes, revise and re-present.
 
 ### 4. Wrap-up
@@ -75,7 +75,7 @@ Dispatch **two subagents per unit**, in order, **≤5 units in flight at once**:
 
 ## Examples
 
-**Example 1 — decompose a vague entry:**
+### Example 1 — decompose a vague entry
 
 Before (in the next-version section):
 ```markdown
@@ -90,7 +90,7 @@ After:
 ```
 Rationale: the one-liner names no scoped outcome; the subagent decomposes it into self-contained subtasks per the rule's Decomposition conventions.
 
-**Example 2 — flag a superseded entry (no rewrite):**
+### Example 2 — flag a superseded entry (no rewrite)
 
 Entry (in the next-version section):
 ```markdown

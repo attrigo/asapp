@@ -51,6 +51,7 @@ The `paths:` glob is routing-critical — a wrong glob silently disables the rul
 - **Terse, imperative, no rationalization prose.** Bullet-phrase brevity; label-then-list.
 - **Tables for tabular data only** — input→output maps, not prose constraints.
 - **Stable terminology.** One term per concept.
+- **Bold marks the label, or the one point that must not be missed.** Never a code span, a whole sentence, or a table's key column.
 
 ### No duplication
 - **Say it once.** Each constraint lives in one rule — never restate it across rules.

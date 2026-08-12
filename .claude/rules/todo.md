@@ -45,13 +45,13 @@ When refining a vague or oversized entry into subtasks:
 
 ## Scopes
 
-The `(scope)` ≈ the task's Conventional Commit scope. Two axes: **bucket = kind of change, scope = area.**
+The `(scope)` ≈ the task's Conventional Commit scope. Two axes: bucket = kind of change, scope = area.
 
 - **domain** — the service / bounded-context the change belongs to (open set; a new service is automatically valid): e.g. `authentication` `notifications` `tasks` `users`
 - **concerns** — `api` `architecture` `clients` `config` `error-handling` `observability` `persistence` `security` `tests`
 - **tooling** — `ai` `build` `ci` `deps` `docs`
 
-Features and Bugfix are scoped by **domain**; Technical / Docs & Tooling by **concern or tooling**.
+Features and Bugfix are scoped by domain; Technical / Docs & Tooling by concern or tooling.
 
 ### Adding a scope
 
@@ -61,4 +61,4 @@ Features and Bugfix are scoped by **domain**; Technical / Docs & Tooling by **co
 
 ## Review findings
 
-- Issues the developer logs by hand go as **plain nested bullets** (`- <issue>`) one level under the task/subtask they concern.
+- Issues the developer logs by hand go as plain nested bullets (`- <issue>`) one level under the task/subtask they concern.

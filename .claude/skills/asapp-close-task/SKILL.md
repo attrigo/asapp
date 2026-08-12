@@ -11,13 +11,13 @@ description: >
 
 # Close Task
 
-Integrate a finished task into the **local** `main` branch. Runs end-to-end with no confirmation gate and **never pushes** — every git action is local and revertible (the sole exception is the final SDD-record cleanup).
+Integrate a finished task into the local `main` branch. Runs end-to-end with no confirmation gate and never pushes — every git action is local and revertible (the sole exception is the final SDD-record cleanup).
 
 **Core principle — the end-state is a contract.** When this skill finishes:
 
-- **`main`** has the task's work as **one squash commit**, which **includes the implemented spec**, **marks the parent task `[X]` complete in `TODO.md`**, and **excludes the plan file and the review-task report**.
-- **The task branch** keeps **all its development commits**, with the **task's pending docs committed as the last commit**.
-- **Both branches stay local**, so you can revert if anything looks wrong.
+- `main` has the task's work as one squash commit, which includes the implemented spec, marks the parent task `[X]` complete in `TODO.md`, and excludes the plan file and the review-task report.
+- The task branch keeps all its development commits, with the task's pending docs committed as the last commit.
+- Both branches stay local, so you can revert if anything looks wrong.
 
 ## Usage
 
@@ -71,19 +71,21 @@ Find where the implementation diverged from the design.
 - **Draw on both sources:**
     - **The SDD record** located in Step 1 — intent, decisions, deviations
     - **Git** — `git log main..<branch>` + the diffs, which also carry the manual-review changes made *after* the SDD run
-- **Capture each delta by the durable artifacts it touched** (files, classes, config, tests), **not commit hashes** — the SDD files contain hashes; do not copy them through.
+- **Capture each delta by the durable artifacts it touched** (files, classes, config, tests), not commit hashes — the SDD files contain hashes; do not copy them through.
 - **Delegate by default** to a single `Explore`; do it inline only for a trivially small diff (e.g. a one- or two-file change).
 
 ### Step 3: Mark the spec implemented
 
-Dispatch `documentation-engineer` to update **only the spec file** from the Step 2 analysis:
+Dispatch `documentation-engineer` to update only the spec file from the Step 2 analysis:
 
 - Sets the header `**Status**:` to `Implemented`.
-- Appends a `## N. Post-implementation notes` section (N = next section number) per the *Post-implementation notes recipe*.
+- Drafts a `## N. Post-implementation notes` section (N = next section number) per the *Post-implementation notes recipe*.
+    - **No notes section yet** — appends it.
+    - **A notes section already there** — repairs that one in place, keeping its heading and position: keeps each delta the Step 2 analysis confirms, corrects what it contradicts, adds what it missed, drops what no durable artifact backs.
 
-(If the spec is already `Implemented`, skip this step and reuse the existing notes.)
+Then commit only the spec file on the task branch, message built with `asapp-draft-commit-msg`, following the reference style: `docs(<scope>): mark <task> design spec as implemented`.
 
-Then commit **only the spec file** on the task branch, message built with `asapp-draft-commit-msg`, following the reference style: `docs(<scope>): mark <task> design spec as implemented`.
+If the pass leaves the spec unchanged, skip the commit and report it.
 
 ### Step 4: Mark the parent task complete
 
@@ -91,7 +93,7 @@ Flip the resolved task's `- [ ]` → `- [X]` in `TODO.md` (the entry resolved in
 
 (If the TODO is already checked, skip this step.)
 
-Then commit **only `TODO.md`** on the task branch, message built with `asapp-draft-commit-msg`, following the reference style: `docs(<scope>): mark <task> complete in TODO.md`.
+Then commit only `TODO.md` on the task branch, message built with `asapp-draft-commit-msg`, following the reference style: `docs(<scope>): mark <task> complete in TODO.md`.
 
 ### Step 5: Draft the squash message
 
@@ -112,7 +114,7 @@ git restore --staged --worktree -- docs/superpowers/plans/<plan>
 git commit -F <squash-message-file>      # the file written in Step 5 (overrides MERGE_MSG)
 ```
 
-If the squash merge **conflicts**, run `git merge --abort` and report — do not guess resolutions.
+If the squash merge conflicts, run `git merge --abort` and report — do not guess resolutions.
 
 ### Step 7: Commit the task's pending docs as the last branch commit
 
@@ -134,11 +136,11 @@ git cat-file -e main:docs/reviews/<task-slug>-review.md 2>/dev/null && echo "FAI
 git log main -1 --stat        # the squash commit, includes the spec
 git log <branch> -1 --stat    # the plan and report as the last branch commit
 ```
-If any invariant **fails**, stop and report — **do not clean up**.
+If any invariant fails, stop and report — do not clean up.
 
 ### Step 9: Clear the SDD record
 
-**Only once the invariants pass**, delete the SDD record — it is untracked scaffolding and its essence is now in the spec notes + the squash commit. This is the **only non-git-revertible** action, which is why it runs last, after a clean close. Preserve the `.gitignore` marker:
+Only once the invariants pass, delete the SDD record — it is untracked scaffolding and its essence is now in the spec notes + the squash commit. This is the only non-git-revertible action, which is why it runs last, after a clean close. Preserve the `.gitignore` marker:
 ```bash
 [ -d .superpowers/sdd ] && find .superpowers/sdd -mindepth 1 ! -name .gitignore -delete
 ```
@@ -153,12 +155,12 @@ If any invariant **fails**, stop and report — **do not clean up**.
 
 | Plan state at closing | How it lands on the branch | How it's kept off main |
 |-----------------------|----------------------------|------------------------|
-| **Uncommitted / untracked** (the clean default) | Committed in Step 7, so it is the last commit | `git merge --squash` never staged it — auto-excluded |
-| **Already committed** | Already in branch history | `git merge --squash` staged it → `git restore --staged --worktree` drops it from main's commit |
+| Uncommitted / untracked (the clean default) | Committed in Step 7, so it is the last commit | `git merge --squash` never staged it — auto-excluded |
+| Already committed | Already in branch history | `git merge --squash` staged it → `git restore --staged --worktree` drops it from main's commit |
 
-The canonical flow assumes the plan is **uncommitted** at closing (committed last, in Step 7). The already-committed path is the safety net; if committing the spec (Step 3) or the task completion (Step 4) leaves the plan no longer the last commit, **report it — never rewrite history to reorder.**
+The canonical flow assumes the plan is uncommitted at closing (committed last, in Step 7). The already-committed path is the safety net; if committing the spec (Step 3) or the task completion (Step 4) leaves the plan no longer the last commit, report it — never rewrite history to reorder.
 
-The **review-task report** (`docs/reviews/<task-slug>-review.md`) is treated exactly like an uncommitted plan, so the squash auto-excludes it and Step 7 commits it in the same last commit as the plan. If the task produced no report, there is nothing to add.
+The review-task report (`docs/reviews/<task-slug>-review.md`) is treated exactly like an uncommitted plan, so the squash auto-excludes it and Step 7 commits it in the same last commit as the plan. If the task produced no report, there is nothing to add.
 
 ## Post-implementation notes recipe
 
@@ -181,6 +183,7 @@ Notable deltas:
 
 - **The count is what diverged, not the cap** — never pad to ten. With no deltas the anchor line stands alone; omit `Notable deltas:`.
 - **Never a spec recap, a file inventory, or a commit hash** — the task squash-merges into one commit on `main`, so a branch SHA is a dead reference there.
+- **Never a second section** — one per spec; repair the existing one instead.
 
 ## Reverting
 
@@ -191,7 +194,7 @@ git checkout main && git reset --hard $PRE_MAIN
 git checkout <branch> && git reset --hard $PRE_BRANCH
 ```
 
-> The Step 9 `.superpowers/sdd` cleanup is **not** covered by this — those files are untracked and gone for good.
+> The Step 9 `.superpowers/sdd` cleanup is not covered by this — those files are untracked and gone for good.
 
 ## Delegation
 

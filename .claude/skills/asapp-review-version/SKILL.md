@@ -48,11 +48,11 @@ Do this up front; review nothing yet.
   git diff v<prev>...HEAD --name-only -- . ':(exclude)docs/superpowers/**'   # ...v<ver> if already released
   git log --oneline --no-merges v<prev>..HEAD
   ```
-  The diff + commit log is the **anchor** and what you theme from. Only `docs/superpowers/**` is out of scope — shipped `.claude/**` is reviewable.
+  The diff + commit log is the anchor and what you theme from. Only `docs/superpowers/**` is out of scope — shipped `.claude/**` is reviewable.
 
 ### 2. Cluster the diff into themes
 
-Cluster the version's work into a small set of coherent themes — target **4–8**; merge slivers or split an oversized theme rather than force the count.
+Cluster the version's work into a small set of coherent themes — target 4–8; merge slivers or split an oversized theme rather than force the count.
 
 - **Theme from the commits + diff** — group by scope and shared paths. Every changed file lands in exactly one theme; never one-theme-per-file, never a catch-all "Misc."
 - **Cross-check `TODO.md` for coverage only** — shipped work it doesn't list, or a listed task with no matching change, is a should-fix finding. `TODO.md` is not a theming input.
@@ -60,18 +60,18 @@ Cluster the version's work into a small set of coherent themes — target **4–
 
 ### 3. Review each theme, then consolidate
 
-Dispatch **one `code-reviewer` per theme**, scoped to that theme's files (not the whole diff). It gathers the theme's context once and applies every relevant lens in that pass. Keep **≤5 running at once**.
+Dispatch one `code-reviewer` per theme, scoped to that theme's files (not the whole diff). It gathers the theme's context once and applies every relevant lens in that pass. Keep ≤5 running at once.
 
-**Lenses (one pass):**
+Lenses (one pass):
 - Line-level quality — always.
 - Layering, coherence, and completeness across services — for production-code themes; skip for docs / tooling / `.claude` themes.
 - The theme's own concern — tests, API, docs, CI, and so on.
 
-**Add `security-auditor`** as a second reviewer only for a security-relevant theme (auth / security config, JWT / token handling, filter chains, crypto, secrets, new endpoints).
+Add `security-auditor` as a second reviewer only for a security-relevant theme (auth / security config, JWT / token handling, filter chains, crypto, secrets, new endpoints).
 
-**Depth** — read the full changed files; follow outward only into code the diff reaches (callers, collaborators, covering tests, dependent config). Not a whole-repo audit.
+Depth: read the full changed files; follow outward only into code the diff reaches (callers, collaborators, covering tests, dependent config). Not a whole-repo audit.
 
-**Mechanical themes** (renames, moves, mass find-replace) — a verify-only pass: check for stragglers, consistent application, orphaned imports. Their file counts are churn, not effort — say so, and don't let their size shortchange substantive themes.
+Mechanical themes (renames, moves, mass find-replace) — a verify-only pass: check for stragglers, consistent application, orphaned imports. Their file counts are churn, not effort — say so, and don't let their size shortchange substantive themes.
 
 Tell each reviewer to:
 - Judge the code on its own merits — ignore specs / plans; no drift findings.
@@ -79,32 +79,32 @@ Tell each reviewer to:
 - Classify each finding must-fix / should-fix / nice-to-have, with a short title, effort (S/M/L), impact (High/Med/Low).
 - Capture each finding's resolution context — read `.claude/rules/review-report.md` first and hold every field to the shape and caps it defines.
 
-Then **consolidate**: dedupe overlaps, merge into one list. IDs are assigned at the end of Step 4.
+Then consolidate: dedupe overlaps, merge into one list. IDs are assigned at the end of Step 4.
 
 ### 4. Cross-cutting pass — the seams between themes
 
 Step 3 is blind to issues whose cause is in one theme and symptom in another (a field renamed in `auth`, still read the old way in `tasks`; a contract changed on one side only; a pattern applied unevenly). This pass catches those.
 
-**Run only when ≥2 themes touch production code.** Otherwise skip it, and note the skip + reason in the report.
+Run only when ≥2 themes touch production code. Otherwise skip it, and note the skip + reason in the report.
 
-Dispatch **one `code-reviewer`** with the consolidated theme findings + repo access. Tell it to:
-- Hunt only the **seams between themes** — never re-review inside a theme (Step 3 did).
+Dispatch one `code-reviewer` with the consolidated theme findings + repo access. Tell it to:
+- Hunt only the seams between themes — never re-review inside a theme (Step 3 did).
 - Confirm before reporting — reason over the findings, then spot-read only the lines needed to confirm. Report confirmed seams, not hunches.
-- Classify like every finding, to the shape and caps in `.claude/rules/review-report.md`; set **Theme** to the seam (e.g. `auth × tasks`); record **Where** as a list covering both sides.
+- Classify like every finding, to the shape and caps in `.claude/rules/review-report.md`; set Theme to the seam (e.g. `auth × tasks`); record Where as a list covering both sides.
 
-**Then assign IDs** across the merged set.
+Then assign IDs across the merged set.
 
 ### 5. Assemble the readiness report
 
-Present the **verdict**, **per-theme summary**, and each section's **summary table** in chat; the full report (detail blocks included) is written in Step 6.
+Present the verdict, per-theme summary, and each section's summary table in chat; the full report (detail blocks included) is written in Step 6.
 
-- **Verdict** — **Ready** / **Ready-with-caveats** / **Not-ready**, one-line rationale. Not-ready if any must-fix; Ready-with-caveats if only should/nice; Ready if nothing is worth acting on. This is a **code review only** — it does not assert the build or tests are green (that's `asapp-release`).
+- **Verdict** — Ready / Ready-with-caveats / Not-ready, one-line rationale. Not-ready if any must-fix; Ready-with-caveats if only should/nice; Ready if nothing is worth acting on. This is a code review only — it does not assert the build or tests are green (that's `asapp-release`).
 - **Per-theme summary** — one row per theme: `| Theme | Coherent & complete? | Notable gaps |`.
-- **Findings** — each severity section's **summary table** only (summary column **Theme**); the detail blocks belong to the written report, per `.claude/rules/review-report.md`.
+- **Findings** — each severity section's summary table only (summary column Theme); the detail blocks belong to the written report, per `.claude/rules/review-report.md`.
 
 ### 6. Write the report
 
-Write to **`docs/reviews/v<ver>-readiness-report.md`** (create `docs/reviews/` if absent; overwrite any existing report for the version). Lead with:
+Write to `docs/reviews/v<ver>-readiness-report.md` (create `docs/reviews/` if absent; overwrite any existing report for the version). Lead with:
 
 - title — `# Release Readiness Report — v<ver> · <theme>`
 - anchor line — range, commit / file / theme counts (e.g. `` **Anchor:** `v0.3.0...HEAD` · 62 commits · 587 files · 8 themes ``)
@@ -130,5 +130,5 @@ Restate the verdict and the report path. Remind the user: no code changed, nothi
 
 - **Review and report only** — never change code, commit, push, tag, or merge. The release is the user's separate `asapp-release` step.
 - **The only write is the report** at `docs/reviews/v<ver>-readiness-report.md`.
-- **Exclude `docs/superpowers/**`** — never flag a spec as outdated or drifted.
+- **Exclude the spec tree** — `docs/superpowers/**`; never flag a spec as outdated or drifted.
 - **Delegate all reviewing to subagents** — keep the main context clean.

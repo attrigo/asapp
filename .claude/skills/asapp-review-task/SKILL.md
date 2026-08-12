@@ -15,7 +15,7 @@ description: >
 
 The final review gate before a task closes: delegate a thorough review of the current branch to subagents, present prioritized findings, then record every one of them in a report file. Runs before the manual close.
 
-**Core principle:** every finding has a **kind** — an **issue** (something is wrong) or an **improvement** (something could be better) — and every finding is recorded in the report.
+**Core principle:** every finding has a kind — an issue (something is wrong) or an improvement (something could be better) — and every finding is recorded in the report.
 
 ## Usage
 
@@ -40,11 +40,11 @@ The final review gate before a task closes: delegate a thorough review of the cu
 Do this up front; review nothing yet.
 
 1. **Resolve the task** — turn the input (line number, or quoted / named text) into one `TODO.md` entry.
-2. **Scope** — the files touched on the branch, excluding design specs. This diff is the review **anchor** (see *Depth* in Step 2):
+2. **Scope** — the files touched on the branch, excluding design specs. This diff is the review anchor (see *Depth* in Step 2):
    ```bash
    git diff main...HEAD --stat -- . ':(exclude)docs/superpowers/**'
    ```
-3. **Right-size** — the diff is **trivial** only when all three hold: no production logic changed (docs, comments, config values, mechanical renames), nothing security-bearing touched, and it fits in one read (~≤3 files, ≤30 changed lines). When in doubt, it is not trivial.
+3. **Right-size** — the diff is trivial only when all three hold: no production logic changed (docs, comments, config values, mechanical renames), nothing security-bearing touched, and it fits in one read (~≤3 files, ≤30 changed lines). When in doubt, it is not trivial.
 4. **State your read** — task, scope, and verdict (`trivial → review inline` / `dispatch`) in one line, then go to Step 2. Stop only when the task match is genuinely ambiguous; don't over-ask.
 
 ### 2. Run the review, then consolidate
@@ -52,39 +52,39 @@ Do this up front; review nothing yet.
 From Step 1's verdict:
 
 - **Trivial** — review it inline; dispatch nothing.
-- **Otherwise** — dispatch **in parallel** over the branch diff (design specs excluded); each returns concise findings, not file dumps:
+- **Otherwise** — dispatch in parallel over the branch diff (design specs excluded); each returns concise findings, not file dumps:
   - **Always** — one `code-reviewer` (line-level quality and structural fit).
   - **Only when security-relevant files changed** (auth / security config, JWT / token handling, filter chains, crypto, secrets, new endpoints) — one `security-auditor`.
 
-**Depth** — read the full changed files, not just the hunks; follow outward only into code the diff reaches — callers, collaborators, covering tests, dependent config — enough to judge correctness and completeness. Not a whole-repo audit. That reach is what surfaces findings beyond the changed lines: an un-updated caller, an absent test, a config that should have changed too.
+Depth: read the full changed files, not just the hunks; follow outward only into code the diff reaches — callers, collaborators, covering tests, dependent config — enough to judge correctness and completeness. Not a whole-repo audit. That reach is what surfaces findings beyond the changed lines: an un-updated caller, an absent test, a config that should have changed too.
 
 Every review — inline or delegated — must:
 - Judge the code on its own merits — ignore specs / plans; no drift findings.
-- Classify each finding by **kind** — an **issue** (something wrong) or an **improvement** (something better).
-- Suggest a **severity** (must-fix / should-fix / nice-to-have), **effort**, and **impact**.
+- Classify each finding by kind — an issue (something wrong) or an improvement (something better).
+- Suggest a severity (must-fix / should-fix / nice-to-have), effort, and impact.
 - Capture each finding's resolution context — read `.claude/rules/review-report.md` first and hold every field to the shape and caps it defines. This is context the reviewer already holds; recording it now spares the resolver rediscovering it.
 
-Then **consolidate**: merge into one list (deduping where reviewers overlap) and assign each an `ID`.
+Then consolidate: merge into one list (deduping where reviewers overlap) and assign each an `ID`.
 
 ### 3. Present the findings
 
-A **summary table** sorted by severity (highest first) — the whole chat output:
+A summary table sorted by severity (highest first) — the whole chat output:
 
 | ID | Title | Kind | Severity | Effort | Impact |
 |----|-------|------|----------|--------|--------|
 
-- **Kind** issue / improvement · **Severity** must-fix / should-fix / nice-to-have · **Effort** S/M/L · **Impact** High/Med/Low.
+- Kind: issue / improvement · Severity: must-fix / should-fix / nice-to-have · Effort: S/M/L · Impact: High/Med/Low.
 
 ### 4. Write the report
 
-Write it on **every** run — a trivial inline review and one that found nothing included; the report is the record that the review happened.
+Write it on every run — a trivial inline review and one that found nothing included; the report is the record that the review happened.
 
-Write to **`docs/reviews/<task-slug>-review.md`** (`<task-slug>` = a short kebab-case slug from the task title, e.g. `docs/reviews/find-tasks-by-ids-review.md`). Create `docs/reviews/` if absent; overwrite an existing report for the same task. Lead with:
+Write to `docs/reviews/<task-slug>-review.md` (`<task-slug>` = a short kebab-case slug from the task title, e.g. `docs/reviews/find-tasks-by-ids-review.md`). Create `docs/reviews/` if absent; overwrite an existing report for the same task. Lead with:
 
 - title — `# Task Review — <task title>`
 - anchor line — `` `main...HEAD` · <N> files ``
 
-then the findings per `.claude/rules/review-report.md` (summary column **Kind**).
+then the findings per `.claude/rules/review-report.md` (summary column Kind).
 
 ### 5. Wrap-up
 

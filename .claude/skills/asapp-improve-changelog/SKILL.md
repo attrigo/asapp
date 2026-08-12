@@ -12,7 +12,7 @@ description: >
 
 # Improve Changelog
 
-Fetch a GitHub Release's notes, apply the editorial **Improvement rules**, and update the release after the user confirms.
+Fetch a GitHub Release's notes, apply the editorial Improvement rules, and update the release after the user confirms.
 
 ## Usage
 
@@ -76,7 +76,7 @@ Error: Release <tag> not found.
 
 ### 4. Apply improvements
 
-Apply the **Improvement rules** (below) to the fetched content.
+Apply the Improvement rules (below) to the fetched content.
 
 ### 5. Confirm and apply
 
@@ -101,27 +101,21 @@ rm .github/changelog-draft.md
 
 ## Improvement rules
 
-**Merge** — combine entries covering the same change or topic across commits into one clearer entry, even when the sources sit in different sections.
-- Keep all commit links from the merged entries, listed together at the end: `([`abc1234`](url1), [`def5678`](url2))`.
-- When merge sources span sections, file the combined entry under whichever source section is more impactful (New Features > Bug Fixes > Documentation > Upgrades > Others). This decides only where the merged entry lands — it does not reorder the sections.
+- **Merge** — combine entries covering the same change or topic across commits into one clearer entry, even when the sources sit in different sections.
+  - Keep all commit links from the merged entries, listed together at the end: `([`abc1234`](url1), [`def5678`](url2))`.
+  - When merge sources span sections, file the combined entry under whichever source section is more impactful (New Features > Bug Fixes > Documentation > Upgrades > Others). This decides only where the merged entry lands — it does not reorder the sections.
+- **Remove** — drop entries with no user-facing value:
+  - Internal refactors with no behavioral change visible to users
+  - Typo, comment, or formatting fixes
+  - Entries that repeat what another entry already says
+  - Commits already implied by a merged entry
+- **Remove empty sections** — if every entry in a section is removed or merged away, drop its header too.
+- **Rewrite** — clarify terse or ambiguous messages in plain language; keep entries concise (one line preferred).
+- **Normalize tone** — imperative form (`Add`, `Fix`, `Update`), never past tense (`Added`, `Fixed`) or third person (`Adds`, `Fixes`).
+- **Normalize scope casing** — lowercase scopes (`**authentication:**`, not `**Authentication:**`).
+- **Reorder within a section** — most user-facing or impactful entries first.
 
-**Remove** — drop entries with no user-facing value:
-- Internal refactors with no behavioral change visible to users
-- Typo, comment, or formatting fixes
-- Entries that repeat what another entry already says
-- Commits already implied by a merged entry
-
-**Remove empty sections** — if every entry in a section is removed or merged away, drop its header too.
-
-**Rewrite** — clarify terse or ambiguous messages in plain language; keep entries concise (one line preferred).
-
-**Normalize tone** — imperative form (`Add`, `Fix`, `Update`), never past tense (`Added`, `Fixed`) or third person (`Adds`, `Fixes`).
-
-**Normalize scope casing** — lowercase scopes (`**authentication:**`, not `**Authentication:**`).
-
-**Reorder within a section** — most user-facing or impactful entries first.
-
-**Example** (merge + reorder):
+Example (merge + reorder):
 
 Before:
 ```

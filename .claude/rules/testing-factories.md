@@ -24,11 +24,13 @@ Add a semantic default — a Builder modifier bundling several fields behind a d
 
 ## Naming
 
-**Entry methods** (static `a<Entity>()` / `an<Entity>Builder()`):
+### Entry methods (static `a<Entity>()` / `an<Entity>Builder()`)
+
 - No verb prefixes (`create`, `make`) — `build`/`buildJdbc` are reserved for the Builder's terminal methods
 - Avoid artificial adjectives ("default", "valid", "standard") — use `a<Entity>()` instead
 - Use adjective prefixes when multiple representations of the same concept exist to prevent import collisions and maintain call-site clarity (`encodedToken`, `decodedToken`)
 
-**Withers**:
+### Withers
+
 - Name IDs after the value-object type (`withTaskId`, not `withId`), every other attribute after the domain attribute; never abbreviate
 - Never accept entities as parameters — use ID primitives instead; factory constructs value objects in `build()`

@@ -25,25 +25,25 @@ Draft a Conventional Commit message from a change set — this session's Edit/Wr
 - Get the actual changes:
   - Session — if files are staged, `git diff --staged`; else `git diff`. Check `git status --porcelain`.
   - Commit range — `git log main..<branch>` and `git diff main..<branch>`.
-- List the touched paths and map each to a scope via **Module → scope** (Reference).
+- List the touched paths and map each to a scope via Module → scope (Reference).
 - If the set spans unrelated concerns, say so and suggest splitting into separate commits.
 
 ### 2. Choose type and scope
 
-- **Type** — from what changed (**Types**, Reference). Test changes mixed with production code take the production type. Unsure between types → the one describing the primary intent.
+- **Type** — from what changed (Types, Reference). Test changes mixed with production code take the production type. Unsure between types → the one describing the primary intent.
 - **Scope** — top-down, first match wins:
   1. Entirely infrastructure (docker / database / liquibase) → the component (`docker`, `database`, `liquibase`).
   2. Spans multiple modules under one unifying technical concern → the broader scope (`api`, `security`, `config`).
   3. One module, centered on a specific well-known feature → the feature (`jwt`, `validation`, `factories`, `tests`).
   4. One module → the module name.
   5. Multiple modules, no unifying theme → the most general applicable scope, or the most impacted module.
-- **Breaking change** — detect removed public endpoint/method, changed signature or return type, renamed config property, or a backward-incompatible schema change (dropped/renamed column). If breaking, mark it (**Format**, Reference).
+- **Breaking change** — detect removed public endpoint/method, changed signature or return type, renamed config property, or a backward-incompatible schema change (dropped/renamed column). If breaking, mark it (Format, Reference).
 
 ### 3. Draft
 
 - Subject-only when it's a single conceptual change with no nuance. Add a body when the diff holds ≥2 distinct logical changes, or the why isn't obvious from the subject.
 - When a body is needed, lead with a paragraph only if it carries a why the subject and bullets can't; otherwise go straight to bullets.
-- Follow **Format** and **Body rules** (Reference).
+- Follow Format and Body rules (Reference).
 
 ### 4. Output
 
@@ -95,18 +95,18 @@ Map the touched paths to a scope (scope vocabulary: `.claude/rules/todo.md`):
 | `libs/asapp-http-clients/...` | `clients` |
 | `docs/...` | `docs` |
 
-**Exception** — spec/plan files under `docs/superpowers/specs/...` and `docs/superpowers/plans/...` scope to the task's module, not `docs` (e.g. `docs(tasks): mark find-tasks-by-ids design spec as implemented`).
+Exception: spec/plan files under `docs/superpowers/specs/...` and `docs/superpowers/plans/...` scope to the task's module, not `docs` (e.g. `docs(tasks): mark find-tasks-by-ids design spec as implemented`).
 
 ### Examples
 
 Two representative shapes; see [examples.md](examples.md) for cross-module, bullets-only, and lead-paragraph-plus-bullets cases.
 
-**Single-line** — test-only change in one service:
+Single-line — test-only change in one service:
 ```
 test(authentication): improve factory method naming consistency
 ```
 
-**Multi-line, breaking** — endpoint removal:
+Multi-line, breaking — endpoint removal:
 ```
 feat(authentication)!: remove deprecated verify endpoint
 

@@ -81,6 +81,7 @@ The body is the agent's system prompt — a generic senior-practitioner brief. P
 - **Imperative, second person, label-then-list.** Bullet-phrase brevity; no rationalization prose; one term per concept.
 - **Reference, don't restate.** Name siblings by their `name`, cite rules by filename; never paste code that will drift.
 - **No em-dashes** — use commas, colons, parentheses, or periods.
+- **No bold** — label-then-list labels close with a colon.
 
 ### Shape
 The Template skeleton is fixed at seven parts, in order, with the counts annotated there. Beyond what the skeleton shows:

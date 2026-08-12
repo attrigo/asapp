@@ -118,8 +118,8 @@ The version just passed the Step 3 completeness gate. Do both documentation clos
 
 #### Drop the released TODO section
 
-- Locate the `## X.Y.Z · <theme>` section for the **release version** (the same section Step 3 just validated).
-- Delete it **wholesale** — from its `## ` header to the next `## ` header, including the trailing `---` divider.
+- Locate the `## X.Y.Z · <theme>` section for the release version (the same section Step 3 just validated).
+- Delete it wholesale — from its `## ` header to the next `## ` header, including the trailing `---` divider.
 - No preservation audit: Step 3 already gated it complete, history keeps it, and the edit is recoverable with `git checkout TODO.md`.
 - If Step 3 proceeded with the section absent (user-confirmed), there is nothing to drop — skip this edit.
 
@@ -132,7 +132,7 @@ mkdir -p docs/superpowers/specs/vX.Y.Z
 git mv docs/superpowers/specs/*-design.md docs/superpowers/specs/vX.Y.Z/
 ```
 
-- Only the **root-level** specs move; specs already archived in `v*/` subfolders are untouched (the glob does not recurse).
+- Only the root-level specs move; specs already archived in `v*/` subfolders are untouched (the glob does not recurse).
 - Keep each file's original `YYYY-MM-DD-<slug>-design.md` name — only its location changes.
 - Use `git mv` (never delete and recreate).
 - If there are no root-level specs, skip this edit — this version introduced no new design specs.
@@ -160,7 +160,7 @@ Confirm the root `pom.xml` now reads `<version>X.Y.Z</version>` (no SNAPSHOT).
 
 #### Update OpenAPI version
 
-In each of the three service `OpenApiConfiguration.java` files, update the `version` attribute in `@Info(...)` to the **release version**:
+In each of the three service `OpenApiConfiguration.java` files, update the `version` attribute in `@Info(...)` to the release version:
 
 ```
 services/asapp-authentication-service/src/main/java/com/attrigo/asapp/authentication/infrastructure/config/OpenApiConfiguration.java
@@ -172,7 +172,7 @@ Replace `version = "OLD_VERSION"` → `version = "X.Y.Z"` in the `@OpenAPIDefini
 
 #### Update docker-compose.yml
 
-Open `docker-compose.yml` and for every `image:` line matching `ghcr.io/attrigo/asapp-*:`, replace the version tag with the **release version** (e.g. `0.3.0`).
+Open `docker-compose.yml` and for every `image:` line matching `ghcr.io/attrigo/asapp-*:`, replace the version tag with the release version (e.g. `0.3.0`).
 
 Confirm all five `asapp-*` service image tags now reference the release version.
 
@@ -189,7 +189,7 @@ For example, for release `0.3.0`:
 - `services/asapp-users-service/src/main/resources/liquibase/db/changelog/v0.3.0/v0_3_0-changelog.xml`
 - `services/asapp-tasks-service/src/main/resources/liquibase/db/changelog/v0.3.0/v0_3_0-changelog.xml`
 
-**For each file that exists**: check if it already contains `<tagDatabase tag="X.Y.Z"/>`. If not, insert the following changeset before the closing `</databaseChangeLog>` tag:
+For each file that exists, check if it already contains `<tagDatabase tag="X.Y.Z"/>`. If not, insert the following changeset before the closing `</databaseChangeLog>` tag:
 
 ```xml
     <changeSet id="tag_version_X_Y_Z" author="attrigo">
@@ -209,9 +209,9 @@ If a service has no changelog file for this version, skip it — that service ha
 mvn clean test
 ```
 
-**If the build fails**: stop immediately, report the failure, and do not proceed. The user must fix the build before the release can continue.
+If the build fails, stop immediately, report the failure, and do not proceed. The user must fix the build before the release can continue.
 
-This is a fast **local pre-flight** only — pushing the tag in Step 11 triggers the `Release` workflow (`.github/workflows/release.yml`), which runs the full `-Pfull` build and tests, publishes the versioned Docker images, and creates the GitHub Release with its changelog. That full verification and publication happens in CI, after the tag lands.
+This is a fast local pre-flight only — pushing the tag in Step 11 triggers the `Release` workflow (`.github/workflows/release.yml`), which runs the full `-Pfull` build and tests, publishes the versioned Docker images, and creates the GitHub Release with its changelog. That full verification and publication happens in CI, after the tag lands.
 
 ### Step 8: Commit release and create tag
 
@@ -236,7 +236,7 @@ Confirm the root `pom.xml` now reads the next SNAPSHOT version (e.g. `0.4.0-SNAP
 
 #### Update OpenAPI version
 
-In each of the three service `OpenApiConfiguration.java` files, update the `version` attribute in `@Info(...)` to the **next SNAPSHOT version**:
+In each of the three service `OpenApiConfiguration.java` files, update the `version` attribute in `@Info(...)` to the next SNAPSHOT version:
 
 ```
 services/asapp-authentication-service/src/main/java/com/attrigo/asapp/authentication/infrastructure/config/OpenApiConfiguration.java
@@ -248,7 +248,7 @@ Replace `version = "X.Y.Z"` → `version = "X.Y+1.0-SNAPSHOT"` in the `@OpenAPID
 
 #### Update docker-compose.yml
 
-Open `docker-compose.yml` and for every `image:` line matching `ghcr.io/attrigo/asapp-*:`, replace the version tag with the **next SNAPSHOT version** (e.g. `0.4.0-SNAPSHOT`).
+Open `docker-compose.yml` and for every `image:` line matching `ghcr.io/attrigo/asapp-*:`, replace the version tag with the next SNAPSHOT version (e.g. `0.4.0-SNAPSHOT`).
 
 Confirm all five `asapp-*` service image tags now reference the next SNAPSHOT version.
 
