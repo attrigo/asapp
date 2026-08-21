@@ -32,6 +32,8 @@ com.attrigo.asapp.<service>/
     └── config/                           # configuration (cross-cutting)
 ```
 
-## Architecture tests
+## Enforced boundaries
 
-ArchUnit fitness functions live in `<service>.architecture` (test scope), grouped by concern (e.g. `JsonNamingConventionTests`).
+- Dependencies point inward only: `infrastructure` → `application` → `domain`.
+- The domain depends only on the JDK; the application layer adds only the logging facade and `@Transactional`.
+- Infrastructure never reaches a use case implementation, only its interface; an output port is used only by the application and its own implementations, and implemented only in infrastructure.

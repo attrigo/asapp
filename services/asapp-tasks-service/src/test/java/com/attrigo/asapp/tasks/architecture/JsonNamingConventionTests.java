@@ -37,10 +37,13 @@ import com.tngtech.archunit.lang.SimpleConditionEvent;
 class JsonNamingConventionTests {
 
     @ArchTest
-    static final ArchRule requestResponseDtoFieldsUseCamelCaseJson = fields().that()
-                                                                             .areDeclaredInClassesThat()
-                                                                             .resideInAnyPackage("..in.request..", "..in.response..")
-                                                                             .should(haveJsonNameMatchingFieldName());
+    static final ArchRule requestResponseDtoFieldsUseCamelCaseJson =
+    // @formatter:off
+            fields().that()
+                    .areDeclaredInClassesThat()
+                    .resideInAnyPackage("..in.request..", "..in.response..")
+                    .should(haveJsonNameMatchingFieldName());
+    // @formatter:on
 
     private static ArchCondition<JavaField> haveJsonNameMatchingFieldName() {
         return new ArchCondition<>("have a JSON property name matching the camelCase Java field name") {

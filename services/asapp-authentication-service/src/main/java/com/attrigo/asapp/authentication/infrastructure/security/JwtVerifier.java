@@ -23,15 +23,15 @@ import org.springframework.stereotype.Component;
 import com.attrigo.asapp.authentication.application.authentication.AuthenticationNotFoundException;
 import com.attrigo.asapp.authentication.application.authentication.InvalidJwtException;
 import com.attrigo.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
-import com.attrigo.asapp.authentication.application.authentication.out.TokenStore;
 import com.attrigo.asapp.authentication.domain.authentication.EncodedToken;
+import com.attrigo.asapp.authentication.infrastructure.authentication.out.RedisJwtStore;
 
 /**
  * Infrastructure component responsible for orchestrating JWT verification through a 3-step validation process.
  * <p>
- * Provides the infrastructure capability to verify JWTs using {@link JwtDecoder} and {@link TokenStore}.
+ * Provides the infrastructure capability to verify JWTs using {@link JwtDecoder} and {@link RedisJwtStore}.
  * <p>
- * Performs three-step validation: cryptographic verification via {@link JwtDecoder}, token type check, and session validation via {@link TokenStore}.
+ * Performs three-step validation: cryptographic verification via {@link JwtDecoder}, token type check, and session validation via {@link RedisJwtStore}.
  *
  * @since 0.2.0
  * @author attrigo
@@ -43,17 +43,17 @@ public class JwtVerifier {
 
     private final JwtDecoder jwtDecoder;
 
-    private final TokenStore tokenStore;
+    private final RedisJwtStore redisJwtStore;
 
     /**
      * Constructs a new {@code JwtVerifier} with required dependencies.
      *
-     * @param jwtDecoder the JWT decoder for decoding and validating tokens
-     * @param tokenStore the token store for checking token revocation status
+     * @param jwtDecoder    the JWT decoder for decoding and validating tokens
+     * @param redisJwtStore the Redis JWT store for checking token revocation status
      */
-    public JwtVerifier(JwtDecoder jwtDecoder, TokenStore tokenStore) {
+    public JwtVerifier(JwtDecoder jwtDecoder, RedisJwtStore redisJwtStore) {
         this.jwtDecoder = jwtDecoder;
-        this.tokenStore = tokenStore;
+        this.redisJwtStore = redisJwtStore;
     }
 
     /**
@@ -165,7 +165,7 @@ public class JwtVerifier {
      */
     private void checkAccessTokenInActiveStore(EncodedToken encodedToken) {
         logger.trace("[JWT_VERIFIER] Step 3/3: Checking access token exists in store");
-        var isTokenActive = tokenStore.accessTokenExists(encodedToken);
+        var isTokenActive = redisJwtStore.accessTokenExists(encodedToken);
         if (!isTokenActive) {
             throw new AuthenticationNotFoundException("Authentication session not found in store for access token");
         }
@@ -196,7 +196,7 @@ public class JwtVerifier {
      */
     private void checkRefreshTokenInActiveStore(EncodedToken encodedToken) {
         logger.trace("[JWT_VERIFIER] Step 3/3: Checking refresh token exists in store");
-        var isTokenActive = tokenStore.refreshTokenExists(encodedToken);
+        var isTokenActive = redisJwtStore.refreshTokenExists(encodedToken);
         if (!isTokenActive) {
             throw new AuthenticationNotFoundException("Authentication session not found in store for refresh token");
         }

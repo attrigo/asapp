@@ -16,7 +16,6 @@
 
 package com.attrigo.asapp.authentication.infrastructure.authentication.out;
 
-import java.time.Instant;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -113,12 +112,6 @@ public class JwtAuthenticationRepositoryAdapter implements JwtAuthenticationRepo
     public void deleteAllByUserId(UserId userId) {
         logger.trace("[JWT_AUTH_REPOSITORY] Deleting all authentications by userId={}", userId.value());
         jwtAuthenticationRepository.deleteAllByUserId(userId.value());
-    }
-
-    @Override
-    public Integer deleteAllByRefreshTokenExpiredBefore(Instant expiredBefore) {
-        logger.trace("[JWT_AUTH_REPOSITORY] Deleting all authentications with expired refresh tokens");
-        return jwtAuthenticationRepository.deleteAllByRefreshTokenExpiredBefore(expiredBefore);
     }
 
 }

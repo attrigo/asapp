@@ -100,6 +100,7 @@ Use `// @formatter:off/on` only for:
 - `satisfiesExactly…` lambdas — guard just inside `(` when there are multiple lambdas or a method-chain argument; leave a single lambda with simple arguments inline
 - RestDocs `document(...)` descriptor lists — keeps one field descriptor per line
 - `@TestPropertySource` property arrays — keeps one property per line
+- `@ArchTest` rule declarations — one guard per rule; without it the field name sets the chain's indentation
 
 ## Mocking
 

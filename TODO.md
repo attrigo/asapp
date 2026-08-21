@@ -14,11 +14,19 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [ ] Migrate git hook installation to Gradle
     - [ ] Update CI and release workflows to build with Gradle
     - [ ] Migrate Docker image publishing to Gradle
-- [ ] (architecture) Add an ArchUnit layering and boundary guardrail
-    - [ ] Enforce the infrastructure → application → domain dependency direction
-    - [ ] Keep the domain free of framework and infrastructure dependencies
-    - [ ] Confine cross-layer access to the declared input and output ports
-    - **Note:** a lightweight safety net for the Gradle, OAuth, and Modulith refactors; the full JMolecules suite lands in 0.10
+- [X] (architecture) Add an ArchUnit layering and boundary guardrail
+    - [X] Enforce the infrastructure → application → domain dependency direction
+    - [X] Keep the domain and application layers free of framework dependencies
+    - [X] Confine cross-layer access to the declared input and output ports
+    - [X] Pin ArchUnit and keep it out of the runtime image
+    - [X] Settle a naming and formatting convention for architecture rules
+    - [X] Settle how finely to split the architecture rule classes
+- [ ] (architecture) Decouple the application layer from every framework dependency
+    - [ ] Move transaction management out of the application layer
+    - [ ] Move logging out of the application layer
+    - [ ] Tighten the dependency isolation rule to allow only the JDK
+    - **Note:** the application layer depends on `@Transactional` and slf4j; the isolation rule allows both until this lands
+    - **Warning:** removes the `@Transactional` usages the transaction task below adds — sequence the two deliberately
 - [ ] (persistence) Wrap authentication user create and update in a transaction
     - **Note:** align with the "`@Transactional` on command use cases" convention in ports-adapters.md; `CreateUserService`/`UpdateUserService` currently omit it
 - [ ] (architecture) Reconcile driven-adapter conventions and align the code

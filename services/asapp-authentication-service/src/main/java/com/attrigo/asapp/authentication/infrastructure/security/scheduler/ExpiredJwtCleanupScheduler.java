@@ -24,7 +24,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import com.attrigo.asapp.authentication.application.authentication.out.JwtAuthenticationRepository;
+import com.attrigo.asapp.authentication.infrastructure.authentication.persistence.JdbcJwtAuthenticationRepository;
 
 /**
  * Scheduled job for cleaning up expired JWT authentications from the database.
@@ -40,14 +40,14 @@ public class ExpiredJwtCleanupScheduler {
 
     private static final Logger logger = LoggerFactory.getLogger(ExpiredJwtCleanupScheduler.class);
 
-    private final JwtAuthenticationRepository jwtAuthenticationRepository;
+    private final JdbcJwtAuthenticationRepository jwtAuthenticationRepository;
 
     /**
      * Constructs a new {@code ExpiredJwtCleanupScheduler}.
      *
-     * @param jwtAuthenticationRepository the JWT authentication repository
+     * @param jwtAuthenticationRepository the Spring Data JDBC repository
      */
-    public ExpiredJwtCleanupScheduler(JwtAuthenticationRepository jwtAuthenticationRepository) {
+    public ExpiredJwtCleanupScheduler(JdbcJwtAuthenticationRepository jwtAuthenticationRepository) {
         this.jwtAuthenticationRepository = jwtAuthenticationRepository;
     }
 

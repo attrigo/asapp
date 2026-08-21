@@ -37,8 +37,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.attrigo.asapp.authentication.application.authentication.AuthenticationNotFoundException;
 import com.attrigo.asapp.authentication.application.authentication.InvalidJwtException;
 import com.attrigo.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
-import com.attrigo.asapp.authentication.application.authentication.out.TokenStore;
 import com.attrigo.asapp.authentication.domain.authentication.EncodedToken;
+import com.attrigo.asapp.authentication.infrastructure.authentication.out.RedisJwtStore;
 
 /**
  * Tests {@link JwtVerifier} decode-then-verify pipeline and session validation.
@@ -56,7 +56,7 @@ class JwtVerifierTests {
     private JwtDecoder jwtDecoder;
 
     @Mock
-    private TokenStore tokenStore;
+    private RedisJwtStore redisJwtStore;
 
     @InjectMocks
     private JwtVerifier jwtVerifier;
@@ -72,7 +72,7 @@ class JwtVerifierTests {
             var encodedAccessToken = EncodedToken.of(encodedAccessTokenValue);
 
             given(jwtDecoder.decode(encodedAccessTokenValue)).willReturn(decodedJwt);
-            given(tokenStore.accessTokenExists(encodedAccessToken)).willReturn(true);
+            given(redisJwtStore.accessTokenExists(encodedAccessToken)).willReturn(true);
 
             // When
             var actual = jwtVerifier.verifyAccessToken(encodedAccessToken);
@@ -83,8 +83,8 @@ class JwtVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedAccessTokenValue);
-            then(tokenStore).should(times(1))
-                            .accessTokenExists(encodedAccessToken);
+            then(redisJwtStore).should(times(1))
+                               .accessTokenExists(encodedAccessToken);
         }
 
         @Test
@@ -136,7 +136,7 @@ class JwtVerifierTests {
             var encodedAccessToken = EncodedToken.of(encodedAccessTokenValue);
 
             given(jwtDecoder.decode(encodedAccessTokenValue)).willReturn(decodedJwt);
-            given(tokenStore.accessTokenExists(encodedAccessToken)).willReturn(false);
+            given(redisJwtStore.accessTokenExists(encodedAccessToken)).willReturn(false);
 
             // When
             var actual = catchThrowable(() -> jwtVerifier.verifyAccessToken(encodedAccessToken));
@@ -147,8 +147,8 @@ class JwtVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedAccessTokenValue);
-            then(tokenStore).should(times(1))
-                            .accessTokenExists(encodedAccessToken);
+            then(redisJwtStore).should(times(1))
+                               .accessTokenExists(encodedAccessToken);
         }
 
     }
@@ -164,7 +164,7 @@ class JwtVerifierTests {
             var encodedRefreshToken = EncodedToken.of(encodedRefreshTokenValue);
 
             given(jwtDecoder.decode(encodedRefreshTokenValue)).willReturn(decodedJwt);
-            given(tokenStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(redisJwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
 
             // When
             var actual = jwtVerifier.verifyRefreshToken(encodedRefreshToken);
@@ -175,8 +175,8 @@ class JwtVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedRefreshTokenValue);
-            then(tokenStore).should(times(1))
-                            .refreshTokenExists(encodedRefreshToken);
+            then(redisJwtStore).should(times(1))
+                               .refreshTokenExists(encodedRefreshToken);
         }
 
         @Test
@@ -228,7 +228,7 @@ class JwtVerifierTests {
             var encodedRefreshToken = EncodedToken.of(encodedRefreshTokenValue);
 
             given(jwtDecoder.decode(encodedRefreshTokenValue)).willReturn(decodedJwt);
-            given(tokenStore.refreshTokenExists(encodedRefreshToken)).willReturn(false);
+            given(redisJwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(false);
 
             // When
             var actual = catchThrowable(() -> jwtVerifier.verifyRefreshToken(encodedRefreshToken));
@@ -239,8 +239,8 @@ class JwtVerifierTests {
 
             then(jwtDecoder).should(times(1))
                             .decode(encodedRefreshTokenValue);
-            then(tokenStore).should(times(1))
-                            .refreshTokenExists(encodedRefreshToken);
+            then(redisJwtStore).should(times(1))
+                               .refreshTokenExists(encodedRefreshToken);
         }
 
     }

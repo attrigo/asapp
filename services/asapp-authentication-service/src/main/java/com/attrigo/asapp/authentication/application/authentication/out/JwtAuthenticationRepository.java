@@ -16,7 +16,6 @@
 
 package com.attrigo.asapp.authentication.application.authentication.out;
 
-import java.time.Instant;
 import java.util.List;
 
 import com.attrigo.asapp.authentication.application.authentication.AuthenticationNotFoundException;
@@ -86,15 +85,5 @@ public interface JwtAuthenticationRepository {
      * @param userId the user's unique identifier
      */
     void deleteAllByUserId(UserId userId);
-
-    /**
-     * Deletes all JWT authentications with refresh tokens expired before the given instant.
-     * <p>
-     * Only removes authentications from the repository where the refresh token has expired.
-     *
-     * @param expiredBefore the instant before which refresh tokens are considered expired
-     * @return the number of deleted authentications
-     */
-    Integer deleteAllByRefreshTokenExpiredBefore(Instant expiredBefore);
 
 }
