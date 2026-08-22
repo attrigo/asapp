@@ -36,4 +36,5 @@ com.attrigo.asapp.<service>/
 
 - Dependencies point inward only: `infrastructure` → `application` → `domain`.
 - The domain depends only on the JDK; the application layer adds only the logging facade and `@Transactional`.
+- Both application-layer exceptions are deliberate — inert metadata and a logging facade, not framework coupling.
 - Infrastructure never reaches a use case implementation, only its interface; an output port is used only by the application and its own implementations, and implemented only in infrastructure.

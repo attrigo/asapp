@@ -21,12 +21,6 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [X] Pin ArchUnit and keep it out of the runtime image
     - [X] Settle a naming and formatting convention for architecture rules
     - [X] Settle how finely to split the architecture rule classes
-- [ ] (architecture) Decouple the application layer from every framework dependency
-    - [ ] Move transaction management out of the application layer
-    - [ ] Move logging out of the application layer
-    - [ ] Tighten the dependency isolation rule to allow only the JDK
-    - **Note:** the application layer depends on `@Transactional` and slf4j; the isolation rule allows both until this lands
-    - **Warning:** removes the `@Transactional` usages the transaction task below adds — sequence the two deliberately
 - [ ] (persistence) Wrap authentication user create and update in a transaction
     - **Note:** align with the "`@Transactional` on command use cases" convention in ports-adapters.md; `CreateUserService`/`UpdateUserService` currently omit it
 - [ ] (architecture) Reconcile driven-adapter conventions and align the code
@@ -226,6 +220,7 @@ Goal: round out observability with operational dashboards and finer-grained inst
 
 * Removes NPEs with JSpecify
 * Build a BFF with GraphQL
+* Decouple the application layer from every framework dependency
 
 #### security
 
