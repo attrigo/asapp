@@ -16,6 +16,8 @@
 
 package com.attrigo.asapp.authentication.application.user.in.service;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.attrigo.asapp.authentication.application.ApplicationService;
 import com.attrigo.asapp.authentication.application.user.in.CreateUserUseCase;
 import com.attrigo.asapp.authentication.application.user.in.command.CreateUserCommand;
@@ -60,7 +62,13 @@ public class CreateUserService implements CreateUserUseCase {
         this.userRepository = userRepository;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The password hash runs inside the transaction, holding the connection for its duration.
+     */
     @Override
+    @Transactional
     public User createUser(CreateUserCommand command) {
         var username = Username.of(command.username());
         var rawPassword = RawPassword.of(command.password());

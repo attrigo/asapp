@@ -18,6 +18,8 @@ package com.attrigo.asapp.authentication.application.user.in.service;
 
 import java.util.Optional;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.attrigo.asapp.authentication.application.ApplicationService;
 import com.attrigo.asapp.authentication.application.user.in.UpdateUserUseCase;
 import com.attrigo.asapp.authentication.application.user.in.command.UpdateUserCommand;
@@ -65,7 +67,13 @@ public class UpdateUserService implements UpdateUserUseCase {
         this.userRepository = userRepository;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The password hash runs inside the transaction, holding the connection for its duration.
+     */
     @Override
+    @Transactional
     public Optional<User> updateUserById(UpdateUserCommand command) {
         var userId = UserId.of(command.userId());
 

@@ -14,7 +14,8 @@ Conventions for the application and infrastructure layers — ports, adapters, a
 ## Application Service
 
 - To register services in the Spring context always use `@ApplicationService` (a custom marker annotation, kept Spring-free and registered by an `@ComponentScan` filter in the infrastructure layer); never use `@Service` directly
-- `@Transactional` on state-changing (command) use cases; omit for read-only queries
+- `@Transactional` on state-changing (command) use cases; omit for read-only queries — **including single-write commands**
+- Keep remote calls and CPU-bound work (e.g. password hashing) out of the transaction; where unavoidable, note it in the method Javadoc
 - Use logging only for critical multi-step orchestrations
 
 ## Adapter vs. Direct Implementation

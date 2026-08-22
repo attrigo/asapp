@@ -21,8 +21,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [X] Pin ArchUnit and keep it out of the runtime image
     - [X] Settle a naming and formatting convention for architecture rules
     - [X] Settle how finely to split the architecture rule classes
-- [ ] (persistence) Wrap authentication user create and update in a transaction
-    - **Note:** align with the "`@Transactional` on command use cases" convention in ports-adapters.md; `CreateUserService`/`UpdateUserService` currently omit it
+- [X] (persistence) Wrap authentication user create and update in a transaction
 - [ ] (architecture) Reconcile driven-adapter conventions and align the code
     - [ ] Settle the driven-adapter naming, implementation, and placement conventions
     - [ ] Refactor the mismatched adapters to match the settled conventions
