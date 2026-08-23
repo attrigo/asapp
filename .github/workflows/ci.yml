@@ -19,17 +19,28 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Checkout the project
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Set up JDK 25
         uses: actions/setup-java@v5
         with:
           java-version: '25'
           distribution: 'temurin'
-          cache: maven
 
-      - name: Build and test the project
-        run: mvn verify -B --no-transfer-progress -Pci
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          # Checks the committed wrapper jar against Gradle's published checksums.
+          validate-wrappers: true
+          # The 'enhanced' default is closed-source under Gradle's Terms of Use;
+          # 'basic' is MIT on the GitHub Actions cache.
+          cache-provider: 'basic'
+
+      - name: Build and verify the project
+        # '--continue' reports every verdict on a red run.
+        run: ./gradlew ciBuild --console=plain --stacktrace --continue

@@ -38,7 +38,7 @@ service to provide aggregated user data.
 ## Requirements
 
 - **Java**: 25+
-- **Maven**: 3.9.14+
+- **Gradle**: 9.6.1 (via wrapper)
 - **Docker**: 20.10+
 - **Docker Compose**: 2.0+
 - **PostgreSQL**: 15+ (via Docker)
@@ -52,16 +52,16 @@ service to provide aggregated user data.
 
 ```bash
 # 1. Start the config service (in a separate terminal, from project root)
-cd services/asapp-config-service && mvn spring-boot:run
+./gradlew :services:asapp-config-service:bootRun
 
 # 2. Start the discovery service (in a separate terminal, from project root)
-cd services/asapp-discovery-service && mvn spring-boot:run
+./gradlew :services:asapp-discovery-service:bootRun
 
 # 3. Start PostgreSQL database
 docker-compose up -d asapp-users-postgres-db
 
 # 4. Run the service
-mvn spring-boot:run
+./gradlew :services:asapp-users-service:bootRun
 
 # 5. Access Swagger UI
 open http://localhost:8082/asapp-users-service/swagger-ui.html
@@ -71,7 +71,7 @@ open http://localhost:8082/asapp-users-service/swagger-ui.html
 
 ```bash
 # 1. Build Docker image
-mvn spring-boot:build-image
+./gradlew :services:asapp-users-service:bootBuildImage
 
 # 2. Start service with database
 docker-compose up -d
@@ -124,7 +124,7 @@ curl -X GET http://localhost:8082/asapp-users-service/api/users/{id} \
 
 The service is **secure-by-default**: with no environment profile, Swagger UI and Boot-UI are fully off and the Actuator exposes only `health`, `info`, `prometheus`, and `sbom`. Activating `dev` re-enables the full tooling.
 
-- **Local** — `mvn spring-boot:run` activates `dev` (wired in the POM).
+- **Local** — `./gradlew :services:asapp-users-service:bootRun` activates `dev` (wired in the build script).
 - **Docker stack** — `docker,dev`.
 - **Locked-down deploy** — `SPRING_PROFILES_ACTIVE=docker,prod`.
 
@@ -274,30 +274,42 @@ src/main/java/com/attrigo/asapp/users/
 
 ```bash
 # Build project
-mvn clean install
+./gradlew build
 
-# Build skipping tests
-mvn clean install -DskipTests
+# Compile and package without running any checks
+./gradlew assemble
 ```
 
 ### Test
 
 ```bash
-# Run all tests
-mvn clean verify
+# Run all tests (unit, integration, E2E)
+./gradlew check
 
 # Run mutation testing
-mvn org.pitest:pitest-maven:mutationCoverage
+./gradlew :services:asapp-users-service:pitest
+```
+
+### Run Locally
+
+Run from the repository root, never from the module directory.
+
+```bash
+# Run the service
+./gradlew :services:asapp-users-service:bootRun
+
+# Override the active profiles
+./gradlew :services:asapp-users-service:bootRun --args='--spring.profiles.active=dev'
 ```
 
 ### Code Quality
 
 ```bash
 # Install git hooks (pre-commit, commit-msg)
-mvn git-build-hook:install
+./gradlew installGitHooks
 
 # Apply formatting
-mvn spotless:apply
+./gradlew spotlessApply
 ```
 
 ### Database Management
@@ -306,25 +318,38 @@ mvn spotless:apply
 # Start standalone database
 docker-compose up -d asapp-users-postgres-db
 
-# Generate migration SQL (dry-run)
-mvn liquibase:updateSQL
+# Preview the pending migrations as SQL (prints to stdout)
+./gradlew :services:asapp-users-service:liquibaseUpdateSql
+
+# ...or send that SQL to a file instead
+./gradlew :services:asapp-users-service:liquibaseUpdateSql -PliquibaseOutputFile=migration.sql
 
 # Apply Liquibase migrations
-mvn liquibase:update
+./gradlew :services:asapp-users-service:liquibaseUpdate
 
 # Rollback last changeset
-mvn liquibase:rollback -Dliquibase.rollbackCount=1
+./gradlew :services:asapp-users-service:liquibaseRollbackCount -PliquibaseCount=1
 ```
 
 ### Generate Documentation
 
 ```bash
-# Generate reports
-mvn clean verify -Pfull
-
-# Generate Spring REST API docs (no tests needed)
-mvn asciidoctor:process-asciidoc@generate-docs
+# Generate all reports (except `pitest`)
+./gradlew :services:asapp-users-service:fullBuild
 ```
+
+Generate specific report: `./gradlew :services:asapp-users-service:<command>`
+
+| Command                       | Generates            |
+|-------------------------------|----------------------|
+| `asciidoctor`                 | REST API docs        |
+| `jacocoTestReport`            | Unit coverage        |
+| `jacocoIntegrationTestReport` | Integration coverage |
+| `jacocoMergedReport`          | Merged coverage      |
+| `javadoc`                     | Javadoc              |
+| `pitest`                      | Mutation report      |
+
+> `asciidoctor` runs the integration tier first, so Docker must be up.
 
 ---
 
@@ -404,14 +429,16 @@ Health probes are on the server port (`8082`) at `/asapp-users-service` and are 
 
 ### Documentation
 
-| Artifact        | Location                                                                       |
-|-----------------|--------------------------------------------------------------------------------|
-| REST API docs   | `target/generated-docs/api-guide.html`                                         |
-| Swagger UI      | `http://localhost:8082/asapp-users-service/swagger-ui.html` (dev profile only) |
-| BootUI console  | `http://localhost:8082/asapp-users-service/bootui` (dev profile only)          |
-| Test coverage   | `target/site/jacoco-aggregate/index.html`                                      |
-| Mutation report | `target/pit-reports/<timestamp>/index.html`                                    |
-| Javadoc         | `target/site/apidocs/index.html`                                               |
+| Artifact             | Location                                                                       |
+|----------------------|--------------------------------------------------------------------------------|
+| REST API docs        | `build/docs/asciidoc/api-guide.html`                                           |
+| Swagger UI           | `http://localhost:8082/asapp-users-service/swagger-ui.html` (dev profile only) |
+| BootUI console       | `http://localhost:8082/asapp-users-service/bootui` (dev profile only)          |
+| Unit coverage        | `build/reports/jacoco/test/html/index.html`                                    |
+| Integration coverage | `build/reports/jacoco/jacocoIntegrationTestReport/html/index.html`             |
+| Merged coverage      | `build/reports/jacoco/jacocoMergedReport/html/index.html`                      |
+| Mutation report      | `build/reports/pitest/index.html`                                              |
+| Javadoc              | `build/docs/javadoc/index.html`                                                |
 
 ### Monitoring
 
@@ -447,8 +474,8 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 - Follow Hexagonal Architecture and DDD patterns
 - Update OpenAPI documentation for API changes
 - Add tests for new code
-- Ensure all tests pass (`mvn verify`)
-- Run `mvn spotless:apply` before committing
+- Ensure all tests pass (`./gradlew check`)
+- Run `./gradlew spotlessApply` before committing
 - Use Conventional Commits for commit messages
 
 ---

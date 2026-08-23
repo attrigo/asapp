@@ -76,7 +76,7 @@ Standard Conventional Commits types apply (`feat`, `fix`, `docs`, `style`, `refa
 
 | Type | Use for |
 |------|---------|
-| `build` | Build system or dependency changes (Maven POM, plugin versions) |
+| `build` | Build system or dependency changes (build scripts, version catalog, dependency and plugin versions) |
 | `ci` | CI pipeline / workflow config |
 | `chore` | Maintenance that is neither build nor CI (repo housekeeping, misc cleanup) |
 

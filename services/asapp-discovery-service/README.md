@@ -35,7 +35,7 @@ discovery, allowing services to register themselves and look up other services b
 ## Requirements
 
 - **Java**: 25+
-- **Maven**: 3.9.14+
+- **Gradle**: 9.6.1 (via wrapper)
 - **Docker**: 20.10+
 - **Docker Compose**: 2.0+
 
@@ -46,9 +46,8 @@ discovery, allowing services to register themselves and look up other services b
 ### Run Locally (Development Mode)
 
 ```bash
-# 1. Run the service from the module directory
-cd services/asapp-discovery-service
-mvn spring-boot:run
+# 1. Run the service (from the repository root)
+./gradlew :services:asapp-discovery-service:bootRun
 
 # 2. Open the Eureka dashboard
 open http://localhost:8761/asapp-discovery-service
@@ -63,7 +62,7 @@ curl -u user:secret \
 
 ```bash
 # 1. Build Docker image
-mvn spring-boot:build-image
+./gradlew :services:asapp-discovery-service:bootBuildImage
 
 # 2. Start the full stack
 docker-compose up -d
@@ -81,7 +80,7 @@ docker-compose down -v
 
 The service is **secure-by-default**: with no environment profile, the Actuator exposes only `health`, `info`, `prometheus`, and `sbom`. Activating `dev` re-enables the full tooling.
 
-- **Local** — `mvn spring-boot:run` activates `dev` (wired in the POM).
+- **Local** — `./gradlew :services:asapp-discovery-service:bootRun` activates `dev` (wired in the build script).
 - **Docker stack** — `docker,dev`.
 - **Locked-down deploy** — `SPRING_PROFILES_ACTIVE=docker,prod`.
 
@@ -151,38 +150,53 @@ Self-preservation mode is disabled (`enable-self-preservation=false`) to avoid r
 
 ```bash
 # Build project
-mvn clean install
+./gradlew build
 
-# Build skipping tests
-mvn clean install -DskipTests
+# Compile and package without running any checks
+./gradlew assemble
 ```
 
 ### Test
 
 ```bash
-# Run all tests
-mvn clean verify
+# Run all tests (unit, integration, E2E)
+./gradlew check
+```
 
-# Run mutation testing
-mvn org.pitest:pitest-maven:mutationCoverage
+### Run Locally
+
+Run from the repository root, never from the module directory.
+
+```bash
+# Run the service
+./gradlew :services:asapp-discovery-service:bootRun
+
+# Override the active profiles
+./gradlew :services:asapp-discovery-service:bootRun --args='--spring.profiles.active=dev'
 ```
 
 ### Code Quality
 
 ```bash
 # Install git hooks (pre-commit, commit-msg)
-mvn git-build-hook:install
+./gradlew installGitHooks
 
 # Apply formatting
-mvn spotless:apply
+./gradlew spotlessApply
 ```
 
 ### Generate Documentation
 
-```bash
-# Generate reports
-mvn clean verify -Pfull
-```
+`fullBuild` generates no reports for this service.
+
+Generate specific report: `./gradlew :services:asapp-discovery-service:<command>`
+
+| Command                       | Generates            |
+|-------------------------------|----------------------|
+| `jacocoTestReport`            | Unit coverage        |
+| `jacocoIntegrationTestReport` | Integration coverage |
+| `jacocoMergedReport`          | Merged coverage      |
+| `javadoc`                     | Javadoc              |
 
 ---
 
@@ -239,11 +253,12 @@ Health probes are on the server port (`8761`) at `/asapp-discovery-service` and 
 
 ### Documentation
 
-| Artifact        | Location                                    |
-|-----------------|---------------------------------------------|
-| Test coverage   | `target/site/jacoco-aggregate/index.html`   |
-| Mutation report | `target/pit-reports/<timestamp>/index.html` |
-| Javadoc         | `target/site/apidocs/index.html`            |
+| Artifact             | Location                                                           |
+|----------------------|--------------------------------------------------------------------|
+| Unit coverage        | `build/reports/jacoco/test/html/index.html`                        |
+| Integration coverage | `build/reports/jacoco/jacocoIntegrationTestReport/html/index.html` |
+| Merged coverage      | `build/reports/jacoco/jacocoMergedReport/html/index.html`          |
+| Javadoc              | `build/docs/javadoc/index.html`                                    |
 
 ### Monitoring
 
@@ -262,7 +277,7 @@ This service is part of the ASAPP monorepo. See the [main repository](../../READ
 
 **Key Guidelines**:
 
-- Run `mvn spotless:apply` before committing
+- Run `./gradlew spotlessApply` before committing
 - Use Conventional Commits for commit messages
 
 ---

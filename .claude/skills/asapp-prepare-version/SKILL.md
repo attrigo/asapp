@@ -39,7 +39,7 @@ Keep task 3 `in_progress` across the wait for approval; complete it only once th
 
 ### 1. Resolve the next version
 
-- **Prepare target** = root `pom.xml` `<version>` minus `-SNAPSHOT` (e.g. `0.5.0-SNAPSHOT` → `0.5.0`), or the `<next-ver>` argument — resolve it, don't guess.
+- **Prepare target** = `gradle.properties` `version` minus `-SNAPSHOT` (e.g. `0.5.0-SNAPSHOT` → `0.5.0`), or the `<next-ver>` argument — resolve it, don't guess.
 - State the plan in one line before mutating anything (e.g. `Preparing ## 0.5.0`).
 - If `TODO.md` has no `## X.Y.Z` section for that version, stop and ask the user how to proceed — don't guess a different version or invent a section.
 

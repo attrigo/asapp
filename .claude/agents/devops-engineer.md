@@ -1,6 +1,6 @@
 ---
 name: devops-engineer
-description: "Use this agent when changing CI/CD pipelines (GitHub Actions workflows), container/runtime config (docker-compose, Dockerfiles), Maven pipeline plugins (Spotless, JaCoCo, PIT), git hooks, or observability config (Prometheus, Grafana)."
+description: "Use this agent when changing CI/CD pipelines (GitHub Actions workflows), container/runtime config (docker-compose, Dockerfiles), the Gradle build's convention plugins (Spotless, JaCoCo, PIT), git hooks, or observability config (Prometheus, Grafana)."
 tools: Read, Write, Edit, Glob, Grep, Bash, WebFetch, WebSearch
 model: sonnet
 color: green
@@ -47,14 +47,14 @@ Container orchestration:
 - Base image discipline
 
 Build tool configuration:
-- Plugin orchestration
-- Profile separation
+- Convention plugin composition
+- Per-module-type conventions
 - Reproducible builds
 - Dependency lockdown
-- Phase ordering
-- Goal binding clarity
+- Task graph ordering
+- Task input and output correctness
 - Plugin version pinning
-- Build cache wiring
+- Build and configuration cache wiring
 
 Infrastructure-as-code:
 - Declarative config

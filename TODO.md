@@ -8,12 +8,55 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
 
 ### Technical
 
-- [ ] (build) Replace Maven with Gradle
-    - [ ] Migrate the module structure and dependency management to Gradle
-    - [ ] Migrate coverage, mutation testing, and formatting checks to Gradle
-    - [ ] Migrate git hook installation to Gradle
-    - [ ] Update CI and release workflows to build with Gradle
-    - [ ] Migrate Docker image publishing to Gradle
+- [X] (build) Replace Maven with Gradle
+    - [X] Set up the Gradle project and module structure
+    - [X] Migrate dependency management to Gradle
+    - [X] Migrate compilation to Gradle
+    - [X] Migrate unit testing to Gradle
+    - [X] Migrate integration testing to Gradle
+    - [X] Migrate coverage reporting to Gradle
+    - [X] Migrate mutation testing to Gradle
+    - [X] Migrate formatting checks to Gradle
+    - [X] Migrate API documentation generation to Gradle
+    - [X] Migrate Javadoc and sources jar generation to Gradle
+    - [X] Migrate packaging to Gradle
+    - [X] Migrate the full build to Gradle
+    - [X] Migrate running the app locally to Gradle
+    - [X] Migrate Docker image building to Gradle
+    - [X] Migrate database migration commands to Gradle
+    - [X] Migrate git hook installation to Gradle
+    - [X] Add automated tests for the build's custom tasks
+    - [X] Reuse the Spring Boot BOM for the build's own dependency versions
+    - [X] Restore the software bill of materials in the packaged services
+    - [X] Migrate the CI workflow to Gradle
+    - [X] Evaluate a single task that runs every CI check
+    - [X] Migrate the release workflow to Gradle
+    - [X] Keep Claude Code files in sync with the migration
+    - [X] Re-enable parallel builds
+    - [X] Clean up the Gradle build scripts
+        - [X] Decide how the convention plugins are split
+        - [X] Apply a consistent block order to every build script
+        - [X] Order the plugin blocks by the same origin rule as the dependency blocks
+        - [X] Split the build's dependency block by kind, plugins apart from libraries
+        - [X] Merge the Org and Other dependency groups into one sorted group
+        - [X] Replace the tool-named dependency groups with one shared group
+        - [X] Anchor the formatter config files to the settings directory
+        - [X] Replace the eager value lookups with lazy providers
+        - [X] Clear the deprecations that block the next Gradle major
+        - [X] Resolve the remaining entries in the build's problems report
+        - [X] Clear the warnings the IDE raises on the build scripts
+        - [X] Clean, simplify and standardize comments
+        - [X] Separate a task's metadata from its body with a blank line
+        - [X] Sort the tasks by build lifecycle phase
+        - [X] Group the tasks under phase headings
+        - [X] Document the build-script conventions
+    - [X] Migrate build documentation to Gradle
+    - [X] Verify full parity, then remove Maven entirely
+- [ ] (tests) Assert the packaged bill of materials lists real components
+    - **Note:** the actuator endpoint lists the `application` id whenever a readable file exists at the classpath location, so asserting on the id list passes even for a zero-component file — the guard must read `components`
+    - **Note:** `spring-boot-starter-actuator` is the only shipped coordinate present in all five services, with an identical identity under Maven and Gradle; assert on parsed nodes rather than the response body, which is roughly 556 KB
+    - **Note:** do not assert `scope`, `properties` or `modified` — Maven and Gradle emit different optional field sets for a component
+    - **Note:** this is also the only red-test guard on the `includeConfigs` allowlist — the filter is a full-string regex over a Boot-owned configuration name, so an upstream rename would silently empty the file with no other signal
 - [X] (architecture) Add an ArchUnit layering and boundary guardrail
     - [X] Enforce the infrastructure → application → domain dependency direction
     - [X] Keep the domain and application layers free of framework dependencies
@@ -35,8 +78,6 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [X] Replace the Redis store's raw token strings with `EncodedToken`
 - [ ] (error-handling) Make encoded-token validation failures consistent with other domain errors
     - **Note:** `InvalidEncodedTokenException` extends `RuntimeException` while the other custom domain exceptions extend `IllegalArgumentException`; surfaced by the domain-design.md S3 review (docs/reviews/2026-07-24-domain-design-review.md)
-- [ ] (build) Fix POM entries that violate the ordering convention
-    - **Note:** two violations found by the maven.md conventions review — root `pom.xml` properties and `libs/asapp-http-clients/pom.xml` plugins (docs/reviews/2026-08-03-maven-conventions-review.md)
 
 ### Docs & Tooling
 

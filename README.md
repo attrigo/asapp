@@ -45,7 +45,7 @@ ASAPP consists of five microservices:
 ## Requirements
 
 - **Java**: 25+
-- **Maven**: 3.9.14+
+- **Gradle**: 9.6.1 (via wrapper)
 - **PostgreSQL**: 15+ (via Docker)
 - **Redis**: 7+ (via Docker)
 - **Docker**: 20.10+
@@ -64,14 +64,14 @@ git clone https://github.com/attrigo/asapp.git
 cd asapp
 
 # Build all services
-mvn clean install
+./gradlew build
 ```
 
 ### Running the Application
 
 ```bash
 # 1. Build Docker images
-mvn spring-boot:build-image
+./gradlew bootBuildImage
 
 # 2. Start all services
 docker-compose up -d
@@ -157,9 +157,9 @@ The base configuration is **secure-by-default**: with no environment profile act
 
 ### Activating a profile
 
-- **Local development** (default) — `mvn spring-boot:run` activates `dev` automatically; it's wired into each service's Maven plugin.
+- **Local development** (default) — `./gradlew :services:<svc>:bootRun` activates `dev` automatically; it's wired into each service's `bootRun` task. Run it from the repository root; `bootRun` sets the working directory itself.
 - **Docker stack** (default; local development only) — the committed `docker-compose.yaml` is a development convenience, not a deployable artifact: `docker-compose up -d` always runs `docker,dev`, leaving Swagger, BootUI, full Actuator, and heapdump/shutdown open behind default credentials.
-- **Any other posture** — list the profiles explicitly: locally with `-Dspring-boot.run.profiles=…`, or for a packaged jar / container via the `SPRING_PROFILES_ACTIVE` environment variable. Example — the secure-by-default posture behind the Docker stack: `SPRING_PROFILES_ACTIVE=docker,prod`.
+- **Any other posture** — list the profiles explicitly: locally with `--args='--spring.profiles.active=…'`, or for a packaged jar / container via the `SPRING_PROFILES_ACTIVE` environment variable. Example — the secure-by-default posture behind the Docker stack: `SPRING_PROFILES_ACTIVE=docker,prod`.
 
 With no profile set at all (a bare `java -jar` or container), a service runs locked down — the secure-by-default baseline.
 
@@ -313,9 +313,11 @@ asapp/
 │   ├── grafana/                             # Grafana dashboards
 │   ├── jmeter/                              # JMeter load tests (regression + stress)
 │   └── prometheus/                          # Prometheus config
+├── build-logic/                             # Convention plugins (included build)
 ├── git/hooks/                               # Git hooks (pre-commit, commit-msg)
 ├── docker-compose.yaml                      # Docker services configuration
-├── pom.xml                                  # Parent POM
+├── build.gradle.kts                         # Root build script
+├── settings.gradle.kts                      # Module & included-build registration
 └── CLAUDE.md                                # AI assistant guidance
 ```
 
@@ -358,7 +360,7 @@ asapp/
 
 ### Code Quality
 
-- **Formatting**: Spotless Maven Plugin
+- **Formatting**: Spotless Gradle Plugin
 - **Style**: Eclipse formatter (asapp_formatter.xml)
 - **Git Hooks**: Pre-commit (style check), commit-msg (conventional commits)
 - **CI/CD**: GitHub Actions
@@ -371,37 +373,49 @@ asapp/
 
 ```bash
 # Build all modules
-mvn clean install
+./gradlew build
 
-# Build skipping tests
-mvn clean install -DskipTests
+# Compile and package without running any checks
+./gradlew assemble
 ```
+
+> Always `./gradlew build`, never `./gradlew :build`. The root project has no `build` task, so Gradle runs `:buildEnvironment` instead and reports success.
 
 ### Test
 
 ```bash
-# Run all tests
-mvn clean verify
+# Run all tests (unit, integration, E2E)
+./gradlew check
 
-# Run mutation testing
-mvn org.pitest:pitest-maven:mutationCoverage
+# Run mutation testing (domain services only)
+./gradlew pitest
+```
+
+### Run Locally
+
+```bash
+# Run a service
+./gradlew :services:asapp-tasks-service:bootRun
+
+# Override the active profiles
+./gradlew :services:asapp-tasks-service:bootRun --args='--spring.profiles.active=dev'
 ```
 
 ### Code Quality
 
 ```bash
 # Install git hooks (pre-commit, commit-msg)
-mvn git-build-hook:install
+./gradlew installGitHooks
 
 # Apply formatting
-mvn spotless:apply
+./gradlew spotlessApply
 ```
 
 ### Generate Documentation
 
 ```bash
 # Generate all reports (coverage, javadoc, sources, REST docs)
-mvn clean verify -Pfull
+./gradlew fullBuild
 ```
 
 ### Load Testing
@@ -444,14 +458,16 @@ The three API services embed the [BootUI](https://github.com/jdubois/boot-ui) de
 
 ### Documentation
 
-Generated per service under `target/` after `mvn clean verify -Pfull`:
+Generated per module under `build/` after `./gradlew fullBuild`. The exact set depends on the module, see its own README:
 
-| Artifact        | Location                                    |
-|-----------------|---------------------------------------------|
-| REST API docs   | `target/generated-docs/api-guide.html`      |
-| Test coverage   | `target/site/jacoco-aggregate/index.html`   |
-| Mutation report | `target/pit-reports/<timestamp>/index.html` |
-| Javadoc         | `target/site/apidocs/index.html`            |
+| Artifact             | Location                                                           |
+|----------------------|--------------------------------------------------------------------|
+| REST API docs        | `build/docs/asciidoc/api-guide.html`                               |
+| Unit coverage        | `build/reports/jacoco/test/html/index.html`                        |
+| Integration coverage | `build/reports/jacoco/jacocoIntegrationTestReport/html/index.html` |
+| Merged coverage      | `build/reports/jacoco/jacocoMergedReport/html/index.html`          |
+| Mutation report      | `build/reports/pitest/index.html` (run `./gradlew pitest`)         |
+| Javadoc              | `build/docs/javadoc/index.html`                                    |
 
 ### Monitoring
 
@@ -481,16 +497,22 @@ Generated per service under `target/` after `mvn clean verify -Pfull`:
 
 - **Architecture**: Follow Hexagonal Architecture and DDD patterns
 - **Testing**: Maintain high test coverage (unit + integration + E2E)
-- **Formatting**: Run `mvn spotless:apply` before committing
+- **Formatting**: Run `./gradlew spotlessApply` before committing
 - **Commits**: Use Conventional Commits format
 - **Documentation**: Update OpenAPI docs for API changes
 
 ### Git Hooks
 
-Automatically installed on `mvn install`:
+Installed explicitly. Run this once per clone, and again after editing a hook:
+
+```bash
+./gradlew installGitHooks
+```
 
 - **pre-commit**: Validates code formatting and line endings
 - **commit-msg**: Validates commit message format
+
+> Never run `spotlessInstallGitPrePushHook`. It writes its own `pre-push` into this same directory.
 
 ---
 
@@ -510,15 +532,9 @@ Builds and tests the project on every push and pull request to `main`.
 **Pipeline Steps**:
 
 1. Checkout code
-2. Setup JDK (Temurin)
-3. Maven dependency caching
-4. Build and test (`mvn verify -Pfull`)
-
-**Reports Generated**:
-
-- JaCoCo coverage (unit, integration, aggregate)
-- Surefire test results (unit tests)
-- Failsafe test results (integration tests)
+2. Set up JDK 25 (Temurin)
+3. Set up Gradle (wrapper validation + build cache)
+4. Build and verify (`./gradlew ciBuild`)
 
 ### Continuous Delivery
 
@@ -526,18 +542,18 @@ Automates the full release cycle in three stages: generating the release, buildi
 
 #### Release Generation
 
-The release cycle is automated via the `/release` Claude Code command. Run it from the `main` branch with a clean working tree:
+The release cycle is automated via the `/asapp-release` Claude Code command. Run it from the `main` branch with a clean working tree:
 
 ```
-/release
+/asapp-release
 ```
 
 The command handles the full cycle and asks for confirmation before pushing:
 
 1. Validates preconditions (on `main`, clean working tree)
-2. Removes `-SNAPSHOT` suffix from all POM versions
+2. Removes the `-SNAPSHOT` suffix from the version in `gradle.properties`
 3. Adds Liquibase database tags to version changelog files
-4. Builds and verifies the project (`mvn clean install`)
+4. Verifies the build locally (`./gradlew test`); the full build runs in CI once the tag lands
 5. Commits the release and creates a git tag (`vX.Y.Z`)
 6. Bumps to the next development SNAPSHOT version
 7. Commits the next development version

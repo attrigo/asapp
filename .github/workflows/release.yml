@@ -1,12 +1,13 @@
 # This workflow is triggered when a version tag matching v* is pushed (e.g. v0.3.0).
-# It runs three sequential jobs:
-#   1. build-and-test    — full build with tests, coverage, Javadoc, and style check
-#   2. publish-docker    — builds and pushes versioned Docker images to ghcr.io
-#   3. create-release    — generates changelog and creates the GitHub Release with JARs
+# It runs two sequential jobs:
+#   1. build-and-image   — full build with tests, coverage, Javadoc, and style check, then
+#                          builds and pushes versioned Docker images to ghcr.io
+#   2. create-release    — generates changelog and creates the GitHub Release with JARs
 #
-# Permissions required:
-#   - contents: write  — to create the GitHub Release
-#   - packages: write  — to push Docker images to ghcr.io
+# Permissions required (granted per job, least privilege):
+#   - build-and-image: contents: read   — to check out the project
+#                      packages: write  — to push Docker images to ghcr.io
+#   - create-release:  contents: write  — to create the GitHub Release
 
 name: Release
 
@@ -15,59 +16,54 @@ on:
     tags:
       - 'v*'
 
-permissions:
-  contents: write
-  packages: write
-
 jobs:
-  # Runs the full build profile
+  # Runs the full build.
+  # Builds a Docker image for every service.
   # Uploads service JARs as an artifact for use by the create-release job.
-  build-and-test:
+  # Pushes Docker images to ghcr.io/attrigo/<service-name>:<version>.
+  build-and-image:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout the project
         uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Set up JDK 25
         uses: actions/setup-java@v5
         with:
           java-version: '25'
           distribution: 'temurin'
-          cache: maven
 
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          # Checks the committed wrapper jar against Gradle's published checksums.
+          validate-wrappers: true
+          # Stores the Gradle build cache and dependencies in the GitHub Actions cache.
+          cache-provider: 'basic'
+
+      # Never with 'clean' — that discards the build cache. '--continue' reports every
+      # failure in one run, since the release commit reaches CI for the first time here.
+      # 'cache-read-only' stays unset above so this run repopulates the cache.
       - name: Build and test the project
-        run: mvn install -B --no-transfer-progress -Pfull
+        run: ./gradlew fullBuild --console=plain --stacktrace --continue
+
+      - name: Build the Docker images
+        run: ./gradlew bootBuildImage --console=plain --stacktrace
 
       - name: Upload service JARs
         uses: actions/upload-artifact@v6
         with:
           name: service-jars
-          path: services/*/target/*.jar
+          path: |
+            services/*/build/libs/*.jar
+            !services/*/build/libs/*-javadoc.jar
           retention-days: 1
-
-  # Builds a versioned Docker image for every service (lib modules are skipped)
-  # Pushes images to ghcr.io/attrigo/<service-name>:<version>.
-  publish-docker:
-    needs: [build-and-test]
-    runs-on: ubuntu-latest
-    timeout-minutes: 20
-    outputs:
-      version: ${{ steps.version.outputs.VERSION }}
-    steps:
-      - name: Checkout the project
-        uses: actions/checkout@v6
-
-      - name: Set up JDK 25
-        uses: actions/setup-java@v5
-        with:
-          java-version: '25'
-          distribution: 'temurin'
-          cache: maven
-
-      - name: Extract version from tag
-        id: version
-        run: echo "VERSION=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
 
       - name: Log in to ghcr.io
         uses: docker/login-action@v4
@@ -76,27 +72,30 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker images
+      - name: Push the Docker images
         run: |
-          mvn spring-boot:build-image -B --no-transfer-progress -DskipTests
+          VERSION="${GITHUB_REF_NAME#v}"
 
           for SERVICE_DIR in services/*/; do
             SERVICE=$(basename "$SERVICE_DIR")
-            docker push "ghcr.io/attrigo/${SERVICE}:${{ steps.version.outputs.VERSION }}"
+            docker push "ghcr.io/attrigo/${SERVICE}:${VERSION}"
           done
 
-  # Downloads the service JARs built in build-and-test
+  # Downloads the service JARs built in build-and-image
   # Generates release notes from conventional commits using git-cliff
   # Publishes the GitHub Release.
   create-release:
-    needs: [publish-docker]
+    needs: [build-and-image]
     runs-on: ubuntu-latest
     timeout-minutes: 15
+    permissions:
+      contents: write
     steps:
       - name: Checkout the project
         uses: actions/checkout@v6
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Download service JARs
         uses: actions/download-artifact@v7
@@ -117,12 +116,13 @@ jobs:
           GITHUB_REPO: ${{ github.repository }}
       
       # GitHub automatically attaches two source code archives (.zip and .tar.gz)
-      # The five runnable service JARs are attached explicitly.
+      # The five runnable service JARs and the three sources JARs are attached explicitly.
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
         run: |
-          gh release create "${{ github.ref_name }}" \
-            --title "${{ github.ref_name }}" \
+          gh release create "$TAG" \
+            --title "$TAG" \
             --notes-file CHANGELOG_RELEASE.md \
-            release-artifacts/*/target/*.jar
+            release-artifacts/*/build/libs/*.jar

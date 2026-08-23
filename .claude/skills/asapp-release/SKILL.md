@@ -87,7 +87,7 @@ gh run list --branch main --workflow ci.yml --limit 1 --json status,conclusion,h
 
 ### Step 2: Detect versions
 
-Read the root `pom.xml` to extract the current version (e.g. `0.3.0-SNAPSHOT`).
+Read `version` from `gradle.properties` to extract the current version (e.g. `0.3.0-SNAPSHOT`). That line is the only place the version lives — every module inherits it.
 
 Derive:
 - **Release version**: strip `-SNAPSHOT` → `0.3.0`
@@ -118,8 +118,8 @@ The version just passed the Step 3 completeness gate. Do both documentation clos
 
 #### Drop the released TODO section
 
-- Locate the `## X.Y.Z · <theme>` section for the release version (the same section Step 3 just validated).
-- Delete it wholesale — from its `## ` header to the next `## ` header, including the trailing `---` divider.
+- Locate the `## X.Y.Z · <theme>` section for the **release version** (the same section Step 3 just validated).
+- Delete it **wholesale** — from its `## ` header to the next `## ` header, including the trailing `---` divider.
 - No preservation audit: Step 3 already gated it complete, history keeps it, and the edit is recoverable with `git checkout TODO.md`.
 - If Step 3 proceeded with the section absent (user-confirmed), there is nothing to drop — skip this edit.
 
@@ -132,7 +132,7 @@ mkdir -p docs/superpowers/specs/vX.Y.Z
 git mv docs/superpowers/specs/*-design.md docs/superpowers/specs/vX.Y.Z/
 ```
 
-- Only the root-level specs move; specs already archived in `v*/` subfolders are untouched (the glob does not recurse).
+- Only the **root-level** specs move; specs already archived in `v*/` subfolders are untouched (the glob does not recurse).
 - Keep each file's original `YYYY-MM-DD-<slug>-design.md` name — only its location changes.
 - Use `git mv` (never delete and recreate).
 - If there are no root-level specs, skip this edit — this version introduced no new design specs.
@@ -150,17 +150,19 @@ Trim the message to match if only one edit applied. If neither applied, skip the
 
 ### Step 5: Remove SNAPSHOT
 
-#### Update pom version
+#### Update the build version
 
-```bash
-mvn versions:set -DremoveSnapshot=true -DprocessAllModules=true -DgenerateBackupPoms=false
+In `gradle.properties`, set the `version` line to the **release version**:
+
+```
+version=X.Y.Z
 ```
 
-Confirm the root `pom.xml` now reads `<version>X.Y.Z</version>` (no SNAPSHOT).
+Confirm `gradle.properties` now reads `version=X.Y.Z` (no SNAPSHOT). This is a single-line edit — no module carries a version of its own.
 
 #### Update OpenAPI version
 
-In each of the three service `OpenApiConfiguration.java` files, update the `version` attribute in `@Info(...)` to the release version:
+In each of the three service `OpenApiConfiguration.java` files, update the `version` attribute in `@Info(...)` to the **release version**:
 
 ```
 services/asapp-authentication-service/src/main/java/com/attrigo/asapp/authentication/infrastructure/config/OpenApiConfiguration.java
@@ -172,7 +174,7 @@ Replace `version = "OLD_VERSION"` → `version = "X.Y.Z"` in the `@OpenAPIDefini
 
 #### Update docker-compose.yml
 
-Open `docker-compose.yml` and for every `image:` line matching `ghcr.io/attrigo/asapp-*:`, replace the version tag with the release version (e.g. `0.3.0`).
+Open `docker-compose.yml` and for every `image:` line matching `ghcr.io/attrigo/asapp-*:`, replace the version tag with the **release version** (e.g. `0.3.0`).
 
 Confirm all five `asapp-*` service image tags now reference the release version.
 
@@ -189,7 +191,7 @@ For example, for release `0.3.0`:
 - `services/asapp-users-service/src/main/resources/liquibase/db/changelog/v0.3.0/v0_3_0-changelog.xml`
 - `services/asapp-tasks-service/src/main/resources/liquibase/db/changelog/v0.3.0/v0_3_0-changelog.xml`
 
-For each file that exists, check if it already contains `<tagDatabase tag="X.Y.Z"/>`. If not, insert the following changeset before the closing `</databaseChangeLog>` tag:
+**For each file that exists**: check if it already contains `<tagDatabase tag="X.Y.Z"/>`. If not, insert the following changeset before the closing `</databaseChangeLog>` tag:
 
 ```xml
     <changeSet id="tag_version_X_Y_Z" author="attrigo">
@@ -206,17 +208,17 @@ If a service has no changelog file for this version, skip it — that service ha
 ### Step 7: Build and verify
 
 ```bash
-mvn clean test
+./gradlew test
 ```
 
-If the build fails, stop immediately, report the failure, and do not proceed. The user must fix the build before the release can continue.
+**If the build fails**: stop immediately, report the failure, and do not proceed. The user must fix the build before the release can continue.
 
-This is a fast local pre-flight only — pushing the tag in Step 11 triggers the `Release` workflow (`.github/workflows/release.yml`), which runs the full `-Pfull` build and tests, publishes the versioned Docker images, and creates the GitHub Release with its changelog. That full verification and publication happens in CI, after the tag lands.
+This is a fast local pre-flight only — pushing the tag in Step 11 triggers the `Release` workflow (`.github/workflows/release.yml`), which runs the full `./gradlew fullBuild` build and tests, publishes the versioned Docker images, and creates the GitHub Release with its changelog. That full verification and publication happens in CI, after the tag lands.
 
 ### Step 8: Commit release and create tag
 
 ```bash
-RELEASE_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+RELEASE_VERSION=$(grep -E '^version=' gradle.properties | cut -d= -f2)
 git add .
 git commit -m "chore: release version ${RELEASE_VERSION}"
 git tag v${RELEASE_VERSION}
@@ -226,17 +228,19 @@ Confirm the commit and tag were created successfully.
 
 ### Step 9: Bump to next SNAPSHOT
 
-#### Update pom version
+#### Update the build version
 
-```bash
-mvn versions:set -DnextSnapshot=true -DnextSnapshotIndexToIncrement=2 -DprocessAllModules=true -DgenerateBackupPoms=false
+In `gradle.properties`, set the `version` line to the **next SNAPSHOT version** — the minor segment incremented, patch reset to `0`:
+
+```
+version=X.Y+1.0-SNAPSHOT
 ```
 
-Confirm the root `pom.xml` now reads the next SNAPSHOT version (e.g. `0.4.0-SNAPSHOT`).
+Confirm `gradle.properties` now reads the next SNAPSHOT version (e.g. `0.4.0-SNAPSHOT`).
 
 #### Update OpenAPI version
 
-In each of the three service `OpenApiConfiguration.java` files, update the `version` attribute in `@Info(...)` to the next SNAPSHOT version:
+In each of the three service `OpenApiConfiguration.java` files, update the `version` attribute in `@Info(...)` to the **next SNAPSHOT version**:
 
 ```
 services/asapp-authentication-service/src/main/java/com/attrigo/asapp/authentication/infrastructure/config/OpenApiConfiguration.java
@@ -248,14 +252,14 @@ Replace `version = "X.Y.Z"` → `version = "X.Y+1.0-SNAPSHOT"` in the `@OpenAPID
 
 #### Update docker-compose.yml
 
-Open `docker-compose.yml` and for every `image:` line matching `ghcr.io/attrigo/asapp-*:`, replace the version tag with the next SNAPSHOT version (e.g. `0.4.0-SNAPSHOT`).
+Open `docker-compose.yml` and for every `image:` line matching `ghcr.io/attrigo/asapp-*:`, replace the version tag with the **next SNAPSHOT version** (e.g. `0.4.0-SNAPSHOT`).
 
 Confirm all five `asapp-*` service image tags now reference the next SNAPSHOT version.
 
 ### Step 10: Commit next development version
 
 ```bash
-NEXT_DEV_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+NEXT_DEV_VERSION=$(grep -E '^version=' gradle.properties | cut -d= -f2)
 git add .
 git commit -m "chore: prepare next development version ${NEXT_DEV_VERSION}"
 ```
@@ -293,6 +297,6 @@ See [example-output.md](example-output.md) for a full sample run.
 ## Guardrails
 
 - **Abort before mutating if a precondition fails** — not on `main`, dirty working tree, unpushed commits, or a red last CI run (Step 1); unchecked TODO items for the version (Step 3).
-- **Never skip `mvn clean test`** — the release commit (Step 8) is created only after BUILD SUCCESS.
+- **Never skip `./gradlew test`** — the release commit (Step 8) is created only after BUILD SUCCESSFUL.
 - **Never force push** — `--atomic` only; never `--force` or `--force-with-lease`.
 - **Never push without confirmation** — gate on the Step 11 `AskUserQuestion`.

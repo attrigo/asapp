@@ -1,7 +1,7 @@
 # JMeter load tests
 
-Three standalone [Apache JMeter](https://jmeter.apache.org/) plans that run from the CLI against the running `docker-compose` stack (outside the Maven build and
-CI: nothing here runs during `mvn verify`).
+Three standalone [Apache JMeter](https://jmeter.apache.org/) plans that run from the CLI against the running `docker-compose` stack (outside the Gradle build
+and CI: nothing here runs during `./gradlew check`).
 
 - **`asapp-regression.jmx`**: a single deterministic pass over every functional endpoint, with correctness assertions. The automated pre-release go/no-go gate (
   replaces the old manual click-through).
@@ -33,7 +33,7 @@ tools/jmeter/
 
 ## Prerequisites
 
-- The full stack is up and healthy: `docker-compose up -d` (build images first with `mvn spring-boot:build-image` if images aren't present).
+- The full stack is up and healthy: `docker-compose up -d` (build images first with `./gradlew bootBuildImage` if images aren't present).
 - **Internet on first run only**: the run scripts auto-download a pinned JMeter into `.runtime/` (gitignored) and verify its SHA-512. Subsequent runs reuse the
   cached engine.
 - No separate JMeter install is needed.

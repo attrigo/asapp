@@ -3,7 +3,7 @@
 > Centralized endpoint URL constants for the ASAPP microservices ecosystem
 
 [![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://www.oracle.com/java/technologies/downloads/#java25)
-[![Maven](https://img.shields.io/badge/Maven-3.9.14+-blue.svg)](https://maven.apache.org/)
+[![Gradle](https://img.shields.io/badge/Gradle-9.6.1-blue.svg)](https://gradle.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 ---
@@ -26,20 +26,18 @@ services and eliminates hardcoded URL strings.
 ## Requirements
 
 - **Java**: 25+
-- **Maven**: 3.9.14+
+- **Gradle**: 9.6.1 (via wrapper)
 
 ---
 
 ## Usage
 
-1. Add the dependency to `pom.xml`:
+1. Add the dependency to the consuming module's `build.gradle.kts`:
 
-```xml
-<dependency>
-    <groupId>com.attrigo.asapp</groupId>
-    <artifactId>asapp-commons-url</artifactId>
-    <version>${asapp.version}</version>
-</dependency>
+```kotlin
+dependencies {
+    implementation(project(":libs:asapp-commons-url"))
+}
 ```
 
 2. Import the relevant constants class and reference its constants directly:
@@ -70,19 +68,35 @@ public interface TasksHttpClient {
 ### Build
 
 ```bash
-# Build and install
-mvn clean install
+# Build the library
+./gradlew build
+
+# Compile and package without running any checks
+./gradlew assemble
 ```
 
 ### Code Quality
 
 ```bash
 # Install git hooks (pre-commit, commit-msg)
-mvn git-build-hook:install
+./gradlew installGitHooks
 
 # Apply formatting
-mvn spotless:apply
+./gradlew spotlessApply
 ```
+
+### Generate Documentation
+
+```bash
+# Generate all reports
+./gradlew :libs:asapp-commons-url:fullBuild
+```
+
+Generate specific report: `./gradlew :libs:asapp-commons-url:<command>`
+
+| Command   | Generates |
+|-----------|-----------|
+| `javadoc` | Javadoc   |
 
 ---
 
@@ -96,9 +110,9 @@ mvn spotless:apply
 
 ### Documentation
 
-| Artifact | Location                         |
-|----------|----------------------------------|
-| Javadoc  | `target/site/apidocs/index.html` |
+| Artifact | Location                        |
+|----------|---------------------------------|
+| Javadoc  | `build/docs/javadoc/index.html` |
 
 ---
 
@@ -108,7 +122,7 @@ This library is part of the ASAPP monorepo. See the [main repository](../../READ
 
 **Key Guidelines**:
 
-- Run `mvn spotless:apply` before committing
+- Run `./gradlew spotlessApply` before committing
 - Use Conventional Commits for commit messages
 
 ---

@@ -11,17 +11,17 @@ A sample run of `/asapp-release`, referenced from [SKILL.md](SKILL.md).
   - archived 4 specs → docs/superpowers/specs/v0.3.0/
   done (committed: docs: close out 0.3.0)
 [Step 5] Removing SNAPSHOT...
-  - pom.xml → 0.3.0
+  - gradle.properties → 0.3.0
   - OpenAPI version → 0.3.0 (3 services)
   - docker-compose.yml → 0.3.0 (5 services)
 [Step 6] Tagging Liquibase changelogs...
   - asapp-authentication-service: added tag_version_0_3_0
   - asapp-users-service: added tag_version_0_3_0
   - asapp-tasks-service: no v0.3.0 changelog found, skipped
-[Step 7] Building and testing...  done (BUILD SUCCESS — local pre-flight; full build/publish run in CI after push)
+[Step 7] Building and testing...  done (BUILD SUCCESSFUL — local pre-flight; full build/publish run in CI after push)
 [Step 8] Committing release and tagging...  done (tag: v0.3.0)
 [Step 9] Bumping to next SNAPSHOT...
-  - pom.xml → 0.4.0-SNAPSHOT
+  - gradle.properties → 0.4.0-SNAPSHOT
   - OpenAPI version → 0.4.0-SNAPSHOT (3 services)
   - docker-compose.yml → 0.4.0-SNAPSHOT (5 services)
 [Step 10] Committing next dev version...  done

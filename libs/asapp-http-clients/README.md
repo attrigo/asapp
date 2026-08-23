@@ -3,7 +3,7 @@
 > Shared HTTP client contracts and inter-service communication for ASAPP microservices
 
 [![Java](https://img.shields.io/badge/Java-25-orange.svg)](https://www.oracle.com/java/technologies/downloads/#java25)
-[![Maven](https://img.shields.io/badge/Maven-3.9.14+-blue.svg)](https://maven.apache.org/)
+[![Gradle](https://img.shields.io/badge/Gradle-9.6.1-blue.svg)](https://gradle.org/)
 [![License](https://img.shields.io/badge/License-Apache%202.0-green.svg)](https://www.apache.org/licenses/LICENSE-2.0)
 
 ---
@@ -24,20 +24,18 @@ ecosystem.
 ## Requirements
 
 - **Java**: 25+
-- **Maven**: 3.9.14+
+- **Gradle**: 9.6.1 (via wrapper)
 
 ---
 
 ## Usage
 
-1. Add the dependency to `pom.xml`:
+1. Add the dependency to the consuming module's `build.gradle.kts`:
 
-```xml
-<dependency>
-    <groupId>com.attrigo.asapp</groupId>
-    <artifactId>asapp-http-clients</artifactId>
-    <version>${asapp.version}</version>
-</dependency>
+```kotlin
+dependencies {
+    implementation(project(":libs:asapp-http-clients"))
+}
 ```
 
 2. Configure the base URL in `application.properties`:
@@ -81,36 +79,43 @@ public class MyAdapter {
 ### Build
 
 ```bash
-# Build and install
-mvn clean install
+# Build the library
+./gradlew build
 
-# Build skipping tests
-mvn clean install -DskipTests
+# Compile and package without running any checks
+./gradlew assemble
 ```
 
 ### Test
 
 ```bash
 # Run all tests
-mvn clean verify
+./gradlew check
 ```
 
 ### Code Quality
 
 ```bash
 # Install git hooks (pre-commit, commit-msg)
-mvn git-build-hook:install
+./gradlew installGitHooks
 
 # Apply formatting
-mvn spotless:apply
+./gradlew spotlessApply
 ```
 
 ### Generate Documentation
 
 ```bash
-# Generate reports
-mvn clean verify -Pfull
+# Generate all reports
+./gradlew :libs:asapp-http-clients:fullBuild
 ```
+
+Generate specific report: `./gradlew :libs:asapp-http-clients:<command>`
+
+| Command            | Generates     |
+|--------------------|---------------|
+| `jacocoTestReport` | Test coverage |
+| `javadoc`          | Javadoc       |
 
 ---
 
@@ -122,10 +127,10 @@ mvn clean verify -Pfull
 
 ### Documentation
 
-| Artifact      | Location                                  |
-|---------------|-------------------------------------------|
-| Test coverage | `target/site/jacoco-aggregate/index.html` |
-| Javadoc       | `target/site/apidocs/index.html`          |
+| Artifact      | Location                                    |
+|---------------|---------------------------------------------|
+| Test coverage | `build/reports/jacoco/test/html/index.html` |
+| Javadoc       | `build/docs/javadoc/index.html`             |
 
 ---
 
@@ -136,8 +141,8 @@ This library is part of the ASAPP monorepo. See the [main repository](../../READ
 **Key Guidelines**:
 
 - Add tests for new HTTP clients
-- Run `mvn spotless:apply` before committing
-- Ensure all tests pass (`mvn verify`)
+- Run `./gradlew spotlessApply` before committing
+- Ensure all tests pass (`./gradlew check`)
 - Use Conventional Commits for commit messages
 
 ---
