@@ -52,11 +52,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
         - [X] Document the build-script conventions
     - [X] Migrate build documentation to Gradle
     - [X] Verify full parity, then remove Maven entirely
-- [ ] (tests) Assert the packaged bill of materials lists real components
-    - **Note:** the actuator endpoint lists the `application` id whenever a readable file exists at the classpath location, so asserting on the id list passes even for a zero-component file — the guard must read `components`
-    - **Note:** `spring-boot-starter-actuator` is the only shipped coordinate present in all five services, with an identical identity under Maven and Gradle; assert on parsed nodes rather than the response body, which is roughly 556 KB
-    - **Note:** do not assert `scope`, `properties` or `modified` — Maven and Gradle emit different optional field sets for a component
-    - **Note:** this is also the only red-test guard on the `includeConfigs` allowlist — the filter is a full-string regex over a Boot-owned configuration name, so an upstream rename would silently empty the file with no other signal
+- [X] (tests) Assert the packaged bill of materials lists real components
 - [X] (architecture) Add an ArchUnit layering and boundary guardrail
     - [X] Enforce the infrastructure → application → domain dependency direction
     - [X] Keep the domain and application layers free of framework dependencies

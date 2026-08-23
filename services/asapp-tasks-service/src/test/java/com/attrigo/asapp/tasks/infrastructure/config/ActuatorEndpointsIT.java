@@ -42,6 +42,7 @@ import com.attrigo.asapp.tasks.testutil.TestContainerConfiguration;
  * <li>Health endpoint returns full component details with authentication</li>
  * <li>Info endpoint returns build, git, java, os and process details</li>
  * <li>SBOM endpoint returns application SBOM identifiers</li>
+ * <li>Application SBOM endpoint returns the components that ship with the service</li>
  * <li>Liquibase endpoint returns executed changesets</li>
  */
 @SpringBootTest(classes = AsappTasksServiceApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -168,7 +169,33 @@ class ActuatorEndpointsIT {
         assertThatJson(actual).isObject()
                               .containsKeys("ids")
                               .node("ids")
-                              .isArray();
+                              .isArray()
+                              .contains("application");
+    }
+
+    @Test
+    void ReturnsStatusOkAndBodyContainsComponents_OnApplicationSBOMEndpoint() {
+        // When
+        var actual = managementRestTestClient.get()
+                                             .uri("/actuator/sbom/application")
+                                             .headers(h -> h.setBasicAuth(managementUsername, managementPassword))
+                                             .exchange()
+                                             .expectStatus()
+                                             .isOk()
+                                             .expectBody(String.class)
+                                             .returnResult()
+                                             .getResponseBody();
+
+        // Then
+        assertThatJson(actual).inPath("$.components[*].name")
+                              .isArray()
+                              .isNotEmpty()
+                              // Declared by every service, so its absence means the SBOM lost the runtime graph
+                              .contains("spring-boot-starter-actuator")
+                              // Never declared, so its presence proves the whole dependency tree was walked
+                              .contains("jackson-databind")
+                              // Test-only, so its presence means the SBOM scope reached beyond what ships
+                              .doesNotContain("assertj-core");
     }
 
     @Test
