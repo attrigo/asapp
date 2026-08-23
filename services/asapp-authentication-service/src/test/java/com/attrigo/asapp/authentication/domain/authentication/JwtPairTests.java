@@ -16,6 +16,7 @@
 
 package com.attrigo.asapp.authentication.domain.authentication;
 
+import static com.attrigo.asapp.authentication.testutil.fixture.JwtMother.aJwtBuilder;
 import static com.attrigo.asapp.authentication.testutil.fixture.JwtMother.aRefreshToken;
 import static com.attrigo.asapp.authentication.testutil.fixture.JwtMother.anAccessToken;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -30,6 +31,8 @@ import org.junit.jupiter.api.Test;
  * Coverage:
  * <li>Rejects null access token</li>
  * <li>Rejects null refresh token</li>
+ * <li>Rejects access token with refresh token type</li>
+ * <li>Rejects refresh token with access token type</li>
  * <li>Accepts valid token pair through constructor and factory method</li>
  */
 class JwtPairTests {
@@ -77,6 +80,36 @@ class JwtPairTests {
                               .hasMessage("Refresh token must not be null");
         }
 
+        @Test
+        void ThrowsIllegalArgumentException_AccessTokenHasRefreshTokenType() {
+            // Given
+            var accessToken = aJwtBuilder().refreshToken()
+                                           .build();
+            var refreshToken = aRefreshToken();
+
+            // When
+            var actual = catchThrowable(() -> new JwtPair(accessToken, refreshToken));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Access token type must be ACCESS_TOKEN");
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_RefreshTokenHasAccessTokenType() {
+            // Given
+            var accessToken = anAccessToken();
+            var refreshToken = aJwtBuilder().accessToken()
+                                            .build();
+
+            // When
+            var actual = catchThrowable(() -> new JwtPair(accessToken, refreshToken));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Refresh token type must be REFRESH_TOKEN");
+        }
+
     }
 
     @Nested
@@ -120,6 +153,36 @@ class JwtPairTests {
             // Then
             assertThat(actual).isInstanceOf(IllegalArgumentException.class)
                               .hasMessage("Refresh token must not be null");
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_AccessTokenHasRefreshTokenType() {
+            // Given
+            var accessToken = aJwtBuilder().refreshToken()
+                                           .build();
+            var refreshToken = aRefreshToken();
+
+            // When
+            var actual = catchThrowable(() -> JwtPair.of(accessToken, refreshToken));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Access token type must be ACCESS_TOKEN");
+        }
+
+        @Test
+        void ThrowsIllegalArgumentException_RefreshTokenHasAccessTokenType() {
+            // Given
+            var accessToken = anAccessToken();
+            var refreshToken = aJwtBuilder().accessToken()
+                                            .build();
+
+            // When
+            var actual = catchThrowable(() -> JwtPair.of(accessToken, refreshToken));
+
+            // Then
+            assertThat(actual).isInstanceOf(IllegalArgumentException.class)
+                              .hasMessage("Refresh token type must be REFRESH_TOKEN");
         }
 
     }

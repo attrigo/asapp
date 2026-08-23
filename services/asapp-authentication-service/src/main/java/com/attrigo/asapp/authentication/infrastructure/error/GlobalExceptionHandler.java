@@ -38,10 +38,10 @@ import com.attrigo.asapp.authentication.application.CompensatingTransactionExcep
 import com.attrigo.asapp.authentication.application.authentication.AuthenticationNotFoundException;
 import com.attrigo.asapp.authentication.application.authentication.InvalidCredentialsException;
 import com.attrigo.asapp.authentication.application.authentication.InvalidJwtException;
+import com.attrigo.asapp.authentication.application.authentication.TokenIssuanceException;
 import com.attrigo.asapp.authentication.application.authentication.TokenStoreException;
 import com.attrigo.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.attrigo.asapp.authentication.domain.authentication.InvalidEncodedTokenException;
-import com.attrigo.asapp.authentication.infrastructure.security.JwtIssuanceException;
 
 /**
  * Handles REST API exceptions and maps them to RFC 7807 {@link ProblemDetail} responses.
@@ -248,15 +248,15 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     /**
      * Handles token issuance failures.
      * <p>
-     * Catches {@link JwtIssuanceException} when a new token cannot be generated.
+     * Catches {@link TokenIssuanceException} when a new token cannot be generated.
      * <p>
      * Returns HTTP 500 Internal Server Error with a generic message to avoid exposing cryptographic implementation details.
      *
-     * @param ex the {@link JwtIssuanceException}
+     * @param ex the {@link TokenIssuanceException}
      * @return a {@link ResponseEntity} with status 500 and generic error message
      */
-    @ExceptionHandler(JwtIssuanceException.class)
-    protected ResponseEntity<ProblemDetail> handleJwtIssuanceException(JwtIssuanceException ex) {
+    @ExceptionHandler(TokenIssuanceException.class)
+    protected ResponseEntity<ProblemDetail> handleTokenIssuanceException(TokenIssuanceException ex) {
         logger.error("JWT operation failed: {}", ex.getMessage(), ex);
 
         var problemDetail = ProblemDetail.forStatusAndDetail(HttpStatus.INTERNAL_SERVER_ERROR, INTERNAL_ERROR_DETAIL);

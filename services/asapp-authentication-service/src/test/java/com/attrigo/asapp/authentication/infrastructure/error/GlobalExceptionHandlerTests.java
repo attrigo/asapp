@@ -43,10 +43,10 @@ import com.attrigo.asapp.authentication.application.CompensatingTransactionExcep
 import com.attrigo.asapp.authentication.application.authentication.AuthenticationNotFoundException;
 import com.attrigo.asapp.authentication.application.authentication.InvalidCredentialsException;
 import com.attrigo.asapp.authentication.application.authentication.InvalidJwtException;
+import com.attrigo.asapp.authentication.application.authentication.TokenIssuanceException;
 import com.attrigo.asapp.authentication.application.authentication.TokenStoreException;
 import com.attrigo.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.attrigo.asapp.authentication.domain.authentication.InvalidEncodedTokenException;
-import com.attrigo.asapp.authentication.infrastructure.security.JwtIssuanceException;
 
 /**
  * Tests {@link GlobalExceptionHandler} exception-to-ProblemDetail translation and HTTP status mapping.
@@ -272,15 +272,15 @@ class GlobalExceptionHandlerTests {
     }
 
     @Nested
-    class HandleJwtIssuanceException {
+    class HandleTokenIssuanceException {
 
         @Test
-        void ReturnsInternalServerErrorAndProblemDetail_JwtIssuanceFails() {
+        void ReturnsInternalServerErrorAndProblemDetail_TokenIssuanceFails() {
             // Given
-            var exception = new JwtIssuanceException("JWT signing failed", new RuntimeException("Signing error"));
+            var exception = new TokenIssuanceException("JWT signing failed", new RuntimeException("Signing error"));
 
             // When
-            var actual = globalExceptionHandler.handleJwtIssuanceException(exception);
+            var actual = globalExceptionHandler.handleTokenIssuanceException(exception);
 
             // Then
             assertThat(actual.getStatusCode()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);

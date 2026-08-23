@@ -21,7 +21,7 @@ package com.attrigo.asapp.authentication.domain.authentication;
  * <p>
  * This value object encapsulates both access and refresh tokens together.
  * <p>
- * It enforces structural integrity by ensuring they are both present and valid.
+ * It enforces structural integrity by ensuring they are both present and of the correct token type.
  *
  * @param accessToken  the access token
  * @param refreshToken the refresh token
@@ -40,7 +40,7 @@ public record JwtPair(
      *
      * @param accessToken  the access token to validate and store
      * @param refreshToken the refresh token to validate and store
-     * @throws IllegalArgumentException if either token is {@code null}
+     * @throws IllegalArgumentException if either token is {@code null} or has the wrong type
      */
     public JwtPair {
         validateAccessToken(accessToken);
@@ -53,33 +53,39 @@ public record JwtPair(
      * @param accessToken  the access token
      * @param refreshToken the refresh token
      * @return a new {@code JwtPair} instance
-     * @throws IllegalArgumentException if either token is {@code null}
+     * @throws IllegalArgumentException if either token is {@code null} or has the wrong type
      */
     public static JwtPair of(Jwt accessToken, Jwt refreshToken) {
         return new JwtPair(accessToken, refreshToken);
     }
 
     /**
-     * Validates that the access token is not {@code null}.
+     * Validates that the access token is not {@code null} and is of type {@link JwtType#ACCESS_TOKEN}.
      *
      * @param accessToken the access token to validate
-     * @throws IllegalArgumentException if the access token is {@code null}
+     * @throws IllegalArgumentException if the access token is {@code null} or is not an access token
      */
     private static void validateAccessToken(Jwt accessToken) {
         if (accessToken == null) {
             throw new IllegalArgumentException("Access token must not be null");
         }
+        if (!accessToken.isAccessToken()) {
+            throw new IllegalArgumentException("Access token type must be ACCESS_TOKEN");
+        }
     }
 
     /**
-     * Validates that the refresh token is not {@code null}.
+     * Validates that the refresh token is not {@code null} and is of type {@link JwtType#REFRESH_TOKEN}.
      *
      * @param refreshToken the refresh token to validate
-     * @throws IllegalArgumentException if the refresh token is {@code null}
+     * @throws IllegalArgumentException if the refresh token is {@code null} or is not a refresh token
      */
     private static void validateRefreshToken(Jwt refreshToken) {
         if (refreshToken == null) {
             throw new IllegalArgumentException("Refresh token must not be null");
+        }
+        if (!refreshToken.isRefreshToken()) {
+            throw new IllegalArgumentException("Refresh token type must be REFRESH_TOKEN");
         }
     }
 

@@ -36,11 +36,11 @@ import com.attrigo.asapp.authentication.application.CompensatingTransactionExcep
 import com.attrigo.asapp.authentication.application.authentication.AuthenticationNotFoundException;
 import com.attrigo.asapp.authentication.application.authentication.InvalidCredentialsException;
 import com.attrigo.asapp.authentication.application.authentication.InvalidJwtException;
+import com.attrigo.asapp.authentication.application.authentication.TokenIssuanceException;
 import com.attrigo.asapp.authentication.application.authentication.TokenStoreException;
 import com.attrigo.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.attrigo.asapp.authentication.domain.user.InvalidPasswordException;
 import com.attrigo.asapp.authentication.domain.user.InvalidUsernameException;
-import com.attrigo.asapp.authentication.infrastructure.security.JwtIssuanceException;
 import com.attrigo.asapp.authentication.testutil.WebMvcTestContext;
 import com.attrigo.asapp.authentication.testutil.fixture.EncodedTokenMother;
 
@@ -310,10 +310,10 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
     }
 
     @Nested
-    class HandleJwtIssuanceException {
+    class HandleTokenIssuanceException {
 
         @Test
-        void ReturnsStatusInternalServerErrorAndBodyWithProblemDetail_JwtIssuanceFails() {
+        void ReturnsStatusInternalServerErrorAndBodyWithProblemDetail_TokenIssuanceFails() {
             // Given
             var requestBody = """
                     {
@@ -324,7 +324,7 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
             var requestBuilder = post(AUTH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
                                                            .content(requestBody);
 
-            given(authenticateUseCase.authenticate(any())).willThrow(new JwtIssuanceException("JWT signing failed", new RuntimeException("Signing error")));
+            given(authenticateUseCase.authenticate(any())).willThrow(new TokenIssuanceException("JWT signing failed", new RuntimeException("Signing error")));
 
             // When
             var actual = mockMvcTester.perform(requestBuilder);

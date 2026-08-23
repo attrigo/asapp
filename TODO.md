@@ -22,10 +22,17 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [X] Settle a naming and formatting convention for architecture rules
     - [X] Settle how finely to split the architecture rule classes
 - [X] (persistence) Wrap authentication user create and update in a transaction
-- [ ] (architecture) Reconcile driven-adapter conventions and align the code
-    - [ ] Settle the driven-adapter naming, implementation, and placement conventions
-    - [ ] Refactor the mismatched adapters to match the settled conventions
-    - **Note:** revisits the ports-adapters review's open questions — must every adapter carry the `Adapter` suffix, when may a port be implemented directly rather than wrapped, and may an adapter live outside the aggregate's `out/`; authentication service is the main case
+- [X] (architecture) Reconcile driven-adapter conventions and align the code
+    - [X] Settle the driven-adapter naming, implementation, and placement conventions
+    - [X] Refactor the mismatched adapters to match the settled conventions
+    - [X] Narrow or drop bullet 3 of the `## Driven Adapters` convention
+    - [X] Remove the unreachable `TokenStore` existence-check methods
+    - [X] Settle how `TokenIssuerAdapter`'s issuance failure crosses the port boundary
+    - [X] Decide where `JwtIssuanceException` belongs now that its only thrower left `security/`
+    - [X] Reconsider the deferred ArchUnit rule for adapter naming and placement
+    - [X] Replace `RedisJwtStore.save`'s four positional parameters with a paired type
+    - [X] Settle whether the time-to-live calculation belongs in the token entry
+    - [X] Replace the Redis store's raw token strings with `EncodedToken`
 - [ ] (error-handling) Make encoded-token validation failures consistent with other domain errors
     - **Note:** `InvalidEncodedTokenException` extends `RuntimeException` while the other custom domain exceptions extend `IllegalArgumentException`; surfaced by the domain-design.md S3 review (docs/reviews/2026-07-24-domain-design-review.md)
 - [ ] (build) Fix POM entries that violate the ordering convention
@@ -228,6 +235,8 @@ Goal: round out observability with operational dashboards and finer-grained inst
 * Add MFA via OTP
 * Refactor JWT algorithm selection to use primitive type patterns in switch (pending stable Java support)
 * Support dynamic refresh of the expired JWT cleanup scheduler
+* Key stored JWTs by hash instead of the raw token
+* Make JWT store saves and deletes atomic
 
 #### tests
 

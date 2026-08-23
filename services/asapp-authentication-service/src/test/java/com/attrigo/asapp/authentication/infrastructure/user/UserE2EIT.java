@@ -18,8 +18,8 @@ package com.attrigo.asapp.authentication.infrastructure.user;
 
 import static com.attrigo.asapp.authentication.domain.user.Role.ADMIN;
 import static com.attrigo.asapp.authentication.domain.user.Role.USER;
-import static com.attrigo.asapp.authentication.infrastructure.authentication.out.RedisJwtStore.ACCESS_TOKEN_PREFIX;
-import static com.attrigo.asapp.authentication.infrastructure.authentication.out.RedisJwtStore.REFRESH_TOKEN_PREFIX;
+import static com.attrigo.asapp.authentication.infrastructure.security.TokenKey.ACCESS_TOKEN_PREFIX;
+import static com.attrigo.asapp.authentication.infrastructure.security.TokenKey.REFRESH_TOKEN_PREFIX;
 import static com.attrigo.asapp.authentication.testutil.fixture.EncodedTokenMother.encodedAccessToken;
 import static com.attrigo.asapp.authentication.testutil.fixture.JwtAuthenticationMother.aJwtAuthenticationBuilder;
 import static com.attrigo.asapp.authentication.testutil.fixture.UserMother.aJdbcUser;

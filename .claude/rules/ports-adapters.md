@@ -6,10 +6,11 @@ paths:
 
 Conventions for the application and infrastructure layers — ports, adapters, application services, and the cross-cutting concerns at their boundaries.
 
-## Naming
+## Driven Adapters
 
-- Name a port adapter `<PortInterfaceName>Adapter` (e.g., `UserRepositoryAdapter`), whatever logic it adds
-- Use a descriptive name when the class is the real implementation rather than a wrapper over something that already does the job (e.g., `RedisJwtStore`, `JwtIssuer`)
+- Name a class implementing an output port `<PortInterfaceName>Adapter` and place it in `infrastructure/<aggregate>/out/` — whatever logic it adds, whatever it is built on
+- The adapter owns the translation: domain types to the technology's, and the technology's failures to the port's declared exceptions
+- The technology an adapter drives stays outside `out/`, in its own infrastructure package — or the adapter drives a library or framework bean directly
 
 ## Application Service
 
@@ -17,12 +18,6 @@ Conventions for the application and infrastructure layers — ports, adapters, a
 - `@Transactional` on state-changing (command) use cases; omit for read-only queries — **including single-write commands**
 - Keep remote calls and CPU-bound work (e.g. password hashing) out of the transaction; where unavoidable, note it in the method Javadoc
 - Use logging only for critical multi-step orchestrations
-
-## Adapter vs. Direct Implementation
-
-- **Create a separate adapter when** the collaborator's shape doesn't match the port (type/protocol translation, e.g., `UserRepositoryAdapter` over a JDBC repository) or the collaborator is reused outside this port (e.g., `TokenVerifierAdapter` over the shared `JwtVerifier`)
-- **Implement the port directly otherwise** — one class fulfilling the port, even when built on a low-level library (e.g., `RedisJwtStore` on Redis, `JwtIssuer implements TokenIssuer`)
-- A cross-cutting concern that directly implements a port lives in its own package (e.g., `security/`), not the aggregate's `out/` (e.g., `JwtIssuer implements TokenIssuer` in `security/`)
 
 ## Result Objects
 

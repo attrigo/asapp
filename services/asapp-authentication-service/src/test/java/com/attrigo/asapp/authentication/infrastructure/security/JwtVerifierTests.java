@@ -33,12 +33,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.redis.RedisConnectionFailureException;
 
 import com.attrigo.asapp.authentication.application.authentication.AuthenticationNotFoundException;
 import com.attrigo.asapp.authentication.application.authentication.InvalidJwtException;
 import com.attrigo.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.attrigo.asapp.authentication.domain.authentication.EncodedToken;
-import com.attrigo.asapp.authentication.infrastructure.authentication.out.RedisJwtStore;
 
 /**
  * Tests {@link JwtVerifier} decode-then-verify pipeline and session validation.
@@ -48,6 +48,7 @@ import com.attrigo.asapp.authentication.infrastructure.authentication.out.RedisJ
  * <li>Token type mismatches throw domain exception</li>
  * <li>Missing session in store throws authentication not found</li>
  * <li>Successful verification returns decoded JWT with validated session</li>
+ * <li>Cache connection failures during session validation are treated as invalid tokens</li>
  */
 @ExtendWith(MockitoExtension.class)
 class JwtVerifierTests {
@@ -72,7 +73,7 @@ class JwtVerifierTests {
             var encodedAccessToken = EncodedToken.of(encodedAccessTokenValue);
 
             given(jwtDecoder.decode(encodedAccessTokenValue)).willReturn(decodedJwt);
-            given(redisJwtStore.accessTokenExists(encodedAccessToken)).willReturn(true);
+            given(redisJwtStore.exists(TokenKey.ofAccessToken(encodedAccessToken))).willReturn(true);
 
             // When
             var actual = jwtVerifier.verifyAccessToken(encodedAccessToken);
@@ -84,7 +85,7 @@ class JwtVerifierTests {
             then(jwtDecoder).should(times(1))
                             .decode(encodedAccessTokenValue);
             then(redisJwtStore).should(times(1))
-                               .accessTokenExists(encodedAccessToken);
+                               .exists(TokenKey.ofAccessToken(encodedAccessToken));
         }
 
         @Test
@@ -136,7 +137,7 @@ class JwtVerifierTests {
             var encodedAccessToken = EncodedToken.of(encodedAccessTokenValue);
 
             given(jwtDecoder.decode(encodedAccessTokenValue)).willReturn(decodedJwt);
-            given(redisJwtStore.accessTokenExists(encodedAccessToken)).willReturn(false);
+            given(redisJwtStore.exists(TokenKey.ofAccessToken(encodedAccessToken))).willReturn(false);
 
             // When
             var actual = catchThrowable(() -> jwtVerifier.verifyAccessToken(encodedAccessToken));
@@ -148,7 +149,32 @@ class JwtVerifierTests {
             then(jwtDecoder).should(times(1))
                             .decode(encodedAccessTokenValue);
             then(redisJwtStore).should(times(1))
-                               .accessTokenExists(encodedAccessToken);
+                               .exists(TokenKey.ofAccessToken(encodedAccessToken));
+        }
+
+        @Test
+        void ThrowsInvalidJwtException_CacheConnectionFails() {
+            // Given
+            var decodedJwt = decodedAccessToken();
+            var encodedAccessTokenValue = decodedJwt.encodedToken();
+            var encodedAccessToken = EncodedToken.of(encodedAccessTokenValue);
+
+            given(jwtDecoder.decode(encodedAccessTokenValue)).willReturn(decodedJwt);
+            willThrow(new RedisConnectionFailureException("Cannot connect to Redis server")).given(redisJwtStore)
+                                                                                            .exists(TokenKey.ofAccessToken(encodedAccessToken));
+
+            // When
+            var actual = catchThrowable(() -> jwtVerifier.verifyAccessToken(encodedAccessToken));
+
+            // Then
+            assertThat(actual).isInstanceOf(InvalidJwtException.class)
+                              .hasMessage("Access token is not valid")
+                              .hasCauseInstanceOf(RedisConnectionFailureException.class);
+
+            then(jwtDecoder).should(times(1))
+                            .decode(encodedAccessTokenValue);
+            then(redisJwtStore).should(times(1))
+                               .exists(TokenKey.ofAccessToken(encodedAccessToken));
         }
 
     }
@@ -164,7 +190,7 @@ class JwtVerifierTests {
             var encodedRefreshToken = EncodedToken.of(encodedRefreshTokenValue);
 
             given(jwtDecoder.decode(encodedRefreshTokenValue)).willReturn(decodedJwt);
-            given(redisJwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(true);
+            given(redisJwtStore.exists(TokenKey.ofRefreshToken(encodedRefreshToken))).willReturn(true);
 
             // When
             var actual = jwtVerifier.verifyRefreshToken(encodedRefreshToken);
@@ -176,7 +202,7 @@ class JwtVerifierTests {
             then(jwtDecoder).should(times(1))
                             .decode(encodedRefreshTokenValue);
             then(redisJwtStore).should(times(1))
-                               .refreshTokenExists(encodedRefreshToken);
+                               .exists(TokenKey.ofRefreshToken(encodedRefreshToken));
         }
 
         @Test
@@ -228,7 +254,7 @@ class JwtVerifierTests {
             var encodedRefreshToken = EncodedToken.of(encodedRefreshTokenValue);
 
             given(jwtDecoder.decode(encodedRefreshTokenValue)).willReturn(decodedJwt);
-            given(redisJwtStore.refreshTokenExists(encodedRefreshToken)).willReturn(false);
+            given(redisJwtStore.exists(TokenKey.ofRefreshToken(encodedRefreshToken))).willReturn(false);
 
             // When
             var actual = catchThrowable(() -> jwtVerifier.verifyRefreshToken(encodedRefreshToken));
@@ -240,7 +266,32 @@ class JwtVerifierTests {
             then(jwtDecoder).should(times(1))
                             .decode(encodedRefreshTokenValue);
             then(redisJwtStore).should(times(1))
-                               .refreshTokenExists(encodedRefreshToken);
+                               .exists(TokenKey.ofRefreshToken(encodedRefreshToken));
+        }
+
+        @Test
+        void ThrowsInvalidJwtException_CacheConnectionFails() {
+            // Given
+            var decodedJwt = decodedRefreshToken();
+            var encodedRefreshTokenValue = decodedJwt.encodedToken();
+            var encodedRefreshToken = EncodedToken.of(encodedRefreshTokenValue);
+
+            given(jwtDecoder.decode(encodedRefreshTokenValue)).willReturn(decodedJwt);
+            willThrow(new RedisConnectionFailureException("Cannot connect to Redis server")).given(redisJwtStore)
+                                                                                            .exists(TokenKey.ofRefreshToken(encodedRefreshToken));
+
+            // When
+            var actual = catchThrowable(() -> jwtVerifier.verifyRefreshToken(encodedRefreshToken));
+
+            // Then
+            assertThat(actual).isInstanceOf(InvalidJwtException.class)
+                              .hasMessage("Refresh token is not valid")
+                              .hasCauseInstanceOf(RedisConnectionFailureException.class);
+
+            then(jwtDecoder).should(times(1))
+                            .decode(encodedRefreshTokenValue);
+            then(redisJwtStore).should(times(1))
+                               .exists(TokenKey.ofRefreshToken(encodedRefreshToken));
         }
 
     }

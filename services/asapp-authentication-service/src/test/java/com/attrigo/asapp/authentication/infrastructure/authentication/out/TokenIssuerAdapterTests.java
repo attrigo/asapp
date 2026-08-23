@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.attrigo.asapp.authentication.infrastructure.security;
+package com.attrigo.asapp.authentication.infrastructure.authentication.out;
 
 import static com.attrigo.asapp.authentication.domain.authentication.JwtClaimNames.ACCESS_TOKEN_USE;
 import static com.attrigo.asapp.authentication.domain.authentication.JwtClaimNames.REFRESH_TOKEN_USE;
@@ -49,6 +49,7 @@ import com.nimbusds.jose.KeyLengthException;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.SignedJWT;
 
+import com.attrigo.asapp.authentication.application.authentication.TokenIssuanceException;
 import com.attrigo.asapp.authentication.domain.authentication.Subject;
 import com.attrigo.asapp.authentication.domain.authentication.UserAuthentication;
 import com.attrigo.asapp.authentication.domain.user.Role;
@@ -56,7 +57,7 @@ import com.attrigo.asapp.authentication.domain.user.UserId;
 import com.attrigo.asapp.authentication.domain.user.Username;
 
 /**
- * Tests {@link JwtIssuer} token generation, claim population, and cryptographic signing.
+ * Tests {@link TokenIssuerAdapter} token generation, claim population, and cryptographic signing.
  * <p>
  * Setup:
  * <li>Builds the issuer with a real MAC signer before each test</li>
@@ -67,20 +68,20 @@ import com.attrigo.asapp.authentication.domain.user.Username;
  * <li>Signs tokens with configured secret key for cryptographic verification</li>
  * <li>Supports all role types in claim generation</li>
  * <li>Selects HMAC algorithm (HS256/HS384/HS512) based on key bit-length</li>
- * <li>Throws JwtIssuanceException when cryptographic signing fails</li>
+ * <li>Throws TokenIssuanceException when cryptographic signing fails</li>
  */
-class JwtIssuerTests {
+class TokenIssuerAdapterTests {
 
     private static final long ACCESS_TOKEN_EXPIRATION_TIME = 900000L; // 15 minutes
 
     private static final long REFRESH_TOKEN_EXPIRATION_TIME = 604800000L; // 7 days
 
-    private JwtIssuer jwtIssuer;
+    private TokenIssuerAdapter tokenIssuerAdapter;
 
     @BeforeEach
     void beforeEach() throws KeyLengthException {
         var macSigner = new MACSigner(new byte[32]);
-        jwtIssuer = new JwtIssuer(macSigner, ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME);
+        tokenIssuerAdapter = new TokenIssuerAdapter(macSigner, ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME);
     }
 
     @Nested
@@ -97,7 +98,7 @@ class JwtIssuerTests {
             var userAuthentication = UserAuthentication.authenticated(userId, username, role);
 
             // When
-            var actual = jwtIssuer.issueTokenPair(userAuthentication);
+            var actual = tokenIssuerAdapter.issueTokenPair(userAuthentication);
 
             // Then
             assertSoftly(softly -> {
@@ -118,10 +119,10 @@ class JwtIssuerTests {
         }
 
         @ParameterizedTest
-        @MethodSource("com.attrigo.asapp.authentication.infrastructure.security.JwtIssuerTests#keySizeToAlgorithm")
+        @MethodSource("com.attrigo.asapp.authentication.infrastructure.authentication.out.TokenIssuerAdapterTests#keySizeToAlgorithm")
         void ReturnsTokenSignedWithMatchingAlgorithm_KeyBitLength(int keySize, JWSAlgorithm algorithm) throws KeyLengthException {
             // Given
-            var issuer = new JwtIssuer(new MACSigner(new byte[keySize]), ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME);
+            var issuer = new TokenIssuerAdapter(new MACSigner(new byte[keySize]), ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME);
             var userId = UserId.of(UUID.fromString("184c3f38-0783-4b4e-a570-709416bd856b"));
             var username = Username.of("user@asapp.com");
             var userAuthentication = UserAuthentication.authenticated(userId, username, Role.USER);
@@ -135,10 +136,10 @@ class JwtIssuerTests {
         }
 
         @Test
-        void ThrowsJwtIssuanceException_SigningFails() throws JOSEException {
+        void ThrowsTokenIssuanceException_SigningFails() throws JOSEException {
             // Given
             var macSigner = mock(MACSigner.class);
-            var issuer = new JwtIssuer(macSigner, ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME);
+            var issuer = new TokenIssuerAdapter(macSigner, ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME);
             var userId = UserId.of(UUID.fromString("184c3f38-0783-4b4e-a570-709416bd856b"));
             var username = Username.of("user@asapp.com");
             var userAuthentication = UserAuthentication.authenticated(userId, username, Role.USER);
@@ -151,7 +152,7 @@ class JwtIssuerTests {
             var actual = catchThrowable(() -> issuer.issueTokenPair(userAuthentication));
 
             // Then
-            assertThat(actual).isInstanceOf(JwtIssuanceException.class)
+            assertThat(actual).isInstanceOf(TokenIssuanceException.class)
                               .hasMessageContaining("JWT signing failed for type");
         }
 
@@ -168,7 +169,7 @@ class JwtIssuerTests {
             var subject = Subject.of(subjectValue);
 
             // When
-            var actual = jwtIssuer.issueTokenPair(subject, role);
+            var actual = tokenIssuerAdapter.issueTokenPair(subject, role);
 
             // Then
             assertSoftly(softly -> {
@@ -189,10 +190,10 @@ class JwtIssuerTests {
         }
 
         @ParameterizedTest
-        @MethodSource("com.attrigo.asapp.authentication.infrastructure.security.JwtIssuerTests#keySizeToAlgorithm")
+        @MethodSource("com.attrigo.asapp.authentication.infrastructure.authentication.out.TokenIssuerAdapterTests#keySizeToAlgorithm")
         void ReturnsTokenSignedWithMatchingAlgorithm_KeyBitLength(int keySize, JWSAlgorithm algorithm) throws KeyLengthException {
             // Given
-            var issuer = new JwtIssuer(new MACSigner(new byte[keySize]), ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME);
+            var issuer = new TokenIssuerAdapter(new MACSigner(new byte[keySize]), ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME);
             var subject = Subject.of("user@asapp.com");
 
             // When
@@ -204,10 +205,10 @@ class JwtIssuerTests {
         }
 
         @Test
-        void ThrowsJwtIssuanceException_SigningFails() throws JOSEException {
+        void ThrowsTokenIssuanceException_SigningFails() throws JOSEException {
             // Given
             var macSigner = mock(MACSigner.class);
-            var issuer = new JwtIssuer(macSigner, ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME);
+            var issuer = new TokenIssuerAdapter(macSigner, ACCESS_TOKEN_EXPIRATION_TIME, REFRESH_TOKEN_EXPIRATION_TIME);
             var subject = Subject.of("user@asapp.com");
 
             given(macSigner.getSecret()).willReturn(new byte[32]);
@@ -218,7 +219,7 @@ class JwtIssuerTests {
             var actual = catchThrowable(() -> issuer.issueTokenPair(subject, Role.USER));
 
             // Then
-            assertThat(actual).isInstanceOf(JwtIssuanceException.class)
+            assertThat(actual).isInstanceOf(TokenIssuanceException.class)
                               .hasMessageContaining("JWT signing failed for type");
         }
 

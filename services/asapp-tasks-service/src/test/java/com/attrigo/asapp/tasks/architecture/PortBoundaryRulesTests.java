@@ -36,7 +36,7 @@ import com.tngtech.archunit.lang.SimpleConditionEvent;
  * <li>Rejects an input or output port declared as anything but an interface</li>
  * <li>Rejects an input port implemented outside the application service package</li>
  * <li>Rejects an application service implementing no input port</li>
- * <li>Rejects an output port implemented outside the infrastructure layer</li>
+ * <li>Rejects an output port implemented outside a driven adapter package</li>
  * <li>Rejects an input port referenced outside the application layer and the driving adapters</li>
  * <li>Rejects an application service referenced beyond the application layer</li>
  * <li>Rejects a class outside the application layer referencing an output port it does not implement</li>
@@ -74,12 +74,12 @@ class PortBoundaryRulesTests {
     // @formatter:on
 
     @ArchTest
-    static final ArchRule outputPortsAreImplementedOnlyInTheInfrastructure =
+    static final ArchRule outputPortsAreImplementedOnlyInDrivenAdapterPackages =
     // @formatter:off
             classes().that()
                      .implement(resideInAPackage("..application..out"))
                      .should()
-                     .resideInAPackage("..infrastructure..");
+                     .resideInAPackage("..infrastructure..out");
     // @formatter:on
 
     @ArchTest

@@ -17,7 +17,6 @@
 package com.attrigo.asapp.authentication.application.authentication.out;
 
 import com.attrigo.asapp.authentication.application.authentication.TokenStoreException;
-import com.attrigo.asapp.authentication.domain.authentication.EncodedToken;
 import com.attrigo.asapp.authentication.domain.authentication.JwtPair;
 
 /**
@@ -29,26 +28,6 @@ import com.attrigo.asapp.authentication.domain.authentication.JwtPair;
  * @author attrigo
  */
 public interface TokenStore {
-
-    /**
-     * Checks if an access token exists in the fast-access store.
-     * <p>
-     * Used to verify if an access token is still valid and has not been revoked.
-     *
-     * @param accessToken the {@link EncodedToken} representing the access token to check
-     * @return {@code true} if the access token exists in the store, {@code false} otherwise
-     */
-    Boolean accessTokenExists(EncodedToken accessToken);
-
-    /**
-     * Checks if a refresh token exists in the fast-access store.
-     * <p>
-     * Used to verify if a refresh token is still valid and has not been revoked.
-     *
-     * @param refreshToken the {@link EncodedToken} representing the refresh token to check
-     * @return {@code true} if the refresh token exists in the store, {@code false} otherwise
-     */
-    Boolean refreshTokenExists(EncodedToken refreshToken);
 
     /**
      * Saves a JWT pair in the fast-access store.

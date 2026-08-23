@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-package com.attrigo.asapp.authentication.infrastructure.security;
+package com.attrigo.asapp.authentication.infrastructure.authentication.out;
 
 import static com.attrigo.asapp.authentication.domain.authentication.JwtClaimNames.ACCESS_TOKEN_USE;
 import static com.attrigo.asapp.authentication.domain.authentication.JwtClaimNames.REFRESH_TOKEN_USE;
@@ -37,6 +37,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 
+import com.attrigo.asapp.authentication.application.authentication.TokenIssuanceException;
 import com.attrigo.asapp.authentication.application.authentication.out.TokenIssuer;
 import com.attrigo.asapp.authentication.domain.authentication.EncodedToken;
 import com.attrigo.asapp.authentication.domain.authentication.Expiration;
@@ -50,9 +51,9 @@ import com.attrigo.asapp.authentication.domain.authentication.UserAuthentication
 import com.attrigo.asapp.authentication.domain.user.Role;
 
 /**
- * Infrastructure component for issuing signed JWTs.
+ * Adapter implementation of {@link TokenIssuer} for signed JWT issuance.
  * <p>
- * Implements {@link TokenIssuer} port, providing the infrastructure capability to generate JWTs using the Nimbus JOSE+JWT library.
+ * Bridges the application layer with the infrastructure layer by generating JWTs using the Nimbus JOSE+JWT library.
  * <p>
  * It can generate two types of tokens:
  * <ul>
@@ -76,9 +77,9 @@ import com.attrigo.asapp.authentication.domain.user.Role;
  */
 @Component
 @RefreshScope
-public class JwtIssuer implements TokenIssuer {
+public class TokenIssuerAdapter implements TokenIssuer {
 
-    private static final Logger logger = LoggerFactory.getLogger(JwtIssuer.class);
+    private static final Logger logger = LoggerFactory.getLogger(TokenIssuerAdapter.class);
 
     private final MACSigner macSigner;
 
@@ -87,13 +88,13 @@ public class JwtIssuer implements TokenIssuer {
     private final Long refreshTokenExpirationTime;
 
     /**
-     * Constructs a new {@code JwtIssuer} with the configured secret key and expiration times.
+     * Constructs a new {@code TokenIssuerAdapter} with the configured secret key and expiration times.
      *
      * @param macSigner                  the {@link MACSigner} used to sign tokens
      * @param accessTokenExpirationTime  the access token expiration time in milliseconds
      * @param refreshTokenExpirationTime the refresh token expiration time in milliseconds
      */
-    public JwtIssuer(MACSigner macSigner, @Value("${asapp.security.access-token.expiration-time}") Long accessTokenExpirationTime,
+    public TokenIssuerAdapter(MACSigner macSigner, @Value("${asapp.security.access-token.expiration-time}") Long accessTokenExpirationTime,
             @Value("${asapp.security.refresh-token.expiration-time}") Long refreshTokenExpirationTime) {
 
         this.macSigner = macSigner;
@@ -151,7 +152,7 @@ public class JwtIssuer implements TokenIssuer {
      * @param issuedAt   the {@link Issued} timestamp
      * @param expiration the {@link Expiration} timestamp
      * @return the signed JWT string
-     * @throws JwtIssuanceException if the cryptographic signing operation fails
+     * @throws TokenIssuanceException if the cryptographic signing operation fails
      */
     private String signToken(JwtType tokenType, Subject subject, JwtClaims claims, Issued issuedAt, Expiration expiration) {
         try {
@@ -165,7 +166,7 @@ public class JwtIssuer implements TokenIssuer {
             return signedJwt.serialize();
 
         } catch (JOSEException e) {
-            throw new JwtIssuanceException("JWT signing failed for type " + tokenType, e);
+            throw new TokenIssuanceException("JWT signing failed for type " + tokenType, e);
         }
     }
 

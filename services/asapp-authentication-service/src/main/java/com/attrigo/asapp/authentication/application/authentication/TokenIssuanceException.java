@@ -14,25 +14,27 @@
 * limitations under the License.
 */
 
-package com.attrigo.asapp.authentication.infrastructure.security;
+package com.attrigo.asapp.authentication.application.authentication;
 
 /**
  * Exception thrown when JWT signing or issuance operations fail.
  * <p>
- * Indicates that the JWT infrastructure could not sign or build a token, typically due to a cryptographic failure in the underlying JOSE library.
+ * Indicates that the token issuer port could not sign or build a token.
+ * <p>
+ * This typically occurs due to a cryptographic failure in the underlying signing mechanism.
  *
  * @since 0.2.0
  * @author attrigo
  */
-public class JwtIssuanceException extends RuntimeException {
+public class TokenIssuanceException extends RuntimeException {
 
     /**
-     * Constructs a new {@code JwtIssuanceException} with the specified detail message and cause.
+     * Constructs a new {@code TokenIssuanceException} with the specified detail message and cause.
      *
      * @param message the detail message providing additional information about the exception
      * @param cause   the underlying cause of the exception
      */
-    public JwtIssuanceException(String message, Throwable cause) {
+    public TokenIssuanceException(String message, Throwable cause) {
         super(message, cause);
     }
 

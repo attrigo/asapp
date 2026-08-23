@@ -16,6 +16,7 @@
 
 package com.attrigo.asapp.authentication.application.authentication.out;
 
+import com.attrigo.asapp.authentication.application.authentication.TokenIssuanceException;
 import com.attrigo.asapp.authentication.domain.authentication.JwtPair;
 import com.attrigo.asapp.authentication.domain.authentication.Subject;
 import com.attrigo.asapp.authentication.domain.authentication.UserAuthentication;
@@ -38,6 +39,7 @@ public interface TokenIssuer {
      *
      * @param userAuthentication the {@link UserAuthentication} containing authenticated user data
      * @return the generated {@link JwtPair} containing both access and refresh tokens
+     * @throws TokenIssuanceException if the token signing operation fails
      */
     JwtPair issueTokenPair(UserAuthentication userAuthentication);
 
@@ -49,6 +51,7 @@ public interface TokenIssuer {
      * @param subject the {@link Subject} identifier
      * @param role    the {@link Role} for the tokens
      * @return the generated {@link JwtPair} containing both access and refresh tokens
+     * @throws TokenIssuanceException if the token signing operation fails
      */
     JwtPair issueTokenPair(Subject subject, Role role);
 

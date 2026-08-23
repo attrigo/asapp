@@ -24,7 +24,6 @@ import com.attrigo.asapp.authentication.application.authentication.Authenticatio
 import com.attrigo.asapp.authentication.application.authentication.InvalidJwtException;
 import com.attrigo.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.attrigo.asapp.authentication.domain.authentication.EncodedToken;
-import com.attrigo.asapp.authentication.infrastructure.authentication.out.RedisJwtStore;
 
 /**
  * Infrastructure component responsible for orchestrating JWT verification through a 3-step validation process.
@@ -165,7 +164,7 @@ public class JwtVerifier {
      */
     private void checkAccessTokenInActiveStore(EncodedToken encodedToken) {
         logger.trace("[JWT_VERIFIER] Step 3/3: Checking access token exists in store");
-        var isTokenActive = redisJwtStore.accessTokenExists(encodedToken);
+        var isTokenActive = redisJwtStore.exists(TokenKey.ofAccessToken(encodedToken));
         if (!isTokenActive) {
             throw new AuthenticationNotFoundException("Authentication session not found in store for access token");
         }
@@ -196,7 +195,7 @@ public class JwtVerifier {
      */
     private void checkRefreshTokenInActiveStore(EncodedToken encodedToken) {
         logger.trace("[JWT_VERIFIER] Step 3/3: Checking refresh token exists in store");
-        var isTokenActive = redisJwtStore.refreshTokenExists(encodedToken);
+        var isTokenActive = redisJwtStore.exists(TokenKey.ofRefreshToken(encodedToken));
         if (!isTokenActive) {
             throw new AuthenticationNotFoundException("Authentication session not found in store for refresh token");
         }
