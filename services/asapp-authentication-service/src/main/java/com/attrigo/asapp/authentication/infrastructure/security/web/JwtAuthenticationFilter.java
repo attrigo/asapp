@@ -49,6 +49,7 @@ import com.attrigo.asapp.authentication.application.authentication.Authenticatio
 import com.attrigo.asapp.authentication.application.authentication.InvalidJwtException;
 import com.attrigo.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
 import com.attrigo.asapp.authentication.domain.authentication.EncodedToken;
+import com.attrigo.asapp.authentication.domain.authentication.InvalidEncodedTokenException;
 import com.attrigo.asapp.authentication.infrastructure.security.JwtAuthenticationToken;
 import com.attrigo.asapp.authentication.infrastructure.security.JwtVerifier;
 
@@ -130,9 +131,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         var bearerToken = optionalBearerToken.get();
-        var encodedToken = EncodedToken.of(bearerToken);
         try {
             logger.trace("[JWT_FILTER] Step 2/4: Decoding and verifying token");
+            var encodedToken = EncodedToken.of(bearerToken);
             var decodedJwt = jwtVerifier.verifyAccessToken(encodedToken);
 
             logger.trace("[JWT_FILTER] Step 3/4: Creating authentication token for user: {}", decodedJwt.subject());
@@ -145,6 +146,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
             logger.debug("[JWT_FILTER] Authentication successful for subject={}", jwtAuthenticationToken.getName());
 
+        } catch (InvalidEncodedTokenException e) {
+            logger.warn("[JWT_FILTER] Authentication failed - reason=Malformed token: {}", e.getMessage());
         } catch (UnexpectedJwtTypeException e) {
             logger.warn("[JWT_FILTER] Authentication failed - reason=Invalid token type: {}", e.getMessage());
         } catch (AuthenticationNotFoundException e) {

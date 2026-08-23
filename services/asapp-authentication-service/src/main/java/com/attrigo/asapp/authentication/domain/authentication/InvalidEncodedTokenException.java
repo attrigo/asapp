@@ -24,7 +24,7 @@ package com.attrigo.asapp.authentication.domain.authentication;
  * @since 0.2.0
  * @author attrigo
  */
-public class InvalidEncodedTokenException extends RuntimeException {
+public class InvalidEncodedTokenException extends IllegalArgumentException {
 
     /**
      * Constructs a new {@code InvalidEncodedTokenException} with the specified detail message.

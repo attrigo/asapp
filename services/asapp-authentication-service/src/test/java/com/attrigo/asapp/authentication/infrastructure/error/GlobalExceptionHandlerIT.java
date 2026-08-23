@@ -39,6 +39,7 @@ import com.attrigo.asapp.authentication.application.authentication.InvalidJwtExc
 import com.attrigo.asapp.authentication.application.authentication.TokenIssuanceException;
 import com.attrigo.asapp.authentication.application.authentication.TokenStoreException;
 import com.attrigo.asapp.authentication.application.authentication.UnexpectedJwtTypeException;
+import com.attrigo.asapp.authentication.domain.authentication.InvalidEncodedTokenException;
 import com.attrigo.asapp.authentication.domain.user.InvalidPasswordException;
 import com.attrigo.asapp.authentication.domain.user.InvalidUsernameException;
 import com.attrigo.asapp.authentication.testutil.WebMvcTestContext;
@@ -53,7 +54,7 @@ import com.attrigo.asapp.authentication.testutil.fixture.EncodedTokenMother;
  * Coverage:
  * <li>Routes invalid-argument failures escaping a use case to a 400 Problem Detail</li>
  * <li>Routes invalid username or password formatting failures escaping a use case to a 400 Problem Detail without an error property</li>
- * <li>Routes authentication failures escaping a use case to a 401 Problem Detail</li>
+ * <li>Routes authentication and malformed encoded-token failures escaping a use case to a 401 Problem Detail</li>
  * <li>Routes token-type and JWT validation failures escaping a use case to a 401 Problem Detail</li>
  * <li>Routes compensating-transaction, JWT signing and database failures escaping a use case to a 500 Problem Detail flagged critical</li>
  * <li>Routes token-store and cache connection failures escaping a use case to a 503 Problem Detail</li>
@@ -166,6 +167,33 @@ class GlobalExceptionHandlerIT extends WebMvcTestContext {
 
             given(authenticateUseCase.authenticate(any())).willThrow(
                     new InvalidCredentialsException("Invalid credentials", new RuntimeException("bad credentials")));
+
+            // When
+            var actual = mockMvcTester.perform(requestBuilder);
+
+            // Then
+            assertThat(actual).hasStatus(HttpStatus.UNAUTHORIZED)
+                              .hasContentType(MediaType.APPLICATION_PROBLEM_JSON)
+                              .bodyJson()
+                              .convertTo(String.class)
+                              .satisfies(json -> assertThatJson(json).isObject()
+                                                                     .containsEntry("detail", "Invalid credentials")
+                                                                     .containsEntry("error", "invalid_grant"));
+        }
+
+        @Test
+        void ReturnsStatusUnauthorizedAndBodyWithProblemDetail_InvalidEncodedToken() {
+            // Given
+            var requestBody = """
+                    {
+                    "refreshToken": "%s"
+                    }
+                    """.formatted(EncodedTokenMother.encodedRefreshToken());
+            var requestBuilder = post(AUTH_REFRESH_TOKEN_FULL_PATH).contentType(MediaType.APPLICATION_JSON)
+                                                                   .content(requestBody);
+
+            given(refreshAuthenticationUseCase.refreshAuthentication(any())).willThrow(
+                    new InvalidEncodedTokenException("Encoded token must be a valid JWT format"));
 
             // When
             var actual = mockMvcTester.perform(requestBuilder);

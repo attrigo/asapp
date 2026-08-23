@@ -76,8 +76,7 @@ Goal: move the build onto Gradle so every later build is cached, parallel, and i
     - [X] Replace `RedisJwtStore.save`'s four positional parameters with a paired type
     - [X] Settle whether the time-to-live calculation belongs in the token entry
     - [X] Replace the Redis store's raw token strings with `EncodedToken`
-- [ ] (error-handling) Make encoded-token validation failures consistent with other domain errors
-    - **Note:** `InvalidEncodedTokenException` extends `RuntimeException` while the other custom domain exceptions extend `IllegalArgumentException`; surfaced by the domain-design.md S3 review (docs/reviews/2026-07-24-domain-design-review.md)
+- [X] (error-handling) Make encoded-token validation failures consistent with other domain errors
 
 ### Docs & Tooling
 

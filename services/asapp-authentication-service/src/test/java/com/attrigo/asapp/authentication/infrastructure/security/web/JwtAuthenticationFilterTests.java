@@ -65,6 +65,7 @@ import com.attrigo.asapp.authentication.infrastructure.security.JwtVerifier;
  * <li>Applies filter to protected URL patterns</li>
  * <li>Continues filter chain without authentication when bearer token is missing</li>
  * <li>Continues filter chain without authentication when authorization header is not a bearer scheme</li>
+ * <li>Continues filter chain without authentication when bearer token is not a valid JWT format</li>
  * <li>Continues filter chain without authentication when token type is not access</li>
  * <li>Continues filter chain without authentication when authentication session is not found</li>
  * <li>Continues filter chain without authentication when token is expired</li>
@@ -203,6 +204,22 @@ class JwtAuthenticationFilterTests {
         void ContinuesFilterChainWithoutAuthentication_NonBearerAuthorizationHeader() throws Exception {
             // Given
             given(request.getHeader("Authorization")).willReturn("Basic dXNlcjpwYXNz");
+
+            // When
+            filter.doFilterInternal(request, response, filterChain);
+
+            // Then
+            assertThat(SecurityContextHolder.getContext()
+                                            .getAuthentication()).isNull();
+
+            then(filterChain).should(times(1))
+                             .doFilter(request, response);
+        }
+
+        @Test
+        void ContinuesFilterChainWithoutAuthentication_MalformedBearerToken() throws Exception {
+            // Given
+            given(request.getHeader("Authorization")).willReturn("Bearer invalid_bearer_token");
 
             // When
             filter.doFilterInternal(request, response, filterChain);
